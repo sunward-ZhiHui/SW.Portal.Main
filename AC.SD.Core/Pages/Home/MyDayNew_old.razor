@@ -16,7 +16,19 @@
 @inject IConfiguration Configuration
 @inject NavigationManager NavigationManager
 
-<DxGrid Data="_ToDoNotesHistory" @ref="Grid"
+
+@* <div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>               
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled"/>               
+            </Items>
+        </DxMenu>
+    </div>
+</div>  *@
+<DxGrid Data="_ToDoNotesHistory" @ref = "Grid"
         DetailRowDisplayMode="GridDetailRowDisplayMode.Always"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         VirtualScrollingEnabled="true"
@@ -35,13 +47,15 @@
         RowClick="OnRowClick"
         RowDoubleClick="OnRowDoubleClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        AllowSelectRowByClick="true">
-    <Columns>        
+        AllowSelectRowByClick="true" 
+        EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving" CustomizeEditModel="Grid_CustomizeEditModel">
+    <Columns>
+        @*  <DxGridCommandColumn Width="160px" NewButtonVisible="false"  DeleteButtonVisible="false"/>  <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>*@
         <DxGridDataColumn FieldName="MainSubject" Caption="Main Subject" ReadOnly="true" Width="180" />
         <DxGridDataColumn FieldName="SubjectName" Caption="Subject" ReadOnly="true" Width="180" />
         <DxGridDataColumn FieldName="NoteName" Caption="Note Name" ReadOnly="true" Width="180" />
         <DxGridDataColumn FieldName="AssignTo" Caption="Assign To" ReadOnly="true" Width="180" />
-       @*  <DxGridDataColumn FieldName="Description">
+        <DxGridDataColumn FieldName="Description">
             <CellDisplayTemplate>
                 @{
                     var item = (ToDoNotesHistory)context.DataItem;
@@ -50,18 +64,18 @@
                     @item.Description
                 </strong>
             </CellDisplayTemplate>
-        </DxGridDataColumn> *@
+        </DxGridDataColumn>
 
-        <DxGridDataColumn FieldName="Url" >
+        <DxGridDataColumn FieldName="Url" Width="180"> 
             <CellDisplayTemplate>
                 @{
                     var item = (ToDoNotesHistory)context.DataItem;
                 }
-                <span class="atag_new" @onclick="() => onOpenUrl(item.Url)">@item.Url</span>
+                <span class="atag_new" @onclick="() => onOpenUrl(item.Url)">@item.Url</span>                
             </CellDisplayTemplate>
         </DxGridDataColumn>
 
-        <DxGridDataColumn FieldName="DueDate" >
+        <DxGridDataColumn FieldName="DueDate" Width="180">
             <CellDisplayTemplate>
                 @{
                     var item = (ToDoNotesHistory)context.DataItem;
@@ -69,15 +83,15 @@
                 <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.DueDate)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
-        <DxGridDataColumn FieldName="RemainDate" >
-            <CellDisplayTemplate>
+        <DxGridDataColumn FieldName="RemainDate" MinWidth="180">
+             <CellDisplayTemplate>
                 @{
                     var item = (ToDoNotesHistory)context.DataItem;
                 }
-                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.RemainDate)</span>
+            <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.RemainDate)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
-        <DxGridDataColumn FieldName="" Caption="Attachment" Width="180">
+        <DxGridDataColumn FieldName="" Caption="Attachment" MinWidth="180">
             <CellDisplayTemplate>
                 @{
                     var item = (ToDoNotesHistory)context.DataItem;
@@ -88,24 +102,134 @@
                 <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
+      
+    </Columns>
+    <EditFormTemplate Context="EditFormContext" >
+        @{
+            var types = (ToDoNotesHistory)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Due Date:" ColSpanMd="6">
+                <DxDateEdit @bind-Date="@types.DueDate" TimeSectionVisible="true"/>
+               
+            </DxFormLayoutItem >
+            <DxFormLayoutItem Caption="Remain Date:" ColSpanMd="6">
+                <DxDateEdit @bind-Date="@types.RemainDate" TimeSectionVisible="true" />
+            </DxFormLayoutItem>
 
-    </Columns>    
-    <DetailRowTemplate>
+            <DxFormLayoutItem Caption="Assign To:" ColSpanMd="12">
+              @*   <DxTagBox Data="_participant"
+                @bind-Values="UserIds"
+                          NullText="Select Users..."
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ValueFieldName="UserID"
+                          TextFieldName="Name"
+                          EditFormat="{0}-{1}"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          CssClass="cw-480">
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                </DxTagBox> *@
+
+                <DxComboBox Data="@_participant"
+                @bind-Value="@types.Users"
+                            CssClass="cw-480"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            EditFormat="{0} {1}"
+                            ValueFieldName="UserID" TextFieldName="Name">
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
+                                            Caption="Name"
+                                           />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                            Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                            Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                            Caption="Company" />
+                    </Columns>
+                </DxComboBox>
+                <ValidationMessage For="@(() => types.Users)" />
+            </DxFormLayoutItem>
+           @*  <DxFormLayoutItem Caption="Status:" ColSpanMd="6">
+                <DxComboBox Data="@StatusList" @bind-Value="@types.Status"
+                            NullText="Select Status..."
+                            @bind-Text="@Text"
+                            ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => types.Status)" />
+            </DxFormLayoutItem> *@
+            <ValidationSummary />
+        </DxFormLayout>
+    </EditFormTemplate>
+   <DetailRowTemplate>
         @{
             var item = (ToDoNotesHistory)context.DataItem;
-        }
+         }
 
         <div style="width:100%">
 
             <div style=" font-size: 14px;">
+               @*  <span style=" color:deeppink"> @item.MainSubject</span>/ *@
+              @*   <span style="color:green"> @item.NoteName</span>  *@
+               
                 <div style="float: right; font-size: 11px;">
-                    <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
+                    <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox> 
                     <span style="float: right; margin-top: 6px;    margin-right: 8px;">@item.Status</span>
                 </div>
+
+                 @*  <div>
+                    @item.SubjectName
+                </div> *@
+              
             </div>
+             
+
             <strong>
-                @item.Description
-            </strong>           
+              
+                    @item.Description
+               
+              
+            </strong>
+
+
+            @* <div style="font-size: 11px; height:22px;">
+            <span style="float:left;">welcome</span>
+            <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
+            </div>*@
+            <div style="margin-top: 10px; margin-bottom: 10px;">
+
+              
+                @* @if (item.participant != null && item.participant.Any())
+                {
+                    @foreach (var items in item.participant)
+                    {
+                        <span class="ptagtodo">
+                            @items.Name,@items.NickName
+                        </span>
+                    }
+                } *@
+            </div>
+           @*  <div style="margin-top: 15px;">
+                <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
+                @if (item.DueDate != null)
+                {
+                    <span class="fa fa-calendar"> </span>
+                    <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.DueDate)</span>
+                }
+
+                @if (item.RemainDate != null)
+                {
+                    <span class="fa fa-bell"> </span>
+
+                    <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.RemainDate)</span>
+                }
+              @{
+                    string dynamicShowSubject = "showOpenDoc_" + item.ID;
+                }
+                <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span> 
+            </div> *@
         </div>
     </DetailRowTemplate>
 </DxGrid>
@@ -185,7 +309,7 @@
     bool Checked { get; set; } = false;
     private List<ViewEmployee>? _participant;
     public IEnumerable<long>? UserIds { get; set; }
-
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -196,7 +320,7 @@
         _participant = await Mediator.Send(new GetAllEmployeeListQuery());
         await UpdateDataAsync();
     }
-    public async Task UpdateDataAsync()
+    public  async Task UpdateDataAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));
@@ -301,14 +425,33 @@
         var ststusupdate = await Mediator.Send(new StatusChangedByUsersQuery(id));
 
         await UpdateDataAsync();
-        //   _ToDoNotesHistory = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
+     //   _ToDoNotesHistory = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
 
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         var list = _ToDoNotesHistory.FirstOrDefault(f => f.ID == (long?)UniqueId);
-        //NavigationManager.NavigateTo($"ViewEmail/" + list.SessionId + "/Todo");
+        //NavigationManager.NavigateTo($"ViewEmail/" + list.SessionId + "/Todo");       
         NavigationManager.NavigateTo($"ViewEmail/{list.SessionId}/Todo");
-    }    
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        // if (e.IsNew)
+        // {
+
+        // }
+        // else
+        // {
+        //     var editModel = (ToDoNotesHistory)e.EditModel;
+        //     var types = (ToDoNotesHistory)e.EditModel;
+
+        //     if (types.Users != null && types.Users.Length != 0)
+        //     {
+        //         string userIdsString = types.Users; // Assuming UserIds is a string
+        //                                             // Split the comma-separated string and parse into an IEnumerable<long>
+        //         UserIds = userIdsString.Split(',').Select(long.Parse);
+        //     }
+        // }
+    }
 }

@@ -85,7 +85,7 @@
 
                         @if (item.IsArchive.GetValueOrDefault(false))
                         {
-                            <span class="urgent_icon"><i class="fa fa-archive" @onclick="@((e) => SubmitUnArchived(item.ID))" aria-hidden="true"></i></span>
+                            <span class="urgent_icon"><i class="fa fa-history" title="Un Archive" alt="Un Archive" @onclick="@((e) => SubmitUnArchived(item.ID))" aria-hidden="true"></i></span>
                         }
                     </strong>
                     <div>
@@ -386,7 +386,7 @@
         
         @if(MyDayFilterText != null)
         {
-            loadLibaryList(MyDayFilterText);
+           await loadLibaryList(MyDayFilterText);
         }
 
         NavigationManager.LocationChanged += OnLocationChanged;

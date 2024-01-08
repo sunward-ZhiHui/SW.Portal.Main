@@ -147,11 +147,11 @@ namespace Infrastructure.Repository.Query
                                     AND TNH.TopicId > 0
                                     AND TNU.Status = 'Open'
                                     AND TNH.Status = 'Open'
-                                    AND (
-                                    CAST(TNH.DueDate AS DATE) BETWEEN DATEADD(DAY, -7, CAST(GETDATE() AS DATE)) AND CAST(GETDATE() AS DATE)
-                                    OR
-                                    CAST(TNH.DueDate AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE))
-                                    )
+                                    --AND (
+                                    --CAST(TNH.DueDate AS DATE) BETWEEN DATEADD(DAY, -7, CAST(GETDATE() AS DATE)) AND CAST(GETDATE() AS DATE)
+                                   -- OR
+                                    --CAST(TNH.DueDate AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE))
+                                    --)
                                 ORDER BY TNH.DueDate";
 
 

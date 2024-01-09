@@ -3516,7 +3516,22 @@
         isArchiveClosed = false;
         //await LoadData();
         toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
-        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+        //await JSRuntime.InvokeAsync<string>("ReloadUrl");
+
+        if (isLeftMenuvisible == "AssignTo")
+        {
+            await RefAssignTo.onAssignToGridRefresh(long.Parse(@SelectedGroup));
+        }
+
+        if (isLeftMenuvisible == "All")
+        {
+            await RefAssignAll.onAssignAllGridRefresh(long.Parse(@SelectedGroup));
+        }
+
+        IsOpenFlyout = false;
+        _discussionList = new List<EmailConversations>();
+        _headTopic = new List<EmailTopics>();
+        isComponentVisible = false;
 
     }
     private async Task SubmitDocDelete(long Id)
@@ -3903,7 +3918,7 @@
 
                 if(_headTopic != null)
                 {
-                    isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+                    //isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
                 }
                 
 
@@ -3947,7 +3962,7 @@
 
         if(_headTopic != null)
         {
-            isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+            //isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
         }
         
 
@@ -4035,9 +4050,9 @@
                 string ridds = todolist[0].TopicId.ToString();
 
                 ActiveTabIndex = 4;
-                OnLeftMenuItemClick("Library");
-                isLeftMenuvisible = "Library";
                 MyDayFilterText = todolist[0].SubjectName;
+                OnLeftMenuItemClick("Library");
+                isLeftMenuvisible = "Library";                
                 await Task.Delay(2000); // Delay for 2 seconds                
                 onSubViewEmailClick(ridds);
             }

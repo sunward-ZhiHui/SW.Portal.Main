@@ -73,7 +73,25 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
     <Columns>
         <DxGridDataColumn FieldName="SubjectName" MinWidth="200" FixedPosition="GridColumnFixedPosition.Left" />
+        <DxGridDataColumn FieldName="IsLatest" Caption="Latest" Width="80" />
         <DxGridDataColumn FieldName="FileName" MinWidth="200" />
+       @*  <DxGridDataColumn FieldName="FileName" MinWidth="200">
+            <CellDisplayTemplate>
+                @{
+                    var item = (Documents)context.DataItem;
+                }
+                @if (item.IsLatest.GetValueOrDefault(false))
+                {
+                   <span style="color:orangered;">@item.FileName</span>
+                }
+                else
+                {
+                    <span>@item.FileName</span>
+                }
+
+
+            </CellDisplayTemplate>
+        </DxGridDataColumn> *@
         <DxGridDataColumn FieldName="AddedBy" MinWidth="200" />
         <DxGridDataColumn FieldName="AddedDate" Width="180px">
             <CellDisplayTemplate>

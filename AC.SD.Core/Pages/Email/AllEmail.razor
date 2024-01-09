@@ -19,11 +19,7 @@
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
+        ShowAllRows="true"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 235px);"
@@ -72,9 +68,7 @@
     <DetailRowTemplate>
         <SubViewAllEmail @ref=RefSubAssignAll Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
     </DetailRowTemplate>
-    <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-    </TotalSummary>
+   
 </DxGrid>
 
 @code{

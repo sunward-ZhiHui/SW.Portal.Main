@@ -20,12 +20,11 @@
 </style>
 <DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true" ApplyBackgroundShading="true" IndicatorAreaVisible="false" Text="Fetching Data...">
     <DxGrid Data="@_forumTopicTo" 
-            PageSize="20" EditMode="GridEditMode.EditForm"
-            PagerNavigationMode="PagerNavigationMode.InputBox" 
+            EditMode="GridEditMode.EditForm"
+            ShowAllRows="true"
             KeyFieldName="ReplyId"   
             CssClass="w-100 subviewEmail"
-            SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            SelectionMode="GridSelectionMode.Multiple"            
             RowClick="OnEmailAllRowClick"
             AutoExpandAllGroupRows="true"
             AllowSelectRowByClick="true">

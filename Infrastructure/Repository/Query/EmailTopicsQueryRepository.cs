@@ -443,7 +443,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("Option", "SELECT_ASSIGN_ALL");
 
                         //var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 300);
-                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        //var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 600); // Increase timeout to 10 minutes
+
 
                         return result.ToList();
                     }

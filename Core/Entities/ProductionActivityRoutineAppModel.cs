@@ -100,6 +100,7 @@ namespace Core.Entities
         public DateTime? CheckedDate { get; set; }
         public string? CheckedRemark { get; set; }
         public string? CheckedByUser { get; set; }
+        public string? GetTypes { get; set; }
     }
     public class ProductionActivityRoutineAppLineQaCheckerModel
     {

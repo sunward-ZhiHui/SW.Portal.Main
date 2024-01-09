@@ -3,6 +3,8 @@ using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
+using DevExpress.Data.Filtering.Helpers;
+using DevExpress.Data.Linq.Helpers;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.AspNetCore.Http;
@@ -10,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NAV;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data;
@@ -240,6 +243,10 @@ namespace Infrastructure.Repository.Query
                     query += "\n\rAND CAST(t1.AddedDate AS Date) >='" + from + "'\r\n";
                     query += "\n\rAND CAST(t1.AddedDate AS Date)<='" + to + "'\r\n";
                 }
+                if (value.GetTypes == "User")
+                {
+                    query += "\n\rAND t1.AddedByUserID=@AddedByUserID";
+                }
                 var employeeAll = await GetAllUserWithoutStatussAsync();
                 var productActivityApps = new List<ProductActivityAppModel>();
                 using (var connection = CreateConnection())
@@ -338,6 +345,10 @@ namespace Infrastructure.Repository.Query
                             var productActivityCaseResponsDutyIds = templateTestCaseCheckListResponseDuty.Where(r => responseId.Contains(r.ProductActivityCaseResponsId.Value)).Select(t => t.ProductActivityCaseResponsDutyId).ToList();
                             if (productActivityCaseResponsDutyIds != null && productActivityCaseResponsDutyIds.Count > 0)
                             {
+                                if (s.AddedByUserID == userId)
+                                {
+                                    responsibilityUsers.Add(userId.Value);
+                                }
                                 var empIds = templateTestCaseCheckListResponseResponsible.Where(r => productActivityCaseResponsDutyIds.Contains(r.ProductActivityCaseResponsDutyId.Value)).Select(s => s.EmployeeId.Value).ToList();
 
                                 if (empIds != null && empIds.Count > 0)
@@ -959,6 +970,172 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        public async Task<ProductActivityAppModel> UpdateActivityChecker(ProductActivityAppModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("IsCheckNoIssue", value.IsCheckNoIssue);
+                        parameters.Add("IsCheckReferSupportDocument", value.IsCheckReferSupportDocument);
+                        parameters.Add("CheckedRemark", value.CheckedRemark, DbType.String);
+                        parameters.Add("CheckedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("CheckedById", value.CheckedById);
+                        parameters.Add("ProductionActivityAppLineId", value.ProductionActivityAppLineId);
+                        var query = "Update ProductionActivityAppLine SET CheckedDate=@CheckedDate,@CheckedById=@CheckedById,IsCheckNoIssue=@IsCheckNoIssue,IsCheckReferSupportDocument=@IsCheckReferSupportDocument,CheckedRemark=@CheckedRemark WHERE ProductionActivityAppLineId=@ProductionActivityAppLineId";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
+
+        public async Task<IReadOnlyList<ProductionActivityCheckedDetailsModel>> GetProductionActivityCheckedDetails(long? value)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ProductionActivityAppLineId", value);
+                var query = "select t1.*,t2.Value as ActivityResultName,t4.userName as checkedByUserName,t3.Value as ActivityStatusName from ProductionActivityCheckedDetails t1" +
+                    " LEFT JOIN ApplicationMasterDetail t2 ON t2.ApplicationMasterDetailID=t1.ActivityResultID LEFT JOIN ApplicationUser t4 ON t4.userId=t1.checkedByID " +
+                    " LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t1.ActivityStatusID  where t1.ProductionActivityAppLineId =@ProductionActivityAppLineId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ProductionActivityCheckedDetailsModel>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ProductionActivityCheckedDetailsModel> DeleteProductionActivityCheckedDetails(ProductionActivityCheckedDetailsModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ProductionActivityCheckedDetailsId", value.ProductionActivityCheckedDetailsId);
+                        var query = string.Empty;
+                        query += "Delete from  ProductionActivityCheckedDetails WHERE ProductionActivityCheckedDetailsId=@ProductionActivityCheckedDetailsId;";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ProductionActivityCheckedDetailsModel> InsertProductionActivityCheckedDetails(ProductionActivityCheckedDetailsModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ProductionActivityCheckedDetailsId", value.ProductionActivityCheckedDetailsId);
+                        parameters.Add("ProductionActivityAppId", value.ProductionActivityAppId);
+                        parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                        parameters.Add("ActivityInfoId", value.ActivityInfoId);
+                        parameters.Add("ActivityStatusId", value.ActivityStatusId);
+                        parameters.Add("ActivityResultId", value.ActivityResultId);
+                        parameters.Add("AddedByUserID", value.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", value.ModifiedDate);
+                        parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                        parameters.Add("ProductionActivityAppLineId", value.ProductionActivityAppLineId);
+                        parameters.Add("IsCheckNoIssue", value.IsCheckNoIssue);
+                        parameters.Add("CheckedById", value.CheckedById);
+                        parameters.Add("StatusCodeID", value.StatusCodeID);
+                        parameters.Add("CommentImageType", value.CommentImageType);
+                        parameters.Add("IsCheckReferSupportDocument", value.IsCheckReferSupportDocument);
+                        parameters.Add("CheckedComment", value.CheckedComment, DbType.String);
+                        parameters.Add("CheckedDate", value.CheckedDate, DbType.DateTime);
+                        string hex = string.Empty;
+                        if (value.CommentImage != null && !string.IsNullOrEmpty(value.CommentImages))
+                        {
+                            var image = Convert.FromBase64String(value.CommentImages);
+                            hex = BitConverter.ToString(image);
+                            hex = hex.Replace("-", "");
+                            hex = "0x" + hex;
+                        }
+
+                        if (value.ProductionActivityCheckedDetailsId > 0)
+                        {
+
+                            var query = "Update ProductionActivityCheckedDetails Set ActivityStatusId=@ActivityStatusId,ActivityResultId=@ActivityResultId,SessionId=@SessionId,ProductionActivityAppId=@ProductionActivityAppId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,IsCheckNoIssue=@IsCheckNoIssue,CheckedById=@CheckedById,CheckedComment=@CheckedComment,CommentImageType=@CommentImageType,IsCheckReferSupportDocument=@IsCheckReferSupportDocument,CheckedDate=@CheckedDate\n\r";
+                            if (!string.IsNullOrEmpty(hex))
+                            {
+                                query += ",CommentImage=(CONVERT(VARBINARY(MAX), '" + hex + "',1))\n\r";
+                            }
+                            query += "Where ProductionActivityCheckedDetailsId=@ProductionActivityCheckedDetailsId;";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+                        }
+                        else
+                        {
+
+                            var query = "INSERT INTO ProductionActivityCheckedDetails(CheckedDate,ActivityStatusId,ActivityResultId,SessionId,ProductionActivityAppId,ActivityInfoId,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,ProductionActivityAppLineId,IsCheckNoIssue,CheckedById,CheckedComment,CommentImageType,IsCheckReferSupportDocument\n\r";
+                            if (!string.IsNullOrEmpty(hex))
+                            {
+                                query += ",CommentImage \n\r";
+                            }
+                            query += ")\n\r";
+                            query += "OUTPUT INSERTED.ProductionActivityCheckedDetailsId  VALUES (@CheckedDate,@ActivityStatusId,@ActivityResultId,@SessionId,@ProductionActivityAppId,@ActivityInfoId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@ProductionActivityAppLineId,@IsCheckNoIssue,@CheckedById,@CheckedComment,@CommentImageType,@IsCheckReferSupportDocument\n\r";
+                            if (!string.IsNullOrEmpty(hex))
+                            {
+                                query += ",(CONVERT(VARBINARY(MAX), '" + hex + "',1))\n\r";
+                            }
+                            query += ");";
+                            var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
+
+                            value.ProductionActivityCheckedDetailsId = insertedId;
+                        }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

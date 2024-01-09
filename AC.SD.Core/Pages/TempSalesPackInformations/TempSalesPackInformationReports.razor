@@ -36,7 +36,7 @@
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_employeeItems"
-            KeyFieldName="TempSalesPackInformationID"
+            KeyFieldName="FinishProductGeneralInfoLineID"
             EditModelSaving="Grid_EditModelSaving"
             DataItemDeleting="Grid_DataItemDeleting"
             CustomizeElement="Grid_CustomizeElement"
@@ -143,8 +143,8 @@
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FinishProductGeneralInfoID");
-        _selectedItems = _employeeItems.FirstOrDefault(f => f.FinishProductGeneralInfoID == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FinishProductGeneralInfoLineID");
+        _selectedItems = _employeeItems.FirstOrDefault(f => f.FinishProductGeneralInfoLineID == (long?)UniqueId);
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

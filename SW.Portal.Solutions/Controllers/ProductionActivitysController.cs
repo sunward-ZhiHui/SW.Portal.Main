@@ -16,11 +16,11 @@ namespace SW.Portal.Solutions.Controllers
         {
             _mediator = mediator;
         }
-        [HttpPost("GetProductionActivityLists")]
-        public async Task<ActionResult<ResponseModel<List<ProductActivitysAppModel>>>> GetProductionActivityLists(ProductActivityAppModel productActivityAppModel)
+        [HttpGet("GetProductionActivityLists")]
+        public async Task<ActionResult<ResponseModel<List<ProductActivitysAppModel>>>> GetProductionActivityLists(long? UserId)
         {
-            //ProductActivityAppModel productActivityAppModel = new ProductActivityAppModel();
-            //productActivityAppModel.AddedByUserID = 1;
+            ProductActivityAppModel productActivityAppModel = new ProductActivityAppModel();
+            productActivityAppModel.AddedByUserID = UserId;
             List<ProductActivitysAppModel> productActivityAppModels = new List<ProductActivitysAppModel>();
             var response = new ResponseModel<ProductActivitysAppModel>();
             List<ProductActivityAppModel> result = null;

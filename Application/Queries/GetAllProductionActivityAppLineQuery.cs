@@ -123,6 +123,47 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class UpdateActivityChecker : PagedRequest, IRequest<ProductActivityAppModel>
+    {
+        public ProductActivityAppModel ProductActivityAppModel { get; private set; }
+        public UpdateActivityChecker(ProductActivityAppModel productActivityAppModel)
+        {
+            this.ProductActivityAppModel = productActivityAppModel;
+
+        }
+    }
+    public class InsertProductionActivityCheckedDetails : PagedRequest, IRequest<ProductionActivityCheckedDetailsModel>
+    {
+        public ProductionActivityCheckedDetailsModel ProductionActivityCheckedDetailsModel { get; private set; }
+        public InsertProductionActivityCheckedDetails(ProductionActivityCheckedDetailsModel productionActivityCheckedDetailsModel)
+        {
+            this.ProductionActivityCheckedDetailsModel = productionActivityCheckedDetailsModel;
+        }
+    }
+    public class DeleteProductionActivityCheckedDetails : PagedRequest, IRequest<ProductionActivityCheckedDetailsModel>
+    {
+        public ProductionActivityCheckedDetailsModel ProductionActivityCheckedDetailsModel { get; private set; }
+        public DeleteProductionActivityCheckedDetails(ProductionActivityCheckedDetailsModel productionActivityCheckedDetailsModel)
+        {
+            this.ProductionActivityCheckedDetailsModel = productionActivityCheckedDetailsModel;
+        }
+    }
+    public class GetProductionActivityCheckedDetails : PagedRequest, IRequest<List<ProductionActivityCheckedDetailsModel>>
+    {
+        public long? ProductionActivityCheckedDetailsModel { get; private set; }
+        public GetProductionActivityCheckedDetails(long? productionActivityCheckedDetailsModel)
+        {
+            this.ProductionActivityCheckedDetailsModel = productionActivityCheckedDetailsModel;
+        }
+    }
+
+
+
+
+
+
+
+
 
 
 
@@ -185,6 +226,31 @@ namespace Application.Queries
         {
             this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
 
+        }
+    }
+
+    public class InsertProductionRoutineCheckedDetails : PagedRequest, IRequest<ProductionActivityRoutineCheckedDetailsModel>
+    {
+        public ProductionActivityRoutineCheckedDetailsModel ProductionActivityRoutineCheckedDetailsModel { get; private set; }
+        public InsertProductionRoutineCheckedDetails(ProductionActivityRoutineCheckedDetailsModel productionActivityRoutineCheckedDetailsModel)
+        {
+            this.ProductionActivityRoutineCheckedDetailsModel = productionActivityRoutineCheckedDetailsModel;
+        }
+    }
+    public class DeleteProductionRoutineCheckedDetails : PagedRequest, IRequest<ProductionActivityRoutineCheckedDetailsModel>
+    {
+        public ProductionActivityRoutineCheckedDetailsModel ProductionActivityRoutineCheckedDetailsModel { get; private set; }
+        public DeleteProductionRoutineCheckedDetails(ProductionActivityRoutineCheckedDetailsModel productionActivityRoutineCheckedDetailsModel)
+        {
+            this.ProductionActivityRoutineCheckedDetailsModel = productionActivityRoutineCheckedDetailsModel;
+        }
+    }
+    public class GetProductionRoutineCheckedDetails : PagedRequest, IRequest<List<ProductionActivityRoutineCheckedDetailsModel>>
+    {
+        public long? ProductionActivityRoutineCheckedDetailsModel { get; private set; }
+        public GetProductionRoutineCheckedDetails(long? productionActivityRoutineCheckedDetailsModel)
+        {
+            this.ProductionActivityRoutineCheckedDetailsModel = productionActivityRoutineCheckedDetailsModel;
         }
     }
 }

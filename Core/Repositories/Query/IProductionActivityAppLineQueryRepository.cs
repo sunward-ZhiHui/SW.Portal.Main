@@ -12,7 +12,7 @@ namespace Core.Repositories.Query
     public interface IProductionActivityQueryRepository : IQueryRepository<ProductionActivityAppLine>
     {
         Task<IReadOnlyList<ProductActivityAppModel>> GetAllAsync(ProductActivityAppModel productActivityAppModel);
-        Task<IReadOnlyList<ProductionActivityApp>>GetAlllocAsync(long? location);
+        Task<IReadOnlyList<ProductionActivityApp>> GetAlllocAsync(long? location);
         Task<ProductActivityAppModel> GetProductActivityAppLineOneItem(long? ProductionActivityAppLineID);
         Task<ProductActivityAppModel> UpdateproductActivityAppLineCommentField(ProductActivityAppModel productActivityAppModel);
         Task<ProductActivityAppModel> DeleteproductActivityAppLine(ProductActivityAppModel productActivityAppModel);
@@ -24,8 +24,11 @@ namespace Core.Repositories.Query
         Task<ProductActivityAppModel> UpdateActivityStatus(ProductActivityAppModel value);
         Task<IReadOnlyList<view_ActivityEmailSubjects>> GetProductActivityEmailActivitySubjects(long? ActivityMasterId, string? ActivityType, long? UserId);
 
+        Task<ProductActivityAppModel> UpdateActivityChecker(ProductActivityAppModel value);
 
+        Task<IReadOnlyList<ProductionActivityCheckedDetailsModel>> GetProductionActivityCheckedDetails(long? value);
+        Task<ProductionActivityCheckedDetailsModel> InsertProductionActivityCheckedDetails(ProductionActivityCheckedDetailsModel value);
 
-        
+        Task<ProductionActivityCheckedDetailsModel> DeleteProductionActivityCheckedDetails(ProductionActivityCheckedDetailsModel value);
     }
 }

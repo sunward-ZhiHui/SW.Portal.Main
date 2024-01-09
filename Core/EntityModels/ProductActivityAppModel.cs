@@ -102,6 +102,13 @@ namespace Core.EntityModels
         public string? NoAction { get; set; }
         public long? FileProfileTypeId { get; set; }
         public int? IsDocuments { get; set; }
+        public bool? IsCheckNoIssue { get; set; } = false;
+        public bool? IsCheckReferSupportDocument { get; set; } = false;
+        public long? CheckedById { get; set; }
+        public DateTime? CheckedDate { get; set; }
+        public string? CheckedRemark { get; set; }
+        public string? CheckedByUser { get; set; }
+        public string? GetTypes { get; set; }
     }
     public class MultipleProductioAppLineItemLists
     {

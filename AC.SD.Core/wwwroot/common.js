@@ -135,11 +135,47 @@ function showSlides(n) {
 }
 
 function ReloadUrl() {
-    
+
     location.reload();
+}
+/*function elementBySrcId () {
+        var idValue = document.getElementById("onCopyImagesOn");
+        return idValue.src;
+}*/
+/*window.elementBySrcId = function () {
+    var idValue = document.getElementById("onCopyImagesOn");
+    console.log(idValue);
+    return idValue.src;
+}*/
+window.interopDuringOnInit = function () {
+    var srcs = document.getElementById("onCopyImagesOn").src;
+    var result = string2Bin(srcs);
+    console.log(result);
+    return srcs;
+}
+function string2Bin(str) {
+    var result = [];
+    for (var i = 0; i < str.length; i++) {
+        result.push(str.charCodeAt(i).toString(2));
+    }
+    return result;
+}
+async function getClipboardImage() {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+        const blob = await item.getType('image/png');
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        return new Promise((resolve, reject) => {
+            reader.onloadend = () => {
+                document.getElementById("onCopyImagesOn").src = reader.result;
+                resolve(reader.result);
+            };
+        });
+    }
 }
 
 
 
 
-	
+

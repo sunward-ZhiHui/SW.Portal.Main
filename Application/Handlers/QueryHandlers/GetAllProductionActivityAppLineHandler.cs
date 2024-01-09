@@ -160,6 +160,62 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class UpdateActivityCheckerHandler : IRequestHandler<UpdateActivityChecker, ProductActivityAppModel>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public UpdateActivityCheckerHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductActivityAppModel> Handle(UpdateActivityChecker request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateActivityChecker(request.ProductActivityAppModel);
+        }
+    }
+    public class InsertProductionActivityCheckedDetailsHandler : IRequestHandler<InsertProductionActivityCheckedDetails, ProductionActivityCheckedDetailsModel>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public InsertProductionActivityCheckedDetailsHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityCheckedDetailsModel> Handle(InsertProductionActivityCheckedDetails request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.InsertProductionActivityCheckedDetails(request.ProductionActivityCheckedDetailsModel);
+        }
+    }
+    public class DeleteProductionActivityCheckedDetailsHandler : IRequestHandler<DeleteProductionActivityCheckedDetails, ProductionActivityCheckedDetailsModel>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public DeleteProductionActivityCheckedDetailsHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityCheckedDetailsModel> Handle(DeleteProductionActivityCheckedDetails request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.DeleteProductionActivityCheckedDetails(request.ProductionActivityCheckedDetailsModel);
+        }
+    }
+
+    public class ProductionActivityCheckedDetailsModelHandler : IRequestHandler<GetProductionActivityCheckedDetails, List<ProductionActivityCheckedDetailsModel>>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public ProductionActivityCheckedDetailsModelHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<ProductionActivityCheckedDetailsModel>> Handle(GetProductionActivityCheckedDetails request, CancellationToken cancellationToken)
+        {
+            return (List<ProductionActivityCheckedDetailsModel>)await _productionactivityQueryRepository.GetProductionActivityCheckedDetails(request.ProductionActivityCheckedDetailsModel);
+        }
+
+    }
+
+
+
+
+
+
 
 
 
@@ -249,5 +305,47 @@ namespace Application.Handlers.QueryHandlers
         {
             return await _productionactivityQueryRepository.UpdateRoutineChecker(request.ProductionActivityRoutineAppModel);
         }
+    }
+
+
+
+
+    public class InsertProductionRoutineCheckedDetailsHandler : IRequestHandler<InsertProductionRoutineCheckedDetails, ProductionActivityRoutineCheckedDetailsModel>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public InsertProductionRoutineCheckedDetailsHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityRoutineCheckedDetailsModel> Handle(InsertProductionRoutineCheckedDetails request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.InsertProductionActivityRoutineCheckedDetails(request.ProductionActivityRoutineCheckedDetailsModel);
+        }
+    }
+    public class DeleteProductionRoutineCheckedDetailsHandler : IRequestHandler<DeleteProductionRoutineCheckedDetails, ProductionActivityRoutineCheckedDetailsModel>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public DeleteProductionRoutineCheckedDetailsHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityRoutineCheckedDetailsModel> Handle(DeleteProductionRoutineCheckedDetails request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.DeleteProductionActivityRoutineCheckedDetails(request.ProductionActivityRoutineCheckedDetailsModel);
+        }
+    }
+
+    public class ProductionRoutineCheckedDetailsModelHandler : IRequestHandler<GetProductionRoutineCheckedDetails, List<ProductionActivityRoutineCheckedDetailsModel>>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public ProductionRoutineCheckedDetailsModelHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<ProductionActivityRoutineCheckedDetailsModel>> Handle(GetProductionRoutineCheckedDetails request, CancellationToken cancellationToken)
+        {
+            return (List<ProductionActivityRoutineCheckedDetailsModel>)await _productionactivityQueryRepository.GetProductionActivityRoutineCheckedDetails(request.ProductionActivityRoutineCheckedDetailsModel);
+        }
+
     }
 }

@@ -15,12 +15,14 @@
         var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
        
         if (checkauthorize == null)
-        {
+        {          
+
             NavigationManager.NavigateTo($"Login");
         }
         else
         {
             NavigationManager.NavigateTo("Dashboard");
         }
+       
     }
 }

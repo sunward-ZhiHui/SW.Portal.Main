@@ -24,6 +24,7 @@ using Microsoft.Extensions.Hosting;
 using Blazored.Toast;
 using AC.SD.Core.Services;
 using Application.Common.Helper;
+using Blazored.LocalStorage;
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
 
@@ -83,7 +84,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 Configuration = services.BuildServiceProvider().GetService<IConfiguration>();
 
                 services.AddHttpClient<HttpClient>(ConfigureHttpClient);
-
+                services.AddBlazoredLocalStorage();
                 this.ConfigureServices(context, services);
 
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

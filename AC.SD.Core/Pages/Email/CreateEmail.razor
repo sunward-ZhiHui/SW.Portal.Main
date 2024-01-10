@@ -1160,8 +1160,8 @@ else
             CategoryData.Name = null;
             CategoryData.UserTag = null;
         }
-       
-        
+
+
         BackEnabled = false;
         IsDraftEnabled = true;
         IsActiveSessionId = true;
@@ -1170,7 +1170,7 @@ else
         {
             await msgrichEdit.NewDocumentAsync();
         }
-        
+
         //uploadComponent.RemoveAllFiles();
         await JSRuntime.InvokeAsync<string>("hideLoading");
         NavigationManager.NavigateTo($"CreateEmail");
@@ -1201,7 +1201,7 @@ else
     protected override async Task OnInitializedAsync() {  
         _editContext = new EditContext(Data);
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
-       
+
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         onloadSession();
         CurrentUplodCount = 0;
@@ -1211,8 +1211,13 @@ else
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        AppUserId = applicationUser.UserID;
-        _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
+        if(applicationUser != null)
+        {
+            AppUserId = applicationUser.UserID;
+            _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
+        }
+
+
 
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
 
@@ -1233,16 +1238,19 @@ else
         //var appusers = await Mediator.Send(new GetAllApplicationUserQuery());
         //_participant = appusers;
 
+        if(applicationUser != null)
+        {
+            _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
-        _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _Allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
-        _Allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _CCparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _OnBehalfparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
-        _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-        _CCparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-        _OnBehalfparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
-        Data.From = applicationUser.UserName;
+            Data.From = applicationUser.UserName;
+        }
+       
 
         if (ActiveSessionId != null)
         {

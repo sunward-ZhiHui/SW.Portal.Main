@@ -78,9 +78,9 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
+                    var res = await connection.QueryAsync<EmailConversations>(query, parameters);
 
-                    return res;
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -396,8 +396,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {                    
-                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailConversations>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -418,8 +418,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {  
-                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailConversations>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -469,8 +469,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailConversations>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -568,14 +568,14 @@ namespace Infrastructure.Repository.Query
                             var parametersDocs = new DynamicParameters();
                             parametersDocs.Add("SessionID", topic.SessionId);
 
-                            var subQueryDocsResults = connection.Query<EmailDocumentModel>(subQueryDocs, parametersDocs).ToList();
+                            var subQueryDocsResults = await connection.QueryAsync<EmailDocumentModel>(subQueryDocs, parametersDocs);
 
                             var subQueryassignTo = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignTo FCA
                                         INNER JOIN Employee E on E.UserID = FCA.UserId
                                         where FCA.ConversationId = @Id";
                             var parametersassignTo = new DynamicParameters();
                             parametersassignTo.Add("Id", topic.ID, DbType.Int64);
-                            var subQueryAssignToResults = connection.Query<EmailAssignToList>(subQueryassignTo, parametersassignTo).ToList();
+                            var subQueryAssignToResults = await connection.QueryAsync<EmailAssignToList>(subQueryassignTo, parametersassignTo);
 
 
                             var subQueryassignCC = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignCC FCA
@@ -583,14 +583,14 @@ namespace Infrastructure.Repository.Query
                                         where FCA.ConversationId = @Id";
                             var parametersassignCC = new DynamicParameters();
                             parametersassignCC.Add("Id", topic.ID, DbType.Int64);
-                            var subQueryAssignCCResults = connection.Query<EmailAssignToList>(subQueryassignCC, parametersassignCC).ToList();
+                            var subQueryAssignCCResults = await connection.QueryAsync<EmailAssignToList>(subQueryassignCC, parametersassignCC);
 
 
 
                             topic.ReplyConversation = subQueryResults.ToList();
-                            topic.documents = subQueryDocsResults;
-                            topic.AssignToList = subQueryAssignToResults;
-                            topic.AssignCCList = subQueryAssignCCResults;
+                            topic.documents = subQueryDocsResults.ToList();
+                            topic.AssignToList = subQueryAssignToResults.ToList();
+                            topic.AssignCCList = subQueryAssignCCResults.ToList();
 
                             foreach (var conversation in topic.ReplyConversation)
                             {
@@ -601,7 +601,7 @@ namespace Infrastructure.Repository.Query
                                 parametersReplyDocs.Add("SessionID", conversation.SessionId);
                                 parametersReplyDocs.Add("ReplyId", conversation.ReplyId, DbType.Int64);
 
-                                var subQueryReplyDocsResults = connection.Query<EmailDocumentModel>(subQueryReplyDocs, parametersReplyDocs).ToList();
+                                var subQueryReplyDocsResults = await connection.QueryAsync<EmailDocumentModel>(subQueryReplyDocs, parametersReplyDocs);
 
                                 var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
@@ -609,7 +609,7 @@ namespace Infrastructure.Repository.Query
                                 WHERE FCT.ConversationId = @ConversationId";
                                 var replyparametersassignTo = new DynamicParameters();
                                 replyparametersassignTo.Add("ConversationId", conversation.ID, DbType.Int64);
-                                var replysubQueryAssignToResults = connection.Query<EmailAssignToList>(replysubQueryassignTo, replyparametersassignTo).ToList();
+                                var replysubQueryAssignToResults = await connection.QueryAsync<EmailAssignToList>(replysubQueryassignTo, replyparametersassignTo);
 
                                 var replysubQueryassignCC = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
@@ -617,7 +617,7 @@ namespace Infrastructure.Repository.Query
                                 WHERE FCT.ConversationId = @ConversationId";
                                 var replyparametersassignCC = new DynamicParameters();
                                 replyparametersassignCC.Add("ConversationId", conversation.ID, DbType.Int64);
-                                var replysubQueryAssignCCResults = connection.Query<EmailAssignToList>(replysubQueryassignCC, replyparametersassignCC).ToList();
+                                var replysubQueryAssignCCResults = await connection.QueryAsync<EmailAssignToList>(replysubQueryassignCC, replyparametersassignCC);
 
 
 
@@ -642,9 +642,9 @@ namespace Infrastructure.Repository.Query
                                 //var replyBysubQueryResults = connection.Query<EmailConversations>(replyBysubQuery, reparameterss).ToList();
 
 
-                                conversation.documents = subQueryReplyDocsResults;
-                                conversation.AssignToList = replysubQueryAssignToResults;
-                                conversation.AssignCCList = replysubQueryAssignCCResults;
+                                conversation.documents = subQueryReplyDocsResults.ToList();
+                                conversation.AssignToList = replysubQueryAssignToResults.ToList();
+                                conversation.AssignCCList = replysubQueryAssignCCResults.ToList();
                                 //conversation.ReplyConversation = replyBysubQueryResults;
                             }
 
@@ -886,8 +886,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {                    
-                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailConversations>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -909,8 +909,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {                    
-                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailConversations>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -1131,14 +1131,14 @@ namespace Infrastructure.Repository.Query
                         var parametersDocs = new DynamicParameters();
                         parametersDocs.Add("SessionID", topic.SessionId);
 
-                        var subQueryDocsResults = connection.Query<EmailDocumentModel>(subQueryDocs, parametersDocs).ToList();
+                        var subQueryDocsResults = await connection.QueryAsync<EmailDocumentModel>(subQueryDocs, parametersDocs);
 
                         var subQueryassignTo = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignTo FCA
                                         INNER JOIN Employee E on E.UserID = FCA.UserId
                                         where FCA.ConversationId = @Id";
                         var parametersassignTo = new DynamicParameters();
                         parametersassignTo.Add("Id", topic.ID, DbType.Int64);
-                        var subQueryAssignToResults = connection.Query<EmailAssignToList>(subQueryassignTo, parametersassignTo).ToList();
+                        var subQueryAssignToResults = await connection.QueryAsync<EmailAssignToList>(subQueryassignTo, parametersassignTo);
 
 
                         var subQueryassignCC = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignCC FCA
@@ -1146,13 +1146,13 @@ namespace Infrastructure.Repository.Query
                                         where FCA.ConversationId = @Id";
                         var parametersassignCC = new DynamicParameters();
                         parametersassignCC.Add("Id", topic.ID, DbType.Int64);
-                        var subQueryAssignCCResults = connection.Query<EmailAssignToList>(subQueryassignCC, parametersassignCC).ToList();
+                        var subQueryAssignCCResults = await connection.QueryAsync<EmailAssignToList>(subQueryassignCC, parametersassignCC);
 
 
                         topic.ReplyConversation = subQueryResults.ToList();
-                        topic.documents = subQueryDocsResults;
-                        topic.AssignToList = subQueryAssignToResults;
-                        topic.AssignCCList = subQueryAssignCCResults;
+                        topic.documents = subQueryDocsResults.ToList();
+                        topic.AssignToList = subQueryAssignToResults.ToList();
+                        topic.AssignCCList = subQueryAssignCCResults.ToList();
 
                         foreach (var conversation in topic.ReplyConversation)
                         {
@@ -1163,7 +1163,7 @@ namespace Infrastructure.Repository.Query
                             parametersReplyDocs.Add("SessionID", conversation.SessionId);
                             //parametersReplyDocs.Add("ReplyId", conversation.ReplyId, DbType.Int64);
 
-                            var subQueryReplyDocsResults = connection.Query<EmailDocumentModel>(subQueryReplyDocs, parametersReplyDocs).ToList();
+                            var subQueryReplyDocsResults = await connection.QueryAsync<EmailDocumentModel>(subQueryReplyDocs, parametersReplyDocs);
 
                             var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
                                               INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
@@ -1171,7 +1171,7 @@ namespace Infrastructure.Repository.Query
                                               WHERE FCT.ConversationId = @ConversationId";
                             var replyparametersassignTo = new DynamicParameters();
                             replyparametersassignTo.Add("ConversationId", conversation.ID, DbType.Int64);
-                            var replysubQueryAssignToResults = connection.Query<EmailAssignToList>(replysubQueryassignTo, replyparametersassignTo).ToList();
+                            var replysubQueryAssignToResults = await connection.QueryAsync<EmailAssignToList>(replysubQueryassignTo, replyparametersassignTo);
 
 
 
@@ -1181,7 +1181,7 @@ namespace Infrastructure.Repository.Query
                                               WHERE FCT.ConversationId = @ConversationId";
                             var replyparametersassignCC = new DynamicParameters();
                             replyparametersassignCC.Add("ConversationId", conversation.ID, DbType.Int64);
-                            var replysubQueryAssignCCResults = connection.Query<EmailAssignToList>(replysubQueryassignCC, replyparametersassignCC).ToList();
+                            var replysubQueryAssignCCResults = await connection.QueryAsync<EmailAssignToList>(replysubQueryassignCC, replyparametersassignCC);
 
 
 
@@ -1206,9 +1206,9 @@ namespace Infrastructure.Repository.Query
                             //var replyBysubQueryResults = connection.Query<EmailConversations>(replyBysubQuery, reparameterss).ToList();
 
 
-                            conversation.documents = subQueryReplyDocsResults;
-                            conversation.AssignToList = replysubQueryAssignToResults;
-                            conversation.AssignCCList = replysubQueryAssignCCResults;
+                            conversation.documents = subQueryReplyDocsResults.ToList();
+                            conversation.AssignToList = replysubQueryAssignToResults.ToList();
+                            conversation.AssignCCList = replysubQueryAssignCCResults.ToList();
                             //conversation.ReplyConversation = replyBysubQueryResults;
                         }
 
@@ -1444,7 +1444,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("UserId", UserId);
                         parameters.Add("Option", option);                        
 
-                        var result = connection.Query<Documents>("sp_Select_EmailDocList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<Documents>("sp_Select_EmailDocList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -1529,8 +1529,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<Documents>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<Documents>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -1568,8 +1568,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {   
-                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
-                    return res;                   
+                    var res = await connection.QueryAsync<EmailConversations>(query, parameters);
+                    return res.ToList();                   
                 }
             }
             catch (Exception exp)
@@ -1590,8 +1590,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailConversationAssignTo>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -1612,8 +1612,8 @@ namespace Infrastructure.Repository.Query
 
 				using (var connection = CreateConnection())
 				{
-					var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
-					return res;
+					var res = await connection.QueryAsync<EmailConversationAssignTo>(query, parameters);
+					return res.ToList();
 				}
 			}
 			catch (Exception exp)
@@ -1834,7 +1834,7 @@ namespace Infrastructure.Repository.Query
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
-                            var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailConvAssignTo", parameters, commandType: CommandType.StoredProcedure);
+                            var result = await connection.QueryFirstOrDefaultAsync<long>("sp_Ins_EmailConvAssignTo", parameters, commandType: CommandType.StoredProcedure);
                             return result;
 
                             //return rowsAffected;

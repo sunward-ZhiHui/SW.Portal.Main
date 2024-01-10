@@ -43,7 +43,7 @@ namespace Infrastructure.Repository.Query
         }       
         public async Task<string> GetItemOne(string key)
         {
-            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "PushToken");
+            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
             //if (json == null)
             //    return default;
             //var result = JsonSerializer.Deserialize<ApplicationUser>(json).UserName;

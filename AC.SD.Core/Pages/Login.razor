@@ -1,10 +1,11 @@
 ﻿@page "/login"
-
+@page "/login/{returnUrl}"
 @inject IAlertService AlertService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @layout LoginLayout
 @inherits LayoutComponentBase
+@using System.Net
 @using global::Core.Entities;
 @using AC.SD.Core.Data.Account;
 @using global::Core.Repositories.Query;
@@ -25,6 +26,7 @@
 @using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@attribute [AllowAnonymous]
 <link href="_content/AC.SD.Core/css/login.css" rel="stylesheet" />
 
 <div class="limiter">
@@ -178,9 +180,9 @@
     // public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
     protected override async void OnInitialized()
     {
-        
 
-        
+
+
     }
     private async void OnResetPassword()
     {
@@ -251,7 +253,27 @@
                     }
                     else
                     {
-                        NavigationManager.NavigateTo("Dashboard");
+
+
+                        var returnUrls = await _localStorageService.GetItemOne("ReturnUrl");
+                        if (returnUrls != null)
+                        {
+                            string encodedString = returnUrls;
+                            var returnUrl = WebUtility.UrlDecode(encodedString);
+                            var extractedString = returnUrl.Substring(1, returnUrl.Length - 2); // Adjust indices for removing double quotes
+
+                            NavigationManager.NavigateTo(extractedString, forceLoad: true);
+
+                            StateHasChanged();
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo("Dashboard");
+                        }
+
+
+                        await _localStorageService.RemoveItem("ReturnUrl");
+
                     }
 
                 }                           

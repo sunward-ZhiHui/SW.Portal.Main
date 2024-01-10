@@ -1,6 +1,7 @@
 ﻿@implements IDisposable
 @inject DemoConfiguration Configurations
 @inject NavigationManager NavigationManager
+@using System.Net
 @using global::Core.EntityModels;
 @using Application.Queries;
 @using MediatR
@@ -55,14 +56,26 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if (applicationUser == null)
         {
+
+            var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);
+
+
+            //var returnUrls = NavigationManager.Uri;
+           // var returnUrl = Uri.EscapeDataString(returnUrls);
+            await _localStorageService.SetItem("ReturnUrl", returnUrl);
+
+
+
             NavigationManager.NavigateTo($"Login", forceLoad: true);
         }
         else
         {
             _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
-
+            BreadcrumbsGenerate();
         }
-        BreadcrumbsGenerate();
+        
+       
+
         NavigationManager.LocationChanged += OnLocationChanged;
         //UpdateItems(NavigationManager.Uri)dashboard;
 

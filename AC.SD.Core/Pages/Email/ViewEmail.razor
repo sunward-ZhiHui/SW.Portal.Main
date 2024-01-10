@@ -4067,9 +4067,9 @@
             {
                 string ridds = lsts[0].ID.ToString();
                 ActiveTabIndex = 4;
-                OnLeftMenuItemClick("Library");
-                isLeftMenuvisible = "Library";
                 MyDayFilterText = lsts[0].Name;
+                OnLeftMenuItemClick("Library");
+                isLeftMenuvisible = "Library";                
                 await Task.Delay(2000); // Delay for 2 seconds
                 onSubViewEmailClick(ridds);
             }

@@ -59,15 +59,16 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {                    
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    if(res.Count > 0)
+                    var result = await connection.QueryAsync<EmailTopics>(query, parameters);
+                    var res = result.ToList();
+                    if(res.ToList().Count > 0)
                     {
                         var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
 
                         var parametersDocs = new DynamicParameters();
                         parametersDocs.Add("SessionID", res[0].SessionId);
 
-                        var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
+                        var subQueryDocsResults = await connection.QueryAsync<Documents>(subQueryDocs, parametersDocs);
 
 
                         var subQueryTo = @"select E.FirstName,FT.UserId,FT.TopicId from EmailtopicTo FT
@@ -75,7 +76,7 @@ namespace Infrastructure.Repository.Query
                                         where FT.TopicId = @ID";
                         var parametersTo = new DynamicParameters();
                         parametersTo.Add("ID", res[0].ID);
-                        var subQueryToResults = connection.Query<EmailAssignToList>(subQueryTo, parametersTo).ToList();
+                        var subQueryToResults = await connection.QueryAsync<EmailAssignToList>(subQueryTo, parametersTo);
 
 
                         var subQueryCC = @"select E.FirstName,FC.UserId,FC.TopicId from EmailtopicCC FC
@@ -83,12 +84,12 @@ namespace Infrastructure.Repository.Query
                                         where FC.TopicId = @ID";
                         var parametersCC = new DynamicParameters();
                         parametersCC.Add("ID", res[0].ID);
-                        var subQueryCCResults = connection.Query<EmailAssignToList>(subQueryCC, parametersCC).ToList();
+                        var subQueryCCResults = await connection.QueryAsync<EmailAssignToList>(subQueryCC, parametersCC);
 
 
-                        res[0].documents = subQueryDocsResults;
-                        res[0].TopicToList = subQueryToResults;
-                        res[0].TopicCCList = subQueryCCResults;
+                        res[0].documents = subQueryDocsResults.ToList();
+                        res[0].TopicToList = subQueryToResults.ToList();
+                        res[0].TopicCCList = subQueryCCResults.ToList();
 
                     }                   
 
@@ -115,7 +116,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailTopics>(query,parameters).ToList();
+                    var res = await connection.QueryAsync<EmailTopics>(query,parameters);
 
                     //var result = res
                     //    .GroupBy(ps => ps.TicketNo)
@@ -129,7 +130,7 @@ namespace Infrastructure.Repository.Query
                     //return result;
 
 
-                    return res;
+                    return res.ToList();
 
                 }
             }
@@ -150,9 +151,9 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    var res = await connection.QueryAsync<EmailTopics>(query, parameters);
 
-                    return res;
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -171,9 +172,9 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    var res = await connection.QueryAsync<EmailTopics>(query, parameters);
 
-                    return res;
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -221,8 +222,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {                   
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailTopics>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -268,8 +269,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailTopics>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -302,7 +303,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("filterTo", emailSearch.FilterTo);
                         parameters.Add("Option", "SELECT");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_AdminSearchList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_AdminSearchList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -342,7 +343,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("filterTo", emailSearch.FilterTo);
                         parameters.Add("Option", "SELECT");                        
 
-                        var result = connection.Query<EmailTopics>("sp_Select_MasterSearchList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_MasterSearchList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -420,8 +421,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailTopics>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -472,6 +473,9 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("Option", "SELECT_EMAIL_HOME");
+                        
+                        var command = connection.CreateCommand();
+                        command.CommandTimeout = 600; 
 
                         var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
@@ -616,10 +620,6 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    
-                   
-
                         try
                         {
                             var parameters = new DynamicParameters();
@@ -627,10 +627,7 @@ namespace Infrastructure.Repository.Query
 
                             var query = "UPDATE EmailTopics SET PinStatus = 0 WHERE ID = @id";
 
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
-
-                            
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
 
                             return rowsAffected;
                         }
@@ -689,7 +686,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_TO_SEARCH");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicSearchList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicSearchList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -791,8 +788,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailTopics>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -892,8 +889,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
+                    var res = await connection.QueryAsync<EmailTopics>(query, parameters);
+                    return res.ToList();
                 }
             }
             catch (Exception exp)
@@ -916,7 +913,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", SearchTxt);                        
                         parameters.Add("Option", "SUB_SELECT_TO");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -945,7 +942,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_CC");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -974,7 +971,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_SENT");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -1002,7 +999,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SELECT_ALL");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_Sub_Admin_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_Sub_Admin_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -1030,7 +1027,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_ALL");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -1057,7 +1054,10 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("TopicId", TopicId);
                         parameters.Add("Option", "SUB_SELECT_EMAIL_HOME");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var command = connection.CreateCommand();
+                        command.CommandTimeout = 600;
+
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -1076,13 +1076,6 @@ namespace Infrastructure.Repository.Query
             {
             try
             {
-                //var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS 
-                //                INNER JOIN EmailTopicTo TP ON TS.ID = TP.TopicId 
-                //                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                         
-                //                WHERE TP.UserId = @UserId order by TS.StartDate DESC";
-
-
-
                 var query = @"SELECT TS.ID,EC.ID as ReplyId,EC.Name as TopicName,TS.Remarks,
                                 TS.SeqNo,
                                 TS.Status,
@@ -1506,7 +1499,8 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<EmailTopics>(query, parameters));
+                    var result =  await connection.QueryFirstOrDefaultAsync<EmailTopics>(query, parameters);
+                    return result;
                 }
             }
             catch (Exception exp)

@@ -43,7 +43,7 @@
                                 <DxMenuItem Text="CheckIn" Click="onCheckin" IconCssClass="fa fa-check-circle" Visible="CheckInEnabled" />
                                 <DxMenuItem Text="View File" Click="onView" IconCssClass="fa fa-eye" Visible="viewEnabled" />
                                 @* <DxMenuItem Text="Notify" IconCssClass="fa fa-bell" Visible="NotifyEnabled" /> *@
-
+                                <DxMenuItem Text="Check By" IconCssClass="fa fa-envelope" Click="onIsChecker" Visible="IsChecker" />
                                 <DxMenuItem Text="Mail" IconCssClass="fa fa-envelope" Click="onEmailOpen" Visible="MailEnabled" />
                                 <DxMenuItem Text="Email Activity" IconCssClass="fa fa-envelope" Click="onEmailActivityOpen" Visible="EmailActivityEnabled" />
                                 <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
@@ -481,6 +481,20 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@IsCheckerPopUp"
+         ShowFooter="false"
+         HeaderText="Check By"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <UpdateActivityCheckers selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseUploadPopup"></UpdateActivityCheckers>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseUploadPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Guid? MainSessionId { get; set; }
@@ -524,14 +538,14 @@
     public string isVisibleMore { get; set; } = "display:none;";
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     public bool EditEnabled { get; set; } = false;
-    public bool DownloadEnabled { get; set; } = false;
+    public bool DownloadEnabled { get; set; } = false; public bool IsCheckerPopUp { get; set; } = false;
     public bool DeleteEnabled { get; set; } = false;
     public bool HistoryEnabled { get; set; } = false;
     public bool CheckOutEnabled { get; set; } = false;
     public bool CheckInEnabled { get; set; } = false;
     public bool viewEnabled { get; set; } = false;
     public bool NotifyEnabled { get; set; } = false;
-    public bool CopyLinkEnabled { get; set; } = false;
+    public bool CopyLinkEnabled { get; set; } = false; public bool IsChecker { get; set; } = false;
     public bool MailEnabled { get; set; } = false;
     public bool SupportDocEnabled { get; set; } = false;
     public bool NonComplianceEnabled { get; set; } = false;
@@ -579,7 +593,7 @@
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
-        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false; IsChecker = false;
         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         _AppLines = new List<ProductActivityAppModel>();
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
@@ -629,7 +643,7 @@
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
-        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false; IsChecker = false;
         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         if (_selectedItems != null)
         {
@@ -639,7 +653,7 @@
                 // {
                 //     isVisibleMore = "";
                 //     EditEnabled = true; DeleteEnabled = true;
-                //     NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;
+                //     NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;IsChecker = true;
                 //     NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;
                 //     if (_selectedItems.IsLocked == true)
                 //     {
@@ -647,7 +661,7 @@
                 //         CheckInEnabled = true;
                 //         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                 //         HistoryEnabled = false;
-                //         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                //         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker = true;
                 //         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
                 //     }
                 //     else
@@ -673,7 +687,7 @@
                 //     CheckInEnabled = true;
                 //     EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                 //     HistoryEnabled = false;
-                //     viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                //     viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker = false;
                 //     NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
                 // }
                 // else
@@ -691,7 +705,7 @@
                             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                             HistoryEnabled = false;
                             viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
-                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; IsChecker = false;
                         }
                         else
                         {
@@ -743,6 +757,14 @@
                                     CopyLinkEnabled = false;
                                 }
                             }
+                            if (actionItem.IsChecker == true && actionItem.IsChecker != null)
+                            {
+                                IsChecker = true;
+                            }
+                            else
+                            {
+                                IsChecker = false;
+                            }
                             if (actionItem.IsUpdateStatus == true && actionItem.IsUpdateStatus != null)
                             {
                                 UpdateStatusEnabled = true;
@@ -793,7 +815,7 @@
                 //             isVisibleMore = "";
                 //             EditEnabled = true; DownloadEnabled = true; DeleteEnabled = true;
                 //             HistoryEnabled = true; CheckOutEnabled = true; CheckInEnabled = false;
-                //             viewEnabled = true; NotifyEnabled = true; CopyLinkEnabled = true; MailEnabled = true; SupportDocEnabled = true;
+                //             viewEnabled = true; NotifyEnabled = true; CopyLinkEnabled = true; MailEnabled = true; SupportDocEnabled = true;IsChecker=true;
                 //             NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;
                 //             if (_selectedItems.IsLocked == true)
                 //             {
@@ -801,7 +823,7 @@
                 //                 CheckInEnabled = true;
                 //                 EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                 //                 HistoryEnabled = false;
-                //                 viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                //                 viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker=false;
                 //                 NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
                 //             }
                 //             else
@@ -827,7 +849,7 @@
                 //                 CheckInEnabled = true;
                 //                 EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                 //                 HistoryEnabled = false;
-                //                 viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                //                 viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker=false;
                 //                 NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
                 //             }
                 //             else
@@ -870,7 +892,7 @@
     {
         isVisibleMore = "";
         EditEnabled = true; DeleteEnabled = true;
-        NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;
+        NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true; IsChecker = true;
         if(_selectedItems.IsEmailCreated==true)
         {
             EmailActivityEnabled = true;
@@ -882,7 +904,7 @@
             CheckInEnabled = true;
             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
             HistoryEnabled = false;EmailActivityEnabled = false;
-            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker=false;
             NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         }
         else
@@ -1103,6 +1125,7 @@
     void CloseUploadPopup()
     {
         PopupUpload = false;
+        IsCheckerPopUp = false;
         InvokeAsync(onLoadDataList);
         StateHasChanged();
     }
@@ -1126,7 +1149,7 @@
         ActivityEmailPopup = false;
         PopupVisible = false;
         SupportingDocumentsPopup = false;
-        OperatorsPopup = false;
+        OperatorsPopup = false; IsCheckerPopUp = false;
         StateHasChanged();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
@@ -1231,6 +1254,10 @@
     {
         ActivityEmailSubjectPopup=true;
         StateHasChanged();
+    }
+    void onIsChecker()
+    {
+        IsCheckerPopUp = true;
     }
     public void Dispose()
     {

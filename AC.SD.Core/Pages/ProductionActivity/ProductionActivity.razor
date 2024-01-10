@@ -509,6 +509,7 @@
             FilterData.ProdOrderNo = NAVProdOrderno;
             FilterData.AddedByUserID = applicationUser.UserID;
             FilterData.LocationId = LocationID;
+            FilterData.GetTypes = "User";
             _AppLines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(FilterData));
             _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(CompanyID, NAVProdOrderno));
             if (_AppLines.Count() > 0)

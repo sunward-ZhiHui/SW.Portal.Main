@@ -21,5 +21,10 @@ namespace Core.Repositories.Query
         Task<ProductionActivityRoutineAppModel> UpdateActivityRoutineStatus(ProductionActivityRoutineAppModel value);
         Task<ProductionActivityRoutineAppModel> GetProductActivityRoutineAppLineOneItem(long? ProductionActivityAppLineID);
         Task<ProductionActivityRoutineAppModel> UpdateRoutineChecker(ProductionActivityRoutineAppModel value);
+
+        Task<IReadOnlyList<ProductionActivityRoutineCheckedDetailsModel>> GetProductionActivityRoutineCheckedDetails(long? value);
+
+        Task<ProductionActivityRoutineCheckedDetailsModel> DeleteProductionActivityRoutineCheckedDetails(ProductionActivityRoutineCheckedDetailsModel value);
+        Task<ProductionActivityRoutineCheckedDetailsModel> InsertProductionActivityRoutineCheckedDetails(ProductionActivityRoutineCheckedDetailsModel value);
     }
 }

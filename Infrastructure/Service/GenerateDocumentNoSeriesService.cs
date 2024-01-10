@@ -488,6 +488,15 @@ namespace Infrastructure.Service
                                     await _generateDocumentNoSeriesQueryRepository.UpdateDocumentProfileNoSeriesLastNoUsed(existingprofileAutonumber);
                                 }
                             }
+                            if (noSeriesModel.PlantID != null && noSeriesModel.DepartmentId != null && noSeriesModel.SectionId != null && noSeriesModel.SubSectionId == null)
+                            {
+                                var existingprofileAutonumber = profileAutoNumberData.Where(t => t.ProfileId == profilesettings.ProfileId && t.DepartmentId == noSeriesModel.DepartmentId && t.CompanyId == noSeriesModel.PlantID && t.SectionId == noSeriesModel.SectionId && t.SubSectionId == noSeriesModel.SubSectionId && t.ProfileYear == DateTime.Now.Year).FirstOrDefault();
+                                if (existingprofileAutonumber != null)
+                                {
+                                    existingprofileAutonumber.LastNoUsed = LastNoUsed;
+                                    await _generateDocumentNoSeriesQueryRepository.UpdateDocumentProfileNoSeriesLastNoUsed(existingprofileAutonumber);
+                                }
+                            }
                         }
                     }
                     else if (noSeriesModel == null)

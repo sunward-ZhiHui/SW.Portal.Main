@@ -38,7 +38,7 @@
                             <DxMenuItem Text="Add" IconCssClass="fas fa-add" Click="@onAddNew" />
                             <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@onEditNew" Enabled="EditEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fas fa-remove" Click="@onDeleteNew" Enabled="DeleteEnabled" />
-                            <DxMenuItem Text="Select File" IconCssClass="fa fa-file" Click="@onCopyPasteFileclick" />
+                           
                             <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitProductionFormExternally" Enabled="SaveEnabled" />
                             <DxMenuItem Text="Email" IconCssClass="fas fa-envelope" Click="@onMailNew" />
                         </Items>
@@ -131,8 +131,10 @@
                 <DxMemo @bind-Text="Data.CheckedComment" Rows="5" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="" ColSpanMd="12">
-                @* <div ref="target" @onpaste="HandlePasteEvent" style='cursor:pointer'>Click here and use Control-V to paste the image.</div> *@
+                <div ref="target" @onclick="onCopyPasteFileclick" style='cursor:pointer'>Click here and Upload the image.</div>
+               @*  <div ref="target" @onpaste="HandlePasteEvent" style='cursor:pointer'>Click here and use Control-V to paste the image.</div> *@
                 <img src="@ImageSource" id="onCopyImagesOn" style="width:100%;height:200px;" alt="Pasted Image" />
+                <canvas style="border:1px solid grey;" id="mycanvasss"/>
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditForm>
@@ -201,9 +203,15 @@
         _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
         await loadSupportingDocFiles();
     }
+    public class EmailDetailss
+    {
+        public string? Name { get; set; }
+        public string? Server { get; set; }
+        public string? Domain { get; set; }
+    }
     async Task GetClipboardImage()
     {
-        await jsRuntime.InvokeAsync<string>("getClipboardImage");
+        var result = await jsRuntime.InvokeAsync<string>("getClipboardImage");
     }
     private async Task HandlePasteEvent()
     {
@@ -343,7 +351,7 @@
     }
     async Task HandleProductionFormValidSubmit()
     {
-        //var results = await JSRuntimeExtensions.InvokeAsync<string>(jsRuntime, "interopDuringOnInit");
+        var results = await JSRuntimeExtensions.InvokeAsync<string>(jsRuntime, "interopDuringOnInit");
         //  Data.CommentImage = System.Text.Encoding.ASCII.GetBytes(results);
         SaveEnabled = false;
         var request = await Mediator.Send(new InsertProductionActivityCheckedDetails(Data));

@@ -24,117 +24,116 @@
                             <DxMenuItem Text="Add" IconCssClass="fas fa-add" Click="@onAddNew" />
                             <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@onEditNew" Enabled="EditEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fas fa-remove" Click="@onDeleteNew" Enabled="DeleteEnabled" />
-                            <DxMenuItem Text="Email" IconCssClass="fas fa-envelope" Click="@onMailNew"  />
+                            <DxMenuItem Text="Email" IconCssClass="fas fa-envelope" Click="@onMailNew" />
                         </Items>
                     </DxMenu>
                 }
                 else
                 {
-                <DxMenu CollapseItemsToHamburgerMenu="true"
-                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                        DisplayMode="MenuDisplayMode.Auto">
-                    <Items>
-                        <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
-                        <DxMenuItem Text="Add" IconCssClass="fas fa-add" Click="@onAddNew" />
-                        <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@onEditNew" Enabled="EditEnabled" />
-                            <DxMenuItem Text="Delete" IconCssClass="fas fa-remove" Click="@onDeleteNew" Enabled="DeleteEnabled"/>
-                            <DxMenuItem Text="Select File" IconCssClass="fa fa-file" Click="@onCopyPasteFileclick" />
-                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitProductionFormExternally" Enabled="SaveEnabled" />
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Auto">
+                        <Items>
+                            <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                            <DxMenuItem Text="Add" IconCssClass="fas fa-add" Click="@onAddNew" />
+                            <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@onEditNew" Enabled="EditEnabled" />
+                            <DxMenuItem Text="Delete" IconCssClass="fas fa-remove" Click="@onDeleteNew" Enabled="DeleteEnabled" />
+                            <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitProductionFormExternally" Enabled="SaveEnabled" />
                             <DxMenuItem Text="Email" IconCssClass="fas fa-envelope" Click="@onMailNew" />
-                    </Items>
-                </DxMenu>
+                        </Items>
+                    </DxMenu>
                 }
             </div>
         </div>
     </div>
 </div>
 <div style="@onShowMain">
-<DxLoadingPanel @bind-Visible="PanelVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
-    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            Data="_supportDocselectedFile"
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_supportDocselectedFile"
                 KeyFieldName="ProductionActivityRoutineCheckedDetailsId"
-            ShowGroupPanel="true" ShowGroupedColumns="true"
-            CustomizeElement="Grid_CustomizeElement"
-            ShowSearchBox="true"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
-            SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            AutoExpandAllGroupRows="true"
-            CssClass="ch-360"
-            style="height: calc(100vh - 270px);"
-            FocusedRowEnabled="true"
-            RowClick="OnRowClick"
-            AllowSelectRowByClick="true">
-        <Columns>
-            <DxGridDataColumn FieldName="CheckedByUserName" Caption="CheckedBy" MinWidth="80" />
-            <DxGridDataColumn FieldName="CheckedDate" Caption="Checked Date" MinWidth="40" />
-            <DxGridDataColumn FieldName="IsCheckNoIssue" Caption="No Issue" MinWidth="40" />
-            <DxGridDataColumn FieldName="IsCheckReferSupportDocument" Caption="Refer Support Doc" MinWidth="40" />
-            <DxGridDataColumn FieldName="CheckedComment" Caption="Comment" MinWidth="40" />
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true">
+            <Columns>
+                <DxGridDataColumn FieldName="CheckedByUserName" Caption="CheckedBy" MinWidth="80" />
+                <DxGridDataColumn FieldName="CheckedDate" Caption="Checked Date" MinWidth="40" />
+                <DxGridDataColumn FieldName="IsCheckNoIssue" Caption="No Issue" MinWidth="40" />
+                <DxGridDataColumn FieldName="IsCheckReferSupportDocument" Caption="Refer Support Doc" MinWidth="40" />
+                <DxGridDataColumn FieldName="CheckedComment" Caption="Comment" MinWidth="40" />
                 <DxGridDataColumn FieldName="RoutineResultName" Caption="Routine Result" MinWidth="80" />
                 <DxGridDataColumn FieldName="RoutineStatusName" Caption="Routine Status" MinWidth="80" />
-        </Columns>
-    </DxGrid>
-</DxLoadingPanel>
+            </Columns>
+        </DxGrid>
+    </DxLoadingPanel>
 </div>
 <div style="@onShowForm">
-<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
+    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
 
-    <DataAnnotationsValidator />
-    <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="" ColSpanMd="6">
+        <DataAnnotationsValidator />
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
 
-            <DxCheckBox @bind-Checked="@Data.IsCheckNoIssue" LabelPosition="LabelPosition.Right">No Issue</DxCheckBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@Data.IsCheckReferSupportDocument" LabelPosition="LabelPosition.Right">Refer to supporting Document/Email</DxCheckBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Checked By" ColSpanMd="6">
-            <DxTextBox @bind-Text="@Data.CheckedByUserName" CssClass="cw-480" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Checked Date:" ColSpanMd="6">
-            <DxDateEdit NullText="Select a Checked Date..." @bind-Date="@Data.CheckedDate" CssClass="cw-320" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
-            <DxComboBox Data="@_ActivityResult"
-                        NullText="Select Activity Result..."
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterDetailID"
+                <DxCheckBox @bind-Checked="@Data.IsCheckNoIssue" LabelPosition="LabelPosition.Right">No Issue</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+                <DxCheckBox @bind-Checked="@Data.IsCheckReferSupportDocument" LabelPosition="LabelPosition.Right">Refer to supporting Document/Email</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Checked By" ColSpanMd="6">
+                <DxTextBox @bind-Text="@Data.CheckedByUserName" CssClass="cw-480" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Checked Date:" ColSpanMd="6">
+                <DxDateEdit NullText="Select a Checked Date..." @bind-Date="@Data.CheckedDate" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
+                <DxComboBox Data="@_ActivityResult"
+                            NullText="Select Activity Result..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterDetailID"
                 @bind-Value="Data.RoutineResultId"
-                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                        ShowValidationIcon="true">
-            </DxComboBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="6">
-            <DxComboBox Data="@_ActivityStatusItem"
-                        NullText="Select Activity Status..."
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterDetailID"
-                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="6">
+                <DxComboBox Data="@_ActivityStatusItem"
+                            NullText="Select Activity Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterDetailID"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                 @bind-Value="Data.RoutineStatusId"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
-            <DxMemo @bind-Text="Data.CheckedComment" Rows="5" />
-        </DxFormLayoutItem>
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
+                <DxMemo @bind-Text="Data.CheckedComment" Rows="5" />
+            </DxFormLayoutItem>
             <DxFormLayoutItem Caption="" ColSpanMd="12">
-                @* <div ref="target" @onpaste="HandlePasteEvent" style='cursor:pointer'>Click here and use Control-V to paste the image.</div> *@
+                <div ref="target" @onclick="onCopyPasteFileclick" style='cursor:pointer'>Click here and Upload the image.</div>
                 <img src="@ImageSource" id="onCopyImagesOn" style="width:100%;height:200px;" alt="Pasted Image" />
             </DxFormLayoutItem>
-    </DxFormLayout>
-</EditForm>
+        </DxFormLayout>
+    </EditForm>
 </div>
 <DxPopup @bind-Visible="@BlukdeleteDocument"
          ShowFooter="true"
@@ -199,7 +198,7 @@
     }
     async Task loadSupportingDocFiles()
     {
-        PanelVisible = true;DeleteEnabled = false; EditEnabled = false;
+        PanelVisible = true; DeleteEnabled = false; EditEnabled = false;
         if (selectedFiles.ProductionActivityRoutineAppLineId > 0)
         {
             _supportDocselectedFile = await Mediator.Send(new GetProductionRoutineCheckedDetails(selectedFiles.ProductionActivityRoutineAppLineId));

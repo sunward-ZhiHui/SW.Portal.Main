@@ -216,7 +216,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async  Task<IReadOnlyList<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID)
+        public async Task<List<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID)
         {
             try
             {

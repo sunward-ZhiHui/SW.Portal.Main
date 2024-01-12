@@ -1406,7 +1406,8 @@ else
     }    
 
     async Task HandleValidSubmit()
-    {        
+    {      
+        StateHasChanged();
         isSending = true;
         await JSRuntime.InvokeAsync<string>("showLoading");
         participantIds.Clear();
@@ -1645,6 +1646,8 @@ else
             isSending = false;
         }
 
+
+        StateHasChanged();
 
     }
     internal async void onShowPopupMessage(string headerText, string bodyText)

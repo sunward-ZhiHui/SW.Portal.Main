@@ -121,7 +121,7 @@
         {
             _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
         }
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
 
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)

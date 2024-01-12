@@ -93,7 +93,7 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID,"NULL"));
         await JSRuntime.InvokeAsync<string>("hideLoading");
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {

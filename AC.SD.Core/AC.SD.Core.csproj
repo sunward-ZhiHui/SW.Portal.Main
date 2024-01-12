@@ -8,8 +8,13 @@
     <RootNamespace>AC.SD.Core</RootNamespace>
 	<ServerGarbageCollection>false</ServerGarbageCollection>
 	<Platforms>AnyCPU;x64</Platforms>
+	<BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
   </PropertyGroup>
-  <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerSide|AnyCPU'">
+		<DefineConstants>$(DefineConstants);ServerSide</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
     <Compile Remove="DataProviders\**" />
     <Compile Remove="wwwroot1\**" />
     <Content Remove="DataProviders\**" />
@@ -65,6 +70,7 @@
 	  <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
 	  <PackageReference Include="Blazored.Toast" Version="4.1.0" />
 	  <PackageReference Include="BlazorStateManager" Version="1.0.7" />
+	  <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
 	  <PackageReference Include="Chronos.Blazor.Cropper" Version="1.2.16" />
 	  <PackageReference Include="CorePush" Version="4.1.0" />
 	  <PackageReference Include="DevExpress.AspNetCore.Spreadsheet" Version="23.1.3" />

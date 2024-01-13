@@ -177,6 +177,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ActivityStatusId", value.ActivityStatusId);
                 parameters.Add("ActivityMasterId", value.ActivityMasterId);
                 parameters.Add("NavprodOrderLineId", value.NavprodOrderLineId);
+                parameters.Add("AddedByUserID", value.AddedByUserID);
                 parameters.Add("StartDate", value.StartDate, DbType.DateTime);
                 parameters.Add("EndDate", value.EndDate, DbType.DateTime);
                 var query = @"select CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId,

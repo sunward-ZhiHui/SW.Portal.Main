@@ -80,7 +80,11 @@ namespace Infrastructure.Repository.Query
                 query += "select 'NavItems' as DropDownTypeId,ItemId as AttributeDetailID,No as AttributeDetailName,CONCAT(Description,(case when ISNULL(NULLIF(Description2, ''), null) is NULL then  Description2 ELSE  CONCAT(' | ',Description2) END)) as Description\r\n from Navitems\r\n";
                 if (CompanyId > 0)
                 {
-                    query += "Where CompanyId=" + CompanyId + "\r\n";
+                    query += "Where no like 'FP%' AND CompanyId=" + CompanyId + "\r\n";
+                }
+                else
+                {
+                    query += "Where no like 'FP%';\r\n";
                 }
                 using (var connection = CreateConnection())
                 {

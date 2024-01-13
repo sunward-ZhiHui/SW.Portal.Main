@@ -629,7 +629,7 @@ namespace Infrastructure.Repository.Query
 
                             var applinequery = "INSERT INTO ProductionActivityRoutineAppLine(IsCheckNoIssue,IsCheckReferSupportDocument,ProductionActivityRoutineAppId,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,RoutineStatusId,IsOthersOptions,LocationID,QaCheck,ProfileNo,ProfileId) " +
                                 " OUTPUT INSERTED.ProductionActivityRoutineAppLineId " +
-                                "VALUES (IsCheckNoIssue,IsCheckReferSupportDocument,@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@RoutineStatusId,@IsOthersOptions,@LocationID,@QaCheck,@ProfileNo,@ProfileId)";
+                                "VALUES (@IsCheckNoIssue,@IsCheckReferSupportDocument,@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@RoutineStatusId,@IsOthersOptions,@LocationID,@QaCheck,@ProfileNo,@ProfileId)";
 
                             PPAlist.ProductionActivityRoutineAppLineId = await connection.ExecuteScalarAsync<long>(applinequery, parameters);
                         }

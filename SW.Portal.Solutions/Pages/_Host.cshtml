@@ -31,13 +31,13 @@
         // Your web app's Firebase configuration
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
-            apiKey: 'AIzaSyBRv5-8jH-Oj8HIBJHNffhvp8HF5KQgAsU',
+            apiKey: 'AIzaSyCAR1sWopIrLQFKR2RVqzx5yVeV4-suHb4',
             authDomain: 'https://portal.sunwardpharma.com',
-            projectId: 'sunwardportal-9e39c',
-            storageBucket: 'sunwardportal-9e39c.appspot.com',
-            messagingSenderId: '701663341939',
-            appId: '1:701663341939:web:bdf0c935c30ea01c826906',
-            measurementId: 'G-9HNG9SMNXF'
+            projectId: 'novatonotify',
+            storageBucket: 'novatonotify.appspot.com',
+            messagingSenderId: '846072746431',
+            appId: '1:846072746431:web:316a89ac0d8a2db739510a',
+            measurementId: 'G-YF3RTTBL4Z'
         };
 
         // Initialize Firebase
@@ -92,148 +92,19 @@
             );
         });
 
-
-
          function saveToken(currentToken) {
             window.localStorage.setItem('PushToken',currentToken);
         }
-    </script>
-
-
-
-
-
-
-
-
-
-
-
-    @* <script src="_content/AC.SD.Core/js/firebase-app.js"></script>
-    <script src="_content/AC.SD.Core/js/firebase-messaging.js"></script>*@
-
-   @* <script src="_content/AC.SD.Core/js/custom.js"></script>
-    <script src="_content/AC.SD.Core/js/Notification.js"></script>*@
-
-
-    <!-- Include other Firebase services as needed -->
-    @*<script>
-        var token = null;
-        var config = {
-            apiKey: 'AAAAo15k7XM:APA91bGEqcSX_EQ2aljOJYVj7REFYkKsWC_tMK_5gpMcnJ4ow_HgSes9vI61pGSVoboCzn44xNON3ByPyIl9_JGijrdW9WUomdPvXaxo-GJHfGW2kH3Lx327IWmx8PSbgbSTymdDznDj',
-            authDomain: 'https://portal.sunwardpharma.com',
-            projectId: 'sunwardportal-9e39c',
-            storageBucket: 'sunwardportal-9e39c.appspot.com',
-            messagingSenderId: '701663341939',
-            appId: '1:701663341939:web:bdf0c935c30ea01c826906',
-            measurementId: 'G-9HNG9SMNXF'
-        };
-
-        firebase.initializeApp(config);
-
-        const messaging = firebase.messaging();
-
-        messaging.requestPermission()
-            .then(function () {
-                console.log("granted");
-                if (isTokenSentToServer()) {
-                    console.log("already granted");
-                } else {
-                    getRegtoken();
-                }
-            });
-
-
-        function getRegtoken() {
-            messaging.getToken().then((currentToken) => {
-                if (currentToken) {
-                    console.log(currentToken);
-                    setTokenSentToServer(true);
-                    saveToken(currentToken)
-                    //   updateUIForPushEnabled(currentToken);
-                } else {
-                    console.log('No Instance ID token available. Request permission to generate one.');
-                    setTokenSentToServer(false);
-                }
-            }).catch((err) => {
-                console.log('An error occurred while retrieving token. ', err);
-                setTokenSentToServer(false);
-            });
-
-        }
-        function setTokenSentToServer(sent) {
-            window.localStorage.setItem('sentToServer', sent ? 1 : 0);
-        }
-        function isTokenSentToServer() {
-            return window.localStorage.getItem('sentToServer') === '1';
-        }
-        messaging.onMessage(function (payload) {
-            console.log('Message received. ', payload);
-
-            notificationTitle = payload.notification.title;
-            notificationOptions = {
-                body: payload.notification.body,
-                icon: payload.notification.icon
-            };
-
-            var notification = new Notification(notificationTitle, notificationOptions);
-
-        });
-
     </script>   
-*@
-   @* <script src="_content/AC.SD.Core/js/firebase-app.js"></script>
-    <script src="_content/AC.SD.Core/js/firebase-messaging.js"></script>*@
-
-  @*  <script src="_content/AC.SD.Core/js/firebase-setup.js"></script>
-    <script src="_content/AC.SD.Core/js/firebase-interop.js"></script>*@
-
-   
 
     <meta property="og:url" content="https://dxpr.es/2WogLq7" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="For all the moments you want to cherish" />
-    <link href="_content/AC.SD.Core/css/app.css" rel="stylesheet" />
-
-   @* <link rel="manifest" href="_content/AC.SD.Core/manifest.json">*@
-@*    <script src="_content/AC.SD.Core/firebase-messaging-sw.js"></script>*@
-    
+    <link href="_content/AC.SD.Core/css/app.css" rel="stylesheet" />    
    
-    <link rel="stylesheet" href="_content/DevExpress.Blazor.Reporting.Viewer/css/dx-blazor-reporting-components.css">
- 
-   @* <link href="_content/AC.SD.Core/css/toast.css" rel="stylesheet" />*@
-  @*  <link href="_content/AC.SD.Core/toast/style.css" rel="stylesheet" />*@
+    <link rel="stylesheet" href="_content/DevExpress.Blazor.Reporting.Viewer/css/dx-blazor-reporting-components.css"> 
     <meta property="og:description" content="Invested in continuous innovation and research for your quality assurance." />
-    <meta property="og:image" content="_content/AC.SD.Core/images/login/SW-Logo.png" />
-   @* <meta http-equiv="Content-Security-Policy"
-          content="base-uri 'self';
-               default-src 'self';
-               img-src data:
-                       https:
-                       http:;
-               object-src 'none';
-               script-src 'self'
-                          'unsafe-eval'
-                          https://cdn.jsdelivr.net/
-                          https://www.googletagmanager.com/
-                          'sha256-v8v3RKRPmN4odZ1CWM5gw80QKPCCWMcpNeOmimNL2AA='
-                          'sha256-5IekJdLtTzD/IDYQ2FrNLbLmgyGP6WlpDJ2GbZLv+r0='
-                          'sha256-3/2QOuYlxn5k9KorO7FOcY7NYI+Ui/I3n7nr0X+IWcE='
-                          'sha256-CLBTNKc5dWx2th3lg9lPM2K199I5ZFDpfsv8w5I+A/E=';
-               worker-src 'self'
-                          blob:;
-               frame-src 'self'
-                         blob:;
-               style-src 'self'
-                         https://cdnjs.cloudflare.com/
-                         https://fonts.googleapis.com/
-                         'unsafe-inline';
-               font-src 'self'
-                        https://fonts.gstatic.com/;
-               connect-src 'self'
-                        https://js.devexpress.com/;
-               block-all-mixed-content;
-          ">*@
+    <meta property="og:image" content="_content/AC.SD.Core/images/login/SW-Logo.png" />  
 
     @{
         string InitialThemeName = HttpContextAccessor.HttpContext.Request.Cookies[AC.SD.Core.Services.DemoThemeService.ThemeCookieKey];
@@ -254,73 +125,8 @@
         <script src="_framework/blazor.server.js"></script>
         <script src="_content/AC.SD.Core/common.js"></script>     
         <script src="_content/AC.SD.Core/js/scrollEvents.js"></script>
-        <script src="_content/AC.SD.Core/js/todoList.js"></script>        
-        
-        @*<script src="_content/AC.SD.Core/js/firebase-messaging-sw.js"></script>*@
-        @*<script src="_content/DevExpress.Blazor.Reporting.Viewer/dx-blazor-reporting-viewer.js?version=23.1.3.0 "></script>*@
-        @*<script src="_content/AC.SD.Core/viewerjsinterop.js"></script>*@
-        @*<script src="_content/AC.SD.Core/pdfInterop.js"></script>
-        <script src="_content/AC.SD.Core/officeInterop.js"></script>*@     
-        @*<script src="_content/AC.SD.Core/toast/script.js"></script>*@   
-       
-
-
-       @* <script src="https://appsforoffice.microsoft.com/lib/1/hosted/Office.js" type="text/javascript"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.3/viewer.js" ></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.js"></script>*@
-    </environment>
-    <environment include="Wasm.AspNetCoreHosted">
-        <component type="typeof(DemoStylesheetContainer)" render-mode="WebAssemblyPrerendered" param-InitialThemeName="@InitialThemeName" />
-        <script src="_framework/blazor.webassembly.js"></script>        
-    </environment>
-    <environment include="Wasm.AspNetCoreHosted">
-        <style>
-            body {
-                margin: 0;
-            }
-
-            .loading-font {
-                font-family: "Segoe UI",Roboto,"Helvetica Neue","-apple-system",BlinkMacSystemFont,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-                font-size: .88rem;
-                font-weight: 400;
-                line-height: 1.5;
-                text-align: left;
-            }
-
-            .loading-items-center {
-                align-items: center;
-                justify-content: center;
-                display: flex;
-            }
-
-            .loading-border-primary {
-                border-color: #bfbfbf;
-            }
-
-            .loading {
-                width: 140px;
-                height: 140px;
-            }
-
-            .loading-caption {
-                font-size: 1.5rem;
-                font-weight: 600;
-            }
-
-            .loading-border {
-                border-width: 4px;
-                border-style: solid;
-            }
-
-            .loading-image-wrapper {
-                width: 120px;
-                height: 120px;
-                opacity: 0;
-            }
-
-            
-        </style>
-    </environment>
+        <script src="_content/AC.SD.Core/js/todoList.js"></script>    
+    </environment> 
     
 </head>
 <body>

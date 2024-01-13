@@ -3,13 +3,13 @@ importScripts('https://www.gstatic.com/firebasejs/6.4.2/firebase-messaging.js');
 
 
 const firebaseConfig = {
-    apiKey: 'AIzaSyARCH_URyG6nyoq0J88CkWhVqhQLy14EJc',
+    apiKey: 'AIzaSyCAR1sWopIrLQFKR2RVqzx5yVeV4-suHb4',
     authDomain: 'https://portal.sunwardpharma.com',
-    projectId: 'sunwardportal-9e39c',
-    storageBucket: 'sunwardportal-9e39c.appspot.com',
-    messagingSenderId: '701663341939',
-    appId: '1:701663341939:web:bdf0c935c30ea01c826906:android:43c2dc3302ffbbe4826906',
-    measurementId: 'G-9HNG9SMNXF'
+    projectId: 'novatonotify',
+    storageBucket: 'novatonotify.appspot.com',
+    messagingSenderId: '846072746431',
+    appId: '1:846072746431:web:bdf0c935c30ea01c826906:android:5e4256425031f75139510a:ios:8efb14cfe9445b8639510a',
+    measurementId: 'G-YF3RTTBL4Z'
 };
 
 firebase.initializeApp(firebaseConfig);

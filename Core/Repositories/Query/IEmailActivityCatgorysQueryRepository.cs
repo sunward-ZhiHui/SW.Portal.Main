@@ -18,7 +18,7 @@ namespace Core.Repositories.Query
         Task<long> UpdateAsync(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> DeleteAsync(long id);
 
-        Task<IReadOnlyList<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID);
+        Task<List<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID);
         Task<List<EmailActivityCatgorys>> GetByUserTagAsync(long TopicID,long UserID);
         
     }

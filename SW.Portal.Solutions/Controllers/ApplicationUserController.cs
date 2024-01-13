@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Repositories.Query;
 using DevExpress.XtraRichEdit.Model;
+using Duende.IdentityServer.Models;
 using Infrastructure.Repository.Query;
 using Microsoft.AspNetCore.Mvc;
 using SW.Portal.Solutions.Models;
@@ -79,15 +80,14 @@ namespace SW.Portal.Solutions.Controllers
 
         [HttpPost]
         [Route("UpdateDeviceinfo")]
-        public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> UpdateDeviceinfo(string LoginId, string DeviceType, string TokenID)
+        public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> UpdateDeviceinfo([FromBody] DeviceTkenModel devicemodel)
         {
             var response = new ResponseModel<ReplyConversation>();
 
             try
             {
                 response.ResponseCode = ResponseCode.Success;
-
-                var lst = await _applicationUserQueryRepository.UpdateDeviceId(LoginId, DeviceType, TokenID);
+                var lst = await _applicationUserQueryRepository.UpdateDeviceId(devicemodel.LoginId, devicemodel.DeviceType, devicemodel.TokenID);
                 if (lst != "-1")
                 {
                     var emailconversations = new ReplyConversation

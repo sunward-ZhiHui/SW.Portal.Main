@@ -463,7 +463,7 @@ namespace SW.Portal.Solutions.Controllers
                     {
                         //tokenStringList.Add(lst.TokenID.ToString());
 
-                        await PushNotification(lst.TokenID.ToString(), title, bodymsg, hosturls);
+                        await PushNotification(lst.TokenID.ToString(), title, bodymsg,lst.DeviceType == "Mobile"? "" :hosturls);
                     }
 
                 }

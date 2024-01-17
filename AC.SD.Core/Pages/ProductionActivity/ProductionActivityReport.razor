@@ -1199,7 +1199,21 @@
     }
     void onEmailOpen()
     {
-        ActivityEmailPopup = true;
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
+        {
+            if (_selectedItems.IsEmailCreated == true && _selectedItems.IsPartialEmailCreated == true)
+            {
+                NavigationManager.NavigateTo("ViewEmail/" + _selectedItems.EmailSessionId);
+            }
+            else if (_selectedItems.IsEmailCreated == false && _selectedItems.IsPartialEmailCreated == true)
+            {
+                NavigationManager.NavigateTo("CreateEmail/" + _selectedItems.EmailActivitySessionId);
+            }
+            else
+            {
+                ActivityEmailPopup = true;
+            }
+        }
     }
     void OnClickActivityStatusOpen(string? type)
     {

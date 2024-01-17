@@ -197,6 +197,7 @@
         {
             SaveEnabled = true;
             toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            //NavigationManager.NavigateTo("CreateEmail/" + selectedFiles.LineSessionId);
             onBack();
         }
         StateHasChanged();

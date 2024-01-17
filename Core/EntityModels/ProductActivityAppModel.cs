@@ -97,6 +97,7 @@ namespace Core.EntityModels
         public long? ActivityStatusId { get; set; }
         public byte[]? CommentImage { get; set; }
         public string? CommentImageType { get; set; }
+        public bool? IsPartialEmailCreated { get; set; } = false;
         public bool? IsEmailCreated { get; set; } = false;
         public bool? IsActionPermission { get; set; } = true;
         public string? NoAction { get; set; }
@@ -109,6 +110,8 @@ namespace Core.EntityModels
         public string? CheckedRemark { get; set; }
         public string? CheckedByUser { get; set; }
         public string? GetTypes { get; set; }
+        public Guid? EmailSessionId { get; set; }
+        public Guid? EmailActivitySessionId { get; set; }
     }
     public class MultipleProductioAppLineItemLists
     {

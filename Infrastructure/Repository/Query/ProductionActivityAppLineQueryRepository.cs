@@ -109,7 +109,7 @@ namespace Infrastructure.Repository.Query
                 query += "select ApplicationMasterChildID,value from ApplicationMasterChild where ApplicationMasterChildID in(" + string.Join(',', masterChildIds) + ");";
                 masterDetaildChildIds = masterDetaildChildIds != null && masterDetaildChildIds.Count > 0 ? masterDetaildChildIds : new List<long?>() { -1 };
                 query += "select ApplicationMasterDetailID,value from ApplicationMasterDetail where ApplicationMasterDetailID in(" + string.Join(',', masterDetaildChildIds) + ");";
-                query += "select ActivityEmailTopicID,ActivityType,EmailTopicSessionId,ActivityMasterId from ActivityEmailTopics where documentsessionid is not null AND ActivityType='productionactivity' AND ActivityMasterId in(" + string.Join(',', ProductionActivityAppLineIds) + ");";
+                query += "select ActivityEmailTopicID,ActivityType,EmailTopicSessionId,ActivityMasterId,SessionId from ActivityEmailTopics where documentsessionid is not null AND ActivityType='productionactivity' AND ActivityMasterId in(" + string.Join(',', ProductionActivityAppLineIds) + ");";
                 query += "select * from ProductActivityPermission;";
                 query += "select * from ProductActivityCaseCategoryMultiple;";
                 query += "select * from ProductActivityCaseActionMultiple;";
@@ -465,10 +465,16 @@ namespace Infrastructure.Repository.Query
                         productActivityApp.ActivityMasterIds = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityAppLineId == s.ProductionActivityAppLineId).Select(z => z.AcitivityMasterID).ToList() : new List<long?>();
                         var masterList = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityAppLineId == s.ProductionActivityAppLineId).Select(z => z.AcitivityMasterName).ToList() : new List<string?>();
                         productActivityApp.ActivityMaster = string.Join(",", masterList);
-                        var emailcreated = activityEmailTopicList.Where(a => a.ActivityMasterId == s.ProductionActivityAppLineId && a.EmailTopicSessionId != null)?.FirstOrDefault();
+                        var emailcreated = activityEmailTopicList.Where(a => a.ActivityMasterId == s.ProductionActivityAppLineId)?.FirstOrDefault();
                         if (emailcreated != null)
                         {
-                            productActivityApp.IsEmailCreated = true;
+                            productActivityApp.IsPartialEmailCreated = true;
+                            productActivityApp.EmailActivitySessionId = emailcreated.SessionId;
+                            if (emailcreated.EmailTopicSessionId != null)
+                            {
+                                productActivityApp.EmailSessionId = emailcreated.EmailTopicSessionId;
+                                productActivityApp.IsEmailCreated = true;
+                            }
                         }
                         if (documents != null && s.LineSessionId != null)
                         {

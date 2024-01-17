@@ -183,7 +183,7 @@ namespace Infrastructure.Repository.Query
                 }
                 if (userId > 0 && result != null && result.Count() > 0)
                 {
-                    DynamicFormIds = result.Where(w => w.CurrentUserId == userId).Select(s => s.DynamicFormId).ToList();
+                    DynamicFormIds.AddRange(result.Where(w => w.CurrentUserId == userId).Select(s => s.DynamicFormId).ToList());
                 }
                 return DynamicFormIds;
 

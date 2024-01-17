@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using SW.Portal.Solutions.Services;
 using Core.EntityModels;
 using SW.Portal.Solutions.Models;
+using Core.Entities.Views;
+using Core.Entities;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -15,6 +17,24 @@ namespace SW.Portal.Solutions.Controllers
         public ProductionActivitysController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+        [HttpGet("GetApplicationMasterDetailList")]
+        public async Task<ActionResult<ResponseModel<List<View_ApplicationMasterDetail>>>> GetApplicationMasterDetailList(long? Id)
+        {
+            var response = new ResponseModel<View_ApplicationMasterDetail>();
+            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(Id));
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                response.Results = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
         }
         [HttpGet("GetProductionActivityLists")]
         public async Task<ActionResult<ResponseModel<List<ProductActivitysAppModel>>>> GetProductionActivityLists(long? UserId)
@@ -132,6 +152,60 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = ResponseCode.Success;
                 response.Results = productActivityAppModels;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpPost("UpdateActivityStatus")]
+        public async Task<ActionResult<ResponseModel<ProductActivityAppModel>>> UpdateActivityStatus(ProductActivityAppModel value)
+        {
+            var response = new ResponseModel<ProductActivityAppModel>();
+            var result = await _mediator.Send(new UpdateActivityStatus(value));
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                response.Result = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetProductionActivityCheckedDetails")]
+        public async Task<ActionResult<ResponseModel<List<ProductionActivityCheckedDetailsModel>>>> GetProductionActivityCheckedDetails(long? ProductionActivityAppLineId)
+        {
+            var response = new ResponseModel<ProductionActivityCheckedDetailsModel>();
+            var result = await _mediator.Send(new GetProductionActivityCheckedDetails(ProductionActivityAppLineId));
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                response.Results = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpPost("InsertOrUpdateProductionActivityCheckedDetails")]
+        public async Task<ActionResult<ResponseModel<ProductionActivityCheckedDetailsModel>>> InsertOrUpdateProductionActivityCheckedDetails(ProductionActivityCheckedDetailsModel value)
+        {
+            var response = new ResponseModel<ProductionActivityCheckedDetailsModel>();
+            var result = await _mediator.Send(new InsertProductionActivityCheckedDetails(value));
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                response.Result = result;
             }
             catch (Exception ex)
             {

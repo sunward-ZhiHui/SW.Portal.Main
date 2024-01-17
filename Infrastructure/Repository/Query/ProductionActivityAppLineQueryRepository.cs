@@ -1119,7 +1119,9 @@ namespace Infrastructure.Repository.Query
                             }
                             query += ");";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
-
+                            var querys = string.Empty;
+                            querys += "Update ProductionActivityAppLine Set ActivityStatusId=@ActivityStatusId,ProdActivityResultId=@ActivityResultId  Where ProductionActivityAppLineId=@ProductionActivityAppLineId;";
+                            await connection.QuerySingleOrDefaultAsync<long>(querys, parameters);
                             value.ProductionActivityCheckedDetailsId = insertedId;
                         }
                         return value;

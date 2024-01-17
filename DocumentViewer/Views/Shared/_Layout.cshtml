@@ -99,14 +99,21 @@
                     <div class="dropdown">
                         <button class="dropbtn">Menu &#9660;</button>
                         <div class="dropdown-content">
-                            @if (@ViewBag.FileExtension == "msg" || @ViewBag.FileExtension == "eml")
+                            @if (@ViewBag.isFile == "Yes")
                             {
-                                <a href="javascript:void(0);" id="downloadMailClick">Download Mail Attachment</a>
-                            }
-                            @if (@ViewBag.isDownload == "Yes")
-                            {
-                                <a href="javascript:void(0);" id="downloadClick">Download</a>
-                                <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
+                                @if (@ViewBag.FileExtension == "msg" || @ViewBag.FileExtension == "eml")
+                                {
+                                    <a href="javascript:void(0);" id="downloadMailClick">Download Mail Attachment</a>
+                                }
+                                @if (@ViewBag.isDownload == "Yes")
+                                {
+                                    <a href="javascript:void(0);" id="downloadClick">Download</a>
+                                    <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
+                                }
+                                else
+                                {
+                                    <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
+                                }
                             }
                             else
                             {

@@ -136,7 +136,7 @@
         Data.AddedDate = DateTime.Now;
         Data.ManufacturingProcessId = selectedFiles.ManufacturingProcessChildId;
         Data.CategoryActionId = selectedFiles.ProdActivityCategoryChildId;
-        Data.ActivityType = "productionactivity";
+        Data.ActivityType = "RoutineActivity";
         Data.ActionId = selectedFiles.ProdActivityActionChildD;
         _ManuFactureProcessLines = await Mediator.Send(new GetAllApplicationMasterChildListQuery("108"));
         if (selectedFiles.ManufacturingProcessChildId > 0)

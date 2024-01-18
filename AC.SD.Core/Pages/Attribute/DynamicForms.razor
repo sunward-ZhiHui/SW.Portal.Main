@@ -874,6 +874,7 @@
             itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
 
             itemBuilder.AddAttribute(i++, "Caption", s.DisplayName);
+           // itemBuilder.AddAttribute(i++, "CaptionFor", s.DisplayName + "<i class=\"fa fa-info\"></i>");
             itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
             var access = Expression.Property(Expression.Constant(Data), s.DynamicAttributeName);
             var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), access);
@@ -899,6 +900,17 @@
                                          editor.AddAttribute(j + 1, "style", "border-color:red;");
                                      }
                                  }
+                             }
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
                              }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
@@ -932,6 +944,17 @@
                                      }
                                  }
                              }
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
+                             }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
                              {
@@ -962,6 +985,17 @@
                                          editor.AddAttribute(j + 1, "style", "border-color:red;");
                                      }
                                  }
+                             }
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
                              }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
@@ -994,6 +1028,17 @@
                                          editor.AddAttribute(j + 1, "style", "border-color:red;");
                                      }
                                  }
+                             }
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
                              }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
@@ -1041,6 +1086,17 @@
                                  }
                              }
                              editor.AddAttribute(j + 1, "ValueExpression", lambda);
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
+                             }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
                              {
@@ -1071,6 +1127,17 @@
                                          editor.AddAttribute(j + 1, "style", "border-color:red;");
                                      }
                                  }
+                             }
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
                              }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
@@ -1106,6 +1173,17 @@
                                      }
                                  }
                              }
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
+                             }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
                              {
@@ -1138,6 +1216,17 @@
                                          editor.AddAttribute(j + 1, "style", "color:red;");
                                      }
                                  }
+                             }
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
                              }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
@@ -1187,6 +1276,17 @@
                                  layoutItemBuilders.AddAttribute(j + 1, "Caption", "Description");
                                  layoutItemBuilders.CloseComponent();
                              }));
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
+                             }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
                              {
@@ -1248,6 +1348,17 @@
                                  layoutItemBuilders.AddAttribute(j + 1, "Caption", "Description");
                                  layoutItemBuilders.CloseComponent();
                              }));
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
+                             }
                              editor.CloseComponent();
                              if (s.IsRequired == true)
                              {
@@ -1321,6 +1432,17 @@
                                  editor.AddAttribute(j + 1, "ValueExpression", lambda);
                                  editor.AddAttribute(j + 1, "SelectionMode", ListBoxSelectionMode.Single);
                                  editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
+                             }
+                             if (!string.IsNullOrEmpty(s.FormToolTips))
+                             {
+                                 editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((layoutItemBuilderss) =>
+                                 {
+                                     layoutItemBuilderss.OpenComponent<DxEditorButton>(j + 1);
+                                     layoutItemBuilderss.AddAttribute(j + 1, "IconCssClass", "fa fa-info");
+                                     layoutItemBuilderss.AddAttribute(j + 1, "Tooltip", s.FormToolTips);
+                                     layoutItemBuilderss.CloseComponent();
+
+                                 }));
                              }
                              editor.CloseComponent();
                              if (s.IsRequired == true)

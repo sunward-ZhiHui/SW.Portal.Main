@@ -565,12 +565,13 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("RequiredMessage", dynamicFormSection.RequiredMessage, DbType.String);
                         parameters.Add("IsSpinEditType", dynamicFormSection.IsSpinEditType, DbType.String);
                         parameters.Add("IsDisplayTableHeader", dynamicFormSection.IsDisplayTableHeader);
+                        parameters.Add("FormToolTips", dynamicFormSection.FormToolTips,DbType.String);
                         if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
                         {
 
                             var query = "UPDATE DynamicFormSectionAttribute SET DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
                                 "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsSpinEditType=@IsSpinEditType," +
-                                "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader " +
+                                "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,FormToolTips=@FormToolTips,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader " +
                                 "WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
                             await connection.ExecuteAsync(query, parameters);
 
@@ -578,9 +579,9 @@ namespace Infrastructure.Repository.Query
                         else
                         {
                             parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
-                            var query = "INSERT INTO DynamicFormSectionAttribute(DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
+                            var query = "INSERT INTO DynamicFormSectionAttribute(FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
                                 "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader) VALUES " +
-                                "(@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
+                                "(@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
                                 "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader)";
 
                             dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters);
@@ -1993,12 +1994,16 @@ namespace Infrastructure.Repository.Query
                                     {
                                         foreach (var item in value.SelectUserIDs)
                                         {
-                                            var counts = userExitsRoles.Where(w => w.UserId == item).Count();
-                                            if (counts == 0)
+                                            var counts = userExitsRoles.Where(w => w.UserId == item).FirstOrDefault();
+                                            if (counts == null)
                                             {
-                                                query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                    "VALUES (@DynamicFormSectionId," + item + ");\r\n";
+                                                query += "INSERT INTO [DynamicFormSectionSecurity](IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                    "VALUES (@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId," + item + ");\r\n";
 
+                                            }
+                                            else
+                                            {
+                                                query += " UPDATE DynamicFormSectionSecurity SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='"+ counts .DynamicFormSectionSecurityId+ "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
                                             }
                                         }
                                     }
@@ -2012,11 +2017,15 @@ namespace Infrastructure.Repository.Query
                                         {
                                             userGropuIds.ForEach(s =>
                                             {
-                                                var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                                if (counts == 0)
+                                                var counts = userExitsRoles.Where(w => w.UserId == s.UserId).FirstOrDefault();
+                                                if (counts == null)
                                                 {
-                                                    query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId,UserGroupId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                        "VALUES (@DynamicFormSectionId," + s.UserId + "," + s.UserGroupId + ");\r\n";
+                                                    query += "INSERT INTO [DynamicFormSectionSecurity](IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId,UserGroupId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                        "VALUES (@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId," + s.UserId + "," + s.UserGroupId + ");\r\n";
+                                                }
+                                                else
+                                                {
+                                                    query += " UPDATE DynamicFormSectionSecurity SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='" + counts.DynamicFormSectionSecurityId + "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
                                                 }
                                             });
                                         }
@@ -2028,11 +2037,15 @@ namespace Infrastructure.Repository.Query
                                     {
                                         LevelUsers.ToList().ForEach(s =>
                                         {
-                                            var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                            if (counts == 0)
+                                            var counts = userExitsRoles.Where(w => w.UserId == s.UserId).FirstOrDefault();
+                                            if (counts == null)
                                             {
-                                                query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId,LevelId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                   "VALUES (@DynamicFormSectionId," + s.UserId + "," + s.LevelId + ");\r\n";
+                                                query += "INSERT INTO [DynamicFormSectionSecurity](IsVisible,IsReadOnly,IsReadWrite,DynamicFormSectionId,UserId,LevelId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                   "VALUES (@IsVisible,@IsReadOnly,@IsReadWrite,@DynamicFormSectionId," + s.UserId + "," + s.LevelId + ");\r\n";
+                                            }
+                                            else
+                                            {
+                                                query += " UPDATE DynamicFormSectionSecurity SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionSecurityId='" + counts.DynamicFormSectionSecurityId + "' AND DynamicFormSectionId = @DynamicFormSectionId;\r\n";
                                             }
                                         });
                                     }

@@ -177,6 +177,10 @@
                 <DxFormLayoutItem Caption="Is Table Header" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="types.IsDisplayTableHeader"></DxCheckBox>
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Tool Tips" ColSpanMd="6">
+
+                    <DxMemo @bind-Text="@types.FormToolTips" Rows="5" />
+                </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
 
@@ -396,6 +400,7 @@
                     RequiredMessage = editModel.RequiredMessage,
                     IsSpinEditType = IsSpinEditType,
                     IsDisplayTableHeader=editModel.IsDisplayTableHeader,
+                    FormToolTips=editModel.FormToolTips
                 };
 
             try
@@ -435,7 +440,7 @@
                     RequiredMessage = editModel.RequiredMessage,
                     IsSpinEditType = IsSpinEditType,
                     IsDisplayTableHeader = editModel.IsDisplayTableHeader,
-
+                    FormToolTips = editModel.FormToolTips
                 };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);

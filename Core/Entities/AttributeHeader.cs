@@ -21,7 +21,8 @@ namespace Core.Entities
         public string AttributeName { get; set; }
         [Required(ErrorMessage = "Label Name is Required")]
         public string Description { get; set; }
-
+        [Required(ErrorMessage = "Company Name is Required")]
+        public long? AttributeCompanyId { get; set; }
         public string ControlType { get; set; }
 
         public string EntryMask { get; set; }

@@ -9,7 +9,7 @@
 @using global::Core.Repositories.Query;
 @inject IJSRuntime JSRuntime;
 @implements IDisposable
-
+@using global::Core.Entities.Views;
 
 
 
@@ -39,6 +39,27 @@
                     <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
                         <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                                <DxComboBox Data="@_plantItems"
+                                            NullText="Select Company..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="NavCompany"
+                                            ValueFieldName="PlantID"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@Data.AttributeCompanyId" ShowValidationIcon="true">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                            Caption="Company Code"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                            Caption="Description" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                                            Caption="Nav Company" />
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Data.AttributeCompanyId)" />
+                            </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Add Or Select Field " ColSpanMd="6" Visible="isSelectEnabled">
                                 <span style="@isDisplay">
                                     <DxComboBox Data="@_attributes"
@@ -189,6 +210,7 @@
     bool isAttributeEnabled { get; set; } = true;
     bool isEdit { get; set; } = true;
     bool AttributeDetailsEnabled { get; set; } = false;
+    private List<ViewPlants>? _plantItems;
     private bool loading;
     private string MyID = "myid";
     long AttributeIDs;
@@ -221,6 +243,7 @@
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _controlTypeData = await Mediator.Send(new GetAllCodeMasterQuery("AttributeControlType"));
         _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         isAddAttributeEnabled = false;
         isSelectEnabled = true;
         await loadData();
@@ -282,6 +305,7 @@
         Data.RegExp = null;
         Data.IsInternal = false;
         Data.ControlTypeId = null;
+        Data.AttributeCompanyId = null;
         Data.IsMultiple = false;
         Data.IsRequired = false;
         Data.RequiredMessage = null;
@@ -365,6 +389,7 @@
                 AttributeID = Data.AttributeID,
                 AttributeName = Data.AttributeName,
                 Description = Data.Description,
+                AttributeCompanyId=Data.AttributeCompanyId,
                 ControlType = Data.ControlType,
                 IsInternal = Data.IsInternal,
                 EntryMask = Data.EntryMask,
@@ -411,6 +436,7 @@
     }
     void SelectedItemChanged(AttributeHeader header)
     {
+        addNew();
         isEdit = true; DeleteEnabled = false;
         isDropDownType = false; isDataSource = false;
         isDisplay = "display:none;";
@@ -424,7 +450,7 @@
         }
         else
         {
-            Data.Description = null;
+            Data.Description = null;Data.AttributeCompanyId = null;
             Data.EntryMask = null;
             Data.RegExp = null;
             Data.IsInternal = false;
@@ -453,7 +479,7 @@
         if (_master != null && _master.AttributeID > 0)
         {
             isDisplay = ""; isDisplay1 = "display:none;";
-            Data.Description = _master.Description;
+            Data.Description = _master.Description; Data.AttributeCompanyId = _master.AttributeCompanyId;
             Data.EntryMask = _master.EntryMask;
             Data.RegExp = _master.RegExp;
             Data.IsInternal = _master.IsInternal;

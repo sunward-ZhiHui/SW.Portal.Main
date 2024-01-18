@@ -156,7 +156,12 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var results = await connection.QueryMultipleAsync("select t1.*,(select COUNT(t2.UserID) from DynamicFormSectionSecurity t2 Where t2.DynamicFormSectionID=t1.DynamicFormSectionID) as IsPermissionCount,(select COUNT(t3.UserID) from DynamicFormSectionSecurity t3 Where t3.UserID=" + UserId + " AND  t3.DynamicFormSectionID=t1.DynamicFormSectionID) as IsLoginUsers " +
+                    var results = await connection.QueryMultipleAsync("select t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy," +
+                        "(select t4.IsVisible from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsVisible," +
+                        "(select t4.IsReadOnly from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsReadOnly," +
+                        "(select t4.IsReadWrite from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsReadWrite," +
+                        "(select COUNT(t2.UserID) from DynamicFormSectionSecurity t2 Where t2.DynamicFormSectionID=t1.DynamicFormSectionID) as IsPermissionCount," +
+                        "(select COUNT(t3.UserID) from DynamicFormSectionSecurity t3 Where t3.UserID=1 AND  t3.DynamicFormSectionID=t1.DynamicFormSectionID) as IsLoginUsers " +
                         "from DynamicFormSection t1 where t1.DynamicFormID=" + dynamicForm.ID + " order by  t1.SortOrderBy asc;" +
                         "select t1.*,t5.SectionName,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID from DynamicFormSectionAttribute t1\r\n" +
                         "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
@@ -309,7 +314,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AttributeName", attributeHeader.AttributeName, DbType.String);
                             parameters.Add("IsInternal", attributeHeader.IsInternal);
                             parameters.Add("Description", attributeHeader.Description, DbType.String);
-
+                            parameters.Add("AttributeCompanyId", attributeHeader.AttributeCompanyId);
                             parameters.Add("ControlType", attributeHeader.ControlType);
                             parameters.Add("EntryMask", attributeHeader.EntryMask);
                             parameters.Add("RegExp", attributeHeader.RegExp);
@@ -327,12 +332,13 @@ namespace Infrastructure.Repository.Query
                                 "RegExp=@RegExp,ModifiedByUserID=@ModifiedByUserID, " +
                                 "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID, " +
                                 "ControlTypeId=@ControlTypeId,IsMultiple=@IsMultiple, " +
-                                "IsRequired=@IsRequired,RequiredMessage=@RequiredMessage,DropDownTypeId=@DropDownTypeId,DataSourceId=@DataSourceId " +
+                                "IsRequired=@IsRequired,RequiredMessage=@RequiredMessage,DropDownTypeId=@DropDownTypeId,DataSourceId=@DataSourceId,AttributeCompanyId=@AttributeCompanyId " +
                                 "WHERE  AttributeID = @AttributeID";
                             await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters);
                         }
                         else
                         {
+                            parameters.Add("AttributeCompanyId", attributeHeader.AttributeCompanyId);
                             parameters.Add("AttributeName", attributeHeader.AttributeName, DbType.String);
                             parameters.Add("IsInternal", attributeHeader.IsInternal);
                             parameters.Add("Description", attributeHeader.Description, DbType.String);
@@ -351,9 +357,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("RequiredMessage", attributeHeader.RequiredMessage, DbType.String);
 
 
-                            var query = @"INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ControlTypeId,IsMultiple,IsRequired,RequiredMessage,DropDownTypeId,DataSourceId) 
+                            var query = @"INSERT INTO AttributeHeader(AttributeCompanyId,AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ControlTypeId,IsMultiple,IsRequired,RequiredMessage,DropDownTypeId,DataSourceId) 
               OUTPUT INSERTED.AttributeID  -- Replace 'YourIDColumn' with the actual column name of your IDENTITY column
-              VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage,@DropDownTypeId,@DataSourceId)";
+              VALUES (@AttributeCompanyId,@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage,@DropDownTypeId,@DataSourceId)";
 
                             var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters);
                             attributeHeader.AttributeID = insertedId;

@@ -121,5 +121,8 @@ namespace SW.Portal.Solutions.Models
         //public long? DocumentID { get; set; }
 
         public Guid? SessionId { get; set; }
+        public Guid? EmailSessionId { get; set; }
+        public bool? IsPartialEmailCreated { get; set; } = false;
+        public Guid? EmailActivitySessionId { get; set; }
     }
 }

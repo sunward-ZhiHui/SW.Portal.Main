@@ -145,6 +145,9 @@ namespace SW.Portal.Solutions.Controllers
                     productActivityAppModel1.AddedDate = s.AddedDate;
                     productActivityAppModel1.AddedByUser = s.AddedByUser;
                     productActivityAppModel1.StatusCode = s.StatusCode;
+                    productActivityAppModel1.IsPartialEmailCreated = s.IsPartialEmailCreated;
+                    productActivityAppModel1.EmailActivitySessionId = s.EmailActivitySessionId;
+                    productActivityAppModel1.EmailSessionId = s.EmailSessionId;
                     productActivityAppModels.Add(productActivityAppModel1);
                 });
             }
@@ -329,6 +332,9 @@ namespace SW.Portal.Solutions.Controllers
                     productActivityAppModel1.AddedDate = s.AddedDate;
                     productActivityAppModel1.AddedByUser = s.AddedByUser;
                     productActivityAppModel1.StatusCode = s.StatusCode;
+                    productActivityAppModel1.IsPartialEmailCreated = s.IsPartialEmailCreated;
+                    productActivityAppModel1.EmailActivitySessionId = s.EmailActivitySessionId;
+                    productActivityAppModel1.EmailSessionId = s.EmailSessionId;
                     productActivityAppModels.Add(productActivityAppModel1);
                 });
             }

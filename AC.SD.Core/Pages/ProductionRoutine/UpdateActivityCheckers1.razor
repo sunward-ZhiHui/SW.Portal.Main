@@ -211,9 +211,25 @@
         PanelVisible = false;
         StateHasChanged();
     }
-    void onMailNew()
+    async Task onMailNew()
     {
-        ActivityEmailPopup = true;
+        if (selectedFiles != null)
+        {
+            if (selectedFiles.IsEmailCreated == true && selectedFiles.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + selectedFiles.EmailSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else if (selectedFiles.IsEmailCreated == false && selectedFiles.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "CreateEmail/" + selectedFiles.EmailActivitySessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                ActivityEmailPopup = true;
+            }
+        }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {

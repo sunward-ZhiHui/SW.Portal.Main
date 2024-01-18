@@ -993,6 +993,7 @@
         PopupVisible = false;
         SupportingDocumentsPopup = false;
         OperatorsPopup = false;
+        InvokeAsync(onLoadDataList);
         StateHasChanged();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
@@ -1040,17 +1041,19 @@
         OperatorsPopup = false;
         StateHasChanged();
     }
-    void onEmailOpen()
+    async Task onEmailOpen()
     {
-        if (_selectedItems != null && _selectedItems.DocumentID > 0)
+        if (_selectedItems != null)
         {
-            if (_selectedItems.IsEmailCreated == true && _selectedItems.IsPartialEmailCreated==true)
+            if (_selectedItems.IsEmailCreated == true && _selectedItems.IsPartialEmailCreated == true)
             {
-                NavigationManager.NavigateTo("ViewEmail/" + _selectedItems.EmailSessionId);
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItems.EmailSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
-            else if (_selectedItems.IsEmailCreated == false && _selectedItems.IsPartialEmailCreated==true)
+            else if (_selectedItems.IsEmailCreated == false && _selectedItems.IsPartialEmailCreated == true)
             {
-                NavigationManager.NavigateTo("CreateEmail/" + _selectedItems.EmailActivitySessionId);
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.EmailActivitySessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
             else
             {

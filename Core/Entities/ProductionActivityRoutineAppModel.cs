@@ -209,5 +209,7 @@ namespace Core.Entities
         public string? CheckedByUser { get; set; }
         public string? GetTypes { get; set; }
         public Guid? EmailSessionId { get; set; }
+        public bool? IsPartialEmailCreated { get; set; } = false;
+        public Guid? EmailActivitySessionId { get; set; }
     }
 }

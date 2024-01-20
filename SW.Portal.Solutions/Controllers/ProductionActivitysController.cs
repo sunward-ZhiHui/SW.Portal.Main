@@ -165,14 +165,18 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpPost("UpdateActivityStatus")]
-        public async Task<ActionResult<ResponseModel<ProductActivityAppModel>>> UpdateActivityStatus(ProductActivityAppModel value)
+        public async Task<ActionResult<ResponseModel<ProductActivityAppStatusModel>>> UpdateActivityStatus(ProductActivityAppStatusModel value)
         {
-            var response = new ResponseModel<ProductActivityAppModel>();
-            var result = await _mediator.Send(new UpdateActivityStatus(value));
+            var response = new ResponseModel<ProductActivityAppStatusModel>();
+
+            ProductActivityAppModel values = new ProductActivityAppModel();
+            values.ProductionActivityAppLineId = value.ProductionActivityAppLineId;
+            values.ActivityStatusId = value.ActivityStatusId;
+            var result = await _mediator.Send(new UpdateActivityStatus(values));
             try
             {
                 response.ResponseCode = ResponseCode.Success;
-                response.Result = result;
+                response.Result = value;
             }
             catch (Exception ex)
             {
@@ -353,14 +357,19 @@ namespace SW.Portal.Solutions.Controllers
         }
 
         [HttpPost("UpdateActivityRoutineStatus")]
-        public async Task<ActionResult<ResponseModel<ProductionActivityRoutineAppModel>>> UpdateActivityRoutineStatus(ProductionActivityRoutineAppModel value)
+        public async Task<ActionResult<ResponseModel<ProductionActivityRoutineAppStatusModel>>> UpdateActivityRoutineStatus(ProductionActivityRoutineAppStatusModel value)
         {
-            var response = new ResponseModel<ProductionActivityRoutineAppModel>();
-            var result = await _mediator.Send(new UpdateActivityRoutineStatus(value));
+            var response = new ResponseModel<ProductionActivityRoutineAppStatusModel>();
+
+            ProductionActivityRoutineAppModel values = new ProductionActivityRoutineAppModel();
+            values.ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId;
+            values.RoutineStatusId = value.RoutineStatusId;
+            values.ScreenID = ""; values.StatusCode = ""; values.AddedByUser = ""; values.ReferenceInfo = ""; values.Errormessage = ""; values.ModifiedByUser = "";
+            var result = await _mediator.Send(new UpdateActivityRoutineStatus(values));
             try
             {
                 response.ResponseCode = ResponseCode.Success;
-                response.Result = result;
+                response.Result = value;
             }
             catch (Exception ex)
             {

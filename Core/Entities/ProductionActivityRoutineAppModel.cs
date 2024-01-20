@@ -83,7 +83,7 @@ namespace Core.Entities
         public string? CommentImageType { get; set; }
         public bool? IsEmailCreated { get; set; } = false;
         public bool? IsPartialEmailCreated { get; set; } = false;
-        
+
         public bool? IsActionPermission { get; set; } = true;
         public long? ProfileId { get; set; }
         public string? ProfileNo { get; set; }
@@ -211,5 +211,10 @@ namespace Core.Entities
         public Guid? EmailSessionId { get; set; }
         public bool? IsPartialEmailCreated { get; set; } = false;
         public Guid? EmailActivitySessionId { get; set; }
+    }
+    public class ProductionActivityRoutineAppStatusModel
+    {
+        public long ProductionActivityRoutineAppLineId { get; set; }
+        public long? RoutineStatusId { get; set; }
     }
 }

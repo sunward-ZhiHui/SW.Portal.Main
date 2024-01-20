@@ -151,4 +151,10 @@ namespace Core.EntityModels
         public List<ProductActivityCaseActionMultiple> ProductActivityCaseActionMultiple { get; set; } = new List<ProductActivityCaseActionMultiple>();
         public List<ProductActivityCase> ProductActivityCase { get; set; } = new List<ProductActivityCase>();
     }
+    public class ProductActivityAppStatusModel
+    {
+        public long ProductionActivityAppLineId { get; set; }
+        public long? ActivityStatusId { get; set; }
+
+    }
 }

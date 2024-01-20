@@ -198,8 +198,8 @@ namespace Core.Entities
         public int? IsDocuments { get; set; }
         public Guid? UniqueSessionId { get; set; }
         public bool? IsNewPath { get; set; }
-        public long? CompanyID { get; set; }
-        public long? LocationID { get; set; }
+       // public long? CompanyID { get; set; }
+       // public long? LocationID { get; set; }
         public List<ProductActivityPermissionModel>? ProductActivityPermissions { get; set; }
         public bool? IsCheckNoIssue { get; set; } = false;
         public bool? IsCheckReferSupportDocument { get; set; } = false;

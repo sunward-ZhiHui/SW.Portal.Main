@@ -283,6 +283,34 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetByIdEmailUserGroupToHandler : IRequestHandler<GetByIdEmailUserGroupTo, List<long>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetByIdEmailUserGroupToHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<long>> Handle(GetByIdEmailUserGroupTo request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetByIdUserGroupToList(request.ID);
+
+        }
+    }
+    public class GetByIdEmailUserGroupCCHandler : IRequestHandler<GetByIdEmailUserGroupCC, List<long>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetByIdEmailUserGroupCCHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<long>> Handle(GetByIdEmailUserGroupCC request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetByIdUserGroupCCList(request.ID);
+
+        }
+    }
     public class GetEmailTopicDraftHandler : IRequestHandler<GetEmailTopicDraft, List<EmailTopics>>
     {
 

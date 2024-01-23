@@ -447,38 +447,76 @@ namespace Application.Handlers.QueryHandlers
 
             var ETUpdateDate = await _conversationQueryRepository.LastUpdateDateEmailTopic(request.TopicID);
 
-
-            var conversationAssignTo = new EmailConversationAssignTo();
-            conversationAssignTo.ConversationId = req;
-            conversationAssignTo.ReplyId = request.ReplyId;
-            conversationAssignTo.PlistIdss = request.PlistIdss;
-            conversationAssignTo.AllowPlistids = request.AllowPlistids;            
-            conversationAssignTo.TopicId = request.TopicID;            
-            conversationAssignTo.StatusCodeID = request.StatusCodeID;
-            conversationAssignTo.AddedByUserID = request.AddedByUserID;
-            conversationAssignTo.SessionId = request.SessionId;
-            conversationAssignTo.AddedDate = request.AddedDate;
-            conversationAssignTo.AssigntoIds = request.AssigntoIdss;
-            conversationAssignTo.AssignccIds = request.AssignccIdss;
-            conversationAssignTo.ConIds = request.ConIds;            
-            var reqq = await _conversationQueryRepository.InsertAssignTo_sp(conversationAssignTo);
-
-            var plistData = request.AllParticipantIds.ToList();
-            if (plistData.Count > 0)
+            if (string.IsNullOrEmpty(request.UserType) || request.UserType == "Users")
             {
-                request.AllParticipantIds.ToList().ForEach(async a =>
+                var conversationAssignTo = new EmailConversationAssignTo();
+                conversationAssignTo.ConversationId = req;
+                conversationAssignTo.ReplyId = request.ReplyId;
+                conversationAssignTo.PlistIdss = request.PlistIdss;
+                conversationAssignTo.AllowPlistids = request.AllowPlistids;
+                conversationAssignTo.TopicId = request.TopicID;
+                conversationAssignTo.StatusCodeID = request.StatusCodeID;
+                conversationAssignTo.AddedByUserID = request.AddedByUserID;
+                conversationAssignTo.SessionId = request.SessionId;
+                conversationAssignTo.AddedDate = request.AddedDate;
+                conversationAssignTo.AssigntoIds = request.AssigntoIdss;
+                conversationAssignTo.AssignccIds = request.AssignccIdss;
+                conversationAssignTo.ConIds = request.ConIds;
+                var reqq = await _conversationQueryRepository.InsertAssignTo_sp(conversationAssignTo);
+
+                var plistData = request.AllParticipantIds.ToList();
+                if (plistData.Count > 0)
                 {
-                    var forumNotifications = new EmailNotifications();
-                    forumNotifications.ConversationId = req;
-                    forumNotifications.TopicId = request.TopicID;
-                    forumNotifications.UserId = a;
-                    forumNotifications.AddedByUserID = request.AddedByUserID;
-                    forumNotifications.AddedDate = request.AddedDate;
-                    forumNotifications.IsRead = request.AddedByUserID == a ? true:false;
-                   await _conversationQueryRepository.InsertEmailNotifications(forumNotifications);
-                });
+                    request.AllParticipantIds.ToList().ForEach(async a =>
+                    {
+                        var forumNotifications = new EmailNotifications();
+                        forumNotifications.ConversationId = req;
+                        forumNotifications.TopicId = request.TopicID;
+                        forumNotifications.UserId = a;
+                        forumNotifications.AddedByUserID = request.AddedByUserID;
+                        forumNotifications.AddedDate = request.AddedDate;
+                        forumNotifications.IsRead = request.AddedByUserID == a ? true : false;
+                        await _conversationQueryRepository.InsertEmailNotifications(forumNotifications);
+                    });
+                }
+
+            }
+            else
+            {
+                var AssignUserGroup = new EmailConversationAssignToUserGroup();
+                AssignUserGroup.ConversationId = req;
+                AssignUserGroup.ReplyId = request.ReplyId;
+                AssignUserGroup.AllowPlistids = request.AllowPlistids;
+                AssignUserGroup.PlistIdss = request.ParticipantsUserGroup;                
+                AssignUserGroup.TopicId = request.TopicID;                
+                AssignUserGroup.AddedByUserID = request.AddedByUserID;                
+                AssignUserGroup.AddedDate = request.AddedDate;
+                AssignUserGroup.AssigntoIds = request.ToUserGroup;
+                AssignUserGroup.AssignccIds = request.CCUserGroup;
+                AssignUserGroup.ConIds = request.ConIds;
+                var reqq = await _conversationQueryRepository.InsertAssignToUserGroup_sp(AssignUserGroup);
+
+                var GroupUserIdsList = await _conversationQueryRepository.GetGroupByUserIdList(request.ParticipantsUserGroup);
+
+                if (GroupUserIdsList.Count > 0)
+                {
+                    GroupUserIdsList.ForEach(async a =>
+                    {
+                        var forumNotifications = new EmailNotifications();
+                        forumNotifications.ConversationId = req;
+                        forumNotifications.TopicId = request.TopicID;
+                        forumNotifications.UserId = a;
+                        forumNotifications.AddedByUserID = request.AddedByUserID;
+                        forumNotifications.AddedDate = request.AddedDate;
+                        forumNotifications.IsRead = request.AddedByUserID == a ? true : false;
+                        await _conversationQueryRepository.InsertEmailNotifications(forumNotifications);
+                    });
+                }
+
             }
 
+
+          
 
             return req;
         }
@@ -637,6 +675,19 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewEmployee>)await _conversationQueryRepository.GetConvPListAsync(request.ConvasationId);
         }
     }
+    public class GetConvasationplistUserGroupHandler : IRequestHandler<GetByConvasationPUserGroupList, List<long>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetConvasationplistUserGroupHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<long>> Handle(GetByConvasationPUserGroupList request, CancellationToken cancellationToken)
+        {
+            return (List<long>)await _conversationQueryRepository.GetConvPListUserGroupAsync(request.ConvasationId);
+        }
+    }
+    
 
     public class GetAllConvAssToListHandler : IRequestHandler<GetAllConvAssToListQuery, List<ViewEmployee>>
     {
@@ -724,4 +775,17 @@ namespace Application.Handlers.QueryHandlers
 			return (List<EmailConversationAssignTo>)await _conversationQueryRepository.GetConversationAssignCCList(request.ConversationId);
 		}
 	}
+    public class GetAssignCCUserGroupHandler : IRequestHandler<GetAssignCCUserGroup, List<EmailConversationAssignToUserGroup>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetAssignCCUserGroupHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<EmailConversationAssignToUserGroup>> Handle(GetAssignCCUserGroup request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversationAssignToUserGroup>)await _conversationQueryRepository.GetAssignCCUserGroupList(request.ConversationId);
+        }
+    }
+    
 }

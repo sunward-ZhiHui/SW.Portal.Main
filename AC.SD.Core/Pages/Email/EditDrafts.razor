@@ -141,8 +141,18 @@ else
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => CategoryData.GroupTag)" />
                             </DxFormLayoutItem>
-
-                            <DxFormLayoutItem Caption="To" ColSpanMd="8">
+                            @* <DxFormLayoutItem Caption="Type" ColSpanMd="12">
+                                <DxRadioGroup Items="@UserTypeOptions"
+                                              Value="@Data.UserType"
+                                              EnabledFieldName="@nameof(Data.UserType)"
+                                              ValueExpression="@(() => Data.UserType )"
+                                              ValueChanged="@((string value) => OnUserTypeChanged(value))"
+                                              Layout="RadioGroupLayout.Horizontal"
+                                              CssClass="dx-demo-radio-group" />
+                            </DxFormLayoutItem> *@
+                            @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+                            {
+                                <DxFormLayoutItem Caption="To" ColSpanMd="8">
                                 <DxTagBox NullText="Select To..."
                                       Data="_participant"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -165,7 +175,29 @@ else
                                             Caption="Company" />
                                 </DxTagBox>
                                 <ValidationMessage For="@(() => Data.ToIds)" />
-                            </DxFormLayoutItem>
+                                </DxFormLayoutItem>
+                            }
+                            else
+                            {
+                                <DxFormLayoutItem Caption="To Group" ColSpanMd="8">
+                                    <DxTagBox Data="_ToUserGroup"
+                                              @bind-Values="Data.ToUserGroupIds"
+                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              NullText="Select To Group..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserGroupId"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual"
+                                              CssClass="cw-480">
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                                    </DxTagBox>
+                                    <ValidationMessage For="@(() => Data.ToUserGroupIds)" />
+                                </DxFormLayoutItem>
+                            }
+
 
                             <DxFormLayoutItem Caption="Category" ColSpanMd="4">
                                 <DxComboBox Data="@_categoryTagItems"
@@ -180,7 +212,9 @@ else
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="CC" ColSpanMd="8">
+                             @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+                            {
+                                <DxFormLayoutItem Caption="CC" ColSpanMd="8">
                                 <DxTagBox NullText="Select Cc..."
                                       Data="_participant"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -202,7 +236,30 @@ else
                                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
                                             Caption="Company" />
                                 </DxTagBox>
-                            </DxFormLayoutItem>
+                                </DxFormLayoutItem>
+                            }
+                            else
+                            {
+                                <DxFormLayoutItem Caption="CC Group" ColSpanMd="8">
+                                    <DxTagBox NullText="Select Cc Group..."
+                                              Data="_CCUserGroup"
+                                              @bind-Values="@Data.CCUserGroupIds"
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ListRenderMode="ListRenderMode.Virtual"
+                                              ValueFieldName="UserGroupId"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItemsChanged(values))"
+                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              CssClass="cw-480">
+
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                            }
+
 
 
                             <DxFormLayoutItem Caption="Action" ColSpanMd="4">
@@ -403,6 +460,40 @@ else
 
 
 @code {
+    IEnumerable<string> UserTypeOptions = new[] { "Users", "Group" };
+    async void OnUserTypeChanged(string? radioValue)
+    {
+        Data.UserType = radioValue;
+
+
+        if (radioValue == "Group")
+        {
+            await JSRuntime.InvokeAsync<string>("showLoading");
+
+            _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+            _ToUserGroup = _participantUserGroup;
+            _CCUserGroup = _participantUserGroup;
+
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+
+            Data.ToIds = null;
+            Data.CCIds = null;
+
+            Data.ToUserGroupIds = null;
+            Data.ToIds = new List<long> { -1 };
+
+        }
+        else
+        {
+            Data.ToUserGroupIds = null;
+            Data.CCUserGroupIds = null;
+
+            Data.ToUserGroupIds = new List<long> { -1 };
+            Data.ToIds = null;
+        }
+        StateHasChanged();
+    }
+    string isUserType = "Users";
     bool isSending = false;
     private List<EmailActivityCatgorys> _UserTagList;
     private List<EmailActivityCatgorys> _TagEmailList;
@@ -458,6 +549,13 @@ else
     long? AppUserId;
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
+
+
+    internal List<UserGroup>? _participantUserGroup;
+    internal List<UserGroup>? _ToUserGroup;
+    internal List<UserGroup>? _CCUserGroup;
+
+
     IEnumerable<ForumTypes>? _OnBehalf;
     Documents _documents { get; set; }
     private string? DocumentViewUrl;
@@ -585,25 +683,41 @@ else
     void onCcChanged(IEnumerable<string> newTags)
     {
         sCCIds = newTags.ToList();
-
-
         List<string> concatList = sCCIds.Concat(sToIds).ToList();
 
         //_Toparticipant = _CCparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
         _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name +"-"+ c.NickName)).ToList();
 
+    }
+    void onSelectedToUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
 
+            _CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
 
-        //foreach (var itm in Tags)
-        //{
-        //    _Toparticipant = _CCparticipant.Where(c => c.FirstName != itm).ToList();
-        //}
+            _CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        StateHasChanged();
+    }
+    void onSelectedCCUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+            _ToUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+            _ToUserGroup = _participantUserGroup.ToList();
+        }
+        StateHasChanged();
     }
     private async Task SubmitForm()
-    {
-        //myForm.OnSubmit();    
-        // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
-        //await JSRuntime.InvokeVoidAsync("submitForm");
+    {        
         await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
     }
     private void addNew(int id)
@@ -805,6 +919,53 @@ else
                 isValidateSession = false;
                 //var docId = "70F019EC011241C9807C39BF2BE79136";
                 //Guid docSessionId = Guid.Parse(docId);
+                Data.UserType = actItem[0].UserType;     
+                //OnUserTypeChanged(actItem[0].UserType);
+                if (string.IsNullOrEmpty(actItem[0].UserType) || actItem[0].UserType == "Users")
+                {
+                    Data.ToUserGroupIds = null;
+                    Data.CCUserGroupIds = null;
+
+                    Data.ToUserGroupIds = new List<long> { -1 };
+                    Data.ToIds = null;
+
+                    var filteredToList = await Mediator.Send(new GetByIdEmailTopicTo(actItem[0].ID));
+                    var filteredCCList = await Mediator.Send(new GetByIdEmailTopicCC(actItem[0].ID));
+
+                    IEnumerable<string> Totags = filteredToList.Select(s => s.Name + "-" + s.NickName).ToList();
+                    IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+
+                    Data.ToIds = filteredToList.Select(s => s.UserId.Value).ToList();
+                    sToIds = Totags.ToList();
+                    Data.CCIds = filteredCCList.Select(s => s.UserId.Value).ToList();
+                    sCCIds = CCtags.ToList();
+                }
+                else
+                {
+                    Data.ToIds = null;
+                    Data.CCIds = null;
+
+                    Data.ToUserGroupIds = null;
+                    Data.ToIds = new List<long> { -1 };
+
+
+                    _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+                    _ToUserGroup = _participantUserGroup;
+                    _CCUserGroup = _participantUserGroup;
+
+                    Data.ToUserGroupIds = await Mediator.Send(new GetByIdEmailUserGroupTo(actItem[0].ID));                    
+                    Data.CCUserGroupIds = await Mediator.Send(new GetByIdEmailUserGroupCC(actItem[0].ID));
+                    
+                    _ToUserGroup = _ToUserGroup.Where(c => !Data.CCUserGroupIds.Select(id => (long?)id).Contains(c.UserGroupId)).ToList();
+                    _CCUserGroup = _CCUserGroup.Where(c => !Data.ToUserGroupIds.Select(id => (long?)id).Contains(c.UserGroupId)).ToList();
+
+                    //var listCC = await Mediator.Send(new GetAssignCCUserGroup(actItem[0].ID));
+                    //Data.CCUserGroupIds = listCC.Select(s => s.GroupId).ToList();
+
+                    //_ToUserGroup = _ToUserGroup.Where(c => !Data.CCUserGroupIds.Select(id => (long?)id).Contains(c.UserGroupId)).ToList();
+
+                    StateHasChanged();
+                }
 
                 if(actItem[0].SessionId != null)
                 {
@@ -831,8 +992,7 @@ else
                 }              
 
 
-                var filteredToList = await Mediator.Send(new GetByIdEmailTopicTo(actItem[0].ID));
-                var filteredCCList = await Mediator.Send(new GetByIdEmailTopicCC(actItem[0].ID));
+            
 
                 Data.TopicName = actItem[0].TopicName;
                 Data.OnBehalf = actItem[0].OnBehalf;
@@ -856,9 +1016,6 @@ else
                 {
                     var _getUserTag = await Mediator.Send(new GetByUserTage(_TagEmailList[0].TopicId, applicationUser.UserID));
 
-
-
-
                     //var userTagName = _UserTagList.Where(x => x.UserTagTopicId == _TagEmailList[0].TopicId).ToList();
                     //CategoryData.UserTag = _TagEmailList == null ? null : _TagEmailList[0].UserTag;
                     if (_getUserTag.Count > 0)
@@ -875,28 +1032,10 @@ else
                 server.Options.Export.Html.EmbedImages = true;
                 byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Rtf);              
               
-                Data.FileData = fileContents;
-                // Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
+                Data.FileData = fileContents;                
                 _sessionId = actItem[0].SessionId;
-
-                // ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
-
-                //List<long?> ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
-                //var filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
-
-                //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
-                IEnumerable<string> Totags = filteredToList.Select(s => s.Name + "-" + s.NickName).ToList();
-
-                //List<long?> CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
-                //var filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
-
-                //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
-                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();            
-
-                Data.ToIds = filteredToList.Select(s => s.UserId.Value).ToList();
-                sToIds = Totags.ToList();
-                Data.CCIds = filteredCCList.Select(s => s.UserId.Value).ToList();
-                sCCIds = CCtags.ToList();
+                
+              
             }
             else
             {
@@ -945,15 +1084,37 @@ else
         selectedToIds.Clear();
         SelectedCCIds.Clear();
 
-        var lslsl = Data.ToIds;
+        var lslsl = Data.ToIds;     
 
-        if (Data.ToIds.Count() == 0)
+        if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
         {
-            Data.ToIds = null;
-            toastService.ShowToast("Please Select To", AC.SD.Core.Services.ToastLevel.Error);
-            await JSRuntime.InvokeAsync<string>("hideLoading");
-            isSending = false;
-            return;
+            if (Data.ToIds.Count() == 0)
+            {
+                Data.ToIds = null;
+                toastService.ShowToast("Please Select To", AC.SD.Core.Services.ToastLevel.Error);
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+                isSending = false;
+                return;
+            }
+        }
+        else
+        {
+            if (Data.ToUserGroupIds == null)
+            {
+                toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
+                loading = false;
+                 await JSRuntime.InvokeAsync<string>("hideLoading");
+                return;
+
+            }
+
+            if (Data.ToUserGroupIds.Count() == 0)
+            {
+                toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
+                loading = false;
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+                return;
+            }
         }
        
 
@@ -1057,6 +1218,33 @@ else
 
         DateTime? nullableDateTime = DateTime.Now;
 
+
+
+         var susertype = Data.UserType;
+
+        var sToUserGroup = string.Join(",", Data.ToUserGroupIds);
+        var sCCUserGroup = "";
+        if(Data.CCUserGroupIds != null)
+        {
+            sCCUserGroup = string.Join(",", Data.CCUserGroupIds);
+        }
+        else
+        {
+            sCCUserGroup = "";
+        }
+
+        var sParticipantsUserGroup = "";
+        if (sCCUserGroup != null || sCCUserGroup != "")
+        {
+            sParticipantsUserGroup = string.Join(",", sToUserGroup, sCCUserGroup);
+        }
+        else
+        {
+            sParticipantsUserGroup = string.Join(",", Data.ToUserGroupIds);            
+        }
+
+
+
         var createReq = new EditEmailTopics
                 {
                     ID = Data.ID,
@@ -1086,7 +1274,11 @@ else
                     ActionTag = CategoryData.ActionTag,
                     CategoryTag = CategoryData.CategoryTag,
                     UserTag = CategoryData.UserTag,
-                    UserTagId = CategoryData.UserTagId
+                    UserTagId = CategoryData.UserTagId,
+                UserType = Data.UserType,
+                ToUserGroup = sToUserGroup,
+                CCUserGroup = sCCUserGroup,
+                ParticipantsUserGroup = sParticipantsUserGroup
 
                 };
         try

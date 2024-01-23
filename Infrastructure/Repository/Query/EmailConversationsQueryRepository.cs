@@ -111,7 +111,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select  * from View_Employee where (StatusName!='Resign' or StatusName is null) and UserID NOT IN (SELECT AU.UserID FROM EmailTopicParticipant TP INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID WHERE TP.TopicId = @TopicId)";
+                var query = @"select  * from View_Employee where (StatusName!='Resign' or StatusName is null) and UserID NOT IN (SELECT AU.UserID FROM EmailConversationParticipant TP INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID WHERE TP.TopicId = @TopicId)";
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicID", topicId);
                 using (var connection = CreateConnection())
@@ -183,6 +183,25 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<long>> GetConvPListUserGroupAsync(long ConversationId)
+        {
+            try
+            {
+                var query = @"SELECT FT.GroupId FROM EmailConversationParticipantUserGroup FT
+                                WHERE FT.ConversationId = @ConversationId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationId", ConversationId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<long>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -268,7 +287,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
+                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID
@@ -291,7 +310,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
+                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
                                
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID
@@ -314,7 +333,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName FROM EmailTopicTo FT                               
+                var query = @"SELECT FT.UserId,E.FirstName FROM EmailConversationAssignTo FT                               
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
                                 WHERE FT.TopicId = @TopicId";
                 var parameters = new DynamicParameters();
@@ -502,14 +521,35 @@ namespace Infrastructure.Repository.Query
                     {
                         topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
                         topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
-                        topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
-                        topic.AssignCCList = await GetAssignCCList(new List<int> { topic.ID });
+
+                        
+                        if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
+                        {
+                            topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCList(new List<int> { topic.ID });
+                        }
+                        else
+                        {
+                            topic.AssignToList = await GetAssignToUserGroupList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCUserGroupList(new List<int> { topic.ID });
+                        }
+                       
 
                         await Task.WhenAll(topic.ReplyConversation.Select(async conversation =>
                         {
                             conversation.documents = await GetDocumentList(new List<Guid?> { conversation.SessionId });
-                            conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
-                            conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
+                            if (string.IsNullOrEmpty(conversation.UserType) || conversation.UserType == "Users")
+                            {
+                                conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
+                                conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
+                            }
+                            else
+                            {
+                                conversation.AssignToList = await GetAssignToUserGroupList(new List<int> { conversation.ID });
+                                conversation.AssignCCList = await GetAssignCCUserGroupList(new List<int> { conversation.ID });
+                            }
+
+                            
                         }));
                     }));                  
                 }
@@ -964,7 +1004,7 @@ namespace Infrastructure.Repository.Query
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
 								AU.UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
-                                EN.IsRead,EN.ID AS EmailNotificationId
+                                EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType
 
                             FROM
                             EmailConversations FC
@@ -1021,14 +1061,33 @@ namespace Infrastructure.Repository.Query
                     {
                         topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
                         topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
-                        topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
-                        topic.AssignCCList = await GetAssignCCList(new List<int> { topic.ID });
+
+                        if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
+                        {
+                            topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCList(new List<int> { topic.ID });
+                        }
+                        else
+                        {
+                            topic.AssignToList = await GetAssignToUserGroupList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCUserGroupList(new List<int> { topic.ID });
+                        }
+                            
 
                         await Task.WhenAll(topic.ReplyConversation.Select(async conversation =>
                         {
                             conversation.documents = await GetDocumentList(new List<Guid?> { conversation.SessionId });
-                            conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
-                            conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
+                            if (string.IsNullOrEmpty(conversation.UserType) || conversation.UserType == "Users")
+                            {
+                                conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
+                                conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
+                            }
+                            else
+                            {
+                                conversation.AssignToList = await GetAssignToUserGroupList(new List<int> { conversation.ID });
+                                conversation.AssignCCList = await GetAssignCCUserGroupList(new List<int> { conversation.ID });
+                            }
+                            
                         }));
                     }));
 
@@ -1245,7 +1304,50 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailAssignToList>> GetAssignToUserGroupList(List<int> Ids)
+        {
+            try
+            {
+                var lists = string.Join(',', Ids.Select(i => $"'{i}'"));
+                var query = @"SELECT UG.Name as FirstName, ECAU.GroupId,ECAU.TopicId FROM EmailConversationAssignToUserGroup ECAU
+                                INNER JOIN UserGroup UG ON UG.UserGroupID =ECAU.GroupId
+                                WHERE ECAU.ConversationId in (" + lists + ")";
+                var parameters = new DynamicParameters();
+                parameters.Add("Id", Ids);
 
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<EmailAssignToList>(query, parameters)).ToList();
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailAssignToList>> GetAssignCCUserGroupList(List<int> Ids)
+        {
+            try
+            {
+                var lists = string.Join(',', Ids.Select(i => $"'{i}'"));
+                var query = @"SELECT UG.Name as FirstName, ECAU.GroupId,ECAU.TopicId FROM EmailConversationAssignCCUserGroup ECAU
+                                INNER JOIN UserGroup UG ON UG.UserGroupID =ECAU.GroupId
+                                WHERE ECAU.ConversationId in (" + lists + ")";
+                var parameters = new DynamicParameters();
+                parameters.Add("Id", Ids);
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<EmailAssignToList>(query, parameters)).ToList();
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailAssignToList>> GetAssignToList(List<int> Ids)
         {
             try
@@ -1315,7 +1417,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT FC.Name,FC.ID, FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.SessionId,FC.FileData,EN.IsRead,EN.ID as EmailNotificationId,ISNULL(FC.IsMobile, 0) AS IsMobile FROM EmailConversations FC \r\n";
+                var query = "SELECT FC.Name,FC.ID, FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.SessionId,FC.FileData,EN.IsRead,EN.ID as EmailNotificationId,ISNULL(FC.IsMobile, 0) AS IsMobile,FC.UserType FROM EmailConversations FC \r\n";
                     query += "INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId \r\n";
                     query += "LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId =" + UserId + " \r\n";
                     query += "WHERE FC.ReplyId in(" + string.Join(',', replyIds) + ") ORDER BY FC.AddedDate DESC \r\n";
@@ -1620,7 +1722,27 @@ namespace Infrastructure.Repository.Query
 			{
 				throw new Exception(exp.Message, exp);
 			}
-		} 
+		}
+        public async Task<List<EmailConversationAssignToUserGroup>> GetAssignCCUserGroupList(long ConversationId)
+        {
+            try
+            {
+                var query = @"SELECT FCT.ID,FCT.GroupId,FCT.AddedByUserID from EmailConversationParticipantUserGroup FCT                               
+                                WHERE FCT.ConversationId = @ConversationId";
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationId", ConversationId);
+
+                using (var connection = CreateConnection())
+                {
+                    var res = await connection.QueryAsync<EmailConversationAssignToUserGroup>(query, parameters);
+                    return res.ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<long> LastUserIDUpdate(long ReplyId,long UserId)
         {
             try
@@ -1710,8 +1832,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Urgent", forumConversations.Urgent);
                             parameters.Add("NotifyUser", forumConversations.NotifyUser);
                             parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
+                            parameters.Add("UserType", forumConversations.UserType);
 
-                            var query = "INSERT INTO EmailConversations(NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -1798,6 +1921,76 @@ namespace Infrastructure.Repository.Query
                             throw new Exception(exp.Message, exp);
                         }
                     
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<long>> GetGroupByUserIdList(string GroupIds)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("GroupIds", GroupIds);
+
+                        var result = await connection.QueryAsync<long>("sp_Get_UserGropUserId", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();                        
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> InsertAssignToUserGroup_sp(EmailConversationAssignToUserGroup conversationAssignTo)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ConversationId", conversationAssignTo.ConversationId);
+                        parameters.Add("ReplyId", conversationAssignTo.ReplyId);
+                        parameters.Add("TopicId", conversationAssignTo.TopicId);                        
+                        parameters.Add("AddedByUserID", conversationAssignTo.AddedByUserID);                        
+                        parameters.Add("AddedDate", conversationAssignTo.AddedDate);
+                        parameters.Add("AssigntoIds", conversationAssignTo.AssigntoIds);
+                        parameters.Add("AssignccIds", conversationAssignTo.AssignccIds);
+                        parameters.Add("PlistIdss", conversationAssignTo.PlistIdss);
+                        parameters.Add("AllowPlistids", conversationAssignTo.AllowPlistids);
+                        parameters.Add("ConIds", conversationAssignTo.ConIds);
+                        parameters.Add("Option", "INSERT");
+
+                        //var query = "INSERT INTO EmailConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
+
+                        //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                        var result = await connection.QueryFirstOrDefaultAsync<long>("sp_Ins_EmailConvAssignToUserGroup", parameters, commandType: CommandType.StoredProcedure);
+                        return result;
+
+                        //return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
 
             }

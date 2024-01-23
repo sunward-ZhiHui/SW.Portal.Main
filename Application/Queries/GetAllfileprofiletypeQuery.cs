@@ -151,6 +151,10 @@ namespace Application.Queries
     {
 
     }
+    public class GetAllUserGroups : PagedRequest, IRequest<List<UserGroup>>
+    {
+
+    }    
     public class GetDocumentRoles : PagedRequest, IRequest<List<DocumentRole>>
     {
 

@@ -46,6 +46,10 @@ namespace Core.Entities
         [NotMapped]
         public IEnumerable<long> AssignccIds { get; set; }
         [NotMapped]
+        public IEnumerable<long>? ToUserGroupIds { get; set; } = null;
+        [NotMapped]
+        public IEnumerable<long>? CCUserGroupIds { get; set; }
+        [NotMapped]
         public IEnumerable<long> AllParticipantIds { get; set; }
         [NotMapped]
         public List<EmailAssignToList>? AssignToList { get; set; }
@@ -86,6 +90,10 @@ namespace Core.Entities
         public string? EmailConversationName { get; set; }
         [NotMapped]
         public long? ConversationId { get; set; }
+        public string? UserType { get; set; }
+        public string? ToUserGroup { get; set; }
+        public string? CCUserGroup { get; set; }
+        public string? ParticipantsUserGroup { get; set; }
 
     }
     public class EmailDocumentModel

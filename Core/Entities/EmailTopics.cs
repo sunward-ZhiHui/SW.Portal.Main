@@ -17,6 +17,7 @@ namespace Core.Entities
         [Required(ErrorMessage = "Please Enter Subject Name.")]
         public string? TopicName { get; set; }       
         public long? TypeId { get; set; }
+        public string? UserType { get; set; }
         public string? TypeName { get; set; }
         public long CategoryId { get; set; }
         public DateTime StartDate { get; set; } = DateTime.Now;
@@ -26,6 +27,12 @@ namespace Core.Entities
         public string To { get; set; }
         public string CC { get; set; }
         public string Participants { get; set; }
+        [NotMapped]
+        public string? ToUserGroup { get; set; }
+        [NotMapped]
+        public string? CCUserGroup { get; set; }
+        [NotMapped]
+        public string? ParticipantsUserGroup { get; set; }
         public string? Status { get; set; }
         public string? Remarks { get; set; }       
         public string? Description { get; set; }
@@ -61,8 +68,16 @@ namespace Core.Entities
         [NotMapped]
         [Required(ErrorMessage = "Please Select To.")]
         public IEnumerable<long>? ToIds { get; set; } = null;
+
         [NotMapped]
-        public IEnumerable<long> CCIds { get; set; }
+        [Required(ErrorMessage = "Please Select To Group.")]
+        public IEnumerable<long>? ToUserGroupIds { get; set; } = null;
+
+        [NotMapped]
+        public IEnumerable<long>? CCIds { get; set; }
+        [NotMapped]
+        public IEnumerable<long>? CCUserGroupIds { get; set; }
+        
         [NotMapped]
         public List<Documents>? documents { get; set; }
         [NotMapped]

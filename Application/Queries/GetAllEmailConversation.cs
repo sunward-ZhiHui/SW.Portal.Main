@@ -199,6 +199,15 @@ namespace Application.Queries
             this.ConvasationId = convId;
         }
     }
+    public class GetByConvasationPUserGroupList : PagedRequest, IRequest<List<long>>
+    {        
+        public long ConvasationId { get; set; }
+        public GetByConvasationPUserGroupList(long convId)
+        {
+            this.ConvasationId = convId;
+        }
+    }
+    
     public class GetByConvasationTopicIDPList : PagedRequest, IRequest<List<ViewEmployee>>
     {
         public long TopicId { get; set; }
@@ -277,5 +286,16 @@ namespace Application.Queries
 			this.ConversationId = Id;
 		}
 	}
+
+    public class GetAssignCCUserGroup : PagedRequest, IRequest<List<EmailConversationAssignToUserGroup>>
+    {
+        public long ConversationId { get; set; }
+        public GetAssignCCUserGroup(long Id)
+        {
+            this.ConversationId = Id;
+        }
+    }
+
+    
 
 }

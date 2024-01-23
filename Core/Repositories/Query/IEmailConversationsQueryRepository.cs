@@ -21,6 +21,8 @@ namespace Core.Repositories.Query
         Task<long> LastUpdateDateEmailTopic(long TopicId);
         Task<long> InsertAssignTo(EmailConversationAssignTo forumConversationAssignTo);
         Task<long> InsertAssignTo_sp(EmailConversationAssignTo emailConversationAssignTo);
+        Task<long> InsertAssignToUserGroup_sp(EmailConversationAssignToUserGroup AssignToUserGroup);
+        Task<List<long>> GetGroupByUserIdList(string GroupIds);
         Task<long> InsertEmailNotifications(EmailNotifications forumNotifications);
         Task<long> Update(EmailConversations company);
         Task<long> Delete(EmailConversations company);
@@ -43,6 +45,7 @@ namespace Core.Repositories.Query
         Task<List<EmailAssignToList>> GetAllAssignToListAsync(long TopicId);
         Task<List<ViewEmployee>> GetAllPListAsync(long TopicId);        
         Task<List<ViewEmployee>> GetConvPListAsync(long ConversationId);
+        Task<List<long>> GetConvPListUserGroupAsync(long ConversationId);        
         Task<List<ViewEmployee>> GetAllConvTopicPListAsync(long ConversationId, long TopicId);
         Task<List<ViewEmployee>> GetAllConvTPListAsync(long TopicId);
         Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long TopicId);
@@ -51,8 +54,8 @@ namespace Core.Repositories.Query
         Task<List<EmailConversationAssignTo>> GetConversationAssignToList(long ConversationId);
         Task<List<EmailConversations>> GetConversationTopicIdList(long TopicId);        
         Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId);
+        Task<List<EmailConversationAssignToUserGroup>> GetAssignCCUserGroupList(long ConversationId);
 
-
-	}
+    }
 }
 

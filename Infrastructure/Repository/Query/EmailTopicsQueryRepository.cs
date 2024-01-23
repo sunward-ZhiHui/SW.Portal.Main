@@ -108,7 +108,7 @@ namespace Infrastructure.Repository.Query
             {
                 //var query = "SELECT * FROM EmailTypes WHERE ID = @UserId";
                 var query = @"SELECT TS.ID,TS.TicketNo,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo,TS.Status FROM EmailTopics TS 
-                                INNER JOIN EmailTopicParticipant TP ON TS.ID = TP.TopicId                                
+                                INNER JOIN EmailConversationParticipant TP ON TS.ID = TP.TopicId                                
                                 WHERE TP.UserId = @UserId";
                                 
                 var parameters = new DynamicParameters();
@@ -183,6 +183,53 @@ namespace Infrastructure.Repository.Query
             }
         }
         
+        public async Task<List<long>> GetByIdUserGroupToList(long TopicId)
+        {
+            try
+            {
+
+                var query = @"select EAUG.GroupId from EmailTopics ET
+                            INNER JOIN EmailConversationAssignToUserGroup EAUG ON EAUG.TopicId = ET.ID
+                            WHERE ET.ID =@TopicId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+
+                using (var connection = CreateConnection())
+                {
+                    var res = await connection.QueryAsync<long>(query, parameters);
+                    return res.ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<long>> GetByIdUserGroupCCList(long TopicId)
+        {
+            try
+            {
+
+                var query = @"select EAUG.GroupId from EmailTopics ET
+                            INNER JOIN EmailConversationAssignCCUserGroup EAUG ON EAUG.TopicId = ET.ID
+                            WHERE ET.ID =@TopicId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+
+                using (var connection = CreateConnection())
+                {
+                    var res = await connection.QueryAsync<long>(query, parameters);
+                    return res.ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<List<EmailTopics>> GetByIdTopicToList(long TopicId)
         {
             try
@@ -445,7 +492,7 @@ namespace Infrastructure.Repository.Query
 
                         //var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 300);
                         //var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
-                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 600); // Increase timeout to 10 minutes
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_ALL_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 600); // Increase timeout to 10 minutes
 
 
                         return result.ToList();
@@ -1577,6 +1624,11 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("UserTag", EmailTopics.UserTag);
                         parameterss.Add("UserTagId", EmailTopics.UserTagId);
 
+                        parameterss.Add("UserType", EmailTopics.UserType);
+                        parameterss.Add("ToUserGroup", EmailTopics.ToUserGroup);
+                        parameterss.Add("CCUserGroup", EmailTopics.CCUserGroup);
+                        parameterss.Add("ParticipantsUserGroup", EmailTopics.ParticipantsUserGroup);
+
                         var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
                     }
@@ -1624,6 +1676,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("Urgent", EmailTopics.Urgent);
                         parameterss.Add("OverDue", EmailTopics.OverDue);
                         parameterss.Add("DueDate", EmailTopics.DueDate);
+
                         
 
                         parameterss.Add("To", EmailTopics.To);
@@ -1639,6 +1692,12 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ActName", EmailTopics.actName);
                         parameterss.Add("ActivityType", EmailTopics.ActivityType);
                         parameterss.Add("UserTag", EmailTopics.UserTag);
+
+                        parameterss.Add("UserType", EmailTopics.UserType);
+                        parameterss.Add("ToUserGroup", EmailTopics.ToUserGroup);
+                        parameterss.Add("CCUserGroup", EmailTopics.CCUserGroup);
+                        parameterss.Add("ParticipantsUserGroup", EmailTopics.ParticipantsUserGroup);
+                        
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
@@ -1808,7 +1867,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("StatusCodeID", topicParticipant.StatusCodeID);
                             
 
-                            var query = "INSERT INTO EmailTopicParticipant(TopicID, UserId,StatusCodeID,AddedByUserID,AddedDate,SessionId) VALUES (@TopicID, @UserId,@StatusCodeID,@AddedByUserID,@AddedDate,@SessionId)";
+                            var query = "INSERT INTO EmailConversationParticipant(TopicID, UserId,StatusCodeID,AddedByUserID,AddedDate,SessionId) VALUES (@TopicID, @UserId,@StatusCodeID,@AddedByUserID,@AddedDate,@SessionId)";
                             rowsAffected = await connection.ExecuteAsync(query, parameters);
                            
                             //return rowsAffected;

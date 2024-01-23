@@ -173,6 +173,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<UserGroup>> GetAllUserGroups()
+        {
+            try
+            {
+                var query = "select  * from UserGroup where StatusCodeID=1";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<UserGroup>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DocumentProfileNoSeriesModel>> GetDocumentProfiles()
         {
             try

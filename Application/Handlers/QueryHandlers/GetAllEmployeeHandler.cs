@@ -8,6 +8,7 @@ using Core.Repositories.Query.Base;
 using MediatR;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CMS.Application.Handlers.QueryHandlers
 {

@@ -208,6 +208,22 @@ namespace Application.Queries
             this.ID = topicId;
         }
     }
+    public class GetByIdEmailUserGroupTo : PagedRequest, IRequest<List<long>>
+    {
+        public long ID { get; private set; }
+        public GetByIdEmailUserGroupTo(long topicId)
+        {
+            this.ID = topicId;
+        }
+    }
+    public class GetByIdEmailUserGroupCC : PagedRequest, IRequest<List<long>>
+    {
+        public long ID { get; private set; }
+        public GetByIdEmailUserGroupCC(long topicId)
+        {
+            this.ID = topicId;
+        }
+    }
     public class GetEmailTopicDraft : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

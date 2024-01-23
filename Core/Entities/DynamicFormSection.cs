@@ -33,6 +33,25 @@ namespace Core.Entities
         public int? IsPermissionCount { get; set; }
         [NotMapped]
         public int? IsLoginUsers { get; set; }
+        public string? Instruction { get; set; }
+        [NotMapped]
+        public Guid? UploadSessionID { get; set; }
+        [NotMapped]
+        public long? DynamicFormDataUploadId { get; set; }
+        [NotMapped]
+        public long? DynamicFormDataUploadAddedUserId { get; set; }
+        [NotMapped]
+        public long? DynamicFormDataId { get; set; }
+        [NotMapped]
+        public string? IsFileExits { get; set; }
+        [NotMapped]
+        public string? FileName { get; set; }
+        [NotMapped]
+        public long? DocumentId { get; set; }
+        [NotMapped]
+        public Guid? FileProfileSessionID { get; set; }
+        [NotMapped]
+        public string? FileProfileName { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

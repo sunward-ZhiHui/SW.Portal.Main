@@ -50,16 +50,47 @@
             <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
-                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
-                        <DxTextBox @bind-Text=@FileprofiletypeName Enabled="IsFileProfileTypeShow">
+                    <DxFormLayoutItem Caption="SW Library" ColSpanMd="10">
+                        <DxTextBox @bind-Text=@FileprofiletypeName>
                             <Buttons>
                                 <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-FileProfileTypeOpen")
-                                                Tooltip="Select File ProfileType"
+                                                Tooltip="Select SW Library"
                                                 Click="@(_ => OnButtonFileProfileTypeClick())" />
                             </Buttons>
                         </DxTextBox>
                         <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Section Name" ColSpanMd="6">
+                        <DxComboBox Data="@_dynamicFormSectionList"
+                                    NullText="Select Section..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SectionName"
+                                    ValueFieldName="DynamicFormSectionId"
+                                    SelectedItemChanged="@((DynamicFormSection plantSelect) => SelectedItemSectionChanged(plantSelect))"
+                        @bind-Value="@Data.DynamicFormSectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(DynamicFormSection.SectionName)"
+                                                    Caption="Section Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicFormSection.IsFileExits)"
+                                                    Caption="Section File Exits" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicFormSection.FileProfileName)"
+                                                    Caption="SW Library Name" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicFormSection.FileName)"
+                                                    Caption="File Name" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicFormSection.Instruction)"
+                                                    Caption="Instruction" />
+
+                            </Columns>
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-file"
+                                                Tooltip="Go To SW Library"
+                                                Click="@(_ => OnButtonFileProfileTypeGoDocClick())" />
+                            </Buttons>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DynamicFormSectionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                         <DxComboBox Data="@_plantItems"
@@ -206,7 +237,7 @@
           RestrictionTarget="#Navigation-Flyout-Customization"
           AnimationType="FlyoutAnimationType.Fade"
           HeaderVisible="true"
-          HeaderText="Select FileProfile Type"
+          HeaderText="Select SW Library"
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
           Width="max(25vw, 550px)"
@@ -278,11 +309,14 @@
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<DynamicFormSection> _dynamicFormSectionList { get; set; }
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
+    DynamicFormSection dynamicFormSection1 = new DynamicFormSection();
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
+        _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, _applicationUser.UserID, _dynamicformData.DynamicFormDataId));
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         if (fileProfileTypeDocumentsAll.Count() > 0)
         {
@@ -296,10 +330,14 @@
                 await loadData(Datas);
             }
         }
-
+        if (_dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
+        {
+            Data.DynamicFormSectionId = null;
+        }
     }
     public async Task loadData(DocumentsModel _selectedFiles)
     {
+        dynamicFormSection1 = new DynamicFormSection();
         IsFileProfileTypeShow = false;
         isPlant = false;
         isDivision = false; isDepartment = false;
@@ -313,7 +351,11 @@
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
         SelectedFiles = new List<UploadFileInfo>();
-        MyError = ""; MyMessage = ""; FileprofiletypeName = "";
+        MyError = ""; MyMessage = ""; FileprofiletypeName = ""; Data.DynamicFormSectionId = 0;
+        if (_dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
+        {
+            Data.DynamicFormSectionId = null;
+        }
         if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
         {
             selectedFiles = _selectedFiles;
@@ -410,7 +452,7 @@
             _treeView.ExpandAll();
         }
     }
-    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    protected async void SelectionChanged(TreeViewNodeEventArgs e)
     {
         if (e.NodeInfo?.DataItem != null)
         {
@@ -418,13 +460,15 @@
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            await loadData(nodeName);
+            IsFileProfileTypeOpen = false;
         }
 
         StateHasChanged();
     }
     void OnButtonFileProfileTypeClick()
     {
-        _treeView.CollapseAll();
+        //_treeView.CollapseAll();
         IsFileProfileTypeOpen = true;
     }
     void backUrl()
@@ -440,7 +484,7 @@
         TempSetId.SessionId = SessionId;
         TempSetIds.Add(TempSetId);
         string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _dynamicformData.SessionId + "&addedByUserId=" + _applicationUser.UserID + "&IsFileSession=false&SourceFrom=FileProfile";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + SessionId + "&addedByUserId=" + _applicationUser.UserID + "&IsFileSession=true&SourceFrom=FileProfile";
         e.UploadUrl = url;
     }
     async Task isUploadSuccess(FileUploadEventArgs e)
@@ -448,11 +492,11 @@
 
         CurrentUplodCount++;
         var filesessionIds = new Guid(e.FileInfo.Guid);
-        Data.SessionId = _dynamicformData.SessionId;
-        Data.FileSessionId = _dynamicformData.SessionId;
+        Data.SessionId = filesessionIds;
+        Data.FileSessionId = filesessionIds;
         Data.SourceFrom = "FileProfile";
         var ext = e.FileInfo.Name.Split(".").Last();
-        Data.FilePath = @"Documents\" + _dynamicformData.SessionId + @"\" + filesessionIds + "." + ext;
+        Data.FilePath = @"Documents\" + filesessionIds + @"\" + filesessionIds + "." + ext;
         var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
         MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
@@ -460,7 +504,24 @@
         {
             Message = "Upload";
             loading = false;
-            backUrl();
+            if (_dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0 && Data.DynamicFormSectionId != null)
+            {
+                DynamicFormDataUpload dynamicFormDataUpload = new DynamicFormDataUpload();
+                dynamicFormDataUpload.DynamicFormDataId = _dynamicformData.DynamicFormDataId;
+                dynamicFormDataUpload.DynamicFormSectionId = Data.DynamicFormSectionId > 0 ? Data.DynamicFormSectionId : null;
+                dynamicFormDataUpload.AddedByUserId = _applicationUser.UserID;
+                dynamicFormDataUpload.ModifiedByUserId = _applicationUser.UserID;
+                dynamicFormDataUpload.SessionId = filesessionIds;
+                dynamicFormDataUpload.AddedDate = DateTime.Now;
+                dynamicFormDataUpload.ModifiedDate = DateTime.Now;
+                dynamicFormDataUpload.StatusCodeId = 1;
+                var responses = await Mediator.Send(new InsertDynamicFormDataUpload(dynamicFormDataUpload));
+                backUrl();
+            }
+            else
+            {
+                backUrl();
+            }
         }
 
     }
@@ -481,6 +542,31 @@
     void OnUploadProgressChanged(FileUploadEventArgs e)
     {
         // var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+    void SelectedItemSectionChanged(DynamicFormSection dynamicFormSection)
+    {
+        dynamicFormSection1 = new DynamicFormSection();
+        if (dynamicFormSection != null)
+        {
+            if (dynamicFormSection.DynamicFormDataUploadId > 0)
+            {
+                dynamicFormSection1 = dynamicFormSection;
+                var MyMessage = "This Section File Already Exits.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        StateHasChanged();
+    }
+    async Task OnButtonFileProfileTypeGoDocClick()
+    {
+        if (dynamicFormSection1 != null)
+        {
+            if (dynamicFormSection1.DynamicFormDataUploadId > 0 && dynamicFormSection1.UploadSessionID != null && dynamicFormSection1.FileProfileSessionID != null && dynamicFormSection1.IsFileExits == "Yes")
+            {
+                var url = Navigator.BaseUri.ToString() + "fileprofiletype/" + dynamicFormSection1.FileProfileSessionID + "/" + dynamicFormSection1.UploadSessionID;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+        }
     }
     async Task SelectedItemChanged(long? plantID)
     {
@@ -545,9 +631,17 @@
     }
     void SubmitFormExternally()
     {
-        if (_editContext.Validate())
+        if (dynamicFormSection1 != null && dynamicFormSection1.DynamicFormDataUploadId > 0)
         {
-            this.HandleValidSubmit();
+            var MyMessage = "This Section File Already Exits.";
+            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            if (_editContext.Validate())
+            {
+                this.HandleValidSubmit();
+            }
         }
     }
     void HandleValidSubmit()

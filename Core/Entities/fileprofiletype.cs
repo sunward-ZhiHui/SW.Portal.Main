@@ -42,5 +42,8 @@ namespace Core.Entities
         public Guid? SessionId { get; set; }
         public List<Fileprofiletype> Children { get; set; } = new List<Fileprofiletype>();
         public bool? IsDuplicateUpload { get; set; } = false;
+        [NotMapped]
+        public Guid? DynamicFormSessionId { get; set; }
+        
     }
 }

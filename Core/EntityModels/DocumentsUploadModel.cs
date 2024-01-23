@@ -55,5 +55,7 @@ namespace Core.EntityModels
         public int? Index { get; set; }
         public List<DocumentsModel> DocumentIds { get; set; } = new List<DocumentsModel>();
         public DateTime StartDate { get; set; } = DateTime.Now;
+        [Required(ErrorMessage = "Section is Required")]
+        public long? DynamicFormSectionId { get; set; } = 0;
     }
 }

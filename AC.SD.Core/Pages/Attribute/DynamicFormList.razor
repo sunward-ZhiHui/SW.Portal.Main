@@ -93,17 +93,26 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
     </FooterContentTemplate>
 </DxPopup>
-
+<DxPopup @bind-Visible="@PopupUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
-    private DynamicForm _dynamicForm;
+    private DynamicForm _dynamicForm;public long? FileProfileTypeId{ get; set; }
     private DocumentsModel _documentsDmsData;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicFormData _selectedItems;
-    bool EditEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool PopupUpload { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     bool fileEnabled { get; set; } = false;
@@ -127,11 +136,11 @@
     }
     async Task UpdateDataAsync()
     {
-        _selectedItems = null;
+        _selectedItems = null; FileProfileTypeId = null;
         dataColumnNames = new List<DropDownOptionsModel>();
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>();
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
-        // dataColumnNames.Add(new DropDownOptionsModel() { Value = "ScreenID", Text = "Screen Name", Type = "Form" });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
         // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
         if (SessionId != null)
         {
@@ -172,6 +181,7 @@
                         }
                         IDictionary<string, object> objectData = new ExpandoObject();
                         objectData["DynamicFormDataId"] = s.DynamicFormDataId;
+                        objectData["ProfileNo"] = s.ProfileNo;
                         objectData["SessionId"] = s.SessionId;
                         objectData["ScreenID"] = s.ScreenID;
                         objectData["Name"] = s.Name;
@@ -266,9 +276,10 @@
                         }
                         _dynamicformObjectDataList.Add(objectData);
                     });
-                    EditEnabled = true; DeleteEnabled = true;
+                    EditEnabled = true; DeleteEnabled = true;fileEnabled = true;
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
-                    await DynamicFormOnDms();
+                    FileProfileTypeId = _selectedItems.FileProfileTypeId;
+                   // await DynamicFormOnDms();
                     Grid.SetFocusedRowIndex(0);
                 }
             }
@@ -319,9 +330,10 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
         _selectedItems = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
-        await DynamicFormOnDms();
+        FileProfileTypeId=_selectedItems.FileProfileTypeId;
+        //await DynamicFormOnDms();
         EditEnabled = true;
-        DeleteEnabled = true;
+        DeleteEnabled = true; fileEnabled = true;
     }
     async Task DynamicFormOnDms()
     {
@@ -335,7 +347,11 @@
     }
     void addDetailFile()
     {
-        NavigationManager.NavigateTo("fileprofiletype/" + _documentsDmsData.FileProfileTypeSessionId + "/" + _selectedItems.SessionId);
+        if (_selectedItems != null)
+        {
+            PopupUpload = true;
+            // NavigationManager.NavigateTo("fileprofiletype/" + _documentsDmsData.FileProfileTypeSessionId + "/" + _selectedItems.SessionId);
+        }
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
@@ -412,6 +428,13 @@
         Blukdeletepopup = false;
 
         // await UpdateDataAsync();
+    }
+    void BackUpload()
+    {
+        InvokeAsync(UpdateDataAsync);
+        PopupUpload = false;
+        StateHasChanged();
+
     }
     async Task bulkDelete()
     {

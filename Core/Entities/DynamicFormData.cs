@@ -16,7 +16,8 @@ namespace Core.Entities
         public bool? IsSendApproval { get; set; } = false;
         public long? DynamicFormId { get; set; }
         public Guid? FileProfileSessionID { get; set; }
-
+        public long? ProfileId { get; set; }
+        public string? ProfileNo { get; set; }
         [NotMapped]
         public AttributeHeaderListModel? AttributeHeader { get; set; }
         [NotMapped]
@@ -68,5 +69,23 @@ namespace Core.Entities
         public string? CurrentUserName { get; set; }
         [NotMapped]
         public long? CurrentUserId { get; set; }
+        [NotMapped]
+        public DynamicFormProfile DynamicFormProfile { get; set; } = new DynamicFormProfile();
+    }
+    public class DynamicFormProfile
+    {
+        [Required(ErrorMessage = "Company is Required")]
+        public long? PlantId { get; set; } = 0;
+        [Required(ErrorMessage = "Department is Required")]
+        public long? DepartmentId { get; set; } = 0;
+        [Required(ErrorMessage = "Section is Required")]
+        public long? SectionId { get; set; } = 0;
+        [Required(ErrorMessage = "SubSection is Required")]
+        public long? SubSectionId { get; set; } = 0;
+        [Required(ErrorMessage = "Division is Required")]
+        public long? DivisionId { get; set; } = 0;
+        public long? ProfileId { get; set; } = 0;
+        public long? UserId { get; set; }
+        public string? ProfileNo { get; set; }
     }
 }

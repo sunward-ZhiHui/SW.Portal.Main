@@ -23,6 +23,7 @@ namespace Core.Entities
         public bool? IsMultiple { get; set; } = false;
         public bool? IsRequired { get; set; } = false;
         public bool? IsDisplayTableHeader { get; set; } = false;
+        public bool? IsVisible { get; set; } = false;
         public string? RequiredMessage { get; set; }
         public string? IsSpinEditType { get; set; }
         public int? FormUsedCount { get; set; }
@@ -51,7 +52,7 @@ namespace Core.Entities
         public string? DataSourceDisplayName { get; set; }
         [NotMapped]
         public string? DataSourceTable { get; set; }
-        public string? FormToolTips { get; set; }
+        public string? FormToolTips { get; set; } 
 
     }
     public class DynamicFormSectionSpinEdit

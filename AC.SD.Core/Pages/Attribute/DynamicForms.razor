@@ -76,37 +76,158 @@
             </div>
         </div>
     </div>
-    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
-            <DxTabPage Text="Form">
-                <div class="card-body" style="margin-top:5px;">
+
+    <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
+        <DxTabPage Text="Form">
+            <div class="card-body" style="margin-top:5px;">
+                <DxFormLayout CssClass="w-100">
+                    <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="true" AnimationType="LayoutAnimationType.Slide">
+                            <DxFormLayoutItem Caption="Profile No" ColSpanMd="8">
+                                <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                                <DxComboBox Data="@_plantItems"
+                                            NullText="Select Company..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="PlantCode"
+                                            ValueFieldName="PlantID"
+                                            SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                            Enabled="isPlant"
+                                @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                            Caption="Plant Code"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                            Caption="Description" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                            Caption="Nav Company" />
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Datas.PlantId)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                                <DxComboBox Data="@_divisionItems"
+                                            NullText="Select Division..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="DivisionID"
+                                            Enabled="isDivision"
+                                            SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
+                                @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                                            Caption="Name"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                                            Caption="Code" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                                            Caption="Description" />
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Datas.DivisionId)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                                <DxComboBox Data="@_departmentItems"
+                                            NullText="Select Department..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="DepartmentName"
+                                            ValueFieldName="DepartmentId"
+                                            Enabled="isDepartment"
+                                            SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
+                                @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                            Caption="Name"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                            Caption="Code" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                            Caption="Description" />
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Datas.DepartmentId)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                                <DxComboBox Data="@_sectionItems"
+                                            NullText="Select Section..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="SectionName"
+                                            ValueFieldName="SectionId"
+                                            Enabled="isSection"
+                                            SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                                @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                                            Caption="Name"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                                            Caption="Code" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                                            Caption="Description" />
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Datas.SectionId)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                                <DxComboBox Data="@_subSectionItems"
+                                            NullText="Select SubSection..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="SubSectionName"
+                                            ValueFieldName="SubSectionId"
+                                            Enabled="isSubSection"
+                                @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                                            Caption="Name"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                                            Caption="Code" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                                            Caption="Description" />
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Datas.SubSectionId)" />
+                            </DxFormLayoutItem>
+                        </DxFormLayoutGroup>
+                    </EditForm>
+                </DxFormLayout>
+                <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+
                     @CreateEditFormFields()
-                </div>
-            </DxTabPage>
-            @*  <DxTabPage Text="Approval" Visible="@isApproval"> *@
-            <DxTabPage Text="Approval" Visible="@isApproval">
-                <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
-                        KeyFieldName="DynamicFormApprovedId">
-                    <Columns>
-                        <DxGridDataColumn FieldName="ApprovalUser" Caption="User" />
-                        <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
-                        <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
-                        <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" />
-                        <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
-                    </Columns>
-                </DxGrid>
-                @*  <DxFormLayout CssClass="w-100" style="padding:10px;">
-                <DxFormLayoutItem Caption="" ColSpanMd="12">
-                <DxCheckBox @bind-Checked="dynamicFormApproval.IsApproved" LabelPosition="LabelPosition.Right" Enabled="@isApproved">Approved</DxCheckBox>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Description" ColSpanMd="12">
-                <DxMemo @bind-Text="@dynamicFormApproval.ApprovedDescription" Rows="5" ShowValidationIcon="true" Enabled="@isApproved" />
-                </DxFormLayoutItem>
-                </DxFormLayout> *@
-            </DxTabPage>
-        </DxTabs>
-    </EditForm>
+                </EditForm>
+            </div>
+        </DxTabPage>
+        @*  <DxTabPage Text="Approval" Visible="@isApproval"> *@
+        <DxTabPage Text="Approval" Visible="@isApproval">
+            <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
+                    KeyFieldName="DynamicFormApprovedId">
+                <Columns>
+                    <DxGridDataColumn FieldName="ApprovalUser" Caption="User" />
+                    <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
+                    <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
+                    <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" />
+                    <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
+                </Columns>
+            </DxGrid>
+            @*  <DxFormLayout CssClass="w-100" style="padding:10px;">
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+            <DxCheckBox @bind-Checked="dynamicFormApproval.IsApproved" LabelPosition="LabelPosition.Right" Enabled="@isApproved">Approved</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+            <DxMemo @bind-Text="@dynamicFormApproval.ApprovedDescription" Rows="5" ShowValidationIcon="true" Enabled="@isApproved" />
+            </DxFormLayoutItem>
+            </DxFormLayout> *@
+        </DxTabPage>
+    </DxTabs>
+
 </div>
 @* </DxLoadingPanel> *@
 <DxPopup @bind-Visible="@isApprovedPopup"
@@ -160,7 +281,7 @@
 </DxPopup>
 @code {
     bool PanelVisible { get; set; } = true;
-    EditContext _editContext;
+    EditContext _editContext; EditContext _editContexts;
     [Parameter]
     public Guid? SessionIds { get; set; }
     [Parameter]
@@ -173,6 +294,7 @@
     private string MyID = Guid.NewGuid().ToString();
     private AttributeHeaderListModel _AttributeHeader;
     Object Data { get; set; } = new Object();
+    DynamicFormProfile Datas = new DynamicFormProfile();
     DynamicFormData dynamicFormData = new DynamicFormData();
     public ApplicationUser applicationUser { get; private set; }
     public long? dynamicFormDataId { get; set; }
@@ -197,9 +319,19 @@
     Dictionary<string, string> dic = new Dictionary<string, string>();
     bool isApprovalEnabled { get; set; } = false;
     // bool isApproved { get; set; } = true;
+    private List<ViewPlants>? _plantItems;
+    private List<ViewDivision>? _divisionItems;
+    private List<ViewDepartment>? _departmentItems;
+    private List<ViewSection>? _sectionItems;
+    private List<ViewSubSection>? _subSectionItems;
+    bool isPlant { get; set; } = false;
+    bool isDivision { get; set; } = false; bool isDepartment { get; set; } = false;
+    bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
+    public DocumentProfileNoSeriesModel documentProfileNoSeriesData { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
+        _editContexts = new EditContext(Datas);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     protected override async Task OnParametersSetAsync()
@@ -218,6 +350,7 @@
             _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
             if (_dynamicform != null)
             {
+
                 if (_dynamicform.IsApproval == true)
                 {
                     isApprovalEnabled = true;
@@ -230,10 +363,11 @@
                     _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
                     if (_dynamicformData != null)
                     {
+                        Datas.ProfileNo = _dynamicformData.ProfileNo;
                         IsUploadEnabled = true;
                         if (_dynamicformData.isDocuments > 0)
                         {
-                            IsUploadEnabled = false;
+                            // IsUploadEnabled = false;
                         }
                         if (_dynamicform.IsApproval == true)
                         {
@@ -243,7 +377,7 @@
                                 if (_dynamicformData.IsSendApproval == true)
                                 {
                                     IsSendApprovalVisible = false; IsApprovalSave = false;
-                                    isVisibleButton = false; IsSave = false; IsUploadEnabled = false;
+                                    isVisibleButton = false; IsSave = false; //IsUploadEnabled = false;
                                 }
                                 else
                                 {
@@ -361,9 +495,131 @@
                         }
                     }
                 }
+                else
+                {
+                    if (_dynamicformData != null)
+                    {
+                        dynamicFormData.DynamicFormDataId = _dynamicformData.DynamicFormDataId;
+                        dynamicFormData.SessionId = _dynamicformData.SessionId;
+                        dynamicFormData.AddedDate = _dynamicformData.AddedDate;
+                        dynamicFormData.AddedByUserID = _dynamicformData.AddedByUserID;
+                        dynamicFormData.DynamicFormCurrentItem = _dynamicformData.DynamicFormItem;
+                        dynamicFormData.DynamicFormId = _dynamicformData.DynamicFormId;
+                    }
+                }
             }
+            if (_dynamicform != null && _dynamicformData == null)
+            {
+                if (_dynamicform.ProfileId > 0)
+                {
+                    await loadData(_dynamicform.ProfileId);
+                }
+            }
+            if (_dynamicform != null && _dynamicformData != null)
+            {
+                if (_dynamicformData.ProfileId > 0)
+                {
+                }
+                else
+                {
+                    if (_dynamicform.ProfileId > 0)
+                    {
+                        await loadData(_dynamicform.ProfileId);
+                    }
+                }
+            }
+
         }
         StateHasChanged();
+    }
+    public async Task loadData(long? profileID)
+    {
+        _editContexts = new EditContext(Datas);
+        isPlant = false;
+        isDivision = false; isDepartment = false;
+        isSection = false; isSubSection = false;
+        Datas.PlantId = 0; Datas.DepartmentId = 0; Datas.ProfileId = 0; Datas.ProfileNo = null;
+        Datas.DivisionId = 0; Datas.SectionId = 0; Datas.SubSectionId = 0;
+        if (profileID > 0)
+        {
+            Datas.ProfileId = profileID;
+            Datas.UserId = applicationUser.UserID;
+            documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(profileID));
+
+            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+            if (abbreviation != null)
+            {
+                foreach (var item in abbreviation)
+                {
+                    var itemsId = item.Id;
+                    if (itemsId == 1)
+                    {
+                        isPlant = true;
+                        Datas.PlantId = null;
+                    }
+                    if (itemsId == 2)
+                    {
+                        isDepartment = true; isDivision = true;
+                        Datas.DepartmentId = null;
+                        Datas.DivisionId = null;
+                    }
+                    if (itemsId == 3)
+                    {
+                        isSection = true;
+                        Datas.SectionId = null;
+                    }
+                    if (itemsId == 4)
+                    {
+                        isSubSection = true;
+                        Datas.SubSectionId = null;
+                    }
+                }
+            }
+        }
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        await SelectedItemChanged(0);
+        await SelectedItemDivisionChanged(0);
+        await SelectedItemDepartementChanged(0);
+        await SelectedItemSectionChanged(0);
+        StateHasChanged();
+    }
+    async Task SelectedItemChanged(long? plantID)
+    {
+        _divisionItems = new List<ViewDivision>();
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (plantID > 0)
+        {
+            _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
+        }
+    }
+    async Task SelectedItemDivisionChanged(long? divisionId)
+    {
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (divisionId > 0)
+        {
+            _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
+        }
+    }
+    async Task SelectedItemDepartementChanged(long? departmentId)
+    {
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (departmentId > 0)
+        {
+            _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
+        }
+    }
+    async Task SelectedItemSectionChanged(long? sectionId)
+    {
+        _subSectionItems = new List<ViewSubSection>();
+        if (sectionId > 0)
+        {
+            _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
+        }
     }
     void CheckApproval()
     {
@@ -594,7 +850,7 @@
     }
     private async Task SubmitApproveFormExternally()
     {
-        if (_editContext.Validate())
+        if (_editContext.Validate() && _editContexts.Validate())
         {
             IsSendApproval = true;
 
@@ -604,7 +860,7 @@
 
     private async Task SubmitFormExternally()
     {
-        if (_editContext.Validate())
+        if (_editContext.Validate() && _editContexts.Validate())
         {
             if (IsSendApproval != true)
             {
@@ -628,6 +884,9 @@
                 {
                     var editReq = new InsertOrUpdateDynamicFormData
                         {
+                            DynamicFormProfile = Datas,
+                            ProfileId = _dynamicformData.ProfileId,
+                            ProfileNo = _dynamicformData.ProfileNo,
                             DynamicFormDataId = dynamicFormData.DynamicFormDataId,
                             DynamicFormId = _dynamicform.ID,
                             DynamicFormItem = strJson,
@@ -663,6 +922,12 @@
                                 }
                             }
                         }
+                        if (result.ProfileId > 0)
+                        {
+                            Datas.ProfileNo = result.ProfileNo;
+                            _dynamicformData.ProfileId = result.ProfileId; _dynamicformData.ProfileNo = result.ProfileNo;
+                            isPlant = false; isDivision = false; isDepartment = false; isSection = false; isSubSection = false;
+                        }
                         toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         loading = false;
                         //await onApproved();
@@ -673,6 +938,8 @@
                 {
                     var createReq = new InsertOrUpdateDynamicFormData
                         {
+                            DynamicFormProfile = Datas,
+                            ProfileId = dynamicFormData.ProfileId,
                             DynamicFormItem = strJson,
                             DynamicFormId = _dynamicform.ID,
                             SessionId = Guid.NewGuid(),
@@ -707,6 +974,11 @@
                                     await loadDynamicForm();
                                 }
                             }
+                        }
+                        if (result.ProfileId > 0)
+                        {
+                            Datas.ProfileNo = result.ProfileNo;
+                            isPlant = false; isDivision = false; isDepartment = false; isSection = false; isSubSection = false;
                         }
                         loading = false;
                         // await onApproved();
@@ -874,7 +1146,7 @@
             itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
 
             itemBuilder.AddAttribute(i++, "Caption", s.DisplayName);
-           // itemBuilder.AddAttribute(i++, "CaptionFor", s.DisplayName + "<i class=\"fa fa-info\"></i>");
+            // itemBuilder.AddAttribute(i++, "CaptionFor", s.DisplayName + "<i class=\"fa fa-info\"></i>");
             itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
             var access = Expression.Property(Expression.Constant(Data), s.DynamicAttributeName);
             var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), access);
@@ -890,7 +1162,7 @@
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (string.IsNullOrEmpty((string)valueData))
                                  {
@@ -913,7 +1185,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (string.IsNullOrEmpty((string)valueData) && isSubmit == true)
                                  {
@@ -933,7 +1205,7 @@
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { property.SetValue(Data, str); }));
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null)
                                  {
@@ -956,7 +1228,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null && isSubmit == true)
                                  {
@@ -975,7 +1247,7 @@
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { property.SetValue(Data, str); }));
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null)
                                  {
@@ -998,7 +1270,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null && isSubmit == true)
                                  {
@@ -1018,7 +1290,7 @@
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (string.IsNullOrEmpty((string)valueData))
                                  {
@@ -1041,7 +1313,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (string.IsNullOrEmpty((string)valueData) && isSubmit == true)
                                  {
@@ -1074,7 +1346,7 @@
                                  editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                                  editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { property.SetValue(Data, str); }));
                              }
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null)
                                  {
@@ -1098,7 +1370,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null && isSubmit == true)
                                  {
@@ -1117,7 +1389,7 @@
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              //editor.AddAttribute(j+1, "LabelPosition", LabelPosition.Right);
                              editor.AddAttribute(j + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { property.SetValue(Data, str); }));
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null || (bool)valueData == false)
                                  {
@@ -1140,7 +1412,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null || (bool)valueData == false && isSubmit == true)
                                  {
@@ -1162,7 +1434,7 @@
                              editor.AddAttribute(j + 1, "ValueExpression", lambda);
                              editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
 
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null)
                                  {
@@ -1185,7 +1457,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null && isSubmit == true)
                                  {
@@ -1206,7 +1478,7 @@
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              editor.AddAttribute(j + 1, "ValueExpression", lambda);
                              editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null)
                                  {
@@ -1229,7 +1501,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null && isSubmit == true)
                                  {
@@ -1254,7 +1526,7 @@
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              editor.AddAttribute(j + 1, "ValueExpression", lambda);
                              editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null)
                                  {
@@ -1288,7 +1560,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null && isSubmit == true)
                                  {
@@ -1313,7 +1585,7 @@
                              editor.AddAttribute(j + 1, "ValuesExpression", lambda);
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              editor.AddAttribute(j + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { property.SetValue(Data, str); }));
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null)
                                  {
@@ -1360,7 +1632,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null && isSubmit == true)
                                  {
@@ -1392,7 +1664,7 @@
                              editor.AddAttribute(j + 1, "Enabled", isReadonly);
                              editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
                              editor.AddAttribute(j + 1, "ShowCheckboxes", true);
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null)
                                  {
@@ -1445,7 +1717,7 @@
                                  }));
                              }
                              editor.CloseComponent();
-                             if (s.IsRequired == true)
+                             if (s.IsRequired == true && isReadonly == true)
                              {
                                  if (valueData == null && isSubmit == true)
                                  {

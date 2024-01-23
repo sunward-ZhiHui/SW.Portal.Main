@@ -279,5 +279,25 @@ namespace Application.Queries
             this.DynamicFormApproved = dynamicFormApproved;
         }
     }
+    public class GetDynamicFormSectionById : PagedRequest, IRequest<List<DynamicFormSection>>
+    {
+        public long? Id { get; set; }
+        public long? UserId { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public GetDynamicFormSectionById(long? id, long? userId, long? dynamicFormDataId)
+        {
+            this.Id = id;
+            this.UserId = userId;
+            this.DynamicFormDataId = dynamicFormDataId;
+        }
+    }
+    public class InsertDynamicFormDataUpload : DynamicFormDataUpload, IRequest<DynamicFormDataUpload>
+    {
+        public DynamicFormDataUpload DynamicFormDataUpload { get; set; }
+        public InsertDynamicFormDataUpload(DynamicFormDataUpload dynamicFormDataUpload)
+        {
+            this.DynamicFormDataUpload = dynamicFormDataUpload;
+        }
+    }
 }
 

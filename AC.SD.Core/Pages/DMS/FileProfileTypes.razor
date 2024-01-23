@@ -674,7 +674,7 @@
          ShowFooter="false"
          MinWidth="400" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <MissingUploadFileProfileType FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems"  RevokeBack="BackUpload"></MissingUploadFileProfileType>
+        <MissingUploadFileProfileType FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" RevokeBack="BackUpload"></MissingUploadFileProfileType>
     </BodyContentTemplate>
 </DxPopup>
 @code {
@@ -894,7 +894,7 @@
             }
         }
         await loadFileProfileData();
-        PanelVisible = false;    
+        PanelVisible = false;
         StateHasChanged();
     }
     async Task loadFileProfileData()
@@ -939,7 +939,7 @@
             {
                 await PermiisionMain();
             }
-            PanelVisible = false;    
+            PanelVisible = false;
             StateHasChanged();
         }
     }
@@ -1161,7 +1161,7 @@
                         moreEnabled = true; uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                         checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
                         renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
-                        if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
+                        if (_ParentselectedItems != null && _selectedItems.IsDynamicFromData == true)
                         {
                             formdetailsEnabled = true;
                         }
@@ -1202,7 +1202,7 @@
                             uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                             checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
                             renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
-                            if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
+                            if (_ParentselectedItems != null && _selectedItems.IsDynamicFromData == true)
                             {
                                 formdetailsEnabled = true;
                             }
@@ -1218,7 +1218,7 @@
                             {
                                 checkoutEnabled = true; checkInEnabled = false;
                                 linkdownloadEnabled = true; viewParentEnabled = true;
-                                if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
+                                if (_ParentselectedItems != null && _selectedItems.IsDynamicFromData == true)
                                 {
                                     formdetailsEnabled = true;
                                 }
@@ -1605,7 +1605,10 @@
 
     void onFormDetails()
     {
-        NavigationManager.NavigateTo($"fileprofiletype/uploadDynamicForm/" + _ParentselectedItems.SessionID + "/" + _selectedItems.SessionID);
+        if (_selectedItems != null && _selectedItems.DynamicFormSessionId != null)
+        {
+            NavigationManager.NavigateTo($"fileprofiletype/uploadDynamicForm/" + MainSessionId + "/" + _selectedItems.DynamicFormSessionId + "/" + _selectedItems.SessionID);
+        }
     }
     void CloseLinkParentDocumentPopup()
     {
@@ -2176,7 +2179,10 @@
     }
     void onUploadDynamicForm()
     {
-        NavigationManager.NavigateTo($"fileprofiletype/uploadDynamicForm/" + _ParentselectedItems.SessionID);
+        if (_selectedItems != null && _selectedItems.DynamicFormSessionId != null)
+        {
+            NavigationManager.NavigateTo($"fileprofiletype/uploadDynamicForm/" + MainSessionId + "/" + _selectedItems.DynamicFormSessionId);
+        }
     }
     void OnCheckedAllValueChanged(bool radioValue)
     {

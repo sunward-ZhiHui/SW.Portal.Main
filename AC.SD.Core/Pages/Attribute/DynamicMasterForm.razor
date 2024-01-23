@@ -79,6 +79,29 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.CompanyId)" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Profile" ColSpanMd="6">
+                        <DxComboBox Data="@_documentProfileNoList"
+                                    NullText="Select Profile..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="ProfileID"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@Data.ProfileId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Abbreviation)"
+                                                    Caption="Abbreviation" />
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.SampleDocumentNo)"
+                                                    Caption="Sample Document No" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.ProfileId)" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Screen Name" ColSpanMd="6">
                         <DxTextBox @bind-Text="@Data.ScreenID"></DxTextBox>
 
@@ -91,11 +114,11 @@
                     <DxFormLayoutItem Caption="Approval Level" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsApproval"></DxCheckBox>
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Is Enable Upload" ColSpanMd="6">
+                    @* <DxFormLayoutItem Caption="Is Enable Upload" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsUpload"></DxCheckBox>
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="6" Visible="@Data.IsUpload">
-                        <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                    <DxFormLayoutItem Caption="SW Library" ColSpanMd="6" Visible="@Data.IsUpload">
+                        <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
                             <Buttons>
                                 <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
                                                 Tooltip="Select File ProfileType"
@@ -104,7 +127,7 @@
                         </DxTextBox>
                         <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
                         <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
-                    </DxFormLayoutItem>
+                    </DxFormLayoutItem> *@
 
                     @*  <DxFormLayoutItem Caption="Is Generate ProfileNo" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsProfileNoGenerate"></DxCheckBox>
@@ -199,12 +222,14 @@
     string? LinkFilterFileprofiletypeName { get; set; } = null;
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     private List<ViewPlants>? _plantItems;
+    public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
         if (fileProfileTypeDocumentsAll.Count() > 0)
         {
             _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
@@ -238,7 +263,7 @@
         Data.ScreenID = null;
         Data.Name = null;
         Data.SessionId = null;
-        Data.StatusCodeID = null;Data.CompanyId = null;
+        Data.StatusCodeID = null;Data.CompanyId = null;Data.ProfileId = null;
         Data.IsApproval = false;
         Data.IsUpload = false; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
         if (SessionIds != null)
@@ -262,6 +287,7 @@
                 Data.IsUpload = dynamicFormData.IsUpload;
                 Data.FileProfileTypeId = dynamicFormData.FileProfileTypeId;
                 Data.CompanyId = dynamicFormData.CompanyId;
+                Data.ProfileId = dynamicFormData.ProfileId;
                 if (Data.IsUpload == true && dynamicFormData.FileProfileTypeId > 0)
                 {
                     var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, dynamicFormData.FileProfileTypeId);
@@ -345,6 +371,7 @@
                     IsApproval = Data.IsApproval,
                     IsUpload = Data.IsUpload,
                     CompanyId = Data.CompanyId,
+                    ProfileId = Data.ProfileId,
                     FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
                 };
 
@@ -368,6 +395,7 @@
                     AddedDate = DateTime.Now,
                     IsApproval = Data.IsApproval,
                     CompanyId = Data.CompanyId,
+                    ProfileId = Data.ProfileId,
                     FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
                 };
             var result = await Mediator.Send(createReq);

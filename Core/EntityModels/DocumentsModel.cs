@@ -200,6 +200,8 @@ namespace Core.EntityModels
         public string? ActivityProfileNo { get; set; }
         public string? ActivityType { get; set; }
         public bool? IsDuplicateUpload { get; set; } = false;
+        public Guid? DynamicFormDataSessionId { get; set; }
+        public Guid? DynamicFormSessionId { get; set; }
     }
     public class DocumentListModel : BaseModel
     {
@@ -252,5 +254,6 @@ namespace Core.EntityModels
         public List<ApplicationUser> ApplicationUser { get; set; } = new List<ApplicationUser>();
         public List<Fileprofiletype> Fileprofiletype { get; set; } = new List<Fileprofiletype>();
         public List<ProductActivityAppModel> ProductActivityAppModel { get; set; } = new List<ProductActivityAppModel>();
+        public List<DynamicFormDataUpload> DynamicFormDataUpload { get; set; } = new List<DynamicFormDataUpload>();
     }
 }

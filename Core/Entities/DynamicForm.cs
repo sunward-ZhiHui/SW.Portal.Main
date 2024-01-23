@@ -19,9 +19,11 @@ namespace Core.Entities
         [Required(ErrorMessage = "Screen Name is Required")]
         [DynamicFormCustomValidation]
         public string? ScreenID { get; set; }
-
+        [Required(ErrorMessage = "Profile is Required")]
+        public long? ProfileId { get; set; }
         public bool? IsApproval { get; set; } = false;
         public string? AttributeID { get; set; }
+        [Required(ErrorMessage = "Company is Required")]
         public long? CompanyId { get; set; }
         public bool IsUpload { get; set; } = false;
         public bool? IsMultipleUpload { get; set; } = false;
@@ -42,5 +44,7 @@ namespace Core.Entities
         public Guid? FileProfileSessionId { get; set; }
         [NotMapped]
         public string? CompanyName { get; set; }
+        [NotMapped]
+        public string? ProfileName { get; set; }
     }
 }

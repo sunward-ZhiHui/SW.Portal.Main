@@ -502,4 +502,33 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetDynamicFormSectionByIdHandler : IRequestHandler<GetDynamicFormSectionById, List<DynamicFormSection>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionByIdHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSection>> Handle(GetDynamicFormSectionById request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSection>)await _dynamicFormQueryRepository.GetDynamicFormSectionByIdAsync(request.Id,request.UserId,request.DynamicFormDataId);
+        }
+
+
+    }
+    public class InsertDynamicFormDataUploadHandler : IRequestHandler<InsertDynamicFormDataUpload, DynamicFormDataUpload>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormDataUploadHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormDataUpload> Handle(InsertDynamicFormDataUpload request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormDataUpload(request.DynamicFormDataUpload);
+
+
+        }
+    }
 }

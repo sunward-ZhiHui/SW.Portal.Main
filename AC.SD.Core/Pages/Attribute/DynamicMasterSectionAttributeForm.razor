@@ -100,6 +100,7 @@
                     @item.SortOrderBy
                 </CellDisplayTemplate>
             </DxGridDataColumn>
+            <DxGridDataColumn FieldName="IsVisible" Caption="Is Visible" MinWidth="20" />
             <DxGridDataColumn FieldName="IsMultiple" Caption="Is Multiple" MinWidth="80" />
             <DxGridDataColumn FieldName="IsRequired" Caption="Is Required" MinWidth="80" />
             <DxGridDataColumn FieldName="RequiredMessage" Caption="Required Message" MinWidth="80" />
@@ -156,6 +157,9 @@
                                 Enabled="@IsSpinEditTypeEnabled"
                                 TextFieldName="Text"
                                 ValueFieldName="Value" ShowValidationIcon="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Visible" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsVisible"></DxCheckBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="types.IsMultiple" Enabled="@isListMultiple"></DxCheckBox>
@@ -400,7 +404,8 @@
                     RequiredMessage = editModel.RequiredMessage,
                     IsSpinEditType = IsSpinEditType,
                     IsDisplayTableHeader=editModel.IsDisplayTableHeader,
-                    FormToolTips=editModel.FormToolTips
+                    FormToolTips=editModel.FormToolTips,
+                    IsVisible = editModel.IsVisible
                 };
 
             try
@@ -440,7 +445,8 @@
                     RequiredMessage = editModel.RequiredMessage,
                     IsSpinEditType = IsSpinEditType,
                     IsDisplayTableHeader = editModel.IsDisplayTableHeader,
-                    FormToolTips = editModel.FormToolTips
+                    FormToolTips = editModel.FormToolTips,
+                    IsVisible=editModel.IsVisible
                 };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);

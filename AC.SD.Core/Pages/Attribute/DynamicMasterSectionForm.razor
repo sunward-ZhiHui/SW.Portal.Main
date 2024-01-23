@@ -128,6 +128,10 @@
                     <ValidationMessage For="@(() => types.AttributeIds)" />
 
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Instruction" ColSpanMd="12">
+
+                    <DxMemo @bind-Text="@types.Instruction" Rows="5" />
+                </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
 
@@ -308,6 +312,7 @@
                     IsReadOnly = editModel.IsReadOnly == true ? true : false,
                     IsVisible = editModel.IsVisible == true ? true : false,
                     IsReadWrite = editModel.IsReadWrite == true ? true : false,
+                    Instruction=editModel.Instruction,
                 };
 
             try
@@ -344,6 +349,7 @@
                     IsReadOnly = editModel.IsReadOnly,
                     IsVisible = editModel.IsVisible,
                     IsReadWrite = editModel.IsReadWrite,
+                    Instruction = editModel.Instruction
 
                 };
             var result = await Mediator.Send(UpdateReq);

@@ -594,8 +594,9 @@ namespace Infrastructure.Repository.Query
                 userIds = userIds != null && userIds.Count > 0 ? userIds : new List<long?>() { -1 };
                 query += "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
                 documentIds = documentIds != null && documentIds.Count > 0 ? documentIds : new List<long?>() { -1 };
-                query += "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId,DynamicFormId from FileProfileType where FileProfileTypeId in(" + string.Join(',', documentIds) + ");";
+                query += "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId,DynamicFormId,(select t1.SessionID from DynamicForm t1 where t1.ID=DynamicFormId) as DynamicFormSessionID from FileProfileType where FileProfileTypeId in(" + string.Join(',', documentIds) + ");";
                 query += "select ProductionActivityAppLineID,ProfileNo,SessionID,'Activity' as Type from ProductionActivityAppLine where SessionID in(" + lists + ")\r\nunion All\r\nselect ProductionActivityRoutineAppLineID as ProductionActivityAppLineID,ProfileNo, SessionID,'Rountine' as Type from ProductionActivityRoutineAppLine where SessionID in(" + lists + ")";
+                query += "select  t1.*,t2.SessionID as DynamicFormDataSessionID,t3.DynamicFormID,t4.SessionID as  DynamicFormSessionID from DynamicFormDataUpload t1 JOIN DynamicFormData t2 ON t1.DynamicFormDataID=t2.DynamicFormDataID LEFT JOIN DynamicFormData t3 ON t3.DynamicFormDataID=t2.DynamicFormDataID LEFT JOIN DynamicForm t4 ON t4.ID=t3.DynamicFormID where t1.SessionId in(" + lists + ");";
                 using (var connection = CreateConnection())
                 {
                     var result = await connection.QueryMultipleAsync(query);
@@ -605,6 +606,7 @@ namespace Infrastructure.Repository.Query
                     multipleProductioAppLineItemLists.ApplicationUser = result.Read<ApplicationUser>().ToList();
                     multipleProductioAppLineItemLists.Fileprofiletype = result.Read<Fileprofiletype>().ToList();
                     multipleProductioAppLineItemLists.ProductActivityAppModel = result.Read<ProductActivityAppModel>().ToList();
+                    multipleProductioAppLineItemLists.DynamicFormDataUpload = result.Read<DynamicFormDataUpload>().ToList();
                     return multipleProductioAppLineItemLists;
                 }
             }
@@ -702,7 +704,7 @@ namespace Infrastructure.Repository.Query
                         var filterProfileTypeIds = documents.Where(w => w.FilterProfileTypeId > 0).Select(a => a.FilterProfileTypeId).ToList();
                         var multipleData = await GetMultipleFileProfileTypeQueryAsync(sessionIds, filterProfileTypeIds, userIds);
                         var docShares = multipleData.DocumentDmsShare;
-                        var dynamicFormData = multipleData.DynamicFormData;
+                        var dynamicFormData = multipleData.DynamicFormDataUpload;
                         var emailTopics = multipleData.ActivityEmailTopics;
                         var appUsers = multipleData.ApplicationUser;
                         var fileProfileType = multipleData.Fileprofiletype;
@@ -719,6 +721,8 @@ namespace Infrastructure.Repository.Query
                             DocumentsModel documentsModels = new DocumentsModel();
                             documentsModels.UniqueNo = counts;
                             documentsModels.SharesCount = 0;
+                            documentsModels.DynamicFormId = fileprfiles?.DynamicFormId;
+                            documentsModels.DynamicFormSessionId = fileprfiles?.DynamicFormSessionId;
                             var sharesCountCount = docShares.Where(a => a.DocSessionId == s.SessionId).Count();
                             if (sharesCountCount > 0)
                             {
@@ -726,8 +730,14 @@ namespace Infrastructure.Repository.Query
                             }
                             if (dynamicFormData != null)
                             {
-                                var isDynamicFromData = dynamicFormData.Where(a => a.SessionId == s.SessionId).Count();
-                                documentsModels.IsDynamicFromData = isDynamicFromData > 0 ? true : false;
+                                var isDynamicFromData = dynamicFormData.Where(a => a.SessionId == s.SessionId).FirstOrDefault();
+                                if (isDynamicFromData != null)
+                                {
+                                    documentsModels.IsDynamicFromData = isDynamicFromData != null ? true : false;
+                                    documentsModels.DynamicFormDataSessionId = isDynamicFromData != null ? isDynamicFromData.DynamicFormDataSessionId : null;
+                                    documentsModels.DynamicFormId = isDynamicFromData != null ? isDynamicFromData.DynamicFormId : null;
+                                    documentsModels.DynamicFormSessionId = isDynamicFromData != null ? isDynamicFromData.DynamicFormSessionId : null;
+                                }
                             }
                             if (emailTopics != null)
                             {
@@ -749,7 +759,7 @@ namespace Infrastructure.Repository.Query
                             documentsModels.FileProfileTypeName = fileprfiles?.Name;
                             documentsModels.FileProfileTypeSessionId = fileprfiles?.SessionId;
                             documentsModels.ProfileID = fileprfiles?.ProfileId;
-                            documentsModels.DynamicFormId = fileprfiles?.DynamicFormId;
+                          
                             documentsModels.DocumentParentId = s.DocumentParentId;
                             documentsModels.TableName = s.TableName;
                             documentsModels.IsMobileUpload = s.IsMobileUpload;

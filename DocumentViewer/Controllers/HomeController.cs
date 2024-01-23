@@ -57,6 +57,7 @@ namespace DocumentViewer.Controllers
             @ViewBag.isDownload = "No";
             var userId = HttpContext.Session.GetString("user_id");
             @ViewBag.isUrl = "isUrl";
+            @ViewBag.isFile = "No";
             if (userId != null)
             {
                 SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
@@ -169,7 +170,7 @@ namespace DocumentViewer.Controllers
                                         viewmodel.ContentAccessorByBytes = byteArrayAccessor;
                                     }
                                     viewmodel.DocumentId = Guid.NewGuid().ToString();
-
+                                    @ViewBag.isFile = "Yes";
 
                                     viewmodel.ContentType = contentType;
                                     System.GC.Collect();

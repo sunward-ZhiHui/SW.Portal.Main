@@ -87,13 +87,13 @@
             CssClass="ch-360"
             style="height: calc(100vh - 200px);">
         <Columns>
-            <DxGridDataColumn Caption="" MinWidth="180">
+            <DxGridDataColumn Caption="" MinWidth="70">
                 <CellDisplayTemplate>
                     @{
                         var item = (ProductionActivityRoutineAppModel)context.DataItem;
                     }
-                    <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;color:green" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityRoutineAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>
-                    @if (item.IsLocked == true)
+@*                     <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;color:green" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityRoutineAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>
+ *@                    @if (item.IsLocked == true)
                     {
                         <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
                     }
@@ -111,11 +111,6 @@
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180" />
-            <DxGridDataColumn Caption="ProfileNo" FieldName="ActivityProfileNo" MinWidth="180" />
-            <DxGridDataColumn Caption="Company" FieldName="CompanyName" MinWidth="180" />
-            <DxGridDataColumn Caption="Ticket No" FieldName="ProdOrderNoDesc" MinWidth="180" />
-            <DxGridDataColumn Caption="Location/Batch Info." FieldName="LocationName" MinWidth="180" />
             <DxGridDataColumn Caption="Date&Time" FieldName="AddedDate" MinWidth="180">
                 <CellDisplayTemplate>
                     @{
@@ -124,9 +119,15 @@
                     @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
                 </CellDisplayTemplate>
             </DxGridDataColumn>
+            <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180" />
+            <DxGridDataColumn Caption="Profile No" FieldName="ActivityProfileNo" MinWidth="180" />
+            <DxGridDataColumn Caption="Company" FieldName="CompanyName" MinWidth="180" />
+            <DxGridDataColumn Caption="Ticket No" FieldName="ProdOrderNoDesc" MinWidth="180" />
+            <DxGridDataColumn Caption="Location/Batch Info." FieldName="LocationName" MinWidth="180" />
+           
             <DxGridDataColumn Caption="Routine" FieldName="ManufacturingProcessChild" MinWidth="180" />
             <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />
-            <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" />
+            <DxGridDataColumn Caption="Action" FieldName="ProdActivityActionChild" MinWidth="180" />
             <DxGridDataColumn Caption="Comment" FieldName="LineComment" MinWidth="180">
                 <CellDisplayTemplate>
                     @{
@@ -135,12 +136,13 @@
                     }
                     @* <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>
                     *@
+                    <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;color:green" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityRoutineAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>
                     <span title="@item.LineComment">@comments</span>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn Caption="Result" FieldName="ProdActivityResult" MinWidth="180" />
-            <DxGridDataColumn Caption="Routine Info" FieldName="RoutineStatus" MinWidth="180" />
-            <DxGridDataColumn Caption="RoutineInfo Status" FieldName="RoutineInfoStatus" MinWidth="180" />
+           @*  <DxGridDataColumn Caption="Routine Info" FieldName="RoutineStatus" MinWidth="180" /> *@
+            <DxGridDataColumn Caption="Status" FieldName="RoutineInfoStatus" MinWidth="180" />
             <DxGridDataColumn Caption="Modified By" FieldName="ModifiedByUser" MinWidth="180" />
 
         </Columns>
@@ -1153,6 +1155,7 @@
         SupportingDocumentsPopup = false;
         OperatorsPopup = false;
         IsCheckerPopUp = false;
+        InvokeAsync(onLoadDataList);
         StateHasChanged();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
@@ -1200,9 +1203,25 @@
         OperatorsPopup = false;
         StateHasChanged();
     }
-    void onEmailOpen()
+    async Task onEmailOpen()
     {
-        ActivityEmailPopup = true;
+        if (_selectedItems != null)
+        {
+            if (_selectedItems.IsEmailCreated == true && _selectedItems.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItems.EmailSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else if (_selectedItems.IsEmailCreated == false && _selectedItems.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.EmailActivitySessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                ActivityEmailPopup = true;
+            }
+        }
     }
     void OnClickActivityStatusOpen(string? type)
     {

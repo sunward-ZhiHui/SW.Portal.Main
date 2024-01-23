@@ -130,7 +130,7 @@
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="" ColSpanMd="12">
                 <div ref="target" @onclick="onCopyPasteFileclick" style='cursor:pointer'>Click here and Upload the image.</div>
-                <img src="@ImageSource" id="onCopyImagesOn" style="width:100%;height:200px;" alt="Pasted Image" />
+                <img src="@ImageSource" id="onCopyImagesOn" style="width:100%;height:200px;" alt="Upload Image" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditForm>
@@ -211,9 +211,25 @@
         PanelVisible = false;
         StateHasChanged();
     }
-    void onMailNew()
+    async Task onMailNew()
     {
-        ActivityEmailPopup = true;
+        if (selectedFiles != null)
+        {
+            if (selectedFiles.IsEmailCreated == true && selectedFiles.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + selectedFiles.EmailSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else if (selectedFiles.IsEmailCreated == false && selectedFiles.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "CreateEmail/" + selectedFiles.EmailActivitySessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                ActivityEmailPopup = true;
+            }
+        }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {

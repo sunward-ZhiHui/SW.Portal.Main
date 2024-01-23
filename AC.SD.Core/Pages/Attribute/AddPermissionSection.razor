@@ -261,6 +261,7 @@
         var response = await Mediator.Send(new InsertDynamicFormSectionSecurity(Data));
         if (response.DynamicFormSectionId > 0)
         {
+            Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;
             toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
             if (Data.Type == "User")
             {

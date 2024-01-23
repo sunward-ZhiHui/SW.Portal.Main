@@ -1150,6 +1150,7 @@
         PopupVisible = false;
         SupportingDocumentsPopup = false;
         OperatorsPopup = false; IsCheckerPopUp = false;
+        InvokeAsync(onLoadDataList);
         StateHasChanged();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
@@ -1197,9 +1198,25 @@
         OperatorsPopup = false;
         StateHasChanged();
     }
-    void onEmailOpen()
+    async Task onEmailOpen()
     {
-        ActivityEmailPopup = true;
+        if (_selectedItems != null)
+        {
+            if (_selectedItems.IsEmailCreated == true && _selectedItems.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItems.EmailSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else if (_selectedItems.IsEmailCreated == false && _selectedItems.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.EmailActivitySessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                ActivityEmailPopup = true;
+            }
+        }
     }
     void OnClickActivityStatusOpen(string? type)
     {

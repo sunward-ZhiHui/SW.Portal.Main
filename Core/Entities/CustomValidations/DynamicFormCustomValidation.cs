@@ -98,5 +98,33 @@ namespace Core.Entities.CustomValidations
             return ValidationResult.Success;
         }
     }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class UserGroupNameCustomValidation : ValidationAttribute
+    {
+        private IServiceProvider serviceProvider;
 
+        public UserGroupNameCustomValidation()
+        {
+            serviceProvider = AppDependencyResolver.Current.GetService<IServiceProvider>();
+        }
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var otherProperty = validationContext.ObjectType.GetProperty("UserGroupId");
+                long otherPropertyValue = (long)otherProperty.GetValue(validationContext.ObjectInstance, null);
+                string s = value.ToString();
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var service = scope.ServiceProvider.GetService<IUserGroupQueryRepository>();
+                    var results = service.GetUserGroupNameCheckValidation(s, otherPropertyValue);
+                    if (results != null)
+                    {
+                        return new ValidationResult("User Group already exits", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            return ValidationResult.Success;
+        }
+    }
 }

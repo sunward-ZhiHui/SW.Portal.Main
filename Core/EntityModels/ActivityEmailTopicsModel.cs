@@ -48,5 +48,6 @@ namespace Core.EntityModels
         public IEnumerable<long?>? CcId { get; set; } = null;
         public long? ActivityMasterId { get; set; }
         public int? StatusCodeId { get; set; }
+        public Guid? EmailActivitySessionId { get; set; }
     }
 }

@@ -163,6 +163,7 @@ namespace Infrastructure
             services.AddScoped<IDynamicFormDataSourceQueryRepository, DynamicFormDataSourceQueryRepository>();
             services.AddScoped<IQuotationHistoryQueryRepository, QuotationHistoryQueryRepository>();
             services.AddScoped<ITempSalesPackInformationQueryRepository, TempSalesPackInformationQueryRepository>();
+            services.AddScoped<IUserGroupQueryRepository, UserGroupQueryRepository>();
             return services;
         }
     }

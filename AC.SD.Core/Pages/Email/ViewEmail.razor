@@ -66,9 +66,9 @@
                                 <DxTabPage Text="Assign To" CssClass="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" Click="@(() => OnLeftMenuItemClick("AssignTo"))">
                                    
                                 </DxTabPage>
-                                <DxTabPage Text="CC" CssClass="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" Click="@(() => OnLeftMenuItemClick("AssignCC"))">
+                               @*  <DxTabPage Text="CC" CssClass="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" Click="@(() => OnLeftMenuItemClick("AssignCC"))">
                                    
-                                </DxTabPage>
+                                </DxTabPage> *@
                                 <DxTabPage Text="Sent" CssClass="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" Click="@(() => OnLeftMenuItemClick("Sent"))">
 
                                 </DxTabPage>
@@ -94,10 +94,10 @@
                         {
                             <AssignToEmail @ref=RefAssignTo Page="@Page" GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailClick"></AssignToEmail>
                         }
-                        else if (isLeftMenuvisible == "AssignCC")
+                       @*  else if (isLeftMenuvisible == "AssignCC")
                         {
                             <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailClick"></CCEmail>
-                        }
+                        } *@
                         else if(isLeftMenuvisible == "Sent")
                         {
                             <SentEmail sentTopicId="onViewEmailSentClick" SubViewSentTopicId="onSubViewEmailClick"></SentEmail>
@@ -610,36 +610,12 @@
                                             @*<div class="close-button handline" @onclick="CloseClick">X</div>*@
                                             <div class="dxwinheight" style="padding: 20px; overflow: auto;">
                                                 <DxFormLayout>
-                                                    <div class="open-button-old" style="width:99.5%">
-                                                       @* @if (_replyComment != null && _replyComment.Any())
-                                                        {
-                                                            @foreach (var item in _replyComment)
-                                                            {
-                                                                <div class="replybox">
-                                                                    <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
-                                                                    <div class="closebtn" @onclick="closeReply">X</div>
-                                                                    
-                                                                    <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg editor-reply-height" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-                                                                    <div>@item.UserName  , @item.AddedDate</div>
-                                                                </div>
-                                                            }
-                                                        }*@
-                                                        @*       DocumentContentChanged="OnmsgContentChanged"
-                                                Selection="@richSelection" SelectionChanged="OnSelectionChanged"
-                                                *@
+                                                    <div class="open-button-old" style="width:99.5%">                                                      
                                                         @if (isCommand)
                                                         {
                                                             @if (isCommandTopicClosed)
                                                             {
                                                                 <div class="boxreplay">
-                                                                   @* @if (_headTopic != null && _headTopic.Any())
-                                                                    {
-                                                                        @foreach (var item in _headTopic)
-                                                                        {
-                                                                            <h3>@item.TopicName</h3>
-                                                                        }
-                                                                    }*@
-
                                                                     <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                                         @* <DataAnnotationsValidator />*@
                                                                         <DxFormLayout>
@@ -650,26 +626,51 @@
                                                                             <DxFormLayoutItem Caption="From" ColSpanMd="12">
                                                                                 <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
                                                                             </DxFormLayoutItem>
-                                                                            <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
-                                                                            <DxTagBox NullText="Select Assign To..."
-                                                                                      Data="@_Toparticipant"
-                                                                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                                                      ValueFieldName="UserID"
-                                                                                      TextFieldName="Name"                                                                                      
-                                                                                      ListRenderMode="ListRenderMode.Virtual"                                                                                      
+
+                                                                            @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+                                                                            {
+                                                                                <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
+                                                                                <DxTagBox NullText="Select Assign To..."
+                                                                                          Data="@_Toparticipant"
+                                                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                          ValueFieldName="UserID"
+                                                                                          TextFieldName="Name"                                                                                      
+                                                                                          ListRenderMode="ListRenderMode.Virtual"                                                                                      
                                                                                       
-                                                                                      @bind-Values="@Data.AssigntoIds"
-                                                                                      SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
-                                                                                      CssClass="cw-480">
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                                                                                </DxTagBox>
-                                                                            </DxFormLayoutItem>
+                                                                                          @bind-Values="@Data.AssigntoIds"
+                                                                                          SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
+                                                                                          CssClass="cw-480">
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                    </DxTagBox>
+                                                                                </DxFormLayoutItem>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <DxFormLayoutItem Caption="Assign To Group" ColSpanMd="12">
+                                                                                    <DxTagBox Data="_ToUserGroup"
+                                                                                              @bind-Values="Data.ToUserGroupIds"
+                                                                                              FilteringMode="DataGridFilteringMode.Contains"
+                                                                                              NullText="Select Assign To Group..."
+                                                                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                              ValueFieldName="UserGroupId"
+                                                                                              TextFieldName="Name"
+                                                                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItemsChanged(values))"
+                                                                                              ListRenderMode="ListRenderMode.Virtual"
+                                                                                              CssClass="cw-480">
+                                                                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                                                                                    </DxTagBox>                                                                                    
+                                                                                </DxFormLayoutItem>
+                                                                            }
+                                                                            @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+                                                                            {
                                                                             <DxFormLayoutItem Caption="CC" ColSpanMd="12">
-                                                                            <DxTagBox NullText="Select cc..."
-                                                                          Data="@_CCparticipant"
+                                                                                <DxTagBox NullText="Select cc..."
+                                                                                      Data="@_CCparticipant"
                                                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                                                       ValueFieldName="UserID"
                                                                                       TextFieldName="Name"
@@ -683,8 +684,30 @@
                                                                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
                                                                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                                                                                 </DxTagBox>
-                                                                            </DxFormLayoutItem>
-                                                                         @if(newSubjectreply == 1)
+                                                                                </DxFormLayoutItem>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
+                                                                                    <DxTagBox NullText="Select Cc Group..."
+                                                                                              Data="_CCUserGroup"
+                                                                                              @bind-Values="@Data.CCUserGroupIds"
+                                                                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                              ListRenderMode="ListRenderMode.Virtual"
+                                                                                              ValueFieldName="UserGroupId"
+                                                                                              TextFieldName="Name"
+                                                                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItemsChanged(values))"
+                                                                                              FilteringMode="DataGridFilteringMode.Contains"
+                                                                                              CssClass="cw-480">
+
+                                                                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+
+                                                                                    </DxTagBox>
+                                                                                </DxFormLayoutItem>
+                                                                            }
+                                                                            @if(newSubjectreply == 1)
                                                                          {      
                                                                             <DxFormLayoutItem Caption="Due Date" ColSpanMd="5">
                                                                                 <DxDateEdit @bind-Date="@Data.DueDate" Mask="dd/MMMM/yyyy" />
@@ -2525,6 +2548,10 @@
 
     private List<ViewEmployee>? _allparticipants;
 
+    internal List<UserGroup>? _participantUserGroup;
+    internal List<UserGroup>? _ToUserGroup;
+    internal List<UserGroup>? _CCUserGroup;
+
     List<string> sToIds = new List<string>();
     List<string> sCCIds = new List<string>();
 
@@ -2651,6 +2678,34 @@
             // Reset _Toparticipant to all participants if nothing is selected in _CCparticipant
             _Toparticipant = _allparticipants.ToList();
         }
+    }
+
+    void onSelectedToUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+
+            _CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+
+            _CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        StateHasChanged();
+    }
+    void onSelectedCCUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+            _ToUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+            _ToUserGroup = _participantUserGroup.ToList();
+        }
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -3920,7 +3975,7 @@
                 {
                     //isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
                 }
-                
+
 
                 isEnabled = true;
                 isTodoEnabled = false;
@@ -3964,7 +4019,7 @@
         {
             //isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
         }
-        
+
 
         isEnabled = true;
         isTodoEnabled = true;
@@ -4199,183 +4254,164 @@
 
             var _replyComment = await Mediator.Send(new GetEmailConversationTId(long.Parse(@SelectedGroup)));
 
-            //var getplllst = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
-            //var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
-            //#region AssignTo
-            //    /*Assignto*/            
-            //var _convListss = await Mediator.Send(new GetEmailConversationTId(long.Parse(@SelectedGroup)));
-            //    var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_convListss[0].ID));
-            //    var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-            //    Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+            Data.UserType = _replyComment[0].UserType;
 
-            //    List<long> updatedList = Data.AssigntoIds.ToList();
-            //    long fromUserId = _convListss[0].AddedByUserID.Value;
-
-            //    if (fromUserId != applicationUser.UserID)
-            //    {
-            //        updatedList.Add(fromUserId);
-            //    }
-
-            //    //Data.AssigntoIds = updatedList;
-
-            //    Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
-
-            //    #endregion
-            //#region AssignCC
-            ///*AssignCC*/
-            //var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_convListss[0].ID));
-            //var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
-            ////Data.AssignccIds = concc.Select(s => s.UserId).ToList();
-
-
-
-            ////var parttcc = getplllst.Select(p => p.UserID).ToList();
-            ////Data.AssigntoIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-
-            //Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-            //#endregion
-
-
-            //if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
-            if(true)
+            if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
             {
-                var plist = await Mediator.Send(new GetAllEmployeeListQuery());
-                //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-                var allplist = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
-                var gettids = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
-                // var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
-                var parttcc = gettids.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
-
-
-
-                #region AssignTo
-                /*Assignto*/
-                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
-                var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-                //v
-                //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
-                //v
-                //List<long> updatedList = Data.AssigntoIds.ToList();
-                List<long> updatedList = conto.Select(s => s.UserId).ToList();
-                long fromUserId = _replyComment[0].AddedByUserID.Value;
-
-                if (fromUserId != applicationUser.UserID)
+                //if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+                if (true)
                 {
-                    updatedList.Add(fromUserId);
-                    _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
-                    _Toparticipant = _allparticipant.ToList();
-                    _CCparticipant = _allparticipant.ToList();
-                    _allparticipants = _allparticipant.ToList();
+                    var plist = await Mediator.Send(new GetAllEmployeeListQuery());
+                    //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+                    var allplist = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
+                    var gettids = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
+                    // var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                    var parttcc = gettids.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+
+                    #region AssignTo
+                    /*Assignto*/
+                    var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                    var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+                    //v
+                    //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+                    //v
+                    //List<long> updatedList = Data.AssigntoIds.ToList();
+                    List<long> updatedList = conto.Select(s => s.UserId).ToList();
+                    long fromUserId = _replyComment[0].AddedByUserID.Value;
+
+                    if (fromUserId != applicationUser.UserID)
+                    {
+                        updatedList.Add(fromUserId);
+                        _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    else
+                    {
+                        _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].AddedByUserID.Value).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+
+                    //v
+                    //Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    Data.AssigntoIds = new List<long>();
+
+                    #endregion
+
+                    #region AssignCC
+                    /*AssignCC*/
+                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                    var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+                    //Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                    var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                    Data.AssignccIds = t1.Concat(t2).ToList();
+
+                    var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
+                    IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                    sCCIds = CCtags.ToList();
+
+
+                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+
+                    #endregion
+
                 }
                 else
                 {
-                    _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].AddedByUserID.Value).ToList();
-                    _Toparticipant = _allparticipant.ToList();
-                    _CCparticipant = _allparticipant.ToList();
-                    _allparticipants = _allparticipant.ToList();
+                    var gettid = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
+                    //_allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettid[0].TopicID));
+                    //_allparticipant = gettid;
+                    var allplist = gettid;
+
+
+                    var gettids = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
+                    //var getplsst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                    var getpatlist = gettids.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+                    #region AssignTo
+                    /*Assignto*/
+                    var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                    var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+
+                    //v
+                    //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+                    //v
+                    //List<long> updatedList = Data.AssigntoIds.ToList();
+                    List<long> updatedList = conto.Select(s => s.UserId).ToList();
+                    long fromUserId = _replyComment[0].AddedByUserID.Value;
+
+                    if (fromUserId != applicationUser.UserID)
+                    {
+                        updatedList.Add(fromUserId);
+                        _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    else
+                    {
+                        _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].AddedByUserID.Value).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    //v
+                    //Data.AssigntoIds = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    Data.AssigntoIds = new List<long>();
+
+                    #endregion
+
+
+                    #region AssignCC
+                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                    var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+                    //Data.AssignccIds = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                    var t1 = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    var t2 = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                    Data.AssignccIds = t1.Concat(t2).ToList();
+
+
+
+                    //string assignccIdAsString = Data.AssignccIds.ToString(); // Convert Data.AssignccIds to a string
+                    //IEnumerable<string> newTags = new List<string> { assignccIdAsString }; // Create a collection with a single element
+                    //onCcChanged(newTags);
+
+                    var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
+                    IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                    sCCIds = CCtags.ToList();
+
+                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+
+                    #endregion
                 }
-
-                //v
-                //Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                Data.AssigntoIds = new List<long>();
-
-                #endregion
-
-                #region AssignCC
-                /*AssignCC*/
-                var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
-                var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
-                //Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-                var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-                Data.AssignccIds = t1.Concat(t2).ToList();
-
-                var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
-                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
-                sCCIds = CCtags.ToList();
-
-
-                _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
-
-                #endregion
-
             }
             else
-            {
-                var gettid = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
-                //_allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettid[0].TopicID));
-                //_allparticipant = gettid;
-                var allplist = gettid;
+            {         
+                _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+                _ToUserGroup = _participantUserGroup;
+                _CCUserGroup = _participantUserGroup;    
+
+                var listCC = await Mediator.Send(new GetAssignCCUserGroup(_replyComment[0].ID));
+                Data.CCUserGroupIds = listCC.Select(s => s.GroupId).ToList();    
 
 
-                var gettids = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
-                //var getplsst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
-                var getpatlist = gettids.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+                _ToUserGroup = _ToUserGroup.Where(c => !Data.CCUserGroupIds.Select(id => (long?)id).Contains(c.UserGroupId)).ToList();               
 
+                StateHasChanged();
 
-                #region AssignTo
-                /*Assignto*/
-                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
-                var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-
-                //v
-                //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
-                //v
-                //List<long> updatedList = Data.AssigntoIds.ToList();
-                List<long> updatedList = conto.Select(s => s.UserId).ToList();
-                long fromUserId = _replyComment[0].AddedByUserID.Value;
-
-                if (fromUserId != applicationUser.UserID)
-                {
-                    updatedList.Add(fromUserId);
-                    _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
-                    _Toparticipant = _allparticipant.ToList();
-                    _CCparticipant = _allparticipant.ToList();
-                    _allparticipants = _allparticipant.ToList();
-                }
-                else
-                {
-                    _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].AddedByUserID.Value).ToList();
-                    _Toparticipant = _allparticipant.ToList();
-                    _CCparticipant = _allparticipant.ToList();
-                    _allparticipants = _allparticipant.ToList();
-                }
-                //v                
-                //Data.AssigntoIds = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                Data.AssigntoIds = new List<long>();
-
-                #endregion
-
-
-                #region AssignCC
-                var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
-                var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();                
-                //Data.AssignccIds = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-                var t1 = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                var t2 = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-                Data.AssignccIds = t1.Concat(t2).ToList();
-
-
-
-                //string assignccIdAsString = Data.AssignccIds.ToString(); // Convert Data.AssignccIds to a string
-                //IEnumerable<string> newTags = new List<string> { assignccIdAsString }; // Create a collection with a single element
-                //onCcChanged(newTags);
-
-                var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
-                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
-                sCCIds = CCtags.ToList();
-
-                _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
-
-                #endregion
-            }
+            }            
         }
 
 
@@ -4424,173 +4460,170 @@
 
             Data.IsAllowParticipants = false;
             Data.DueDate = null;
-            newSubjectreply = 0;
-            //asignto
-            //_allparticipant = await Mediator.Send(new GetAllConvAssToListQuery(_replyComment[0].ID));
-            //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            newSubjectreply = 0;         
 
-            //var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
-            //var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-            //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+            Data.UserType = _replyComment[0].UserType;
 
-            //List<long> updatedList = Data.AssigntoIds.ToList();
-            //long fromUserId = _replyComment[0].UserId.Value;
-
-            //if(fromUserId != applicationUser.UserID)
-            //{
-            //    updatedList.Add(fromUserId);
-            //}
-
-            //Data.AssigntoIds = updatedList;
-
-            //cclist
-            //var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
-            //var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
-            //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
-
-
-            if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+            if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
             {
-                var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
-                var allplist = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-                //_allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
-
-                //_Toparticipant = _allparticipant;
-                //_CCparticipant = _allparticipant;
-
-
-                var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
-                var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
-                var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
-
-
-
-                #region AssignTo
-                /*Assignto*/
-                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
-                var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-                //v
-                //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
-                //v
-                //List<long> updatedList = Data.AssigntoIds.ToList();
-                List<long> updatedList = conto.Select(s => s.UserId).ToList();
-                long fromUserId = _replyComment[0].UserId.Value;
-
-                if (fromUserId != applicationUser.UserID)
+                if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
                 {
-                    updatedList.Add(fromUserId);
-                    _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
-                    _Toparticipant = _allparticipant.ToList();
-                    _CCparticipant = _allparticipant.ToList();
-                    _allparticipants = _allparticipant.ToList();
+                    var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
+                    var allplist = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+                    //_allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
+
+                    //_Toparticipant = _allparticipant;
+                    //_CCparticipant = _allparticipant;
+
+
+                    var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                    var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                    var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+
+                    #region AssignTo
+                    /*Assignto*/
+                    var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                    var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+                    //v
+                    //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+                    //v
+                    //List<long> updatedList = Data.AssigntoIds.ToList();
+                    List<long> updatedList = conto.Select(s => s.UserId).ToList();
+                    long fromUserId = _replyComment[0].UserId.Value;
+
+                    if (fromUserId != applicationUser.UserID)
+                    {
+                        updatedList.Add(fromUserId);
+                        _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    else
+                    {
+                        _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    //v
+                    //Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    Data.AssigntoIds = new List<long>();
+                    #endregion
+
+                    #region AssignCC
+                    /*AssignCC*/
+                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                    var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();  
+                    //Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+
+                    var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                    Data.AssignccIds = t1.Concat(t2).ToList();
+
+                    var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
+                    IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                    sCCIds = CCtags.ToList();
+
+
+                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                    //_allparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+
+                    #endregion
+
                 }
                 else
                 {
-                    _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
-                    _Toparticipant = _allparticipant.ToList();
-                    _CCparticipant = _allparticipant.ToList();
-                    _allparticipants = _allparticipant.ToList();
+                    var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                    var allplist = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettid[0].TopicID));
+
+
+
+                    var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                    var getplsst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                    var getpatlist = getplsst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+                    #region AssignTo
+                    /*Assignto*/
+                    var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                    var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+
+                    //v
+                    //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+                    //Data.AssigntoIds = new List<long>();
+                    //v
+                    //List<long> updatedList = Data.AssigntoIds.ToList();
+                    List<long> updatedList = conto.Select(s => s.UserId).ToList();
+                    long fromUserId = _replyComment[0].UserId.Value;
+
+                    if (fromUserId != applicationUser.UserID)
+                    {
+                        updatedList.Add(fromUserId);
+
+                        _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+                    else
+                    {
+                        _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
+                        _Toparticipant = _allparticipant.ToList();
+                        _CCparticipant = _allparticipant.ToList();
+                        _allparticipants = _allparticipant.ToList();
+                    }
+
+                    //v
+                    //Data.AssigntoIds = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    #endregion
+
+
+                    #region AssignCC
+                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                    var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+                    //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
+                    //Data.AssignccIds = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+
+                    var t1 = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                    var t2 = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                    Data.AssignccIds = t1.Concat(t2).ToList();
+
+
+
+                    //string assignccIdAsString = Data.AssignccIds.ToString(); // Convert Data.AssignccIds to a string
+                    //IEnumerable<string> newTags = new List<string> { assignccIdAsString }; // Create a collection with a single element
+                    //onCcChanged(newTags);           
+
+                    var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
+                    IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                    sCCIds = CCtags.ToList();
+
+                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                    #endregion
                 }
-                //v
-                //Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                Data.AssigntoIds = new List<long>();
-                #endregion
-
-                #region AssignCC
-                /*AssignCC*/
-                var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
-                var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();  
-                //Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-
-                var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-                Data.AssignccIds = t1.Concat(t2).ToList();
-
-                var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
-                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
-                sCCIds = CCtags.ToList();
-
-
-                _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
-                //_allparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
-
-                #endregion
 
             }
             else
             {
-                var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
-                var allplist = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettid[0].TopicID));
+                _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+                _ToUserGroup = _participantUserGroup;
+                _CCUserGroup = _participantUserGroup;
 
+                var listCC = await Mediator.Send(new GetAssignCCUserGroup(_replyComment[0].ID));
+                Data.CCUserGroupIds = listCC.Select(s => s.GroupId).ToList();
 
+                _ToUserGroup = _ToUserGroup.Where(c => !Data.CCUserGroupIds.Select(id => (long?)id).Contains(c.UserGroupId)).ToList();
 
-                var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
-                var getplsst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
-                var getpatlist = getplsst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
-
-
-                #region AssignTo
-                /*Assignto*/
-                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
-                var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-
-                //v
-                //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
-                //Data.AssigntoIds = new List<long>();
-                //v
-                //List<long> updatedList = Data.AssigntoIds.ToList();
-                List<long> updatedList = conto.Select(s => s.UserId).ToList();
-                long fromUserId = _replyComment[0].UserId.Value;
-
-                if (fromUserId != applicationUser.UserID)
-                {
-                    updatedList.Add(fromUserId);
-
-                    _allparticipant = allplist.Where(c => c.UserID != applicationUser.UserID).ToList();
-                    _Toparticipant = _allparticipant.ToList();
-                    _CCparticipant = _allparticipant.ToList();
-                    _allparticipants = _allparticipant.ToList();
-                }
-                else
-                {
-                    _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
-                    _Toparticipant = _allparticipant.ToList();
-                    _CCparticipant = _allparticipant.ToList();
-                    _allparticipants = _allparticipant.ToList();
-                }
-
-                //v
-                //Data.AssigntoIds = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                #endregion
-
-
-                #region AssignCC
-                var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
-                var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
-                //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
-                //Data.AssignccIds = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-
-                var t1 = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                var t2 = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-
-                Data.AssignccIds = t1.Concat(t2).ToList();
-
-
-
-                //string assignccIdAsString = Data.AssignccIds.ToString(); // Convert Data.AssignccIds to a string
-                //IEnumerable<string> newTags = new List<string> { assignccIdAsString }; // Create a collection with a single element
-                //onCcChanged(newTags);           
-
-                var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
-                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
-                sCCIds = CCtags.ToList();
-
-                _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
-                #endregion
+                StateHasChanged();
             }
+
 
 
             WindowVisible = true;
@@ -4773,7 +4806,7 @@
         //    htmlString = Rtf.ToHtml(fileContent);
         //}
 
-        if(fileContent.Length == 480)
+        if(fileContent.Length == 443)
         {
             toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
             loading = false;
@@ -4795,16 +4828,46 @@
             return;
         }
 
-        if(Data.AssigntoIds.Count() == 0)
+        if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
         {
-            toastService.ShowToast("Please Select Assign To", AC.SD.Core.Services.ToastLevel.Error);
-            loading = false;
-            return;
+            if (Data.AssigntoIds.Count() == 0)
+            {
+                toastService.ShowToast("Please Select Assign To", AC.SD.Core.Services.ToastLevel.Error);
+                loading = false;
+                return;
+            }
         }
+        else
+        {
+            if(Data.ToUserGroupIds == null)
+            {
+                toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
+                loading = false;
+                return;
+
+            }
+
+            if (Data.ToUserGroupIds.Count() == 0)
+            {
+                toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
+                loading = false;
+                return;
+            }
+        }
+
+
 
         string assignCCidsString = string.Join(",", _assigntoItems.Select(s => s.UserID).ToList());
         string assignccidsString = null;
-        string assigntoidsString = string.Join(",", Data.AssigntoIds);
+
+        string assigntoidsString = "";
+
+        if(Data.AssigntoIds != null)
+        {
+            assigntoidsString = string.Join(",", Data.AssigntoIds);
+        }
+
+
         if(Data.AssignccIds != null)
         {
             assignccidsString = string.Join(",", Data.AssignccIds);
@@ -4820,7 +4883,15 @@
         }
         else
         {
-            concatList = Data.AssigntoIds.ToList();
+            if(Data.AssigntoIds != null)
+            {
+                concatList = Data.AssigntoIds.ToList();
+            }
+            else
+            {
+                concatList = new List<long>();
+            }
+
         }
 
         //List<long> concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
@@ -4834,19 +4905,88 @@
         var coId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0;
         if(coId > 0)
         {
-            var plist = await Mediator.Send(new GetByConvasationPList(coId));
-            List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
-            NotificationconcatList = plst;
-            List<long> uniqueItems = concatList.Except(plst).ToList();
-            if(uniqueItems.Count > 0)
+            if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
             {
-                plistUniqueItems = string.Join(",", uniqueItems);                
-                NotificationconcatList.AddRange(uniqueItems);
+                var plist = await Mediator.Send(new GetByConvasationPList(coId));
+                List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
+                NotificationconcatList = plst;
+                List<long> uniqueItems = concatList.Except(plst).ToList();
+                if (uniqueItems.Count > 0)
+                {
+                    plistUniqueItems = string.Join(",", uniqueItems);
+                    NotificationconcatList.AddRange(uniqueItems);
+                }
             }
+            else
+            {
+                List<long> UGlist = await Mediator.Send(new GetByConvasationPUserGroupList(coId));
+                string UGlistString = string.Join(",", UGlist);
+
+                List<long> concatListUserGroupItems = new List<long>();
+                if (Data.ToUserGroupIds != null)
+                {
+                    concatListUserGroupItems.AddRange(Data.ToUserGroupIds);
+                }
+
+                if (Data.CCUserGroupIds != null)
+                {
+                    concatListUserGroupItems.AddRange(Data.CCUserGroupIds);
+                }
+
+                // Convert the merged list to a comma-separated string
+                var concatListUserGroup = string.Join(",", concatListUserGroupItems);
+
+                // Convert string to a list of long
+                concatListUserGroupItems = concatListUserGroup.Split(',').Select(long.Parse).ToList();
+
+                // Use Except on the collections
+                //List<long> uniqueUserGroupItems = UGlist.Except(concatListUserGroupItems).ToList();
+                //List<long> uniqueUserGroupItems = UGlist.Where(item => !concatListUserGroupItems.Contains(item)).ToList();
+                List<long> uniqueUserGroupItems = concatListUserGroupItems.Except(UGlist).ToList();
+
+
+
+                if (uniqueUserGroupItems.Count > 0)
+                {
+                    plistUniqueItems = string.Join(",", uniqueUserGroupItems);
+                }
+            }
+           
 
             ConIds = _replyComment[0].ID;
 
         }       
+
+        var susertype = Data.UserType;
+        var sToUserGroup = "";
+
+        if(Data.ToUserGroupIds != null)
+        {
+            sToUserGroup = string.Join(",", Data.ToUserGroupIds);
+        }        
+        
+        var sCCUserGroup = "";
+        if (Data.CCUserGroupIds != null)
+        {
+            sCCUserGroup = string.Join(",", Data.CCUserGroupIds);
+        }
+        else
+        {
+            sCCUserGroup = "";
+        }
+
+        var sParticipantsUserGroup = "";
+        if (sCCUserGroup != null)
+        {
+            sParticipantsUserGroup = string.Join(",", sToUserGroup, sCCUserGroup);
+        }
+        else
+        {
+            sParticipantsUserGroup = string.Join(",", Data.ToUserGroupIds);
+        }
+
+
+
 
         var createReq = new CreateEmailCoversation
             {
@@ -4875,7 +5015,11 @@
                 AddedByUserID = applicationUser.UserID,
                 AddedDate = DateTime.Now,
                 Name = Data.Name,
-                SessionId = _sessionId
+                SessionId = _sessionId,
+                ToUserGroup = sToUserGroup,
+                CCUserGroup = sCCUserGroup,
+                ParticipantsUserGroup = sParticipantsUserGroup,
+                UserType = Data.UserType
             };
         var result = await Mediator.Send(createReq);
 

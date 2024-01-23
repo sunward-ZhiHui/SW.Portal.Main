@@ -52,5 +52,9 @@ namespace Application.Response
         public string? ActivityType { get; set;}
         public string? UserTag { get; set; }
         public long? UserTagId { get; set; }
+        public string? UserType { get; set; }
+        public string? ToUserGroup { get; set; }
+        public string? CCUserGroup { get; set;}
+        public string? ParticipantsUserGroup { get; set; }
     }
 }

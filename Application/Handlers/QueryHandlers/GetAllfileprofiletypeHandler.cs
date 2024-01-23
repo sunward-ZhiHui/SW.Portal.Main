@@ -259,6 +259,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetAllUserGroupsHandler : IRequestHandler<GetAllUserGroups, List<UserGroup>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetAllUserGroupsHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<UserGroup>> Handle(GetAllUserGroups request, CancellationToken cancellationToken)
+        {
+            return (List<UserGroup>)await _fileprofileQueryRepository.GetAllUserGroups();
+        }
+
+    }
+    
     public class GetDocumentRolesHandler : IRequestHandler<GetDocumentRoles, List<DocumentRole>>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;

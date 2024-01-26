@@ -136,7 +136,10 @@
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
                                                 <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
+                                                
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
+                                                
+                                                    
                                                 <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                             
                                             </Items>
@@ -3560,13 +3563,25 @@
     }
     private async Task SubmitIsArchived()
     {       
-        var UpdateReq = new UpdateTopicArchive
-        {
-            ID = long.Parse(@SelectedGroup),                
-            ModifiedByUserID = applicationUser.UserID,
-            ModifiedDate = DateTime.Now
-        };
-        var result = await Mediator.Send(UpdateReq);   
+       
+        
+         if (string.IsNullOrEmpty(_headTopic[0].UserType) || _headTopic[0].UserType == "Users")
+         {
+            var UpdateReq = new UpdateTopicArchive
+                {
+                    ID = long.Parse(@SelectedGroup),
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now
+                };
+            var result = await Mediator.Send(UpdateReq);
+
+         }
+         else
+         {
+
+         }
+
+         
 
         isArchiveClosed = false;
         //await LoadData();

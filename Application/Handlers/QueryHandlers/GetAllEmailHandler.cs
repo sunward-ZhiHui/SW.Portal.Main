@@ -41,6 +41,21 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class UpdateTopicGroupArchiveHandler : IRequestHandler<UpdateTopicGroupArchive, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateTopicGroupArchiveHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+
+        }
+        public async Task<long> Handle(UpdateTopicGroupArchive request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateTopicGroupArchive(request);
+            return req;
+        }
+    }
 
     public class UpdateTopicUnArchiveHandler : IRequestHandler<UpdateTopicUnArchive, long>
     {

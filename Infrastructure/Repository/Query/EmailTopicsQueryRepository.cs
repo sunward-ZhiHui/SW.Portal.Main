@@ -2230,6 +2230,38 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        public async Task<long> UpdateTopicGroupArchive(EmailTopics EmailTopics)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ID", EmailTopics.ID);
+                        parameters.Add("ModifiedByUserID", EmailTopics.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", EmailTopics.ModifiedDate);
+
+                        var query = " UPDATE EmailConversationParticipant SET IsArchive = 1 where TopicId = @ID and UserId = @ModifiedByUserID";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<long> UpdateTopicArchive(EmailTopics EmailTopics)
         {
             try

@@ -289,6 +289,12 @@
                     <source src="@Model.Url" type="video/@Model.Extensions">
                 </video>
             }
+            else if (@Model.Extensions == "mov" || @Model.Extensions == "MOV")
+            {
+                <video style="width: 100%; height: calc(100vh - 70px);" controls autoplay>
+                    <source src="@Model.Url" type="video/mp4">
+                </video>
+            }
             else
             {
                 <div>Invalid Url.</div>

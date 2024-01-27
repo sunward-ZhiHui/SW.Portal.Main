@@ -895,7 +895,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("ProductionActivityRoutineAppLineID", ProductionActivityRoutineAppLineID);
                 var query = @"select AE.SessionId as ActivityRoutineEmailSessionId,AE.EmailTopicSessionId,PR.ProductionActivityRoutineAppLineID From ProductionActivityRoutineAppLine PR
-                               inner join  ActivityEmailTopics AE on AE.ActivityMasterId = PR.ProductionActivityRoutineAppLineID Where AE.ActivityType =  'RoutineActivity' and PR.ProductionActivityRoutineAppLineID =@ProductionActivityRoutineAppLineID
+                               left join  ActivityEmailTopics AE on AE.ActivityMasterId = PR.ProductionActivityRoutineAppLineID Where AE.ActivityType =  'RoutineActivity' and PR.ProductionActivityRoutineAppLineID =@ProductionActivityRoutineAppLineID
                               ";
 
                 using (var connection = CreateConnection())

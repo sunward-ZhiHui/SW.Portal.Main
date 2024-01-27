@@ -132,14 +132,30 @@ else
                                 <ValidationMessage For="@(() => CategoryData.GroupTag)" />
                             </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="Type" ColSpanMd="12">
+                           @*  <DxFormLayoutItem Caption="Type" ColSpanMd="12">
                                 <DxRadioGroup Items="@UserTypeOptions"
                                               Value="@Data.UserType"
                                               ValueExpression="@(() => Data.UserType )"
                                               ValueChanged="@((string value) => OnUserTypeChanged(value))"
                                               Layout="RadioGroupLayout.Horizontal"
                                               CssClass="dx-demo-radio-group" />
+                            </DxFormLayoutItem> *@
+
+                            <DxFormLayoutItem Caption="Type" ColSpanMd="12">
+                             <div role="radiogroup">
+                                    @foreach (var language in Languages) {
+                                        <DxRadio GroupName="disabled-option-radio-group"
+                                                 @bind-GroupValue="@PreferredLanguage"
+                                                 Value="@language"
+                                                 Layout="RadioGroupLayout.Horizontal"
+                                                 Enabled="@IsLanguageInstalled(language)">
+                                            @GetOptionLabel(language)
+                                        </DxRadio>
+                                    }
+                                </div>
                             </DxFormLayoutItem>
+
+
                             @if (Data.UserType == "Users")
                             { 
                                 <DxFormLayoutItem Caption="To" ColSpanMd="8">
@@ -524,7 +540,23 @@ else
 
 
 @code {
-
+    string PreferredLanguage { get; set; } = "Users";
+    IEnumerable<string> Languages = new[] { "Users", "Group" };
+    bool IsLanguageInstalled(string language) => language != "Group";
+    string GetOptionLabel(string language)
+    {
+        var result = language;
+        if (!IsLanguageInstalled(language))
+            result += " ";
+        return result;
+    }
+    string GetLegendCssClass(SizeMode sizeMode)
+    {
+        var result = "dx-demo-radio-group-label";
+        if (sizeMode != SizeMode.Medium)
+            result += sizeMode == SizeMode.Large ? " dx-demo-large" : " dx-demo-small";
+        return result;
+    }
     IEnumerable<string> UserTypeOptions = new[] { "Users", "Group" };
     async void OnUserTypeChanged(string? radioValue)
     {

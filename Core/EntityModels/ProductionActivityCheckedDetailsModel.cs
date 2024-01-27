@@ -26,7 +26,7 @@ namespace Core.EntityModels
         public string? ActivityResultName { get; set; }
         public string? CheckedByUserName { get; set; }
     }
-    public class ProductionActivityRoutineCheckedDetailsModel:BaseModel
+    public class ProductionActivityRoutineCheckedDetailsModel : BaseModel
     {
         public long ProductionActivityRoutineCheckedDetailsId { get; set; }
         public long? ProductionActivityRoutineAppLineId { get; set; }
@@ -45,5 +45,11 @@ namespace Core.EntityModels
         public string? RoutineResultName { get; set; }
         public string? CheckedByUserName { get; set; }
         public string? CommentImages { get; set; }
+    }
+    public class ProductionActivityRoutineEmailModel : BaseModel
+    {
+        public Guid? ActivityRoutineEmailSessionId { get; set; }
+        public Guid?  EmailTopicSessionId { get; set;  }
+      public long?  ProductionActivityRoutineAppLineID { get; set; }
     }
 }

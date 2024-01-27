@@ -211,15 +211,7 @@ namespace Application.Handlers.QueryHandlers
 
     }
 
-
-
-
-
-
-
-
-
-
+   
 
     public class GetAllProductionActivityRoutineAppLineHandler : IRequestHandler<GetAllProductionActivityRoutineAppLineQuery, List<ProductionActivityRoutineAppModel>>
     {

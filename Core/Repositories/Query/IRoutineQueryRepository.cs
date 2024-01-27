@@ -26,5 +26,7 @@ namespace Core.Repositories.Query
 
         Task<ProductionActivityRoutineCheckedDetailsModel> DeleteProductionActivityRoutineCheckedDetails(ProductionActivityRoutineCheckedDetailsModel value);
         Task<ProductionActivityRoutineCheckedDetailsModel> InsertProductionActivityRoutineCheckedDetails(ProductionActivityRoutineCheckedDetailsModel value);
+
+        Task<IReadOnlyList<ProductionActivityRoutineEmailModel>> GetProductionActivityRoutineEmailList(long? ProductionActivityRoutineAppLineID);
     }
 }

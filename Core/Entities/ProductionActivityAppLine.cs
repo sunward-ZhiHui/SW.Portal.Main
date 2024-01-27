@@ -48,6 +48,9 @@ namespace Core.Entities
         public string? Action { get; set; }
         [NotMapped]
         public DateTime? AddedDate { get; set; }
-
+        [NotMapped]
+        public Guid? ActivityEmailSessionId { get; set; }
+        [NotMapped]
+        public Guid? EmailTopicSessionId { get; set; }
     }
 }

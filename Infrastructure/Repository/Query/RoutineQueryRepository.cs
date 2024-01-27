@@ -888,5 +888,25 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<IReadOnlyList<ProductionActivityRoutineEmailModel>> GetProductionActivityRoutineEmailList(long? ProductionActivityRoutineAppLineID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ProductionActivityRoutineAppLineID", ProductionActivityRoutineAppLineID);
+                var query = @"select AE.SessionId as ActivityRoutineEmailSessionId,AE.EmailTopicSessionId,PR.ProductionActivityRoutineAppLineID From ProductionActivityRoutineAppLine PR
+                               inner join  ActivityEmailTopics AE on AE.ActivityMasterId = PR.ProductionActivityRoutineAppLineID Where AE.ActivityType =  'RoutineActivity' and PR.ProductionActivityRoutineAppLineID =@ProductionActivityRoutineAppLineID
+                              ";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ProductionActivityRoutineEmailModel>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

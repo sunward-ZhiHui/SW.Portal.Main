@@ -6,6 +6,7 @@ using Core.EntityModels;
 using SW.Portal.Solutions.Models;
 using Core.Entities.Views;
 using Core.Entities;
+using Core.Repositories.Query;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -14,9 +15,13 @@ namespace SW.Portal.Solutions.Controllers
     public class ProductionActivitysController : Controller
     {
         private readonly IMediator _mediator;
-        public ProductionActivitysController(IMediator mediator)
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        private readonly IRoutineQueryRepository _productionactivityRoutineQueryRepository;
+        public ProductionActivitysController(IMediator mediator, IProductionActivityQueryRepository productionactivityQueryRepository, IRoutineQueryRepository productionactivityRoutineQueryRepository)
         {
             _mediator = mediator;
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+            _productionactivityRoutineQueryRepository = productionactivityRoutineQueryRepository;
         }
         [HttpGet("GetApplicationMasterDetailList")]
         public async Task<ActionResult<ResponseModel<List<View_ApplicationMasterDetail>>>> GetApplicationMasterDetailList(long? Id)
@@ -223,7 +228,26 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetProductionActivityEmail")]
+        public async Task<ActionResult<ResponseModel<List<ProductionActivityAppLine>>>> GetProductionActivityEmail(long? ProductionActivityAppLineId)
+        {
 
+
+            var response = new ResponseModel<ProductionActivityAppLine>();
+            var result = await _productionactivityQueryRepository.GetProductionActivityEmailList(ProductionActivityAppLineId);
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                response.Results = (List<ProductionActivityAppLine>)result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
 
 
 
@@ -407,6 +431,28 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = ResponseCode.Success;
                 response.Result = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
+
+        [HttpGet("GetProductionActivityRoutineEmail")]
+        public async Task<ActionResult<ResponseModel<List<ProductionActivityRoutineEmailModel>>>> GetProductionActivityRoutineEmail(long? ProductionActivityRoutineAppLineID)
+        {
+
+            var response = new ResponseModel<ProductionActivityRoutineEmailModel>();
+         
+            var result = await _productionactivityRoutineQueryRepository.GetProductionActivityRoutineEmailList(ProductionActivityRoutineAppLineID);
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                response.Results = (List<ProductionActivityRoutineEmailModel>)result;
             }
             catch (Exception ex)
             {

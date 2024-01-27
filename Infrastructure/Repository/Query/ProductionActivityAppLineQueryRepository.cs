@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NAV;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
@@ -1141,6 +1142,27 @@ namespace Infrastructure.Repository.Query
 
             }
 
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ProductionActivityAppLine>> GetProductionActivityEmailList(long? ProductionActivityAppLineId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ProductionActivityAppLineId", ProductionActivityAppLineId);
+                var query = @"select AE.SessionId as ActivityEmailSessionId,AE.EmailTopicSessionId ,PA.ProductionActivityAppLineID From ProductionActivityAppLine PA
+                              inner join  ActivityEmailTopics AE on AE.ActivityMasterId = PA.ProductionActivityAppLineID Where AE.ActivityType =  'ProductionActivity' and PA.ProductionActivityAppLineID =@ProductionActivityAppLineId
+                              ";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ProductionActivityAppLine>(query, parameters)).ToList();
+                }
+            }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);

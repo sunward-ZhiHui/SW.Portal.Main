@@ -357,10 +357,29 @@ namespace Application.Queries
 
         }
     }
+    public class GetEmailGroupParticipantsList : PagedRequest, IRequest<List<EmailConversationAssignToUserGroup>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public GetEmailGroupParticipantsList(long topicId, long userId)
+        {
+            this.TopicId = topicId;
+            this.UserId = userId;
+
+        }
+    }
     public class GetConversationParticipantsList : PagedRequest, IRequest<List<EmailParticipant>>
     {
         public long ConversationId { get; private set; }
         public GetConversationParticipantsList(long ConversationId)
+        {
+            this.ConversationId = ConversationId;
+        }
+    }
+    public class GetConversationGroupParticipantsList : PagedRequest, IRequest<List<EmailConversationAssignToUserGroup>>
+    {
+        public long ConversationId { get; private set; }
+        public GetConversationGroupParticipantsList(long ConversationId)
         {
             this.ConversationId = ConversationId;
         }

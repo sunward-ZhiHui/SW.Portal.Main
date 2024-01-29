@@ -1437,6 +1437,32 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailConversationAssignToUserGroup>> GetGroupParticipantList(long topicId, long UserId)
+        {
+            try
+            {
+                var query = @"select AU.Name,TP.ID,TP.TopicId,TP.AddedDate,CASE WHEN TP.AddedByUserID = TP.GroupId THEN 0 ELSE 1 END AS IsEnabled,
+                            ECO.Name as SubjectName	  
+                            FROM EmailConversationParticipantUserGroup TP 
+                            INNER JOIN UserGroup AU ON TP.GroupId = AU.UserGroupID  
+                            INNER JOIN UserGroupUser UGU ON UGU.UserGroupID = TP.GroupId AND UGU.UserID = @UserId
+                            INNER JOIN EmailConversations ECO ON ECO.ID = TP.ConversationId			
+                            where TP.TopicId = @TopicId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", topicId);
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailConversationAssignToUserGroup>(query, parameters)).ToList();                   
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailParticipant>> GetConversationPList(long ConversationId)
         {
             try
@@ -1508,6 +1534,62 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {                    
                     return (await connection.QueryAsync<EmailParticipant>(query, parameters)).ToList();
+                    // var result = connection.QueryAsync<TopicParticipant>(query, parameters).ToList();
+                    //return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailConversationAssignToUserGroup>> GetConversationGroupPList(long ConversationId)
+        {
+            try
+            {
+                var query = @";WITH CTE AS (
+	                            SELECT
+		                            TP.GroupId,                                    
+		                            TP.ID,
+		                            TP.TopicId,                                
+		                            TP.AddedDate,                             
+		                            CASE
+			                            WHEN TP.AddedByUserID = UGU.UserID THEN 0
+			                            ELSE 1
+		                            END AS IsEnabled,
+		                            ECO.Name AS SubjectName,
+		                            AU.Name,
+                                   
+                                  
+		                            ROW_NUMBER() OVER (PARTITION BY TP.GroupId ORDER BY TP.ID ASC) AS RowNum
+	                            FROM
+		                            EmailConversationParticipantUserGroup TP
+		                            INNER JOIN UserGroup AU ON TP.GroupId = AU.UserGroupID
+		                            INNER JOIN UserGroupUser UGU ON UGU.UserGroupID = TP.GroupId 
+		                            INNER JOIN EmailConversations ECO ON ECO.ID = TP.ConversationId
+	                            WHERE
+		                            TP.ConversationId = @ConversationId
+	                            )
+
+	                            SELECT
+	                            GroupId,
+	                            ID,
+	                            TopicId,
+	                            AddedDate,
+	                            IsEnabled,
+	                            SubjectName,
+	                            Name
+	                            FROM
+	                            CTE
+	                            WHERE
+	                            RowNum = 1";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationId", ConversationId);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailConversationAssignToUserGroup>(query, parameters)).ToList();
                     // var result = connection.QueryAsync<TopicParticipant>(query, parameters).ToList();
                     //return result;
                 }

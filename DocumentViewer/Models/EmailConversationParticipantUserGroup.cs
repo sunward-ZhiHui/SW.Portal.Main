@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 namespace DocumentViewer.Models
 {
-    public class EmailConversation
+    public class EmailConversationParticipantUserGroup
     {
         [Key]
         public int ID { get; set; }
+        public long GroupId { get; set; }
+        public long ConversationId { get; set; }
         public long TopicId { get; set; }
-        public Guid? SessionId { get; set; }
-        public string? UserType { get; set; }
     }
 }

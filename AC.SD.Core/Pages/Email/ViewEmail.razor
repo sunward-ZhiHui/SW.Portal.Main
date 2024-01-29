@@ -123,8 +123,9 @@
                                 <div class="card w-100">
                                     <div class="card-body p-0">
                                                                           
-
-                                          <DxMenu Orientation="Orientation.Horizontal"
+                                        @if(isUserGroup)
+                                        {
+                                             <DxMenu Orientation="Orientation.Horizontal"
                                                 DropDownActionMode="MenuDropDownActionMode.Click"
                                                 DisplayMode="MenuDisplayMode.Desktop"
                                                 Title=""
@@ -137,13 +138,36 @@
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
                                                 <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
                                                 
-                                                <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
-                                                
-                                                    
+                                                <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />                                                    
+                                                   
                                                 <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                             
                                             </Items>
                                         </DxMenu>
+                                        }
+                                        else
+                                        {
+                                             <DxMenu Orientation="Orientation.Horizontal"
+                                                DropDownActionMode="MenuDropDownActionMode.Click"
+                                                DisplayMode="MenuDisplayMode.Desktop"
+                                                Title=""
+                                                CollapseItemsToHamburgerMenu="true"
+                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">                                               
+                                            <Items> 
+                                                <DxMenuItem Text="" Enabled="@isPage" IconCssClass="fa fa fa-reply" Click="@(() => GoBack())" />
+                                                <DxMenuItem Text="" IconCssClass="fa fa-th-list" Click="@(() => ToggleButtonClick())" />
+                                                <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
+                                                <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
+                                                <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
+
+                                                <DxMenuItem Text="Group List" Enabled="@isEnabled" class="@((isMenuvisible == "AddGroupParticipants" ? "tActive": "taddgroupparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddGroupParticipants"))" />
+
+                                                <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                            
+                                            </Items>
+                                        </DxMenu>
+                                        }
+                                       
                                     </div>
                                 </div>
                             </div>
@@ -875,9 +899,17 @@
                         {
                             <TopicTags @ref=RefTopicTagList TopicId="@Tid" loadTagsList="onloadTagsList"></TopicTags>
                         }
-                        else
+                        else if (isMenuvisible == "AddParticipants")
                         {
                             <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid" Cid="@Cid"></ParticipantList>
+                        }
+                        else if (isMenuvisible == "AddGroupParticipants")
+                        {
+                            <GroupParticipantList @ref=RefTopicAddGroupPList IsValidUser="@IsValidUser" Tid="@Tid" Cid="@Cid"></GroupParticipantList>
+                        }
+                        else
+                        {
+                            
                         }
                     </div>
                 </div>
@@ -2373,6 +2405,7 @@
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
     private ParticipantList? RefTopicAddPList { get; set; }
+    private GroupParticipantList? RefTopicAddGroupPList { get; set; }
     private AssignToEmail? RefAssignTo { get; set; }
     private AllEmail? RefAssignAll{ get; set; }
     private TopicTags? RefTopicTagList { get; set; }
@@ -3843,6 +3876,18 @@
                 await LoadPlist_Data();
             }            
         }
+        else if (isMenuvisible == "AddGroupParticipants")
+        {
+            await OnMenuItemClick("Posts");
+            if (RTopicId == 0) //main topic click
+            {
+                await LoadMainTopicGroupPlist_Data();
+            }
+            else //sub topic click
+            {
+                await LoadGroupPlist_Data();
+            }
+        }
         else if(isMenuvisible == "Tags")
         {
             await OnMenuItemClick("Posts");
@@ -3919,6 +3964,18 @@
                 await LoadPlist_Data();
             }
 
+        }
+        else if (isMenuvisible == "AddGroupParticipants")
+        {
+            await OnMenuItemClick("Posts");
+            if (RTopicId == 0) //main topic click
+            {
+                await LoadMainTopicGroupPlist_Data();
+            }
+            else //sub topic click
+            {
+                await LoadGroupPlist_Data();
+            }
         }
         else if(isMenuvisible == "Todo")
         {
@@ -4750,6 +4807,14 @@
             isCommand = false;
             isTags = false;
         }
+        else if (text == "AddGroupParticipants")
+        {
+            isAddParticipant = true;
+            isComponentVisible = false;
+            isEllipsis = false;
+            isCommand = false;
+            isTags = false;
+        }
         else if (text == "Tags")
         {
             isTags = true;
@@ -4777,6 +4842,17 @@
 
         }        
     } 
+    async Task LoadGroupPlist_Data()
+    {
+        if(Cid > 0)
+        {
+            if(RefTopicAddGroupPList != null)
+            {
+                await RefTopicAddGroupPList.loadParticipentList(long.Parse(@SelectedReplyId));
+            }
+
+        }        
+    }     
     async Task loadTags_Data()
     {
         if(RefTopicTagList != null)
@@ -4822,6 +4898,14 @@
         }
 
     }
+    async Task LoadMainTopicGroupPlist_Data()
+    {
+        if (RefTopicAddGroupPList != null)
+        {
+            await RefTopicAddGroupPList.loadMainTopicParticipentList(long.Parse(@SelectedGroup));
+        }
+    }
+    
     private async Task HandleValidSubmit()
     {
         loading = true;        

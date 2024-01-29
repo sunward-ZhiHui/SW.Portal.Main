@@ -32,5 +32,10 @@ namespace Core.Entities
         public string? PlistIdss { get; set; }
         [NotMapped]
         public string? AllowPlistids { get; set; }
+        [NotMapped]
+        public string? Name { get;set; }
+        [NotMapped]
+        public string? SubjectName { get; set; }
+        
     }
 }

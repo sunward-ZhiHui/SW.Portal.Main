@@ -18,6 +18,8 @@ namespace DocumentViewer.Models
         public DbSet<Employee> Employee { get; set; }
         public DbSet<EmailConversation> EmailConversations { get; set; }
         public DbSet<EmailConversationParticipant> EmailConversationParticipant { get; set; }
+        public DbSet<UserGroupUser> UserGroupUser { get; set; }
+        public DbSet<EmailConversationParticipantUserGroup> EmailConversationParticipantUserGroup { get; set; }
         public DbSet<DocumentDmsShare> DocumentDmsShare { get; set; }
         public DbSet<OpenAccessUserLink> OpenAccessUserLink { get; set; }
         public DbSet<OpenAccessUser> OpenAccessUser { get; set; }

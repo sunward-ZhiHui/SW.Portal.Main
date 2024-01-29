@@ -918,7 +918,7 @@
                         @*<DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />*@
                         @*<DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />*@
-                        <DxMenuItem @onclick="onArchivePop" Text="Archive" />
+                        <DxMenuItem @onclick="onArchivePop" Text="Archive" Enabled="isUserGroup" />
                         <DxMenuItem @onclick="onUserTagPop" Text="User Tag"/>
                     </Items>
                 </DxMenu>               
@@ -2522,6 +2522,7 @@
     bool isAssignToVisible = false;
     bool isComponentVisible = true;
     bool isEnabled { get; set; } = false;
+    bool isUserGroup { get; set; } = false;
     bool isPage { get; set; } = false;
     bool isTodoEnabled { get; set; } = false;
     bool isAddParticipant = false;
@@ -3563,10 +3564,10 @@
     }
     private async Task SubmitIsArchived()
     {       
-       
-        
-         if (string.IsNullOrEmpty(_headTopic[0].UserType) || _headTopic[0].UserType == "Users")
-         {
+
+
+        if (string.IsNullOrEmpty(_headTopic[0].UserType) || _headTopic[0].UserType == "Users")
+        {
             var UpdateReq = new UpdateTopicArchive
                 {
                     ID = long.Parse(@SelectedGroup),
@@ -3575,13 +3576,13 @@
                 };
             var result = await Mediator.Send(UpdateReq);
 
-         }
-         else
-         {
+        }
+        else
+        {
 
-         }
+        }
 
-         
+
 
         isArchiveClosed = false;
         //await LoadData();
@@ -3973,6 +3974,15 @@
                 Tid = long.Parse(@SelectedGroup);
                 var getconid = await Mediator.Send(new GetTopConversationList(Tid));
 
+                if (string.IsNullOrEmpty(getconid[0].UserType) || getconid[0].UserType == "Users")
+                {
+                    isUserGroup = true;
+                }
+                else
+                {
+                    isUserGroup = false;
+                }
+
                 Cid = 0;
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
                 _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
@@ -4018,6 +4028,17 @@
 
         if(_discussionList.Count > 0)
         {
+
+            if (string.IsNullOrEmpty(_discussionList[0].UserType) || _discussionList[0].UserType == "Users")
+            {
+                isUserGroup = true;
+            }
+            else
+            {
+                isUserGroup = false;
+            }
+
+
             IsValidUser = (_discussionList[0].AddedByUserID == applicationUser.UserID || _discussionList[0].OnBehalf == applicationUser.UserID) ? true : false;
         } 
 

@@ -24,10 +24,11 @@ using DevExpress.Xpo.DB.Helpers;
 using System.Reflection.Metadata;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Core.EntityModels;
+using Infrastructure.Data;
 
 namespace Infrastructure.Repository.Query
 {
-    public class EmailConversationsQueryRepository : QueryRepository<EmailConversations>, IEmailConversationsQueryRepository
+    public class EmailConversationsQueryRepository : DbConnector, IEmailConversationsQueryRepository
     {
         public EmailConversationsQueryRepository(IConfiguration configuration) : base(configuration)
         {
@@ -1929,7 +1930,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<long>> GetGroupByUserIdList(string GroupIds)
+        public async Task<List<long>> GetGroupByUserIdList(string GroupIds,long TopicId)
         {
             try
             {
@@ -1939,6 +1940,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("GroupIds", GroupIds);
+                        parameters.Add("TopicId", TopicId);
 
                         var result = await connection.QueryAsync<long>("sp_Get_UserGropUserId", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();                        

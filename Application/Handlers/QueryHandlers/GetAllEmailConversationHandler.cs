@@ -496,7 +496,7 @@ namespace Application.Handlers.QueryHandlers
                 AssignUserGroup.ConIds = request.ConIds;
                 var reqq = await _conversationQueryRepository.InsertAssignToUserGroup_sp(AssignUserGroup);
 
-                var GroupUserIdsList = await _conversationQueryRepository.GetGroupByUserIdList(request.ParticipantsUserGroup);
+                var GroupUserIdsList = await _conversationQueryRepository.GetGroupByUserIdList(request.ParticipantsUserGroup, request.TopicID);
 
                 if (GroupUserIdsList.Count > 0)
                 {

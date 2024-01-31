@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface IEmailTopicsQueryRepository : IQueryRepository<EmailTopics>
+    public interface IEmailTopicsQueryRepository
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<EmailTopics>> GetAllAsync();

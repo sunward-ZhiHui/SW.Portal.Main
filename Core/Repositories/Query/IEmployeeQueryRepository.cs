@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface IEmployeeQueryRepository : IQueryRepository<ViewEmployee>
+    public interface IEmployeeQueryRepository
     {
         Task<IReadOnlyList<ViewEmployee>> GetAllAsync();
         Task<IReadOnlyList<ViewEmployee>> GetAllUserAsync();

@@ -14,10 +14,11 @@ using Core.EntityModels;
 using IdentityModel.Client;
 using NAV;
 using Application.Queries;
+using Infrastructure.Data;
 
 namespace Infrastructure.Repository.Query
 {
-    public class ApplicationMasterChildQueryRepository : QueryRepository<ApplicationMasterChildModel>,IApplicationMasterChildQueryRepository
+    public class ApplicationMasterChildQueryRepository : DbConnector, IApplicationMasterChildQueryRepository
     {
         public ApplicationMasterChildQueryRepository(IConfiguration configuration)
             : base(configuration)

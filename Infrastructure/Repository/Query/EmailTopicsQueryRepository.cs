@@ -16,10 +16,11 @@ using Microsoft.AspNetCore.Http;
 using DevExpress.Data.Filtering.Helpers;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata;
+using Infrastructure.Data;
 
 namespace Infrastructure.Repository.Query
 {
-    public class EmailTopicsQueryRepository : QueryRepository<EmailTopics>, IEmailTopicsQueryRepository
+    public class EmailTopicsQueryRepository : DbConnector, IEmailTopicsQueryRepository
     {
         public EmailTopicsQueryRepository(IConfiguration configuration)
             : base(configuration)

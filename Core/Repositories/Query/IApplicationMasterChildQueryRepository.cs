@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface IApplicationMasterChildQueryRepository : IQueryRepository<ApplicationMasterChildModel>
+    public interface IApplicationMasterChildQueryRepository
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByAsync(string Ids);

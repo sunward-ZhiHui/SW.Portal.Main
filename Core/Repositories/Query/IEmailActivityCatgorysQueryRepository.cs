@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface IEmailActivityCatgorysQueryRepository : IQueryRepository<EmailActivityCatgorys>
+    public interface IEmailActivityCatgorysQueryRepository 
     {
         Task<IReadOnlyList<EmailActivityCatgorys>> GetAllAsync();        
         Task<IReadOnlyList<EmailActivityCatgorys>> GetAllTopicCategoryAsync(long TopicId);

@@ -22,6 +22,15 @@
                     ApplyBackgroundShading="true"
                     IndicatorAreaVisible="false"
                     Text="Fetching Data..."> *@
+<style>
+    .my-style {
+        <!-- your CSS rules -->
+    }
+
+    .my-style-captionw {
+        text-align: right;
+    }
+</style>
 <div class="card cw-480">
     <div class="card-header text-center py-3">
         <h4>@_dynamicform?.Name</h4>
@@ -33,6 +42,7 @@
         <div class="card-body p-0">
             <div class="row">
                 <div class="">
+
                     @if (isApprovalEnabled == true)
                     {
                         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -55,6 +65,7 @@
                                     </Items>
                                 </DxMenuItem>
                                 <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                <DxMenuItem Text="Work Flow" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                             </Items>
                         </DxMenu>
                     }
@@ -68,6 +79,7 @@
                                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                                 <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
                                 <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                <DxMenuItem Text="Work Flow" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                             </Items>
                         </DxMenu>
                     }
@@ -205,7 +217,6 @@
                 </EditForm>
             </div>
         </DxTabPage>
-        @*  <DxTabPage Text="Approval" Visible="@isApproval"> *@
         <DxTabPage Text="Approval" Visible="@isApproval">
             <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
                     KeyFieldName="DynamicFormApprovedId">
@@ -217,14 +228,18 @@
                     <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
                 </Columns>
             </DxGrid>
-            @*  <DxFormLayout CssClass="w-100" style="padding:10px;">
-            <DxFormLayoutItem Caption="" ColSpanMd="12">
-            <DxCheckBox @bind-Checked="dynamicFormApproval.IsApproved" LabelPosition="LabelPosition.Right" Enabled="@isApproved">Approved</DxCheckBox>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Description" ColSpanMd="12">
-            <DxMemo @bind-Text="@dynamicFormApproval.ApprovedDescription" Rows="5" ShowValidationIcon="true" Enabled="@isApproved" />
-            </DxFormLayoutItem>
-            </DxFormLayout> *@
+        </DxTabPage>
+        <DxTabPage Text="Work Flow">
+            <DxGrid Data="_dynamicFormWorkFlowFormList" style="padding:10px;"
+                    KeyFieldName="DynamicFormWorkFlowFormId">
+                <Columns>
+                    <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
+                    <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
+                    <DxGridDataColumn FieldName="DynamicFormWorkFlowUser" Caption="Assigned User" />
+                    <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
+                    <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" />
+                </Columns>
+            </DxGrid>
         </DxTabPage>
     </DxTabs>
 
@@ -279,7 +294,25 @@
         <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
+
+
+<DxPopup @bind-Visible="@wokrFlowpopup"
+         ShowFooter="true"
+         HeaderText="Work Flow"
+         Closed="EulaPopupWorkFlowClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Move WorkFlow?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="OnWorkFlowNo" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnWorkFlowYes" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool wokrFlowpopup { get; set; } = false;
     bool PanelVisible { get; set; } = true;
     EditContext _editContext; EditContext _editContexts;
     [Parameter]
@@ -312,6 +345,7 @@
     string? ApproveRejectName { get; set; } = "Approve";
     private DynamicFormApproved dynamicFormApproval = new DynamicFormApproved();
     private List<DynamicFormApproved>? _dynamicFormApprovedList;
+    private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormList;
     public long? FileProfileTypeId { get; set; }
     public Guid? FileProfileSessionId { get; set; }
     int isRequiredCount { get; set; } = 0;
@@ -328,6 +362,11 @@
     bool isDivision { get; set; } = false; bool isDepartment { get; set; } = false;
     bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
     public DocumentProfileNoSeriesModel documentProfileNoSeriesData { get; set; }
+    public string? isButtonClick { get; set; }
+    private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSection;
+    private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlow;
+    private List<int?> _sequenceNoList = new List<int?>();
+    bool isWorkflowEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -341,8 +380,8 @@
     }
     async Task loadDynamicForm()
     {
-        isApproval = false; isApproved = true; IsSendApproval = false; IsSendApprovalVisible = false; ApproveRejectName = "Approve";
-        IsApprovalApproved = false; IsApprovalRejected = false; IsApprovalSave = false; IsDescriptionOpen = false; isSubmit = false;
+        isApproval = false; isApproved = true; IsSendApproval = false; IsSendApprovalVisible = false; ApproveRejectName = "Approve"; isButtonClick = "";
+        IsApprovalApproved = false; IsApprovalRejected = false; IsApprovalSave = false; IsDescriptionOpen = false; isSubmit = false; isWorkflowEnabled = false;
         dynamicFormApproval = new DynamicFormApproved(); dynamicFormData = new DynamicFormData(); isApprovalEnabled = false;
         _dynamicformData = null; isVisibleButton = true; IsSave = true; IsUploadEnabled = false;
         if (SessionId != null)
@@ -363,6 +402,7 @@
                     _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
                     if (_dynamicformData != null)
                     {
+                        _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicformData.DynamicFormDataId));
                         Datas.ProfileNo = _dynamicformData.ProfileNo;
                         IsUploadEnabled = true;
                         if (_dynamicformData.isDocuments > 0)
@@ -406,6 +446,24 @@
 
             if (_dynamicform != null)
             {
+                _dynamicFormWorkFlowSection = await Mediator.Send(new GetDynamicFormWorkFlowExits(_dynamicform.ID, applicationUser.UserID, _dynamicformData?.DynamicFormDataId));
+                if (_dynamicFormWorkFlowSection != null && _dynamicFormWorkFlowSection.Count() > 0)
+                {
+                    _sequenceNoList = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
+                    var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
+                    if (_sequenceNoList.Count() > 0)
+                    {
+                        foreach (var itemss in _sequenceNoList)
+                        {
+                            var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
+                            if (notdata != null && notdata.Count > 0)
+                            {
+                                _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
+                                break;
+                            }
+                        }
+                    }
+                }
                 var screenId = _dynamicform.ScreenID.Replace(" ", "_");
                 _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID));
                 if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -530,6 +588,7 @@
             }
 
         }
+
         StateHasChanged();
     }
     public async Task loadData(long? profileID)
@@ -922,6 +981,10 @@
                                 }
                             }
                         }
+                        else
+                        {
+                            await loadDynamicForm();
+                        }
                         if (result.ProfileId > 0)
                         {
                             Datas.ProfileNo = result.ProfileNo;
@@ -1001,14 +1064,34 @@
     }
     async Task HandleValidSubmit()
     {
-
-        if (isApproval == true && dynamicFormApproval.IsApproved == true)
+        if (_dynamicformData == null)
         {
-            isApprovedPopup = true;
+            //if (isButtonClick == "Yes")
+            // {
+            // toastService.ShowToast("You must save record", AC.SD.Core.Services.ToastLevel.Error);
+            //}
+            //else
+            // {
+            if (isApproval == true && dynamicFormApproval.IsApproved == true)
+            {
+                isApprovedPopup = true;
+            }
+            else
+            {
+                await HandleFormValidSubmit();
+            }
+            //}
         }
         else
         {
-            await HandleFormValidSubmit();
+            if (isApproval == true && dynamicFormApproval.IsApproved == true)
+            {
+                isApprovedPopup = true;
+            }
+            else
+            {
+                await HandleFormValidSubmit();
+            }
         }
     }
     async Task onApproved()
@@ -1061,6 +1144,68 @@
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }
+    void EulaPopupWorkFlowClosed()
+    {
+        isButtonClick = "";
+        wokrFlowpopup = false;
+        StateHasChanged();
+    }
+    void OnWorkFlowNo()
+    {
+        isButtonClick = "";
+        wokrFlowpopup = false;
+        StateHasChanged();
+    }
+    async Task OnWorkFlowYes()
+    {
+        await addWorlflowAdd();
+    }
+    void addWorlflow()
+    {
+        if (_dynamicformData == null)
+        {
+            toastService.ShowToast("You must save record", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            wokrFlowpopup = true;
+        }
+    }
+    async Task addWorlflowAdd()
+    {
+        isButtonClick = "Yes";
+
+        if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0)
+        {
+            var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
+            if (response != null)
+            {
+                wokrFlowpopup = false;isWorkflowEnabled = false;
+                toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            await loadDynamicForm();
+            StateHasChanged();
+        }
+        else
+        {
+            await loadDynamicForm();
+            StateHasChanged();
+        }
+    }
+    async Task OnToastClick(long? Id)
+    {
+        isButtonClick = "Yes";
+
+        if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0)
+        {
+            var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
+            StateHasChanged();
+        }
+        else
+        {
+            StateHasChanged();
+        }
+    }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
         //PanelVisible = true;
@@ -1111,6 +1256,31 @@
                 {
                     isVisible = true; isReadonly = true;
                 }
+                if (_dynamicFormWorkFlowSection != null)
+                {
+                    isVisible = true; isReadonly = false;
+                }
+                if (_dynamicFormWorkFlowSectionNoWorkFlow != null)
+                {
+                    var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
+                    if (exitss != null)
+                    {
+                        var userExits = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                        if (userExits != null)
+                        {
+
+                            isVisible = true; isReadonly = true;
+                        }
+                        else
+                        {
+                            isVisible = true; isReadonly = false;
+                        }
+                    }
+                    else
+                    {
+                        isVisible = true; isReadonly = false;
+                    }
+                }
                 formLayoutBuilder.OpenComponent<DxFormLayout>(i);
 
                 formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
@@ -1122,11 +1292,11 @@
                 layoutItemBuilder.AddAttribute(i + 1, "Caption", a.SectionName);
                 layoutItemBuilder.AddAttribute(i + 1, "Visible", isVisible);
                 layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
-                {
-                    var dynamicFormSectionAttributeData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
-                    if (dynamicFormSectionAttributeData != null && dynamicFormSectionAttributeData.Count > 0)
-                    {
-                        dynamicFormSectionAttributeData.ForEach(s =>
+        {
+            var dynamicFormSectionAttributeData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
+            if (dynamicFormSectionAttributeData != null && dynamicFormSectionAttributeData.Count > 0)
+            {
+                dynamicFormSectionAttributeData.ForEach(s =>
         {
 
             var property = Data.GetType().GetProperty(s.DynamicAttributeName);
@@ -1748,11 +1918,29 @@
             itemBuilder.CloseComponent();
             k++;
         });
-                    }
-                    itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
-                    itemBuilder.CloseComponent();
+            }
+            if (_dynamicFormWorkFlowSectionNoWorkFlow != null)
+            {
+                var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                if (exitss != null)
+                {
+                    isWorkflowEnabled = true;
+                    //         itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                    //         itemBuilder.AddAttribute(i++, "ColSpanMd", 12);
+                    //         itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editors) =>
+                    //     {
+                    //         editors.OpenElement(i++, "button");
+                    //         editors.AddAttribute(i++, "style", "cursor: not-allowed;pointer - events: none;");
+                    //         editors.AddAttribute(i++, "class", "btn btn-success");
+                    //         editors.AddAttribute(i++, "onclick", EventCallback.Factory.Create(this, () => OnToastClick(a.DynamicFormSectionId)));
+                    //         editors.AddContent(i++, "Next");
+                    //         editors.CloseElement();
+                    //     })));
 
-                }));
+                    //         itemBuilder.CloseComponent();
+                }
+            }
+        }));
 
                 layoutItemBuilder.CloseComponent();
             }));

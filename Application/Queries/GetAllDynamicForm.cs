@@ -299,5 +299,77 @@ namespace Application.Queries
             this.DynamicFormDataUpload = dynamicFormDataUpload;
         }
     }
+
+    public class GetDynamicFormSectionWorkFlowByID : PagedRequest, IRequest<List<DynamicFormSectionWorkFlow>>
+    {
+        public long? DynamicFormSectionId { get; set; }
+        public long? UserId { get; set; }
+        public GetDynamicFormSectionWorkFlowByID(long? userId, long? dynamicFormSectionId)
+        {
+            this.UserId = userId;
+            this.DynamicFormSectionId = dynamicFormSectionId;
+        }
+    }
+
+    public class InsertDynamicFormWorkFlow : DynamicFormWorkFlow, IRequest<DynamicFormWorkFlow>
+    {
+        public DynamicFormWorkFlow DynamicFormWorkFlow { get; set; }
+        public InsertDynamicFormWorkFlow(DynamicFormWorkFlow dynamicFormWorkFlow)
+        {
+            this.DynamicFormWorkFlow = dynamicFormWorkFlow;
+        }
+
+    }
+    public class GetDynamicFormWorkFlow : PagedRequest, IRequest<List<DynamicFormWorkFlow>>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormWorkFlow(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
+
+    public class DeleteDynamicFormWorkFlow : DynamicFormWorkFlow, IRequest<DynamicFormWorkFlow>
+    {
+        public DynamicFormWorkFlow DynamicFormWorkFlow { get; set; }
+        public DeleteDynamicFormWorkFlow(DynamicFormWorkFlow dynamicFormWorkFlow)
+        {
+            this.DynamicFormWorkFlow = dynamicFormWorkFlow;
+        }
+    }
+
+    public class GetDynamicFormWorkFlowExits : PagedRequest, IRequest<List<DynamicFormWorkFlowSection>>
+    {
+        public long? DynamicFormId { get; set; }
+        public long? UserId { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public GetDynamicFormWorkFlowExits(long? dynamicFormId, long? userId, long? dynamicFormDataId)
+        {
+            this.DynamicFormId = dynamicFormId;
+            this.UserId = userId;
+            this.DynamicFormDataId = dynamicFormDataId;
+        }
+    }
+    public class InsertOrUpdateFormWorkFlowSectionNoWorkFlow : PagedRequest, IRequest<DynamicFormWorkFlowSection>
+    {
+        public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSection { get; set; }
+        public long? UserId { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public InsertOrUpdateFormWorkFlowSectionNoWorkFlow(List<DynamicFormWorkFlowSection> dynamicFormWorkFlowSection, long? dynamicFormDataId, long? userId)
+        {
+            this.DynamicFormWorkFlowSection = dynamicFormWorkFlowSection;
+            this.UserId = userId;
+            this.DynamicFormDataId = dynamicFormDataId;
+        }
+    }
+    public class GetDynamicFormWorkFlowFormList : PagedRequest, IRequest<List<DynamicFormWorkFlowForm>>
+    {
+        public long? DynamicFormDataId { get; set; }
+        public GetDynamicFormWorkFlowFormList( long? dynamicFormDataId)
+        {
+            this.DynamicFormDataId = dynamicFormDataId;
+        }
+    }
+
 }
 

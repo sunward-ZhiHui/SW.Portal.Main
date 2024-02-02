@@ -156,18 +156,21 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var results = await connection.QueryMultipleAsync("select t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy," +
+                    var query = "select t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy," +
                         "(select t4.IsVisible from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsVisible," +
                         "(select t4.IsReadOnly from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsReadOnly," +
                         "(select t4.IsReadWrite from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsReadWrite," +
                         "(select COUNT(t2.UserID) from DynamicFormSectionSecurity t2 Where t2.DynamicFormSectionID=t1.DynamicFormSectionID) as IsPermissionCount," +
-                        "(select COUNT(t3.UserID) from DynamicFormSectionSecurity t3 Where t3.UserID=1 AND  t3.DynamicFormSectionID=t1.DynamicFormSectionID) as IsLoginUsers " +
+                        "(select COUNT(t3.UserID) from DynamicFormSectionSecurity t3 Where t3.UserID=" + UserId + " AND  t3.DynamicFormSectionID=t1.DynamicFormSectionID) as IsLoginUsers," +
+                        "(select COUNT(t5.UserID) from DynamicFormSectionWorkFlow t5 Where t5.UserID=" + UserId + " AND  t5.DynamicFormSectionID=t1.DynamicFormSectionID) as IsWorkFlowByUser,\r\n" +
+                        "(select COUNT(t6.DynamicFormSectionID) from DynamicFormSectionWorkFlow t6 Where  t6.DynamicFormSectionID=t1.DynamicFormSectionID) as IsWorkFlowBy " +
                         "from DynamicFormSection t1 where t1.DynamicFormID=" + dynamicForm.ID + " order by  t1.SortOrderBy asc;" +
                         "select t1.*,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID from DynamicFormSectionAttribute t1\r\n" +
                         "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
                         "JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
                         "LEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID\r\n" +
-                        "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere (t1.IsVisible= 1 OR t1.IsVisible is null) AND t5.DynamicFormID=" + dynamicForm.ID + " order by t1.SortOrderBy asc;");
+                        "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere (t1.IsVisible= 1 OR t1.IsVisible is null) AND t5.DynamicFormID=" + dynamicForm.ID + " order by t1.SortOrderBy asc;";
+                    var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
                 }

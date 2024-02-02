@@ -79,7 +79,7 @@
             @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="DynamicFormSectionAttributeId" Visible="false" />
             <DxGridDataColumn FieldName="AttributeName" Caption="Field Name" MinWidth="40" />
-            <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="40" >
+            <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="40">
                 <CellDisplayTemplate>
                     @{
                         var item = (DynamicFormSectionAttribute)context.DataItem;
@@ -87,7 +87,7 @@
                     }
                     @Names
                 </CellDisplayTemplate>
-                </DxGridDataColumn>
+            </DxGridDataColumn>
             @* <DxGridDataColumn FieldName="DropDownTypeId" Caption="DropDown Type" MinWidth="40"></DxGridDataColumn> *@
             <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="Data Source" MinWidth="40"></DxGridDataColumn>
             <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="40" />
@@ -151,7 +151,7 @@
                     <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" >
+                <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6">
                     <DxComboBox Data="@dynamicFormSectionSpinEdit"
                     @bind-Value="@types.IsSpinEditType"
                                 Enabled="@IsSpinEditTypeEnabled"
@@ -311,7 +311,7 @@
         {
             if (navitems.FormUsedCount > 0)
             {
-                 isFormCountUsed = false;                
+                isFormCountUsed = false;
             }
             else
             {
@@ -403,9 +403,9 @@
                     IsRequired = editModel.IsRequired,
                     RequiredMessage = editModel.RequiredMessage,
                     IsSpinEditType = IsSpinEditType,
-                    IsDisplayTableHeader=editModel.IsDisplayTableHeader,
-                    FormToolTips=editModel.FormToolTips,
-                    IsVisible = editModel.IsVisible
+                    IsDisplayTableHeader = editModel.IsDisplayTableHeader,
+                    FormToolTips = editModel.FormToolTips,
+                    IsVisible = editModel.IsVisible = true,
                 };
 
             try
@@ -446,7 +446,7 @@
                     IsSpinEditType = IsSpinEditType,
                     IsDisplayTableHeader = editModel.IsDisplayTableHeader,
                     FormToolTips = editModel.FormToolTips,
-                    IsVisible=editModel.IsVisible
+                    IsVisible = editModel.IsVisible
                 };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);

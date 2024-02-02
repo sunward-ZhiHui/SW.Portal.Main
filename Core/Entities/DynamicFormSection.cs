@@ -52,6 +52,11 @@ namespace Core.Entities
         public Guid? FileProfileSessionID { get; set; }
         [NotMapped]
         public string? FileProfileName { get; set; }
+        [NotMapped]
+        public int? IsWorkFlowByUser { get; set; }
+        [NotMapped]
+        public int? IsWorkFlowBy { get; set; }
+        public long? DynamicFormWorkFlowId { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

@@ -2,6 +2,7 @@
 using Core.Entities.Views;
 using Core.Repositories.Query;
 using Dapper;
+using Infrastructure.Data;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Query
 {
-    public class EmailActivityCatgorysQueryRepository : QueryRepository<EmailActivityCatgorys>, IEmailActivityCatgorysQueryRepository
+    public class EmailActivityCatgorysQueryRepository : DbConnector, IEmailActivityCatgorysQueryRepository
     {
         public EmailActivityCatgorysQueryRepository(IConfiguration configuration) : base(configuration)
         {

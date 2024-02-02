@@ -132,16 +132,17 @@ else
                                 <ValidationMessage For="@(() => CategoryData.GroupTag)" />
                             </DxFormLayoutItem>
 
-                           @*  <DxFormLayoutItem Caption="Type" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="Type" ColSpanMd="12">
                                 <DxRadioGroup Items="@UserTypeOptions"
+                                              Enabled="@isRadioGroup"
                                               Value="@Data.UserType"
                                               ValueExpression="@(() => Data.UserType )"
                                               ValueChanged="@((string value) => OnUserTypeChanged(value))"
                                               Layout="RadioGroupLayout.Horizontal"
                                               CssClass="dx-demo-radio-group" />
-                            </DxFormLayoutItem> *@
+                            </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="Type" ColSpanMd="12">
+                            @* <DxFormLayoutItem Caption="Type" ColSpanMd="12">
                              <div role="radiogroup">
                                     @foreach (var language in Languages) {
                                         <DxRadio GroupName="disabled-option-radio-group"
@@ -153,7 +154,7 @@ else
                                         </DxRadio>
                                     }
                                 </div>
-                            </DxFormLayoutItem>
+                            </DxFormLayoutItem> *@
 
 
                             @if (Data.UserType == "Users")
@@ -597,6 +598,7 @@ else
     internal List<EmailActivityCatgorys>? _UserTagList = new List<EmailActivityCatgorys>();
     EmailActivityCatgorys? CategoryData { get; set; } = new EmailActivityCatgorys();
     bool isEnabled { get; set; } = true;
+    bool isRadioGroup { get; set; } = true;
     internal List<ApplicationMasterChildModel>? _groupTagItems;
     internal List<ApplicationMasterChildModel>? _categoryTagItems;
     internal List<ApplicationMasterChildModel>? _actionTagItems;
@@ -754,7 +756,7 @@ else
     internal string MyID = "myForm";    
     List<int> selectedValues = new List<int>();
     IGrid? Grid { get; set; }
-    internal bool loading;
+    internal bool loading;    
     internal bool loadingdraft;
     bool MessageVisible { get; set; }
     string styleClass = "";
@@ -1209,7 +1211,7 @@ else
              "Follow Up","No Follow Up"
         };
 
-       
+
 
         if(Data != null)
         {
@@ -1233,6 +1235,7 @@ else
             CategoryData.ActionTag = null;
             CategoryData.CategoryTag = null;
             CategoryData.Name = null;
+            CategoryData.UserTag = null;
 
         }
 
@@ -1336,7 +1339,7 @@ else
     protected override async Task OnInitializedAsync() {  
         _editContext = new EditContext(Data);
 
-        var tasks = new List<Task>();
+        //var tasks = new List<Task>();
 
 
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
@@ -1344,7 +1347,20 @@ else
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         onloadSession();
         CurrentUplodCount = 0;
-        SelectedFilesCount = 0;
+        SelectedFilesCount = 0;  
+
+        bool IsUserGroup = Configuration.GetValue<bool>("DocumentsUrl:IsUserGroup");
+
+        // Now you can directly use IsUserGroup variable without parsing.
+        if (IsUserGroup)
+        {
+            isRadioGroup = true;
+        }
+        else
+        {
+            isRadioGroup = false;
+        }
+
 
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
@@ -1355,11 +1371,6 @@ else
             AppUserId = applicationUser.UserID;
             _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
         }
-
-
-       
-
-        
 
         Follow = new List<string>
         {
@@ -1375,9 +1386,9 @@ else
         OnUserTypeChanged("Users");
 
 
-           tasks.Add(Task.Run(async () =>
-           {
-               var plist = await Mediator.Send(new GetAllEmployeeListQuery());
+        // tasks.Add(Task.Run(async () =>
+        // {
+            var plist = await Mediator.Send(new GetAllEmployeeListQuery());
             if (applicationUser != null)
             {
                 _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
@@ -1396,132 +1407,132 @@ else
             {
                 Data.NotifyUser = true;
                 IsActiveSessionId = false;
-
+                isRadioGroup = false;
                 BackEnabled = true;
-                var acttopics = await Mediator.Send(new GetActivityEmailTopics());
+                    var acttopics = await Mediator.Send(new GetActivityEmailTopics());
 
-                //string sessionIdString = ActiveSessionId;
-                Guid activeSessionId = Guid.Parse(ActiveSessionId);
-                var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+                    //string sessionIdString = ActiveSessionId;
+                    Guid activeSessionId = Guid.Parse(ActiveSessionId);
+                    var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
 
-                if (actItem.Count > 0)
-                {
-                    isValidateSession = false;
-                    //var docId = "70F019EC011241C9807C39BF2BE79136";
-                    //Guid docSessionId = Guid.Parse(docId);
-                    await GroupTagChanged(actItem[0].ManufacturingProcessId);
-                    await CategoryTagChange(actItem[0].CategoryActionId);
-
-                    var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
-                    ActUserName = Namelist[0].Name;
-                    ActAddedDate = actItem[0].AddedDate;
-                    ActivityType = actItem[0].ActivityType;
-                    CategoryData.GroupTag = actItem[0].ManufacturingProcessId;
-                    CategoryData.CategoryTag = actItem[0].CategoryActionId;
-                    CategoryData.ActionTag = actItem[0].ActionId;
-
-                    if (actItem[0].ActivityType != "FileProfileType")
+                    if (actItem.Count > 0)
                     {
-                        Data.IsAllowParticipants = true;
-                    }
+                        isValidateSession = false;
+                        //var docId = "70F019EC011241C9807C39BF2BE79136";
+                        //Guid docSessionId = Guid.Parse(docId);
+                        await GroupTagChanged(actItem[0].ManufacturingProcessId);
+                        await CategoryTagChange(actItem[0].CategoryActionId);
 
-                    if (actItem[0].DocumentSessionId != null)
-                    {
-                        var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
-                        _documentslst = documentslst;
-                    }
+                        var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
+                        ActUserName = Namelist[0].Name;
+                        ActAddedDate = actItem[0].AddedDate;
+                        ActivityType = actItem[0].ActivityType;
+                        CategoryData.GroupTag = actItem[0].ManufacturingProcessId;
+                        CategoryData.CategoryTag = actItem[0].CategoryActionId;
+                        CategoryData.ActionTag = actItem[0].ActionId;
 
-                    if (actItem[0].ActivityType == "ProductionActivity")
-                    {
-                        if (actItem[0].ActivityMasterId > 0)
+                        if (actItem[0].ActivityType != "FileProfileType")
                         {
-                            _PADoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "ProductionActivity"));
+                            Data.IsAllowParticipants = true;
                         }
 
-                    }
-
-                    if (actItem[0].ActivityType == "RoutineActivity")
-                    {
-                        if (actItem[0].ActivityMasterId > 0)
+                        if (actItem[0].DocumentSessionId != null)
                         {
-                            _PARoutineDoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "RoutineActivity"));
+                            var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
+                            _documentslst = documentslst;
                         }
+
+                        if (actItem[0].ActivityType == "ProductionActivity")
+                        {
+                            if (actItem[0].ActivityMasterId > 0)
+                            {
+                                _PADoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "ProductionActivity"));
+                            }
+
+                        }
+
+                        if (actItem[0].ActivityType == "RoutineActivity")
+                        {
+                            if (actItem[0].ActivityMasterId > 0)
+                            {
+                                _PARoutineDoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "RoutineActivity"));
+                            }
+                        }
+
+                        Data.TopicName = actItem[0].SubjectName;
+
+                        if (actItem[0].Comment != null)
+                        {
+                            ActComment = actItem[0].Comment;
+
+                            byte[] array1 = { 123, 92, 114, 116, 102, 49, 92, 100, 101, 102, 102, 48, 123, 92, 102, 111, 110, 116, 116, 98, 108, 123, 92, 102, 48, 32, 67, 97, 108, 105, 98, 114, 105, 59, 125, 125, 123, 92, 99, 111, 108, 111, 114, 116, 98, 108, 32, 59, 92, 114, 101, 100, 48, 92, 103, 114, 101, 101, 110, 48, 92, 98, 108, 117, 101, 50, 53, 53, 32, 59, 125, 123, 92, 42, 92, 100, 101, 102, 99, 104, 112, 32, 92, 102, 115, 50, 50, 125, 123, 92, 115, 116, 121, 108, 101, 115, 104, 101, 101, 116, 32, 123, 92, 113, 108, 92, 102, 115, 50, 50, 32, 78, 111, 114, 109, 97, 108, 59, 125, 123, 92, 42, 92, 99, 115, 49, 92, 102, 115, 50, 50, 32, 68, 101, 102, 97, 117, 108, 116, 32, 80, 97, 114, 97, 103, 114, 97, 112, 104, 32, 70, 111, 110, 116, 59, 125, 123, 92, 42, 92, 99, 115, 50, 92, 117, 108, 92, 102, 115, 50, 50, 92, 99, 102, 49, 32, 72, 121, 112, 101, 114, 108, 105, 110, 107, 59, 125, 123, 92, 42, 92, 116, 115, 51, 92, 116, 115, 114, 111, 119, 100, 92, 102, 115, 50, 50, 92, 113, 108, 92, 116, 115, 118, 101, 114, 116, 97, 108, 116, 92, 99, 108, 116, 120, 108, 114, 116, 98, 32, 78, 111, 114, 109, 97, 108, 32, 84, 97, 98, 108, 101, 59, 125, 125, 123, 92, 42, 92, 108, 105, 115, 116, 111, 118, 101, 114, 114, 105, 100, 101, 116, 97, 98, 108, 101, 125, 123, 92, 105, 110, 102, 111, 125, 92, 110, 111, 117, 105, 99, 111, 109, 112, 97, 116, 92, 115, 112, 108, 121, 116, 119, 110, 105, 110, 101, 92, 104, 116, 109, 97, 117, 116, 115, 112, 92, 101, 120, 112, 115, 104, 114, 116, 110, 92, 115, 112, 108, 116, 112, 103, 112, 97, 114, 92, 100, 101, 102, 116, 97, 98, 55, 50, 48, 92, 115, 101, 99, 116, 100, 92, 109, 97, 114, 103, 108, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 114, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 116, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 98, 115, 120, 110, 49, 52, 52, 48, 92, 104, 101, 97, 100, 101, 114, 121, 55, 50, 48, 92, 102, 111, 111, 116, 101, 114, 121, 55, 50, 48, 92, 112, 103, 119, 115, 120, 110, 49, 50, 50, 52, 48, 92, 112, 103, 104, 115, 120, 110, 49, 53, 56, 52, 48, 92, 99, 111, 108, 115, 49, 92, 99, 111, 108, 115, 120, 55, 50, 48, 92, 112, 97, 114, 100, 92, 112, 108, 97, 105, 110, 92, 113, 108, 123, 92, 102, 115, 50, 50, 92, 99, 102, 48, 32 };
+
+
+                            byte[] array2 = Encoding.UTF8.GetBytes(actItem[0].Comment);
+
+                            byte[] array3 = array1.Concat(array2).ToArray();
+
+                            byte[] array4 = { 125, 92, 102, 115, 50, 50, 92, 99, 102, 48, 92, 112, 97, 114, 125 };
+                            byte[] array5 = array3.Concat(array4).ToArray();
+
+
+                            //Data.FileData = array5;
+                        }
+
+                        ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
+                        List<long?> ToidList = new List<long?>();
+                        if (actItem[0].ToIds != null)
+                        {
+                            ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                        }
+
+                        var filteredToList = new List<ViewEmployee>();
+                        if (ToidList != null)
+                        {
+                            filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
+                        }
+
+
+                        //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
+                        IEnumerable<long> Totags = filteredToList.Select(s => (long)s.UserID).ToList();
+
+                        List<long?> CCidList = new List<long?>();
+                        if (actItem[0].CcIds != null)
+                        {
+                            CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                        }
+
+                        var filteredCCList = new List<ViewEmployee>();
+                        if (CCidList != null)
+                        {
+                            filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
+                        }
+
+                        //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
+                        IEnumerable<long> CCtags = filteredCCList.Select(s => (long)s.UserID).ToList();
+
+                        Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
+                        //v
+                        //sToIds = Totags.ToList();
+                        Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
+                        //v
+                        //sCCIds = CCtags.ToList();
                     }
-
-                    Data.TopicName = actItem[0].SubjectName;
-
-                    if (actItem[0].Comment != null)
+                    else
                     {
-                        ActComment = actItem[0].Comment;
-
-                        byte[] array1 = { 123, 92, 114, 116, 102, 49, 92, 100, 101, 102, 102, 48, 123, 92, 102, 111, 110, 116, 116, 98, 108, 123, 92, 102, 48, 32, 67, 97, 108, 105, 98, 114, 105, 59, 125, 125, 123, 92, 99, 111, 108, 111, 114, 116, 98, 108, 32, 59, 92, 114, 101, 100, 48, 92, 103, 114, 101, 101, 110, 48, 92, 98, 108, 117, 101, 50, 53, 53, 32, 59, 125, 123, 92, 42, 92, 100, 101, 102, 99, 104, 112, 32, 92, 102, 115, 50, 50, 125, 123, 92, 115, 116, 121, 108, 101, 115, 104, 101, 101, 116, 32, 123, 92, 113, 108, 92, 102, 115, 50, 50, 32, 78, 111, 114, 109, 97, 108, 59, 125, 123, 92, 42, 92, 99, 115, 49, 92, 102, 115, 50, 50, 32, 68, 101, 102, 97, 117, 108, 116, 32, 80, 97, 114, 97, 103, 114, 97, 112, 104, 32, 70, 111, 110, 116, 59, 125, 123, 92, 42, 92, 99, 115, 50, 92, 117, 108, 92, 102, 115, 50, 50, 92, 99, 102, 49, 32, 72, 121, 112, 101, 114, 108, 105, 110, 107, 59, 125, 123, 92, 42, 92, 116, 115, 51, 92, 116, 115, 114, 111, 119, 100, 92, 102, 115, 50, 50, 92, 113, 108, 92, 116, 115, 118, 101, 114, 116, 97, 108, 116, 92, 99, 108, 116, 120, 108, 114, 116, 98, 32, 78, 111, 114, 109, 97, 108, 32, 84, 97, 98, 108, 101, 59, 125, 125, 123, 92, 42, 92, 108, 105, 115, 116, 111, 118, 101, 114, 114, 105, 100, 101, 116, 97, 98, 108, 101, 125, 123, 92, 105, 110, 102, 111, 125, 92, 110, 111, 117, 105, 99, 111, 109, 112, 97, 116, 92, 115, 112, 108, 121, 116, 119, 110, 105, 110, 101, 92, 104, 116, 109, 97, 117, 116, 115, 112, 92, 101, 120, 112, 115, 104, 114, 116, 110, 92, 115, 112, 108, 116, 112, 103, 112, 97, 114, 92, 100, 101, 102, 116, 97, 98, 55, 50, 48, 92, 115, 101, 99, 116, 100, 92, 109, 97, 114, 103, 108, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 114, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 116, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 98, 115, 120, 110, 49, 52, 52, 48, 92, 104, 101, 97, 100, 101, 114, 121, 55, 50, 48, 92, 102, 111, 111, 116, 101, 114, 121, 55, 50, 48, 92, 112, 103, 119, 115, 120, 110, 49, 50, 50, 52, 48, 92, 112, 103, 104, 115, 120, 110, 49, 53, 56, 52, 48, 92, 99, 111, 108, 115, 49, 92, 99, 111, 108, 115, 120, 55, 50, 48, 92, 112, 97, 114, 100, 92, 112, 108, 97, 105, 110, 92, 113, 108, 123, 92, 102, 115, 50, 50, 92, 99, 102, 48, 32 };
-
-
-                        byte[] array2 = Encoding.UTF8.GetBytes(actItem[0].Comment);
-
-                        byte[] array3 = array1.Concat(array2).ToArray();
-
-                        byte[] array4 = { 125, 92, 102, 115, 50, 50, 92, 99, 102, 48, 92, 112, 97, 114, 125 };
-                        byte[] array5 = array3.Concat(array4).ToArray();
-
-
-                        //Data.FileData = array5;
+                        isValidateSession = true;
                     }
 
-                    ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
-                    List<long?> ToidList = new List<long?>();
-                    if (actItem[0].ToIds != null)
-                    {
-                        ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
-                    }
-
-                    var filteredToList = new List<ViewEmployee>();
-                    if (ToidList != null)
-                    {
-                        filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
-                    }
-
-
-                    //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
-                    IEnumerable<long> Totags = filteredToList.Select(s => (long)s.UserID).ToList();
-
-                    List<long?> CCidList = new List<long?>();
-                    if (actItem[0].CcIds != null)
-                    {
-                        CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
-                    }
-
-                    var filteredCCList = new List<ViewEmployee>();
-                    if (CCidList != null)
-                    {
-                        filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
-                    }
-
-                    //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
-                    IEnumerable<long> CCtags = filteredCCList.Select(s => (long)s.UserID).ToList();
-
-                    Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
-                    //v
-                    //sToIds = Totags.ToList();
-                    Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
-                    //v
-                    //sCCIds = CCtags.ToList();
                 }
                 else
                 {
-                    isValidateSession = true;
+                    BackEnabled = false;
+                    IsDraftEnabled = true;
+                    IsActiveSessionId = true;
                 }
+           //}));
 
-            }
-            else
-            {
-                BackEnabled = false;
-                IsDraftEnabled = true;
-                IsActiveSessionId = true;
-            }
-           }));
-
-        await Task.WhenAll(tasks);
+        //await Task.WhenAll(tasks);
 
        
 

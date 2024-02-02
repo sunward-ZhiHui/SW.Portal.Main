@@ -25,6 +25,7 @@ using Microsoft.Identity.Client.Extensions.Msal;
 using MsgReader.Outlook;
 using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 using System.IO.Compression;
+using DevExpress.ClipboardSource.SpreadsheetML;
 
 namespace DocumentViewer.Controllers
 {
@@ -494,21 +495,49 @@ namespace DocumentViewer.Controllers
                     if (emailConversationlst != null)
                     {
                         var topicId = emailConversationlst.TopicId;
-                        var plst = _context.EmailConversationParticipant.Where(x => x.TopicId == topicId && x.UserId == userId).FirstOrDefault();
-
-                        if (plst != null)
+                        if (string.IsNullOrEmpty(emailConversationlst.UserType) || emailConversationlst.UserType == "Users")
                         {
-                            permissionModel.IsRead = true; permissionModel.IsDownload = true;
-                            IsRead = "Yes";
+                            var plst = _context.EmailConversationParticipant.Where(x => x.TopicId == topicId && x.UserId == userId).FirstOrDefault();
+
+                            if (plst != null)
+                            {
+                                permissionModel.IsRead = true; permissionModel.IsDownload = true;
+                                IsRead = "Yes";
+                            }
+                            else
+                            {
+                                permissionModel.IsRead = false; permissionModel.IsDownload = false;
+                                IsRead = "No";
+                            }
+                            @ViewBag.isDownload = IsRead;
+                            HttpContext.Session.SetString("isDownload", IsRead);
+                            HttpContext.Session.SetString("isView", IsRead);
                         }
                         else
                         {
-                            permissionModel.IsRead = false; permissionModel.IsDownload = false;
-                            IsRead = "No";
+                            var groupPlist = from tp in _context.EmailConversationParticipantUserGroup
+                                        join ugu in _context.UserGroupUser on tp.GroupId equals ugu.UserGroupID
+                                        where tp.TopicId == topicId && ugu.UserID == userId
+                                        select tp.ID;
+
+                            var gresult = groupPlist.ToList();
+                            if (gresult != null)
+                            {
+                                permissionModel.IsRead = true; permissionModel.IsDownload = true;
+                                IsRead = "Yes";
+                            }
+                            else
+                            {
+                                permissionModel.IsRead = false; permissionModel.IsDownload = false;
+                                IsRead = "No";
+                            }
+                            @ViewBag.isDownload = IsRead;
+                            HttpContext.Session.SetString("isDownload", IsRead);
+                            HttpContext.Session.SetString("isView", IsRead);
+
                         }
-                        @ViewBag.isDownload = IsRead;
-                        HttpContext.Session.SetString("isDownload", IsRead);
-                        HttpContext.Session.SetString("isView", IsRead);
+
+
                     }
                 }
             }

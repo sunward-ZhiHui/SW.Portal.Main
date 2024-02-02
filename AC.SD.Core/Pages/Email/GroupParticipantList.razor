@@ -1,0 +1,275 @@
+﻿@using MediatR
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using Application.Queries;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime JSRuntime;
+@using AC.SD.Core.Pages.Email;
+@inject NavigationManager NavigationManager
+@implements IDisposable;
+
+@if(IsValidUser)
+{
+   @*  <button @onclick="onAddPlist" class="btn btn-excel" style="margin-bottom: 7px; float: right; margin-right: 15px;">
+        Add Group Participant
+    </button> *@
+}
+
+<div class="">
+    <DxGrid @ref="Grid" Data="_participant"
+            KeyFieldName="ID"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PagerPosition="GridPagerPosition.Bottom"
+            PageSize="20"
+            PagerSwitchToInputBoxButtonCount="10"
+            PagerVisibleNumericButtonCount="10"
+            PageSizeSelectorVisible="true"
+            style="height:calc(100vh - 350px);min-height:350px !important"
+            CssClass="ch-360"
+            SelectionMode="GridSelectionMode.Multiple"
+            AllowSelectRowByClick="true">
+        <Columns>
+            @*<DxDataGridColumn>
+            <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+            </DxDataGridColumn>*@
+            @* <DxGridDataColumn FieldName="RowIndex" Width="30" Caption="#" /> *@
+            <DxGridDataColumn FieldName="SubjectName" MinWidth="100" />
+            <DxGridDataColumn FieldName="Name" Caption="Group Name" MinWidth="100" />
+           @*  <DxGridDataColumn FieldName="NickName" />
+            <DxGridDataColumn FieldName="DesignationName" />
+            <DxGridDataColumn FieldName="CompanyName" /> *@
+            @if (IsValidUser)
+            {
+                @* <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (EmailConversationAssignToUserGroup)context.DataItem;
+                        }
+                        <DxButton IconCssClass="btnDelete fas fa-trash" style=" background: transparent; border: none;" Click="() => onDeletePlist((long)context.Value)" Enabled=@(item.IsEnabled) />
+                    
+                </CellDisplayTemplate> 
+            </DxGridDataColumn>*@
+            }
+        </Columns>
+    </DxGrid>
+</div>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="300px" @bind-Visible="@DelPopupVisible">
+    <div class="text-center">
+        <Content>
+            <p>
+                <div Position="Left" id="@("label"+_participantLst.Name)" class="display-field"> Do you want to  Delete this <span style="color:red">@_participantLst.Name</span> </div>
+            </p>
+        </Content>        
+        <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitDelete(_participantLst.ID))" />
+        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@isAllPlistVisible" HeaderText="Add Group Participants" Width="50%">
+    <BodyTemplate Context="PopupContext">
+        <div>
+            <button class="btn btn-excel" style="float: right; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;" @onclick="onSubmitPList">
+                Add
+            </button>
+        </div>
+        <DxGrid @ref="Grid" Data="_allparticipant"
+                KeyFieldName="UserID"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                style="height:calc(100vh - 285px);min-height:400px !important"
+                CssClass="ch-360"
+                SelectionMode="GridSelectionMode.Multiple"
+                AllowSelectRowByClick="true"
+                SelectedDataItemsChanged="@OnSelectedDataItemsChanged"
+                SelectedRowsChanged="HandleSelectedRowsChanged">
+            <Columns>
+                @*<DxDataGridColumn>
+                <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                </DxDataGridColumn>*@
+                <DxGridSelectionColumn Width="104px" />
+                <DxGridDataColumn FieldName="Name" MinWidth="100" />
+                <DxGridDataColumn FieldName="NickName" />
+                <DxGridDataColumn FieldName="DesignationName" />
+                <DxGridDataColumn FieldName="CompanyName" />
+            </Columns>
+        </DxGrid>
+
+    </BodyTemplate>
+</DxPopup>
+
+@code{
+    IGrid? Grid { get; set; }
+
+    DxPopup? popup;
+    bool DelPopupVisible = false;
+    bool isAllPlistVisible = false;
+    internal bool loading;
+    EmailConversationAssignToUserGroup? _participantLst { get; set; }
+    List<long> participantIds = new List<long>();
+    IReadOnlyList<object>? SelectedDataItems { get; set; }
+    public ApplicationUser? applicationUser { get; internal set; }
+    internal List<ViewEmployee>? _allparticipant;
+    [Parameter]
+    public long Tid { get; set; }
+    [Parameter]
+    public long Cid { get; set; }
+    [Parameter]
+    public bool IsValidUser { get; set; } = false;
+    internal List<EmailConversationAssignToUserGroup>? _participant;
+    protected override async Task OnInitializedAsync()
+    {
+        IsValidUser = IsValidUser;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        if (Cid == 0)
+        {
+            _participant = await Mediator.Send(new GetEmailGroupParticipantsList(Tid, applicationUser.UserID));
+        }
+        else
+        {
+            _participant = await Mediator.Send(new GetConversationGroupParticipantsList(Cid));
+        }
+
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
+    public async Task loadParticipentList(long id)
+    {  
+        IsValidUser = IsValidUser;
+        _participant = await Mediator.Send(new GetConversationGroupParticipantsList(id));
+    }  
+    public async Task loadMainTopicParticipentList(long tid)
+    {
+        IsValidUser = IsValidUser;
+        if (applicationUser != null)
+        {
+            _participant = await Mediator.Send(new GetEmailGroupParticipantsList(tid, applicationUser.UserID));
+        }
+
+    }
+    public void onDeletePlist(long Id)
+    {
+        if(_participant != null)
+        {
+            _participantLst = _participant.FirstOrDefault(a => a.ID == Id);
+        }
+        
+        DelPopupVisible = true;
+
+        StateHasChanged();
+    }
+    internal async Task SubmitDelete(long Id)
+    {
+        if (Id > 0)
+        {
+            var request = new DeleteEmailParticipant
+                {
+                    ID = Id,
+
+                };
+            var response = await Mediator.Send(request);
+
+            isAllPlistVisible = false;
+            await LoadGetPList();
+            toastService.ShowToast("Participant has been deleted successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            loading = false;
+            DelPopupVisible = false;           
+            
+        }
+    }
+    internal async Task onSubmitPList()
+    {
+        var lst = SelectedDataItems;
+
+        if (lst == null)
+        {
+            toastService.ShowToast("Please select participant", AC.SD.Core.Services.ToastLevel.Error);
+            loading = false;
+            return;
+        }
+
+
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+                if (item is ViewEmployee employee && employee.UserID.HasValue)
+                {
+                    participantIds.Add((long)employee.UserID);
+                }
+            }
+
+        }
+
+        string participantidsString = string.Join(",", participantIds);
+
+
+        var createReq = new CreateEmailTopicParticipant
+            {
+                PList = participantidsString,
+                ConversationId = Cid,
+                TopicId = Tid,
+                UserId = applicationUser.UserID,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid()
+            };
+        var result = await Mediator.Send(createReq);
+
+        isAllPlistVisible = false;
+        await LoadGetPList();
+        toastService.ShowToast("Participant has been added successfully.", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    internal async Task LoadGetPList()
+    {
+        _participant = await Mediator.Send(new GetConversationGroupParticipantsList(Cid));
+        SelectedDataItems = null;
+        participantIds.Clear();
+    }
+    void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
+    {
+        SelectedDataItems = selectedDataItems;
+    }
+    void ClosePopup()
+    {
+        DelPopupVisible = false;        
+    }
+    internal async Task onAddPlist()
+    {
+        await LoadAllParticipantList();
+    }
+    internal async Task LoadAllParticipantList()
+    {
+        var plist = await Mediator.Send(new GetAddConversationPListQuery(Cid));
+        if(applicationUser != null)
+        {
+            _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        }
+        
+
+        isAllPlistVisible = true;
+    }
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}
+    

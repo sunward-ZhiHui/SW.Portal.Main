@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface IEmailConversationsQueryRepository : IQueryRepository<EmailConversations>
+    public interface IEmailConversationsQueryRepository
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<EmailConversations>> GetAllAsync();
@@ -22,7 +22,7 @@ namespace Core.Repositories.Query
         Task<long> InsertAssignTo(EmailConversationAssignTo forumConversationAssignTo);
         Task<long> InsertAssignTo_sp(EmailConversationAssignTo emailConversationAssignTo);
         Task<long> InsertAssignToUserGroup_sp(EmailConversationAssignToUserGroup AssignToUserGroup);
-        Task<List<long>> GetGroupByUserIdList(string GroupIds);
+        Task<List<long>> GetGroupByUserIdList(string GroupIds,long TopicId);
         Task<long> InsertEmailNotifications(EmailNotifications forumNotifications);
         Task<long> Update(EmailConversations company);
         Task<long> Delete(EmailConversations company);

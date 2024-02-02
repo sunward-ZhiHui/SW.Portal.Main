@@ -150,6 +150,16 @@ else
                                               Layout="RadioGroupLayout.Horizontal"
                                               CssClass="dx-demo-radio-group" />
                             </DxFormLayoutItem> *@
+                            <DxFormLayoutItem Caption="Type" ColSpanMd="12">
+
+                                <DxRadioGroup Items="@UserTypeOptions"
+                                                Enabled = "false"
+                                               Value="@Data.UserType"
+                                               EnabledFieldName="@nameof(Data.UserType)"
+                                               ValueExpression="@(() => Data.UserType )"                                               
+                                               Layout="RadioGroupLayout.Horizontal"
+                                               CssClass="dx-demo-radio-group" />
+                            </DxFormLayoutItem>
                             @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
                             {
                                 <DxFormLayoutItem Caption="To" ColSpanMd="8">
@@ -460,6 +470,7 @@ else
 
 
 @code {
+    string selectedValue { get; set; } = "1";
     IEnumerable<string> UserTypeOptions = new[] { "Users", "Group" };
     async void OnUserTypeChanged(string? radioValue)
     {

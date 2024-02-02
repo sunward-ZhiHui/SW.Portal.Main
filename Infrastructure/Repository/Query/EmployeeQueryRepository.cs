@@ -12,10 +12,11 @@ using Core.EntityModel;
 using Core.Entities.Views;
 using Application.Common;
 using Core.Entities;
+using Infrastructure.Data;
 
 namespace Infrastructure.Repository.Query
 {
-    public class EmployeeQueryRepository : QueryRepository<ViewEmployee>, IEmployeeQueryRepository
+    public class EmployeeQueryRepository : DbConnector, IEmployeeQueryRepository
     {
         public EmployeeQueryRepository(IConfiguration configuration)
             : base(configuration)

@@ -482,6 +482,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _emailTopicsQueryRepository.GetParticipantList(request.TopicId,request.UserId);
         }
     }
+    public class GetEmailGroupParticipantListHandler : IRequestHandler<GetEmailGroupParticipantsList, List<EmailConversationAssignToUserGroup>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetEmailGroupParticipantListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailConversationAssignToUserGroup>> Handle(GetEmailGroupParticipantsList request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetGroupParticipantList(request.TopicId, request.UserId);
+        }
+    }
     public class GetConversationParticipantListHandler : IRequestHandler<GetConversationParticipantsList, List<EmailParticipant>>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
@@ -492,6 +505,18 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<EmailParticipant>> Handle(GetConversationParticipantsList request, CancellationToken cancellationToken)
         {
             return await _emailTopicsQueryRepository.GetConversationPList(request.ConversationId);
+        }
+    }
+    public class GetConversationGroupParticipantListHandler : IRequestHandler<GetConversationGroupParticipantsList, List<EmailConversationAssignToUserGroup>>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetConversationGroupParticipantListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailConversationAssignToUserGroup>> Handle(GetConversationGroupParticipantsList request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetConversationGroupPList(request.ConversationId);
         }
     }
     public class GetParticipantbysessionidListHandler : IRequestHandler<GetParticipantbysessionidList, List<EmailParticipant>>

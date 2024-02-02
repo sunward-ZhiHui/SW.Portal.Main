@@ -756,7 +756,7 @@ else
     internal string MyID = "myForm";    
     List<int> selectedValues = new List<int>();
     IGrid? Grid { get; set; }
-    internal bool loading;
+    internal bool loading;    
     internal bool loadingdraft;
     bool MessageVisible { get; set; }
     string styleClass = "";
@@ -1347,7 +1347,20 @@ else
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         onloadSession();
         CurrentUplodCount = 0;
-        SelectedFilesCount = 0;
+        SelectedFilesCount = 0;  
+
+        bool IsUserGroup = Configuration.GetValue<bool>("DocumentsUrl:IsUserGroup");
+
+        // Now you can directly use IsUserGroup variable without parsing.
+        if (IsUserGroup)
+        {
+            isRadioGroup = true;
+        }
+        else
+        {
+            isRadioGroup = false;
+        }
+
 
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
@@ -1358,11 +1371,6 @@ else
             AppUserId = applicationUser.UserID;
             _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
         }
-
-
-
-
-
 
         Follow = new List<string>
         {

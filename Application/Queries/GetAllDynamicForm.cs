@@ -365,11 +365,33 @@ namespace Application.Queries
     public class GetDynamicFormWorkFlowFormList : PagedRequest, IRequest<List<DynamicFormWorkFlowForm>>
     {
         public long? DynamicFormDataId { get; set; }
-        public GetDynamicFormWorkFlowFormList( long? dynamicFormDataId)
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormWorkFlowFormList(long? dynamicFormId, long? dynamicFormDataId)
         {
             this.DynamicFormDataId = dynamicFormDataId;
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
+    public class GetDynamicFormWorkFlowFormExits : PagedRequest, IRequest<DynamicFormWorkFlowForm>
+    {
+        public long? DynamicFormDataId { get; set; }
+        public long? UserId { get; set; }
+        public long? DynamicFormWorkFlowSectionId { get; set; }
+        public GetDynamicFormWorkFlowFormExits(long? dynamicFormWorkFlowSectionId, long? userId, long? dynamicFormDataId)
+        {
+            this.DynamicFormDataId = dynamicFormDataId;
+            this.UserId = userId;
+            this.DynamicFormWorkFlowSectionId = dynamicFormWorkFlowSectionId;
         }
     }
 
+    public class GetDynamicFormWorkFlowListByUser : PagedRequest, IRequest<List<DynamicFormDataWrokFlow>>
+    {
+        public long? UserId { get; set; }
+        public GetDynamicFormWorkFlowListByUser(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
 }
 

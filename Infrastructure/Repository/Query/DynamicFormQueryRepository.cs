@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using Application.Queries;
+using Core.Entities;
 using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Helpers;
@@ -2677,6 +2678,94 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId)
+        {
+            List<DynamicFormDataWrokFlow> dynamicFormWorkFlowSections = new List<DynamicFormDataWrokFlow>();
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = "select t1.DynamicFormID,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t2.Name,t2.ScreenID from DynamicFormData t1\r\nJOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID";
+                var result = new List<DynamicFormDataWrokFlow>();
+                using (var connection = CreateConnection())
+                {
+                    result = (await connection.QueryAsync<DynamicFormDataWrokFlow>(query)).ToList();
+                }
+                if (result != null && result.Count > 0)
+                {
+
+                    foreach (var item in result)
+                    {
+                        var results = await GetDynamicFormWorkFlowIds(item.DynamicFormId, item.DynamicFormDataId);
+                        if (results != null && results.Count > 0)
+                        {
+                            var total = results.Count;
+                            var notCompleted = results.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
+                            var CompletedCount = results.Where(w => w.IsWorkFlowDone > 0).OrderBy(x => x.SequenceNo).Count();
+                            var notCompletedCount = notCompleted.Count();
+                            var _sequenceNoList = results.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
+                            if (_sequenceNoList.Count() > 0)
+                            {
+                                foreach (var itemss in _sequenceNoList)
+                                {
+                                    var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
+                                    if (notdata != null && notdata.Count > 0)
+                                    {
+                                        var dataAdd = notdata.FirstOrDefault(w => w.UserId == userId);
+                                        if (dataAdd != null)
+                                        {
+                                            item.StatusName = "Pending";
+                                            item.SectionName = string.Join(",", notdata.Select(s => s.SectionName).Distinct().ToList());
+                                            item.UserIds = string.Join(",", notdata.Select(s => s.UserId).Distinct().ToList());
+                                            item.UserNames = string.Join(",", notdata.Select(s => s.UserName).Distinct().ToList());
+                                            item.DynamicFormWorkFlowSections = notdata;
+                                            dataAdd.DynamicFormDataId = item.DynamicFormDataId;
+                                            dynamicFormWorkFlowSections.Add(item);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                            if (total == CompletedCount)
+                            {
+                                item.StatusName = "Completed";
+                                dynamicFormWorkFlowSections.Add(item);
+                            }
+                        }
+                    }
+                }
+                return dynamicFormWorkFlowSections;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<DynamicFormWorkFlowSection>> GetDynamicFormWorkFlowIds(long? dynamicFormId, long? dynamicFormDataId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", dynamicFormId);
+                parameters.Add("dynamicFormDataId", dynamicFormDataId);
+                var query = "select t1.DynamicFormWorkFlowID,t3.SectionName,t4.UserName,t1.DynamicFormWorkFlowSectionID,t2.DynamicFormID,t2.SequenceNo,t2.UserID," +
+                    "(SELECT (Count(*)) from DynamicFormWorkFlowForm t5 WHERE t5.DynamicFormWorkFlowSectionID=t1.DynamicFormWorkFlowSectionID AND t5.DynamicFormDataID=@dynamicFormDataId) as IsWorkFlowDone\r\n" +
+                    "from DynamicFormWorkFlowSection t1 \r\n" +
+                   "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID  \r\n" +
+                    "JOIN DynamicFormWorkFlow t2 ON t2.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID \r\n" +
+                     "JOIN ApplicationUser t4 ON t4.UserID=t2.UserID  \r\n" +
+                    "Where  t2.DynamicFormID=@DynamicFormId order by t2.SequenceNo asc";
+                var result = new List<DynamicFormWorkFlowSection>();
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormWorkFlowSection>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
 
         public async Task<IReadOnlyList<DynamicFormWorkFlowSection>> GetDynamicFormWorkFlowExits(long? dynamicFormId, long? userId, long? dynamicFormDataId)
@@ -2685,13 +2774,14 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", dynamicFormId);
-                parameters.Add("userId", userId);
                 parameters.Add("dynamicFormDataId", dynamicFormDataId);
-                var query = "select t1.DynamicFormWorkFlowID,t3.SectionName,t1.DynamicFormWorkFlowSectionID,t1.DynamicFormSectionID,t2.DynamicFormID,t2.SequenceNo,t2.UserID,t2.UserGroupID,t2.LevelID,t2.Type," +
+                var query = "select t1.DynamicFormWorkFlowID,t3.SectionName,t1.DynamicFormWorkFlowSectionID,t1.DynamicFormSectionID,t2.DynamicFormID,t2.SequenceNo,t4.UserName,t2.UserID,t2.UserGroupID,t2.LevelID,t2.Type," +
                     "(SELECT (Count(*)) from DynamicFormWorkFlowForm t3 WHERE t3.DynamicFormWorkFlowSectionID=t1.DynamicFormWorkFlowSectionID AND t3.DynamicFormDataID=@dynamicFormDataId) as IsWorkFlowDone\r\n" +
                     "from DynamicFormWorkFlowSection t1 \r\n" +
                     "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID  \r\n" +
-                    "JOIN DynamicFormWorkFlow t2 ON t2.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID \r\nWhere  t2.DynamicFormID=@DynamicFormId order by t2.SequenceNo asc";
+                    "JOIN DynamicFormWorkFlow t2 ON t2.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID \r\n" +
+                     "JOIN ApplicationUser t4 ON t4.UserID=t2.UserID  \r\n" +
+                    "Where  t2.DynamicFormID=@DynamicFormId order by t2.SequenceNo asc";
                 var result = new List<DynamicFormWorkFlowSection>();
                 using (var connection = CreateConnection())
                 {
@@ -2716,7 +2806,7 @@ namespace Infrastructure.Repository.Query
                         {
                             var query = string.Empty;
                             var parameters = new DynamicParameters();
-                            parameters.Add("CompletedDate", DateTime.Now,DbType.DateTime);
+                            parameters.Add("CompletedDate", DateTime.Now, DbType.DateTime);
                             dynamicFormWorkFlowSections.ForEach(s =>
                             {
                                 query += "INSERT INTO [DynamicFormWorkFlowForm](DynamicFormWorkFlowSectionID,UserId,DynamicFormDataID,CompletedDate) OUTPUT INSERTED.DynamicFormWorkFlowFormID " +
@@ -2724,7 +2814,7 @@ namespace Infrastructure.Repository.Query
                             });
                             if (!string.IsNullOrEmpty(query))
                             {
-                                await connection.QuerySingleOrDefaultAsync<long>(query);
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                             }
                         }
                         return dynamicFormWorkFlowSection;
@@ -2740,16 +2830,66 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DynamicFormWorkFlowForm>> GetDynamicFormWorkFlowFormList(long? dynamicFormDataId)
+        public async Task<IReadOnlyList<DynamicFormWorkFlowForm>> GetDynamicFormWorkFlowFormList(long? dynamicFormDataId, long? dynamicFormId)
+        {
+            List<DynamicFormWorkFlowForm> dynamicFormWorkFlowSections = new List<DynamicFormWorkFlowForm>();
+            try
+            {
+                var rowCount = 0;
+                var listData = await GetDynamicFormWorkFlowExits(dynamicFormId, 0, dynamicFormDataId);
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormDataID", dynamicFormDataId);
+                var query = "select ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t1.DynamicFormDataID,t1.CompletedDate,t1.DynamicFormWorkFlowFormID,t1.DynamicFormWorkFlowSectionID,t1.UserID,t5.UserName as CompletedBy,t4.SequenceNo,\r\nt2.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t4.UserID as DynamicFormWorkFlowUserID,t6.UserName DynamicFormWorkFlowUser from DynamicFormWorkFlowForm t1 \r\nJOIN DynamicFormWorkFlowSection t2 ON t1.DynamicFormWorkFlowSectionID=t2.DynamicFormWorkFlowSectionID\r\nJOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t2.DynamicFormSectionID\r\nJOIN DynamicFormWorkFlow t4 ON t2.DynamicFormWorkFlowID=t4.DynamicFormWorkFlowID\r\nJOIN ApplicationUser t5 ON t5.UserID=t1.UserID\r\nJOIN ApplicationUser t6 ON t6.UserID=t4.UserID Where  t1.DynamicFormDataID=@DynamicFormDataID order by t4.SequenceNo asc";
+                var result = new List<DynamicFormWorkFlowForm>();
+                using (var connection = CreateConnection())
+                {
+                    result = (await connection.QueryAsync<DynamicFormWorkFlowForm>(query, parameters)).ToList();
+                }
+                if (result != null && result.Count > 0)
+                {
+                    rowCount = result.Count;
+                    dynamicFormWorkFlowSections.AddRange(result);
+                }
+                if (listData != null && listData.Count > 0)
+                {
+                    var notCompleted = listData.Where(w => w.IsWorkFlowDone == 0).ToList();
+                    if (notCompleted != null && notCompleted.Count > 0)
+                    {
+                        notCompleted.ForEach(a =>
+                        {
+                            DynamicFormWorkFlowForm dynamicFormWorkFlowForm = new DynamicFormWorkFlowForm();
+                            dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = rowCount + 1; ;
+                            dynamicFormWorkFlowForm.SectionName = a.SectionName;
+                            dynamicFormWorkFlowForm.SequenceNo = a.SequenceNo;
+                            dynamicFormWorkFlowForm.DynamicFormWorkFlowUserId = a.UserId;
+                            dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = a.UserName;
+                            dynamicFormWorkFlowSections.Add(dynamicFormWorkFlowForm);
+                            rowCount++;
+                        });
+                    }
+                }
+                return dynamicFormWorkFlowSections;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
+        public async Task<DynamicFormWorkFlowForm> GetDynamicFormWorkFlowFormExits(long? dynamicFormWorkFlowSectionId, long? userId, long? dynamicFormDataId)
         {
             try
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("DynamicFormDataID", dynamicFormDataId);
-                var query = "select t1.DynamicFormDataID,t1.CompletedDate,t1.DynamicFormWorkFlowFormID,t1.DynamicFormWorkFlowSectionID,t1.UserID,t5.UserName as CompletedBy,t4.SequenceNo,\r\nt2.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t4.UserID as DynamicFormWorkFlowUserID,t6.UserName DynamicFormWorkFlowUser from DynamicFormWorkFlowForm t1 \r\nJOIN DynamicFormWorkFlowSection t2 ON t1.DynamicFormWorkFlowSectionID=t2.DynamicFormWorkFlowSectionID\r\nJOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t2.DynamicFormSectionID\r\nJOIN DynamicFormWorkFlow t4 ON t2.DynamicFormWorkFlowID=t4.DynamicFormWorkFlowID\r\nJOIN ApplicationUser t5 ON t5.UserID=t1.UserID\r\nJOIN ApplicationUser t6 ON t6.UserID=t4.UserID Where  t1.DynamicFormDataID=@DynamicFormDataID order by t4.SequenceNo asc";
+                parameters.Add("DynamicFormWorkFlowSectionID", dynamicFormWorkFlowSectionId);
+                parameters.Add("UserID", userId);
+                parameters.Add("DynamicFormDataId", dynamicFormDataId);
+                var query = "select t1.* from DynamicFormWorkFlowForm t1 WHERE  t1.DynamicFormDataId=@DynamicFormDataId AND t1.DynamicFormWorkFlowSectionID=@DynamicFormWorkFlowSectionID";
+
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DynamicFormWorkFlowForm>(query, parameters)).ToList();
+                    return await connection.QueryFirstOrDefaultAsync<DynamicFormWorkFlowForm>(query, parameters);
                 }
             }
             catch (Exception exp)

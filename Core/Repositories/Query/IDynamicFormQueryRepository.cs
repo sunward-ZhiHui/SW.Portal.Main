@@ -11,7 +11,7 @@ namespace Core.Repositories.Query
 {
     public interface IDynamicFormQueryRepository : IQueryRepository<DynamicForm>
     {
-        Task<DynamicForm> GetAllSelectedList(Guid? sessionId,long? DynamicFormDataId);
+        Task<DynamicForm> GetAllSelectedList(Guid? sessionId, long? DynamicFormDataId);
         Task<IReadOnlyList<DynamicForm>> GetAllAsync(long? userId);
         Task<DynamicForm> GetDynamicFormByIdAsync(long? Id);
         Task<DynamicForm> GetDynamicFormBySessionIdAsync(Guid? SessionId);
@@ -31,7 +31,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData);
         Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId);
         Task<DocumentsModel> GetDynamicFormDataBySessionIdForDMSAsync(Guid? SessionId);
-        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id,long? userId);
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId);
         Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);
         Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalAsync(long? dynamicFormId);
         Task<DynamicFormApproval> InsertOrUpdateDynamicFormApproval(DynamicFormApproval dynamicFormApproval);
@@ -47,16 +47,19 @@ namespace Core.Repositories.Query
         Task<DynamicFormData> InsertOrUpdateDynamicFormApproved(DynamicFormData dynamicFormData);
         Task<IReadOnlyList<DynamicFormApproved>> GetDynamicFormApprovedList(long? DynamicFormDataId);
         Task<DynamicFormApproved> UpdateDynamicFormApprovedByStaus(DynamicFormApproved dynamicFormApproved);
-        Task<IReadOnlyList<DynamicFormSection>> GetDynamicFormSectionByIdAsync(long? id, long? UserId,long? dynamicFormDataId);
+        Task<IReadOnlyList<DynamicFormSection>> GetDynamicFormSectionByIdAsync(long? id, long? UserId, long? dynamicFormDataId);
         Task<DynamicFormDataUpload> InsertDynamicFormDataUpload(DynamicFormDataUpload dynamicFormSection);
         Task<IReadOnlyList<DynamicFormSectionWorkFlow>> GetDynamicFormSectionWorkFlowByID(long? DynamicFormSectionId, long? UserId);
         Task<DynamicFormWorkFlow> InsertDynamicFormWorkFlow(DynamicFormWorkFlow value);
         Task<IReadOnlyList<DynamicFormWorkFlow>> GetDynamicFormWorkFlowAsync(long? dynamicFormId);
 
         Task<DynamicFormWorkFlow> DeleteDynamicFormWorkFlow(DynamicFormWorkFlow value);
-        Task<IReadOnlyList<DynamicFormWorkFlowSection>> GetDynamicFormWorkFlowExits(long? dynamicFormId, long? userId,long? dynamicFormDataId);
+        Task<IReadOnlyList<DynamicFormWorkFlowSection>> GetDynamicFormWorkFlowExits(long? dynamicFormId, long? userId, long? dynamicFormDataId);
         Task<DynamicFormWorkFlowSection> InsertOrUpdateFormWorkFlowSectionNoWorkFlow(List<DynamicFormWorkFlowSection> dynamicFormWorkFlowSections, long? dynamicFormDataId, long? userId);
-        Task<IReadOnlyList<DynamicFormWorkFlowForm>> GetDynamicFormWorkFlowFormList(long? dynamicFormDataId);
+        Task<IReadOnlyList<DynamicFormWorkFlowForm>> GetDynamicFormWorkFlowFormList(long? dynamicFormDataId, long? dynamicFormId);
+        Task<DynamicFormWorkFlowForm> GetDynamicFormWorkFlowFormExits(long? dynamicFormWorkFlowSectionId, long? userId, long? dynamicFormDataId);
+
+        Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId);
     }
 
 }

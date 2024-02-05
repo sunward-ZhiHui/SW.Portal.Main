@@ -1,4 +1,6 @@
-﻿@using System.ComponentModel.DataAnnotations;
+﻿@page "/DynamicFormWorkFlowList/dynamicForms/{SessionId:guid}"
+@page "/DynamicFormWorkFlowList/dynamicForms/{SessionId:guid}/{SessionIds:guid}"
+@using System.ComponentModel.DataAnnotations;
 @using Newtonsoft.Json.Linq;
 @using global::Core.AttributeDynamicData;
 @using global::Core.Entities.Views;
@@ -867,19 +869,9 @@
     }
     void backUrl()
     {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicFormList/" + SessionId);
-        }
-        else
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + SessionId);
+        NavigationManager.NavigateTo("DynamicFormWorkFlowList");
 
-        }
+        
     }
     void ResetForm()
     {

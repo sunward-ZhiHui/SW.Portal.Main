@@ -67,6 +67,8 @@ namespace Core.Entities
         public int? IsWorkFlowDone { get; set; }
         public int? SequenceNo { get; set; }
         public string? SectionName { get; set; }
+        public string? UserName { get; set; }
+        public long? DynamicFormDataId { get; set; }
     }
     public class DynamicFormWorkFlowForm
     {
@@ -90,5 +92,6 @@ namespace Core.Entities
         public long? DynamicFormWorkFlowUserId { get; set; }
         [NotMapped]
         public string? DynamicFormWorkFlowUser { get; set; }
+        public int? RowID { get; set; }
     }
 }

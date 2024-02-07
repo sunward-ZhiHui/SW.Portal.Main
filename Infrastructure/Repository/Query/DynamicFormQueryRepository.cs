@@ -50,8 +50,10 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("id", id);
 
-                        var query = "DELETE  FROM DynamicForm WHERE ID = @id";
-
+                        var query = "Delete from DynamicFormWorkFlowSection where DynamicFormWorkFlowID in(select DynamicFormWorkFlowID from DynamicFormWorkFlow where DynamicFormID=@id)\r\n;";
+                        query += "DELETE  FROM DynamicFormApproval WHERE DynamicFormID = @id;";
+                        query += "DELETE  FROM DynamicFormWorkFlow WHERE DynamicFormID = @id;";
+                        query += "DELETE  FROM DynamicForm WHERE ID = @id";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -1713,6 +1715,7 @@ namespace Infrastructure.Repository.Query
 
                         var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
                         query += await DeleteDynamicFormApproved(dynamicFormData);
+                        query += "DELETE  FROM DynamicFormWorkFlowForm WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
                         query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
                         query += "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);

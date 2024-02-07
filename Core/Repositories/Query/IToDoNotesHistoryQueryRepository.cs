@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface IToDoNotesHistoryQueryRepository : IQueryRepository<ToDoNotesHistory>
+    public interface IToDoNotesHistoryQueryRepository
     {
         Task<IReadOnlyList<ToDoNotesHistory>> GetAllAsync();
         Task<IReadOnlyList<ToDoNotesHistory>> GetTodoDueAsync(long UserId);

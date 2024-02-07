@@ -29,10 +29,10 @@
         RowClick="OnEmailDueRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
-    <Columns>        
-        <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
-        <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
-        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
+    <Columns>    
+        <DxGridDataColumn FieldName="TopicName" Caption="Main Subject"  FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
+        <DxGridDataColumn FieldName="Name" Caption="Subject Name" MinWidth="250" />
+        <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
         <DxGridDataColumn FieldName="DueDate" Width="180">
             <CellDisplayTemplate>
                 @{

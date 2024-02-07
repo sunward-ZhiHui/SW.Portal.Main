@@ -207,6 +207,7 @@ namespace SW.Portal.Solutions.Controllers
                 addedByUserID = topic.AddedByUserID,
                 mode = mode,
                 userId = UserId,
+                UserType = topic.UserType,
                 addedDateYear = topic.StartDate.Year,
                 addedDateDay = topic.StartDate.ToString("dd-MMM"),
                 addedTime = topic.StartDate.ToString("hh:mm tt")
@@ -387,7 +388,8 @@ namespace SW.Portal.Solutions.Controllers
                         IsMobile = 1,
                         AddedDate = DateTime.Now,
                         Name = emailConversations.Name,
-                        SessionId = Guid.NewGuid()
+                        SessionId = Guid.NewGuid(),
+                        UserType = emailConversations.UserType
                     };
 
                     var res = await _mediator.Send(createReq);

@@ -21,6 +21,7 @@ namespace SW.Portal.Solutions.Models
         public int? addedDateYear { get; set; }        
         public string? addedDateDay { get; set; }
         public string? addedTime { get; set; }
+        public string? UserType { get; set; }
     }
     public class ProductActivitysAppModel 
     {

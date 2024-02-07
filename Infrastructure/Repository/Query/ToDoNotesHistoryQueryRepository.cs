@@ -3,6 +3,7 @@ using Core.Entities;
 using Core.Entities.Views;
 using Core.Repositories.Query;
 using Dapper;
+using Infrastructure.Data;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Query
 {
-    public class ToDoNotesHistoryQueryRepository : QueryRepository<ToDoNotesHistory>, IToDoNotesHistoryQueryRepository
+    public class ToDoNotesHistoryQueryRepository : DbConnector, IToDoNotesHistoryQueryRepository
     {
         public ToDoNotesHistoryQueryRepository(IConfiguration configuration) : base(configuration)
         {
@@ -161,7 +162,7 @@ namespace Infrastructure.Repository.Query
                 {
                     //return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
                     
-                    var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
+                    var res = await connection.QueryAsync<ToDoNotesHistory>(query, parameters);
 
                     //foreach (var items in res)
                     //{
@@ -176,7 +177,7 @@ namespace Infrastructure.Repository.Query
 
                     //}
 
-                    return res;
+                    return res.ToList();
                 }
             }
             catch (Exception exp)

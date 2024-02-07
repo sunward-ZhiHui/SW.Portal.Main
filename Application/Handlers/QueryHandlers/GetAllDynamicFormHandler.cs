@@ -298,7 +298,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id,request.UserId);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId);
         }
 
 
@@ -511,7 +511,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormSection>> Handle(GetDynamicFormSectionById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormSection>)await _dynamicFormQueryRepository.GetDynamicFormSectionByIdAsync(request.Id,request.UserId,request.DynamicFormDataId);
+            return (List<DynamicFormSection>)await _dynamicFormQueryRepository.GetDynamicFormSectionByIdAsync(request.Id, request.UserId, request.DynamicFormDataId);
         }
 
 
@@ -529,6 +529,126 @@ namespace Application.Handlers.QueryHandlers
             return await _queryRepository.InsertDynamicFormDataUpload(request.DynamicFormDataUpload);
 
 
+        }
+    }
+    public class GetDynamicFormSectionWorkFlowByIDHandler : IRequestHandler<GetDynamicFormSectionWorkFlowByID, List<DynamicFormSectionWorkFlow>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionWorkFlowByIDHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionWorkFlow>> Handle(GetDynamicFormSectionWorkFlowByID request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionWorkFlow>)await _dynamicFormQueryRepository.GetDynamicFormSectionWorkFlowByID(request.DynamicFormSectionId, request.UserId);
+        }
+    }
+    public class InsertDynamicFormWorkFlowHandler : IRequestHandler<InsertDynamicFormWorkFlow, DynamicFormWorkFlow>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormWorkFlowHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlow> Handle(InsertDynamicFormWorkFlow request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormWorkFlow(request.DynamicFormWorkFlow);
+
+
+        }
+    }
+
+    public class DynamicFormWorkFlowHandler : IRequestHandler<GetDynamicFormWorkFlow, List<DynamicFormWorkFlow>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public DynamicFormWorkFlowHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlow>> Handle(GetDynamicFormWorkFlow request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlow>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowAsync(request.DynamicFormId);
+        }
+    }
+
+
+    public class DeleteDynamicFormWorkFlowHandler : IRequestHandler<DeleteDynamicFormWorkFlow, DynamicFormWorkFlow>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormWorkFlowHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlow> Handle(DeleteDynamicFormWorkFlow request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormWorkFlow(request.DynamicFormWorkFlow);
+
+
+        }
+    }
+    public class GetDynamicFormWorkFlowExitsHandler : IRequestHandler<GetDynamicFormWorkFlowExits, List<DynamicFormWorkFlowSection>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormWorkFlowExitsHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowSection>> Handle(GetDynamicFormWorkFlowExits request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowSection>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowExits(request.DynamicFormId, request.UserId,request.DynamicFormDataId);
+        }
+    }
+
+    public class InsertOrUpdateFormWorkFlowSectionNoWorkFlowHandler : IRequestHandler<InsertOrUpdateFormWorkFlowSectionNoWorkFlow, DynamicFormWorkFlowSection>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public InsertOrUpdateFormWorkFlowSectionNoWorkFlowHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormWorkFlowSection> Handle(InsertOrUpdateFormWorkFlowSectionNoWorkFlow request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.InsertOrUpdateFormWorkFlowSectionNoWorkFlow(request.DynamicFormWorkFlowSection, request.DynamicFormDataId, request.UserId);
+        }
+    }
+    public class GetDynamicFormWorkFlowFormListHandler : IRequestHandler<GetDynamicFormWorkFlowFormList, List<DynamicFormWorkFlowForm>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormWorkFlowFormListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowForm>> Handle(GetDynamicFormWorkFlowFormList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowForm>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowFormList(request.DynamicFormDataId,request.DynamicFormId);
+        }
+    }
+
+    public class GetDynamicFormWorkFlowFormExitsHandler : IRequestHandler<GetDynamicFormWorkFlowFormExits, DynamicFormWorkFlowForm>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormWorkFlowFormExitsHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormWorkFlowForm> Handle(GetDynamicFormWorkFlowFormExits request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormWorkFlowFormExits(request.DynamicFormWorkFlowSectionId,request.UserId, request.DynamicFormDataId);
+        }
+    }
+
+    public class GetDynamicFormWorkFlowListByUserHandler : IRequestHandler<GetDynamicFormWorkFlowListByUser, List<DynamicFormDataWrokFlow>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormWorkFlowListByUserHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormDataWrokFlow>> Handle(GetDynamicFormWorkFlowListByUser request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataWrokFlow>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowListByUser(request.UserId);
         }
     }
 }

@@ -147,6 +147,9 @@
                             <DxFormLayoutTabPage Caption="Approval Level Entry" Visible=IsApprovalEnabled>
                                 <DynamicFormApprovals @ref="refDynamicFormApproval" dynamicFormId="@dynamicFormId"></DynamicFormApprovals>
                             </DxFormLayoutTabPage>
+                            <DxFormLayoutTabPage Caption="WorkFlow Level Entry">
+                                <DynamicFormWorkFlows @ref="refDynamicFormWorkFlows" dynamicFormId="@dynamicFormId"></DynamicFormWorkFlows>
+                            </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
                 </div>
@@ -204,7 +207,7 @@
     string? FilterDocumentString { get; set; }
     EditContext _editContext;
     public long? dynamicFormId { get; set; }
-    private DynamicFormApprovals refDynamicFormApproval;
+    private DynamicFormApprovals refDynamicFormApproval; private DynamicFormWorkFlows refDynamicFormWorkFlows;
     private DynamicMasterSectionForm refDynamicMasterSectionForm;
     [Parameter]
     public Guid? SessionIds { get; set; }

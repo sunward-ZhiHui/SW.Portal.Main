@@ -1,0 +1,126 @@
+﻿@page "/DynamicFormWorkFlowList"
+@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+
+@implements IDisposable
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_dynamicForm" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            KeyFieldName="DynamicFormDataId"
+            AllowSelectRowByClick="true"
+            RowClick="OnRowclick"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick">
+
+        <Columns>
+            <DxGridDataColumn FieldName="ProfileNo" MinWidth="50" Caption="Profile No" />
+            <DxGridDataColumn FieldName="Name" Caption="Form Name" MinWidth="50" />
+            <DxGridDataColumn FieldName="StatusName" Caption="Status" MinWidth="50" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="50" />
+            <DxGridDataColumn FieldName="UserNames" Caption="Release Users" MinWidth="50" />
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+
+
+@code {
+
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    private List<DynamicFormDataWrokFlow> _dynamicForm;
+    public ApplicationUser? applicationUser { get; private set; }
+    private DynamicFormDataWrokFlow _selectedItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        EditEnabled = false; DeleteEnabled = false;
+        _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID));
+        PanelVisible = true;
+        if (_dynamicForm != null)
+        {
+            EditEnabled = true; DeleteEnabled = true;
+            _selectedItems = _dynamicForm.FirstOrDefault();
+            Grid.SetFocusedRowIndex(0);
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void OnRowclick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
+        _selectedItems = _dynamicForm.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowclick(e);
+        NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
+    }
+    void OpenNewForm()
+    {
+        if (_selectedItems != null)
+        {
+            NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
+        }
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}

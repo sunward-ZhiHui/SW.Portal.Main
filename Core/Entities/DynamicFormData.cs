@@ -88,4 +88,22 @@ namespace Core.Entities
         public long? UserId { get; set; }
         public string? ProfileNo { get; set; }
     }
+    public class DynamicFormDataWrokFlow
+    {
+        public long DynamicFormDataId { get; set; }
+        public long? DynamicFormId { get; set; }
+        public Guid? SessionID { get; set; }
+        public Guid? DynamicFormSessionID { get; set; }
+        public long? ProfileId { get; set; }
+        public string? ProfileNo { get; set; }
+        public string? Name { get; set; }
+        public string? ScreenID { get; set; }
+        public string? ModifiedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSections = new List<DynamicFormWorkFlowSection>();
+        public string? SectionName { get; set; }
+        public string? UserIds { get; set; }
+        public string? UserNames { get; set; }
+        public string? StatusName { get; set; }
+    }
 }

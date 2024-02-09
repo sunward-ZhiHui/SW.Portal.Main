@@ -594,6 +594,27 @@
 
         StateHasChanged();
     }
+    public void CheckedApprovalData()
+    {
+        if (_dynamicform.IsApproval == true)
+        {
+            IsSendApproval = _dynamicformData.IsSendApproval == true ? true : false;
+            if (_dynamicformData.IsApproval == true)
+            {
+                if (_dynamicformData.IsSendApproval == true)
+                {
+                    IsSendApprovalVisible = false; IsApprovalSave = false;
+                    isVisibleButton = false; IsSave = false; //IsUploadEnabled = false;
+                }
+                else
+                {
+                    IsSendApprovalVisible = true; IsApprovalSave = true;
+                }
+            }
+
+            CheckApproval();
+        }
+    }
     public async Task loadData(long? profileID)
     {
         _editContexts = new EditContext(Datas);
@@ -871,7 +892,7 @@
     {
         NavigationManager.NavigateTo("DynamicFormWorkFlowList");
 
-        
+
     }
     void ResetForm()
     {
@@ -1179,11 +1200,16 @@
                     var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
                     if (response != null)
                     {
-                        wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false; IsUploadEnabled = false;
+                        //toastService.ShowToast("Pls Wait...", AC.SD.Core.Services.ToastLevel.Info);
+                        //await Task.Delay(10000);
+                        isWorkflowEnabled = false; isSaveEnabled = false; IsUploadEnabled = false; IsUploadEnabled = false;
+                        IsApprovalApproved = false; IsApprovalRejected = false;
                         toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        wokrFlowpopup = false;
+                        // StateHasChanged();
                     }
 
-                   // await loadDynamicForm();
+                     await loadDynamicForm();
                     StateHasChanged();
                 }
                 else
@@ -1931,6 +1957,15 @@
             if (_dynamicFormWorkFlowSectionNoWorkFlow != null)
             {
                 var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                if (_dynamicform.IsApproval == true)
+                {
+                    isApprovalEnabled = true;
+                    isVisibleButton = true;
+                    if (_dynamicformData != null)
+                    {
+                        CheckedApprovalData();
+                    }
+                }
                 if (_dynamicformData == null)
                 {
                     isSaveEnabled = true;

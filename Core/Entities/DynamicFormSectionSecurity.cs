@@ -44,11 +44,11 @@ namespace Core.Entities
         [NotMapped]
         public string? FullName { get; set; }
         [NotMapped]
-        public IEnumerable<long>? SelectUserIDs { get; set; }
+        public IEnumerable<long?> SelectUserIDs { get; set; }=new List<long?>();
         [NotMapped]
-        public IEnumerable<long>? SelectUserGroupIDs { get; set; }
+        public IEnumerable<long?> SelectUserGroupIDs { get; set; } = new List<long?>();
         [NotMapped]
-        public IEnumerable<long>? SelectLevelMasterIDs { get; set; }
+        public IEnumerable<long?> SelectLevelMasterIDs { get; set; } = new List<long?>();
         [NotMapped]
         public string? Type { get; set; }
     }

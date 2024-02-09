@@ -477,6 +477,7 @@
 
                     if (item is DynamicFormSection selectData)
                     {
+
                         var request = new DeleteDynamicFormSection(selectData);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
@@ -489,8 +490,8 @@
         }
         catch (Exception eq)
         {
-            DeleteerrorMessage = eq.Message;
-            PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
 
         await UpdateDataAsync();

@@ -38,11 +38,11 @@ namespace Core.Entities
         public string? DesignationName { get; set; }
         [NotMapped]
         public string? FullName { get; set; }
-        public IEnumerable<long>? SelectUserIDs { get; set; } = new List<long>();
+        public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
         [NotMapped]
-        public IEnumerable<long>? SelectUserGroupIDs { get; set; } = new List<long>();
+        public IEnumerable<long?> SelectUserGroupIDs { get; set; } = new List<long?>();
         [NotMapped]
-        public IEnumerable<long>? SelectLevelMasterIDs { get; set; } = new List<long>();
+        public IEnumerable<long?> SelectLevelMasterIDs { get; set; } = new List<long?>();
         [NotMapped]
         [Required(ErrorMessage = "Section Name is required")]
         public IEnumerable<long>? SelectDynamicFormSectionIDs { get; set; } = new List<long>();

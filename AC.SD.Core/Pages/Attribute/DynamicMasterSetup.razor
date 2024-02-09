@@ -95,7 +95,7 @@
     bool Blukdeletepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
-       
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
     }
@@ -152,13 +152,21 @@
     }
     async Task bulkDelete(long id)
     {
-        var request = new DeleteDynamicForm(id);
-        await Mediator.Send(request);
-        Blukdeletepopup = false;
-        await UpdateDataAsync();
-
-
-
+        try
+        {
+            var request = new DeleteDynamicForm(id);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            await UpdateDataAsync();
+        }
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        // await UpdateDataAsync();
     }
     public void Dispose()
     {

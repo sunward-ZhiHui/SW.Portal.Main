@@ -257,25 +257,47 @@
     }
     async Task HandleValidSubmit()
     {
-        loading = true;
-        var response = await Mediator.Send(new InsertDynamicFormSectionSecurity(Data));
-        if (response.DynamicFormSectionId > 0)
+        var userCount = Data.SelectUserIDs == null ? 0 : Data.SelectUserIDs.Count();
+        var userGroupCount = Data.SelectUserGroupIDs == null ? 0 : Data.SelectUserGroupIDs.Count();
+        var levelCount = Data.SelectLevelMasterIDs == null ? 0 : Data.SelectLevelMasterIDs.Count();
+        if (Data.IsReadWrite == false && Data.IsReadOnly == false)
         {
-            Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;
-            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            if (Data.Type == "User")
+            toastService.ShowToast("Read & Write or ReadOnly checkbox select anyone", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else if (Data.Type == "User" && userCount == 0)
+        {
+            toastService.ShowToast("Must select User", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else if (Data.Type == "UserGroup" && userGroupCount == 0)
+        {
+            toastService.ShowToast("Must select Usergroup", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else if (Data.Type == "Level" && levelCount == 0)
+        {
+            toastService.ShowToast("Must select Level", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            loading = true;
+            var response = await Mediator.Send(new InsertDynamicFormSectionSecurity(Data));
+            if (response.DynamicFormSectionId > 0)
             {
-                await refDocumentUserRoleListsUser.loadData(dynamicFormSectionId);
+                Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;
+                toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                if (Data.Type == "User")
+                {
+                    await refDocumentUserRoleListsUser.loadData(dynamicFormSectionId);
+                }
+                if (Data.Type == "UserGroup")
+                {
+                    await refDocumentUserRoleListsUserGroup.loadData(dynamicFormSectionId);
+                }
+                if (Data.Type == "Level")
+                {
+                    await refDocumentUserRoleListsLevel.loadData(dynamicFormSectionId);
+                }
+                loading = false;
             }
-            if (Data.Type == "UserGroup")
-            {
-                await refDocumentUserRoleListsUserGroup.loadData(dynamicFormSectionId);
-            }
-            if (Data.Type == "Level")
-            {
-                await refDocumentUserRoleListsLevel.loadData(dynamicFormSectionId);
-            }
-            loading = false;
         }
     }
     void HandleInvalidSubmit()

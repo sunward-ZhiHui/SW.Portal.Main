@@ -50,8 +50,10 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("id", id);
 
-                        var query = "DELETE  FROM DynamicForm WHERE ID = @id";
-
+                        var query = "Delete from DynamicFormWorkFlowSection where DynamicFormWorkFlowID in(select DynamicFormWorkFlowID from DynamicFormWorkFlow where DynamicFormID=@id)\r\n;";
+                        query += "DELETE  FROM DynamicFormApproval WHERE DynamicFormID = @id;";
+                        query += "DELETE  FROM DynamicFormWorkFlow WHERE DynamicFormID = @id;";
+                        query += "DELETE  FROM DynamicForm WHERE ID = @id";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -60,7 +62,7 @@ namespace Infrastructure.Repository.Query
                     }
                     catch (Exception exp)
                     {
-                        throw new Exception(exp.Message, exp);
+                        throw (new ApplicationException(exp.Message));
                     }
                 }
 
@@ -68,7 +70,7 @@ namespace Infrastructure.Repository.Query
             }
             catch (Exception exp)
             {
-                throw new Exception(exp.Message, exp);
+                throw (new ApplicationException(exp.Message));
             }
         }
 
@@ -809,7 +811,7 @@ namespace Infrastructure.Repository.Query
                     }
                     catch (Exception exp)
                     {
-                        throw new Exception(exp.Message, exp);
+                        throw (new ApplicationException(exp.Message));
                     }
                 }
 
@@ -817,7 +819,7 @@ namespace Infrastructure.Repository.Query
             }
             catch (Exception exp)
             {
-                throw new Exception(exp.Message, exp);
+                throw (new ApplicationException(exp.Message));
             }
         }
         public async Task<List<DynamicFormSection>> GetUpdateDynamicFormSectionSortOrder(DynamicFormSection dynamicFormSection)
@@ -1713,6 +1715,7 @@ namespace Infrastructure.Repository.Query
 
                         var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
                         query += await DeleteDynamicFormApproved(dynamicFormData);
+                        query += "DELETE  FROM DynamicFormWorkFlowForm WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
                         query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
                         query += "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
@@ -2053,11 +2056,11 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<LeveMasterUsersModel>> GetLeveMasterUsersList(IEnumerable<long>? SelectLevelMasterIDs)
+        public async Task<IReadOnlyList<LeveMasterUsersModel>> GetLeveMasterUsersList(IEnumerable<long?> SelectLevelMasterIDs)
         {
             try
             {
-                var LevelIds = SelectLevelMasterIDs != null && SelectLevelMasterIDs.Count() > 0 ? SelectLevelMasterIDs : new List<long>() { -1 };
+                var LevelIds = SelectLevelMasterIDs != null && SelectLevelMasterIDs.Count() > 0 ? SelectLevelMasterIDs : new List<long?>() { -1 };
                 var query = "select  t1.LevelID,t1.DesignationID,t3.UserID from Designation t1 \r\n" +
                     "JOIN LevelMaster t2 ON t1.LevelID=t2.LevelID\r\n" +
                     "JOIN Employee t3 ON t3.DesignationID=t1.DesignationID " +
@@ -2607,7 +2610,7 @@ namespace Infrastructure.Repository.Query
                         }
                         if (value.Type == "Level")
                         {
-                            if (LevelUsers != null && LevelUsers.Count > 0)
+                            if (LevelUsers != null && LevelUsers.Count() > 0)
                             {
                                 foreach (var s in LevelUsers)
                                 {

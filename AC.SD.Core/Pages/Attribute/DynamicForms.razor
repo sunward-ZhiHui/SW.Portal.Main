@@ -410,24 +410,8 @@
                         {
                             // IsUploadEnabled = false;
                         }
-                        if (_dynamicform.IsApproval == true)
-                        {
-                            IsSendApproval = _dynamicformData.IsSendApproval == true ? true : false;
-                            if (_dynamicformData.IsApproval == true)
-                            {
-                                if (_dynamicformData.IsSendApproval == true)
-                                {
-                                    IsSendApprovalVisible = false; IsApprovalSave = false;
-                                    isVisibleButton = false; IsSave = false; //IsUploadEnabled = false;
-                                }
-                                else
-                                {
-                                    IsSendApprovalVisible = true; IsApprovalSave = true;
-                                }
-                            }
-                            _dynamicFormApprovedList = await Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId));
-                            CheckApproval();
-                        }
+                        _dynamicFormApprovedList = await Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId));
+                        CheckedApprovalData();
 
                     }
                 }
@@ -591,6 +575,27 @@
         }
 
         StateHasChanged();
+    }
+    public void CheckedApprovalData()
+    {
+        if (_dynamicform.IsApproval == true)
+        {
+            IsSendApproval = _dynamicformData.IsSendApproval == true ? true : false;
+            if (_dynamicformData.IsApproval == true)
+            {
+                if (_dynamicformData.IsSendApproval == true)
+                {
+                    IsSendApprovalVisible = false; IsApprovalSave = false;
+                    isVisibleButton = false; IsSave = false; //IsUploadEnabled = false;
+                }
+                else
+                {
+                    IsSendApprovalVisible = true; IsApprovalSave = true;
+                }
+            }
+
+            CheckApproval();
+        }
     }
     public async Task loadData(long? profileID)
     {
@@ -910,23 +915,151 @@
     }
     private async Task SubmitApproveFormExternally()
     {
+        IsSendApproval = true;
         if (_editContext.Validate() && _editContexts.Validate())
         {
             IsSendApproval = true;
-
-            await this.HandleValidSubmit();
+            await this.HandleFormValidApprovalSubmit();
         }
     }
 
     private async Task SubmitFormExternally()
     {
+        IsSendApproval = false;
         if (_editContext.Validate() && _editContexts.Validate())
         {
-            if (IsSendApproval != true)
-            {
-                IsSendApproval = false;
-            }
+            IsSendApproval = false;
+
             await this.HandleValidSubmit();
+        }
+    }
+    async Task HandleFormValidApprovalSubmit()
+    {
+        isSubmit = true;
+        if (isRequiredCount == 0)
+        {
+            if (IsSave == true || IsApprovalSave == true)
+            {
+                var datas = Data;
+                string strJson = JsonConvert.SerializeObject(datas);
+                loading = true;
+                dynamicFormData.DynamicFormId = _dynamicform.ID;
+                if (dynamicFormData.DynamicFormDataId > 0)
+                {
+                    var editReq = new InsertOrUpdateDynamicFormData
+                        {
+                            DynamicFormProfile = Datas,
+                            ProfileId = _dynamicformData.ProfileId,
+                            ProfileNo = _dynamicformData.ProfileNo,
+                            DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+                            DynamicFormId = _dynamicform.ID,
+                            DynamicFormItem = strJson,
+                            SessionId = dynamicFormData.SessionId,
+                            ModifiedByUserID = applicationUser.UserID,
+                            AddedByUserID = dynamicFormData.AddedByUserID,
+                            ModifiedDate = DateTime.Now,
+                            StatusCodeID = 1,
+                            AddedDate = dynamicFormData.AddedDate,
+                            AttributeHeader = _AttributeHeader,
+                            ObjectData = Data,
+                            IsSendApproval = IsSendApproval,
+                            FileProfileSessionID = FileProfileSessionId
+                        };
+
+                    var result = await Mediator.Send(editReq);
+                    if (result.DynamicFormDataId > 0)
+                    {
+                        IsUploadEnabled = true;
+                        //if (IsSendApproval == true)
+                        // {
+                        if (_dynamicFormApprovedList == null)
+                        {
+                            await InsertOrUpdateDynamicFormApprovedData(dynamicFormData);
+                            await loadDynamicForm();
+                        }
+                        else
+                        {
+                            if (_dynamicFormApprovedList.Count == 0)
+                            {
+                                await InsertOrUpdateDynamicFormApprovedData(dynamicFormData);
+                                await loadDynamicForm();
+                            }
+                        }
+                        //}
+                        // else
+                        //{
+                        //      await loadDynamicForm();
+                        // }
+                        if (result.ProfileId > 0)
+                        {
+                            Datas.ProfileNo = result.ProfileNo;
+                            _dynamicformData.ProfileId = result.ProfileId; _dynamicformData.ProfileNo = result.ProfileNo;
+                            isPlant = false; isDivision = false; isDepartment = false; isSection = false; isSubSection = false;
+                        }
+                        toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        loading = false;
+                        //await onApproved();
+                    }
+                    StateHasChanged();
+                }
+                else
+                {
+                    var createReq = new InsertOrUpdateDynamicFormData
+                        {
+                            DynamicFormProfile = Datas,
+                            ProfileId = dynamicFormData.ProfileId,
+                            DynamicFormItem = strJson,
+                            DynamicFormId = _dynamicform.ID,
+                            SessionId = Guid.NewGuid(),
+                            AddedByUserID = applicationUser.UserID,
+                            ModifiedByUserID = applicationUser.UserID,
+                            ModifiedDate = DateTime.Now,
+                            StatusCodeID = 1,
+                            AddedDate = DateTime.Now,
+                            AttributeHeader = _AttributeHeader,
+                            ObjectData = Data,
+                            IsSendApproval = IsSendApproval,
+                        };
+                    var result = await Mediator.Send(createReq);
+                    if (result.DynamicFormDataId > 0)
+                    {
+                        IsUploadEnabled = true;
+                        toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        dynamicFormDataId = result.DynamicFormDataId;
+                        dynamicFormData.DynamicFormDataId = dynamicFormDataId.Value;
+                        // if (IsSendApproval == true)
+                        // {
+                        if (_dynamicFormApprovedList == null)
+                        {
+                            await InsertOrUpdateDynamicFormApprovedData(dynamicFormData);
+                            await loadDynamicForm();
+                        }
+                        else
+                        {
+                            if (_dynamicFormApprovedList.Count == 0)
+                            {
+                                await InsertOrUpdateDynamicFormApprovedData(dynamicFormData);
+                                await loadDynamicForm();
+                            }
+                        }
+                        // }
+                        if (result.ProfileId > 0)
+                        {
+                            Datas.ProfileNo = result.ProfileNo;
+                            isPlant = false; isDivision = false; isDepartment = false; isSection = false; isSubSection = false;
+                        }
+                        loading = false;
+                        // await onApproved();
+                    }
+                    loading = false;
+                    NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + createReq.SessionId);
+                    StateHasChanged();
+                }
+            }
+        }
+        else
+        {
+            toastService.ShowToast("Validation error occured.Please check the required field values!.", AC.SD.Core.Services.ToastLevel.Warning);
         }
     }
     async Task HandleFormValidSubmit()
@@ -1187,11 +1320,13 @@
                     var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
                     if (response != null)
                     {
-                        wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false; IsUploadEnabled = false;
+                        wokrFlowpopup = false; isWorkflowEnabled = false; isSaveEnabled = false;
+                        isVisibleButton = false;
+                        IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
                         toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
                     }
 
-                   // await loadDynamicForm();
+                    await loadDynamicForm();
                     StateHasChanged();
                 }
                 else
@@ -1939,6 +2074,15 @@
             if (_dynamicFormWorkFlowSectionNoWorkFlow != null)
             {
                 var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                if (_dynamicform.IsApproval == true)
+                {
+                    isApprovalEnabled = true;
+                    isVisibleButton = true;
+                    if (_dynamicformData != null)
+                    {
+                        CheckedApprovalData();
+                    }
+                }
                 if (_dynamicformData == null)
                 {
                     isSaveEnabled = true;

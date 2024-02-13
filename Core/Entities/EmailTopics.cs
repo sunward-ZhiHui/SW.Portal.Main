@@ -69,8 +69,7 @@ namespace Core.Entities
         [Required(ErrorMessage = "Please Select To.")]
         public IEnumerable<long>? ToIds { get; set; } = null;
 
-        [NotMapped]
-        [Required(ErrorMessage = "Please Select To Group.")]
+        [NotMapped]        
         public IEnumerable<long>? ToUserGroupIds { get; set; } = null;
 
         [NotMapped]

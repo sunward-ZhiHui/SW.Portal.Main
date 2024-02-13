@@ -1081,6 +1081,36 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<ViewEmployee>> GetGroupByUsers(long id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("@id", id, DbType.Int64);
+
+                var query = @"select concat(emp.NickName,' | ',emp.FirstName,',',emp.LastName) as Name, emp.EmployeeID, emp.UserID, emp.SageID,emp.PlantID, emp.LevelID, emp.LanguageID, emp.CityID, emp.RegionID, emp.ReportID, emp.FirstName, emp.NickName, emp.LastName, emp.Gender, emp.JobTitle, emp.Email, u.LoginID, u.LoginPassword,u.UserCode,emp.TypeOfEmployeement, emp.Signature, emp.ImageUrl, emp.DateOfEmployeement,emp.LastWorkingDate, emp.Extension, emp.SpeedDial, emp.SkypeAddress, emp.Mobile,emp.IsActive, emp.SectionID,  emp.DivisionID,emp.DesignationId, emp.DepartmentId, emp.SubSectionId, emp.SubSectionTid, u.StatusCodeID,  emp.AddedByUserId, emp.ModifiedByUserId,emp.AddedDate, emp.ModifiedDate, emp.AcceptanceStatus, emp.ExpectedJoiningDate, emp.AcceptanceStatusDate, emp.HeadCount, a.UserName as AddedByUser, mo.UserName as ModifiedByUser, ag.Value as Status, u.SessionID, u.InvalidAttempts, 
+                u.Locked,d.Name as DesignationName,p.PlantCode as CompanyName from UserGroupUser UGU
+                INNER JOIN Employee emp on emp.UserID = UGU.UserID
+                LEFT JOIN ApplicationUser u ON u.userId = emp.userId
+                LEFT JOIN ApplicationUser a ON a.UserId = emp.AddedByUserID 
+                LEFT JOIN ApplicationUser mo ON mo.UserId = emp.ModifiedByUserID 
+                LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = emp.AcceptanceStatus 
+                LEFT JOIN plant p ON p.plantId = emp.plantId 
+                LEFT JOIN Designation d ON d.DesignationID = emp.DesignationID
+                where ag.Value!='Resign' or ag.Value is null and UGU.UserGroupID = @id";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                    // Pass parameters to the QueryAsync method
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<IReadOnlyList<UserGroupUser>> GetUserGroupUser()
         {
             try

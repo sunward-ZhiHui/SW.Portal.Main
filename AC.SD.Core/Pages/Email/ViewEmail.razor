@@ -628,8 +628,8 @@
                                       ShowFooter=false
                                       AllowResize="true"
                                       Closing="EulaClosing"
-                                      MinWidth="800"
-                                      Width="800"                                      
+                                      MinWidth="950"
+                                      Width="950"                                      
                                       Height="600"
                                       ShowCloseButton="true"                                                
                                       @ref="dxWindow">
@@ -656,23 +656,63 @@
 
                                                                             @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
                                                                             {
-                                                                                <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
-                                                                                <DxTagBox NullText="Select Assign To..."
-                                                                                          Data="@_Toparticipant"
-                                                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                                                          ValueFieldName="UserID"
-                                                                                          TextFieldName="Name"                                                                                      
-                                                                                          ListRenderMode="ListRenderMode.Virtual"                                                                                      
+                                                                                @if (isCheckAllowParticipant)
+                                                                                {
+                                                                                      <DxFormLayoutItem Caption="Assign To" ColSpanMd="11">
+                                                                                           <DxTagBox NullText="Select Assign To..."
+                                                                                                  Data="@_Toparticipant"
+                                                                                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                                  ValueFieldName="UserID"
+                                                                                                  TextFieldName="Name"                                                                                      
+                                                                                                  ListRenderMode="ListRenderMode.Virtual"                                                                                      
                                                                                       
-                                                                                          @bind-Values="@Data.AssigntoIds"
-                                                                                          SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
-                                                                                          CssClass="cw-480">
-                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
-                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                                                                                    </DxTagBox>
-                                                                                </DxFormLayoutItem>
+                                                                                                  @bind-Values="@Data.AssigntoIds"
+                                                                                                  SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
+                                                                                                  CssClass="cw-480">
+                                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                            </DxTagBox>
+                                                                                      </DxFormLayoutItem>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                      <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
+                                                                                        <DxTagBox NullText="Select Assign To..."
+                                                                                                  Data="@_Toparticipant"
+                                                                                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                                  ValueFieldName="UserID"
+                                                                                                  TextFieldName="Name"
+                                                                                                  ListRenderMode="ListRenderMode.Virtual"
+                                                                                                  @bind-Values="@Data.AssigntoIds"
+                                                                                                  SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
+                                                                                                  CssClass="cw-480">
+                                                                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                                                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                        </DxTagBox>
+                                                                                    </DxFormLayoutItem>
+                                                                                }
+                                                                              
+                                                                                   
+
+
+                                                                                @if(isCheckAllowParticipant)
+                                                                                {
+                                                                                    <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                                                                        <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
+                                                                                              Click="@(_ => OnButtonUserGroupToClick())">
+                                                                                        </DxButton>
+                                                                                    </DxFormLayoutItem>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                      
+                                                                                }
+
+                                                                               
                                                                             }
                                                                             else
                                                                             {
@@ -695,23 +735,55 @@
                                                                             }
                                                                             @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
                                                                             {
-                                                                            <DxFormLayoutItem Caption="CC" ColSpanMd="12">
-                                                                                <DxTagBox NullText="Select cc..."
-                                                                                      Data="@_CCparticipant"
-                                                                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                                                      ValueFieldName="UserID"
-                                                                                      TextFieldName="Name"
-                                                                                      SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
-                                                                                      ListRenderMode="ListRenderMode.Virtual"
-                                                                                      @bind-Values="@Data.AssignccIds"
+                                                                                @if (isCheckAllowParticipant)
+                                                                                {
+                                                                                     <DxFormLayoutItem Caption="CC" ColSpanMd="11">
+                                                                                    <DxTagBox NullText="Select cc..."
+                                                                                          Data="@_CCparticipant"
+                                                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                          ValueFieldName="UserID"
+                                                                                          TextFieldName="Name"
+                                                                                          SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
+                                                                                          ListRenderMode="ListRenderMode.Virtual"
+                                                                                          @bind-Values="@Data.AssignccIds"
                                                                                       
-                                                                                      CssClass="cw-480">
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                                                                                </DxTagBox>
+                                                                                          CssClass="cw-480">
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                    </DxTagBox>
                                                                                 </DxFormLayoutItem>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                 <DxFormLayoutItem Caption="CC" ColSpanMd="12">
+                                                                                    <DxTagBox NullText="Select cc..."
+                                                                                          Data="@_CCparticipant"
+                                                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                          ValueFieldName="UserID"
+                                                                                          TextFieldName="Name"
+                                                                                          SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
+                                                                                          ListRenderMode="ListRenderMode.Virtual"
+                                                                                          @bind-Values="@Data.AssignccIds"
+                                                                                      
+                                                                                          CssClass="cw-480">
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                    </DxTagBox>
+                                                                                </DxFormLayoutItem>
+                                                                                }
+                                                                                @if (isCheckAllowParticipant)
+                                                                                {
+                                                                                    <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                                                                        <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
+                                                                                                  Click="@(_ => OnButtonUserGroupCCClick())">
+                                                                                        </DxButton>
+                                                                                    </DxFormLayoutItem>
+                                                                                }
+                                                                                
                                                                             }
                                                                             else
                                                                             {
@@ -1480,7 +1552,276 @@
 </DxFlyout>
 
 
+<DxFlyout @bind-IsOpen=IsUserGroupToOpen
+          PositionTarget=@($"#flyout-overview-target-container-user-group-to-info")
+          RestrictionTarget="#Navigation-Flyout-Customization-To"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
+                    <DxTagBox Data="_ToUserGroup"
+                              @bind-Values="Data.ToUserGroupIds"
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              TextFieldName="Name"
+                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItems_New_Changed(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUserGroupToOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+<DxFlyout @bind-IsOpen=IsUserGroupCCOpen
+          PositionTarget=@($"#flyout-overview-target-container-user-group-cc-info")
+          RestrictionTarget="#Navigation-Flyout-Customization-CC"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
+                    <DxTagBox Data="_CCUserGroup"
+                              @bind-Values="@Data.CCUserGroupIds"
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              TextFieldName="Name"
+                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItems_New_Changed(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUserGroupCCOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+
 @code {
+
+     bool IsUserGroupToOpen { get; set; } = false;
+    bool IsUserGroupCCOpen { get; set; } = false;
+    async Task OnButtonUserGroupToClick()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        _ToUserGroup = _participantUserGroup;
+        //_CCUserGroup = _participantUserGroup;
+
+        Data.ToUserGroupIds = null;
+        //Data.CCUserGroupIds = null;
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        IsUserGroupToOpen = true;
+    }
+
+    async Task OnButtonUserGroupCCClick()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        //_ToUserGroup = _participantUserGroup;
+        _CCUserGroup = _participantUserGroup;
+
+        //Data.ToUserGroupIds = null;
+        Data.CCUserGroupIds = null;  
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        IsUserGroupCCOpen = true;
+    }
+
+    async Task HandleValidUserGroupTo()
+    {
+    }
+
+     void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+            //var userIds = await Mediator.Send(new GetGroupByUserids(1));
+            onToChange_Change(values);
+
+            //_CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+
+            //_CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        IsUserGroupToOpen = false;
+
+        StateHasChanged();
+    }
+    void onSelectedCCUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+            //var userIds = await Mediator.Send(new GetGroupByUserids(1));
+            onCCChange_Change(values);
+
+            //_CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+
+            // _CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        IsUserGroupCCOpen = false;
+
+        StateHasChanged();
+    }
+    async Task onToChange_Change(IEnumerable<UserGroup> values)
+    {
+        var groupid = values.Select(x=>x.UserGroupId).LastOrDefault();
+        var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
+        // var userIdsList = userIds.Select(s=>s.UserID.Value).ToList();
+
+        var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
+        var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
+        if (Data.AssigntoIds == null & Data.AssignccIds == null)
+        {
+            Data.AssigntoIds = userIdsList;
+
+            if (_allparticipants != null && userIds != null)
+            {                
+                var emplst = _allparticipants.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
+                onSelectedToItemsChanged(emplst);
+            }
+            // _CCparticipant = _participant.Except(userIds, new ViewEmployeeComparer()).ToList();
+
+        }
+        else
+        {
+            IEnumerable<long> v1 = new List<long>();
+            if (Data.AssignccIds == null)
+            {
+                v1 = Data.AssigntoIds.Concat(userIdsList).Distinct();
+            }
+            else if(Data.AssigntoIds == null)
+            {            
+                var T1 = Data.AssignccIds.Concat(userIdsList).Distinct();
+                v1 = T1.Except(Data.AssignccIds);
+            }
+            else
+            {
+                var L1 = Data.AssignccIds.Concat(Data.AssigntoIds);
+                var L2 = L1.Concat(userIdsList).Distinct();
+                v1 = L2.Except(Data.AssignccIds).Distinct();
+            }
+
+            var combinedIds = v1;
+            Data.AssigntoIds = combinedIds;            
+
+            if (_allparticipants != null && combinedIds != null)
+            {
+                var emplst1 =  _allparticipants.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                onSelectedToItemsChanged(emplst1);
+            }
+        }
+
+
+        StateHasChanged();
+    }
+
+    async Task onCCChange_Change(IEnumerable<UserGroup> values)
+    {
+        var groupid = values.Select(x => x.UserGroupId).LastOrDefault();
+        var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
+
+
+        var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
+        var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
+
+        if (Data.AssignccIds == null && Data.AssigntoIds == null)
+        {
+            Data.AssignccIds = userIdsList;
+
+            if (_allparticipants != null && userIds != null)
+            {
+                var emplst = _allparticipants.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
+                onSelectedCCItemsChanged(emplst);
+            }
+
+        }
+        else
+        {
+            IEnumerable<long> v1 = new List<long>();
+            if (Data.AssignccIds == null)
+            {
+                var T1 = Data.AssigntoIds.Concat(userIdsList).Distinct();
+                v1 = T1.Except(Data.AssigntoIds);
+            }
+            else if (Data.AssigntoIds == null)
+            {
+                v1 = Data.AssignccIds.Concat(userIdsList).Distinct();
+            }
+            else
+            {
+                var L1 = Data.AssignccIds.Concat(Data.AssigntoIds);
+                var L2 = L1.Concat(userIdsList).Distinct();
+                v1 = L2.Except(Data.AssigntoIds).Distinct();
+            }
+
+            var combinedIds = v1;
+            Data.AssignccIds = combinedIds;
+            if (_allparticipants != null && combinedIds != null)
+            {
+                var emplst1 = _allparticipants.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                onSelectedCCItemsChanged(emplst1);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+
     private OpenAccessUserLink? _openAccessUserLink { get; set; }
     private List<ViewPlants>? _plantItems;
     private List<ViewDivision>? _divisionItems;
@@ -2337,6 +2678,7 @@
     bool docEnabled { get; set; } = false;
     int newSubjectreply = 0;
     bool isPushNotification { get; set; } = false;
+    bool isCheckAllowParticipant { get; set; } = false;
     private CancellationTokenSource cancellationTokenSource;
     private const int AutoRefreshInterval = 10000; // 10 seconds
     private Documents? _selectlst;
@@ -4561,6 +4903,7 @@
             {
                 if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
                 {
+                    isCheckAllowParticipant = true;
                     var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
                     var allplist = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
                     //_allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
@@ -4631,6 +4974,7 @@
                 }
                 else
                 {
+                    isCheckAllowParticipant = false;
                     var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
                     var allplist = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettid[0].TopicID));
 

@@ -37,7 +37,13 @@
                     }                    
                     <div style="width:100%">
                         <strong>
-                            @item.FirstName
+                            @item.FirstName 
+
+                            @if (item.DueDate.HasValue)
+                            {
+                                <span class="showDueDate">(@Application.Common.Helper.Helper.FormatDate(item.DueDate.Value))</span>
+                            }
+
                             @if (item.NotificationCount != 0)
                             {
                                 <span class="notificationCount">@item.NotificationCount</span>
@@ -49,7 +55,13 @@
                             @if (item.IsAllowParticipants.GetValueOrDefault(false))
                             {
                                 <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+                            }  
+                            @* 
+                            @{
+                                dynamicDueDate = "showDueDate_" + item.ReplyId;
                             }
+                            <span Id="@dynamicDueDate" class="primary_color_icon" @onmouseover="() => ShowDueDate(item)"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                                         *@               
                         </strong>
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
@@ -64,9 +76,29 @@
     </DxGrid>
 </DxLoadingPanel>
 
+<DxFlyout @bind-IsOpen="@IsOpenFlyout"
+          RestrictionTarget="#Navigation-Flyout-Customization"          
+          PositionTarget=@($"#showDueDate_{CurrentEmailConversations?.ReplyId}")
+          Position="FlyoutPosition.Bottom"
+          CloseOnOutsideClick="true"
+          PreventCloseOnPositionTargetClick="true"       
+          FooterCssClass="custom-flyout-footer"
+          BodyText="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+          Width="400"
+          FooterVisible="true">   
+</DxFlyout>
 
-
-@code {
+@code {   
+    private EmailTopics? CurrentEmailConversations { get; set; }
+    private void ShowDueDate(EmailTopics emailTopics)
+    {
+        CurrentEmailConversations = emailTopics;
+        IsOpenFlyout = true;
+    }
+    string dynamicDueDate = "showDueDate_";
+    bool IsOpenFlyout { get; set; } = false;
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     [Parameter]

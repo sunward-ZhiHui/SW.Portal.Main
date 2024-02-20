@@ -501,7 +501,12 @@
                                                                 <div class="">
                                                                     @foreach (var attachment in item.documents)
                                                                     {
-                                                                        <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
+                                                                        <div class="tag handline"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName
+                                                                            <div class="options">
+                                                                                <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                                                <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                                            </div>
+                                                                        </div>                                                                       
                                                                     }
                                                                 </div>
                                                             </div>
@@ -580,7 +585,12 @@
                                                                             {
                                                                                 @foreach (var attachment in items.documents)
                                                                                 {
-                                                                                    <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
+                                                                                    <div class="tag handline"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName
+                                                                                        <div class="options">
+                                                                                            <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                                                            <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                                                        </div>
+                                                                                    </div>                                                                                     
                                                                                 }                                                                              
                                                                             }                                                                            
                                                                         </div>
@@ -3911,11 +3921,23 @@
     }
     public async Task onDocDownload_old(long Id)
     {
-        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
-        var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
+         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
-        var url = FileUrl + lst.FilePath;
-        await OpenUrlInNewTab(url);
+        // var url = FileUrl + lst.FilePath;
+        // await OpenUrlInNewTab(url);
+
+
+        var response = await Mediator.Send(new GetFileDownload(Id));
+        if (response.StatusCodeID == 0)
+        {
+            toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            //  Trigger file download
+            await JSRuntime.InvokeVoidAsync("downloadFile", lst.FileName, response.ImageData, "");
+        }
 
 
     }
@@ -4690,6 +4712,7 @@
             var _replyComment = await Mediator.Send(new GetEmailConversationTId(long.Parse(@SelectedGroup)));
 
             Data.UserType = _replyComment[0].UserType;
+            isCheckAllowParticipant = true;
 
             if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
             {

@@ -36,6 +36,10 @@
                     }
                     <div style="width:100%">
                         <strong>@item.FirstName</strong>
+                        @if (item.DueDate.HasValue)
+                        {
+                            <span class="showDueDate">(@Application.Common.Helper.Helper.FormatDate(item.DueDate.Value))</span>
+                        }
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                             <text>@item.TopicName</text>

@@ -1097,7 +1097,7 @@ namespace Infrastructure.Repository.Query
                 LEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = emp.AcceptanceStatus 
                 LEFT JOIN plant p ON p.plantId = emp.plantId 
                 LEFT JOIN Designation d ON d.DesignationID = emp.DesignationID
-                where ag.Value!='Resign' or ag.Value is null and UGU.UserGroupID = @id";
+                where (ag.Value!='Resign' or ag.Value is null) and UGU.UserGroupID = @id";
 
                 using (var connection = CreateConnection())
                 {

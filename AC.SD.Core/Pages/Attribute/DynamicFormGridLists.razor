@@ -22,7 +22,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
-                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                @*  <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" /> *@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
@@ -55,7 +55,7 @@
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
-            style="height: calc(100vh - 220px);"
+            style="height: calc(100vh - 520px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
             AllowSelectRowByClick="true"
@@ -103,11 +103,30 @@
         <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@PopupGridForm"
+         HeaderText="Grid Form"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1500px" MaxHeight="1000px">
+    <BodyContentTemplate>
+        <DynamicGridForms SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
+    [Parameter]
+    public Guid? MainSessionId { get; set; }
+    [Parameter]
+    public long? DynamicFormDataGridId { get; set; }
+    public Guid? SessionIds { get; set; }
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
+    bool PopupGridForm { get; set; }
     private DynamicForm _dynamicForm; public long? FileProfileTypeId { get; set; }
     private DocumentsModel _documentsDmsData;
     public ApplicationUser? applicationUser { get; private set; }
@@ -141,7 +160,6 @@
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>();
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
-        dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
         // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
         if (SessionId != null)
         {
@@ -169,7 +187,7 @@
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                 }
 
-                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1));
+                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId));
                 PanelVisible = true;
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
@@ -190,7 +208,6 @@
                         objectData["ModifiedDate"] = s.ModifiedDate;
                         objectData["CurrentUserName"] = s.CurrentUserName;
                         objectData["StatusName"] = s.StatusName;
-                        objectData["IsDynamicFormDataGrid"] = s.IsDynamicFormDataGrid;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
                             _AttributeHeader.DynamicFormSectionAttribute.ForEach(s =>
@@ -211,24 +228,25 @@
                                             if (listData != null && listData.Count > 0)
                                             {
                                                 listData.ForEach(l =>
+                                            {
+                                                if (collection != null)
                                                 {
-                                                    if (collection != null)
+                                                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                     {
-                                                        foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                        dynamic eod = v;
+                                                        if ((long?)eod.AttributeDetailID == l)
                                                         {
-                                                            dynamic eod = v;
-                                                            if ((long?)eod.AttributeDetailID == l)
-                                                            {
-                                                                displayNames += eod.AttributeDetailName + ",";
-                                                            }
+                                                            displayNames += eod.AttributeDetailName + ",";
                                                         }
                                                     }
-                                                });
+                                                }
+                                            });
                                             }
                                             objectData[attrName] = displayNames.TrimEnd(',');
                                         }
                                         else
                                         {
+                                            
                                             var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
                                             objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                         }
@@ -328,7 +346,7 @@
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
                     FileProfileTypeId = _selectedItems.FileProfileTypeId;
                     // await DynamicFormOnDms();
-                    Grid.SetFocusedRowIndex(0);
+                    //Grid.SetFocusedRowIndex(0);
                 }
             }
             else
@@ -404,68 +422,36 @@
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowclick(e);
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-        }
-        else
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-
-        }
+        addEdit();
     }
     void addNew()
     {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        if (MainSessionId != null)
         {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId);
+            SessionIds = null;
+            PopupGridForm = true;
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
-
+            toastService.ShowToast("Must Save Record", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
     void addEdit()
     {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        if (MainSessionId != null)
         {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            SessionIds = _selectedItems.SessionId;
+            PopupGridForm = true;
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-
+            toastService.ShowToast("Must Save Record", AC.SD.Core.Services.ToastLevel.Error);
         }
-
     }
-    async Task backUrl()
+    void BackGridForm()
     {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList");
-        }
-        else
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetup");
-
-        }
+        PopupGridForm = false;
+        InvokeAsync(UpdateDataAsync);
     }
     void addDetailDelete()
     {

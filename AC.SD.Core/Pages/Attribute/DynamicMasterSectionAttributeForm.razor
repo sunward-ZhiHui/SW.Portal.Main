@@ -88,8 +88,23 @@
                     @Names
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            @* <DxGridDataColumn FieldName="DropDownTypeId" Caption="DropDown Type" MinWidth="40"></DxGridDataColumn> *@
-            <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="Data Source" MinWidth="40"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="Data Source" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                        var DataSourceNames = item.DataSourceDisplayName;
+                        if (item.ControlTypeId == 2712)
+                        {
+                            DataSourceNames = item.DynamicGridName;
+                        }
+                        if (item.DataSourceTable == "DynamicGrid")
+                        {
+                            DataSourceNames += " - " + item.DynamicGridName;
+                        }
+                    }
+                    @DataSourceNames
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="40" />
             <DxGridDataColumn FieldName="SortOrderBy" Caption="Sort Order By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" MinWidth="40">
                 <CellDisplayTemplate>

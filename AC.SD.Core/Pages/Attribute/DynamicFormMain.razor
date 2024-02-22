@@ -53,11 +53,12 @@
         formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
         {
             layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(1);
-            layoutItemBuilder.AddAttribute(1, "Caption", "Personal Information");
+            layoutItemBuilder.AddAttribute(2, "HeaderContentTemplate", "Personal Information");
+           // layoutItemBuilder.AddAttribute(1, "Caption", "Personal Information");
             //  layoutItemBuilder.OpenComponent<DxFormLayoutItem>(i++);
             layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
             {
-
+               
                 int i = 0;
                 foreach (var property in propertyList)
                 {

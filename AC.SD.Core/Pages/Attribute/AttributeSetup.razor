@@ -128,7 +128,7 @@
                                     <Columns>
                                         <DxListEditorColumn FieldName="@nameof(CodeMaster.CodeValue)"
                                                             Caption="Control Type"
-                                                            Width="100px" />
+                                                            Width="200px" />
                                         <DxListEditorColumn FieldName="@nameof(CodeMaster.CodeDescription)"
                                                             Caption="Description" Width="300px" />
 
@@ -136,17 +136,9 @@
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.ControlTypeId)" />
                             </DxFormLayoutItem>
+
                             <DxFormLayoutItem Caption="Is Data Source" ColSpanMd="6" Visible="@isDropDownType">
-
-
                                 <DxCheckBox Checked="@Data.IsDataSource" CheckedExpression="@(() => Data.IsDataSource)" CheckedChanged="@((bool? value) => OnTemplateDataSourceGroupValueChanged(value))" Enabled="isEdit"></DxCheckBox>
-                                @*  <DxRadioGroup Items="@TemplateUploadOptions"
-                                Value="@Data.DropDownTypeId"
-                                ValueExpression="@(() => Data.DropDownTypeId )"
-                                ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value))"
-                                Layout="RadioGroupLayout.Horizontal"
-                                CssClass="dx-demo-radio-group" /> *@
-
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Data Source" ColSpanMd="6" Visible="@isDataSource">
                                 <DxComboBox Data="@_attributeHeaderDataSource"
@@ -156,10 +148,34 @@
                                             TextFieldName="DisplayName"
                                             ValueFieldName="AttributeHeaderDataSourceId"
                                             Enabled="isEdit"
+                                            SelectedItemChanged="@((AttributeHeaderDataSource plant) => SelectedItemDataSourceChanged(plant))"
                                 @bind-Value="@Data.DataSourceId">
 
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.DataSourceId)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Dynamic Grid Form" ColSpanMd="6" Visible="isGridForm">
+                                <DxComboBox Data="@_dynamicForm"
+                                            NullText="Select Dynamic Grid Form..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="ID"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@Data.DynamicFormId" ShowValidationIcon="true">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
+                                                            Caption="Name"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ScreenID)"
+                                                            Caption="Screen Name" />
+                                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedBy)"
+                                                            Caption="Modified By" />
+                                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedDate)"
+                                                            Caption="Modified Date" />
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Data.DynamicFormId)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Entry Mask" ColSpanMd="6">
                                 <DxTextBox @bind-Text="Data.EntryMask" Enabled="@MaskEnabled"></DxTextBox>
@@ -233,17 +249,19 @@
     private List<AttributeHeaderDataSource> _attributeHeaderDataSource;
     bool isDropDownType { get; set; } = false;
     bool isDataSource { get; set; } = false;
+    bool isGridForm { get; set; } = false;
+    private List<DynamicForm> _dynamicForm; string? DataSourceTable { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "InBuild", Text = "InBuild" });
         DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "DataSource", Text = "Data Source" });
-        loadDataSourceItems();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _controlTypeData = await Mediator.Send(new GetAllCodeMasterQuery("AttributeControlType"));
         _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
         isAddAttributeEnabled = false;
         isSelectEnabled = true;
         await loadData();
@@ -304,7 +322,7 @@
         Data.EntryMask = null;
         Data.RegExp = null;
         Data.IsInternal = false;
-        Data.ControlTypeId = null;
+        Data.ControlTypeId = null; Data.ControlType = null;
         Data.AttributeCompanyId = null;
         Data.IsMultiple = false;
         Data.IsRequired = false;
@@ -315,6 +333,7 @@
         Data.DataSourceId = 0;
         Data.DropDownTypeId = null;
         Data.IsDataSource = false;
+        Data.DynamicFormId = null;
         isAddAttributeEnabled = false;
         isSelectEnabled = true;
         isDisplay = "display:none;";
@@ -324,7 +343,7 @@
         isDropDownType = false;
         isDataSource = false;
         ActiveTabIndex = 0;
-        AttributeDetailsEnabled = false;
+        AttributeDetailsEnabled = false; isGridForm = false; DataSourceTable = null;
         StateHasChanged();
     }
     void addDelete()
@@ -382,14 +401,25 @@
     }
     async Task createAttributes()
     {
+        long? DynamicFormIds = Data.DynamicFormId;
         string? DropDownTypeId = Data.ControlTypeId == 2702 || Data.ControlTypeId == 2708 || Data.ControlTypeId == 2706 ? Data.DropDownTypeId : null;
         long? dataSourceId = Data.ControlTypeId == 2702 || Data.ControlTypeId == 2708 || Data.ControlTypeId == 2706 ? Data.DataSourceId : null;
+        long? dynamicFormId = Data.ControlTypeId == 2712 ? DynamicFormIds : null;
+        if (Data.IsDataSource == true && Data.DataSourceId > 0)
+        {
+            var _attributeHeaderDataSources = _attributeHeaderDataSource.FirstOrDefault(f => f.AttributeHeaderDataSourceId == Data.DataSourceId)?.DataSourceTable;
+            if (_attributeHeaderDataSources == "DynamicGrid")
+            {
+                DataSourceTable = _attributeHeaderDataSources;
+                dynamicFormId = DynamicFormIds;
+            }
+        }
         var createReq = new CreateAttributeHeader
             {
                 AttributeID = Data.AttributeID,
                 AttributeName = Data.AttributeName,
                 Description = Data.Description,
-                AttributeCompanyId=Data.AttributeCompanyId,
+                AttributeCompanyId = Data.AttributeCompanyId,
                 ControlType = Data.ControlType,
                 IsInternal = Data.IsInternal,
                 EntryMask = Data.EntryMask,
@@ -403,6 +433,7 @@
                 AddedDate = DateTime.Now,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now,
+                DynamicFormId = dynamicFormId > 0 ? dynamicFormId : null,
                 SessionId = Data.SessionId == null ? Guid.NewGuid() : Data.SessionId,
                 DataSourceId = DropDownTypeId == "Data Source" ? dataSourceId : null,
                 DropDownTypeId = DropDownTypeId,
@@ -434,13 +465,24 @@
 
 
     }
+    void SelectedItemDataSourceChanged(AttributeHeaderDataSource value)
+    {
+        Data.DynamicFormId = 0; isGridForm = false;
+        if (Data.IsDataSource == true && value != null)
+        {
+            if (value.DataSourceTable == "DynamicGrid")
+            {
+                Data.DynamicFormId = null; isGridForm = true;
+            }
+        }
+    }
     void SelectedItemChanged(AttributeHeader header)
     {
         addNew();
         isEdit = true; DeleteEnabled = false;
         isDropDownType = false; isDataSource = false;
         isDisplay = "display:none;";
-        isDisplay1 = ""; AttributeDetailsEnabled = false;
+        isDisplay1 = ""; AttributeDetailsEnabled = false; DataSourceTable = null;
         if (header != null)
         {
             if (header.AttributeID > 0)
@@ -450,10 +492,10 @@
         }
         else
         {
-            Data.Description = null;Data.AttributeCompanyId = null;
+            Data.Description = null; Data.AttributeCompanyId = null;
             Data.EntryMask = null;
             Data.RegExp = null;
-            Data.IsInternal = false;
+            Data.IsInternal = false; Data.ControlType = null;
             Data.ControlTypeId = null;
             Data.IsMultiple = false;
             Data.IsRequired = false;
@@ -462,8 +504,8 @@
             Data.AttributeName = null;
             Data.SessionId = null;
             Data.DataSourceId = 0;
-            Data.DropDownTypeId = null;
-            Data.IsDataSource = false;
+            Data.DropDownTypeId = null; Data.DynamicFormId = null; isGridForm = false;
+            Data.IsDataSource = false; DataSourceTable = null;
             if (Data.AttributeID > 0)
             {
                 loadDropDownList(Data.AttributeID);
@@ -474,7 +516,7 @@
     {
         isDisplay = "display:none;";
         isDisplay1 = "";
-        DeleteEnabled = false; Data.DropDownTypeId = null; Data.IsDataSource = false;
+        DeleteEnabled = false; Data.DropDownTypeId = null; Data.IsDataSource = false; DataSourceTable = null;
         _master = _attributes.Where(c => c.AttributeID == AttributeID).FirstOrDefault();
         if (_master != null && _master.AttributeID > 0)
         {
@@ -492,6 +534,7 @@
             Data.AttributeName = _master.AttributeName;
             Data.SessionId = _master.SessionId;
             Data.DropDownTypeId = _master.DropDownTypeId;
+            Data.DynamicFormId = _master.DynamicFormId;
             Data.DataSourceId = Data.DropDownTypeId == "Data Source" ? _master.DataSourceId : 0;
             SelectedControlChanged(Data.ControlTypeId, "Edit");
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _master.ControlType.ToLower().Contains(f.ToLower()));
@@ -505,6 +548,15 @@
             {
                 Data.IsDataSource = true;
                 isDataSource = true;
+                if (Data.IsDataSource == true && Data.DataSourceId > 0)
+                {
+                    var _attributeHeaderDataSources = _attributeHeaderDataSource.FirstOrDefault(f => f.AttributeHeaderDataSourceId == Data.DataSourceId)?.DataSourceTable;
+                    if (_attributeHeaderDataSources == "DynamicGrid")
+                    {
+                        isGridForm = true; DataSourceTable = _attributeHeaderDataSources;
+                        Data.DynamicFormId = _master.DynamicFormId;
+                    }
+                }
             }
             if (isChildData != null)
             {
@@ -513,6 +565,7 @@
                     AttributeDetailsEnabled = true;
                 }
             }
+
         }
     }
     void OnTemplateUploadGroupValueChanged(string? radioValue)
@@ -527,17 +580,28 @@
         }
         StateHasChanged();
     }
-    void OnTemplateDataSourceGroupValueChanged(bool? radioValue)
+    async Task OnTemplateDataSourceGroupValueChanged(bool? radioValue)
     {
         Data.IsDataSource = radioValue;
-        isDataSource = false; Data.DataSourceId = 0;
-        Data.DropDownTypeId = null; 
+        isDataSource = false; Data.DataSourceId = 0; isGridForm = false;
+        Data.DropDownTypeId = null; Data.DynamicFormId = 0;
         if (radioValue == true)
         {
             Data.DropDownTypeId = "Data Source";
             isDataSource = true;
             Data.DataSourceId = null;
-
+            var _attributeHeaderDataSources = await Mediator.Send(new GetAttributeHeaderDataSource());
+            if (Data.ControlTypeId == 2702 || Data.ControlTypeId == 2708)
+            {
+                _attributeHeaderDataSource = _attributeHeaderDataSources;
+            }
+            else
+            {
+                if (_attributeHeaderDataSources != null && _attributeHeaderDataSources.Count > 0)
+                {
+                    _attributeHeaderDataSource = _attributeHeaderDataSources.Where(w => w.DataSourceTable != "DynamicGrid").ToList();
+                }
+            }
         }
         StateHasChanged();
     }
@@ -546,18 +610,25 @@
         isMultipleEnabled = false;
         MaskEnabled = false;
         RegEnabled = false; isDropDownType = false;
-        isDataSource = false;
+        isDataSource = false; isGridForm = false;
         if (type == "Add")
         {
-            //Data.DropDownTypeId = "In Build";
-            Data.DataSourceId = 0;
-            Data.IsDataSource = false;
+            Data.DataSourceId = 0; Data.DynamicFormId = 0;
+            Data.IsDataSource = false; Data.DynamicFormId = 0;
+        }
+        if (type == "Edit")
+        {
+            if (controlTypeId != 2712)
+            {
+                Data.DynamicFormId = 0;
+            }
         }
         if (controlTypeId > 0)
         {
             var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == controlTypeId)?.CodeValue;
             if (!string.IsNullOrEmpty(controlType))
             {
+                Data.ControlType = controlType;
                 var isChildData = ControlTypeChildData.FirstOrDefault(f => controlType.ToLower().Contains(f.ToLower()));
                 if (isChildData != null)
                 {
@@ -574,10 +645,17 @@
                 if (Data.AttributeID == 0)
                 {
                     Data.IsDataSource = false;
-                    //Data.DropDownTypeId = "In Build";
                     Data.DataSourceId = 0;
                 }
                 isDropDownType = true;
+            }
+            if (controlTypeId == 2712)
+            {
+                if (type != "Edit")
+                {
+                    Data.DynamicFormId = null;
+                }
+                isGridForm = true;
             }
         }
     }

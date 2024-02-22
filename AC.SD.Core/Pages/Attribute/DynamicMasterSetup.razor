@@ -129,8 +129,14 @@
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        OnRowclick(e);
-        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+       // if (_selectedItems != null && _selectedItems.IsGridForm != true)
+       // {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+        // }
+        // else
+        // {
+        //     toastService.ShowToast("This form is GridForm", AC.SD.Core.Services.ToastLevel.Error);
+        // }
     }
     void addNew()
     {

@@ -27,6 +27,36 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetAllByGridFormHandler : IRequestHandler<GetAllByGridForm, List<DynamicForm>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetAllByGridFormHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicForm>> Handle(GetAllByGridForm request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicForm>)await _dynamicFormQueryRepository.GetAllByGridFormAsync(request.UserId);
+        }
+
+
+    }
+    public class GetAllByGridNoFormHandler : IRequestHandler<GetAllByGridNoForm, List<DynamicForm>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetAllByGridNoFormHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicForm>> Handle(GetAllByGridNoForm request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicForm>)await _dynamicFormQueryRepository.GetAllByNoGridFormAsync(request.UserId);
+        }
+
+
+    }
+
+
     public class GetDynamicFormBySessionHandler : IRequestHandler<GetDynamicFormBySession, DynamicForm>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
@@ -298,7 +328,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId,request.DynamicFormDataGridId);
         }
 
 

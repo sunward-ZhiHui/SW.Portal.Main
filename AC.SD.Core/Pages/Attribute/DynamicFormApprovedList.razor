@@ -120,6 +120,7 @@
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>();
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
         if (SessionId != null)
         {
             _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
@@ -146,7 +147,7 @@
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                 }
 
-                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID));
+                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID,null));
                 PanelVisible = true;
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
@@ -167,6 +168,7 @@
                         objectData["ModifiedDate"] = s.ModifiedDate;
                         objectData["CurrentUserName"] = s.CurrentUserName;
                         objectData["StatusName"] = s.StatusName;
+                        objectData["IsDynamicFormDataGrid"] = s.IsDynamicFormDataGrid;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
                             _AttributeHeader.DynamicFormSectionAttribute.ForEach(s =>

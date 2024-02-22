@@ -1,13 +1,18 @@
 ﻿using Core.Entities;
 using Core.Entities.Views;
+using Core.Helpers;
 using Core.Repositories.Query;
 using Dapper;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
+using Microsoft.Data.Edm.Values;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -156,7 +161,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    var query = "select t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy," +
+                    var query = "select t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.Instruction,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy," +
                         "(select t4.IsVisible from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsVisible," +
                         "(select t4.IsReadOnly from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsReadOnly," +
                         "(select t4.IsReadWrite from DynamicFormSectionSecurity t4 Where t4.UserID=" + UserId + " AND  t4.DynamicFormSectionID=t1.DynamicFormSectionID) as IsReadWrite," +
@@ -165,10 +170,11 @@ namespace Infrastructure.Repository.Query
                         "(select COUNT(t5.UserID) from DynamicFormSectionWorkFlow t5 Where t5.UserID=" + UserId + " AND  t5.DynamicFormSectionID=t1.DynamicFormSectionID) as IsWorkFlowByUser,\r\n" +
                         "(select COUNT(t6.DynamicFormSectionID) from DynamicFormSectionWorkFlow t6 Where  t6.DynamicFormSectionID=t1.DynamicFormSectionID) as IsWorkFlowBy " +
                         "from DynamicFormSection t1 where t1.DynamicFormID=" + dynamicForm.ID + " order by  t1.SortOrderBy asc;" +
-                        "select t1.*,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID from DynamicFormSectionAttribute t1\r\n" +
+                        "select t1.*,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t9.sessionId as DynamicFormSessionId,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID,t6.DynamicFormID as DynamicFormGridDropDownID from DynamicFormSectionAttribute t1\r\n" +
                         "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
                         "JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
                         "LEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID\r\n" +
+                        "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n" +
                         "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere (t1.IsVisible= 1 OR t1.IsVisible is null) AND t5.DynamicFormID=" + dynamicForm.ID + " order by t1.SortOrderBy asc;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
@@ -176,6 +182,11 @@ namespace Infrastructure.Repository.Query
                 }
                 if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
                 {
+                    List<long?> DynamicFormIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.DataSourceTable == "DynamicGrid" && a.DynamicFormGridDropDownId > 0).Select(a => a.DynamicFormGridDropDownId).Distinct().ToList();
+                    if (DynamicFormIds != null && DynamicFormIds.Count > 0)
+                    {
+                        attributeHeaderListModel.DropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(DynamicFormIds, UserId);
+                    }
                     List<long?> attributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0).Select(a => a.AttributeId).ToList();
                     List<string?> dataSourceTableIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.DataSourceTable != null).Select(a => a.DataSourceTable).Distinct().ToList();
                     attributeHeaderListModel.AttributeDetails = await GetAttributeDetails(attributeIds);
@@ -245,7 +256,423 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private List<DynamicFormSectionAttribute> GenerateFixedDataName()
+        {
+            List<DynamicFormSectionAttribute> dynamicFormSectionAttributes = new List<DynamicFormSectionAttribute>();
+            DynamicFormSectionAttribute dynamicFormSectionAttribute = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute.DynamicAttributeName = "AttributeDetailID";
+            dynamicFormSectionAttribute.DataType = typeof(long);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute);
 
+
+            DynamicFormSectionAttribute dynamicFormSectionAttribute1 = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute1.DynamicAttributeName = "AttributeDetailName";
+            dynamicFormSectionAttribute1.DataType = typeof(string);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute1);
+
+            DynamicFormSectionAttribute dynamicFormSectionAttribute2 = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute2.DynamicAttributeName = "IsDynamicFormDataGrid";
+            dynamicFormSectionAttribute2.DataType = typeof(bool?);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute2);
+
+            DynamicFormSectionAttribute dynamicFormSectionAttribute3 = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute3.DynamicAttributeName = "CurrentUserName";
+            dynamicFormSectionAttribute3.DataType = typeof(string);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute3);
+
+            DynamicFormSectionAttribute dynamicFormSectionAttribute4 = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute4.DynamicAttributeName = "ModifiedBy";
+            dynamicFormSectionAttribute4.DataType = typeof(string);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute4);
+
+            DynamicFormSectionAttribute dynamicFormSectionAttribute5 = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute5.DynamicAttributeName = "ModifiedDate";
+            dynamicFormSectionAttribute5.DataType = typeof(DateTime?);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute5);
+
+
+            DynamicFormSectionAttribute dynamicFormSectionAttribute6 = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute6.DynamicAttributeName = "StatusName";
+            dynamicFormSectionAttribute6.DataType = typeof(string);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute6);
+
+            DynamicFormSectionAttribute dynamicFormSectionAttribute7 = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute7.DynamicAttributeName = "DynamicFormId";
+            dynamicFormSectionAttribute7.DataType = typeof(long?);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute7);
+            DynamicFormSectionAttribute dynamicFormSectionAttribute8 = new DynamicFormSectionAttribute();
+            dynamicFormSectionAttribute8.DynamicAttributeName = "SessionId";
+            dynamicFormSectionAttribute8.DataType = typeof(Guid?);
+            dynamicFormSectionAttributes.Add(dynamicFormSectionAttribute8);
+            return dynamicFormSectionAttributes;
+        }
+        public async Task<DropDownOptionsGridListModel> GetDynamicFormGridModelAsync(List<long?> dynamicFormIds, long? userId)
+        {
+            try
+            {
+                DropDownOptionsGridListModel dropDownOptionsGridListModel = new DropDownOptionsGridListModel();
+                List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
+                List<DynamicFormData> dynamicFormDatas = new List<DynamicFormData>();
+                DynamicFormGridModel attributeHeaderListModel = new DynamicFormGridModel();
+                List<DropDownGridOptionsModel> dropDownGridOptionsModel1 = new List<DropDownGridOptionsModel>();
+                using (var connection = CreateConnection())
+                {
+                    var dynamicFormIdss = dynamicFormIds != null && dynamicFormIds.Count() > 0 ? dynamicFormIds : new List<long?>() { -1 };
+                    var query = "select t1.*,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t9.sessionId as DynamicFormSessionId,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID,t6.DynamicFormID as DynamicFormGridDropDownID from DynamicFormSectionAttribute t1 JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID LEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID Where (t1.IsVisible= 1 OR t1.IsVisible is null) AND t5.DynamicFormID in(" + string.Join(',', dynamicFormIdss) + ") order by t1.SortOrderBy asc;";
+
+                    query += "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name,t5.ScreenID,\r\n" +
+                   "(select COUNT(t6.DocumentID) from Documents t6 where t6.SessionID = t1.SessionID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid\r\n" +
+                   "from DynamicFormData t1\r\n" + "JOIN ApplicationUser t2 ON t2.UserID = t1.AddedByUserID\r\n" + "JOIN ApplicationUser t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
+                   "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" + "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE t1.DynamicFormId IN (" + string.Join(',', dynamicFormIdss) + ");";
+                    query += "select t1.*,t4.UserName as ApprovedByUser,t5.DynamicFormId,\r\n" +
+                      "CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) as ApprovalUser,\r\n" +
+                      "CASE WHEN t1.IsApproved=1  THEN 'Approved' WHEN t1.IsApproved =0 THEN 'Rejected' ELSE 'Pending' END AS ApprovedStatus\r\n" +
+                      "FROM DynamicFormApproved t1 \r\n" + "JOIN Employee t2 ON t1.UserID=t2.UserID \r\n" + "JOIN DynamicFormData t5 ON t5.DynamicFormDataId=t1.DynamicFormDataId \r\n" + "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId WHERE t5.DynamicFormId IN (" + string.Join(',', dynamicFormIdss) + ") order by t1.DynamicFormApprovedId asc;\r\n";
+                    query += "select  * from AttributeDetails;";
+                    query += "select  * from DynamicForm WHere ID IN (" + string.Join(',', dynamicFormIdss) + ");";
+                    var results = await connection.QueryMultipleAsync(query);
+                    attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
+                    attributeHeaderListModel.DynamicFormData = results.Read<DynamicFormData>().ToList();
+                    attributeHeaderListModel.DynamicFormApproved = results.Read<DynamicFormApproved>().ToList();
+                    attributeHeaderListModel.AttributeDetails = results.Read<AttributeDetails>().ToList();
+                    attributeHeaderListModel.DynamicForm = results.Read<DynamicForm>().ToList();
+                }
+                if (attributeHeaderListModel.DynamicFormSectionAttribute != null && attributeHeaderListModel.DynamicFormSectionAttribute.Count > 0)
+                {
+                    List<string?> dataSourceTableIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.DataSourceTable != null).Select(a => a.DataSourceTable).Distinct().ToList();
+                    var dataSourceList = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(null, dataSourceTableIds);
+                    attributeHeaderListModel.AttributeDetails.AddRange(dataSourceList);
+                    attributeHeaderListModel.DynamicFormSectionAttribute.ForEach(s =>
+                    {
+                        s.AttributeName = string.IsNullOrEmpty(s.AttributeName) ? string.Empty : char.ToUpper(s.AttributeName[0]) + s.AttributeName.Substring(1);
+                        s.DynamicAttributeName = s.DynamicFormSectionAttributeId + "_" + s.AttributeName;
+                        if (s.ControlType == "TextBox" || s.ControlType == "Memo")
+                        {
+                            s.DataType = typeof(string);
+                        }
+                        else if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                        {
+                            s.DataType = typeof(string);
+                        }
+                        else if (s.ControlType == "DateEdit")
+                        {
+                            s.DataType = typeof(DateTime?);
+                        }
+                        else if (s.ControlType == "TimeEdit")
+                        {
+                            s.DataType = typeof(TimeSpan?);
+                        }
+                        else if (s.ControlType == "SpinEdit")
+                        {
+                            if (s.IsSpinEditType == "decimal")
+                            {
+                                s.DataType = typeof(decimal?);
+                            }
+                            else
+                            {
+                                s.DataType = typeof(int?);
+                            }
+                        }
+                        else if (s.ControlType == "CheckBox")
+                        {
+                            s.DataType = typeof(string);
+                        }
+                        else if (s.ControlType == "TagBox")
+                        {
+                            s.DataType = typeof(string);
+                        }
+                        else if (s.ControlType == "ListBox")
+                        {
+                            if (s.IsMultiple == true)
+                            {
+                                s.DataType = typeof(string);
+                            }
+                            else
+                            {
+                                s.DataType = typeof(string);
+                            }
+                        }
+                        else
+                        {
+                            s.DataType = typeof(string);
+                        }
+                    });
+                }
+                if (dynamicFormIds != null && dynamicFormIds.Count > 0)
+                {
+                    dynamicFormIds.ForEach(s =>
+                    {
+                        var dynamicForms = attributeHeaderListModel.DynamicForm.FirstOrDefault(f => f.ID == s);
+                        var dynamicFormData = attributeHeaderListModel.DynamicFormData.Where(w => w.DynamicFormId == s).ToList();
+                        var dynamicFormSectionAttribute = attributeHeaderListModel.DynamicFormSectionAttribute.Where(w => w.DynamicFormId == s).OrderBy(o => o.SortOrderBy).ToList();
+                        var dynamicFormSectionAttributeClass = attributeHeaderListModel.DynamicFormSectionAttribute.Where(w => w.DynamicFormId == s).OrderBy(o => o.SortOrderBy).ToList();
+                        dynamicFormSectionAttributeClass.AddRange(GenerateFixedDataName());
+                        Type[] typesList = dynamicFormSectionAttributeClass.Select(s => s.DataType).ToArray();
+                        string[] objectNameList = dynamicFormSectionAttributeClass.Select(s => s.DynamicAttributeName).ToArray();
+
+                        DropDownGridOptionsModel dropDownGridOptionsModel = new DropDownGridOptionsModel();
+                        dropDownGridOptionsModel.DynamicFormId = s;
+                        dropDownGridOptionsModel.DropDownOptionsModels = GenerateDropDownList(s, dynamicFormSectionAttribute);
+                        dropDownGridOptionsModel1.Add(dropDownGridOptionsModel);
+
+                        var dynamicFormApproved = attributeHeaderListModel.DynamicFormApproved.Where(w => w.DynamicFormId == s).OrderBy(o => o.DynamicFormApprovedId).ToList();
+                        if (dynamicFormData != null && dynamicFormData.Count > 0)
+                        {
+                            dynamicFormData.ForEach(s =>
+                            {
+                                dynamic obj = new System.Dynamic.ExpandoObject();
+                                var dict = (IDictionary<string, object>)obj;
+                                dynamic jsonObj = new object();
+                                if (IsValidJson(s.DynamicFormItem))
+                                {
+                                    jsonObj = JsonConvert.DeserializeObject(s.DynamicFormItem);
+                                }
+                                if (s.IsSendApproval == true)
+                                {
+                                    var approvedList = dynamicFormApproved.Where(w => w.DynamicFormDataId == s.DynamicFormDataId).ToList();
+                                    if (approvedList != null && approvedList.Count() > 0)
+                                    {
+                                        s.DynamicFormApproved = approvedList;
+                                        var approved = approvedList.Where(w => w.IsApproved == true).ToList();
+                                        var approvedPending = approvedList.Where(w => w.IsApproved == null).ToList();
+                                        if (approved != null && approved.Count() > 0 && approvedList.Count() == approved.Count())
+                                        {
+                                            s.ApprovalStatusId = 4;
+                                            s.ApprovalStatus = "Approved Done";
+                                            s.StatusName = "Completed";
+                                        }
+                                        else
+                                        {
+                                            var rejected = approvedList.Where(w => w.IsApproved == false).FirstOrDefault();
+                                            if (rejected != null)
+                                            {
+                                                s.IsApproved = rejected.IsApproved;
+                                                s.ApprovalStatusId = 3;
+                                                s.ApprovalStatus = "Rejected";
+                                                s.RejectedDate = rejected.ApprovedDate;
+                                                s.RejectedUserId = rejected.UserId;
+                                                s.RejectedUser = rejected.ApprovalUser;
+                                                s.StatusName = "Rejected";
+                                                s.CurrentUserId = rejected.UserId;
+                                                s.CurrentUserName = rejected.ApprovalUser;
+                                            }
+                                            else
+                                            {
+                                                if (approvedPending != null && approvedPending.Count > 0)
+                                                {
+                                                    if (approved != null && approved.Count() > 0)
+                                                    {
+                                                        var isapproved = approved.OrderByDescending(o => o.DynamicFormApprovedId).FirstOrDefault(w => w.IsApproved == true);
+                                                        if (isapproved != null)
+                                                        {
+                                                            s.IsApproved = isapproved.IsApproved;
+                                                            s.ApprovalStatusId = 2;
+                                                            s.ApprovalStatus = "Approved";
+                                                            s.ApprovedDate = isapproved.ApprovedDate;
+                                                            s.ApprovedUserId = isapproved.UserId;
+                                                            s.ApprovedUser = isapproved.ApprovalUser;
+                                                            s.CurrentUserId = isapproved.UserId;
+                                                            s.CurrentUserName = isapproved.ApprovalUser;
+                                                        }
+                                                    }
+                                                    var isapprovedPending = approvedPending.OrderBy(o => o.DynamicFormApprovedId).FirstOrDefault(w => w.IsApproved == null);
+                                                    if (isapprovedPending != null)
+                                                    {
+                                                        s.IsApproved = isapprovedPending.IsApproved;
+                                                        s.ApprovalStatusId = 1;
+                                                        s.ApprovalStatus = "Pending";
+                                                        s.PendingUserId = isapprovedPending.UserId;
+                                                        s.PendingUser = isapprovedPending.ApprovalUser;
+                                                        s.StatusName = "Pending";
+                                                        s.CurrentUserId = isapprovedPending.UserId;
+                                                        s.CurrentUserName = isapprovedPending.ApprovalUser;
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+                                obj.AttributeDetailID = s.DynamicFormDataId;
+                                obj.AttributeDetailName = s.ProfileNo;
+                                obj.ModifiedBy = s.ModifiedBy;
+                                obj.DynamicFormId = s.DynamicFormId;
+                                obj.CurrentUserName = s.CurrentUserName;
+                                obj.ModifiedDate = s.ModifiedDate;
+                                obj.StatusName = s.StatusName;
+                                obj.IsDynamicFormDataGrid = s.IsDynamicFormDataGrid;
+                                obj.SessionId = s.SessionId;
+                                var dynamicFormSectionAttribute = attributeHeaderListModel.DynamicFormSectionAttribute.Where(w => w.DynamicFormId == s.DynamicFormId).ToList();
+                                if (dynamicFormSectionAttribute != null && dynamicFormSectionAttribute.Count > 0)
+                                {
+                                    dynamicFormSectionAttribute.ForEach(b =>
+                                    {
+                                        b.DynamicAttributeName = b.DynamicFormSectionAttributeId + "_" + b.AttributeName;
+                                        string attrName = b.DynamicAttributeName;
+                                        var Names = jsonObj.ContainsKey(attrName);
+                                        if (Names == true)
+                                        {
+                                            var itemValue = jsonObj[attrName];
+                                            if (itemValue is JArray)
+                                            {
+                                                List<long?> listData = itemValue.ToObject<List<long?>>();
+                                                var listName = attributeHeaderListModel.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == b.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                dict[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                            }
+                                            else
+                                            {
+                                                if (b.ControlType == "ComboBox" || b.ControlType == "Radio" || b.ControlType == "RadioGroup")
+                                                {
+                                                    long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                    if (Svalues != null)
+                                                    {
+                                                        var listName = attributeHeaderListModel.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == b.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                        dict[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+
+                                                    }
+                                                    else
+                                                    {
+                                                        dict[attrName] = string.Empty;
+                                                    }
+                                                }
+                                                else if (b.ControlType == "ListBox" && b.IsMultiple == false)
+                                                {
+                                                    long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                    if (Svalues != null)
+                                                    {
+                                                        var listName = attributeHeaderListModel.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == b.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                        dict[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                    }
+                                                    else
+                                                    {
+                                                        dict[attrName] = string.Empty;
+                                                    }
+                                                }
+                                                else if (b.ControlType == "DateEdit")
+                                                {
+                                                    DateTime? values = itemValue == null ? null : (DateTime)itemValue;
+                                                    dict[attrName] = values;
+                                                }
+                                                else if (b.ControlType == "TimeEdit")
+                                                {
+                                                    TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
+                                                    dict[attrName] = values;
+                                                }
+                                                else if (b.ControlType == "SpinEdit")
+                                                {
+                                                    if (b.IsSpinEditType == "decimal")
+                                                    {
+                                                        decimal? values = itemValue == null ? null : (decimal)itemValue;
+                                                        dict[attrName] = values;
+                                                    }
+                                                    else
+                                                    {
+                                                        int? values = itemValue == null ? null : (int)itemValue;
+                                                        dict[attrName] = values;
+                                                    }
+                                                }
+                                                else if (b.ControlType == "CheckBox")
+                                                {
+                                                    bool? values = itemValue == null ? false : (bool)itemValue;
+                                                    dict[attrName] = values;
+                                                }
+                                                else
+                                                {
+                                                    dict[attrName] = (string)itemValue;
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            dict[attrName] = string.Empty;
+                                        }
+
+
+                                    });
+                                }
+                                _dynamicformObjectDataList.Add(obj);
+                            });
+                        }
+                        //if (userId > 0 && dynamicFormData != null && dynamicFormData.Count > 0)
+                        // {
+                        //   dynamicFormData = dynamicFormData.Where(w => w.CurrentUserId == userId).ToList();
+                        // }
+                    });
+                }
+                dropDownOptionsGridListModel.DropDownGridOptionsModel = dropDownGridOptionsModel1;
+                dropDownOptionsGridListModel.ObjectData = _dynamicformObjectDataList;
+                return dropDownOptionsGridListModel;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private List<DropDownOptionsModel> GenerateDropDownList(long? DynamicFormId, List<DynamicFormSectionAttribute> dynamicFormSectionAttribute)
+        {
+            List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>
+                        {
+                           // new DropDownOptionsModel() { Value = "AttributeDetailID", Text = "DynamicFormDataId", Type = "Form", IsVisible = false,OrderBy=1 },
+                            new DropDownOptionsModel() { Value = "AttributeDetailName", Text = "Profile No", Type = "Form",OrderBy=1,AttributeDetailID=1, AttributeDetailName = "Profile No" },
+                            //new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form",OrderBy=3 }
+                        };
+            if (dynamicFormSectionAttribute != null && dynamicFormSectionAttribute.Count > 0)
+            {
+                var counts = 1;
+                dynamicFormSectionAttribute.ForEach(a =>
+                {
+                    a.DynamicAttributeName = a.DynamicFormSectionAttributeId + "_" + a.AttributeName;
+                    counts += 1;
+                    dataColumnNames.Add(new DropDownOptionsModel() { OrderBy = counts, AttributeDetailID = counts, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader, AttributeDetailName = a.DisplayName });
+                });
+                counts++;
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "Current User" });
+                counts++;
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "ModifiedBy" });
+                counts++;
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "ModifiedDate" });
+                counts++;
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "Status" });
+                //counts++;
+                //dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormId", Text = "DynamicFormId", Type = "Form", OrderBy = counts, AttributeDetailID = counts, DynamicFormId = DynamicFormId });
+            }
+            else
+            {
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = 2, AttributeDetailID = 2, AttributeDetailName = "Current User" });
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form", OrderBy = 3, AttributeDetailID = 3, AttributeDetailName = "ModifiedBy" });
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form", OrderBy = 4, AttributeDetailID = 4, AttributeDetailName = "ModifiedDate" });
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form", OrderBy = 5, AttributeDetailID = 5, AttributeDetailName = "Status" });
+                //dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormId", Text = "DynamicFormId", Type = "Form", OrderBy = 8, AttributeDetailID = 8, DynamicFormId = DynamicFormId });
+            }
+            return dataColumnNames;
+        }
+        private static bool IsValidJson(string strInput)
+        {
+            if (string.IsNullOrWhiteSpace(strInput)) { return false; }
+            strInput = strInput.Trim();
+            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch (JsonReaderException jex)
+                {
+                    //Exception in parsing json
+                    return false;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
         public async Task<List<AttributeDetails>> GetAttributeDetails(List<long?> id)
         {
             try
@@ -329,8 +756,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("IsRequired", attributeHeader.IsRequired);
                             parameters.Add("DropDownTypeId", attributeHeader.DropDownTypeId);
                             parameters.Add("DataSourceId", attributeHeader.DataSourceId);
+                            parameters.Add("DynamicFormId", attributeHeader.DynamicFormId);
                             parameters.Add("RequiredMessage", attributeHeader.RequiredMessage, DbType.String);
-                            var Addquerys = "UPDATE AttributeHeader SET AttributeName = @AttributeName,IsInternal=@IsInternal,Description=@Description," +
+                            var Addquerys = "UPDATE AttributeHeader SET DynamicFormId=@DynamicFormId,AttributeName = @AttributeName,IsInternal=@IsInternal,Description=@Description," +
                                 "ControlType=@ControlType,EntryMask=@EntryMask, " +
                                 "RegExp=@RegExp,ModifiedByUserID=@ModifiedByUserID, " +
                                 "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID, " +
@@ -358,11 +786,11 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("IsMultiple", attributeHeader.IsMultiple);
                             parameters.Add("IsRequired", attributeHeader.IsRequired);
                             parameters.Add("RequiredMessage", attributeHeader.RequiredMessage, DbType.String);
+                            parameters.Add("DynamicFormId", attributeHeader.DynamicFormId);
 
-
-                            var query = @"INSERT INTO AttributeHeader(AttributeCompanyId,AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ControlTypeId,IsMultiple,IsRequired,RequiredMessage,DropDownTypeId,DataSourceId) 
+                            var query = @"INSERT INTO AttributeHeader(DynamicFormId,AttributeCompanyId,AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ControlTypeId,IsMultiple,IsRequired,RequiredMessage,DropDownTypeId,DataSourceId) 
               OUTPUT INSERTED.AttributeID  -- Replace 'YourIDColumn' with the actual column name of your IDENTITY column
-              VALUES (@AttributeCompanyId,@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage,@DropDownTypeId,@DataSourceId)";
+              VALUES (@DynamicFormId,@AttributeCompanyId,@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage,@DropDownTypeId,@DataSourceId)";
 
                             var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters);
                             attributeHeader.AttributeID = insertedId;

@@ -2364,7 +2364,11 @@ namespace Infrastructure.Repository.Query
                             var query = " UPDATE EmailConversationParticipant SET IsArchive = 1 where TopicId = @ID and UserId = @ModifiedByUserID";
                             var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            return rowsAffected;
+                            var query2 = "UPDATE EmailNotifications SET IsRead = 1 WHERE IsRead = 0 AND TopicId = @ID AND UserId = @ModifiedByUserID";
+                            var rowsAffected2 = await connection.ExecuteAsync(query2, parameters);
+
+
+                        return rowsAffected;
                         }
                         catch (Exception exp)
                         {

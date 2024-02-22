@@ -8,6 +8,18 @@
 function myFunction() {
     alert(1);
 }
+// hoverFunctions.js
+window.hoverFunctions = {
+    addHoverListener: function (element, dotNetObject) {
+        element.addEventListener("mouseover", function () {
+            dotNetObject.invokeMethodAsync('OnMouseOver');
+        });
+        element.addEventListener("mouseleave", function () {
+            dotNetObject.invokeMethodAsync('OnMouseLeave');
+        });
+    }
+};
+
 function scrollToBottom() {
     window.scrollTo(0, document.body.msgOpen);
 }

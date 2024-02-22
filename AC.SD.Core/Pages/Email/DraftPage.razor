@@ -131,6 +131,7 @@
         //SelectedDataItems = null;
         Blukdeletepopup = false;       
         await UpdateDataAsync();
+        StateHasChanged();
     }
     async Task bulkDelete()
     {

@@ -252,6 +252,20 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
+
+               @*  <DxMenu Visible="@CloseStatus">
+                    <Items>
+
+                        <DxMenuItem Text="Close" IconCssClass="fa fa-check" Click="@onClose"  />
+                    </Items>
+                </DxMenu>
+
+                <DxMenu Visible="@OpenStatus">
+                    <Items>
+                        <DxMenuItem Text="Open" IconCssClass="fa fa-check-square" Click="@onOpen"  />
+                    </Items>
+                </DxMenu> *@
+
             </Items>
         </DxMenu>
     </div>
@@ -585,6 +599,8 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool CloseStatus { get; set; } = false;
+    bool OpenStatus { get; set; } = false;
     internal string? BaseUrl;
     internal string? FileUrl;
     internal string? DocumentViewUrl;
@@ -641,6 +657,16 @@
     int CurrentUplodCount { get; set; }
     string MyMessage { get; set; }
     string Message = "Upload";
+
+
+    void onClose()
+    {
+        var nid = _selectedItems.ID;
+    }
+    void onOpen()
+    {
+        var nid = _selectedItems.ID;
+    }
 
     internal async Task onOpenUrl(string url)
     {
@@ -1036,6 +1062,18 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _ToDoNotesHistory.FirstOrDefault(f => f.ID == (long?)UniqueId);
         DeleteEnabled = true;
+
+        if (_selectedItems.Status == "Open")
+        {
+            OpenStatus = true;
+            CloseStatus = false;
+        }
+        else
+        {
+            CloseStatus = true;
+            OpenStatus = false;
+        }
+
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)

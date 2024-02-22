@@ -37,6 +37,11 @@
                     <div style="width:100%">
                         <strong>
                             @item.FirstName
+
+                            @if (item.DueDate.HasValue)
+                            {
+                                <span class="showDueDate">(@Application.Common.Helper.Helper.FormatDate(item.DueDate.Value))</span>
+                            }
                             @if (item.NotificationCount != 0)
                             {
                                 <span class="notificationCount">@item.NotificationCount</span>

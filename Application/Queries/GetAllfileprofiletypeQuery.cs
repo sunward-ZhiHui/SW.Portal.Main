@@ -149,8 +149,19 @@ namespace Application.Queries
     }
     public class GetUserGroups : PagedRequest, IRequest<List<UserGroup>>
     {
-
+       
     }
+
+    public class GetGroupByUserids : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long Id { get; private set; }
+
+        public GetGroupByUserids(long Id)
+        {
+            this.Id = Id;            
+        }
+    }
+    
     public class GetAllUserGroups : PagedRequest, IRequest<List<UserGroup>>
     {
 

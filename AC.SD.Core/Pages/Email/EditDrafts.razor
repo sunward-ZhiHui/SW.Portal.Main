@@ -150,7 +150,7 @@ else
                                               Layout="RadioGroupLayout.Horizontal"
                                               CssClass="dx-demo-radio-group" />
                             </DxFormLayoutItem> *@
-                            <DxFormLayoutItem Caption="Type" ColSpanMd="12">
+                            @* <DxFormLayoutItem Caption="Type" ColSpanMd="12">
 
                                 <DxRadioGroup Items="@UserTypeOptions"
                                                 Enabled = "false"
@@ -159,10 +159,10 @@ else
                                                ValueExpression="@(() => Data.UserType )"                                               
                                                Layout="RadioGroupLayout.Horizontal"
                                                CssClass="dx-demo-radio-group" />
-                            </DxFormLayoutItem>
+                            </DxFormLayoutItem> *@
                             @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
                             {
-                                <DxFormLayoutItem Caption="To" ColSpanMd="8">
+                                <DxFormLayoutItem Caption="To" ColSpanMd="7">
                                 <DxTagBox NullText="Select To..."
                                       Data="_participant"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -185,6 +185,12 @@ else
                                             Caption="Company" />
                                 </DxTagBox>
                                 <ValidationMessage For="@(() => Data.ToIds)" />
+                                </DxFormLayoutItem>
+
+                                <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                    <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
+                                              Click="@(_ => OnButtonUserGroupToClick())">
+                                    </DxButton>
                                 </DxFormLayoutItem>
                             }
                             else
@@ -224,7 +230,7 @@ else
                             </DxFormLayoutItem>
                              @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
                             {
-                                <DxFormLayoutItem Caption="CC" ColSpanMd="8">
+                                <DxFormLayoutItem Caption="CC" ColSpanMd="7">
                                 <DxTagBox NullText="Select Cc..."
                                       Data="_participant"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -246,6 +252,11 @@ else
                                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
                                             Caption="Company" />
                                 </DxTagBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                    <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
+                                              Click="@(_ => OnButtonUserGroupCCClick())">
+                                    </DxButton>
                                 </DxFormLayoutItem>
                             }
                             else
@@ -467,9 +478,131 @@ else
     </BodyTemplate>
 </DxPopup>
 
+<DxFlyout @bind-IsOpen=IsUserGroupToOpen
+          PositionTarget=@($"#flyout-overview-target-container-user-group-to-info")
+          RestrictionTarget="#Navigation-Flyout-Customization-To"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
+                    <DxTagBox Data="_ToUserGroup"
+                              @bind-Values="Data.ToUserGroupIds"
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              TextFieldName="Name"
+                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItems_New_Changed(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
 
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUserGroupToOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+<DxFlyout @bind-IsOpen=IsUserGroupCCOpen
+          PositionTarget=@($"#flyout-overview-target-container-user-group-cc-info")
+          RestrictionTarget="#Navigation-Flyout-Customization-CC"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
+                    <DxTagBox Data="_CCUserGroup"
+                              @bind-Values="@Data.CCUserGroupIds"
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              TextFieldName="Name"
+                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItems_New_Changed(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUserGroupCCOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 
 @code {
+
+    bool IsUserGroupToOpen { get; set; } = false;
+    bool IsUserGroupCCOpen { get; set; } = false;
+    async Task OnButtonUserGroupToClick()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        _ToUserGroup = _participantUserGroup;
+        //_CCUserGroup = _participantUserGroup;
+
+        Data.ToUserGroupIds = null;
+        //Data.CCUserGroupIds = null;
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        IsUserGroupToOpen = true;
+    }
+
+    async Task OnButtonUserGroupCCClick()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        //_ToUserGroup = _participantUserGroup;
+        _CCUserGroup = _participantUserGroup;
+
+        //Data.ToUserGroupIds = null;
+        Data.CCUserGroupIds = null;
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        IsUserGroupCCOpen = true;
+    }
+    async Task HandleValidUserGroupTo()
+    {
+    }
+
     string selectedValue { get; set; } = "1";
     IEnumerable<string> UserTypeOptions = new[] { "Users", "Group" };
     async void OnUserTypeChanged(string? radioValue)
@@ -602,6 +735,146 @@ else
     IReadOnlyList<object>? SelectedCCDataItems { get; set; }
 
     private List<Documents>? _documentslst;
+    void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+            //var userIds = await Mediator.Send(new GetGroupByUserids(1));
+            onToChange_Change(values);
+
+            //_CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+
+            //_CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        IsUserGroupToOpen = false;
+
+        StateHasChanged();
+    }
+    void onSelectedCCUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+            //var userIds = await Mediator.Send(new GetGroupByUserids(1));
+            onCCChange_Change(values);
+
+            //_CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+
+            // _CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        IsUserGroupCCOpen = false;
+
+        StateHasChanged();
+    }
+    async Task onToChange_Change(IEnumerable<UserGroup> values)
+    {
+        var groupid = values.Select(x => x.UserGroupId).LastOrDefault();
+        var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
+        // var userIdsList = userIds.Select(s=>s.UserID.Value).ToList();
+
+        var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
+        var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
+        if (Data.ToIds == null & Data.CCIds == null)
+        {
+            Data.ToIds = userIdsList;
+
+            if (_participant != null && userIds != null)
+            {
+                var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
+                //onSelectedToItemsChanged(emplst);
+            }
+            // _CCparticipant = _participant.Except(userIds, new ViewEmployeeComparer()).ToList();
+
+        }
+        else
+        {
+            IEnumerable<long> v1 = new List<long>();
+            if (Data.CCIds == null)
+            {
+                v1 = Data.ToIds.Concat(userIdsList).Distinct();
+            }
+            else if (Data.ToIds == null)
+            {
+                var T1 = Data.CCIds.Concat(userIdsList).Distinct();
+                v1 = T1.Except(Data.CCIds);
+            }
+            else
+            {
+                var L1 = Data.CCIds.Concat(Data.ToIds);
+                var L2 = L1.Concat(userIdsList).Distinct();
+                v1 = L2.Except(Data.CCIds).Distinct();
+            }
+
+            var combinedIds = v1;
+            Data.ToIds = combinedIds;
+
+            if (_participant != null && combinedIds != null)
+            {
+                var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                //onSelectedToItemsChanged(emplst1);
+            }
+        }
+
+
+        StateHasChanged();
+    }
+    async Task onCCChange_Change(IEnumerable<UserGroup> values)
+    {
+        var groupid = values.Select(x => x.UserGroupId).LastOrDefault();
+        var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
+
+
+        var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
+        var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
+
+        if (Data.CCIds == null && Data.ToIds == null)
+        {
+            Data.CCIds = userIdsList;
+
+            if (_participant != null && userIds != null)
+            {
+                var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
+                //onSelectedCCItemsChanged(emplst);
+            }
+
+        }
+        else
+        {
+            IEnumerable<long> v1 = new List<long>();
+            if (Data.CCIds == null)
+            {
+                var T1 = Data.ToIds.Concat(userIdsList).Distinct();
+                v1 = T1.Except(Data.ToIds);
+            }
+            else if (Data.ToIds == null)
+            {
+                v1 = Data.CCIds.Concat(userIdsList).Distinct();
+            }
+            else
+            {
+                var L1 = Data.CCIds.Concat(Data.ToIds);
+                var L2 = L1.Concat(userIdsList).Distinct();
+                v1 = L2.Except(Data.ToIds).Distinct();
+            }
+
+            var combinedIds = v1;
+            Data.CCIds = combinedIds;
+            if (_participant != null && combinedIds != null)
+            {
+                var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                //onSelectedCCItemsChanged(emplst1);
+            }
+        }
+
+        StateHasChanged();
+    }
     void onToChanged(IEnumerable<string> newTags)
     {
         sToIds = newTags.ToList();
@@ -733,6 +1006,18 @@ else
     }
     private void addNew(int id)
     {
+        if (Data != null)
+        {
+            if (Data.ToIds == null)
+            {
+                Data.ToIds = null;
+            }
+            else if (Data.ToIds.Count() == 0)
+            {
+                Data.ToIds = null;
+            }
+        }
+
         draftId = id;        
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -25,6 +25,15 @@ using Blazored.Toast;
 using AC.SD.Core.Services;
 using Application.Common.Helper;
 using Blazored.LocalStorage;
+using DevExpress.DashboardWeb;
+using SW.Portal.Solutions.Code;
+
+
+using DevExpress.AspNetCore;
+using DevExpress.DashboardAspNetCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
 
@@ -77,6 +86,8 @@ namespace SW.Portal.Solutions.ServerSide {
                     endpoints.MapFallbackToPage("/_Host");
                     //endpoints.MapFallbackToPage("/Login"); // Add this line to handle the login route
                 });
+                // Add your dashboard route mapping here
+                //app.MapDashboardRoute("api/dashboard", "DefaultDashboard");
                 Configure(app, context.HostingEnvironment);
             };
 
@@ -158,6 +169,14 @@ namespace SW.Portal.Solutions.ServerSide {
                 static void ConfigureJsonOptions(JsonOptions options) {
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 };
+
+                // Add the following block to add the DashboardConfigurator service
+                IConfiguration configuration = context.Configuration;
+                IFileProvider fileProvider = context.HostingEnvironment.ContentRootFileProvider;
+
+                services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
+                    return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
+                });
             }
         }
 

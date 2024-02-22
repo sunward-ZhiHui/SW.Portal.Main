@@ -259,6 +259,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetGroupByUsersHandler : IRequestHandler<GetGroupByUserids, List<ViewEmployee>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetGroupByUsersHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetGroupByUserids request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _fileprofileQueryRepository.GetGroupByUsers(request.Id);
+        }
+
+    }
     public class GetAllUserGroupsHandler : IRequestHandler<GetAllUserGroups, List<UserGroup>>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;

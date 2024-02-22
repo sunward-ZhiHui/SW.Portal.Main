@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+  <Title Text="Sample Dashboard" />
+  <DataSources>
+    <SqlDataSource Name="SalesPerson" ComponentName="DataSource1" DataProcessingMode="Client">
+      <Connection Name="NWindConnectionString" FromAppConfig="true" />
+      <Query Type="SelectQuery" Name="SalesPerson">
+        <Tables>
+          <Table Name="SalesPerson" />
+        </Tables>
+        <Columns>
+          <AllColumns Table="SalesPerson" />
+        </Columns>
+      </Query>
+      <ConnectionOptions CloseConnection="true" />
+    </SqlDataSource>
+  </DataSources>
+  <Items>
+    <Chart ComponentName="chartDashboardItem1" Name="Chart 1" DataSource="DataSource1" DataMember="SalesPerson">
+      <DataItems>
+        <Measure DataMember="ExtendedPrice" DefaultId="DataItem0" />
+        <Dimension DataMember="CategoryName" DefaultId="DataItem1" />
+        <Dimension DataMember="Country" DefaultId="DataItem2" />
+      </DataItems>
+      <SeriesDimensions>
+        <SeriesDimension DefaultId="DataItem2" />
+      </SeriesDimensions>
+      <Arguments>
+        <Argument DefaultId="DataItem1" />
+      </Arguments>
+      <Panes>
+        <Pane Name="Pane 1">
+          <Series>
+            <Simple>
+              <Value DefaultId="DataItem0" />
+            </Simple>
+          </Series>
+        </Pane>
+      </Panes>
+    </Chart>
+    <TreeView ComponentName="treeViewDashboardItem1" Name="Tree View 1" DataSource="DataSource1" DataMember="SalesPerson" AutoExpand="true">
+      <DataItems>
+        <Dimension DataMember="CategoryName" DefaultId="DataItem0" />
+      </DataItems>
+      <FilterDimensions>
+        <Dimension DefaultId="DataItem0" />
+      </FilterDimensions>
+    </TreeView>
+    <TabContainer ComponentName="tabContainerDashboardItem1" Name="Tab Container 1">
+      <Pages>
+        <Page ComponentName="dashboardTabPage1" Name="Page 1" />
+      </Pages>
+    </TabContainer>
+    <Pie ComponentName="pieDashboardItem1" Name="Pies 1" ParentContainer="dashboardTabPage1" DataSource="DataSource1" DataMember="SalesPerson">
+      <DataItems>
+        <Measure DataMember="ExtendedPrice" SummaryType="Count" DefaultId="DataItem0" />
+        <Measure DataMember="ExtendedPrice" SummaryType="Count" DefaultId="DataItem1" />
+        <Measure DataMember="LastName" SummaryType="Count" DefaultId="DataItem2" />
+      </DataItems>
+      <Values>
+        <Value DefaultId="DataItem0" />
+        <Value DefaultId="DataItem1" />
+        <Value DefaultId="DataItem2" />
+      </Values>
+    </Pie>
+    <ScatterChart ComponentName="scatterChartDashboardItem1" Name="Scatter Chart 1" ParentContainer="groupDashboardItem1" DataSource="DataSource1" DataMember="SalesPerson">
+      <DataItems>
+        <Measure DataMember="Discount" DefaultId="DataItem0" />
+        <Measure DataMember="FirstName" SummaryType="Count" DefaultId="DataItem1" />
+        <Measure DataMember="OrderDate" SummaryType="Count" DefaultId="DataItem2" />
+        <Dimension DataMember="Discount" DefaultId="DataItem3" />
+        <Dimension DataMember="OrderDate" DefaultId="DataItem4" />
+        <Dimension DataMember="Country" DefaultId="DataItem5" />
+      </DataItems>
+      <HiddenDimensions>
+        <Dimension DefaultId="DataItem5" />
+      </HiddenDimensions>
+      <MeasureX DefaultId="DataItem0" />
+      <MeasureY DefaultId="DataItem1" />
+      <MeasureWeight DefaultId="DataItem2" />
+      <Dimensions>
+        <Dimension DefaultId="DataItem3" />
+        <Dimension DefaultId="DataItem4" />
+      </Dimensions>
+    </ScatterChart>
+    <Pivot ComponentName="pivotDashboardItem1" Name="Pivot 1" DataSource="DataSource1" DataMember="SalesPerson">
+      <DataItems>
+        <Measure DataMember="CategoryName" SummaryType="Count" DefaultId="DataItem0" />
+        <Measure DataMember="Discount" DefaultId="DataItem1" />
+        <Measure DataMember="FullName" SummaryType="Count" DefaultId="DataItem2" />
+        <Measure DataMember="OrderDate" SummaryType="Count" DefaultId="DataItem3" />
+        <Measure DataMember="Quantity" DefaultId="DataItem4" />
+      </DataItems>
+      <Values>
+        <Value DefaultId="DataItem0" />
+        <Value DefaultId="DataItem1" />
+        <Value DefaultId="DataItem2" />
+        <Value DefaultId="DataItem3" />
+        <Value DefaultId="DataItem4" />
+      </Values>
+    </Pivot>
+  </Items>
+  <Groups>
+    <Group ComponentName="groupDashboardItem1" Name="Group 1" />
+  </Groups>
+  <LayoutTree>
+    <LayoutGroup Weight="100">
+      <LayoutItem DashboardItem="treeViewDashboardItem1" Weight="34.58929917106255" />
+      <LayoutGroup Orientation="Vertical" Weight="165.41070082893745">
+        <LayoutGroup Weight="165.41070082893745">
+          <LayoutItem DashboardItem="chartDashboardItem1" Weight="165.41070082893745" />
+          <LayoutTabContainer DashboardItem="tabContainerDashboardItem1" Weight="165.41070082893745">
+            <LayoutTabPage DashboardItem="dashboardTabPage1">
+              <LayoutItem DashboardItem="pieDashboardItem1" />
+            </LayoutTabPage>
+          </LayoutTabContainer>
+        </LayoutGroup>
+        <LayoutGroup Weight="165.41070082893745">
+          <LayoutGroup DashboardItem="groupDashboardItem1" Weight="165.41070082893745">
+            <LayoutItem DashboardItem="scatterChartDashboardItem1" />
+          </LayoutGroup>
+          <LayoutItem DashboardItem="pivotDashboardItem1" Weight="165.41070082893745" />
+        </LayoutGroup>
+      </LayoutGroup>
+    </LayoutGroup>
+  </LayoutTree>
+</Dashboard>

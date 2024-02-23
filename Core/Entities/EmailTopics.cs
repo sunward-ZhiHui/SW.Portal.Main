@@ -51,6 +51,8 @@ namespace Core.Entities
         public bool? NotifyUser { get; set; }
         public bool? OverDue { get; set; }
         public bool? IsArchive { get; set; }
+        [NotMapped]
+        public bool? IsToDoDuDate { get; set; }
         public bool? IsAllowParticipants { get; set; }
         public int OnDraft { get; set; }
         [NotMapped]

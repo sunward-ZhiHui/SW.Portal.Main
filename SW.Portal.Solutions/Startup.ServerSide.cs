@@ -22,10 +22,17 @@ using SW.Portal.Solutions.Hubs;
 using Core.FCM;
 using Core.Services;
 using SW.Portal.Solutions.Models;
+using DevExpress.DashboardWeb;
+using Microsoft.Extensions.FileProviders;
+using SW.Portal.Solutions.Code;
+using AC.SD.Core;
+using DevExpress.CodeParser;
 
 namespace SW.Portal.Solutions.ServerSide {
 
     partial class Startup {
+        private IWebHostEnvironment env;
+
         //public IConfiguration Configuration { get; }
         public override string EnvironmentName => "ServerSide";
         public override void ConfigureServices(WebHostBuilderContext context, IServiceCollection services) {
@@ -44,7 +51,8 @@ namespace SW.Portal.Solutions.ServerSide {
             System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
             System.Diagnostics.Debug.WriteLine(keys.PublicKey);
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews();            
+            services.AddDemoServices(Configuration, env);
 
             services.AddSingleton<IDemoVersion, DemoVersion>(x => {
                 string customVersion = Configuration.GetValue<string>("dxversion");
@@ -64,6 +72,13 @@ namespace SW.Portal.Solutions.ServerSide {
                .WithApiKey("Your_API_key")
                .GetFcm()
            );
+
+            services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
+                IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
+                IFileProvider fileProvider = serviceProvider.GetRequiredService<IWebHostEnvironment>().ContentRootFileProvider;
+                return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
+            });
+
 
             //Enable CORS
             services.AddCors(c =>

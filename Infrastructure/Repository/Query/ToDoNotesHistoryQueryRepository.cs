@@ -137,7 +137,7 @@ namespace Infrastructure.Repository.Query
                 //                    )
                 //                ORDER BY TNH.DueDate";
 
-                var query = @"SELECT TNU.ID,TNH.NotesId,TNH.DueDate,TNH.Url,TNH.RemainDate,TNH.Description,TNH.AddedByUserID,TNH.AddedDate,TNH.SessionId,TNH.TopicId,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo FROM ToDoNotesHistory TNH
+                var query = @"SELECT TNU.ID,TNH.ID as ToDoNotesHistoryID,TNH.NotesId,TNH.DueDate,TNH.Url,TNH.RemainDate,TNH.Description,TNH.AddedByUserID,TNH.AddedDate,TNH.SessionId,TNH.TopicId,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo,TNH.Status FROM ToDoNotesHistory TNH
                                 INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
                                 INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
@@ -532,7 +532,39 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-       
+        
+        public async Task<long> ToDoStatusUpdateAsync(long ID,string status)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ID", ID);
+                        parameters.Add("Status", status);
+
+                        var query = "update TodoNotesHistory Set Status = @Status Where ID =@ID";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
 
         public async Task<long> StatusUpdateAsync(long ID)
         {

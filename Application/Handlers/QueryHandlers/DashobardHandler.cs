@@ -102,5 +102,57 @@ namespace CMS.Application.Handlers.QueryHandlers
             }
 
         }
-    
+    public class GetAppointmentListHandler : IRequestHandler<GetAppointmentList, List<Appointment>>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public GetAppointmentListHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<List<Appointment>> Handle(GetAppointmentList request, CancellationToken cancellationToken)
+        {
+            return (List<Appointment>)await _dashboardQueryRepository.GetAppointments(request.UserId);
+
+        }
+
+    }
+    public class AddAppointmentHandler : IRequestHandler<AddAppointment, long>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public AddAppointmentHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<long> Handle(AddAppointment request, CancellationToken cancellationToken)
+        {
+            var newlist = await _dashboardQueryRepository.AddAppointmentAsync(request);
+            return newlist;
+        }
+    }
+    public class EditAppointmentHandler : IRequestHandler<EditAppointment, long>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public EditAppointmentHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<long> Handle(EditAppointment request, CancellationToken cancellationToken)
+        {
+            var newlist = await _dashboardQueryRepository.UpdateAppointmentAsync(request);
+            return newlist;
+        }
+    }
+    public class DeleteAppointmentHandler : IRequestHandler<DeleteAppointment, long>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public DeleteAppointmentHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<long> Handle(DeleteAppointment request, CancellationToken cancellationToken)
+        {
+            var newlist = await _dashboardQueryRepository.DeleteAppointmentAsync(request.Id);
+            return newlist;
+        }
+    }
 }

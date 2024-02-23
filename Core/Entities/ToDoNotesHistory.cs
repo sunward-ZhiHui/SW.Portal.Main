@@ -45,6 +45,8 @@ namespace Core.Entities
         public string AssignToList { get; set; }
         [NotMapped]
         public long? TodoNotesUserId { get; set; }
+        [NotMapped]
+        public long ToDoNotesHistoryID { get; set; }
 }
 }
  

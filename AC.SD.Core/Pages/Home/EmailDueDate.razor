@@ -10,7 +10,17 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
-
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Reload" IconCssClass="fa fa-refresh" Click="@onRefresh"/>
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="EmailDueDateGrid" SearchText="@GridSearchText"
         Data="_emailTopicDueDate"
         ShowGroupPanel="true"
@@ -66,6 +76,13 @@
     [Parameter]
     public Action<string> SubViewAllTopicId { get; set; }
 
+    async Task onRefresh()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        _emailTopicDueDate = await Mediator.Send(new GetEmailTopicHome(applicationUser.UserID));
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        EmailDueDateGrid.Reload();
+    }
     protected override async Task OnInitializedAsync()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");

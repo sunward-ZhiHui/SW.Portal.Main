@@ -76,6 +76,9 @@ namespace Application.Queries
     public class EditToDoNotesHistoryQuery : ToDoNotesHistory, IRequest<long>
     {
     }
+    public class HomeEditToDoNotesHistoryQuery : ToDoNotesHistory, IRequest<long>
+    {
+    }
 
     public class DeleteToDoNotesHistoryQuery : PagedRequest, IRequest<long>
     {
@@ -100,6 +103,16 @@ namespace Application.Queries
         public StatusChangedQuery(long ID)
         {
             this.ID = ID;
+        }
+    }
+    public class StatusUpdateQuery : PagedRequest, IRequest<long>
+    {
+        public long ID { get; set; }
+        public string Status { get; set; }
+        public StatusUpdateQuery(long ID,string status)
+        {
+            this.ID = ID;
+            this.Status = status;            
         }
     }
     public class StatusChangedByUsersQuery : PagedRequest, IRequest<long>

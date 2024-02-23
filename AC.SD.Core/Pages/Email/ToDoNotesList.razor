@@ -253,18 +253,18 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
 
-               @*  <DxMenu Visible="@CloseStatus">
+                <DxMenu Visible="@CloseStatus">
                     <Items>
 
-                        <DxMenuItem Text="Close" IconCssClass="fa fa-check" Click="@onClose"  />
+                <DxMenuItem Text="Close" IconCssClass="fa fa-check" Click="@onClose" style="@CompeleteStyle"  />
                     </Items>
                 </DxMenu>
 
                 <DxMenu Visible="@OpenStatus">
                     <Items>
-                        <DxMenuItem Text="Open" IconCssClass="fa fa-check-square" Click="@onOpen"  />
+                <DxMenuItem Text="Open" IconCssClass="fa fa-check-square" Click="@onOpen" style="@CompeleteStyle" />
                     </Items>
-                </DxMenu> *@
+                </DxMenu> 
 
             </Items>
         </DxMenu>
@@ -601,6 +601,8 @@
 @code {
     bool CloseStatus { get; set; } = false;
     bool OpenStatus { get; set; } = false;
+    private string CompeleteStyle = "float: left; margin-bottom: -41px;  margin-left:288px; z-index: 9999;";
+
     internal string? BaseUrl;
     internal string? FileUrl;
     internal string? DocumentViewUrl;
@@ -659,13 +661,21 @@
     string Message = "Upload";
 
 
-    void onClose()
-    {
-        var nid = _selectedItems.ID;
+    async Task onClose()
+    {                
+        var request = new StatusUpdateQuery(_selectedItems.ID, "Close");
+        await Mediator.Send(request);
+        CloseStatus = false;
+        toastService.ShowToast("Record Close Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await UpdateDataAsync();
     }
-    void onOpen()
-    {
-        var nid = _selectedItems.ID;
+    async Task onOpen()
+    {                
+        var request = new StatusUpdateQuery(_selectedItems.ID, "Open");
+        await Mediator.Send(request);
+        OpenStatus = false;
+        toastService.ShowToast("Record Open Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await UpdateDataAsync();
     }
 
     internal async Task onOpenUrl(string url)
@@ -1065,13 +1075,13 @@
 
         if (_selectedItems.Status == "Open")
         {
-            OpenStatus = true;
-            CloseStatus = false;
+            OpenStatus = false;
+            CloseStatus = true;
         }
         else
         {
-            CloseStatus = true;
-            OpenStatus = false;
+            CloseStatus = false;
+            OpenStatus = true;
         }
 
         StateHasChanged();

@@ -1,118 +1,116 @@
 ﻿@page "/chart"
-@layout NoLayout
 @using System.Collections.Generic
 @using DevExpress.Blazor
+@layout MainLayout
+@using Application.Queries;
+@using Application.Response;
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@using MediatR
+@inject IMediator Mediator
+@using AC.SD.Core.Configuration
+@inject DemoConfiguration Configuration
+@inject DemoThemeService Themes
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
 
-@using DevExpress.DashboardBlazor
-@using DevExpress.DashboardCommon
-@using DevExpress.DashboardWeb
 
-
-<DxDashboard Endpoint="dashboardControl"
-             @bind-WorkingMode="@BoundWorkingMode"
-             @bind-DashboardId="@BoundDashboardId"
-             style="width: 100%; height: 100%;">
-
-    <DxJSCustomization OnScriptsLoading="OnScriptsLoading" Identifier="dxDemo.DashboardJsEvents"></DxJSCustomization>
-</DxDashboard>
-
-
+<DxScheduler DataStorage="@DataStorage"
+             AppointmentInserting="AppointmentInserting"
+             AppointmentRemoving="@AppointmentRemoving"
+             AppointmentUpdating="AppointmentUpdating">
+    <DxSchedulerDayView ShowWorkTimeOnly="true" />
+    <DxSchedulerWeekView ShowWorkTimeOnly="true" />
+    <DxSchedulerMonthView />
+</DxScheduler>
 
 @code {
-
-    [CascadingParameter] public WorkingMode WorkingMode { get; set; }
-    [CascadingParameter] public Action<WorkingMode> WorkingModeChanged { get; set; }
-    WorkingMode BoundWorkingMode
-    {
-        get => WorkingMode;
-        set => WorkingModeChanged(value);
-    }
-
-    [CascadingParameter] public string DashboardId { get; set; }
-    [CascadingParameter] public Action<string> DashboardIdChanged { get; set; }
-    string BoundDashboardId
-    {
-        get => DashboardId;
-        set => DashboardIdChanged(value);
-    }
-
-    public Action<ScriptsLoadingEventArgs> OnScriptsLoading = (args) =>
-    {
-        args.Scripts.Add("./Content/chart-line-options-extension.js");
-        args.Scripts.Add("./Content/online-map-item.js");
-        args.Scripts.Add("./Content/webpage-item.js");
-        args.Scripts.Add("./Content/save-as-extension.js");
-        args.Scripts.Add("./Content/d3-funnel/funnel-d3-item.js");
-    };
-
-    public class WeatherForecast
-    {
-        public DateTime Date { get; set; }
-        public int TemperatureC { get; set; }
-        public double Precipitation { get; set; }
-    }
-    private WeatherForecast[] forecasts;
-
-
-    public WeatherForecast[] GetForecast()
-    {
-        WeatherForecast[] forecasts = new WeatherForecast[] {
-                new WeatherForecast() { Date = new DateTime(2020, 05, 11), TemperatureC = 20,
-                                        Precipitation = 5},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 12), TemperatureC = 22,
-                                        Precipitation = 1.2},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 13), TemperatureC = 18,
-                                        Precipitation = 0.8},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 14), TemperatureC = 19,
-                                        Precipitation = 0},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 15), TemperatureC = 14,
-                                        Precipitation = 3.3},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 16), TemperatureC = 15,
-                                        Precipitation = 1.7},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 17), TemperatureC = 18,
-                                        Precipitation = 1},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 18), TemperatureC = 23,
-                                        Precipitation = 0},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 19), TemperatureC = 21,
-                                        Precipitation = 4.4},
-                new WeatherForecast() { Date = new DateTime(2020, 05, 20), TemperatureC = 20,
-                                        Precipitation = 8.5},
+    public ApplicationUser? applicationUser { get; private set; }
+    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
+        {           
+            AppointmentMappings = new DxSchedulerAppointmentMappings()
+            {
+                Id = "ID",
+                Type = "AppointmentType",
+                Start = "StartDate",
+                End = "EndDate",
+                Subject = "Caption",
+                AllDay = "AllDay",
+                LabelId = "Label",
+                StatusId = "Status",
+                Location = "Location",
+                Description = "Description",
+                RecurrenceInfo = "Recurrence"
+            }
         };
-        return forecasts;
+
+    protected override async void OnInitialized()
+    {       
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        var data1 = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
+        DataStorage.AppointmentsSource = data1.ToList();
     }
 
-
-
-    // ----
-
-
-
-
-    private SessionInfo[] infos;
-    protected override void OnInitialized()
+    async Task AppointmentInserting(SchedulerAppointmentOperationEventArgs e)
     {
-        infos = GetSessionInfos();
-        forecasts = GetForecast();
+        Appointment insertedItem = e.Appointment.SourceObject as Appointment;
+
+        if (insertedItem != null)
+        {
+            var InsertReq = new AddAppointment
+                {
+                    AppointmentType = insertedItem.AppointmentType,
+                    StartDate = insertedItem.StartDate,
+                    EndDate = insertedItem.EndDate,
+                    Caption = insertedItem.Caption,
+                    Label = insertedItem.Label,
+                    Status = insertedItem.Status,
+                    AllDay = insertedItem.AllDay,
+                    Location = insertedItem.Location,
+                    Description = insertedItem.Description,
+                    Recurrence = insertedItem.Recurrence,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now
+                };
+
+            var ans = await Mediator.Send(InsertReq);
+            toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            //await UpdateDataAsync();
+        }
+
+
     }
-    public class SessionInfo
-    {
-        public string Country { get; set; }
-        public int Total { get; set; }
+    async Task AppointmentUpdating(SchedulerAppointmentOperationEventArgs e)
+    {      
+        if (e.Appointment != null && e.Appointment.Id != null)
+        {
+            var InsertReq = new EditAppointment
+                {
+                    ID = (long)e.Appointment.Id,                    
+                    StartDate = e.Appointment.Start,
+                    EndDate = e.Appointment.End,
+                    Caption = e.Appointment.Subject,
+                    Label = (int)e.Appointment.LabelId,
+                    Status = (int)e.Appointment.StatusId,
+                    AllDay = e.Appointment.AllDay,
+                    Location = e.Appointment.Location,
+                    Description = e.Appointment.Description
+                };
+
+            var ans = await Mediator.Send(InsertReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            //await UpdateDataAsync();
+        }
     }
-    public SessionInfo[] GetSessionInfos()
+    async Task AppointmentRemoving(SchedulerAppointmentOperationEventArgs e)
     {
-        SessionInfo[] sales = new SessionInfo[] {
-            new SessionInfo() { Country = "China",          Total = 16591},
-            new SessionInfo() { Country = "United States",  Total = 10286},
-            new SessionInfo() { Country = "India",          Total = 7978},
-            new SessionInfo() { Country = "South Korea",    Total = 6118},
-            new SessionInfo() { Country = "Germany",        Total = 5385},
-            new SessionInfo() { Country = "Turkey",         Total = 5064},
-            new SessionInfo() { Country = "Vietnam",        Total = 2804},
-            new SessionInfo() { Country = "United Kingdom", Total = 2451},
-            new SessionInfo() { Country = "Italy",          Total = 2130},
-            new SessionInfo() { Country = "Brazil",         Total = 2093},
-    };
-        return sales;
+        if (e.Appointment.Id != null)
+        {
+            var ans = await Mediator.Send(new DeleteAppointment((long)e.Appointment.Id));
+            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+               
     }
 }

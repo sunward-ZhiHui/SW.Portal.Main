@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Core.Entities.CustomValidations.AttributeCustomValidation;
 
 namespace Core.Entities
 {
@@ -29,7 +30,7 @@ namespace Core.Entities
         public string RegExp { get; set; }
         public string ListDefault { get; set; }
         public bool IsInternal { get; set; } = false;
-       
+
         public string? DropDownTypeId { get; set; } = null;
         [Required(ErrorMessage = "Data Source is Required")]
         public long? DataSourceId { get; set; }
@@ -52,13 +53,31 @@ namespace Core.Entities
         public int? FormUsedCount { get; set; }
         [NotMapped]
         public bool? IsDataSource { get; set; } = false;
-        
+        [Required(ErrorMessage = "Grid Form is Required")]
+        public long? DynamicFormId { get; set; }
+
+
     }
     public class AttributeHeaderListModel
     {
         public List<DynamicFormSection> DynamicFormSection { get; set; }
         public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute { get; set; }
         public List<AttributeDetails> AttributeDetails { get; set; }
+        public DropDownOptionsGridListModel DropDownOptionsGridListModel { get; set; } = new DropDownOptionsGridListModel();
+    }
+    public class DynamicFormGridModel
+    {
+        public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute { get; set; } = new List<DynamicFormSectionAttribute>();
+        public List<DynamicFormData> DynamicFormData { get; set; } = new List<DynamicFormData>();
+        public List<DynamicFormApproved> DynamicFormApproved { get; set; } = new List<DynamicFormApproved>();
+        public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
+        public List<DynamicForm> DynamicForm { get; set; } = new List<DynamicForm>();
+
+    }
+    public class DropDownGridOptionsModel
+    {
+        public long? DynamicFormId { get; set; }
+        public List<DropDownOptionsModel> DropDownOptionsModels { get; set; } = new List<DropDownOptionsModel>();
     }
     public class DropDownOptionsModel
     {
@@ -67,5 +86,15 @@ namespace Core.Entities
         public long? Id { get; set; }
         public string? Type { get; set; }
         public bool? IsVisible { get; set; } = true;
+        public long? OrderBy { get; set; } = 0;
+        public long AttributeDetailID { get; set; }
+        public string? AttributeDetailName { get; set; }
+        public long? DynamicFormId { get; set; }
     }
+    public class DropDownOptionsGridListModel
+    {
+        public object? ObjectData { get; set; }
+        public List<DropDownGridOptionsModel> DropDownGridOptionsModel { get; set; } = new List<DropDownGridOptionsModel>();
+    }
+
 }

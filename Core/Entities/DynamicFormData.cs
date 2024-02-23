@@ -71,6 +71,8 @@ namespace Core.Entities
         public long? CurrentUserId { get; set; }
         [NotMapped]
         public DynamicFormProfile DynamicFormProfile { get; set; } = new DynamicFormProfile();
+        public long? DynamicFormDataGridId { get; set; }
+        public bool? IsDynamicFormDataGrid { get; set; } = false;
     }
     public class DynamicFormProfile
     {
@@ -105,5 +107,7 @@ namespace Core.Entities
         public string? UserIds { get; set; }
         public string? UserNames { get; set; }
         public string? StatusName { get; set; }
+        public long? DynamicFormDataGridId { get; set; }
+        public bool? IsDynamicFormDataGrid { get; set; } = false;
     }
 }

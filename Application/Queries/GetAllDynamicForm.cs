@@ -19,6 +19,24 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class GetAllByGridForm : PagedRequest, IRequest<List<DynamicForm>>
+    {
+        public long? UserId { get; set; }
+        public GetAllByGridForm(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
+
+    public class GetAllByGridNoForm : PagedRequest, IRequest<List<DynamicForm>>
+    {
+        public long? UserId { get; set; }
+        public GetAllByGridNoForm(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
+
     public class GetAllDynamicFormList : PagedRequest, IRequest<DynamicForm>
     {
         public Guid? ID { get; set; }
@@ -165,10 +183,12 @@ namespace Application.Queries
     {
         public long? Id { get; set; }
         public long? UserId { get; set; }
-        public GetDynamicFormDataById(long? id, long? userId)
+        public long? DynamicFormDataGridId { get; set; }
+        public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId)
         {
             this.Id = id;
             this.UserId = userId;
+            this.DynamicFormDataGridId = dynamicFormDataGridId;
         }
     }
     public class DeleteDynamicFormData : DynamicFormData, IRequest<DynamicFormData>

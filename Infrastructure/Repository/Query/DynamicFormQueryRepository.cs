@@ -73,7 +73,70 @@ namespace Infrastructure.Repository.Query
                 throw (new ApplicationException(exp.Message));
             }
         }
+        public async Task<IReadOnlyList<DynamicForm>> GetAllByGridFormAsync(long? userId)
+        {
+            List<DynamicForm> DynamicForm = new List<DynamicForm>();
+            try
+            {
 
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t6.Name as ProfileName,t5.PlantCode as CompanyName,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
+                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
+                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                     "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
+                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n" +
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n";
+                if (userId > 0)
+                {
+                    var dynamicIds = await GetDynamicFormDataByIdone(userId);
+                    query += "where t1.IsGridForm=1 t1.ID in(" + string.Join(',', dynamicIds) + ")";
+                }
+                else
+                {
+                    query += "where t1.IsGridForm=1;";
+                }
+                using (var connection = CreateConnection())
+                {
+                    DynamicForm = (await connection.QueryAsync<DynamicForm>(query)).ToList();
+                }
+                return DynamicForm;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicForm>> GetAllByNoGridFormAsync(long? userId)
+        {
+            List<DynamicForm> DynamicForm = new List<DynamicForm>();
+            try
+            {
+
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t6.Name as ProfileName,t5.PlantCode as CompanyName,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
+                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
+                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                     "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
+                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n" +
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n";
+                if (userId > 0)
+                {
+                    var dynamicIds = await GetDynamicFormDataByIdone(userId);
+                    query += "where (t1.IsGridForm is null or t1.IsGridForm=0) AND t1.ID in(" + string.Join(',', dynamicIds) + ")";
+                }
+                else
+                {
+                    query += "where t1.IsGridForm is null or t1.IsGridForm=0;";
+                }
+                using (var connection = CreateConnection())
+                {
+                    DynamicForm = (await connection.QueryAsync<DynamicForm>(query)).ToList();
+                }
+                return DynamicForm;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DynamicForm>> GetAllAsync(long? userId)
         {
             List<DynamicForm> DynamicForm = new List<DynamicForm>();
@@ -452,8 +515,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsUpload", dynamicForm.IsUpload);
                         parameters.Add("CompanyId", dynamicForm.CompanyId);
                         parameters.Add("ProfileId", dynamicForm.ProfileId);
-                        var query = "INSERT INTO DynamicForm(Name,ScreenID,SessionID,AttributeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsApproval,FileProfileTypeId,IsUpload,CompanyId,ProfileId) VALUES " +
-                            "(@Name,@ScreenID,@SessionID,@AttributeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsApproval,@FileProfileTypeId,@IsUpload,@CompanyId,@ProfileId)";
+                        parameters.Add("IsGridForm", dynamicForm.IsGridForm);
+                        var query = "INSERT INTO DynamicForm(IsGridForm,Name,ScreenID,SessionID,AttributeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsApproval,FileProfileTypeId,IsUpload,CompanyId,ProfileId) VALUES " +
+                            "(@IsGridForm,@Name,@ScreenID,@SessionID,@AttributeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsApproval,@FileProfileTypeId,@IsUpload,@CompanyId,@ProfileId)";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -503,7 +567,8 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsUpload", dynamicForm.IsUpload);
                         parameters.Add("CompanyId", dynamicForm.CompanyId);
                         parameters.Add("ProfileId", dynamicForm.ProfileId);
-                        var query = " UPDATE DynamicForm SET AttributeID = @AttributeID,Name =@Name,ScreenID =@ScreenID,ModifiedByUserID=@ModifiedByUserID,CompanyId=@CompanyId,ProfileId=@ProfileId," +
+                        parameters.Add("IsGridForm", dynamicForm.IsGridForm);
+                        var query = " UPDATE DynamicForm SET IsGridForm=@IsGridForm,AttributeID = @AttributeID,Name =@Name,ScreenID =@ScreenID,ModifiedByUserID=@ModifiedByUserID,CompanyId=@CompanyId,ProfileId=@ProfileId," +
                             "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsApproval=@IsApproval,IsUpload=@IsUpload,FileProfileTypeId=@FileProfileTypeId WHERE ID = @ID";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
@@ -739,7 +804,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
-                var query = "select t1.*," +
+                var query = "select t1.*,t9.Name DynamicGridName," +
                     "(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible," +
                     "t2.UserName as AddedBy,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
@@ -749,6 +814,7 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
                     "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t8 ON t8.AttributeHeaderDataSourceID=t6.DataSourceId\r\n" +
+                    "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n" +
                     "Where t1.DynamicFormSectionId=@DynamicFormSectionId";
 
                 using (var connection = CreateConnection())
@@ -1122,6 +1188,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("StatusCodeID", dynamicFormData.StatusCodeID);
                         parameters.Add("IsSendApproval", dynamicFormData.IsSendApproval);
                         parameters.Add("FileProfileSessionID", dynamicFormData.FileProfileSessionID);
+                        parameters.Add("DynamicFormDataGridId", dynamicFormData.DynamicFormDataGridId);
                         var ProfileId = dynamicFormData.DynamicFormProfile.ProfileId > 0 ? dynamicFormData.DynamicFormProfile.ProfileId : null;
                         var profileNo = dynamicFormData.ProfileNo;
                         if (dynamicFormData.ProfileId > 0)
@@ -1139,7 +1206,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ProfileNo", profileNo, DbType.String);
                         if (dynamicFormData.DynamicFormDataId > 0)
                         {
-                            var query = "UPDATE DynamicFormData SET DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId,ProfileId=@ProfileId," +
+                            var query = "UPDATE DynamicFormData SET DynamicFormDataGridId=@DynamicFormDataGridId,DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId,ProfileId=@ProfileId," +
                                 "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsSendApproval=@IsSendApproval,ProfileNo=@ProfileNo " +
                                 "WHERE DynamicFormDataId = @DynamicFormDataId;\n\r";
                             query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Update");
@@ -1149,8 +1216,8 @@ namespace Infrastructure.Repository.Query
                         else
                         {
 
-                            var query = "INSERT INTO DynamicFormData(DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID,ProfileId,ProfileNo)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
-                                "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID,@ProfileId,@ProfileNo);\n\r";
+                            var query = "INSERT INTO DynamicFormData(DynamicFormDataGridId,DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID,ProfileId,ProfileNo)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
+                                "(@DynamicFormDataGridId,@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID,@ProfileId,@ProfileNo);\n\r";
                             query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
                             dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
@@ -1225,7 +1292,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.* from DynamicFormData t1 \r\n" +
+                var query = "select t1.*,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid from DynamicFormData t1 \r\n" +
                     "WHERE t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())
@@ -1244,7 +1311,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.*,t2.UserName as AddedBy,\r\nt3.UserName as ModifiedBy,t4.CodeValue as StatusCode,\r\nt5.IsApproval,t5.FileProfileTypeID,t6.Name as FileProfileTypeName,\r\n" +
+                var query = "select t1.*,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t2.UserName as AddedBy,\r\nt3.UserName as ModifiedBy,t4.CodeValue as StatusCode,\r\nt5.IsApproval,t5.FileProfileTypeID,t6.Name as FileProfileTypeName,\r\n" +
                     "(SELECT COUNT(SessionId) from Documents t7 WHERE t7.SessionId=t1.SessionId AND t7.IsLatest=1 AND (t7.IsDelete IS NULL OR t7.IsDelete=0)) as isDocuments\r\n" +
                     "from DynamicFormData t1 \r\nJOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\nJOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormId\r\n" +
@@ -1299,20 +1366,36 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId)
+        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId)
         {
             try
             {
                 var resultData = await GetDynamicFormApprovedByAll();
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", id);
+                parameters.Add("DynamicFormDataGridId", DynamicFormDataGridId);
                 var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name,t5.ScreenID,\r\n" +
-                    "(select COUNT(t6.DocumentID) from Documents t6 where t6.SessionID = t1.SessionID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument\r\n" +
+                    "(select COUNT(t6.DocumentID) from Documents t6 where t6.SessionID = t1.SessionID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid\r\n" +
                     "from DynamicFormData t1\r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID = t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE t1.DynamicFormId =@DynamicFormId";
+                    "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE t1.DynamicFormId =@DynamicFormId\r\n";
+                if (DynamicFormDataGridId == 0 || DynamicFormDataGridId > 0)
+                {
+                    query += "AND t1.DynamicFormDataGridId=@DynamicFormDataGridId;";
+                }
+                else
+                {
+                    if (DynamicFormDataGridId == -1)
+                    {
+
+                    }
+                    else
+                    {
+                        query += "AND t1.DynamicFormDataGridId is null;";
+                    }
+                }
                 var result = new List<DynamicFormData>();
                 using (var connection = CreateConnection())
                 {
@@ -1649,9 +1732,10 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(@"select * from DynamicFormSection where DynamicFormID=" + Id + " order by  SortOrderBy asc;" +
-                        "select t1.*,t5.SectionName,t6.AttributeName,t7.CodeValue as ControlType,t5.DynamicFormID from DynamicFormSectionAttribute t1\r\n" +
+                        "select t1.*,t5.SectionName,t6.AttributeName,t7.CodeValue as ControlType,t6.DropDownTypeID,t6.DataSourceID,t6.DynamicFormID as DynamicFormGridDropDownID,t5.DynamicFormID,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable from DynamicFormSectionAttribute t1\r\n" +
                         "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
                         "JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
+                        "LEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID\r\n" +
                         "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere t5.DynamicFormID=" + Id + " order by t1.SortOrderBy asc;");
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -2687,7 +2771,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var parameters = new DynamicParameters();
-                var query = "select t1.DynamicFormID,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t2.Name,t2.ScreenID from DynamicFormData t1\r\nJOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID";
+                var query = "select t1.DynamicFormID,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID from DynamicFormData t1\r\nJOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID";
                 var result = new List<DynamicFormDataWrokFlow>();
                 using (var connection = CreateConnection())
                 {

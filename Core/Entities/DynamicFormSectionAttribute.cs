@@ -52,8 +52,10 @@ namespace Core.Entities
         public string? DataSourceDisplayName { get; set; }
         [NotMapped]
         public string? DataSourceTable { get; set; }
-        public string? FormToolTips { get; set; } 
-
+        public string? FormToolTips { get; set; }
+        public Guid? DynamicFormSessionId { get; set; }
+        public string? DynamicGridName { get; set; }
+        public long? DynamicFormGridDropDownId { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {

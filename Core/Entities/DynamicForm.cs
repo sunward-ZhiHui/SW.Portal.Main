@@ -46,5 +46,6 @@ namespace Core.Entities
         public string? CompanyName { get; set; }
         [NotMapped]
         public string? ProfileName { get; set; }
+        public bool? IsGridForm { get; set; } = false;
     }
 }

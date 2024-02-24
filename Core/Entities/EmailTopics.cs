@@ -112,6 +112,13 @@ namespace Core.Entities
         public string? UserTag { get; set; }
         [NotMapped]
         public long? UserTagId { get; set; }
+        [NotMapped]
+        public string? AssignFrom { get; set; }
+        [NotMapped]
+        public string? AssignTo { get; set; }
+
+        [NotMapped]
+        public byte[]? Replymsg { get; set; }
 
     }
 }

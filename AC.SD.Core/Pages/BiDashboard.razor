@@ -1,6 +1,24 @@
 ﻿@page "/kumar"
 @layout NoLayout
+@using AC.SD.Core.Model
 @using DevExpress.DashboardBlazor
+@inject NavigationManager Navigator
+@inject DefaultDashboard DashboardController
 
-<DxDashboard Endpoint="api/dashboard" style="width: 100%; height: 100%;">
+<DxDashboard @attributes="@DashboardAttributes" style="width: 100%; height: 100%;">
 </DxDashboard>
+
+@code
+{
+    Dictionary<string, object> DashboardAttributes { get; set; } = new Dictionary<string, object>();
+
+    protected override void OnInitialized()
+    {
+        //var baseUrl = Navigator.BaseUri + "api/DefaultDashboard";
+       // DashboardAttributes["Endpoint"] = DashboardController;
+
+        string dashboardEndpoint = Navigator.BaseUri + "DefaultDashboard";
+
+        DashboardAttributes["Endpoint"] = dashboardEndpoint;
+    }
+}

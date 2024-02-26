@@ -16,6 +16,17 @@
 @inject IConfiguration Configuration
 @inject NavigationManager NavigationManager
 
+ <div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div> 
 <DxGrid Data="_ToDoNotesHistory" @ref="Grid"
         DetailRowDisplayMode="GridDetailRowDisplayMode.Always"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
@@ -37,7 +48,8 @@
         RowClick="OnRowClick"
         RowDoubleClick="OnRowDoubleClick"
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
-        AllowSelectRowByClick="true">
+        AllowSelectRowByClick="true"
+        EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
     <Columns>        
         <DxGridDataColumn FieldName="MainSubject" Caption="Main Subject" ReadOnly="true"  />
         <DxGridDataColumn FieldName="SubjectName" Caption="Subject" ReadOnly="true"  />
@@ -47,10 +59,8 @@
             <CellDisplayTemplate>
                 @{
                     var item = (ToDoNotesHistory)context.DataItem;
-                }
-                <strong>
-                    @item.Description
-                </strong>
+                }                
+                @item.Description                
             </CellDisplayTemplate>
         </DxGridDataColumn> 
  
@@ -102,25 +112,21 @@
             </CellDisplayTemplate>
         </DxGridDataColumn> 
 
-    </Columns>    
-   @*  <DetailRowTemplate>
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
         @{
-            var item = (ToDoNotesHistory)context.DataItem;
+            var types = (ToDoNotesHistory)EditFormContext.EditModel;
         }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Due Date:" ColSpanMd="6">
+                <DxDateEdit @bind-Date="@types.DueDate" TimeSectionVisible="true" />
 
-        <div style="width:100%">
-
-            <div style=" font-size: 14px;">
-                <div style="float: right; font-size: 11px;">
-                    <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
-                    <span style="float: right; margin-top: 6px;    margin-right: 8px;">@item.Status</span>
-                </div>
-            </div>
-            <strong>
-                @item.Description
-            </strong>           
-        </div>
-    </DetailRowTemplate> *@
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Remain Date:" ColSpanMd="6">
+                <DxDateEdit @bind-Date="@types.RemainDate" TimeSectionVisible="true" />
+            </DxFormLayoutItem>             
+        </DxFormLayout>
+    </EditFormTemplate>
 </DxGrid>
 
 <DxPopup @bind-Visible="@UploadPopupVisible"
@@ -250,9 +256,9 @@
         // {
         //     useridsString = string.Join(",", UserIds);
         // }
-        var UpdateReq = new EditToDoNotesHistoryQuery
+        var UpdateReq = new HomeEditToDoNotesHistoryQuery
             {
-                ID = editModel.ID,
+                ID = editModel.ToDoNotesHistoryID,
                 Description = editModel.Description,
                 DueDate = editModel.DueDate,
                 RemainDate = editModel.RemainDate,

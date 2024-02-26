@@ -25,6 +25,7 @@ namespace Core.Repositories.Query
         Task<long> DeleteAsync(long id);
         Task<IReadOnlyList<ViewEmployee>> GetUserLst(string Userid);
         Task<long> StatusUpdateAsync(long ID);
+        Task<long> ToDoStatusUpdateAsync(long ID, string status);
         Task<long> StatusUpdateNotesUsersAsync(long ID);
         
 

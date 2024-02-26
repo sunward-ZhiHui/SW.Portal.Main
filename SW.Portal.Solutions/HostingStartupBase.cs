@@ -132,8 +132,7 @@ namespace SW.Portal.Solutions.ServerSide {
                             "text/json"
                         };
                 });
-                services.AddControllers().AddJsonOptions(ConfigureJsonOptions);
-                services.AddDemoServices();
+                services.AddControllers().AddJsonOptions(ConfigureJsonOptions);                
                 //services.AddTransient<RealtimeService>();
                 //services.AddTransient<EmailAutoRefresh>();
                 //Enable CORS

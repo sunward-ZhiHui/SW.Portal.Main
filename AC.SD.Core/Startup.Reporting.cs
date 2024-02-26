@@ -14,6 +14,11 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
+using AC.SD.Core.Code;
+using DevExpress.DashboardWeb;
+
 
 namespace AC.ShippingDocument.Reporting
 {
@@ -106,7 +111,12 @@ namespace AC.ShippingDocument.Reporting
                 {
                     options.AllowSynchronousIO = true;
                 });
-                
+
+                services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
+                    IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
+                    IFileProvider fileProvider = serviceProvider.GetRequiredService<IWebHostEnvironment>().ContentRootFileProvider;
+                    return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
+                });
 
                 services.AddTransient<DevExpress.DataAccess.Wizard.Services.ICustomQueryValidator, DevExpress.DataAccess.Wizard.Services.CustomQueryValidator>();
                 //services.AddSingleton<IDemoReportSource, DemoReportSource>();

@@ -211,6 +211,21 @@ namespace Application.Handlers.QueryHandlers
         }
     }
 
+    public class HomeEditToDoNotesHistoryHandler : IRequestHandler<HomeEditToDoNotesHistoryQuery, long>
+    {
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public HomeEditToDoNotesHistoryHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+
+        public async Task<long> Handle(HomeEditToDoNotesHistoryQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _ToDoNotesHistoryQueryRepository.UpdateAsync(request);
+            return newlist;
+        }
+    }
+
     public class DeleteToDoNotesHistoryHandler : IRequestHandler<DeleteToDoNotesHistoryQuery, long>
     {
         private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
@@ -251,6 +266,20 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(StatusChangedQuery request, CancellationToken cancellationToken)
         {
             var newlist = await _ToDoNotesHistoryQueryRepository.StatusUpdateAsync(request.ID);
+            return newlist;
+        }
+    }
+    public class StatusUpdateHistoryHandler : IRequestHandler<StatusUpdateQuery, long>
+    {
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public StatusUpdateHistoryHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+
+        public async Task<long> Handle(StatusUpdateQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _ToDoNotesHistoryQueryRepository.ToDoStatusUpdateAsync(request.ID,request.Status);
             return newlist;
         }
     }

@@ -40,4 +40,27 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetAppointmentList : PagedRequest, IRequest<List<Appointment>>
+    {
+        public long UserId { get; private set; }
+        public GetAppointmentList(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
+    public class AddAppointment : Appointment, IRequest<long>
+    {
+    }
+    public class EditAppointment : Appointment, IRequest<long>
+    {
+    }    
+    public class DeleteAppointment : IRequest<long>
+    {
+        public long Id { get; private set; }
+        public DeleteAppointment(long Id)
+        {
+            this.Id = Id;
+        }
+    }
+
 }

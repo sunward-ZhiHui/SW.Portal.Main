@@ -10,7 +10,18 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
-
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Reload" IconCssClass="fa fa-refresh" Click="@onRefresh"/>
+                @* <DxMenuItem Text="Message" IconCssClass="fa fa-commenting" Click="@onReplyMsg" Enabled="@ReplyMsgEnabled" /> *@
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="EmailDueDateGrid" SearchText="@GridSearchText"
         Data="_emailTopicDueDate"
         ShowGroupPanel="true"
@@ -25,8 +36,9 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 232px);"
-        RowClick="OnEmailDueRowClick"
+        CssClass="w-100" style="height: calc(100vh - 285px);"        
+        RowClick="OnRowClick"
+        RowDoubleClick="OnEmailDueRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
     <Columns>    
@@ -41,6 +53,20 @@
                 <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.DueDate)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
+       @*  <DxGridDataColumn FieldName="AssignFrom" Caption="Assign From" MinWidth="100" />
+        <DxGridDataColumn FieldName="AssignTo" Caption="Assign To" MinWidth="100" />
+        <DxGridDataColumn FieldName="Replymsg" Caption="Msg" Width="80"> 
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                }
+                @if(item.Replymsg != null)
+                {
+                    <span class="fa fa-commenting" @onclick="@(() => onReplyMsg())"></span>
+                }
+                
+            </CellDisplayTemplate>
+        </DxGridDataColumn> *@
     </Columns>
   @*   <DetailRowTemplate>
         <EmailSubDueDate Items="(EmailTopics)context.DataItem" />
@@ -50,10 +76,26 @@
     </TotalSummary>
 </DxGrid>
 
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  Width="max(25vw, 550px)" @bind-Visible="@Previewmsg">
+    <BodyContentTemplate>
+        <div style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            @{
+                byte[] htmlBinaryData = _selectedItems.Replymsg; // Your HTML binary data
+                string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
+                @((MarkupString)htmlContent)
+            }
+        </div>
+    </BodyContentTemplate>
+</DxPopup>
+
 @code {
+    DxPopup? popup;
+    bool Previewmsg { get; set; } = false;
+    public bool ReplyMsgEnabled { get; set; } = false;
     IGrid EmailDueDateGrid { get; set; }
     private EmailSubDueDate? RefSubAssignAll { get; set; }
     private List<EmailTopics>? _emailTopicDueDate;
+    private EmailTopics? _selectedItems;
     string SelectedGroup = "none";
     string SelectedReplyId = "none";
     public string filterrowname { get; set; }
@@ -66,6 +108,18 @@
     [Parameter]
     public Action<string> SubViewAllTopicId { get; set; }
 
+    async Task onRefresh()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        _emailTopicDueDate = await Mediator.Send(new GetEmailTopicHome(applicationUser.UserID));
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        EmailDueDateGrid.Reload();
+    }
+    async Task onReplyMsg()
+    {
+        var rlmsg = _selectedItems;
+        Previewmsg = true;
+    }
     protected override async Task OnInitializedAsync()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -80,6 +134,14 @@
             e.CssClass = "alt-item";
             e.CssClass += "non-selectable-row";
         }
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _emailTopicDueDate.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        ReplyMsgEnabled = true;
+        StateHasChanged();
+
     }
     async Task OnEmailDueRowClick(GridRowClickEventArgs e)
     {

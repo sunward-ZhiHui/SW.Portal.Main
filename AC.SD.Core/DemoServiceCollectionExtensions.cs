@@ -1,29 +1,26 @@
 using System;
-using System.Globalization;
 using System.Reflection;
-using AC.SD.Core.Configuration;
-using AC.SD.Core.Services;
-using Blazored.Toast;
-using Core.Repositories.Query;
-using DevExpress.Blazor.DocumentMetadata;
-using DevExpress.Blazor.RichEdit.SpellCheck;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
+using AC.SD.Core.Code;
+using AC.SD.Core.Configuration;
+using AC.SD.Core.Model;
+using AC.SD.Core.Services;
+using Microsoft.AspNetCore.Identity;
+using Blazored.Toast;
+using DevExpress.DashboardAspNetCore;
+using DevExpress.DashboardWeb;
+using DevExpress.Blazor.RichEdit.SpellCheck;
 
 namespace AC.SD.Core
 {
-
-    public static class DemoServiceCollectionExtensions {
-        public static void AddDemoServices(this IServiceCollection services) {
-            //services.AddScoped<WeatherForecastService>();
-            //services.AddScoped<RentInfoDataService>();
-            //services.AddScoped<ContosoRetailDataService>();
-            //services.AddScoped<NwindDataService>();
-            //services.AddScoped<IssuesDataService>();
-            //services.AddScoped<WorldcitiesDataService>();
+    public static class DemoServiceCollectionExtensions
+    {
+        public static void AddDemoServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
+        {
             services.AddDevExpressBlazor(opts =>
             {
                 opts.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5;
@@ -35,41 +32,28 @@ namespace AC.SD.Core
                 {
                     //Write the selected word to a dictionary file
                 };
-                //opts.Dictionaries.Add(new ISpellDictionary
-                //{
-                //    DictionaryPath = "Data.Dictionaries.english.xlg",
-                //    GrammarPath = "Data.Dictionaries.english.aff",
-                //    Culture = "en-US"
-                //});
-                //opts.Dictionaries.Add(new Dictionary
-                //{
-                //    DictionaryPath = "Data.Dictionaries.custom.dic",
-                //    AlphabetPath = "Data.Dictionaries.english.txt",
-                //    Culture = "en-US"
-                //});
             });
+
+            services.AddScoped<DefaultDashboard>();
             services.AddSingleton<RealtimeService>();
             services.AddSingleton<EmailAutoRefresh>();
-            services.AddBlazoredToast();            
+            services.AddBlazoredToast();
             services.AddSingleton<DemoConfiguration>();
             services.AddDevExpressServerSideBlazorReportViewer();
-            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            //        .AddCookie(options =>
-            //        {
-            //            options.LoginPath = "/login";
-            //        });
 
-            //services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IAlertService, AlertService>();          
-            //services.AddScoped<ILocalStorageService, LocalStorageService>();
-            services.AddIdentity<IdentityUser, IdentityRole>(
-                Options => { 
-                    Options.Password.RequireDigit = false;
-                    Options.Password.RequireLowercase = false;
-                    Options.Password.RequireUppercase = false;
-                    Options.Password.RequireNonAlphanumeric  = false;
-                    Options.SignIn.RequireConfirmedEmail = false;
-                });
+            services.AddIdentity<IdentityUser, IdentityRole>(Options => {
+                Options.Password.RequireDigit = false;
+                Options.Password.RequireLowercase = false;
+                Options.Password.RequireUppercase = false;
+                Options.Password.RequireNonAlphanumeric = false;
+                Options.SignIn.RequireConfirmedEmail = false;
+            });
+
+            services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
+                return DashboardUtils.CreateDashboardConfigurator(configuration, environment.ContentRootFileProvider);
+            });
+
+            services.AddScoped<IAlertService, AlertService>();
         }
     }
 }

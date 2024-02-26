@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using DevExpress.Data.Filtering.Helpers;
 using IdentityModel.Client;
 using System.Security.Cryptography;
+using static IdentityModel.OidcConstants;
 
 namespace Infrastructure.Repository.Query
 {
@@ -123,8 +124,152 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        public async Task<List<Appointment>> GetAppointments(long userId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", userId);
+                var query = @"SELECT * from Appointment WHERE AddedByUserID  = @UserId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> AddAppointmentAsync(Appointment appointment)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                       
+                        parameters.Add("AppointmentType", appointment.AppointmentType);
+                        parameters.Add("StartDate", appointment.StartDate);
+                        parameters.Add("EndDate", appointment.EndDate);
+                        parameters.Add("Caption", appointment.Caption);
+                        parameters.Add("Label", appointment.Label);
+                        parameters.Add("Status", appointment.Status);
+                        parameters.Add("AllDay", appointment.AllDay);
+                        parameters.Add("Recurrence", appointment.Recurrence);
+                        parameters.Add("AddedByUserID", appointment.AddedByUserID);
+                        parameters.Add("AddedDate", appointment.AddedDate);
+                        parameters.Add("Location", appointment.Location);
+                        parameters.Add("Description", appointment.Description);
 
 
+                        var query = @"INSERT INTO Appointment (AppointmentType,StartDate,EndDate,Caption,Label,Status,AllDay,Recurrence,AddedByUserID,AddedDate,Location,Description) VALUES (@AppointmentType,@StartDate,@EndDate,@Caption,@Label,@Status,@AllDay,@Recurrence,@AddedByUserID,@AddedDate,@Location,@Description)";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+        
+
+        public async Task<long> UpdateAppointmentAsync(Appointment appointment)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+                       
+                        parameters.Add("StartDate", appointment.StartDate);
+                        parameters.Add("EndDate", appointment.EndDate);
+                        parameters.Add("Caption", appointment.Caption);
+                        parameters.Add("Label", appointment.Label);
+                        parameters.Add("Status", appointment.Status);
+                        parameters.Add("AllDay", appointment.AllDay);                       
+                        parameters.Add("Location", appointment.Location);
+                        parameters.Add("Description", appointment.Description);
+                        parameters.Add("ID", appointment.ID);
+
+
+                        var query = @"UPDATE Appointment SET StartDate = @StartDate,EndDate = @EndDate,Caption = @Caption,Label = @Label,Status = @Status,AllDay = @AllDay,Location = @Location,Description = @Description WHERE ID = @ID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+
+
+        public async Task<long> DeleteAppointmentAsync(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+                        parameters.Add("id", id);
+
+                        var query = @"DELETE FROM Appointment WHERE ID = @id";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
         public async Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerTodoAsync(long UserId)
         {
             try

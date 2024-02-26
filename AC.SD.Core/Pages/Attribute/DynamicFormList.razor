@@ -27,6 +27,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
+                <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -103,11 +104,31 @@
         <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
+
+<DxPopup @bind-Visible="@createEmailpopup"
+         ShowFooter="true"
+         HeaderText="Create Email"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure create Email?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="createEmailYes" />
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
+    [Parameter]
+    public Guid? FormSessionId { get; set; }
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
+    bool createEmailpopup { get; set; } = false;
     private DynamicForm _dynamicForm; public long? FileProfileTypeId { get; set; }
     private DocumentsModel _documentsDmsData;
     public ApplicationUser? applicationUser { get; private set; }
@@ -115,7 +136,7 @@
     bool EditEnabled { get; set; } = false; bool PopupUpload { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
-    bool fileEnabled { get; set; } = false;
+    bool fileEnabled { get; set; } = false; bool emailEnabled { get; set; } = false;
     private List<DynamicFormData> _dynamicformDataList;
     private AttributeHeaderListModel _AttributeHeader;
     private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
@@ -138,7 +159,7 @@
     {
         _selectedItems = null; FileProfileTypeId = null;
         dataColumnNames = new List<DropDownOptionsModel>();
-        EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>();
+        EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false;
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
@@ -173,6 +194,10 @@
                 PanelVisible = true;
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
+                    if(FormSessionId!=null)
+                    {
+                        _dynamicformDataList = _dynamicformDataList.Where(w => w.SessionId == FormSessionId).ToList();
+                    }
                     _dynamicformDataList.ForEach(s =>
                     {
                         dynamic jsonObj = new object();
@@ -324,11 +349,33 @@
                         }
                         _dynamicformObjectDataList.Add(objectData);
                     });
-                    EditEnabled = true; DeleteEnabled = true; fileEnabled = true;
+                    EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
                     FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                    // await DynamicFormOnDms();
                     Grid.SetFocusedRowIndex(0);
+                    // if (FormSessionId != null)
+                    // {
+                    //     var items = _dynamicformDataList.Where(f => f.SessionId == FormSessionId).ToList();
+                    //     if (items != null && items.Count > 0)
+                    //     {
+                    //         _dynamicformDataList = items;
+                    //         _selectedItems = items.FirstOrDefault();
+                    //         FileProfileTypeId = _selectedItems.FileProfileTypeId;
+                    //         Grid.SetFocusedRowIndex(0);
+                    //     }
+                    //     else
+                    //     {
+                    //         _selectedItems = _dynamicformDataList.FirstOrDefault();
+                    //         FileProfileTypeId = _selectedItems.FileProfileTypeId;
+                    //         Grid.SetFocusedRowIndex(0);
+                    //     }
+                    // }
+                    // else
+                    // {
+                    //     _selectedItems = _dynamicformDataList.FirstOrDefault();
+                    //     FileProfileTypeId = _selectedItems.FileProfileTypeId;
+                    //     Grid.SetFocusedRowIndex(0);
+                    // }
                 }
             }
             else
@@ -378,10 +425,10 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
         _selectedItems = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
-        FileProfileTypeId = _selectedItems.FileProfileTypeId;
+        FileProfileTypeId = _selectedItems?.FileProfileTypeId;
         //await DynamicFormOnDms();
         EditEnabled = true;
-        DeleteEnabled = true; fileEnabled = true;
+        DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
     }
     async Task DynamicFormOnDms()
     {
@@ -434,6 +481,41 @@
 
         }
     }
+    void addDetailEmailCreate()
+    {
+        createEmailpopup = true;
+    }
+    async Task createEmailYes()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string backurl = "/" + rep1 + "/" + _selectedItems.SessionId;
+        if (_selectedItems != null)
+        {
+            var insertData = new DynamicFormData
+                {
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = _selectedItems.SessionId,
+                    ProfileNo = _selectedItems.ProfileNo,
+                    StatusCodeID = 1,
+                    DynamicFormDataId = _selectedItems.DynamicFormDataId,
+                    BackUrl = backurl
+                };
+            var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
+            if (response.DynamicFormDataId > 0)
+            {
+                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                createEmailpopup = false;
+                await UpdateDataAsync();
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+        }
+        StateHasChanged();
+    }
     void addEdit()
     {
         string str = NavigationManager.Uri;
@@ -474,7 +556,7 @@
     async Task EulaPopupClosed(PopupClosedEventArgs args)
     {
         Blukdeletepopup = false;
-
+        createEmailpopup = false;
         // await UpdateDataAsync();
     }
     void BackUpload()

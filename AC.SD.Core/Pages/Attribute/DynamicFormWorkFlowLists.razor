@@ -1,4 +1,5 @@
 ﻿@page "/DynamicFormWorkFlowList"
+@page "/DynamicFormWorkFlowList/{SessionId:guid}"
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -22,6 +23,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" />
+                <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -61,10 +63,28 @@
         </Columns>
     </DxGrid>
 </DxLoadingPanel>
+<DxPopup @bind-Visible="@createEmailpopup"
+         ShowFooter="true"
+         HeaderText="Create Email"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure create Email?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="createEmailYes" />
 
+    </FooterContentTemplate>
+</DxPopup>
 
 @code {
-
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    bool createEmailpopup { get; set; } = false;
+    bool emailEnabled { get; set; } = false;
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
     private List<DynamicFormDataWrokFlow> _dynamicForm;
@@ -81,14 +101,33 @@
     }
     async Task UpdateDataAsync()
     {
-        EditEnabled = false; DeleteEnabled = false;
+        EditEnabled = false; DeleteEnabled = false; emailEnabled = false;
         _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID));
         PanelVisible = true;
         if (_dynamicForm != null)
         {
-            EditEnabled = true; DeleteEnabled = true;
-            _selectedItems = _dynamicForm.FirstOrDefault();
-            Grid.SetFocusedRowIndex(0);
+            EditEnabled = true; DeleteEnabled = true; emailEnabled = true;
+            if (SessionId != null)
+            {
+                var items = _dynamicForm.Where(f => f.SessionID == SessionId).ToList();
+                if (items != null && items.Count > 0)
+                {
+                    _dynamicForm = items;
+                    _selectedItems = items.FirstOrDefault();
+                    Grid.SetFocusedRowIndex(0);
+                }
+                else
+                {
+                    _selectedItems = _dynamicForm.FirstOrDefault();
+                    Grid.SetFocusedRowIndex(0);
+                }
+            }
+            else
+            {
+                _selectedItems = _dynamicForm.FirstOrDefault();
+                Grid.SetFocusedRowIndex(0);
+            }
+
         }
         PanelVisible = false;
         StateHasChanged();
@@ -105,7 +144,7 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
         EditEnabled = true;
-        DeleteEnabled = true;
+        DeleteEnabled = true; emailEnabled = true;
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
@@ -118,6 +157,46 @@
         {
             NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
         }
+    }
+
+    void addDetailEmailCreate()
+    {
+        createEmailpopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        createEmailpopup = false;
+    }
+    async Task createEmailYes()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string backurl = "/" + rep1 + "/" + _selectedItems.SessionID;
+        if (_selectedItems != null)
+        {
+            var insertData = new DynamicFormData
+                {
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = _selectedItems.SessionID,
+                    ProfileNo = _selectedItems.ProfileNo,
+                    StatusCodeID = 1,
+                    DynamicFormDataId = _selectedItems.DynamicFormDataId,
+                    BackUrl = backurl
+                };
+            var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
+            if (response.DynamicFormDataId > 0)
+            {
+                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                createEmailpopup = false;
+                await UpdateDataAsync();
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionID;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+        }
+        StateHasChanged();
     }
     public void Dispose()
     {

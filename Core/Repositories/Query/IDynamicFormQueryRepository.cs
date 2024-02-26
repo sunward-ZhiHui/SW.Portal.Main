@@ -62,6 +62,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormWorkFlowForm> GetDynamicFormWorkFlowFormExits(long? dynamicFormWorkFlowSectionId, long? userId, long? dynamicFormDataId);
 
         Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId);
+        Task<DynamicFormData> InsertCreateEmailFormData(DynamicFormData dynamicFormData);
     }
 
 }

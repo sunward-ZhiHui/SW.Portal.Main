@@ -681,4 +681,16 @@ namespace Application.Handlers.QueryHandlers
             return (List<DynamicFormDataWrokFlow>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowListByUser(request.UserId);
         }
     }
+    public class InsertCreateEmailFormDataHandler : IRequestHandler<InsertCreateEmailFormData, DynamicFormData>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public InsertCreateEmailFormDataHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormData> Handle(InsertCreateEmailFormData request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.InsertCreateEmailFormData(request.DynamicFormData);
+        }
+    }
 }

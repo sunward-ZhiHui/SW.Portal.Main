@@ -413,5 +413,13 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class InsertCreateEmailFormData : DynamicFormWorkFlow, IRequest<DynamicFormData>
+    {
+        public DynamicFormData DynamicFormData { get; set; }
+        public InsertCreateEmailFormData(DynamicFormData dynamicFormData)
+        {
+            this.DynamicFormData = dynamicFormData;
+        }
+    }
 }
 

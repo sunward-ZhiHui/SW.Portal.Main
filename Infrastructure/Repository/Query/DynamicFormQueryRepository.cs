@@ -2984,6 +2984,70 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ActivityEmailTopics> GetActivityEmailTopicsExits(Guid? SessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "select t1.* from ActivityEmailTopics t1 WHERE  t1.activityType='DynamicForm' AND t1.SessionId=@SessionId";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<ActivityEmailTopics>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormData> InsertCreateEmailFormData(DynamicFormData dynamicFormData)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var exitsData = await GetActivityEmailTopicsExits(dynamicFormData.SessionId);
+                        if (exitsData == null)
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("activityType", "DynamicForm", DbType.String);
+                            parameters.Add("BackUrl", dynamicFormData.BackUrl, DbType.String);
+                            parameters.Add("subjectName", dynamicFormData.ProfileNo, DbType.String);
+                            parameters.Add("SessionId", dynamicFormData.SessionId, DbType.Guid);
+                            parameters.Add("AddedByUserID", dynamicFormData.AddedByUserID);
+                            parameters.Add("ModifiedByUserID", dynamicFormData.ModifiedByUserID);
+                            parameters.Add("AddedDate", dynamicFormData.AddedDate, DbType.DateTime);
+                            parameters.Add("ModifiedDate", dynamicFormData.ModifiedDate, DbType.DateTime);
+                            parameters.Add("StatusCodeID", dynamicFormData.StatusCodeID);
+                            var query = "INSERT INTO ActivityEmailTopics(subjectName,SessionId,AddedByUserID," +
+                         "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,activityType,BackUrl) VALUES " +
+                         "(@subjectName,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@activityType,@BackUrl)";
+
+                            await connection.ExecuteAsync(query, parameters);
+
+                        }
+                        return dynamicFormData;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 
 }

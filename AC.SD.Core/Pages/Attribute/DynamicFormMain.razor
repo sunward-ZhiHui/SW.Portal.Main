@@ -53,14 +53,14 @@
         formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
         {
             layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(1);
-            layoutItemBuilder.AddAttribute(2, "HeaderTemplate", (RenderFragment)((builder) =>
-            {
-                builder.OpenElement(3, "div");
-                builder.AddContent(4, "Work Information");
-                builder.CloseElement();
-            }));
+    //         layoutItemBuilder.AddAttribute(1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
+    // {
+    //     b.OpenElement(0, "span");
+    //     b.AddContent(0, "Work Information");
+    //     b.CloseElement();
+    // }));
 
-           // layoutItemBuilder.AddAttribute(1, "Caption", "Personal Information");
+           layoutItemBuilder.AddAttribute(1, "Caption", "Personal Information");
             //  layoutItemBuilder.OpenComponent<DxFormLayoutItem>(i++);
             layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
             {

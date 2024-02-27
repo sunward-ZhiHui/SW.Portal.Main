@@ -73,6 +73,8 @@ namespace Core.Entities
         public DynamicFormProfile DynamicFormProfile { get; set; } = new DynamicFormProfile();
         public long? DynamicFormDataGridId { get; set; }
         public bool? IsDynamicFormDataGrid { get; set; } = false;
+        [NotMapped]
+        public string? BackUrl { get; set; }
     }
     public class DynamicFormProfile
     {

@@ -1735,6 +1735,12 @@ else
                     _documentslst = documentslst;
                 }
 
+                if (actItem[0].ActivityType == "DynamicForm")
+                {
+                    var documentslst = await Mediator.Send(new GetDynamicFormDoc(actItem[0].SessionId.Value));
+                    _documentslst = documentslst;
+                }
+
                 if (actItem[0].ActivityType == "ProductionActivity")
                 {
                     if (actItem[0].ActivityMasterId > 0)

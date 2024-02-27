@@ -472,6 +472,16 @@ namespace Application.Queries
         }
 
     }
+    public class GetDynamicFormDoc : PagedRequest, IRequest<List<Documents>>
+    {
+        public Guid SessionId { get; private set; }
+        public GetDynamicFormDoc(Guid sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+
+    }
+    
     public class GetPATypeDocLst : PagedRequest, IRequest<List<Documents>>
     {
         public long Id { get; private set; }

@@ -1366,6 +1366,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ActivityEmailTopicsModel>> GetActivityEmailTopicList(string SessionIds)
+        {
+
+            try
+            {
+                var query = "select  * from ActivityEmailTopics where ActivityType='DynamicForm' AND SessionId in(" + SessionIds + ");";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ActivityEmailTopicsModel>(query, null)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId)
         {
             try
@@ -1403,8 +1419,27 @@ namespace Infrastructure.Repository.Query
                 }
                 if (result != null && result.Count > 0)
                 {
+                    var SessionIds = result.Select(a => a.SessionId).ToList();
+                    var lists = string.Join(',', SessionIds.Select(i => $"'{i}'"));
+                    var _activityEmailTopics = await GetActivityEmailTopicList(lists);
                     result.ForEach(s =>
                     {
+                        var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == s.SessionId);
+                        if (_activityEmailTopicsOne != null)
+                        {
+                            s.EmailTopicSessionId = _activityEmailTopicsOne.EmailTopicSessionId;
+                            if (_activityEmailTopicsOne.EmailTopicSessionId != null)
+                            {
+                                if (_activityEmailTopicsOne.IsDraft == false)
+                                {
+                                    s.IsDraft = false;
+                                }
+                                if (_activityEmailTopicsOne.IsDraft == true)
+                                {
+                                    s.IsDraft = true;
+                                }
+                            }
+                        }
                         if (s.DynamicFormItem != null && IsValidJson(s.DynamicFormItem))
                         {
                             s.ObjectData = JsonConvert.DeserializeObject(s.DynamicFormItem);
@@ -2779,12 +2814,30 @@ namespace Infrastructure.Repository.Query
                 }
                 if (result != null && result.Count > 0)
                 {
-
+                    var SessionIds = result.Select(a => a.SessionID).ToList();
+                    var lists = string.Join(',', SessionIds.Select(i => $"'{i}'"));
+                    var _activityEmailTopics = await GetActivityEmailTopicList(lists);
                     foreach (var item in result)
                     {
                         var results = await GetDynamicFormWorkFlowIds(item.DynamicFormId, item.DynamicFormDataId);
+                        var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == item.SessionID);
                         if (results != null && results.Count > 0)
                         {
+                            if (_activityEmailTopicsOne != null)
+                            {
+                                item.EmailTopicSessionId = _activityEmailTopicsOne.EmailTopicSessionId;
+                                if (_activityEmailTopicsOne.EmailTopicSessionId != null)
+                                {
+                                    if (_activityEmailTopicsOne.IsDraft == false)
+                                    {
+                                        item.IsDraft = false;
+                                    }
+                                    if (_activityEmailTopicsOne.IsDraft == true)
+                                    {
+                                        item.IsDraft = true;
+                                    }
+                                }
+                            }
                             var total = results.Count;
                             var notCompleted = results.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
                             var CompletedCount = results.Where(w => w.IsWorkFlowDone > 0).OrderBy(x => x.SequenceNo).Count();

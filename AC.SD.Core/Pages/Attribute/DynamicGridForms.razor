@@ -318,12 +318,12 @@
           AnimationType="FlyoutAnimationType.Fade"
           PreventCloseOnPositionTargetClick="true"
           HeaderVisible="true"
-          HeaderText="@DynamicFormInfoSection?.SectionName"
-          FooterVisible="false"
+          HeaderText="Instruction"
+          FooterVisible="true"
           CloseOnOutsideClick="true"
           FooterCssClass="custom-flyout-footer"
-          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
-          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+          Width="max(25vw, 250px)"
+          Position=@(FlyoutPosition.Left | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <span>@DynamicFormInfoSection?.Instruction</span>
     </BodyContentTemplate>
@@ -1495,11 +1495,11 @@
                         b.OpenElement(i + 1, "div");
                         b.AddAttribute(i + 1, "style", "margin-left:auto;");
                         b.OpenElement(i + 1, "i");
-                        b.AddAttribute(i + 1, "class", "fa fa-info");
+                        b.AddAttribute(i + 1, "class", "fa fa-info-circle");
                         b.AddAttribute(i + 1, "style", "cursor: pointer;");
                         b.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-SectionInfo-{randomNum}-{a.DynamicFormSectionId}"));
                         b.AddAttribute(i++, "onclick", EventCallback.Factory.Create(this, () => OnSectionInfoClick(a)));
-                        // b.AddAttribute(i + 1, "title", a.Instruction);
+                        b.AddAttribute(i + 1, "title", "Click Here Show Instruction");
                         b.AddAttribute(i + 1, "aria-hidden", true);
                         b.CloseElement();
                         b.CloseElement();

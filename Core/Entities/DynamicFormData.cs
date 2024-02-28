@@ -75,6 +75,8 @@ namespace Core.Entities
         public bool? IsDynamicFormDataGrid { get; set; } = false;
         [NotMapped]
         public string? BackUrl { get; set; }
+        public Guid? EmailTopicSessionId { get; set; }
+        public bool? IsDraft { get; set; }
     }
     public class DynamicFormProfile
     {
@@ -111,5 +113,7 @@ namespace Core.Entities
         public string? StatusName { get; set; }
         public long? DynamicFormDataGridId { get; set; }
         public bool? IsDynamicFormDataGrid { get; set; } = false;
+        public Guid? EmailTopicSessionId { get; set; }
+        public bool? IsDraft { get; set; }
     }
 }

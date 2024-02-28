@@ -4598,7 +4598,7 @@
                     filterrowname = ActiveSessionId;
 
                     ActiveTabIndex = 4;
-                    OnLeftMenuItemClick("Library");
+                    //OnLeftMenuItemClick("Library");
                     isLeftMenuvisible = "Library";
                     MyDayFilterText = lsts[0].TopicName;
                     await Task.Delay(2000); // Delay for 2 seconds
@@ -4610,7 +4610,7 @@
                     _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
                     await LoadData();
-
+                    OnLeftMenuItemClick("Library");
                 }
                 else
                 {

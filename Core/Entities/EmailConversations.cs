@@ -94,6 +94,8 @@ namespace Core.Entities
         public string? ToUserGroup { get; set; }
         public string? CCUserGroup { get; set; }
         public string? ParticipantsUserGroup { get; set; }
+        [NotMapped]
+        public string? DynamicFormName {  get; set; }
 
     }
     public class EmailDocumentModel

@@ -965,7 +965,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,
-                                FC.ReplyId,FC.FileData,FC.AddedByUserID,AET.Comment AS ActCommentName,AET.BackURL,
+                                FC.ReplyId,FC.FileData,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
                                 FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId
                             FROM
@@ -976,6 +976,8 @@ namespace Infrastructure.Repository.Query
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
                             LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
+                            OUTER APPLY(select TOP 1 df.Name from DynamicFormData dfd
+						    inner join DynamicForm df on df.ID = dfd.DynamicFormID where dfd.SessionID =  AET.SessionId)AETN
                             LEFT JOIN EmailNotifications EN ON FC.ID=EN.ConversationId AND EN.UserId = @UserId
                             WHERE FC.ID = @TopicId AND FC.ReplyId = 0 AND ((AET.ActivityEmailTopicID IS NOT NULL AND AET.ActivityType != 'EmailFileProfileType') OR AET.ActivityEmailTopicID IS NULL)
                             ORDER BY FC.AddedDate DESC";

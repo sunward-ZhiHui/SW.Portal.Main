@@ -413,7 +413,7 @@ else
                             @if (ActiveSessionId != null)
                             {
 
-                                string ActivityTypes = ActivityType == "FileProfileType" ? "Sunward Libraries" : "Activity";
+                                string ActivityTypes = ActivityType == "FileProfileType" ? "Sunward Libraries" : ActivityType == "DynamicForm" ? DynamicFormName : "Activity";
                                 
                                  <DxFormLayoutItem Caption=" " ColSpanMd="12">
                                     <div class="replybox">
@@ -1088,6 +1088,7 @@ else
     string? ActComment = "";
     string? ActUserName = "";
     string? ActivityType = "Email";
+    string? DynamicFormName = "DynamicFormName";
     DateTime? ActAddedDate = DateTime.Now;
     byte[]? replyboxHhtmlArray;
     internal List<ApplicationUser> _applicationUsers;  
@@ -1739,6 +1740,9 @@ else
                 {
                     var documentslst = await Mediator.Send(new GetDynamicFormDoc(actItem[0].SessionId.Value));
                     _documentslst = documentslst;
+
+                    var dynamicname = await Mediator.Send(new GetDynamicFormName(actItem[0].SessionId.Value));
+                    DynamicFormName = dynamicname[0].Name;
                 }
 
                 if (actItem[0].ActivityType == "ProductionActivity")

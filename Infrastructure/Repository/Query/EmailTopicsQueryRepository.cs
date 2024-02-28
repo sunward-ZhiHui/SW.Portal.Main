@@ -2523,8 +2523,29 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }       
+        }
+        
+        public async Task<List<DynamicFormData>> GetDynamicFormNameAsync(Guid sessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", sessionId, DbType.Guid);
 
+                var query = @"select df.Name from DynamicFormData dfd
+                            inner join DynamicForm df on df.ID = dfd.DynamicFormID
+                            where dfd.SessionID =  @SessionID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<Documents>> GetDynamicFormDocumentListAsync(Guid sessionId)
         {
             try

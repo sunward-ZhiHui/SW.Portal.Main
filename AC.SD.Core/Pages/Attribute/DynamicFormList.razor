@@ -194,7 +194,7 @@
                 PanelVisible = true;
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
-                    if(FormSessionId!=null)
+                    if (FormSessionId != null)
                     {
                         _dynamicformDataList = _dynamicformDataList.Where(w => w.SessionId == FormSessionId).ToList();
                     }
@@ -481,9 +481,25 @@
 
         }
     }
-    void addDetailEmailCreate()
+    async Task addDetailEmailCreate()
     {
-        createEmailpopup = true;
+        if (_selectedItems != null)
+        {
+            if (_selectedItems.IsDraft == null)
+            {
+                createEmailpopup = true;
+            }
+            if (_selectedItems.IsDraft == true)
+            {
+                var url = NavigationManager.BaseUri + "EmailDrafts";
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            if (_selectedItems.IsDraft == false)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItems.EmailTopicSessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+        }
     }
     async Task createEmailYes()
     {
@@ -509,9 +525,9 @@
             {
                 toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
                 createEmailpopup = false;
-                await UpdateDataAsync();
                 var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                await UpdateDataAsync();
             }
         }
         StateHasChanged();

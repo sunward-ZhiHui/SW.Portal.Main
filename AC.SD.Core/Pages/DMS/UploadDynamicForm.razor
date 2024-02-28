@@ -111,7 +111,7 @@
                 <DxFormLayout CssClass="w-100">
                     <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
-                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="true" AnimationType="LayoutAnimationType.Slide">
+                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="true" AnimationType="LayoutAnimationType.Slide">
                             <DxFormLayoutItem Caption="Profile No" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
                             </DxFormLayoutItem>
@@ -321,6 +321,25 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnWorkFlowYes" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsSectionInfoOpen
+          PositionTarget=@($"#flyout-overview-target-container-SectionInfo-{randomNum}-{DynamicFormInfoSection?.DynamicFormSectionId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="@DynamicFormInfoSection?.SectionName"
+          FooterVisible="false"
+          CloseOnOutsideClick="true"
+          FooterCssClass="custom-flyout-footer"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <span>@DynamicFormInfoSection?.Instruction</span>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSectionInfoOpen = false) />
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     [Parameter]
     public Guid? MainSessionId { get; set; }
@@ -384,6 +403,9 @@
     private List<DynamicFormWorkFlowSection>? _dynamicFormWorkFlowSectionNoWorkFlow;
     private List<int?> _sequenceNoList = new List<int?>();
     bool isWorkflowEnabled { get; set; } = false; private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormList;
+    public bool IsSectionInfoOpen { get; set; } = false;
+    DynamicFormSection DynamicFormInfoSection = new DynamicFormSection();
+    string? randomNum { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -1439,6 +1461,12 @@
     {
         await addWorlflowAdd();
     }
+    void OnSectionInfoClick(DynamicFormSection dynamicFormSection)
+    {
+        IsSectionInfoOpen = true;
+        DynamicFormInfoSection = dynamicFormSection;
+        StateHasChanged();
+    }
     void addWorlflow()
     {
         if (_dynamicformData == null)
@@ -1581,11 +1609,31 @@
                 formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
             {
                 layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
-                layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.End);
+                layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.Start);
                 layoutItemBuilder.AddAttribute(i + 1, "Expanded", k == 0 ? true : false);
                 layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.Slide);
-                layoutItemBuilder.AddAttribute(i + 1, "Caption", a.SectionName);
+                //layoutItemBuilder.AddAttribute(i + 1, "Caption", a.SectionName);
                 layoutItemBuilder.AddAttribute(i + 1, "Visible", isVisible);
+                layoutItemBuilder.AddAttribute(i + 1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
+                {
+                    b.OpenElement(i + 1, "div");
+                    b.AddContent(i + 1, a.SectionName);
+                    b.CloseElement();
+                    if (!string.IsNullOrEmpty(a.Instruction))
+                    {
+                        b.OpenElement(i + 1, "div");
+                        b.AddAttribute(i + 1, "style", "margin-left:auto;");
+                        b.OpenElement(i + 1, "i");
+                        b.AddAttribute(i + 1, "class", "fa fa-info");
+                        b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                        b.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-SectionInfo-{randomNum}-{a.DynamicFormSectionId}"));
+                        b.AddAttribute(i++, "onclick", EventCallback.Factory.Create(this, () => OnSectionInfoClick(a)));
+                        // b.AddAttribute(i + 1, "title", a.Instruction);
+                        b.AddAttribute(i + 1, "aria-hidden", true);
+                        b.CloseElement();
+                        b.CloseElement();
+                    }
+                }));
                 layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
                 {
                     var dynamicFormSectionAttributeData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();

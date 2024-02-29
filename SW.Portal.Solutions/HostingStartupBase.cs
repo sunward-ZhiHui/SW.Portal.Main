@@ -33,6 +33,7 @@ using DevExpress.AspNetCore;
 using DevExpress.DashboardAspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Google.Cloud.Firestore;
 
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
@@ -90,6 +91,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 //app.MapDashboardRoute("api/dashboard", "DefaultDashboard");
                 Configure(app, context.HostingEnvironment);
             };
+            
 
             void ConfigureServices(WebHostBuilderContext context, IServiceCollection services) {
                 Configuration = services.BuildServiceProvider().GetService<IConfiguration>();
@@ -115,6 +117,10 @@ namespace SW.Portal.Solutions.ServerSide {
 
                 services.AddScoped<FirebaseMessagingService>();
                 services.AddScoped<ToastService>();
+                services.AddScoped<IFirebaseSync, FirebaseSync>();
+                // Configure Firestore
+                ConfigureFirestore(services);
+
                 services.AddScoped<Helper>();
                 services.AddServerSideBlazor();
                 services.AddBlazoredToast();
@@ -179,6 +185,16 @@ namespace SW.Portal.Solutions.ServerSide {
             }
         }
 
+        void ConfigureFirestore(IServiceCollection services)
+        {
+            services.AddControllers();
+            services.AddHttpClient();
+
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", "firebase-credentials.json");
+            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
+            FirestoreDb firestoreDb = FirestoreDb.Create("novatonotify"); // Replace with your Firestore project ID
+            services.AddSingleton(_ => firestoreDb);
+        }
         void IHostingStartup.Configure(IWebHostBuilder builder) {
             Configure(builder);
         }

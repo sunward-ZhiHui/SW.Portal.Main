@@ -9,9 +9,7 @@
 @page "/Users"
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
-
-
-
+@inject AC.SD.Core.Services.IFirebaseSync FirebaseSync
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -21,6 +19,7 @@
             <Items>
                 <DxMenuItem Text="Reset Password" IconCssClass="fa fa-key" Click="@ShowPopup" Enabled="@ResetEnabled" />
                 <DxMenuItem Text="@Unlock" IconCssClass="@faunlock" Click="@((e) => UnSetLock(_selectedItems.UserID))" Enabled="@UnlockEnabled" />
+                <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" Click="@((e) => onSync())" />
 
                 @*   <DxMenu Visible="@StatusActive">
                 <Items>
@@ -176,7 +175,19 @@
         PanelVisible = false;
         StateHasChanged();
     }
-
+    private async void onSync()
+    {
+        if (_employeeItems.Count > 0)
+        {
+            await jsRuntime.InvokeAsync<string>("showLoading");
+                foreach (var employee in _employeeItems)
+                {
+                    var result = await FirebaseSync.CheckAddAsync(employee.UserCode, employee.FirstName);
+                }
+            await jsRuntime.InvokeAsync<string>("hideLoading");
+            toastService.ShowToast("User Details Sync Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+    }
     private async void UnSetLock(long? UserID)
     {
         var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);

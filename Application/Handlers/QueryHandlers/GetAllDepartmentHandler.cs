@@ -34,4 +34,16 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewDepartment>)await _queryRepository.GetDepartmentByDivisionAsync(request.DivisionId);
         }
     }
+    public class GetDepartmentByCompanyHandler : IRequestHandler<GetDepartmentByCompany, List<ViewDepartment>>
+    {
+        private readonly IDepartmentQueryRepository _queryRepository;
+        public GetDepartmentByCompanyHandler(IDepartmentQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewDepartment>> Handle(GetDepartmentByCompany request, CancellationToken cancellationToken)
+        {
+            return (List<ViewDepartment>)await _queryRepository.GetDepartmentByCompanyAsync(request.CompanyId);
+        }
+    }
 }

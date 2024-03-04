@@ -21,5 +21,12 @@ namespace Application.Queries
             this.DivisionId = divisionId;
         }
     }
-
+    public class GetDepartmentByCompany : PagedRequest, IRequest<List<ViewDepartment>>
+    {
+        public long? CompanyId { get; set; }
+        public GetDepartmentByCompany(long? companyId)
+        {
+            this.CompanyId = companyId;
+        }
+    }
 }

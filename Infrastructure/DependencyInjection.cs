@@ -164,6 +164,7 @@ namespace Infrastructure
             services.AddScoped<IQuotationHistoryQueryRepository, QuotationHistoryQueryRepository>();
             services.AddScoped<ITempSalesPackInformationQueryRepository, TempSalesPackInformationQueryRepository>();
             services.AddScoped<IUserGroupQueryRepository, UserGroupQueryRepository>();
+            services.AddScoped<IIpirAppQueryRepostitory, IpirAppQueryRepostitory>();
             return services;
         }
     }

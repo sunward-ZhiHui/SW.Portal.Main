@@ -461,6 +461,12 @@
                                                                             <i class="fa fa-arrow-left"></i> Back
                                                                         </button>
                                                                     }
+                                                                    else if (item.ActivityType == "DynamicForm")
+                                                                    {
+                                                                         <button type="button" @onclick="@(() => onBackDynamicType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                            <i class="fa fa-arrow-left"></i> Back
+                                                                        </button>
+                                                                    }
                                                                     else
                                                                     {
                                                                         <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
@@ -4598,7 +4604,7 @@
                     filterrowname = ActiveSessionId;
 
                     ActiveTabIndex = 4;
-                    OnLeftMenuItemClick("Library");
+                    //OnLeftMenuItemClick("Library");
                     isLeftMenuvisible = "Library";
                     MyDayFilterText = lsts[0].TopicName;
                     await Task.Delay(2000); // Delay for 2 seconds
@@ -4610,7 +4616,7 @@
                     _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
                     await LoadData();
-
+                    OnLeftMenuItemClick("Library");
                 }
                 else
                 {
@@ -4902,6 +4908,12 @@
         string script = $"window.open('{url}', '_blank');";
         await JSRuntime.InvokeVoidAsync("eval", script);
         //NavigationManager.NavigateTo(url,true);
+    }
+     async void onBackDynamicType(string url)
+    {
+        var urls = BaseUrl + url;
+        NavigationManager.NavigateTo(urls);
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
     }
     private async Task onreply(long id)
     {

@@ -15,14 +15,14 @@
 
 <DxGrid @ref="AllEmailGrid" SearchText="@GridSearchText"
         Data="_emailTopicAll"
-        VirtualScrollingEnabled="true"
+        VirtualScrollingEnabled="false"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
         ShowAllRows="true"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 235px);"
+        CssClass="w-100" style="height: calc(100vh - 245px);"
         RowClick="OnEmailToRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"        
         AllowSelectRowByClick="true">
@@ -70,14 +70,14 @@
     </DetailRowTemplate>
 
 </DxGrid>
-@* <div style="text-align:center">
+<div style="text-align:center">
     <button @onclick="LoadMore" style="background-color:#000; border-radius:4px; color:#fff !important;">Load More</button>
-</div> *@
+</div> 
 
 
 @code{
     private int pageNumber = 1; // Initial page number
-    private int pageSize = 25; // Number of records per page
+    private int pageSize = 15; // Number of records per page
     private List<EmailTopics> emailTopics = new List<EmailTopics>(); // List to hold all fetched records
 
     protected async Task LoadMore()
@@ -85,7 +85,7 @@
         pageNumber++; // Increment page number
         //var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));
         await JSRuntime.InvokeAsync<string>("showLoading");
-        var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL"));
+        var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL",pageNumber,pageSize));
         _emailTopicAll.AddRange(additionalTopics); // Add additional records to the list
         AllEmailGrid.Reload();
         await JSRuntime.InvokeAsync<string>("hideLoading");
@@ -110,7 +110,7 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await JSRuntime.InvokeAsync<string>("showLoading");
-        _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID,"NULL"));
+        _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID,"NULL",pageNumber,pageSize));
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //NavigationManager.LocationChanged += OnLocationChanged;
     }
@@ -137,7 +137,7 @@
     {
         if(applicationUser != null)
         {
-            _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL"));
+            _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL",pageNumber,pageSize));
         }
         
         if(RefSubAssignAll != null)

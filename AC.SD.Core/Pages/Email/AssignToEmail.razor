@@ -16,17 +16,19 @@
 
 <DxGrid @ref="TOGrid" SearchText="@GridSearchText" 
         Data="_forumTopicTo"
-        VirtualScrollingEnabled="true"
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        VirtualScrollingEnabled="false"   
         KeyFieldName="ID"
-        CustomizeElement="Grid_CustomizeElement"        
-        PageSizeSelectorVisible="true"        
-        ShowAllRows="true"
+        CustomizeElement="Grid_CustomizeElement"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        ShowAllRows="false"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 235px);"
-        RowClick="OnEmailToRowClick"
-        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        RowClick="OnEmailToRowClick"     
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />

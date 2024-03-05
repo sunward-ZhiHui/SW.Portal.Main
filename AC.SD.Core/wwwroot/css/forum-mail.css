@@ -16,9 +16,12 @@
     font-size: 10px;
     color: darkred;    
 }
-.HiddenToggle
+.TxtRed
 {
-    display:none;
+    color:red;
+}
+.HiddenToggle {
+    display: none;
 }
 .container-header {
     display: flex;

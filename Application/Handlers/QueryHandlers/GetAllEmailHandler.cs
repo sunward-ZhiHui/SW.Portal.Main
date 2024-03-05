@@ -208,7 +208,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicAll request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicAllList(request.UserId,request.SearchTxt);
+            return await _emailTopicsQueryRepository.GetTopicAllList(request.UserId,request.SearchTxt,request.PageNumber,request.PageSize);
 
         }
     }

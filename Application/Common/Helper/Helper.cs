@@ -13,10 +13,19 @@ namespace Application.Common.Helper
             // Define your desired date format here
             return dateTime?.ToString("dd-MMM-yyyy hh.mm tt");
         }
-        public static string FormatDate(DateTime dateTime)
+        public static string FormatDate(DateTime? dateTime)
         {
             // Define your desired date format here
-            return dateTime.ToString("dd-MMM-yyyy");
+            if (dateTime.HasValue)
+            {
+                // Define your desired date format here
+                return dateTime.Value.ToString("dd-MMM-yyyy");
+            }
+            else
+            {
+                // Handle the case when the dateTime is null
+                return string.Empty; // or any other appropriate handling
+            }
         }
         public static string FormatMonthYear(DateTime dateTime)
         {

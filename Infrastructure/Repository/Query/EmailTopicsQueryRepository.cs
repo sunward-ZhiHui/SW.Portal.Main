@@ -17,6 +17,7 @@ using DevExpress.Data.Filtering.Helpers;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata;
 using Infrastructure.Data;
+using Microsoft.VisualBasic;
 
 namespace Infrastructure.Repository.Query
 {
@@ -478,7 +479,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicAllList(long UserId,string searchTxt)
+        public async Task<List<EmailTopics>> GetTopicAllList(long UserId,string searchTxt,int pageNumber,int pageSize)
         {
             try
             {
@@ -489,6 +490,8 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("searchtxt", searchTxt);
+                        parameters.Add("PageNumber", pageNumber);
+                        parameters.Add("PageSize", pageSize);
                         parameters.Add("Option", "SELECT_ASSIGN_ALL");
 
                         //var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 300);
@@ -703,6 +706,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);
                         parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_TO");
                         
@@ -2175,16 +2179,40 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("DueDate", emailConversations.DueDate);
+                            parameters.Add("NoOfDays", emailConversations.NoOfDays);                        
                             parameters.Add("ID", emailConversations.ID);
                             parameters.Add("TopicId", emailConversations.TopicID);
                             parameters.Add("ModifiedByUserID", emailConversations.ModifiedByUserID);
                             parameters.Add("ModifiedDate", emailConversations.ModifiedDate);
 
-                            var query = " UPDATE EmailConversations SET DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+                        DateTime expiryDueDate = DateTime.MinValue;
+                        if (emailConversations.DueDate.HasValue)
+                        {
+                            expiryDueDate = (emailConversations.DueDate.Value).AddDays(emailConversations.NoOfDays);
+                        }
 
-                            var emailquery = "UPDATE EmailTopics SET DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
+                        parameters.Add("ExpiryDueDate", expiryDueDate);
 
-                            var ckquery = "SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicId AND ReplyId = 0 ORDER BY ID";
+                        var query = "";
+                        var emailquery = "";
+
+                        if (emailConversations.ModifiedByUserID != emailConversations.UserId)
+                        {
+                            query = " UPDATE EmailConversations SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+
+                            emailquery = "UPDATE EmailTopics SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
+
+                        }
+                        else
+                        {
+                            query = " UPDATE EmailConversations SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+
+                            emailquery = "UPDATE EmailTopics SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
+
+                        }
+
+
+                        var ckquery = "SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicId AND ReplyId = 0 ORDER BY ID";
                             var actresult = await connection.QueryAsync<EmailConversations>(ckquery, parameters);
 
 

@@ -1123,15 +1123,21 @@
         <DataAnnotationsValidator />
         <div class="row">
             <div class="col-md-12" style="padding-bottom: 12px">
-                <label for="DueDate"> DueDate: </label>
+                <label for="DueDate"> Due Date: </label>
                 <DxDateEdit @bind-Date="@_dataSubjectDuDate.DueDate"
                             NullText="Select a date..."
-                                    Mask="dd/MMMM/yyyy"
+                                    MinDate="minDueDate"
+                            Mask="dd/MMMM/yyyy"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             ShowValidationIcon="true"
                             CssClass="cw-320">
                 </DxDateEdit>
                 <ValidationMessage For="@(() => _dataSubjectDuDate.DueDate)" />
+                <div style="display: @(IsSubjectNoOfDays ? "block" : "none")">
+                    <label for="NoOfDays"> No Of Days: </label>
+                    <DxSpinEdit @bind-Value="@_dataSubjectDuDate.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0"></DxSpinEdit>
+                </div>
+                
             </div>
             <div class="col-md-12">
                 <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
@@ -1295,7 +1301,7 @@
 <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
-            <span> @MessageBody</span>
+            <span class="@((MessageHeader == "Warning Info" ? "TxtRed" :""))"> @MessageBody</span>
         </div>
     </BodyTemplate>
 </DxPopup>
@@ -1657,7 +1663,7 @@
 
 @code {
 
-     bool IsUserGroupToOpen { get; set; } = false;
+    bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;
     async Task OnButtonUserGroupToClick()
     {
@@ -1695,7 +1701,7 @@
     {
     }
 
-     void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
     {
         if (values != null)
         {
@@ -2065,6 +2071,10 @@
                 else if (contentType == "video")
                 {
                     AcceptedFileTypes = new List<string>() { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".mpg", "mpeg" };
+                }
+                else if (contentType == "audio")
+                {
+                    AcceptedFileTypes = new List<string>() { "audio/*" };
                 }
                 else
                 {
@@ -2518,6 +2528,7 @@
 
 
     bool IsDescriptionOpen { get; set; } = false;
+    bool IsSubjectNoOfDays {get;set;} = false;
     bool IsRenameOpen { get; set; } = false;
     bool IsFilterOpen { get; set; } = false;
     public bool IsExpiryDateOpen { get; set; } = false;
@@ -2737,7 +2748,7 @@
     bool ErrorVisible { get; set; } = false;
     string? MyError { get; set; }
     [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai"};
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*","audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai"};
     public List<string> AllowedFileExtensions { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
     public DocumentFormat MyDocumentFormat { get; set; }
     private string? BaseUrl;
@@ -2857,7 +2868,8 @@
     private class Model
     {
         [Required(ErrorMessage = "Due Date is required")]
-        public DateTime? DueDate { get; set; }      
+        public DateTime? DueDate { get; set; }    
+        public int NoOfDays { get; set; }  
     }
     private class UserTagData
     {
@@ -2901,6 +2913,7 @@
     bool isFileUpload = false;
     bool isDueDate =false;
     bool isSubjectDueDate = false;
+    DateTime minDueDate = DateTime.MinValue;
     bool isUserTagChange = false;
     private List<EmailActivityCatgorys>? _UserTagList;
     bool isCancelDueDate = false;
@@ -3358,6 +3371,22 @@
         if(CurrentEmailConversations != null)
         {
             _dataSubjectDuDate.DueDate = CurrentEmailConversations.DueDate;
+            _dataSubjectDuDate.NoOfDays = CurrentEmailConversations.NoOfDays;
+            
+            if (CurrentEmailConversations.DueDate.HasValue)
+            {
+                 minDueDate = CurrentEmailConversations.DueDate.Value;
+            }
+           
+
+            if(applicationUser.UserID != CurrentEmailConversations.UserId)
+            {
+                IsSubjectNoOfDays = false;
+            }
+            else
+            {
+                IsSubjectNoOfDays = true;
+            }
         }
 
     }
@@ -3479,18 +3508,68 @@
     }
 
     async void SubmitSubjectDueDate()
-    {
-        var UpdateReq = new UpdateEmailTopicSubjectDueDate
-            {
-                //ID = long.Parse(@SelectedGroup),
-                ID = CurrentEmailConversations.ID,
-                TopicID = CurrentEmailConversations.TopicID,
-                DueDate = _dataSubjectDuDate.DueDate,
-                ModifiedByUserID = applicationUser.UserID,
-                ModifiedDate = DateTime.Now
-            };
+    {       
 
-        var result = await Mediator.Send(UpdateReq);
+        if(applicationUser.UserID != CurrentEmailConversations.UserId)
+        {
+            if (CurrentEmailConversations.DueDate.HasValue)
+            {
+
+                DateTime actualDueDate = CurrentEmailConversations.DueDate.Value;
+
+
+                if (CurrentEmailConversations.ExpiryDueDate >= _dataSubjectDuDate.DueDate)
+                {
+                   await updateDueDate();
+                }
+                else
+                {
+                    onShowPopupMessage("Warning Info", "Should you decide to extend the deadline, please update the due date accordingly in our records. However, if no action is taken within the next ("+ @Application.Common.Helper.Helper.FormatDate(CurrentEmailConversations.ExpiryDueDate) +") days, please reach out to your administrator or supervisor for further assistance and guidance.");
+                }
+            }
+            else
+            {
+                await updateDueDate();
+            }
+
+        }
+        else
+        {
+           await updateDueDate();
+        }
+        
+
+       
+
+        isSubjectDueDate = false;
+        //onShowPopupMessage("success", "Updated DueDate Successfully");
+        if (RTopicId == 0)
+        {
+            await LoadData();
+        }
+        else
+        {
+            await LoadReplyData();
+        }
+        isOpenSubjectPop = false;
+        StateHasChanged();
+    }
+
+    async Task updateDueDate()
+    {
+         var UpdateReq = new UpdateEmailTopicSubjectDueDate
+                {
+                    //ID = long.Parse(@SelectedGroup),
+                    ID = CurrentEmailConversations.ID,
+                    TopicID = CurrentEmailConversations.TopicID,
+                    NoOfDays = _dataSubjectDuDate.NoOfDays,
+                    DueDate = _dataSubjectDuDate.DueDate,
+                    UserId = CurrentEmailConversations.UserId,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now
+                };
+
+            var result = await Mediator.Send(UpdateReq);
 
         isSubjectDueDate = false;
         //onShowPopupMessage("success", "Updated DueDate Successfully");
@@ -5287,6 +5366,11 @@
     
     private async Task HandleValidSubmit()
     {
+        if (loading)
+        {
+            return; // Prevent multiple submissions
+        }
+
         loading = true;        
         //var contentdd = msgContent;
         //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);

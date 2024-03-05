@@ -45,7 +45,7 @@ namespace SW.Portal.Solutions.Controllers
 
         
         [HttpGet("GetEmailList")]
-        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetList(string mode, long UserId, string SearchTxt)
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetList(string mode, long UserId, string SearchTxt,int pageNumber, int pageSize)
         {
             List<Core.Entities.EmailTopics> result = null;
             var response = new ResponseModel<EmailTopicViewModel>();
@@ -64,7 +64,7 @@ namespace SW.Portal.Solutions.Controllers
             }
             else if (mode == "All")
             {
-                result = await _mediator.Send(new GetEmailTopicAll(UserId, SearchTxt));
+                result = await _mediator.Send(new GetEmailTopicAll(UserId, SearchTxt, pageNumber, pageSize));
             }
             else
             {

@@ -1032,7 +1032,7 @@ else
 
     bool IsDraftEnabled { get; set; } = false;
     [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai" };
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*","audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai" };
     internal DxUpload? uploadComponent;
     Guid? _sessionId;
     string? MyError { get; set; }

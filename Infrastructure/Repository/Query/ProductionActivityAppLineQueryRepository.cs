@@ -657,9 +657,20 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("SessionId", value.SessionID, DbType.Guid);
+                        parameters.Add("SessionId", value.SessionID == null ? value.SessionId : value.SessionID, DbType.Guid);
                         var query = string.Empty;
-                        query += "Delete from  ProductionActivityAppLineDoc WHERE SessionId=@SessionId;";
+                        if (value.Type == "Production Activity")
+                        {
+                            query += "Delete from  ProductionActivityAppLineDoc WHERE SessionId=@SessionId;";
+                        }
+                        if (value.Type == "Production Routine")
+                        {
+                            query += "Delete from  ProductionActivityRoutineAppLineDoc WHERE SessionId=@SessionId;";
+                        }
+                        if (value.Type == "IpirApp")
+                        {
+                            query += "Delete from  IpirAppSupportDoc WHERE SessionId=@SessionId;";
+                        }
                         query += "Update Documents Set Islatest=0  Where SessionId=@SessionId;";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         return value;

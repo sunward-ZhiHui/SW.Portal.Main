@@ -157,4 +157,12 @@ namespace Core.EntityModels
         public long? ActivityStatusId { get; set; }
 
     }
+    public class MultipleIpirAppItemLists
+    {
+
+        public List<Documents> Documents { get; set; } = new List<Documents>();
+        public List<ApplicationUser> ApplicationUser { get; set; } = new List<ApplicationUser>();
+        public List<IpirAppIssueDep> IpirAppIssueDep { get; set; } = new List<IpirAppIssueDep>();
+
+    }
 }

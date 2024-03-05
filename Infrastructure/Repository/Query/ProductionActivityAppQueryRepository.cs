@@ -165,6 +165,12 @@ namespace Infrastructure.Repository.Query
                     query = "select t1.SessionID,t1.DocumentID from documents t1 JOIN ProductionActivityRoutineAppLineDoc t2 ON t1.DocumentID=t2.DocumentID where t2.ProductionActivityRoutineAppLineId=@ProductionActivityRoutineAppLineId";
 
                 }
+                if (Type == "IpirApp")
+                {
+                    parameters.Add("IpirAppID", ProductionActivityAppLineId);
+                    query = "select t1.SessionID,t1.DocumentID from documents t1 JOIN IpirAppSupportDoc t2 ON t1.DocumentID=t2.DocumentID where t2.IpirAppID=@IpirAppID";
+
+                }
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
@@ -196,6 +202,7 @@ namespace Infrastructure.Repository.Query
                             {
                                 result.ForEach(s =>
                                 {
+                                    s.Type = Type;
                                     var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
                                     lastIndex = lastIndex > 0 ? lastIndex : 0;
                                     var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";

@@ -57,5 +57,6 @@ namespace Core.EntityModels
         public DateTime StartDate { get; set; } = DateTime.Now;
         [Required(ErrorMessage = "Section is Required")]
         public long? DynamicFormSectionId { get; set; } = 0;
+        public long? IpirAppId { get; set; }
     }
 }

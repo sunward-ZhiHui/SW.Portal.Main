@@ -339,6 +339,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
         public async Task<DocumentsUploadModel> InsertCreateDocument(DocumentsUploadModel value)
         {
             try
@@ -527,6 +528,10 @@ namespace Infrastructure.Repository.Query
                         {
                             await InsertSupportingDocumentRoutineLink(value);
                         }
+                        if (value.Type == "IpirApp")
+                        {
+                            await InsertIpirAppSupportDocLink(value);
+                        }
                         return value;
                     }
                     catch (Exception exp)
@@ -635,6 +640,43 @@ namespace Infrastructure.Repository.Query
                             var linkquery = "INSERT INTO [ProductionActivityAppLineDoc](ProductionActivityAppLineId,Type,DocumentId) " +
                            "OUTPUT INSERTED.ProductionActivityAppLineDocId VALUES " +
                           "(@ProductionActivityAppLineId,@Type,@DocumentId)";
+                            await connection.ExecuteAsync(linkquery, LinkDocparameters);
+                        }
+                        connection.Close();
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsUploadModel> InsertIpirAppSupportDocLink(DocumentsUploadModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var DocuId = await GetDocumentIdByPathName(value);
+                        if (DocuId != null)
+                        {
+                            var LinkDocparameters = new DynamicParameters();
+                            LinkDocparameters.Add("IpirAppID", value.IpirAppId);
+                            LinkDocparameters.Add("SessionId", DocuId.SessionId, DbType.Guid);
+                            LinkDocparameters.Add("Type", value.Type, DbType.String);
+                            LinkDocparameters.Add("DocumentId", DocuId.DocumentId);
+                            var linkquery = "INSERT INTO [IpirAppSupportDoc](IpirAppID,Type,DocumentId,SessionId) " +
+                           "OUTPUT INSERTED.IpirAppSupportDocId VALUES " +
+                          "(@IpirAppID,@Type,@DocumentId,@SessionId)";
                             await connection.ExecuteAsync(linkquery, LinkDocparameters);
                         }
                         connection.Close();
@@ -926,6 +968,13 @@ namespace Infrastructure.Repository.Query
                         values.FileSessionId = value.FileSessionId;
                         values.FilePath = value.FilePath;
                         await InsertSupportingDocumentRoutineLink(values);
+                    }
+                    if (values.Type == "IpirApp")
+                    {
+                        values.SessionId = value.FileSessionId;
+                        values.FileSessionId = value.FileSessionId;
+                        values.FilePath = value.FilePath;
+                        await InsertIpirAppSupportDocLink(values);
                     }
                 });
                     if (!string.IsNullOrEmpty(query))

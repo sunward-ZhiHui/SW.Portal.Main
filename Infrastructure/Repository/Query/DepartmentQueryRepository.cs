@@ -71,6 +71,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        public async Task<IReadOnlyList<ViewDepartment>> GetDepartmentByCompanyAsync(long? companyId)
+        {
+            try
+            {
+                var query = "select  * from view_Department  WHERE companyId = @companyId";
+                var parameters = new DynamicParameters();
+                parameters.Add("companyId", companyId, DbType.Int64);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewDepartment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

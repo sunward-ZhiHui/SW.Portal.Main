@@ -638,7 +638,7 @@ else
 </DxFlyout>
 
 @code {
-
+    private int submitCount = 0;
     bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;
     async Task OnButtonUserGroupToClick()
@@ -1491,6 +1491,7 @@ else
         await JSRuntime.InvokeAsync<string>("hideLoading");
         NavigationManager.NavigateTo($"CreateEmail");
         isSending = false;
+        submitCount = 0;
 
     }
     internal async void onClearAll()
@@ -1552,6 +1553,7 @@ else
         await JSRuntime.InvokeAsync<string>("hideLoading");
         NavigationManager.NavigateTo($"CreateEmail");
         isSending = false;
+        submitCount = 0;
 
     }
     internal async void onRestText()
@@ -1607,6 +1609,7 @@ else
         await JSRuntime.InvokeAsync<string>("hideLoading");
         NavigationManager.NavigateTo($"CreateEmail");
         isSending = false;
+        submitCount = 0;
     }
     internal void onSubmit()
     {
@@ -1890,168 +1893,174 @@ else
     }    
 
     async Task HandleValidSubmit()
-    {      
-        StateHasChanged();
-        isSending = true;
-        await JSRuntime.InvokeAsync<string>("showLoading");
-        participantIds.Clear();
-        selectedToIds.Clear();
-        SelectedCCIds.Clear();
-
-        var lslsl = Data.ToIds;
-
-        if (Data.ToIds.Count() == 0)
+    {    
+        if (isSending)
         {
-            Data.ToIds = null;
-            toastService.ShowToast("Please Select To", AC.SD.Core.Services.ToastLevel.Error);
-            await JSRuntime.InvokeAsync<string>("hideLoading");
-            isSending = false;
-            return;
+            return; // Prevent multiple submissions
         }
 
-        var sToIds = Data.ToIds;
-        var sCCIds = Data.CCIds;
-
-        List<long> concatList = null;
-        if(sCCIds != null)
+        if(submitCount == 0)
         {
-            concatList = sToIds.Concat(sCCIds).ToList();
-        }
-        else
-        {
-            concatList = sToIds.ToList();
-        }
+            isSending = true;
+            await JSRuntime.InvokeAsync<string>("showLoading");
+            participantIds.Clear();
+            selectedToIds.Clear();
+            SelectedCCIds.Clear();
 
-        //concatList = sToIds.Concat(sCCIds).ToList();
+            var lslsl = Data.ToIds;
 
-        foreach (var itm in concatList)
-        {
-            var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
-
-            for(var i=0;i<ls.Count;i++)
+            if (Data.ToIds.Count() == 0)
             {
-                participantIds.Add(ls[i].UserID.Value);
-            }          
-        }
+                Data.ToIds = null;
+                toastService.ShowToast("Please Select To", AC.SD.Core.Services.ToastLevel.Error);
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+                isSending = false;
+                return;
+            }
 
-        participantIds.Add(applicationUser.UserID);
+            var sToIds = Data.ToIds;
+            var sCCIds = Data.CCIds;
 
-        if (Data.OnBehalf != null)
-        {
-            participantIds.Add(Data.OnBehalf.Value);
-        }
-
-        if(draftId == 0)
-        {
-            if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
+            List<long> concatList = null;
+            if (sCCIds != null)
             {
-                participantIds.Remove(applicationUser.UserID);
-                applicationAddedByUserID = Data.OnBehalf.Value;
-                Data.OnBehalf = applicationUser.UserID;
+                concatList = sToIds.Concat(sCCIds).ToList();
             }
             else
             {
-                applicationAddedByUserID = applicationUser.UserID;
+                concatList = sToIds.ToList();
             }
-        }
-        else
-        {
-            applicationAddedByUserID = applicationUser.UserID;
-        }
 
+            //concatList = sToIds.Concat(sCCIds).ToList();
 
-
-
-
-        foreach(var itm in sToIds)
-        {
-            var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
-
-            for (var i = 0; i < ls.Count; i++)
-            {
-                selectedToIds.Add(ls[i].UserID.Value);
-            }
-        }
-        if(sCCIds != null)
-        {
-            foreach (var itm in sCCIds)
+            foreach (var itm in concatList)
             {
                 var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
 
                 for (var i = 0; i < ls.Count; i++)
                 {
-                    SelectedCCIds.Add(ls[i].UserID.Value);
+                    participantIds.Add(ls[i].UserID.Value);
                 }
             }
-        }
 
+            participantIds.Add(applicationUser.UserID);
 
+            if (Data.OnBehalf != null)
+            {
+                participantIds.Add(Data.OnBehalf.Value);
+            }
 
-        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
-
-
-
-
-        if (fileContent.Length == 480)
-        {
-            toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
-            await JSRuntime.InvokeAsync<string>("hideLoading");
-            isSending = false;
             if (draftId == 0)
             {
-                loading = false;
+                if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
+                {
+                    participantIds.Remove(applicationUser.UserID);
+                    applicationAddedByUserID = Data.OnBehalf.Value;
+                    Data.OnBehalf = applicationUser.UserID;
+                }
+                else
+                {
+                    applicationAddedByUserID = applicationUser.UserID;
+                }
             }
             else
             {
-                loadingdraft = false;
+                applicationAddedByUserID = applicationUser.UserID;
             }
-            return;
-        }
 
 
-        await msgrichEdit.SaveDocumentAsync();
-        using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
-        byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
-        server.LoadDocument(fileContent1);
-        server.Options.Export.Html.EmbedImages = true;
-        byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
 
 
-        var plistuniquevalue = participantIds.Distinct().ToList();
-        string participantidsString = string.Join(",", plistuniquevalue); // convert the array to a comma-separated string
-        string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
-        string ccidsString = string.Join(",", SelectedCCIds); // convert the array to a comma-separated string
 
-        DateTime? nullableDateTime = DateTime.Now;
+            foreach (var itm in sToIds)
+            {
+                var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
 
-        var susertype = Data.UserType;
+                for (var i = 0; i < ls.Count; i++)
+                {
+                    selectedToIds.Add(ls[i].UserID.Value);
+                }
+            }
+            if (sCCIds != null)
+            {
+                foreach (var itm in sCCIds)
+                {
+                    var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
 
-        var sToUserGroup = string.Join(",", Data.ToUserGroupIds);
-        var sCCUserGroup = "";
-        if(Data.CCUserGroupIds != null)
-        {
-            sCCUserGroup = string.Join(",", Data.CCUserGroupIds);
-        }
-        else
-        {
-            sCCUserGroup = "";
-        }
+                    for (var i = 0; i < ls.Count; i++)
+                    {
+                        SelectedCCIds.Add(ls[i].UserID.Value);
+                    }
+                }
+            }
 
-        var sParticipantsUserGroup = "";
-        if(sCCUserGroup != null)
-        {
-            sParticipantsUserGroup = string.Join(",", sToUserGroup, sCCUserGroup);
-        }
-        else
-        {
-            sParticipantsUserGroup = string.Join(",", Data.ToUserGroupIds);            
-        }
 
-        
 
-       
+            byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
 
-        var createReq = new CreateEmailTopics
+
+
+
+            if (fileContent.Length == 480)
+            {
+                toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+                isSending = false;
+                if (draftId == 0)
+                {
+                    loading = false;
+                }
+                else
+                {
+                    loadingdraft = false;
+                }
+                return;
+            }
+
+
+            await msgrichEdit.SaveDocumentAsync();
+            using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+            byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+            server.LoadDocument(fileContent1);
+            server.Options.Export.Html.EmbedImages = true;
+            byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
+
+            var plistuniquevalue = participantIds.Distinct().ToList();
+            string participantidsString = string.Join(",", plistuniquevalue); // convert the array to a comma-separated string
+            string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
+            string ccidsString = string.Join(",", SelectedCCIds); // convert the array to a comma-separated string
+
+            DateTime? nullableDateTime = DateTime.Now;
+
+            var susertype = Data.UserType;
+
+            var sToUserGroup = string.Join(",", Data.ToUserGroupIds);
+            var sCCUserGroup = "";
+            if (Data.CCUserGroupIds != null)
+            {
+                sCCUserGroup = string.Join(",", Data.CCUserGroupIds);
+            }
+            else
+            {
+                sCCUserGroup = "";
+            }
+
+            var sParticipantsUserGroup = "";
+            if (sCCUserGroup != null)
+            {
+                sParticipantsUserGroup = string.Join(",", sToUserGroup, sCCUserGroup);
+            }
+            else
+            {
+                sParticipantsUserGroup = string.Join(",", Data.ToUserGroupIds);
+            }
+
+
+
+
+
+            var createReq = new CreateEmailTopics
                 {
                     TopicName = Data.TopicName,
                     StartDate = DateTime.Now,
@@ -2062,10 +2071,10 @@ else
                     OverDue = Data.OverDue,
                     IsAllowParticipants = Data.IsAllowParticipants,
                     NotifyUser = Data.NotifyUser,
-                    FileData = fileContents,                
+                    FileData = fileContents,
                     StatusCodeID = 1,
                     AddedByUserID = applicationAddedByUserID,
-                    AddedDate = DateTime.Now,                   
+                    AddedDate = DateTime.Now,
                     SessionId = _sessionId,
                     Participants = participantidsString,
                     To = toidsString,
@@ -2084,85 +2093,89 @@ else
                     CCUserGroup = sCCUserGroup,
                     ParticipantsUserGroup = sParticipantsUserGroup
                 };
-       
 
-        try
-        {
-            //_sessionId = createReq.SessionId;
-            var result = await Mediator.Send(createReq);
 
-            if (result != null)
-            {  
-                
-                @if (draftId==0)
+            try
+            {
+                //_sessionId = createReq.SessionId;
+                var result = await Mediator.Send(createReq);
+
+                if (result != null)
                 {
-                    var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));
 
-                    string BaseUrl = NavigationManager.BaseUri + "api/Email/";
-                    string url = BaseUrl + "SendMessage?id=" + convlist[0].ID;
-                    // Make a GET request to the controller action
-                    var response = await httpClient.GetAsync(url);
+                    @if (draftId == 0)
+                    {
+                        var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));
 
-                }
+                        string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                        string url = BaseUrl + "SendMessage?id=" + convlist[0].ID;
+                        // Make a GET request to the controller action
+                        var response = await httpClient.GetAsync(url);
 
-                ///await Task.Delay(5000); // Delay for 5 seconds
-                //   onShowPopupMessage("success", "Topic have been saved successully");
-                ActivityEmailTopicId = 0;
-                toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+                    }
+
+                    ///await Task.Delay(5000); // Delay for 5 seconds
+                    //   onShowPopupMessage("success", "Topic have been saved successully");
+                    ActivityEmailTopicId = 0;
+                    toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
 
 
-                if (SelectedFilesCount > 0)
-                {
-                    uploadComponent.UploadAllFiles();
+                    if (SelectedFilesCount > 0)
+                    {
+                        uploadComponent.UploadAllFiles();
+                    }
+                    else
+                    {
+                        if (draftId == 0)
+                        {
+                            loading = false;
+                        }
+                        else
+                        {
+                            loadingdraft = false;
+                        }
+
+                        if (ActiveSessionId != null)
+                        {
+                            BackEnabled = false;
+                            NavigationManager.NavigateTo($"CreateEmail");
+                            //JSRuntime.InvokeAsync<string>("ReloadUrl");
+                            onRestText();
+                        }
+                        else
+                        {
+                            BackEnabled = false;
+                            //await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                            onRestText();
+                        }
+
+                        //onRestText();
+                        await JSRuntime.InvokeAsync<string>("hideLoading");
+                        isSending = false;
+                    }
+
+
                 }
                 else
                 {
-                    if (draftId == 0)
-                    {
-                        loading = false;
-                    }
-                    else
-                    {
-                        loadingdraft = false;
-                    }
-
-                    if (ActiveSessionId != null)
-                    {
-                        BackEnabled = false;
-                        NavigationManager.NavigateTo($"CreateEmail");
-                        //JSRuntime.InvokeAsync<string>("ReloadUrl");
-                        onRestText();
-                    }
-                    else
-                    {
-                        BackEnabled = false;
-                        //await JSRuntime.InvokeAsync<string>("ReloadUrl");
-                        onRestText();
-                    }
-
-                    //onRestText();
+                    onShowPopupMessage("Error", result.ToString());
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                     isSending = false;
                 }
-
-
             }
-            else
+            catch (Exception eq)
             {
-                onShowPopupMessage("Error", result.ToString());
+                onShowPopupMessage("Error", eq.Message);
                 await JSRuntime.InvokeAsync<string>("hideLoading");
                 isSending = false;
             }
-        }
-        catch (Exception eq)
-        {
-            onShowPopupMessage("Error", eq.Message);
-            await JSRuntime.InvokeAsync<string>("hideLoading");
-            isSending = false;
+
+            submitCount++;
+            StateHasChanged();
         }
 
-
-        StateHasChanged();
+        
+       
 
     }
     internal async void onShowPopupMessage(string headerText, string bodyText)

@@ -640,6 +640,10 @@
                 {
                     AcceptedFileTypes = new List<string>() { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".mpg", "mpeg" };
                 }
+                else if (contentType == "audio")
+                {
+                    AcceptedFileTypes = new List<string>() { "audio/*" };
+                }
                 else
                 {
                     IsUploadExt = ".isUploadCheckOut";

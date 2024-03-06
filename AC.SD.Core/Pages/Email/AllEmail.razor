@@ -16,7 +16,7 @@
 <DxGrid @ref="AllEmailGrid" SearchText="@GridSearchText"
         Data="_emailTopicAll"
         VirtualScrollingEnabled="false"
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        AllowSort="false"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
         ShowAllRows="true"
@@ -71,7 +71,7 @@
 
 </DxGrid>
 <div style="text-align:center">
-    <button @onclick="LoadMore" style="background-color:#000; border-radius:4px; color:#fff !important;">Load More</button>
+    <button @onclick="LoadMore" class="loadmorebg">Load More</button>
 </div> 
 
 

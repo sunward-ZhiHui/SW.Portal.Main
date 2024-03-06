@@ -17,6 +17,7 @@
 <DxGrid @ref="TOGrid" SearchText="@GridSearchText" 
         Data="_forumTopicTo"
         VirtualScrollingEnabled="false"   
+        AllowSort="false"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -34,7 +35,7 @@
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
         @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
         <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@        
-        <DxGridDataColumn FieldName="FirstName" Caption="From">
+        <DxGridDataColumn FieldName="FirstName" Caption="First Name">
             <CellDisplayTemplate>
                 @{
                     var item = (EmailTopics)context.DataItem;
@@ -90,10 +91,7 @@
     </Columns>
     <DetailRowTemplate>
         <SubViewEmail @ref=RefSubAssignTo Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-    </DetailRowTemplate>
-    <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-    </TotalSummary>
+    </DetailRowTemplate>   
 </DxGrid>
 
 

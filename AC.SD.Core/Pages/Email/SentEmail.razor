@@ -10,6 +10,7 @@
 
 <DxGrid @ref="SentGrid" SearchText="@GridSearchText"
         Data="_forumTopicSent"
+        AllowSort="false"
         VirtualScrollingEnabled="false"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -55,10 +56,7 @@
     </Columns>
     <DetailRowTemplate>
         <SubViewEmailSent Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-    </DetailRowTemplate>
-    <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-    </TotalSummary>
+    </DetailRowTemplate>   
 </DxGrid>
 @code {
     internal List<EmailTopics>? _forumTopicSent;

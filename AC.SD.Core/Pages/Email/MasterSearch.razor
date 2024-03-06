@@ -30,7 +30,7 @@
 
 <DxGrid @ref="AllEmailGrid" SearchText="@GridSearchText"
         Data="_emailTopicAll"
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        AllowSort="false"
         VirtualScrollingEnabled="true"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -99,10 +99,7 @@
     </Columns>
     <DetailRowTemplate>
         <SubViewSearchAll MSearchText ="@MSearchText" Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-    </DetailRowTemplate>
-    <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-    </TotalSummary>
+    </DetailRowTemplate>    
 </DxGrid>
 
 <DxFlyout @bind-IsOpen=IsSearchInfoOpen

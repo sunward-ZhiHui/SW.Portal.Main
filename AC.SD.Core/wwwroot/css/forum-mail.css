@@ -12,6 +12,14 @@
     text-align: center;
     background: #000
 }
+.loadmorebg {
+    background-color: #dddbdb;
+    border-radius: 4px;
+    color: #000 !important;
+    font-size: 12px;
+    font-weight: 400;
+    border: 1px solid #dddbdb;
+}
 .showDueDate {
     font-size: 10px;
     color: darkred;    

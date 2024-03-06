@@ -165,6 +165,7 @@ namespace Infrastructure
             services.AddScoped<ITempSalesPackInformationQueryRepository, TempSalesPackInformationQueryRepository>();
             services.AddScoped<IUserGroupQueryRepository, UserGroupQueryRepository>();
             services.AddScoped<IIpirAppQueryRepostitory, IpirAppQueryRepostitory>();
+            services.AddScoped<IFbOutputCartonsQueryRepository, FbOutputCartonsQueryRepository>();
             return services;
         }
     }

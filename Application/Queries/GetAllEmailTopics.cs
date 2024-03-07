@@ -142,10 +142,12 @@ namespace Application.Queries
     {
         public long UserId { get; private set; }
         public string SearchTxt { get; private set; }
-        public GetEmailTopicAll(long UserId, string searchTxt)
+        public GetEmailTopicAll(long UserId, string searchTxt,int pageNumber,int pageSize)
         {
             this.UserId = UserId;
             this.SearchTxt = searchTxt;
+            this.PageNumber = pageNumber;
+            this.PageSize = pageSize;
         }
     }
     public class GetEmailTopicAllSearch : PagedRequest, IRequest<List<EmailTopics>>

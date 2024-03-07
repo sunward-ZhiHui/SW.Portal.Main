@@ -43,10 +43,12 @@
 @using Application.Command.ApplicationMasterDetails;
 <link rel="stylesheet" type="text/css" href="_content/AC.SD.Core/css/forum-mail.css" />
 @page "/ViewEmail/EmailPrint/{ConSessionId:guid}"
+@page "/ViewEmail/EmailPrint/{TopicSessionId:guid}/{Page}"
 @implements IDisposable;
 
 <div id="tableData">
     <div>
+        <button class="btn btn-primary" @onclick="PrintPage">Print</button>
         @if (_discussionList != null && _discussionList.Any())
         {
             @foreach (var item in _discussionList)
@@ -56,7 +58,7 @@
                         <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                             <div class="mailbox-read-info">
                                 <h3>@item.Name</h3>
-                                <button class="btn btn-primary" @onclick="PrintPage">Print</button>
+                                
                                 @if (item.DueDate != null)
                                 {
                                     <div class="mailbox-read-time" style="float:right;">
@@ -385,6 +387,11 @@
 @code {
     [Parameter]
     public Guid ConSessionId { get; set; }
+    [Parameter]
+    public Guid TopicSessionId { get; set; }
+    [Parameter]
+    public string? Page { get; set; }
+
     string dynamicShowSubject = "showOpenSubject_";
     public List<EmailConversations>? _discussionList;
     internal List<Documents>? _topicDocList;
@@ -412,17 +419,30 @@
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
-
-
-
-        string sessionidString = ConSessionId.ToString();
-        var lsts = await Mediator.Send(new GetListByConversationSession(sessionidString));
-        if (lsts.Count > 0)
+        
+        if (Page != null)
         {
-             await JSRuntime.InvokeAsync<string>("showLoading");
-            _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(lsts[0].ID, applicationUser.UserID));
-            await JSRuntime.InvokeAsync<string>("hideLoading");
+            string sessionidString = TopicSessionId.ToString();
+            var lsts = await Mediator.Send(new GetListBySession(sessionidString));
+            if (lsts.Count > 0)
+            {
+                await JSRuntime.InvokeAsync<string>("showLoading");                
+                _discussionList = await Mediator.Send(new GetEmailDiscussionList(lsts[0].ID, applicationUser.UserID,Page));
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+            }
         }
+        else
+        {
+            string sessionidString = ConSessionId.ToString();
+            var lsts = await Mediator.Send(new GetListByConversationSession(sessionidString));
+            if (lsts.Count > 0)
+            {
+                await JSRuntime.InvokeAsync<string>("showLoading");
+                _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(lsts[0].ID, applicationUser.UserID));               
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+            }
+        }
+       
        
     }
 

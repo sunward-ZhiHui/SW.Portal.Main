@@ -96,6 +96,10 @@ namespace Core.Entities
         public string? ParticipantsUserGroup { get; set; }
         [NotMapped]
         public string? DynamicFormName {  get; set; }
+        [NotMapped]
+        public int NoOfDays { get; set; }
+        [NotMapped]
+        public DateTime? ExpiryDueDate { get; set; }
 
     }
     public class EmailDocumentModel

@@ -860,7 +860,7 @@
                                                                             <DxFormLayoutItem ColSpanMd="12">
                                                                                @* <DxButton SubmitFormOnClick="true" Text="" CssClass="fa fa-paper-plane sndrot" style="float:right" RenderStyle="ButtonRenderStyle.Secondary">
                                                                                    
-                                                                                </DxButton>*@
+                                                                                </DxButton> *@
                                                                                 <button disabled="@loading" class="fa fa-paper-plane sndrot" style="float:right; margin-top:10px;">
                                                                                     @if (loading)
                                                                                     {
@@ -1038,8 +1038,9 @@
                         @*<DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />*@
                         @*<DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />*@
-                        <DxMenuItem @onclick="onArchivePop" Text="Archive" Enabled="isUserGroup" />
-                        <DxMenuItem @onclick="onUserTagPop" Text="User Tag"/>
+                        <DxMenuItem IconCssClass="fa fa-archive" @onclick="onArchivePop" Text="Archive" Enabled="isUserGroup" />
+                        <DxMenuItem IconCssClass="fa fa-tag" @onclick="onUserTagPop" Text="User Tag"/>
+                        <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" />
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -1123,15 +1124,21 @@
         <DataAnnotationsValidator />
         <div class="row">
             <div class="col-md-12" style="padding-bottom: 12px">
-                <label for="DueDate"> DueDate: </label>
+                <label for="DueDate"> Due Date: </label>
                 <DxDateEdit @bind-Date="@_dataSubjectDuDate.DueDate"
                             NullText="Select a date..."
-                                    Mask="dd/MMMM/yyyy"
+                                    MinDate="minDueDate"
+                            Mask="dd/MMMM/yyyy"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             ShowValidationIcon="true"
                             CssClass="cw-320">
                 </DxDateEdit>
                 <ValidationMessage For="@(() => _dataSubjectDuDate.DueDate)" />
+                <div style="display: @(IsSubjectNoOfDays ? "block" : "none")">
+                    <label for="NoOfDays"> No Of Days: </label>
+                    <DxSpinEdit @bind-Value="@_dataSubjectDuDate.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0"></DxSpinEdit>
+                </div>
+                
             </div>
             <div class="col-md-12">
                 <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
@@ -1295,7 +1302,7 @@
 <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
-            <span> @MessageBody</span>
+            <span class="@((MessageHeader == "Warning Info" ? "TxtRed" :""))"> @MessageBody</span>
         </div>
     </BodyTemplate>
 </DxPopup>
@@ -1656,8 +1663,8 @@
 
 
 @code {
-
-     bool IsUserGroupToOpen { get; set; } = false;
+    private int submitCount = 0;
+    bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;
     async Task OnButtonUserGroupToClick()
     {
@@ -1695,7 +1702,7 @@
     {
     }
 
-     void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
     {
         if (values != null)
         {
@@ -2065,6 +2072,10 @@
                 else if (contentType == "video")
                 {
                     AcceptedFileTypes = new List<string>() { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".mpg", "mpeg" };
+                }
+                else if (contentType == "audio")
+                {
+                    AcceptedFileTypes = new List<string>() { "audio/*" };
                 }
                 else
                 {
@@ -2518,6 +2529,7 @@
 
 
     bool IsDescriptionOpen { get; set; } = false;
+    bool IsSubjectNoOfDays {get;set;} = false;
     bool IsRenameOpen { get; set; } = false;
     bool IsFilterOpen { get; set; } = false;
     public bool IsExpiryDateOpen { get; set; } = false;
@@ -2737,7 +2749,7 @@
     bool ErrorVisible { get; set; } = false;
     string? MyError { get; set; }
     [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai"};
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*","audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai"};
     public List<string> AllowedFileExtensions { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
     public DocumentFormat MyDocumentFormat { get; set; }
     private string? BaseUrl;
@@ -2857,7 +2869,8 @@
     private class Model
     {
         [Required(ErrorMessage = "Due Date is required")]
-        public DateTime? DueDate { get; set; }      
+        public DateTime? DueDate { get; set; }    
+        public int NoOfDays { get; set; }  
     }
     private class UserTagData
     {
@@ -2901,6 +2914,7 @@
     bool isFileUpload = false;
     bool isDueDate =false;
     bool isSubjectDueDate = false;
+    DateTime minDueDate = DateTime.MinValue;
     bool isUserTagChange = false;
     private List<EmailActivityCatgorys>? _UserTagList;
     bool isCancelDueDate = false;
@@ -3358,6 +3372,22 @@
         if(CurrentEmailConversations != null)
         {
             _dataSubjectDuDate.DueDate = CurrentEmailConversations.DueDate;
+            _dataSubjectDuDate.NoOfDays = CurrentEmailConversations.NoOfDays;
+
+            if (CurrentEmailConversations.DueDate.HasValue)
+            {
+                minDueDate = CurrentEmailConversations.DueDate.Value;
+            }
+
+
+            if(applicationUser.UserID != CurrentEmailConversations.UserId)
+            {
+                IsSubjectNoOfDays = false;
+            }
+            else
+            {
+                IsSubjectNoOfDays = true;
+            }
         }
 
     }
@@ -3404,6 +3434,12 @@
         isRenameSubject = true;
         StateHasChanged();
 
+    }
+    async void onPrintMainTopic()
+    {
+        var url = BaseUrl + "ViewEmail/Emailprint/" + _headTopic[0].SessionId + "/" + isLeftMenuvisible;
+        string script = $"window.open('{url}', '_blank');";
+        await JSRuntime.InvokeVoidAsync("eval", script);
     }
     async void onPrintSubjectPop()
     {    
@@ -3479,16 +3515,66 @@
     }
 
     async void SubmitSubjectDueDate()
+    {       
+
+        if(applicationUser.UserID != CurrentEmailConversations.UserId)
+        {
+            if (CurrentEmailConversations.DueDate.HasValue)
+            {
+
+                DateTime actualDueDate = CurrentEmailConversations.DueDate.Value;
+
+
+                if (CurrentEmailConversations.ExpiryDueDate >= _dataSubjectDuDate.DueDate)
+                {
+                    await updateDueDate();
+                }
+                else
+                {
+                    onShowPopupMessage("Warning Info", "Should you decide to extend the deadline, please update the due date accordingly in our records. However, if no action is taken within the next ("+ @Application.Common.Helper.Helper.FormatDate(CurrentEmailConversations.ExpiryDueDate) +") days, please reach out to your administrator or supervisor for further assistance and guidance.");
+                }
+            }
+            else
+            {
+                await updateDueDate();
+            }
+
+        }
+        else
+        {
+            await updateDueDate();
+        }
+
+
+
+
+        isSubjectDueDate = false;
+        //onShowPopupMessage("success", "Updated DueDate Successfully");
+        if (RTopicId == 0)
+        {
+            await LoadData();
+        }
+        else
+        {
+            await LoadReplyData();
+        }
+        isOpenSubjectPop = false;
+        StateHasChanged();
+    }
+
+    async Task updateDueDate()
     {
         var UpdateReq = new UpdateEmailTopicSubjectDueDate
-            {
-                //ID = long.Parse(@SelectedGroup),
-                ID = CurrentEmailConversations.ID,
-                TopicID = CurrentEmailConversations.TopicID,
-                DueDate = _dataSubjectDuDate.DueDate,
-                ModifiedByUserID = applicationUser.UserID,
-                ModifiedDate = DateTime.Now
-            };
+                {
+                    //ID = long.Parse(@SelectedGroup),
+                    ID = CurrentEmailConversations.ID,
+                    TopicID = CurrentEmailConversations.TopicID,
+                    NoOfDays = _dataSubjectDuDate.NoOfDays,
+                    DueDate = _dataSubjectDuDate.DueDate,
+                    UserId = CurrentEmailConversations.UserId,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now
+                };
 
         var result = await Mediator.Send(UpdateReq);
 
@@ -3927,8 +4013,8 @@
     }
     public async Task onDocDownload_old(long Id)
     {
-         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
-         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
+        var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
         // var url = FileUrl + lst.FilePath;
         // await OpenUrlInNewTab(url);
@@ -4891,6 +4977,7 @@
         Data.Urgent = false;
         Data.NotifyUser = false;
         newSubjectreply = 1;
+        submitCount = 0;
 
         StateHasChanged(); // Force a UI update
         await Task.Delay(2700);
@@ -4909,7 +4996,7 @@
         await JSRuntime.InvokeVoidAsync("eval", script);
         //NavigationManager.NavigateTo(url,true);
     }
-     async void onBackDynamicType(string url)
+    async void onBackDynamicType(string url)
     {
         var urls = BaseUrl + url;
         NavigationManager.NavigateTo(urls);
@@ -5106,6 +5193,7 @@
             StateHasChanged(); // Force a UI update
             await Task.Delay(2700);
             await onRichTxtChangeFontsize(); // Call your other function here
+            submitCount = 0;
 
         }        
     }  
@@ -5284,316 +5372,326 @@
             await RefTopicAddGroupPList.loadMainTopicParticipentList(long.Parse(@SelectedGroup));
         }
     }
-    
+
     private async Task HandleValidSubmit()
     {
-        loading = true;        
-        //var contentdd = msgContent;
-        //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
-        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);      
-
-
-        string htmlString = string.Empty;
-        var len = fileContent.Length;
-        //documentContent = null;            
-
-
-        htmlString = Encoding.UTF8.GetString(fileContent);
-        //if (fileContent != null)
-        //{
-        //    // Convert the RTF byte array to HTML string
-        //    htmlString = Rtf.ToHtml(fileContent);
-        //}
-
-        if(fileContent.Length == 443)
+        if (loading)
         {
-            toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
-            loading = false;
-            return;
-        }    
-
-        await msgrichEdit.SaveDocumentAsync();
-        using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
-        byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
-        server.LoadDocument(fileContent1);
-        server.Options.Export.Html.EmbedImages = true;
-        byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
-
-
-        if(Data.Name == null)
-        {
-            toastService.ShowToast("Please Enter Subject Name", AC.SD.Core.Services.ToastLevel.Error);
-            loading = false;
-            return;
+            return; // Prevent multiple submissions
         }
 
-        if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+        if(submitCount == 0)
         {
-            if (Data.AssigntoIds.Count() == 0)
+            loading = true;        
+            //var contentdd = msgContent;
+            //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+            byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);      
+
+
+            string htmlString = string.Empty;
+            var len = fileContent.Length;
+            //documentContent = null;            
+
+
+            htmlString = Encoding.UTF8.GetString(fileContent);
+            //if (fileContent != null)
+            //{
+            //    // Convert the RTF byte array to HTML string
+            //    htmlString = Rtf.ToHtml(fileContent);
+            //}
+
+            if(fileContent.Length == 443)
             {
-                toastService.ShowToast("Please Select Assign To", AC.SD.Core.Services.ToastLevel.Error);
+                toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+                loading = false;
+                return;
+            }    
+
+            await msgrichEdit.SaveDocumentAsync();
+            using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+            byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+            server.LoadDocument(fileContent1);
+            server.Options.Export.Html.EmbedImages = true;
+            byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
+
+            if(Data.Name == null)
+            {
+                toastService.ShowToast("Please Enter Subject Name", AC.SD.Core.Services.ToastLevel.Error);
                 loading = false;
                 return;
             }
-        }
-        else
-        {
-            if(Data.ToUserGroupIds == null)
-            {
-                toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
-                loading = false;
-                return;
 
-            }
-
-            if (Data.ToUserGroupIds.Count() == 0)
-            {
-                toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
-                loading = false;
-                return;
-            }
-        }
-
-
-
-        string assignCCidsString = string.Join(",", _assigntoItems.Select(s => s.UserID).ToList());
-        string assignccidsString = null;
-
-        string assigntoidsString = "";
-
-        if(Data.AssigntoIds != null)
-        {
-            assigntoidsString = string.Join(",", Data.AssigntoIds);
-        }
-
-
-        if(Data.AssignccIds != null)
-        {
-            assignccidsString = string.Join(",", Data.AssignccIds);
-        }
-
-
-        List<long> concatList;
-        List<long> NotificationconcatList = new List<long>();
-
-        if (Data.AssignccIds != null)
-        {
-            concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
-        }
-        else
-        {
-            if(Data.AssigntoIds != null)
-            {
-                concatList = Data.AssigntoIds.ToList();
-            }
-            else
-            {
-                concatList = new List<long>();
-            }
-
-        }
-
-        //List<long> concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
-        concatList.Add(applicationUser.UserID);
-        concatList = concatList.Distinct().ToList();
-        string participantidsString = string.Join(",", concatList);
-
-        string plistUniqueItems = null;
-        long ConIds = 0;
-
-        var coId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0;
-        if(coId > 0)
-        {
             if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
             {
-                var plist = await Mediator.Send(new GetByConvasationPList(coId));
-                List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
-                NotificationconcatList = plst;
-                List<long> uniqueItems = concatList.Except(plst).ToList();
-                if (uniqueItems.Count > 0)
+                if (Data.AssigntoIds.Count() == 0)
                 {
-                    plistUniqueItems = string.Join(",", uniqueItems);
-                    NotificationconcatList.AddRange(uniqueItems);
+                    toastService.ShowToast("Please Select Assign To", AC.SD.Core.Services.ToastLevel.Error);
+                    loading = false;
+                    return;
                 }
             }
             else
             {
-                List<long> UGlist = await Mediator.Send(new GetByConvasationPUserGroupList(coId));
-                string UGlistString = string.Join(",", UGlist);
-
-                List<long> concatListUserGroupItems = new List<long>();
-                if (Data.ToUserGroupIds != null)
+                if(Data.ToUserGroupIds == null)
                 {
-                    concatListUserGroupItems.AddRange(Data.ToUserGroupIds);
+                    toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
+                    loading = false;
+                    return;
+
                 }
 
-                if (Data.CCUserGroupIds != null)
+                if (Data.ToUserGroupIds.Count() == 0)
                 {
-                    concatListUserGroupItems.AddRange(Data.CCUserGroupIds);
-                }
-
-                // Convert the merged list to a comma-separated string
-                var concatListUserGroup = string.Join(",", concatListUserGroupItems);
-
-                // Convert string to a list of long
-                concatListUserGroupItems = concatListUserGroup.Split(',').Select(long.Parse).ToList();
-
-                // Use Except on the collections
-                //List<long> uniqueUserGroupItems = UGlist.Except(concatListUserGroupItems).ToList();
-                //List<long> uniqueUserGroupItems = UGlist.Where(item => !concatListUserGroupItems.Contains(item)).ToList();
-                List<long> uniqueUserGroupItems = concatListUserGroupItems.Except(UGlist).ToList();
-
-
-
-                if (uniqueUserGroupItems.Count > 0)
-                {
-                    plistUniqueItems = string.Join(",", uniqueUserGroupItems);
+                    toastService.ShowToast("Please Select Assign To Group", AC.SD.Core.Services.ToastLevel.Error);
+                    loading = false;
+                    return;
                 }
             }
-           
-
-            ConIds = _replyComment[0].ID;
-
-        }       
-
-        var susertype = Data.UserType;
-        var sToUserGroup = "";
-
-        if(Data.ToUserGroupIds != null)
-        {
-            sToUserGroup = string.Join(",", Data.ToUserGroupIds);
-        }        
-        
-        var sCCUserGroup = "";
-        if (Data.CCUserGroupIds != null)
-        {
-            sCCUserGroup = string.Join(",", Data.CCUserGroupIds);
-        }
-        else
-        {
-            sCCUserGroup = "";
-        }
-
-        var sParticipantsUserGroup = "";
-        if (sCCUserGroup != null)
-        {
-            sParticipantsUserGroup = string.Join(",", sToUserGroup, sCCUserGroup);
-        }
-        else
-        {
-            sParticipantsUserGroup = string.Join(",", Data.ToUserGroupIds);
-        }
 
 
 
+            string assignCCidsString = string.Join(",", _assigntoItems.Select(s => s.UserID).ToList());
+            string assignccidsString = null;
 
-        var createReq = new CreateEmailCoversation
+            string assigntoidsString = "";
+
+            if(Data.AssigntoIds != null)
             {
-                //TopicID = (long.Parse(@SelectedGroup)),
-                TopicID = RTopicId == 0 ? (long.Parse(@SelectedGroup)) : RTopicId,
-               // Message = Data.Message != null ? Data.Message : "Attachments",
-                Message = htmlString,
-                //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
-                FileData = fileContents,
-                //AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
-                AssigntoIdss =  assigntoidsString,
-                AssignccIdss = assignccidsString,
-                PlistIdss = participantidsString,
-                AllowPlistids = plistUniqueItems,
-                DueDate = Data.DueDate,
-                IsAllowParticipants = Data.IsAllowParticipants,
-                Urgent = Data.Urgent,
-                NotifyUser = Data.NotifyUser,
-                ConIds = ConIds,
-               // AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
-                AllParticipantIds = coId > 0 ? NotificationconcatList : concatList,
-                ParticipantId = applicationUser.UserID,
-                ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
-                StatusCodeID = 1,
-                IsMobile = 0,
-                AddedByUserID = applicationUser.UserID,
-                AddedDate = DateTime.Now,
-                Name = Data.Name,
-                SessionId = _sessionId,
-                ToUserGroup = sToUserGroup,
-                CCUserGroup = sCCUserGroup,
-                ParticipantsUserGroup = sParticipantsUserGroup,
-                UserType = Data.UserType
-            };
-        var result = await Mediator.Send(createReq);
-
-        if (result > 1)
-        {
-
-            if(isPushNotification)
-            {
-                string BaseUrl = NavigationManager.BaseUri + "api/Email/";
-                string url = BaseUrl + "SendMessage?id="+result;
-                // Make a GET request to the controller action
-                var response = await httpClient.GetAsync(url);                
+                assigntoidsString = string.Join(",", Data.AssigntoIds);
             }
 
-            if (Data.NotifyUser.GetValueOrDefault(false))
+
+            if(Data.AssignccIds != null)
             {
-                string BaseUrl = NavigationManager.BaseUri + "api/Email/";
-                string url = BaseUrl + "SendMessage?id="+result;
-                // Make a GET request to the controller action
-                var response = await httpClient.GetAsync(url);
+                assignccidsString = string.Join(",", Data.AssignccIds);
             }
 
-            //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
-            //sessionId = getRec.Last().SessionId;
 
-            //uploadUrl = GetUploadUrl();           
-            //uploadComponent.UploadAllFiles();
-            if(SelectedFilesCount > 0)
+            List<long> concatList;
+            List<long> NotificationconcatList = new List<long>();
+
+            if (Data.AssignccIds != null)
             {
-                if(uploadComponent != null)
-                {
-                    uploadComponent.UploadAllFiles();
-                }
-                
+                concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
             }
             else
             {
-                onRestText();
-                closeReply();
-                onloadSession();
-
-                await msgrichEdit.NewDocumentAsync();
-                await onloadTwoGrid();
-
-                if (RTopicId == 0)
+                if(Data.AssigntoIds != null)
                 {
-                    await LoadDataPosts();
+                    concatList = Data.AssigntoIds.ToList();
                 }
                 else
                 {
-                    await LoadReplyDataPosts();
+                    concatList = new List<long>();
                 }
 
-                WindowVisible = false;
-                loading = false;
             }
 
-                     
+            //List<long> concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
+            concatList.Add(applicationUser.UserID);
+            concatList = concatList.Distinct().ToList();
+            string participantidsString = string.Join(",", concatList);
 
-            //if(RTopicId == 0)
-            //{
-            //    await LoadData();
-            //}
-            //else
-            //{
-            //    await LoadReplyData();
-            //}
+            string plistUniqueItems = null;
+            long ConIds = 0;
 
-            // await LoadData();
+            var coId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0;
+            if(coId > 0)
+            {
+                if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
+                {
+                    var plist = await Mediator.Send(new GetByConvasationPList(coId));
+                    List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
+                    NotificationconcatList = plst;
+                    List<long> uniqueItems = concatList.Except(plst).ToList();
+                    if (uniqueItems.Count > 0)
+                    {
+                        plistUniqueItems = string.Join(",", uniqueItems);
+                        NotificationconcatList.AddRange(uniqueItems);
+                    }
+                }
+                else
+                {
+                    List<long> UGlist = await Mediator.Send(new GetByConvasationPUserGroupList(coId));
+                    string UGlistString = string.Join(",", UGlist);
 
-           
-        }
-        else
-        {
+                    List<long> concatListUserGroupItems = new List<long>();
+                    if (Data.ToUserGroupIds != null)
+                    {
+                        concatListUserGroupItems.AddRange(Data.ToUserGroupIds);
+                    }
 
+                    if (Data.CCUserGroupIds != null)
+                    {
+                        concatListUserGroupItems.AddRange(Data.CCUserGroupIds);
+                    }
+
+                    // Convert the merged list to a comma-separated string
+                    var concatListUserGroup = string.Join(",", concatListUserGroupItems);
+
+                    // Convert string to a list of long
+                    concatListUserGroupItems = concatListUserGroup.Split(',').Select(long.Parse).ToList();
+
+                    // Use Except on the collections
+                    //List<long> uniqueUserGroupItems = UGlist.Except(concatListUserGroupItems).ToList();
+                    //List<long> uniqueUserGroupItems = UGlist.Where(item => !concatListUserGroupItems.Contains(item)).ToList();
+                    List<long> uniqueUserGroupItems = concatListUserGroupItems.Except(UGlist).ToList();
+
+
+
+                    if (uniqueUserGroupItems.Count > 0)
+                    {
+                        plistUniqueItems = string.Join(",", uniqueUserGroupItems);
+                    }
+                }
+
+
+                ConIds = _replyComment[0].ID;
+
+            }       
+
+            var susertype = Data.UserType;
+            var sToUserGroup = "";
+
+            if(Data.ToUserGroupIds != null)
+            {
+                sToUserGroup = string.Join(",", Data.ToUserGroupIds);
+            }        
+
+            var sCCUserGroup = "";
+            if (Data.CCUserGroupIds != null)
+            {
+                sCCUserGroup = string.Join(",", Data.CCUserGroupIds);
+            }
+            else
+            {
+                sCCUserGroup = "";
+            }
+
+            var sParticipantsUserGroup = "";
+            if (sCCUserGroup != null)
+            {
+                sParticipantsUserGroup = string.Join(",", sToUserGroup, sCCUserGroup);
+            }
+            else
+            {
+                sParticipantsUserGroup = string.Join(",", Data.ToUserGroupIds);
+            }
+
+
+
+
+            var createReq = new CreateEmailCoversation
+                {
+                    //TopicID = (long.Parse(@SelectedGroup)),
+                    TopicID = RTopicId == 0 ? (long.Parse(@SelectedGroup)) : RTopicId,
+                   // Message = Data.Message != null ? Data.Message : "Attachments",
+                    Message = htmlString,
+                    //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
+                    FileData = fileContents,
+                    //AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
+                    AssigntoIdss =  assigntoidsString,
+                    AssignccIdss = assignccidsString,
+                    PlistIdss = participantidsString,
+                    AllowPlistids = plistUniqueItems,
+                    DueDate = Data.DueDate,
+                    IsAllowParticipants = Data.IsAllowParticipants,
+                    Urgent = Data.Urgent,
+                    NotifyUser = Data.NotifyUser,
+                    ConIds = ConIds,
+                   // AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
+                    AllParticipantIds = coId > 0 ? NotificationconcatList : concatList,
+                    ParticipantId = applicationUser.UserID,
+                    ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
+                    StatusCodeID = 1,
+                    IsMobile = 0,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    Name = Data.Name,
+                    SessionId = _sessionId,
+                    ToUserGroup = sToUserGroup,
+                    CCUserGroup = sCCUserGroup,
+                    ParticipantsUserGroup = sParticipantsUserGroup,
+                    UserType = Data.UserType
+                };
+            var result = await Mediator.Send(createReq);
+
+            if (result > 1)
+            {
+
+                if(isPushNotification)
+                {
+                    string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                    string url = BaseUrl + "SendMessage?id="+result;
+                    // Make a GET request to the controller action
+                    var response = await httpClient.GetAsync(url);                
+                }
+
+                if (Data.NotifyUser.GetValueOrDefault(false))
+                {
+                    string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                    string url = BaseUrl + "SendMessage?id="+result;
+                    // Make a GET request to the controller action
+                    var response = await httpClient.GetAsync(url);
+                }
+
+                //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
+                //sessionId = getRec.Last().SessionId;
+
+                //uploadUrl = GetUploadUrl();           
+                //uploadComponent.UploadAllFiles();
+                if(SelectedFilesCount > 0)
+                {
+                    if(uploadComponent != null)
+                    {
+                        uploadComponent.UploadAllFiles();
+                    }
+
+                }
+                else
+                {
+                    onRestText();
+                    closeReply();
+                    onloadSession();
+
+                    await msgrichEdit.NewDocumentAsync();
+                    await onloadTwoGrid();
+
+                    if (RTopicId == 0)
+                    {
+                        await LoadDataPosts();
+                    }
+                    else
+                    {
+                        await LoadReplyDataPosts();
+                    }
+
+                    WindowVisible = false;
+                    loading = false;
+                }
+
+
+
+                //if(RTopicId == 0)
+                //{
+                //    await LoadData();
+                //}
+                //else
+                //{
+                //    await LoadReplyData();
+                //}
+
+                // await LoadData();
+
+
+            }
+            else
+            {
+
+            }
+
+            submitCount++;
         }
     }
     private void onRestText()

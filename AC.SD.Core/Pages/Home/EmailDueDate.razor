@@ -89,6 +89,8 @@
 </DxPopup>
 
 @code {
+    private int pageNumber = 1; // Initial page number
+    private int pageSize = 15; // Number of records per page
     DxPopup? popup;
     bool Previewmsg { get; set; } = false;
     public bool ReplyMsgEnabled { get; set; } = false;
@@ -157,7 +159,7 @@
     }
     public async Task onAssignAllGridRefresh(long tid)
     {
-        _emailTopicDueDate = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL"));
+        _emailTopicDueDate = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL",pageNumber,pageSize));
         if (RefSubAssignAll != null)
         {
             await RefSubAssignAll.onSubAssignAllGridRefresh(tid);

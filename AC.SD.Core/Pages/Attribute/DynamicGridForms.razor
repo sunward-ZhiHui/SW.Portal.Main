@@ -481,8 +481,26 @@
                 _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID));
                 if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
-                    Type[] typesList = _AttributeHeader.DynamicFormSectionAttribute.Select(s => s.DataType).ToArray();
-                    string[] objectNameList = _AttributeHeader.DynamicFormSectionAttribute.Select(s => s.DynamicAttributeName).ToArray();
+                    var IsRadioCheckRemarksData = _AttributeHeader.DynamicFormSectionAttribute.Where(s => s.IsRadioCheckRemarks != null).ToList();
+                    var typesLists = _AttributeHeader.DynamicFormSectionAttribute.Select(s => s.DataType).ToList();
+                    var objectNameLists = _AttributeHeader.DynamicFormSectionAttribute.Select(s => s.DynamicAttributeName).ToList();
+                    if (IsRadioCheckRemarksData != null && IsRadioCheckRemarksData.Count > 0)
+                    {
+                        IsRadioCheckRemarksData.ForEach(d =>
+                        {
+                            if (d.ControlTypeId == 2705 || d.ControlTypeId == 2711 || d.ControlTypeId == 2710)
+                            {
+                                if (d.IsRadioCheckRemarks == "TextBox" || d.IsRadioCheckRemarks == "Memo")
+                                {
+                                    typesLists.Add(typeof(string));
+                                    var appendNames = d.DynamicFormSectionAttributeId + "_RadioCheckRemarks_" + d.AttributeName;
+                                    objectNameLists.Add(appendNames);
+                                }
+                            }
+                        });
+                    }
+                    Type[] typesList = typesLists.ToArray();
+                    string[] objectNameList = objectNameLists.ToArray();
                     MyClassBuilder MCB = new MyClassBuilder(screenId);
                     var myclass = MCB.CreateObject(objectNameList, typesList);
                     Data = myclass;
@@ -501,6 +519,23 @@
                                 dynamic jsonObj = JsonConvert.DeserializeObject(_dynamicformData.DynamicFormItem);
                                 _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
                                 {
+                                    if (a.ControlTypeId == 2705 || a.ControlTypeId == 2711 || a.ControlTypeId == 2710)
+                                    {
+                                        var appendGetNames = a.DynamicFormSectionAttributeId + "_RadioCheckRemarks_" + a.AttributeName;
+                                        var AppNames = jsonObj.ContainsKey(appendGetNames);
+                                        if (AppNames == true)
+                                        {
+                                            var itemGetValue = (string)jsonObj[appendGetNames];
+                                            if (a.IsRadioCheckRemarks == "TextBox")
+                                            {
+                                                Data.GetType().GetProperty(appendGetNames).SetValue(Data, itemGetValue);
+                                            }
+                                            if (a.IsRadioCheckRemarks == "Memo")
+                                            {
+                                                Data.GetType().GetProperty(appendGetNames).SetValue(Data, itemGetValue);
+                                            }
+                                        }
+                                    }
                                     var Names = jsonObj.ContainsKey(a.DynamicAttributeName);
                                     if (Names == true)
                                     {
@@ -960,7 +995,7 @@
         if (isSaveEnabled == true)
         {
             isSaveEnabled = false;
-        }        
+        }
     }
     async Task HandleFormValidApprovalSubmit()
     {
@@ -1454,25 +1489,34 @@
                     IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
                     isSaveEnabled = false;
                 }
-                if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSection.Count > 0)
+                var exitsForm = string.Empty;
+                if (_dynamicFormWorkFlowFormList != null && _dynamicFormWorkFlowFormList.Count > 0)
                 {
-                    var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
-                    if (exitss != null)
+                    var exitsDatas = _dynamicFormWorkFlowFormList.FirstOrDefault(q => q.DynamicFormSectionId == a.DynamicFormSectionId);
+                    exitsForm = exitsDatas != null ? "Yes" : string.Empty;
+                }
+                if (exitsForm == "Yes")
+                {
+                    if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSection.Count > 0)
                     {
-                        var userExits = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
-                        if (userExits != null)
+                        var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
+                        if (exitss != null)
                         {
+                            var userExits = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                            if (userExits != null)
+                            {
 
-                            isVisible = true; isReadonly = true;
+                                isVisible = true; isReadonly = true;
+                            }
+                            else
+                            {
+                                isVisible = true; isReadonly = false;
+                            }
                         }
                         else
                         {
                             isVisible = true; isReadonly = false;
                         }
-                    }
-                    else
-                    {
-                        isVisible = true; isReadonly = false;
                     }
                 }
                 formLayoutBuilder.OpenComponent<DxFormLayout>(i);
@@ -1544,6 +1588,7 @@
                          {
                              editor.OpenComponent<DynamicFormGridLists>(j + 1);
                              editor.AddAttribute(j + 1, "SessionId", s.DynamicFormSessionId);
+                             editor.AddAttribute(j + 1, "IsReadonly", isReadonly);
                              editor.AddAttribute(j + 1, "MainSessionId", dynamicFormData?.SessionId);
                              editor.AddAttribute(j + 1, "DynamicFormDataGridId", dynamicFormData?.DynamicFormDataId);
                              editor.CloseComponent();
@@ -2240,6 +2285,39 @@
                      })));
             itemBuilder.CloseComponent();
             k++;
+            if (s.ControlTypeId == 2705 || s.ControlTypeId == 2711 || s.ControlTypeId == 2710)
+            {
+                if (s.IsRadioCheckRemarks == "TextBox" || s.IsRadioCheckRemarks == "Memo")
+                {
+                    var appendProNames = s.DynamicFormSectionAttributeId + "_RadioCheckRemarks_" + s.AttributeName;
+                    var propertyRemarks = Data.GetType().GetProperty(appendProNames);
+                    var valueDataRemarks = propertyRemarks.GetValue(Data);
+                    var accessRemarks = Expression.Property(Expression.Constant(Data), appendProNames);
+                    var lambdaRemarks = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(string)), accessRemarks);
+                    itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                    itemBuilder.AddAttribute(i++, "Caption", (string.IsNullOrEmpty(s.RemarksLabelName) ? "Remarks" : s.RemarksLabelName));
+                    itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                    itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
+                    {
+                        if (s.IsRadioCheckRemarks == "TextBox")
+                        {
+                            editor1.OpenComponent<DxTextBox>(i++);
+                        }
+                        if (s.IsRadioCheckRemarks == "Memo")
+                        {
+                            editor1.OpenComponent<DxMemo>(i++);
+                            editor1.AddAttribute(i++, "Rows", 5);
+                        }
+                        editor1.AddAttribute(i++, "Text", valueDataRemarks);
+                        editor1.AddAttribute(i++, "TextExpression", lambdaRemarks);
+                        editor1.AddAttribute(i++, "Enabled", isReadonly);
+                        editor1.AddAttribute(i++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor1.AddAttribute(i++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertyRemarks.SetValue(Data, str); }));
+                        editor1.CloseComponent();
+                    })));
+                    itemBuilder.CloseComponent();
+                }
+            }
         });
             }
             if (_dynamicFormWorkFlowSectionNoWorkFlow != null)

@@ -12,6 +12,6 @@ namespace Core.Repositories.Query
 {
     public interface IDynamicFormDataSourceQueryRepository : IQueryRepository<AttributeDetails>
     {
-        Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds);
+        Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds,string? plantCode);
     }
 }

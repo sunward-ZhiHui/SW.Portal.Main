@@ -56,6 +56,13 @@ namespace Core.Entities
         public Guid? DynamicFormSessionId { get; set; }
         public string? DynamicGridName { get; set; }
         public long? DynamicFormGridDropDownId { get; set; }
+        public string? RadioLayout { get; set; }
+        public string? IsRadioCheckRemarks { get; set; }
+        public bool? IsSingleTextBoxRemarks { get; set; } = false;
+        public bool? IsMultiLineTextboxRemarks { get; set; } = false;
+        public string? RemarksLabelName { get; set; }
+        public bool? IsDynamicFormDropTagBox { get; set; } = false;
+        public List<AttributeHeader> SubAttributeHeaders { get; set; } = new List<AttributeHeader>();
     }
     public class DynamicFormSectionSpinEdit
     {

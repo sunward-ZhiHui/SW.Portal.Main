@@ -46,8 +46,8 @@
                     <DxFormLayoutItem Caption="Enable Expiry Date" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsExpiryDate" />
                     </DxFormLayoutItem>
-                     <DxFormLayoutItem Caption="Upload Duplicate Document" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@Data.IsDuplicateUpload" />
+                    <DxFormLayoutItem Caption="Upload Duplicate Document" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@Data.IsDuplicateUpload" />
                     </DxFormLayoutItem>
                     @*  <DxFormLayoutItem Caption="Enable Create Task" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsEnableCreateTask" />
@@ -87,7 +87,7 @@
                     <DxFormLayoutItem Caption="Archive Duration" ColSpanMd="6">
                         <DxSpinEdit @bind-Value="@Data.ShelfLifeDuration" ShowSpinButtons="false" MinValue="1" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Dynamic Form" ColSpanMd="6" >
+                    <DxFormLayoutItem Caption="Dynamic Form" ColSpanMd="6">
                         <DxComboBox Data="@_dynamicForm"
                                     NullText="Select Dynamic Form..."
                                     ListRenderMode="ListRenderMode.Virtual"
@@ -101,6 +101,10 @@
                                 <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
                                                     Caption="Name"
                                                     Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicForm.CompanyName)"
+                                                    Caption="Company Name" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicForm.ProfileName)"
+                                                    Caption="Profile" />
                                 <DxListEditorColumn FieldName="@nameof(DynamicForm.ScreenID)"
                                                     Caption="Screen Name" />
                                 <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedBy)"
@@ -183,7 +187,7 @@
                 Data.SessionId = _fileProfileTypeData.SessionId;
                 Data.DynamicFormId = _fileProfileTypeData.DynamicFormId;
                 Data.IsDuplicateUpload = _fileProfileTypeData.IsDuplicateUpload;
-                if(_fileProfileTypeData.DynamicFormId>0 && _fileProfileTypeData.IsdynamicFormExits>0)
+                if (_fileProfileTypeData.DynamicFormId > 0 && _fileProfileTypeData.IsdynamicFormExits > 0)
                 {
                     isDynamicForm = false;
                 }

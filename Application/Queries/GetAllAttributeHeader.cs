@@ -18,8 +18,15 @@ namespace Application.Queries
     }
     public class GetAllAttributeNameHeader : PagedRequest, IRequest<List<AttributeHeader>>
     {
-
-
+        public bool? IsSubForm { get; set; }
+        public string? Type { get; set; }
+        public long? SubId { get; set; }
+        public GetAllAttributeNameHeader(bool? isSubForm,string? type,long? subId)
+        {
+            this.IsSubForm = isSubForm;
+            this.Type = type;
+            this.SubId = subId;
+        }
     }
     public class GetAttributeHeaderDataSource : PagedRequest, IRequest<List<AttributeHeaderDataSource>>
     {

@@ -305,7 +305,7 @@
     string? fileUploadStyle { get; set; } = "padding:5px;"; string? imageUploadStyle { get; set; } = "display:none;";
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".eml", ".EML", "Outlook.File.eml.15" };
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", "audio/*" };
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -428,7 +428,7 @@
             {
                 isExpiryDate = true;
             }
-            DocSessionId = selectedFiles.SessionID;
+            DocSessionId = selectedFiles.SessionID == null ? selectedFiles.SessionId : selectedFiles.SessionID;
             Data.UserSession = _applicationUser.SessionId;
             Data.UserId = _applicationUser.UserID;
             Data.ProfileId = selectedFiles.ProfileID;
@@ -495,7 +495,7 @@
             var nodeName = e.NodeInfo.DataItem as DocumentsModel;
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
             FileProfileTypeId= nodeName.FileProfileTypeId;
-            DocSessionId = nodeName.SessionID;
+            DocSessionId = nodeName.SessionID == null ? nodeName.SessionId : nodeName.SessionID;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             await loadData(nodeName, "No");

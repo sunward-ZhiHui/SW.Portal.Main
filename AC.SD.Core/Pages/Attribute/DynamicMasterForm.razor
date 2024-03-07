@@ -38,6 +38,7 @@
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                         <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+                        <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                     </Items>
                 </DxMenu>
             </div>
@@ -201,6 +202,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    bool EditEnabled { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     private DxTreeView _treeFilterDocView;
@@ -252,6 +254,7 @@
     }
     async Task OnParametersSetLoadAsync()
     {
+        EditEnabled = false;
         _editContext = new EditContext(Data);
         Data.AddedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
@@ -275,6 +278,7 @@
             var dynamicFormData = await Mediator.Send(new GetDynamicFormBySession(SessionIds));
             if (dynamicFormData != null)
             {
+                EditEnabled = true;
                 _dynamicFormData = dynamicFormData;
                 dynamicFormId = dynamicFormData.ID;
                 Data.ID = dynamicFormData.ID;
@@ -327,6 +331,13 @@
     void backUrl()
     {
         NavigationManager.NavigateTo("DynamicMasterSetup");
+    }
+    void OpenNewForm()
+    {
+        if (_dynamicFormData != null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _dynamicFormData.SessionID);
+        }
     }
     void ResetForm()
     {

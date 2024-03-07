@@ -23,7 +23,7 @@
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
                 @*  <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" /> *@
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@IsReadonly" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
@@ -119,6 +119,8 @@
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
+    [Parameter]
+    public bool IsReadonly { get; set; } = true;
     [Parameter]
     public Guid? MainSessionId { get; set; }
     [Parameter]
@@ -246,7 +248,7 @@
                                         }
                                         else
                                         {
-                                            
+
                                             var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
                                             objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                         }
@@ -342,7 +344,10 @@
                         }
                         _dynamicformObjectDataList.Add(objectData);
                     });
-                    EditEnabled = true; DeleteEnabled = true; fileEnabled = true;
+                    if (IsReadonly == true)
+                    {
+                        EditEnabled = true; DeleteEnabled = true; fileEnabled = true;
+                    }
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
                     FileProfileTypeId = _selectedItems.FileProfileTypeId;
                     // await DynamicFormOnDms();
@@ -394,12 +399,16 @@
     }
     async void OnRowclick(GridRowClickEventArgs e)
     {
+        EditEnabled = false;DeleteEnabled = false; fileEnabled = false;
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
         _selectedItems = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
         FileProfileTypeId = _selectedItems.FileProfileTypeId;
         //await DynamicFormOnDms();
-        EditEnabled = true;
-        DeleteEnabled = true; fileEnabled = true;
+        if (IsReadonly == true)
+        {
+            EditEnabled = true;
+            DeleteEnabled = true; fileEnabled = true;
+        }
     }
     async Task DynamicFormOnDms()
     {
@@ -438,14 +447,17 @@
     }
     void addEdit()
     {
-        if (MainSessionId != null)
+        if (IsReadonly == true)
         {
-            SessionIds = _selectedItems.SessionId;
-            PopupGridForm = true;
-        }
-        else
-        {
-            toastService.ShowToast("Must Save Record", AC.SD.Core.Services.ToastLevel.Error);
+            if (MainSessionId != null)
+            {
+                SessionIds = _selectedItems.SessionId;
+                PopupGridForm = true;
+            }
+            else
+            {
+                toastService.ShowToast("Must Save Record", AC.SD.Core.Services.ToastLevel.Error);
+            }
         }
     }
     void BackGridForm()

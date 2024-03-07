@@ -25,7 +25,7 @@ namespace Core.Entities
         [Required(ErrorMessage = "Company Name is Required")]
         public long? AttributeCompanyId { get; set; }
         public string ControlType { get; set; }
-
+        public string ControlTypes { get; set; }
         public string EntryMask { get; set; }
         public string RegExp { get; set; }
         public string ListDefault { get; set; }
@@ -56,7 +56,12 @@ namespace Core.Entities
         [Required(ErrorMessage = "Grid Form is Required")]
         public long? DynamicFormId { get; set; }
 
-
+        public bool? IsDynamicFormDropTagBox { get; set; } = false;
+        public bool? IsSubForm { get; set; } = false;
+        public long? SubAttributeId { get; set; }
+        public long? SubAttributeDetailId { get; set; }
+        public Type? SubDataType { get; set; }
+        public string? SubDynamicAttributeName { get; set; }
     }
     public class AttributeHeaderListModel
     {
@@ -64,6 +69,7 @@ namespace Core.Entities
         public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute { get; set; }
         public List<AttributeDetails> AttributeDetails { get; set; }
         public DropDownOptionsGridListModel DropDownOptionsGridListModel { get; set; } = new DropDownOptionsGridListModel();
+        public List<Plant> Plant { get; set; } = new List<Plant>();
     }
     public class DynamicFormGridModel
     {
@@ -77,7 +83,12 @@ namespace Core.Entities
     public class DropDownGridOptionsModel
     {
         public long? DynamicFormId { get; set; }
-        public List<DropDownOptionsModel> DropDownOptionsModels { get; set; } = new List<DropDownOptionsModel>();
+        public List<DropDownOptionsModel?> DropDownOptionsModels { get; set; } = new List<DropDownOptionsModel?>();
+    }
+    public class AttributeDetailsAdds
+    {
+        public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
+        public List<AttributeHeader> AttributeHeader { get; set; } = new List<AttributeHeader>();
     }
     public class DropDownOptionsModel
     {

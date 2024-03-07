@@ -138,6 +138,7 @@
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="AttributeName"
                                 ValueFieldName="AttributeID"
+                                EditFormat="{1}-{2}"
                                 Enabled="isFormCountUsed"
                                 SelectedItemChanged="@((AttributeHeader selectName) => SelectedItemChanged(selectName,types))"
                     @bind-Value="@types.AttributeId">
@@ -166,7 +167,25 @@
                     <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Radio Layout" ColSpanMd="6" Visible="IsRadioLayoutEnabled">
+                    <DxRadioGroup Items="@TemplateUploadOptions"
+                                  Value="@types.RadioLayout"
+                                  ValueExpression="@(() => types.RadioLayout )"
+                                  ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value,types))"
+                                  Layout="RadioGroupLayout.Horizontal"
+                                  Enabled="IsRadioLayoutEnabled"
+                                  CssClass="dx-demo-radio-group" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
+                    <DxCheckBox Checked="@types.IsSingleTextBoxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsSingleTextBoxRemarks)" CheckedChanged="@((bool? value) => CheckedSingleTextBoxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is SingleLine TextBox</DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
+                    <DxCheckBox Checked="types.IsMultiLineTextboxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsMultiLineTextboxRemarks)" CheckedChanged="@((bool? value) => CheckedIsMultiLineTextboxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is MultiLine TextBox</DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Remarks Label Name" ColSpanMd="6" Visible="IsRadioCheckBoxLayoutEnabled">
+                    <DxTextBox @bind-Text="@types.RemarksLabelName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="IsSpinEditTypeEnabled">
                     <DxComboBox Data="@dynamicFormSectionSpinEdit"
                     @bind-Value="@types.IsSpinEditType"
                                 Enabled="@IsSpinEditTypeEnabled"
@@ -176,7 +195,7 @@
                 <DxFormLayoutItem Caption="Is Visible" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="types.IsVisible"></DxCheckBox>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6" Visible="@isListMultiple">
                     <DxCheckBox @bind-Checked="types.IsMultiple" Enabled="@isListMultiple"></DxCheckBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Required" ColSpanMd="6">
@@ -187,7 +206,7 @@
                     <DxTextBox @bind-Text="@types.RequiredMessage" />
                     <ValidationMessage For="@(() => types.RequiredMessage)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Col Span" ColSpanMd="6">
                     <DxComboBox Data="@colSpanLists"
                     @bind-Value="@types.ColSpan"
                                 TextFieldName="Text"
@@ -262,11 +281,13 @@
     private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeData;
     IGrid? SMAttributeGrid { get; set; }
     private DynamicFormSectionAttribute _selectedAttributeItems;
+    IEnumerable<string> TemplateUploadOptions = new[] { "Vertical", "Horizontal" };
     bool DeleteEnabled { get; set; } = false;
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     bool isListMultiple = false;
-    bool IsSpinEditTypeEnabled { get; set; } = false;
+    bool IsSpinEditTypeEnabled { get; set; } = false; bool IsRadioLayoutEnabled { get; set; } = false;
+    bool IsRadioCheckBoxLayoutEnabled { get; set; } = false;
     string? errorMessage;
     string? DeleteerrorMessage;
     bool MessageVisible { get; set; }
@@ -309,12 +330,35 @@
         DynamicFormSectionId = dynamicFormIds;
         await UpdateDataAsync();
     }
+    void OnTemplateUploadGroupValueChanged(string? radioValue, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+        dynamicFormSectionAttribute.RadioLayout = radioValue;
+    }
+    void CheckedSingleTextBoxRemarksChanged(bool? value, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+        dynamicFormSectionAttribute.IsSingleTextBoxRemarks = value;
+        if (value == true)
+        {
+            dynamicFormSectionAttribute.IsMultiLineTextboxRemarks = false;
+        }
+        StateHasChanged();
+    }
+    void CheckedIsMultiLineTextboxRemarksChanged(bool? value, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+        dynamicFormSectionAttribute.IsMultiLineTextboxRemarks = value;
+        if (value == true)
+        {
+            dynamicFormSectionAttribute.IsSingleTextBoxRemarks = false;
+        }
+        StateHasChanged();
+    }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         isFormCountUsed = true;
         var navitems = (DynamicFormSectionAttribute)e.EditModel;
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
-        isListMultiple = false; IsSpinEditTypeEnabled = false;
+        isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
+        navitems.IsSingleTextBoxRemarks = false; navitems.IsSingleTextBoxRemarks = false;
         if (e.IsNew)
         {
             navitems.IsSpinEditType = "int";
@@ -328,17 +372,44 @@
             {
                 isFormCountUsed = false;
             }
-            else
+            if (navitems.ControlTypeId == 2706)
             {
-                if (navitems.ControlTypeId == 2706)
-                {
-                    isListMultiple = true;
-                }
-                if (navitems.ControlTypeId == 2704)
-                {
-                    IsSpinEditTypeEnabled = true;
-                }
+                isListMultiple = true;
             }
+            if (navitems.ControlTypeId == 2704)
+            {
+                IsSpinEditTypeEnabled = true;
+            }
+            if (navitems.ControlTypeId == 2705 || navitems.ControlTypeId == 2711)
+            {
+                if (string.IsNullOrEmpty(navitems.RadioLayout))
+                {
+                    navitems.RadioLayout = "Vertical";
+                }
+                if (navitems.IsRadioCheckRemarks == "Memo")
+                {
+                    navitems.IsMultiLineTextboxRemarks = true;
+                }
+                if (navitems.IsRadioCheckRemarks == "TextBox")
+                {
+                    navitems.IsSingleTextBoxRemarks = true;
+                }
+                IsRadioCheckBoxLayoutEnabled = true;
+                IsRadioLayoutEnabled = true;
+            }
+            if (navitems.ControlTypeId == 2710)
+            {
+                if (navitems.IsRadioCheckRemarks == "Memo")
+                {
+                    navitems.IsMultiLineTextboxRemarks = true;
+                }
+                if (navitems.IsRadioCheckRemarks == "TextBox")
+                {
+                    navitems.IsSingleTextBoxRemarks = true;
+                }
+                IsRadioCheckBoxLayoutEnabled = true;
+            }
+
             //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, navitems.AttributeId));
         }
         StateHasChanged();
@@ -380,7 +451,7 @@
     {
         data.DisplayName = attributeHeader.Description;
         data.ControlTypeId = attributeHeader.ControlTypeId;
-        isListMultiple = false; IsSpinEditTypeEnabled = false;
+        isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
         if (attributeHeader != null)
         {
             if (attributeHeader.ControlTypeId == 2706)
@@ -391,6 +462,23 @@
             {
                 IsSpinEditTypeEnabled = true;
             }
+            if (attributeHeader.ControlTypeId == 2705 || attributeHeader.ControlTypeId == 2711)
+            {
+                if (string.IsNullOrEmpty(data.RadioLayout))
+                {
+                    data.RadioLayout = "Vertical";
+                }
+                IsRadioCheckBoxLayoutEnabled = true;
+                IsRadioLayoutEnabled = true;
+            }
+            if (attributeHeader.ControlTypeId == 2710)
+            {
+                IsRadioCheckBoxLayoutEnabled = true;
+            }
+            if (attributeHeader.ControlTypeId == 2712)
+            {
+                data.ColSpan = 12;
+            }
         }
         StateHasChanged();
     }
@@ -400,6 +488,21 @@
         var editModel = (DynamicFormSectionAttribute)e.EditModel;
         var isMultipleFlag = editModel.ControlTypeId == 2706 ? (editModel.IsMultiple == true ? true : false) : false;
         var IsSpinEditType = editModel.ControlTypeId == 2704 ? (string.IsNullOrEmpty(editModel.IsSpinEditType) ? null : editModel.IsSpinEditType) : null;
+        var IsRadioLayout = editModel.ControlTypeId == 2705 || editModel.ControlTypeId == 2711 ? (string.IsNullOrEmpty(editModel.RadioLayout) ? null : editModel.RadioLayout) : null;
+        var IsColSpan = editModel.ControlTypeId == 2712 ? 12 : editModel.ColSpan;
+        string? IsRadioCheckRemarks = null; string? RemarksLabelName = null;
+        if (editModel.ControlTypeId == 2705 || editModel.ControlTypeId == 2711 || editModel.ControlTypeId == 2710)
+        {
+            RemarksLabelName = editModel.RemarksLabelName;
+            if (editModel.IsMultiLineTextboxRemarks == true)
+            {
+                IsRadioCheckRemarks = "Memo";
+            }
+            if (editModel.IsSingleTextBoxRemarks == true)
+            {
+                IsRadioCheckRemarks = "TextBox";
+            }
+        }
         if (e.IsNew)
         {
             var createReq = new InsertOrUpdateDynamicFormSectionAttribute
@@ -410,7 +513,7 @@
                     SessionId = Guid.NewGuid(),
                     AddedByUserID = applicationUser.UserID,
                     ModifiedByUserID = applicationUser.UserID,
-                    ColSpan = editModel.ColSpan,
+                    ColSpan = IsColSpan,
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
@@ -421,6 +524,9 @@
                     IsDisplayTableHeader = editModel.IsDisplayTableHeader,
                     FormToolTips = editModel.FormToolTips,
                     IsVisible = editModel.IsVisible = true,
+                    RadioLayout = IsRadioLayout,
+                    IsRadioCheckRemarks = IsRadioCheckRemarks,
+                    RemarksLabelName = RemarksLabelName,
                 };
 
             try
@@ -451,7 +557,7 @@
                     SortOrderBy = editModel.SortOrderBy,
                     AddedByUserID = editModel.AddedByUserID,
                     ModifiedByUserID = applicationUser.UserID,
-                    ColSpan = editModel.ColSpan,
+                    ColSpan = IsColSpan,
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = editModel.AddedDate,
@@ -461,7 +567,10 @@
                     IsSpinEditType = IsSpinEditType,
                     IsDisplayTableHeader = editModel.IsDisplayTableHeader,
                     FormToolTips = editModel.FormToolTips,
-                    IsVisible = editModel.IsVisible
+                    IsVisible = editModel.IsVisible,
+                    RadioLayout = IsRadioLayout,
+                    IsRadioCheckRemarks = IsRadioCheckRemarks,
+                    RemarksLabelName = RemarksLabelName,
                 };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);

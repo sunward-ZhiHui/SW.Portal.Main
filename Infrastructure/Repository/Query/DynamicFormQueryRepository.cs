@@ -734,10 +734,13 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsDisplayTableHeader", dynamicFormSection.IsDisplayTableHeader);
                         parameters.Add("FormToolTips", dynamicFormSection.FormToolTips, DbType.String);
                         parameters.Add("IsVisible", dynamicFormSection.IsVisible);
+                        parameters.Add("IsRadioCheckRemarks", dynamicFormSection.IsRadioCheckRemarks, DbType.String);
+                        parameters.Add("RadioLayout", dynamicFormSection.RadioLayout, DbType.String);
+                        parameters.Add("RemarksLabelName", dynamicFormSection.RemarksLabelName, DbType.String);
                         if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
                         {
 
-                            var query = "UPDATE DynamicFormSectionAttribute SET DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
+                            var query = "UPDATE DynamicFormSectionAttribute SET RemarksLabelName=@RemarksLabelName,IsRadioCheckRemarks=@IsRadioCheckRemarks,RadioLayout=@RadioLayout,DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
                                 "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsSpinEditType=@IsSpinEditType," +
                                 "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,FormToolTips=@FormToolTips,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader,IsVisible=@IsVisible " +
                                 "WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
@@ -747,9 +750,9 @@ namespace Infrastructure.Repository.Query
                         else
                         {
                             parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
-                            var query = "INSERT INTO DynamicFormSectionAttribute(FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
+                            var query = "INSERT INTO DynamicFormSectionAttribute(RemarksLabelName,IsRadioCheckRemarks,RadioLayout,FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
                                 "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader,IsVisible) VALUES " +
-                                "(@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
+                                "(@RemarksLabelName,@IsRadioCheckRemarks,@RadioLayout,@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
                                 "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader,@IsVisible)";
 
                             dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters);
@@ -806,7 +809,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
                 var query = "select t1.*,t9.Name DynamicGridName," +
                     "(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible," +
-                    "t2.UserName as AddedBy,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
+                    "t2.UserName as AddedBy,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.IsDynamicFormDropTagBox,t6.DropDownTypeId,t6.DataSourceId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
@@ -1541,7 +1544,7 @@ namespace Infrastructure.Repository.Query
                         {
                             dynamicFormSectionAttributeData.ForEach(s =>
                             {
-                                if (string.IsNullOrEmpty(s.DropDownTypeId))
+                                if (string.IsNullOrEmpty(s.DropDownTypeId) || s.IsDynamicFormDropTagBox != true)
                                 {
                                     var Names = s.DynamicFormSectionAttributeId;
                                     var itemValue = jsonObj[s.DynamicAttributeName];
@@ -1607,7 +1610,7 @@ namespace Infrastructure.Repository.Query
                                     var Names = jsonObj.ContainsKey(s.DynamicAttributeName);
                                     if (Names == true)
                                     {
-                                        if (string.IsNullOrEmpty(s.DropDownTypeId))
+                                        if (string.IsNullOrEmpty(s.DropDownTypeId) || s.IsDynamicFormDropTagBox != true)
                                         {
                                             var itemValue = jsonObj[s.DynamicAttributeName];
                                             if (itemValue is JArray)
@@ -1707,7 +1710,7 @@ namespace Infrastructure.Repository.Query
                                 var Names = jsonObj.ContainsKey(s.DynamicAttributeName);
                                 if (Names == true)
                                 {
-                                    if (string.IsNullOrEmpty(s.DropDownTypeId))
+                                    if (string.IsNullOrEmpty(s.DropDownTypeId) || s.IsDynamicFormDropTagBox != true)
                                     {
                                         var itemValue = jsonObj[s.DynamicAttributeName];
                                         if (itemValue is JArray)
@@ -1767,7 +1770,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(@"select * from DynamicFormSection where DynamicFormID=" + Id + " order by  SortOrderBy asc;" +
-                        "select t1.*,t5.SectionName,t6.AttributeName,t7.CodeValue as ControlType,t6.DropDownTypeID,t6.DataSourceID,t6.DynamicFormID as DynamicFormGridDropDownID,t5.DynamicFormID,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable from DynamicFormSectionAttribute t1\r\n" +
+                        "select t1.*,t5.SectionName,t6.AttributeName,t7.CodeValue as ControlType,t6.IsDynamicFormDropTagBox,t6.DropDownTypeID,t6.DataSourceID,t6.DynamicFormID as DynamicFormGridDropDownID,t5.DynamicFormID,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable from DynamicFormSectionAttribute t1\r\n" +
                         "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
                         "JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
                         "LEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID\r\n" +
@@ -3000,6 +3003,7 @@ namespace Infrastructure.Repository.Query
                             DynamicFormWorkFlowForm dynamicFormWorkFlowForm = new DynamicFormWorkFlowForm();
                             dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = rowCount + 1; ;
                             dynamicFormWorkFlowForm.SectionName = a.SectionName;
+                            dynamicFormWorkFlowForm.DynamicFormSectionId = a.DynamicFormSectionId;
                             dynamicFormWorkFlowForm.SequenceNo = a.SequenceNo;
                             dynamicFormWorkFlowForm.DynamicFormWorkFlowUserId = a.UserId;
                             dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = a.UserName;

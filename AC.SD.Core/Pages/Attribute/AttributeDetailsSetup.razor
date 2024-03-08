@@ -16,7 +16,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
-
+                @* <DxMenuItem Text="Add Sub Controls" IconCssClass="fa fa-wpforms" Click="@AddSubFormPopup" Enabled="IsCheckBoxEnabled" /> *@
             </Items>
         </DxMenu>
     </div>
@@ -90,9 +90,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_selectedItems.AttributeDetailID))" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="true"
+         HeaderText="Add Sub Controls"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
+    <BodyContentTemplate>
+        <AttributeSetupSubForm RevokeBack="CloseSubFormPopup" Type="SubAttributeDetailID" SubAttributeDetailId="@AttributeDetailId"></AttributeSetupSubForm>
 
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSubFormPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-
+    public long? AttributeDetailId { get; set; }
     IGrid? DetailGrid { get; set; }
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
@@ -105,7 +119,8 @@
     private AttributeDetails _selectedItems;
     private List<CodeMaster> _stausItems;
     long selectedAttributeID;
-    string? ControlType;
+    string? ControlType; bool IsCheckBoxEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -144,8 +159,16 @@
     }
     public async Task Attributeload(long id, string controlType)
     {
+        IsCheckBoxEnabled = false;
         selectedAttributeID = id;
         ControlType = controlType;
+        if (!string.IsNullOrEmpty(ControlType))
+        {
+            if (ControlType.ToLower() == "RadioGroup".ToLower() || ControlType.ToLower() == "Radio".ToLower())
+            {
+                IsCheckBoxEnabled = true;
+            }
+        }
         await UpdateLst();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -161,6 +184,7 @@
         var newplant = (AttributeDetails)e.EditModel;
         if (e.IsNew)
         {
+            AttributeDetailId = null;
             newplant.AttributeID = selectedAttributeID;
         }
     }
@@ -170,6 +194,7 @@
         _selectedItems = _attributesDetails.FirstOrDefault(f => f.AttributeDetailID == (long)UniqueId);
         EditEnabled = true;
         DeleteEnabled = true;
+        AttributeDetailId = _selectedItems.AttributeDetailID;
         if (_selectedItems.FormUsedCount > 0)
         {
             DeleteEnabled = false;
@@ -196,6 +221,7 @@
                 };
 
             var result = await Mediator.Send(createReq);
+            AttributeDetailId = result;
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
             await UpdateLst();
@@ -215,6 +241,7 @@
                 };
 
             var ans = await Mediator.Send(UpdateReq);
+            AttributeDetailId = ans;
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateLst();
         }
@@ -241,8 +268,19 @@
     }
     async Task EulaPopupClosed(PopupClosedEventArgs args)
     {
+        AddPopup = false;
         Blukdeletepopup = false;
         await UpdateLst();
+    }
+    void CloseSubFormPopup()
+    {
+        AddPopup = false;
+        StateHasChanged();
+    }
+    void AddSubFormPopup()
+    {
+        AddPopup = true;
+        StateHasChanged();
     }
     public void Dispose()
     {

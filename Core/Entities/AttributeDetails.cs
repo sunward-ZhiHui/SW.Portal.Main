@@ -30,6 +30,7 @@ namespace Core.Entities
         public object? DataSourceDetails { get; set; }
         [NotMapped]
         public string? DropDownTypeId { get; set; }
+        public long? CompanyId { get; set; }
 
     }
 }

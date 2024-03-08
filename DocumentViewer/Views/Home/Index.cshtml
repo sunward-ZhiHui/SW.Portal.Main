@@ -11,6 +11,12 @@
                 <img style="max-width: 100%; max-height: calc(100vh - 70px);" src="@Model.Url" />
             </div>
         }
+        else if (Model.Type == "audio")
+        {
+            <audio style="position: absolute;bottom: 0;width: 100%; height: calc(100vh - 70px);background-color:black;" controls autoplay>
+                <source src="@Model.Url" type="@Model.ContentType">
+            </audio>
+        }
         else if (Model.Type == "msg" || Model.Type == "eml")
         {
             <div style="padding:10px;overflow-y: scroll; width: 100%;height: calc(100vh - 70px);">

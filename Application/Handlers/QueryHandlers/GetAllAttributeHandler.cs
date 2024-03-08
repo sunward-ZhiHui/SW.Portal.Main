@@ -39,7 +39,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeHeader>> Handle(GetAllAttributeNameHeader request, CancellationToken cancellationToken)
         {
-            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeName();
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeName(request.IsSubForm, request.Type,request.SubId);
         }
     }
     public class GetAllAttributeNameNotInDynamicFormHandler : IRequestHandler<GetAllAttributeNameNotInDynamicForm, List<AttributeHeader>>

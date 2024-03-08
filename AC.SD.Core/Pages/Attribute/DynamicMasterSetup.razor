@@ -24,6 +24,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -127,11 +128,18 @@
         EditEnabled = true;
         DeleteEnabled = true;
     }
+    void OpenNewForm()
+    {
+        if (_selectedItems != null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+        }
+    }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-       // if (_selectedItems != null && _selectedItems.IsGridForm != true)
-       // {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+        // if (_selectedItems != null && _selectedItems.IsGridForm != true)
+        // {
+        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
         // }
         // else
         // {

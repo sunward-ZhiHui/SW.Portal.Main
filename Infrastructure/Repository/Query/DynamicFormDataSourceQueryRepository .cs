@@ -26,22 +26,29 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public async Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds)
+        public async Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds, string? plantCode)
         {
             var dataSourceDropDownList = new List<AttributeDetails>();
             if (dataSourceTableIds != null && dataSourceTableIds.Count() > 0)
             {
+                var plantsData = await GetPlantDataSource();
+                List<string?> plantNames = new List<string?>() { "SWMY", "SWSG" };
+                List<long> plantIds = new List<long>();
+                if (plantsData != null && plantsData.Count > 0)
+                {
+                    plantIds = plantsData.Where(w => plantNames.Contains(w.AttributeDetailName)).Select(s => s.AttributeDetailID).ToList();
+                }
                 if (dataSourceTableIds.Contains("Plant"))
                 {
-                    dataSourceDropDownList.AddRange(await GetPlantDataSource());
+                    dataSourceDropDownList.AddRange(plantsData);
                 }
                 if (dataSourceTableIds.Contains("NavItems"))
                 {
-                    dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId));
+                    dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Employee"))
                 {
-                    dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId));
+                    dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
                 }
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
@@ -71,16 +78,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetNavItemsDataSource(long? CompanyId)
+        private async Task<IReadOnlyList<AttributeDetails>> GetNavItemsDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
             var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
-                query += "select 'NavItems' as DropDownTypeId,ItemId as AttributeDetailID,No as AttributeDetailName,CONCAT(Description,(case when ISNULL(NULLIF(Description2, ''), null) is NULL then  Description2 ELSE  CONCAT(' | ',Description2) END)) as Description\r\n from Navitems\r\n";
+                query += "select 'NavItems' as DropDownTypeId,ItemId as AttributeDetailID,CompanyId,No as AttributeDetailName,CONCAT(Description,(case when ISNULL(NULLIF(Description2, ''), null) is NULL then  Description2 ELSE  CONCAT(' | ',Description2) END)) as Description\r\n from Navitems\r\n";
                 if (CompanyId > 0)
                 {
-                    query += "Where no like 'FP%' AND CompanyId=" + CompanyId + "\r\n";
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where no like 'FP%' AND CompanyId in(" + string.Join(',', plantIds) + ")";
+                    }
+                    else
+                    {
+                        query += "Where no like 'FP%' AND CompanyId=" + CompanyId + "\r\n";
+                    }
                 }
                 else
                 {
@@ -98,16 +113,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetEmployeeDataSource(long? CompanyId)
+        private async Task<IReadOnlyList<AttributeDetails>> GetEmployeeDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
             var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
-                query += "select 'Employee' as DropDownTypeId,EmployeeID as AttributeDetailID, FirstName as AttributeDetailName,CONCAT(case when NickName is NULL then  FirstName ELSE  NickName END,' | ',LastName) as Description from Employee\r\n";
+                query += "select 'Employee' as DropDownTypeId,EmployeeID as AttributeDetailID,PlantId as CompanyId, FirstName as AttributeDetailName,CONCAT(case when NickName is NULL then  FirstName ELSE  NickName END,' | ',LastName) as Description from Employee\r\n";
                 if (CompanyId > 0)
                 {
-                    query += "Where PlantId=" + CompanyId + "\r\n";
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where PlantId in(" + string.Join(',', plantIds) + ")";
+                    }
+                    else
+                    {
+                        query += "Where PlantId=" + CompanyId + "\r\n";
+                    }
                 }
                 using (var connection = CreateConnection())
                 {

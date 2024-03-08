@@ -120,12 +120,12 @@ namespace Infrastructure.Repository.Query
                           
                             parameters.Add("StatusCodeID", attributeDetails.StatusCodeID);
 
-                            var query = "INSERT INTO AttributeDetails(AttributeID,AttributeDetailName,Description,Disabled,SessionId,AddedByUserID,AddedDate,StatusCodeID) VALUES (@AttributeID,@AttributeDetailName,@Description,@Disabled,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
+                            var query = "INSERT INTO AttributeDetails(AttributeID,AttributeDetailName,Description,Disabled,SessionId,AddedByUserID,AddedDate,StatusCodeID)  OUTPUT INSERTED.AttributeDetailID  VALUES (@AttributeID,@AttributeDetailName,@Description,@Disabled,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
 
 
-                            return rowsAffected;
+                        return insertedId;
                         }
                         catch (Exception exp)
                         {

@@ -119,6 +119,8 @@
 
 	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
 
+	  <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
+
 	  <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
 
 	  <PackageReference Include="Toast.Blazor" Version="1.0.2" />

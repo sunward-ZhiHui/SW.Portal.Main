@@ -74,6 +74,25 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<IReadOnlyList<FbOutputCartons>> GetAllCartonsCountAsync(string PalletNo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("PalletNo", PalletNo);
+                var query = "select SUM(FullCartonQty) as TotalFullCartonQty,SUM(LooseCartonQty) as TotalLooseCartonQty From FbOutputCartons   where PalletNo =  @PalletNo";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<FbOutputCartons>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public  async Task<long> Insert(FbOutputCartons fbOutputCartons)
         {
             try

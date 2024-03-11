@@ -190,6 +190,43 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("GetFullCartonsList")]
+        public async Task<ActionResult<Services.ResponseModel<List<FbOutputCartons>>>> GetFullCartonsList(string PalletNo)
+        {
+            var response = new Services.ResponseModel<FbOutputCartons>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _FbOutputCartonsQueryRepository.GetAllFullCartonsAsync(PalletNo);
+                response.Results = (List<FbOutputCartons>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetLooseCartonsList")]
+        public async Task<ActionResult<Services.ResponseModel<List<FbOutputCartons>>>> GetLooseCartonsList(string PalletNo)
+        {
+            var response = new Services.ResponseModel<FbOutputCartons>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _FbOutputCartonsQueryRepository.GetAllLooseCartonsAsync(PalletNo);
+                response.Results = (List<FbOutputCartons>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 }
 

@@ -112,11 +112,11 @@ namespace AC.ShippingDocument.Reporting
                     options.AllowSynchronousIO = true;
                 });
 
-                services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
-                    IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
-                    IFileProvider fileProvider = serviceProvider.GetRequiredService<IWebHostEnvironment>().ContentRootFileProvider;
-                    return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
-                });
+                //services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
+                //    IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
+                //    IFileProvider fileProvider = serviceProvider.GetRequiredService<IWebHostEnvironment>().ContentRootFileProvider;
+                //    return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
+                //});
 
                 services.AddTransient<DevExpress.DataAccess.Wizard.Services.ICustomQueryValidator, DevExpress.DataAccess.Wizard.Services.CustomQueryValidator>();
                 //services.AddSingleton<IDemoReportSource, DemoReportSource>();

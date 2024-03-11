@@ -71,13 +71,7 @@ namespace SW.Portal.Solutions.ServerSide {
             services.AddTransient<IFcm>(s => new FcmBuilder()
                .WithApiKey("Your_API_key")
                .GetFcm()
-           );
-
-            services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
-                IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
-                IFileProvider fileProvider = serviceProvider.GetRequiredService<IWebHostEnvironment>().ContentRootFileProvider;
-                return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
-            });
+           );        
 
 
             //Enable CORS

@@ -27,6 +27,10 @@ namespace Core.Entities
         public int TotalFullCartonQty { get; set;}
         [NotMapped]
         public int TotalLooseCartonQty { get; set; }
+        [NotMapped]
+        public int CountFullCartonQty { get; set; }
+        [NotMapped]
+        public int CountLooseCartonQty { get; set; }
 
     }
 }

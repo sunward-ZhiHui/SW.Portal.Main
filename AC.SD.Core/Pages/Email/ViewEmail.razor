@@ -662,6 +662,19 @@
                                                                     <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                                         @* <DataAnnotationsValidator />*@
                                                                         <DxFormLayout>
+                                                                            <DxFormLayoutItem Caption="Section:" ColSpanMd="12" Visible="@isDynamicFormEmailSection">                                                                               
+                                                                                <DxComboBox Data="@_DynamicFormEmailSection"
+                                                                                            NullText="Select Section Name"
+                                                                                            Enabled="@isDynamicFormEmailSection"
+                                                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                                                            TextFieldName="SectionName"
+                                                                                            ValueFieldName="SectionName"
+                                                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                            @bind-Value="@Data.DynamicFormEmailSectionName"
+                                                                                            SelectedItemChanged="@((DynamicFormSection dynamicFormSection) => onSelectedDynFomSectionChanged(dynamicFormSection))">
+                                                                                </DxComboBox>
+                                                                                <ValidationMessage For="@(() => Data.DynamicFormEmailSectionName)" />
+                                                                            </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
                                                                                 <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" spellcheck="true" NullText="Subject Name" Enabled="@IsReadOnly" />
                                                                                 <ValidationMessage For="@(() => Data.Name)" />
@@ -2707,6 +2720,7 @@
     int newSubjectreply = 0;
     bool isPushNotification { get; set; } = false;
     bool isCheckAllowParticipant { get; set; } = false;
+    bool isDynamicFormEmailSection  = false;
     private CancellationTokenSource cancellationTokenSource;
     private const int AutoRefreshInterval = 10000; // 10 seconds
     private Documents? _selectlst;
@@ -2968,6 +2982,7 @@
     private List<ViewEmployee>? _selectedlistpartlist;
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;    
     EmailConversations? Data { get; set; } = new EmailConversations();
+    internal List<DynamicFormSection>? _DynamicFormEmailSection = new List<DynamicFormSection>();
     string SelectedGroup = "none";
     string SelectedReplyId = "none";
     public ApplicationUser? applicationUser { get; private set; }
@@ -3115,6 +3130,14 @@
             _ToUserGroup = _participantUserGroup.ToList();
         }
         StateHasChanged();
+    }
+    void onSelectedDynFomSectionChanged(DynamicFormSection dynamicFormSections)
+    {
+        if (dynamicFormSections != null)
+        {            
+            Data.Name = dynamicFormSections.SectionName;
+        }
+       
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -4805,6 +4828,20 @@
 
             Data.UserType = _replyComment[0].UserType;
             isCheckAllowParticipant = true;
+
+
+            var DFEmailSection = await Mediator.Send(new GetDynamicFormEmailSection(_replyComment[0].SessionId.Value));
+
+            if(DFEmailSection.Count > 0)
+            {
+                isDynamicFormEmailSection = true;
+                _DynamicFormEmailSection = DFEmailSection;
+            }
+            else
+            {
+                isDynamicFormEmailSection = false;
+                _DynamicFormEmailSection = new List<DynamicFormSection>();
+            }
 
             if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
             {

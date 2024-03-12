@@ -483,6 +483,15 @@ namespace Application.Queries
         }
 
     }
+    public class GetDynamicFormEmailSection : PagedRequest, IRequest<List<DynamicFormSection>>
+    {
+        public Guid SessionId { get; private set; }
+        public GetDynamicFormEmailSection(Guid sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+
+    }
     public class GetDynamicFormName : PagedRequest, IRequest<List<DynamicFormData>>
     {
         public Guid SessionId { get; private set; }

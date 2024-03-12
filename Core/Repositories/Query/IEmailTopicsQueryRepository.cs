@@ -70,6 +70,7 @@ namespace Core.Repositories.Query
         Task<List<ActivityEmailTopics>> GetActivityEmailDocListBySession(Guid sessionId);
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
         Task<List<Documents>> GetDynamicFormDocumentListAsync(Guid sessionId);
+        Task<List<DynamicFormSection>> GetDynamicFormEmailSectionListAsync(Guid sessionid);
         Task<List<DynamicFormData>> GetDynamicFormNameAsync(Guid sessionId);
         Task<List<Documents>> GetPATypeDocLstAsync(long Id,string Type);        
         Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);

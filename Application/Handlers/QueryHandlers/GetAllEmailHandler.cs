@@ -897,6 +897,21 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<Documents>)await _createEmailDocumentsQueryRepository.GetDynamicFormDocumentListAsync(request.SessionId);
         }
     }
+    public class GetDynamicFormEmailSectionHandler : IRequestHandler<GetDynamicFormEmailSection, List<DynamicFormSection>>
+    {
+        private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;
+
+        public GetDynamicFormEmailSectionHandler(IEmailTopicsQueryRepository createEmailDocumentsQueryRepository)
+        {
+
+            _createEmailDocumentsQueryRepository = createEmailDocumentsQueryRepository;
+        }
+        public async Task<List<DynamicFormSection>> Handle(GetDynamicFormEmailSection request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSection>)await _createEmailDocumentsQueryRepository.GetDynamicFormEmailSectionListAsync(request.SessionId);
+        }
+    }
+    
     public class GetDynamicFormNameHandler : IRequestHandler<GetDynamicFormName, List<DynamicFormData>>
     {
         private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;

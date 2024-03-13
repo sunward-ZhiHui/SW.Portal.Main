@@ -7,28 +7,20 @@
 @inject IMediator Mediator
 @using System.Linq;
 @implements IDisposable;
+@inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
-<style scoped>
-  
+<style scoped>  
 </style>
-
-
-
 <DxGrid @ref="TOGrid" SearchText="@GridSearchText" 
         Data="_forumTopicTo"
         VirtualScrollingEnabled="false"   
         AllowSort="false"
         KeyFieldName="ID"
-        CustomizeElement="Grid_CustomizeElement"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        ShowAllRows="false"
+        CustomizeElement="Grid_CustomizeElement"       
+        ShowAllRows="true"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 235px);"
+        CssClass="w-100" style="height: calc(100vh - 245px);"
         RowClick="OnEmailToRowClick"     
         AllowSelectRowByClick="true">
     <Columns>
@@ -93,9 +85,13 @@
         <SubViewEmail @ref=RefSubAssignTo Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
     </DetailRowTemplate>   
 </DxGrid>
-
+<div style="text-align:center">
+    <button @onclick="ToLoadMore" class="loadmorebg">Load More</button>
+</div>
 
 @code {
+    private int pageNumber = 1; // Initial page number
+    private int pageSize = 15; // Number of records per page
     DxContextMenu? ContextMenu { get; set; }
     IGrid? TOGrid { get; set; }
     internal List<EmailTopics>? _forumTopicTo;
@@ -119,10 +115,26 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         @if (Page == "AssignTo")
         {
-            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         }
         //NavigationManager.LocationChanged += OnLocationChanged;
 
+    }
+    protected async Task ToLoadMore()
+    {
+        pageNumber++; // Increment page number                      
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        @if (Page == "AssignTo")
+        {
+            var _assigntoEmail = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
+            _forumTopicTo.AddRange(_assigntoEmail); 
+            TOGrid.Reload();
+        }
+        //var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));
+        
+       
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        StateHasChanged();
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -145,7 +157,7 @@
     {
         if (applicationUser != null)
         {
-            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL"));
+            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         }
 
         if(RefSubAssignTo != null)
@@ -157,7 +169,7 @@
     {
         if (applicationUser != null)
         {
-            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL"));
+            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         }
         
     }

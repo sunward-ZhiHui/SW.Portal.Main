@@ -1777,6 +1777,79 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        
+        public async Task<long> DocInsertDynamicFormDateUpload(Guid id, Guid sessionid,long userid)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Id", id);
+                        parameters.Add("sessionId", sessionid);
+                        parameters.Add("AddedByUserID", userid);
+                        
+
+                        //var query = @"UPDATE DynamicFormDataUpload SET EmailSessionID = @sessionId WHERE SessionID = @Id";
+
+                        var query = @"INSERT INTO Documents(FileName,ContentType,FileSize,UploadDate,AddedByUserID,AddedDate,FilePath,SessionID,SourceFrom,EmailToDMS,IsNewPath)			
+                                        SELECT D.FileName,D.ContentType,D.FileSize,GETDATE(),@AddedByUserID,GETDATE(),FilePath,@sessionId,'Email',null,
+			                                CASE
+				                            WHEN (FilePath LIKE 'AppUpload\%' OR FilePath LIKE 'Documents\%') AND IsNewPath = 1 THEN 1
+				                            ELSE 0
+			                                END from Documents D
+			                            INNER JOIN DynamicFormDataUpload DFU ON DFU.SessionID = D.SessionID
+			                            WHERE DFU.SessionID = @Id";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
+        public async Task<long> UpdateDynamicFormDateUploadSession(Guid id,Guid sessionid)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Id", id);
+                        parameters.Add("sessionId", sessionid);
+
+                        var query = @"UPDATE DynamicFormDataUpload SET EmailSessionID = @sessionId WHERE SessionID = @Id";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<long> LastUpdateDateEmailTopic(long TopicId)
         {
             try
@@ -1836,8 +1909,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("NotifyUser", forumConversations.NotifyUser);
                             parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
                             parameters.Add("UserType", forumConversations.UserType);
+                            parameters.Add("DynamicFormDataUploadSessionID", forumConversations.DynamicFormDataUploadSessionID);
+                        
 
-                            var query = "INSERT INTO EmailConversations(UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID) OUTPUT INSERTED.ID VALUES (@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

@@ -111,7 +111,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicToList(request.UserId,request.SearchTxt);
+            return await _emailTopicsQueryRepository.GetTopicToList(request.UserId,request.SearchTxt,request.PageNumber,request.PageSize);
         }
     }
     public class GetEmailTopicToSearchHandler : IRequestHandler<GetEmailTopicToSearch, List<EmailTopics>>

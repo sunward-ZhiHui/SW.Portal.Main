@@ -79,10 +79,12 @@ namespace Application.Queries
     {
         public long UserId { get; private set; }
         public string SearchTxt { get; private set; }
-        public GetEmailTopicTo(long UserId,string searchTxt)
+        public GetEmailTopicTo(long UserId,string searchTxt, int pageNumber, int pageSize)
         {
             this.UserId = UserId;
             this.SearchTxt = searchTxt;
+            this.PageNumber = pageNumber;
+            this.PageSize = pageSize;
         }
     }
     public class GetEmailTopicToSearch : PagedRequest, IRequest<List<EmailTopics>>

@@ -19,6 +19,8 @@ namespace Core.Repositories.Query
         Task<String> SendPushNotification(long Id);
         Task<long> LastUserIDUpdate(long ReplyId,long UserId);
         Task<long> LastUpdateDateEmailTopic(long TopicId);
+        Task<long> UpdateDynamicFormDateUploadSession(Guid id, Guid sessionId);
+        Task<long> DocInsertDynamicFormDateUpload(Guid id, Guid sessionId,long userid);        
         Task<long> InsertAssignTo(EmailConversationAssignTo forumConversationAssignTo);
         Task<long> InsertAssignTo_sp(EmailConversationAssignTo emailConversationAssignTo);
         Task<long> InsertAssignToUserGroup_sp(EmailConversationAssignToUserGroup AssignToUserGroup);

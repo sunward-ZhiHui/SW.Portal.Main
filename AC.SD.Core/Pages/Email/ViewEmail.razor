@@ -668,12 +668,12 @@
                                                                                             Enabled="@isDynamicFormEmailSection"
                                                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                                                             TextFieldName="SectionName"
-                                                                                            ValueFieldName="SectionName"
+                                                                                            ValueFieldName="UploadSessionID"
                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                                                            @bind-Value="@Data.DynamicFormEmailSectionName"
-                                                                                            SelectedItemChanged="@((DynamicFormSection dynamicFormSection) => onSelectedDynFomSectionChanged(dynamicFormSection))">
+                                                                                            @bind-Value="@Data.DynamicFormDataUploadSessionID"
+                                                                                            >
                                                                                 </DxComboBox>
-                                                                                <ValidationMessage For="@(() => Data.DynamicFormEmailSectionName)" />
+                                                                                <ValidationMessage For="@(() => Data.DynamicFormDataUploadSessionID)" />
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
                                                                                 <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" spellcheck="true" NullText="Subject Name" Enabled="@IsReadOnly" />
@@ -1676,6 +1676,8 @@
 
 
 @code {
+    private int pageNumber = 1; // Initial page number
+    private int pageSize = 15; // Number of records per page
     private int submitCount = 0;
     bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;
@@ -3135,7 +3137,12 @@
     {
         if (dynamicFormSections != null)
         {            
-            Data.Name = dynamicFormSections.SectionName;
+            Data.DynamicFormDataUploadSessionID = dynamicFormSections.UploadSessionID;
+
+        }
+        else
+        {
+            Data.DynamicFormDataUploadSessionID = null;
         }
        
     }
@@ -4719,7 +4726,7 @@
                     await Task.Delay(2000); // Delay for 2 seconds
 
 
-                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
                     _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
                     _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID,"NULL"));
                     _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
@@ -4734,7 +4741,7 @@
                     SelectedGroup = elst[0].ID.ToString();
                     RTopicId = 0;
 
-                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL", pageNumber, pageSize));
                     _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
                     _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID,"NULL"));
                     _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
@@ -4755,7 +4762,7 @@
             }
             else
             {
-                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL", pageNumber, pageSize));
                 _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
                 _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
                 _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
@@ -4778,7 +4785,7 @@
     }
     private async Task LoadGridData()
     {
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL", pageNumber, pageSize));
         _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
         _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
         _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
@@ -4798,7 +4805,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         await JSRuntime.InvokeAsync<string>("showLoading");
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
         _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
 
@@ -5633,6 +5640,7 @@
                     PlistIdss = participantidsString,
                     AllowPlistids = plistUniqueItems,
                     DueDate = Data.DueDate,
+                    DynamicFormDataUploadSessionID = Data.DynamicFormDataUploadSessionID,
                     IsAllowParticipants = Data.IsAllowParticipants,
                     Urgent = Data.Urgent,
                     NotifyUser = Data.NotifyUser,

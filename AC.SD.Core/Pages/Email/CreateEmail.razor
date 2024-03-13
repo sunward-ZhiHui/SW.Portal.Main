@@ -1741,8 +1741,8 @@ else
 
                 if (actItem[0].ActivityType == "DynamicForm")
                 {
-                    var documentslst = await Mediator.Send(new GetDynamicFormDoc(actItem[0].SessionId.Value));
-                    _documentslst = documentslst;
+                    // var documentslst = await Mediator.Send(new GetDynamicFormDoc(actItem[0].SessionId.Value));
+                    // _documentslst = documentslst;
 
                     var dynamicname = await Mediator.Send(new GetDynamicFormName(actItem[0].SessionId.Value));
                     DynamicFormName = dynamicname[0].Name;

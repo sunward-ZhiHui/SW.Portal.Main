@@ -696,7 +696,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt)
+        public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt, int pageNumber, int pageSize)
         {
             try
             {
@@ -707,7 +707,8 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("searchtxt", searchTxt);
-                        parameters.Add("searchtxt", searchTxt);
+                        parameters.Add("PageNumber", pageNumber);
+                        parameters.Add("PageSize", pageSize);
                         parameters.Add("Option", "SELECT_ASSIGN_TO");
                         
 
@@ -2581,9 +2582,9 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionID", sessionId, DbType.Guid);
 
-                var query = @"SELECT DFS.* from ActivityEmailTopics AET
+                var query = @"SELECT DFS.*,DFDU.SessionID as UploadSessionID from ActivityEmailTopics AET
                                 INNER JOIN DynamicFormData DFD ON DFD.SessionID= AET.SessionId
-                                INNER JOIN DynamicFormDataUpload DFDU ON DFDU.DynamicFormDataID = DFD.DynamicFormDataID
+                                INNER JOIN DynamicFormDataUpload DFDU ON DFDU.DynamicFormDataID = DFD.DynamicFormDataID AND DFDU.EmailSessionID IS NULL
                                 INNER JOIN DynamicFormSection DFS ON DFS.DynamicFormSectionID = DFDU.DynamicFormSectionID
                                 where AET.ActivityType = 'DynamicForm' AND AET.EmailTopicSessionId = @SessionID";
 

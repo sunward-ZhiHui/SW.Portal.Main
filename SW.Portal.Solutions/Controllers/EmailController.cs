@@ -52,7 +52,7 @@ namespace SW.Portal.Solutions.Controllers
 
             if (mode == "To")
             {
-                result = await _mediator.Send(new GetEmailTopicTo(UserId, SearchTxt));
+                result = await _mediator.Send(new GetEmailTopicTo(UserId, SearchTxt, pageNumber, pageSize));
             }
             else if (mode == "CC")
             {

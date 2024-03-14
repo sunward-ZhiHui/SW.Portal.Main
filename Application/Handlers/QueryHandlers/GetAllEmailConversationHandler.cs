@@ -479,10 +479,10 @@ namespace Application.Handlers.QueryHandlers
 
             var ETUpdateDate = await _conversationQueryRepository.LastUpdateDateEmailTopic(request.TopicID);
 
-            if(request.DynamicFormDataUploadSessionID != null)
+            if(request.EmailFormSectionSessionID != null)
             {
-                var updateDynFrmDataSessionid = await _conversationQueryRepository.UpdateDynamicFormDateUploadSession(request.DynamicFormDataUploadSessionID.Value,request.SessionId.Value);
-                var docInsert = await _conversationQueryRepository.DocInsertDynamicFormDateUpload(request.DynamicFormDataUploadSessionID.Value, request.SessionId.Value,request.AddedByUserID.Value);
+                var updateDynFrmDataSessionid = await _conversationQueryRepository.InsertEmailDynamicFormDateUploadSession(request.DynamicFormID.Value,request.EmailFormDataSessionID.Value, request.EmailFormSectionSessionID.Value,request.SessionId.Value);
+                var docInsert = await _conversationQueryRepository.DocInsertDynamicFormDateUpload(request.EmailFormDataSessionID.Value, request.EmailFormSectionSessionID.Value,request.SessionId.Value,request.AddedByUserID.Value);
             }
 
 

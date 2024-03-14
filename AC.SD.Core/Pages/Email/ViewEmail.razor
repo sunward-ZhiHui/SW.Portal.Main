@@ -440,6 +440,19 @@
                                                         </div>                                                                                                            
                                                     </div> *@
                                                 </div>
+
+                                                @if (item.DynamicFormEmailSectionName != null)
+                                                {
+                                                    <div class="replybox" style="min-height:60px;">
+                                                        <div style="font-weight: bold;">
+                                                            Dynamic form @item.DynamicFormEmailSectionName
+                                                        </div>
+                                                        <text></text>
+                                                        <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
+                                                    </div>
+                                                }
+
+
                                                 @if (!string.IsNullOrEmpty(item.BackURL))
                                                 {
                                                     string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : item.ActivityType == "DynamicForm" ? item.DynamicFormName : "Activity";
@@ -668,12 +681,12 @@
                                                                                             Enabled="@isDynamicFormEmailSection"
                                                                                             FilteringMode="DataGridFilteringMode.Contains"
                                                                                             TextFieldName="SectionName"
-                                                                                            ValueFieldName="UploadSessionID"
+                                                                                            ValueFieldName="EmailFormSectionSessionID"
                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                                                            @bind-Value="@Data.DynamicFormDataUploadSessionID"
-                                                                                            >
+                                                                                            @bind-Value="@Data.EmailFormSectionSessionID"
+                                                                                            SelectedItemChanged="@((DynamicFormSection dynamicFormSection) => onSelectedDynFomSectionChanged(dynamicFormSection))">
                                                                                 </DxComboBox>
-                                                                                <ValidationMessage For="@(() => Data.DynamicFormDataUploadSessionID)" />
+                                                                                <ValidationMessage For="@(() => Data.EmailFormSectionSessionID)" />
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
                                                                                 <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" spellcheck="true" NullText="Subject Name" Enabled="@IsReadOnly" />
@@ -3133,18 +3146,58 @@
         }
         StateHasChanged();
     }
-    void onSelectedDynFomSectionChanged(DynamicFormSection dynamicFormSections)
+    async void  onSelectedDynFomSectionChanged(DynamicFormSection dynamicFormSections)
     {
         if (dynamicFormSections != null)
-        {            
-            Data.DynamicFormDataUploadSessionID = dynamicFormSections.UploadSessionID;
+        {     
+            var SectionUserList = await Mediator.Send(new GetUserPermissionSection(dynamicFormSections.DynamicFormSectionId));
+            if(SectionUserList.Count > 0)
+            {
+                var assTo = SectionUserList.Where(c => c.IsReadWrite == true && c.UserId != applicationUser.UserID).Select(s => (long)s.UserId).ToList();
+                var assCC = SectionUserList.Where(c => c.IsReadOnly == true && c.UserId != applicationUser.UserID).Select(s => (long)s.UserId).ToList();
 
+                Data.AssigntoIds = new List<long>();
+                Data.AssignccIds = new List<long>();
+
+                var emplst = _allparticipants.Where(employee => assTo.Contains(employee.UserID.Value)).ToList();
+                onSelectedToItemsChanged(emplst);
+
+                var emplst1 = _allparticipants.Where(employee => assCC.Contains(employee.UserID.Value)).ToList();
+                onSelectedCCItemsChanged(emplst1);
+
+
+                Data.AssigntoIds = assTo;
+                Data.AssignccIds = assCC;
+            }
+
+            Data.DynamicFormID = dynamicFormSections.DynamicFormId;
+            Data.EmailFormDataSessionID = dynamicFormSections.EmailFormDataSessionID;
+
+
+            StateHasChanged();
         }
         else
         {
-            Data.DynamicFormDataUploadSessionID = null;
+            Data.AssigntoIds = new List<long>();
+            Data.AssignccIds = new List<long>();
+
+            var assTo = Data.AssigntoIds;
+            var assCC =Data.AssignccIds;
+
+
+            var emplst = _allparticipants.Where(employee => assTo.Contains(employee.UserID.Value)).ToList();
+            onSelectedToItemsChanged(emplst);
+
+            var emplst1 = _allparticipants.Where(employee => assCC.Contains(employee.UserID.Value)).ToList();
+            onSelectedCCItemsChanged(emplst1);
+
+            Data.DynamicFormID = null;
+            Data.EmailFormDataSessionID = null;
+
+
+            StateHasChanged();            
         }
-       
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -5022,6 +5075,9 @@
         Data.NotifyUser = false;
         newSubjectreply = 1;
         submitCount = 0;
+        Data.DynamicFormID = null;
+        Data.EmailFormDataSessionID = null;
+        Data.EmailFormSectionSessionID = null;        
 
         StateHasChanged(); // Force a UI update
         await Task.Delay(2700);
@@ -5233,6 +5289,10 @@
             Data.Name = _replyComment[0].Name;
             Data.From = applicationUser.UserName;
             IsReadOnly = false;
+
+             Data.DynamicFormID = null;
+            Data.EmailFormDataSessionID = null;
+            Data.EmailFormSectionSessionID = null;  
 
             StateHasChanged(); // Force a UI update
             await Task.Delay(2700);
@@ -5640,7 +5700,9 @@
                     PlistIdss = participantidsString,
                     AllowPlistids = plistUniqueItems,
                     DueDate = Data.DueDate,
-                    DynamicFormDataUploadSessionID = Data.DynamicFormDataUploadSessionID,
+                    EmailFormSectionSessionID = Data.EmailFormSectionSessionID,
+                    EmailFormDataSessionID = Data.EmailFormDataSessionID,
+                    DynamicFormID = Data.DynamicFormID,
                     IsAllowParticipants = Data.IsAllowParticipants,
                     Urgent = Data.Urgent,
                     NotifyUser = Data.NotifyUser,

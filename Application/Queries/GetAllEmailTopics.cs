@@ -492,7 +492,14 @@ namespace Application.Queries
         {
             this.SessionId = sessionId;
         }
-
+    }
+    public class GetUserPermissionSection : PagedRequest, IRequest<List<DynamicFormSectionSecurity>>
+    {
+        public long Id { get; private set; }
+        public GetUserPermissionSection(long Id)
+        {
+            this.Id = Id;
+        }
     }
     public class GetDynamicFormName : PagedRequest, IRequest<List<DynamicFormData>>
     {

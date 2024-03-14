@@ -911,7 +911,21 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<DynamicFormSection>)await _createEmailDocumentsQueryRepository.GetDynamicFormEmailSectionListAsync(request.SessionId);
         }
     }
-    
+    public class GetUserPermissionSectionHandler : IRequestHandler<GetUserPermissionSection, List<DynamicFormSectionSecurity>>
+    {
+        private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;
+
+        public GetUserPermissionSectionHandler(IEmailTopicsQueryRepository createEmailDocumentsQueryRepository)
+        {
+
+            _createEmailDocumentsQueryRepository = createEmailDocumentsQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionSecurity>> Handle(GetUserPermissionSection request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionSecurity>)await _createEmailDocumentsQueryRepository.GetUserListByDynamicFormAsync(request.Id);
+        }
+    }
+
     public class GetDynamicFormNameHandler : IRequestHandler<GetDynamicFormName, List<DynamicFormData>>
     {
         private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;

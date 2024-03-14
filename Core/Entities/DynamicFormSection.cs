@@ -57,6 +57,10 @@ namespace Core.Entities
         [NotMapped]
         public int? IsWorkFlowBy { get; set; }
         public long? DynamicFormWorkFlowId { get; set; }
+        [NotMapped]
+        public Guid? EmailFormDataSessionID { get; set; }
+        [NotMapped]
+        public Guid? EmailFormSectionSessionID { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

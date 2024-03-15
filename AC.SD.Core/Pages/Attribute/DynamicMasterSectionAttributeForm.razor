@@ -168,7 +168,7 @@
                     <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
-                @* <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource">
+                <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource">
                     <DxCheckBox @bind-Checked="types.IsPlantLoadDependency"></DxCheckBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Dropdown Data Source" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
@@ -186,7 +186,7 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Dropdown Label Name" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
                     <DxTextBox @bind-Text="@types.PlantDropDownWithOtherDataSourceLabelName" />
-                </DxFormLayoutItem> *@
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Radio Layout" ColSpanMd="6" Visible="IsRadioLayoutEnabled">
                     <DxRadioGroup Items="@TemplateUploadOptions"
                                   Value="@types.RadioLayout"

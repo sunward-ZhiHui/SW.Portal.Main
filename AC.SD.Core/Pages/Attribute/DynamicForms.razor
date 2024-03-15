@@ -1850,7 +1850,7 @@
             }
         }
     }
-    async Task OnRadioChangedItem(long? str, PropertyInfo property, List<AttributeDetails> attributeDetails, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    void OnRadioChangedItem(long? str, PropertyInfo property, List<AttributeDetails> attributeDetails, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
         property.SetValue(Data, str);
         if (dynamicFormSectionAttribute.ControlType == "ComboBox" && dynamicFormSectionAttribute.IsPlantLoadDependency == true && dynamicFormSectionAttribute.PlantDropDownWithOtherDataSourceId > 0)
@@ -2056,7 +2056,7 @@
                     b.AddAttribute(i + 1, "style", "margin-left:auto;");
                     if (isUploadReadonly == true)
                     {
-                        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+                        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null &&  _dynamicFormSectionList.Count>0)
                         {
                             var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == a.DynamicFormSectionId);
                             if (_dynamicSecAttach != null)

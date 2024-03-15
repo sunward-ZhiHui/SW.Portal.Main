@@ -20,7 +20,7 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetByIdTopicCCList(Int64 UserId);
         Task<List<long>> GetByIdUserGroupToList(Int64 UserId);
         Task<List<long>> GetByIdUserGroupCCList(Int64 UserId);
-        Task<List<EmailTopics>> GetTopicToList(Int64 UserId,string SearchTxt);
+        Task<List<EmailTopics>> GetTopicToList(Int64 UserId,string SearchTxt, int pageNumber, int pageSize);
         Task<List<EmailTopics>> GetTopicToSearchList(string SearchTxt ,Int64 UserId);        
         Task<long> SetPinTopicToList(Int64 Id);
         Task<long> UnSetPinTopicToList(Int64 Id);
@@ -70,6 +70,8 @@ namespace Core.Repositories.Query
         Task<List<ActivityEmailTopics>> GetActivityEmailDocListBySession(Guid sessionId);
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
         Task<List<Documents>> GetDynamicFormDocumentListAsync(Guid sessionId);
+        Task<List<DynamicFormSection>> GetDynamicFormEmailSectionListAsync(Guid sessionid);
+        Task<List<DynamicFormSectionSecurity>> GetUserListByDynamicFormAsync(long id);        
         Task<List<DynamicFormData>> GetDynamicFormNameAsync(Guid sessionId);
         Task<List<Documents>> GetPATypeDocLstAsync(long Id,string Type);        
         Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);

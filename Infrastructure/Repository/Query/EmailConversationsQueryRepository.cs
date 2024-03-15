@@ -967,7 +967,7 @@ namespace Infrastructure.Repository.Query
                 var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
-                                FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate
+                                FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName
                             FROM
                                 EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
@@ -976,6 +976,8 @@ namespace Infrastructure.Repository.Query
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
                             LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
+                            OUTER APPLY(select DFS.SectionName from DynamicFormSection DFS
+                                        INNER JOIN EmailDynamicFormSection EDFS ON EDFS.FormSectionSessionID = DFS.SessionID AND  EDFS.FormSectionSessionID = FC.DynamicFormDataUploadSessionID AND EDFS.EmailSessionID = FC.SessionID)DYSN
                             OUTER APPLY(select TOP 1 df.Name from DynamicFormData dfd
 						    inner join DynamicForm df on df.ID = dfd.DynamicFormID where dfd.SessionID =  AET.SessionId)AETN
                             LEFT JOIN EmailNotifications EN ON FC.ID=EN.ConversationId AND EN.UserId = @UserId
@@ -1007,13 +1009,16 @@ namespace Infrastructure.Repository.Query
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
 								AU.UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
-                                EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType,FC.NoOfDays,FC.ExpiryDueDate
+                                EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType,FC.NoOfDays,FC.ExpiryDueDate,
+                                DYSN.SectionName AS DynamicFormEmailSectionName
 
                             FROM
                             EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                            
                             INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                            
+                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID       
+                            OUTER APPLY(select DFS.SectionName from DynamicFormSection DFS
+                                        INNER JOIN EmailDynamicFormSection EDFS ON EDFS.FormSectionSessionID = DFS.SessionID AND  EDFS.FormSectionSessionID = FC.DynamicFormDataUploadSessionID AND EDFS.EmailSessionID = FC.SessionID)DYSN
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
                             LEFT JOIN EmailNotifications EN ON FC.ID=EN.ConversationId AND EN.UserId = @UserId
                             WHERE FC.ID = @TopicId AND FC.ReplyId = 0   
@@ -1777,6 +1782,84 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        
+        public async Task<long> DocInsertDynamicFormDateUpload(Guid id, Guid DynamicFormSectionID, Guid sessionid,long userid)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Id", id);
+                        parameters.Add("sessionId", sessionid);
+                        parameters.Add("AddedByUserID", userid);
+                        parameters.Add("DynamicFormSectionID", DynamicFormSectionID);
+
+
+                        //var query = @"UPDATE DynamicFormDataUpload SET EmailSessionID = @sessionId WHERE SessionID = @Id";
+
+                        var query = @"INSERT INTO Documents(FileName,ContentType,FileSize,UploadDate,AddedByUserID,AddedDate,FilePath,SessionID,SourceFrom,EmailToDMS,IsNewPath)			
+                                        SELECT D.FileName,D.ContentType,D.FileSize,GETDATE(),@AddedByUserID,GETDATE(),FilePath,@sessionId,'Email',null,
+                                            CASE
+                                            WHEN (D.FilePath LIKE 'AppUpload\%' OR D.FilePath LIKE 'Documents\%') AND D.IsNewPath = 1 THEN 1
+                                            ELSE 0
+                                            END from DynamicFormData DFD
+                                        INNER JOIN DynamicFormDataUpload DFDU ON DFDU.DynamicFormDataID =DFD.DynamicFormDataID
+                                        INNER JOIN DynamicFormSection DFS ON DFS.DynamicFormSectionID = DFDU.DynamicFormSectionID                                        
+                                        INNER JOIN Documents D on D.SessionID = DFDU.SessionID
+                                        WHERE DFD.SessionID = @Id AND DFS.SessionID = @DynamicFormSectionID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
+        public async Task<long> InsertEmailDynamicFormDateUploadSession(long DynamicFormID,Guid FormDataSessionID, Guid FormSectionSessionID, Guid EmailSessionID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormID", DynamicFormID);
+                        parameters.Add("FormDataSessionID", FormDataSessionID);
+                        parameters.Add("FormSectionSessionID", FormSectionSessionID);
+                        parameters.Add("EmailSessionID", EmailSessionID);
+
+                        var query = @"INSERT INTO EmailDynamicFormSection (DynamicFormID,FormDataSessionID,FormSectionSessionID,EmailSessionID) VALUES (@DynamicFormID,@FormDataSessionID,@FormSectionSessionID,@EmailSessionID)";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<long> LastUpdateDateEmailTopic(long TopicId)
         {
             try
@@ -1836,8 +1919,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("NotifyUser", forumConversations.NotifyUser);
                             parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
                             parameters.Add("UserType", forumConversations.UserType);
+                            parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
+                        
 
-                            var query = "INSERT INTO EmailConversations(UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID) OUTPUT INSERTED.ID VALUES (@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

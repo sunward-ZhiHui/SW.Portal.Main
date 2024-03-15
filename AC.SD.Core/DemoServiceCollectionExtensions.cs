@@ -47,11 +47,7 @@ namespace AC.SD.Core
                 Options.Password.RequireUppercase = false;
                 Options.Password.RequireNonAlphanumeric = false;
                 Options.SignIn.RequireConfirmedEmail = false;
-            });
-
-            services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
-                return DashboardUtils.CreateDashboardConfigurator(configuration, environment.ContentRootFileProvider);
-            });
+            });          
 
             services.AddScoped<IAlertService, AlertService>();
         }

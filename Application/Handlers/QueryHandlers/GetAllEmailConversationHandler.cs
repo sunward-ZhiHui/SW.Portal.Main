@@ -479,6 +479,13 @@ namespace Application.Handlers.QueryHandlers
 
             var ETUpdateDate = await _conversationQueryRepository.LastUpdateDateEmailTopic(request.TopicID);
 
+            if(request.EmailFormSectionSessionID != null)
+            {
+                var updateDynFrmDataSessionid = await _conversationQueryRepository.InsertEmailDynamicFormDateUploadSession(request.DynamicFormID.Value,request.EmailFormDataSessionID.Value, request.EmailFormSectionSessionID.Value,request.SessionId.Value);
+                var docInsert = await _conversationQueryRepository.DocInsertDynamicFormDateUpload(request.EmailFormDataSessionID.Value, request.EmailFormSectionSessionID.Value,request.SessionId.Value,request.AddedByUserID.Value);
+            }
+
+
             if (string.IsNullOrEmpty(request.UserType) || request.UserType == "Users")
             {
                 var conversationAssignTo = new EmailConversationAssignTo();

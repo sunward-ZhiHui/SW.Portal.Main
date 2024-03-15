@@ -266,7 +266,7 @@ else
                                       ListRenderMode="ListRenderMode.Virtual"
                                       ValueFieldName="UserGroupId"
                                       TextFieldName="Name"                                      
-                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItemsChanged(values))"
+                                      SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItemsChanged(values))"
                                       FilteringMode="DataGridFilteringMode.Contains"
                                       CssClass="cw-480">
                                           
@@ -1741,8 +1741,8 @@ else
 
                 if (actItem[0].ActivityType == "DynamicForm")
                 {
-                    var documentslst = await Mediator.Send(new GetDynamicFormDoc(actItem[0].SessionId.Value));
-                    _documentslst = documentslst;
+                    // var documentslst = await Mediator.Send(new GetDynamicFormDoc(actItem[0].SessionId.Value));
+                    // _documentslst = documentslst;
 
                     var dynamicname = await Mediator.Send(new GetDynamicFormName(actItem[0].SessionId.Value));
                     DynamicFormName = dynamicname[0].Name;

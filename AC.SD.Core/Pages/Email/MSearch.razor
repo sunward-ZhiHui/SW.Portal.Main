@@ -809,6 +809,8 @@
     </BodyContentTemplate>    
 </DxPopup>
 @code {
+    private int pageNumber = 1; // Initial page number
+    private int pageSize = 15; // Number of records per page
     bool PanelVisible { get; set; }
     bool CCVisible { get; set; } = false;
     bool PopupVisible { get; set; } = false;
@@ -881,7 +883,7 @@
     {
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         PanelVisible = false;
         NavigationManager.LocationChanged += OnLocationChanged;
     } 
@@ -1879,7 +1881,7 @@
     }
     internal async Task LoadGridData()
     {
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
         _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
         _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
@@ -1896,7 +1898,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         await JSRuntime.InvokeAsync<string>("showLoading");
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
         _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
 

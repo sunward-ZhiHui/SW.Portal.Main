@@ -74,6 +74,67 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<IReadOnlyList<FbOutputCartons>> GetAllCartonsCountAsync(string PalletNo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("PalletNo", PalletNo);
+                var query = @"SELECT 
+                     SUM(CASE WHEN FullCartonQty > 0 THEN FullCartonQty ELSE 0 END) AS TotalFullCartonQty,
+                     SUM(CASE WHEN LooseCartonQty > 0 THEN LooseCartonQty ELSE 0 END) AS TotalLooseCartonQty,
+                     COUNT(CASE WHEN FullCartonQty > 0 THEN 1 END) AS CountFullCartonQty,
+                     COUNT(CASE WHEN LooseCartonQty > 0 THEN 1 END) AS CountLooseCartonQty FROM   FbOutputCartons WHERE  PalletNo = @PalletNo";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<FbOutputCartons>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<FbOutputCartons>> GetAllFullCartonsAsync(string PalletNo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("PalletNo", PalletNo);
+                var query = @"select * From FbOutputCartons Where PalletNo = @PalletNo and  FullCartonQty >0";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<FbOutputCartons>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<FbOutputCartons>> GetAllLooseCartonsAsync(string PalletNo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("PalletNo", PalletNo);
+                var query = @"select * From FbOutputCartons Where PalletNo = @PalletNo and  LooseCartonQty > 0";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<FbOutputCartons>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public  async Task<long> Insert(FbOutputCartons fbOutputCartons)
         {
             try
@@ -101,7 +162,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("StatusCodeID", fbOutputCartons.StatusCodeID);
 
                         var query = @"INSERT INTO FbOutputCartons(BatchNo,CartonNo,FullCarton,FullCartonQty,Description,ProductionOrderNo,PalletNo,LocationName,ItemNo,LooseCartonQty,SessionId,AddedByUserID,AddedDate,StatusCodeID)
-VALUES (@BatchNo,@CartonNo,@FullCarton,@FullCartonQty,@Description,@ProductionOrderNo,@PalletNo,@LocationName,@ItemNo,@LooseCartonQty,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
+                         VALUES (@BatchNo,@CartonNo,@FullCarton,@FullCartonQty,@Description,@ProductionOrderNo,@PalletNo,@LocationName,@ItemNo,@LooseCartonQty,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -155,7 +216,7 @@ VALUES (@BatchNo,@CartonNo,@FullCarton,@FullCartonQty,@Description,@ProductionOr
                        
 
                         var query = @" UPDATE FbOutputCartons SET BatchNo = @BatchNo,CartonNo = @CartonNo,FullCarton=@FullCarton,FullCartonQty=@FullCartonQty,Description=@Description,
-ProductionOrderNo = @ProductionOrderNo,PalletNo = @PalletNo,LocationName =@LocationName, ItemNo =@ItemNo ,LooseCartonQty =@LooseCartonQty,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE FbOutputCartonID = @FbOutputCartonID";
+                           ProductionOrderNo = @ProductionOrderNo,PalletNo = @PalletNo,LocationName =@LocationName, ItemNo =@ItemNo ,LooseCartonQty =@LooseCartonQty,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE FbOutputCartonID = @FbOutputCartonID";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 

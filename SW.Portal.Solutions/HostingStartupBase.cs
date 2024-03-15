@@ -63,8 +63,7 @@ namespace SW.Portal.Solutions.ServerSide {
                     app.UsePathBase(pathString);
                 }
 
-                app.UseRequestLocalization(new RequestLocalizationOptions().SetDefaultCulture("en-US"));
-               
+                app.UseRequestLocalization(new RequestLocalizationOptions().SetDefaultCulture("en-US"));                
                 app.UseAuthentication();
                 app.UseHttpsRedirection();
                 app.UseStaticFiles();
@@ -78,23 +77,32 @@ namespace SW.Portal.Solutions.ServerSide {
                 provider.Mappings[".cshtml"] = "text/plain";
                 provider.Mappings[".cs"] = "text/plain";
                 app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });
-
+                
                 app.UseAuthorization();
 
                 app.UseEndpoints(endpoints => {
                     endpoints.MapControllers();
-                    
+                    endpoints.MapDashboardRoute("api/dashboard", "DefaultDashboard");
                     endpoints.MapFallbackToPage("/_Host");
                     //endpoints.MapFallbackToPage("/Login"); // Add this line to handle the login route
                 });
                 // Add your dashboard route mapping here
-                //app.MapDashboardRoute("api/dashboard", "DefaultDashboard");
+                
                 Configure(app, context.HostingEnvironment);
             };
             
 
             void ConfigureServices(WebHostBuilderContext context, IServiceCollection services) {
                 Configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+
+
+                // Add the following block to add the DashboardConfigurator service
+                IConfiguration configuration = context.Configuration;
+                IFileProvider fileProvider = context.HostingEnvironment.ContentRootFileProvider;
+
+                services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
+                    return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
+                });
 
                 services.AddHttpClient<HttpClient>(ConfigureHttpClient);
                 services.AddBlazoredLocalStorage();
@@ -146,27 +154,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 {
                     c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
                 });
-
-                //services.AddSingleton<ISalesInfoDataProvider, SalesInfoDataProvider>();
-                //services.AddSingleton<IExperimentResultDataProvider, ExperimentResultDataProvider>();
-                //services.AddSingleton<IScatterRandomDataProvider, ScatterRandomDataProvider>();
-                //services.AddSingleton<IPopulationCorrelationDataProvider, PopulationCorrelationDataProvider>();
-                //services.AddSingleton<IFinancialSeriesDataProvider, FinancialSeriesDataProvider>();
-                //services.AddSingleton<IChartDrillDownDataProvider, ChartDrillDownDataProvider>();
-                //services.AddSingleton<IPopulationStructureDataProvider, PopulationAgeStructureDataProvider>();
-                //services.AddSingleton<ICurrencyExchangeDataProvider, UsdJpyDataProvider>();
-                //services.AddSingleton<IUsdJpyCsvFileContentProvider, UsdJpyCsvFileContentProvider>();
-                //services.AddSingleton<IWeatherSummaryCsvFileContentProvider, WeatherSummaryCsvFileContentProvider>();
-                //services.AddSingleton<IWeatherSummaryDataProvider, WeatherSummaryDataProvider>();
-                //services.AddSingleton<IIssuesDataProvider, IssuesDataProvider>();
-                //services.AddSingleton<IWorldcitiesDataProvider, WorldcitiesDataProvider>();
-                //services.AddSingleton<IGlobalTemperatureIndexDataProvider, GlobalTemperatureIndexDataProvider>();
-                //services.AddSingleton<IGlobalTemperatureIndexFileContentProvider, GlobalTemperatureIndexFileContentProvider>();
-                //services.AddSingleton<IHistogramDataProvider, HistogramDataProvider>();
-                //services.AddSingleton<IDocumentProvider, DocumentProvider>();
-                // Editable should be scoped
-                //services.AddScoped<INwindDataProvider, NwindDataProvider>();
-
+               
                 static void ConfigureHttpClient(HttpClient httpClient) {
                     httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                 };
@@ -175,13 +163,7 @@ namespace SW.Portal.Solutions.ServerSide {
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 };
 
-                // Add the following block to add the DashboardConfigurator service
-                IConfiguration configuration = context.Configuration;
-                IFileProvider fileProvider = context.HostingEnvironment.ContentRootFileProvider;
-
-                services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
-                    return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
-                });
+               
             }
         }
 

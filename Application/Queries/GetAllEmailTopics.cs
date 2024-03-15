@@ -79,10 +79,12 @@ namespace Application.Queries
     {
         public long UserId { get; private set; }
         public string SearchTxt { get; private set; }
-        public GetEmailTopicTo(long UserId,string searchTxt)
+        public GetEmailTopicTo(long UserId,string searchTxt, int pageNumber, int pageSize)
         {
             this.UserId = UserId;
             this.SearchTxt = searchTxt;
+            this.PageNumber = pageNumber;
+            this.PageSize = pageSize;
         }
     }
     public class GetEmailTopicToSearch : PagedRequest, IRequest<List<EmailTopics>>
@@ -482,6 +484,22 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
 
+    }
+    public class GetDynamicFormEmailSection : PagedRequest, IRequest<List<DynamicFormSection>>
+    {
+        public Guid SessionId { get; private set; }
+        public GetDynamicFormEmailSection(Guid sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    public class GetUserPermissionSection : PagedRequest, IRequest<List<DynamicFormSectionSecurity>>
+    {
+        public long Id { get; private set; }
+        public GetUserPermissionSection(long Id)
+        {
+            this.Id = Id;
+        }
     }
     public class GetDynamicFormName : PagedRequest, IRequest<List<DynamicFormData>>
     {

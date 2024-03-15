@@ -111,7 +111,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicToList(request.UserId,request.SearchTxt);
+            return await _emailTopicsQueryRepository.GetTopicToList(request.UserId,request.SearchTxt,request.PageNumber,request.PageSize);
         }
     }
     public class GetEmailTopicToSearchHandler : IRequestHandler<GetEmailTopicToSearch, List<EmailTopics>>
@@ -897,6 +897,35 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<Documents>)await _createEmailDocumentsQueryRepository.GetDynamicFormDocumentListAsync(request.SessionId);
         }
     }
+    public class GetDynamicFormEmailSectionHandler : IRequestHandler<GetDynamicFormEmailSection, List<DynamicFormSection>>
+    {
+        private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;
+
+        public GetDynamicFormEmailSectionHandler(IEmailTopicsQueryRepository createEmailDocumentsQueryRepository)
+        {
+
+            _createEmailDocumentsQueryRepository = createEmailDocumentsQueryRepository;
+        }
+        public async Task<List<DynamicFormSection>> Handle(GetDynamicFormEmailSection request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSection>)await _createEmailDocumentsQueryRepository.GetDynamicFormEmailSectionListAsync(request.SessionId);
+        }
+    }
+    public class GetUserPermissionSectionHandler : IRequestHandler<GetUserPermissionSection, List<DynamicFormSectionSecurity>>
+    {
+        private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;
+
+        public GetUserPermissionSectionHandler(IEmailTopicsQueryRepository createEmailDocumentsQueryRepository)
+        {
+
+            _createEmailDocumentsQueryRepository = createEmailDocumentsQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionSecurity>> Handle(GetUserPermissionSection request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionSecurity>)await _createEmailDocumentsQueryRepository.GetUserListByDynamicFormAsync(request.Id);
+        }
+    }
+
     public class GetDynamicFormNameHandler : IRequestHandler<GetDynamicFormName, List<DynamicFormData>>
     {
         private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;

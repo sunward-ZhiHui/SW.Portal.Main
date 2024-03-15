@@ -15,6 +15,7 @@ namespace Core.Entities
         public long? DynamicFormDataId { get; set; }
         public long? DynamicFormSectionId { get; set; }
         public Guid? SessionId { get; set; }
+        public Guid? EmailSessionId { get; set; }
         public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }

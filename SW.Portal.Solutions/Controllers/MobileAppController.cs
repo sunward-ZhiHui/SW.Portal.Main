@@ -140,9 +140,9 @@ namespace SW.Portal.Solutions.Controllers
 
         }
 
-        [HttpDelete]
+        [HttpPost]
         [Route("DeleteFbOutputCartons")]
-        public async Task<ActionResult<Services.ResponseModel<IEnumerable<FbOutputCartons>>>> DeleteFbOutputCartons(long Id)
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<FbOutputCartons>>>> DeleteFbOutputCartons([FromBody] FbOutputCartonsModels insertFbOutputCartonsModel)
         {
             var response = new Services.ResponseModel<long>();
 
@@ -151,7 +151,7 @@ namespace SW.Portal.Solutions.Controllers
 
                 response.ResponseCode = Services.ResponseCode.Success;
 
-                var lst = new DeleteFbOutputCartonsQuery(Id);
+                var lst = new DeleteFbOutputCartonsQuery(insertFbOutputCartonsModel.FbOutputCartonID);
                
 
                 var Result = await _mediator.Send(lst);
@@ -170,6 +170,62 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
 
+        }
+
+        [HttpGet("GetFbOutputCartonsListCount")]
+        public async Task<ActionResult<Services.ResponseModel<List<FbOutputCartons>>>> GetFbOutputCartonsListCount(string PalletNo)
+        {
+            var response = new Services.ResponseModel<FbOutputCartons>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _FbOutputCartonsQueryRepository.GetAllCartonsCountAsync(PalletNo);
+                response.Results = (List<FbOutputCartons>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("GetFullCartonsList")]
+        public async Task<ActionResult<Services.ResponseModel<List<FbOutputCartons>>>> GetFullCartonsList(string PalletNo)
+        {
+            var response = new Services.ResponseModel<FbOutputCartons>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _FbOutputCartonsQueryRepository.GetAllFullCartonsAsync(PalletNo);
+                response.Results = (List<FbOutputCartons>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetLooseCartonsList")]
+        public async Task<ActionResult<Services.ResponseModel<List<FbOutputCartons>>>> GetLooseCartonsList(string PalletNo)
+        {
+            var response = new Services.ResponseModel<FbOutputCartons>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _FbOutputCartonsQueryRepository.GetAllLooseCartonsAsync(PalletNo);
+                response.Results = (List<FbOutputCartons>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
         }
     }
 }

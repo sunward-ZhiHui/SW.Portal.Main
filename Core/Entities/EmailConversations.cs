@@ -100,6 +100,16 @@ namespace Core.Entities
         public int NoOfDays { get; set; }
         [NotMapped]
         public DateTime? ExpiryDueDate { get; set; }
+        [NotMapped]
+        public string? DynamicFormEmailSectionName { get; set; }
+        
+        [NotMapped]
+        public Guid? EmailFormDataSessionID { get; set; }
+        [NotMapped]
+        public Guid? EmailFormSectionSessionID { get; set; }
+        [NotMapped]
+        public long? DynamicFormID { get; set; }
+
 
     }
     public class EmailDocumentModel

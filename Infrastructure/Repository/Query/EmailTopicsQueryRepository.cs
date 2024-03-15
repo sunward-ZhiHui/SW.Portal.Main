@@ -18,6 +18,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection.Metadata;
 using Infrastructure.Data;
 using Microsoft.VisualBasic;
+using System.Data.SqlTypes;
 
 namespace Infrastructure.Repository.Query
 {
@@ -696,7 +697,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt)
+        public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt, int pageNumber, int pageSize)
         {
             try
             {
@@ -707,7 +708,8 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("searchtxt", searchTxt);
-                        parameters.Add("searchtxt", searchTxt);
+                        parameters.Add("PageNumber", pageNumber);
+                        parameters.Add("PageSize", pageSize);
                         parameters.Add("Option", "SELECT_ASSIGN_TO");
                         
 
@@ -2185,13 +2187,24 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedByUserID", emailConversations.ModifiedByUserID);
                             parameters.Add("ModifiedDate", emailConversations.ModifiedDate);
 
-                        DateTime expiryDueDate = DateTime.MinValue;
+                        DateTime? expiryDueDate = null; // Use nullable DateTime
+
                         if (emailConversations.DueDate.HasValue)
                         {
-                            expiryDueDate = (emailConversations.DueDate.Value).AddDays(emailConversations.NoOfDays);
+                            DateTime dueDate = emailConversations.DueDate.Value;
+                            expiryDueDate = dueDate.AddDays(emailConversations.NoOfDays);
+
+                            // Check if expiryDueDate falls within the valid range for SQL datetime
+                            if (expiryDueDate < SqlDateTime.MinValue.Value || expiryDueDate > SqlDateTime.MaxValue.Value)
+                            {
+                                throw new Exception("Expiry due date is out of range for SQL datetime.");
+                            }
                         }
 
-                        parameters.Add("ExpiryDueDate", expiryDueDate);
+                        parameters.Add("ExpiryDueDate", expiryDueDate, DbType.DateTime); // Use DbType.DateTime for null values
+
+
+
 
                         var query = "";
                         var emailquery = "";
@@ -2573,7 +2586,50 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }        
+        public async Task<List<DynamicFormSectionSecurity>> GetUserListByDynamicFormAsync(long Id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("Id", Id);
+
+                var query = @"select * from DynamicFormSectionSecurity where DynamicFormSectionID = @Id";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormSectionSecurity>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
+        public async Task<List<DynamicFormSection>> GetDynamicFormEmailSectionListAsync(Guid sessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", sessionId, DbType.Guid);
+
+                var query = @"SELECT DFS.*,DFD.SessionID as EmailFormDataSessionID,DFS.SessionID as EmailFormSectionSessionID from ActivityEmailTopics AET
+                            INNER JOIN DynamicFormData DFD ON DFD.SessionID= AET.SessionId
+                            INNER JOIN DynamicFormSection DFS ON DFS.DynamicFormID = DFD.DynamicFormID
+                            LEFT JOIN EmailDynamicFormSection EDFS ON EDFS.FormSectionSessionID = DFS.SessionID AND EDFS.FormDataSessionID = DFD.SessionID
+                            where EDFS.FormSectionSessionID IS NULL AND AET.ActivityType = 'DynamicForm' AND AET.EmailTopicSessionId = @SessionID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormSection>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
         public async Task<List<Documents>> GetDynamicFormDocumentListAsync(Guid sessionId)
         {
             try
@@ -2583,7 +2639,7 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"select D.* from Documents D
                                 INNER JOIN DynamicFormDataUpload DFU ON DFU.SessionID = D.SessionID
-                                INNER JOIN dynamicformdata DFD ON DFD.DynamicFormID = DFU.DynamicFormDataID
+                                INNER JOIN dynamicformdata DFD ON DFD.DynamicFormDataID = DFU.DynamicFormDataID
                                 INNER JOIN ActivityEmailTopics AET ON AET.SessionId = DFD.SessionID AND AET.ActivityType = 'DynamicForm' AND AET.SessionId =  @SessionID";
 
                 using (var connection = CreateConnection())

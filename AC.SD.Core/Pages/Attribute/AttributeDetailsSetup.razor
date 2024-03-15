@@ -9,16 +9,31 @@
 @implements IDisposable
 <div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
     <div class="card-body p-0">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
-                @* <DxMenuItem Text="Add Sub Controls" IconCssClass="fa fa-wpforms" Click="@AddSubFormPopup" Enabled="IsCheckBoxEnabled" /> *@
-            </Items>
-        </DxMenu>
+        @if (FormType == "MainForm")
+        {
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                    <DxMenuItem Text="Add Sub Controls" IconCssClass="fa fa-wpforms" Click="@AddSubFormPopup" Enabled="IsCheckBoxEnabled" />
+                </Items>
+            </DxMenu>
+        }
+        else
+        {
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                </Items>
+            </DxMenu>
+        }
     </div>
 </div>
 
@@ -49,7 +64,7 @@
 
         <DxGridDataColumn FieldName="AttributeDetailName" Caption="Value" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" MinWidth="80" />
-        <DxGridDataColumn FieldName="Disabled" Caption="Is Active" MinWidth="80" />
+        @* <DxGridDataColumn FieldName="Disabled" Caption="Is Active" MinWidth="80" /> *@
     </Columns>
     <EditFormTemplate Context="EditFormContext">
 
@@ -64,9 +79,9 @@
             <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@rolePermission.Description" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Is Active:" ColSpanMd="6">
+            @* <DxFormLayoutItem Caption="Is Active:" ColSpanMd="6">
                 <DxCheckBox @bind-Checked="@rolePermission.Disabled" />
-            </DxFormLayoutItem>
+            </DxFormLayoutItem> *@
 
         </DxFormLayout>
     </EditFormTemplate>
@@ -91,14 +106,14 @@
     </FooterContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@AddPopup"
-         ShowFooter="true"
+         ShowFooter="false"
          HeaderText="Add Sub Controls"
          Closed="EulaPopupClosed"
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="false">
     <BodyContentTemplate>
-        <AttributeSetupSubForm RevokeBack="CloseSubFormPopup" Type="SubAttributeDetailID" SubAttributeDetailId="@AttributeDetailId"></AttributeSetupSubForm>
+        <AttributeSubFormSetupList RevokeBack="CloseSubFormPopup" Type="SubAttributeDetailID" SubAttributeDetailId="@AttributeDetailId"></AttributeSubFormSetupList>
 
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -121,6 +136,7 @@
     long selectedAttributeID;
     string? ControlType; bool IsCheckBoxEnabled { get; set; } = false;
     bool AddPopup { get; set; } = false;
+    string? FormType { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -135,6 +151,7 @@
         if (_attributesDetails != null)
         {
             _selectedItems = _attributesDetails.FirstOrDefault();
+            AttributeDetailId = _selectedItems?.AttributeDetailID;
             DetailGrid.SetFocusedRowIndex(0);
             if (!string.IsNullOrEmpty(ControlType) && selectedAttributeID > 0)
             {
@@ -145,7 +162,7 @@
                     EditEnabled = true;
                     if (_selectedItems.FormUsedCount > 0)
                     {
-                        DeleteEnabled = false;
+                        //  DeleteEnabled = false;
                     }
                 }
                 else
@@ -157,8 +174,9 @@
         }
         StateHasChanged();
     }
-    public async Task Attributeload(long id, string controlType)
+    public async Task Attributeload(long id, string controlType, string? formType)
     {
+        FormType = formType;
         IsCheckBoxEnabled = false;
         selectedAttributeID = id;
         ControlType = controlType;
@@ -197,7 +215,7 @@
         AttributeDetailId = _selectedItems.AttributeDetailID;
         if (_selectedItems.FormUsedCount > 0)
         {
-            DeleteEnabled = false;
+            //  DeleteEnabled = false;
         }
         StateHasChanged();
 
@@ -213,7 +231,7 @@
                     AttributeDetailName = editModel.AttributeDetailName,
                     AttributeID = selectedAttributeID,
                     Description = editModel.Description,
-                    Disabled = editModel.Disabled,
+                    Disabled =  editModel.Disabled,
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,

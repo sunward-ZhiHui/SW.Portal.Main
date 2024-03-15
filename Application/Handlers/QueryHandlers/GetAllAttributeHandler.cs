@@ -39,7 +39,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeHeader>> Handle(GetAllAttributeNameHeader request, CancellationToken cancellationToken)
         {
-            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeName(request.IsSubForm, request.Type,request.SubId);
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeName(request.IsSubForm, request.Type, request.SubId);
         }
     }
     public class GetAllAttributeNameNotInDynamicFormHandler : IRequestHandler<GetAllAttributeNameNotInDynamicForm, List<AttributeHeader>>
@@ -121,7 +121,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<AttributeHeaderListModel> Handle(GetAllAttributeNameList request, CancellationToken cancellationToken)
         {
-            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm,request.UserId);
+            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm, request.UserId);
         }
     }
     public class GetAttributeHeaderDataSourceHandler : IRequestHandler<GetAttributeHeaderDataSource, List<AttributeHeaderDataSource>>
@@ -139,5 +139,47 @@ namespace Application.Handlers.QueryHandlers
             return (List<AttributeHeaderDataSource>)await _attrubutequeryRepository.GetAttributeHeaderDataSource();
         }
     }
+    public class GetAllBySessionAttributeNameHandler : IRequestHandler<GetAllBySessionAttributeName, AttributeHeader>
+    {
 
+        private readonly IQueryRepository<AttributeHeader> _queryRepository;
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAllBySessionAttributeNameHandler(IQueryRepository<AttributeHeader> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _queryRepository = queryRepository;
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<AttributeHeader> Handle(GetAllBySessionAttributeName request, CancellationToken cancellationToken)
+        {
+            return await _attrubutequeryRepository.GetAllBySessionAttributeName(request.SessionId);
+
+        }
+    }
+    public class GetDataSourceDropDownListHandler : IRequestHandler<GetDataSourceDropDownList, List<AttributeDetails>>
+    {
+
+        private readonly IDynamicFormDataSourceQueryRepository _attrubutequeryRepository;
+        public GetDataSourceDropDownListHandler(IDynamicFormDataSourceQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeDetails>> Handle(GetDataSourceDropDownList request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetDataSourceDropDownList(request.CompanyId, request.DataSourceTableIds, request.PlantCode);
+        }
+    }
+    public class GetAllDropDownDataSourcesListHandler : IRequestHandler<GetAllDropDownDataSourcesList, DataSourceAttributeDetails>
+    {
+
+        private readonly IDynamicFormDataSourceQueryRepository _attrubutequeryRepository;
+        public GetAllDropDownDataSourcesListHandler(IDynamicFormDataSourceQueryRepository attrubutequeryRepository)
+        {
+
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<DataSourceAttributeDetails> Handle(GetAllDropDownDataSourcesList request, CancellationToken cancellationToken)
+        {
+            return await _attrubutequeryRepository.GetAllDropDownDataSources();
+        }
+    }
 }

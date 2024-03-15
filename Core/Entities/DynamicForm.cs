@@ -48,4 +48,10 @@ namespace Core.Entities
         public string? ProfileName { get; set; }
         public bool? IsGridForm { get; set; } = false;
     }
+    public class AddTempSectionAttribute
+    {
+        public long? ID { get; set; }
+        public string? DynamicAttributeName { get; set; }
+        public Type? DataType { get; set; }
+    }
 }

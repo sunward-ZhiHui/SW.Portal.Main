@@ -50,11 +50,11 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("id", id);
 
-                        var query = "Delete from DynamicFormWorkFlowSection where DynamicFormWorkFlowID in(select DynamicFormWorkFlowID from DynamicFormWorkFlow where DynamicFormID=@id)\r\n;";
-                        query += "DELETE  FROM DynamicFormApproval WHERE DynamicFormID = @id;";
-                        query += "DELETE  FROM DynamicFormWorkFlow WHERE DynamicFormID = @id;";
-                        query += "DELETE  FROM DynamicForm WHERE ID = @id";
-
+                        //var query = "Delete from DynamicFormWorkFlowSection where DynamicFormWorkFlowID in(select DynamicFormWorkFlowID from DynamicFormWorkFlow where DynamicFormID=@id)\r\n;";
+                        //query += "DELETE  FROM DynamicFormApproval WHERE DynamicFormID = @id;";
+                        //query += "DELETE  FROM DynamicFormWorkFlow WHERE DynamicFormID = @id;";
+                        //query += "DELETE  FROM DynamicForm WHERE ID = @id";
+                        var query = "Update  DynamicForm SET IsDeleted=1 WHERE ID = @id";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 
@@ -79,26 +79,49 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t6.Name as ProfileName,t5.PlantCode as CompanyName,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
-                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
-                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                var query = "select t1.*,t6.Name as ProfileName,t5.PlantCode as CompanyName from DynamicForm t1 \r\n" +
                      "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
-                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n";
+                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n";
                 if (userId > 0)
                 {
                     var dynamicIds = await GetDynamicFormDataByIdone(userId);
-                    query += "where t1.IsGridForm=1 t1.ID in(" + string.Join(',', dynamicIds) + ")";
+                    query += "where (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.IsGridForm=1 t1.ID in(" + string.Join(',', dynamicIds) + ")";
                 }
                 else
                 {
-                    query += "where t1.IsGridForm=1;";
+                    query += "where (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.IsGridForm=1;";
                 }
+                var appUsers = new List<ApplicationUser>(); var codeUsers = new List<CodeMaster>();
                 using (var connection = CreateConnection())
                 {
                     DynamicForm = (await connection.QueryAsync<DynamicForm>(query)).ToList();
+                    if (DynamicForm != null && DynamicForm.Count > 0)
+                    {
+                        List<int?> codeIds = new List<int?>();
+                        codeIds.AddRange(DynamicForm.Select(a => a.StatusCodeID).ToList());
+                        List<long?> userIds = new List<long?>();
+                        userIds.AddRange(DynamicForm.Select(a => a.AddedByUserID).ToList());
+                        userIds.AddRange(DynamicForm.Where(a => a.ModifiedByUserID > 0).Select(a => a.ModifiedByUserID).ToList());
+                        userIds = userIds != null && userIds.Count > 0 ? userIds : new List<long?>() { -1 };
+                        codeIds = codeIds != null && codeIds.Count > 0 ? codeIds : new List<int?>() { -1 };
+                        var query1 = "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
+                        query1 += "select * from CodeMaster where codeId in(" + string.Join(',', codeIds.Distinct()) + ");";
+                        var QuerResult = await connection.QueryMultipleAsync(query1);
+                        appUsers = QuerResult.Read<ApplicationUser>().ToList(); codeUsers = QuerResult.Read<CodeMaster>().ToList();
+                    }
                 }
+                if (DynamicForm != null && DynamicForm.Count > 0)
+                {
+                    DynamicForm.ForEach(s =>
+                    {
+                        s.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName;
+                        s.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName;
+                        s.StatusCode = codeUsers.FirstOrDefault(f => f.CodeId == s.StatusCodeID)?.CodeValue;
+                    });
+                }
+                DynamicForm = DynamicForm != null ? DynamicForm : new List<DynamicForm>();
                 return DynamicForm;
+
             }
             catch (Exception exp)
             {
@@ -111,25 +134,47 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t6.Name as ProfileName,t5.PlantCode as CompanyName,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
-                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
-                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                var query = "select t1.*,t6.Name as ProfileName,t5.PlantCode as CompanyName from DynamicForm t1 \r\n" +
                      "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
-                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n";
+                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n";
                 if (userId > 0)
                 {
                     var dynamicIds = await GetDynamicFormDataByIdone(userId);
-                    query += "where (t1.IsGridForm is null or t1.IsGridForm=0) AND t1.ID in(" + string.Join(',', dynamicIds) + ")";
+                    query += "where (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsGridForm is null or t1.IsGridForm=0) AND t1.ID in(" + string.Join(',', dynamicIds) + ")";
                 }
                 else
                 {
-                    query += "where t1.IsGridForm is null or t1.IsGridForm=0;";
+                    query += "where (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.IsGridForm is null or t1.IsGridForm=0;";
                 }
+                var appUsers = new List<ApplicationUser>(); var codeUsers = new List<CodeMaster>();
                 using (var connection = CreateConnection())
                 {
                     DynamicForm = (await connection.QueryAsync<DynamicForm>(query)).ToList();
+                    if (DynamicForm != null && DynamicForm.Count > 0)
+                    {
+                        List<int?> codeIds = new List<int?>();
+                        codeIds.AddRange(DynamicForm.Select(a => a.StatusCodeID).ToList());
+                        List<long?> userIds = new List<long?>();
+                        userIds.AddRange(DynamicForm.Select(a => a.AddedByUserID).ToList());
+                        userIds.AddRange(DynamicForm.Where(a => a.ModifiedByUserID > 0).Select(a => a.ModifiedByUserID).ToList());
+                        userIds = userIds != null && userIds.Count > 0 ? userIds : new List<long?>() { -1 };
+                        codeIds = codeIds != null && codeIds.Count > 0 ? codeIds : new List<int?>() { -1 };
+                        var query1 = "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
+                        query1 += "select * from CodeMaster where codeId in(" + string.Join(',', codeIds.Distinct()) + ");";
+                        var QuerResult = await connection.QueryMultipleAsync(query1);
+                        appUsers = QuerResult.Read<ApplicationUser>().ToList(); codeUsers = QuerResult.Read<CodeMaster>().ToList();
+                    }
                 }
+                if (DynamicForm != null && DynamicForm.Count > 0)
+                {
+                    DynamicForm.ForEach(s =>
+                    {
+                        s.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName;
+                        s.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName;
+                        s.StatusCode = codeUsers.FirstOrDefault(f => f.CodeId == s.StatusCodeID)?.CodeValue;
+                    });
+                }
+                DynamicForm = DynamicForm != null ? DynamicForm : new List<DynamicForm>();
                 return DynamicForm;
             }
             catch (Exception exp)
@@ -143,20 +188,45 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t6.Name as ProfileName,t5.PlantCode as CompanyName,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
-                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
-                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                var query = "select t1.*,t6.Name as ProfileName,t5.PlantCode as CompanyName from DynamicForm t1 \r\n" +
                      "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
-                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n";
+                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n";
                 if (userId > 0)
                 {
                     var dynamicIds = await GetDynamicFormDataByIdone(userId);
-                    query += "where t1.ID in(" + string.Join(',', dynamicIds) + ")";
+                    query += "where (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.ID in(" + string.Join(',', dynamicIds) + ")";
                 }
+                else
+                {
+                    query += "where (t1.IsDeleted=0 or t1.IsDeleted is null);";
+                }
+                var appUsers = new List<ApplicationUser>(); var codeUsers = new List<CodeMaster>();
                 using (var connection = CreateConnection())
                 {
                     DynamicForm = (await connection.QueryAsync<DynamicForm>(query)).ToList();
+                    if (DynamicForm != null && DynamicForm.Count > 0)
+                    {
+                        List<int?> codeIds = new List<int?>();
+                        codeIds.AddRange(DynamicForm.Select(a => a.StatusCodeID).ToList());
+                        List<long?> userIds = new List<long?>();
+                        userIds.AddRange(DynamicForm.Select(a => a.AddedByUserID).ToList());
+                        userIds.AddRange(DynamicForm.Where(a => a.ModifiedByUserID > 0).Select(a => a.ModifiedByUserID).ToList());
+                        userIds = userIds != null && userIds.Count > 0 ? userIds : new List<long?>() { -1 };
+                        codeIds = codeIds != null && codeIds.Count > 0 ? codeIds : new List<int?>() { -1 };
+                        var query1 = "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
+                        query1 += "select * from CodeMaster where codeId in(" + string.Join(',', codeIds.Distinct()) + ");";
+                        var QuerResult = await connection.QueryMultipleAsync(query1);
+                        appUsers = QuerResult.Read<ApplicationUser>().ToList(); codeUsers = QuerResult.Read<CodeMaster>().ToList();
+                    }
+                }
+                if (DynamicForm != null && DynamicForm.Count > 0)
+                {
+                    DynamicForm.ForEach(s =>
+                    {
+                        s.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName;
+                        s.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName;
+                        s.StatusCode = codeUsers.FirstOrDefault(f => f.CodeId == s.StatusCodeID)?.CodeValue;
+                    });
                 }
                 return DynamicForm;
             }
@@ -171,7 +241,11 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", Id);
-                var query = "select t1.*,\r\n(Select tt2.FileName from Documents tt2 where tt2.SessionID=t1.SessionID ANd tt2.IsLatest=1) as FileName,\r\n(Select t2.DocumentID from Documents t2 where t2.SessionID=t1.SessionID ANd t2.IsLatest=1) as DocumentID,\r\n(Select t4.SessionID from Documents t3 JOIN FileProfileType t4 ON t4.FileProfileTypeID=t3.FilterProfileTypeID where t3.SessionID=t1.SessionID ANd t3.IsLatest=1) as FileProfileSessionID,\r\n(Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=t1.SessionID ANd tt3.IsLatest=1) as FileProfileName\r\nfrom DynamicFormDataUpload t1 WHERE t1.DynamicFormSectionID IS NULL AND t1.DynamicFormDataID=@ID";
+                var query = "select t1.*,\r\n(Select tt2.FileName from Documents tt2 where tt2.SessionID=t1.SessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
+                    "(Select t2.DocumentID from Documents t2 where t2.SessionID=t1.SessionID ANd t2.IsLatest=1) as DocumentID,\r\n" +
+                    "(Select t4.SessionID from Documents t3 JOIN FileProfileType t4 ON t4.FileProfileTypeID=t3.FilterProfileTypeID where t3.SessionID=t1.SessionID ANd t3.IsLatest=1) as FileProfileSessionID,\r\n" +
+                    "(Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=t1.SessionID ANd tt3.IsLatest=1) as FileProfileName\r\n" +
+                    "from DynamicFormDataUpload t1 WHERE t1.DynamicFormSectionID IS NULL AND t1.DynamicFormDataID=@ID";
 
                 using (var connection = CreateConnection())
                 {
@@ -202,6 +276,7 @@ namespace Infrastructure.Repository.Query
                 dynamicFormSection.FileName = resultData.FileName;
                 dynamicFormSection.FileProfileName = resultData.FileProfileName;
                 dynamicFormSection.FileProfileSessionID = resultData.FileProfileSessionID;
+                dynamicFormSection.UserCount = 1; dynamicFormSection.UserIsVisible = true; dynamicFormSection.UserIsReadWrite = true; dynamicFormSection.UserIsReadOnly = true;
             }
             DynamicFormSections.Add(dynamicFormSection);
             try
@@ -215,8 +290,12 @@ namespace Infrastructure.Repository.Query
                     " (Select tt2.FileName from Documents tt2 where tt2.SessionID=tt1.UploadSessionID ANd tt2.IsLatest=1) as FileName,\r\n(Select ttt2.DocumentID from Documents ttt2 where ttt2.SessionID=tt1.UploadSessionID ANd ttt2.IsLatest=1) as DocumentID,\r\n(Select ttt4.SessionID from Documents ttt3 JOIN FileProfileType ttt4 ON ttt4.FileProfileTypeID=ttt3.FilterProfileTypeID where ttt3.SessionID=tt1.UploadSessionID ANd ttt3.IsLatest=1) as FileProfileSessionID,\r\n(Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=tt1.UploadSessionID ANd tt3.IsLatest=1) as FileProfileName\r\n from (select t1.*,\r\n" +
                     "(select t4.DynamicFormDataUploadID from DynamicFormDataUpload t4 WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadID,\r\n" +
                     "(select t2.SessionID from DynamicFormDataUpload t2 WHERE t2.DynamicFormSectionID=t1.DynamicFormSectionID AND t2.DynamicFormDataID=@dynamicFormDataId) as UploadSessionID,\r\n" +
-                    "(select t3.AddedByUserID from DynamicFormDataUpload t3 WHERE t3.DynamicFormSectionID=t1.DynamicFormSectionID AND t3.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadAddedUserID\r\n" +
-                    "from DynamicFormSection t1 WHERE t1.DynamicFormID = @DynamicFormId ) tt1";
+                    "(select t3.AddedByUserID from DynamicFormDataUpload t3 WHERE t3.DynamicFormSectionID=t1.DynamicFormSectionID AND t3.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadAddedUserID,\r\n" +
+                    "(select t5.IsReadOnly from DynamicFormSectionSecurity t5 WHERE t5.UserID=" + UserId + " AND t1.DynamicFormSectionID=t5.DynamicFormSectionID) as UserIsReadOnly,\r\n" +
+                    "(select t6.IsReadWrite from DynamicFormSectionSecurity t6 WHERE t6.UserID=" + UserId + " AND t1.DynamicFormSectionID=t6.DynamicFormSectionID) as UserIsReadWrite,\r\n" +
+                    "(select t7.IsVisible from DynamicFormSectionSecurity t7 WHERE t7.UserID=" + UserId + " AND t1.DynamicFormSectionID=t7.DynamicFormSectionID) as UserIsVisible,\r\n" +
+                    "(select Count(*)  as userCounts from DynamicFormSectionSecurity t8 WHERE   t1.DynamicFormSectionID=t8.DynamicFormSectionID) as UserCount\r\n" +
+                    "from DynamicFormSection t1 WHERE t1.DynamicFormID = @DynamicFormId ) tt1 where tt1.UserCount=0 OR tt1.UserIsVisible=1";
                 var result = new List<DynamicFormSection>();
                 using (var connection = CreateConnection())
                 {
@@ -336,7 +415,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", Id);
-                var query = "select t1.* from DynamicForm t1 WHERE t1.ID=@ID";
+                var query = "select t1.* from DynamicForm t1 WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.ID=@ID";
 
                 using (var connection = CreateConnection())
                 {
@@ -359,7 +438,7 @@ namespace Infrastructure.Repository.Query
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
                     "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
                     "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID WHERE t1.SessionId=@SessionId";
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -378,10 +457,11 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("sessionId", sessionId);
 
-                var query = "SELECT t1.*,t2.NAme as FileProfileTypeName,t4.PlantCode as CompanyName,t5.Name as ProfileName,t2.SessionID as FileProfileSessionId FROM DynamicForm t1 LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FileProfileTypeID\r\n" +
+                var query = "SELECT t1.*,t2.NAme as FileProfileTypeName,t4.PlantCode as CompanyName,t5.Name as ProfileName,t2.SessionID as FileProfileSessionId FROM DynamicForm t1\n\r" +
+                    " LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FileProfileTypeID\r\n" +
                     "LEFT JOIN Plant t4 ON t4.plantId=t1.companyId\r\n" +
                      "LEFT JOIN DocumentProfileNoSeries t5 ON t5.profileId=t1.profileId\r\n" +
-                    "Where t1.SessionID = @sessionId";
+                    "Where (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionID = @sessionId";
 
                 var result = new DynamicForm();
                 using (var connection = CreateConnection())
@@ -473,11 +553,11 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("ID", id);
                     parameters.Add("ScreenID", value);
 
-                    query = "SELECT * FROM DynamicForm Where ID!=@id AND ScreenID = @ScreenID";
+                    query = "SELECT * FROM DynamicForm Where (IsDeleted=0 or IsDeleted is null) AND ID!=@id AND ScreenID = @ScreenID";
                 }
                 else
                 {
-                    query = "SELECT * FROM DynamicForm Where ScreenID = @ScreenID";
+                    query = "SELECT * FROM DynamicForm Where (IsDeleted=0 or IsDeleted is null) AND ScreenID = @ScreenID";
                 }
                 using (var connection = CreateConnection())
                 {
@@ -598,7 +678,7 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
                 parameters.Add("DynamicFormId", id);
 
-                query = "SELECT * FROM DynamicFormSection Where DynamicFormId = @DynamicFormId order by  SortOrderBy desc";
+                query = "SELECT * FROM DynamicFormSection Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormId = @DynamicFormId order by  SortOrderBy desc";
                 using (var connection = CreateConnection())
                 {
                     var result = connection.QueryFirstOrDefault<DynamicFormSection>(query, parameters);
@@ -687,7 +767,7 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
                 parameters.Add("DynamicFormSectionId", id);
 
-                query = "SELECT * FROM DynamicFormSectionAttribute Where DynamicFormSectionId = @DynamicFormSectionId order by  SortOrderBy desc";
+                query = "SELECT * FROM DynamicFormSectionAttribute Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormSectionId = @DynamicFormSectionId order by  SortOrderBy desc";
                 using (var connection = CreateConnection())
                 {
                     var result = connection.QueryFirstOrDefault<DynamicFormSectionAttribute>(query, parameters);
@@ -737,10 +817,13 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsRadioCheckRemarks", dynamicFormSection.IsRadioCheckRemarks, DbType.String);
                         parameters.Add("RadioLayout", dynamicFormSection.RadioLayout, DbType.String);
                         parameters.Add("RemarksLabelName", dynamicFormSection.RemarksLabelName, DbType.String);
+                        parameters.Add("PlantDropDownWithOtherDataSourceId", dynamicFormSection.PlantDropDownWithOtherDataSourceId);
+                        parameters.Add("PlantDropDownWithOtherDataSourceLabelName", dynamicFormSection.PlantDropDownWithOtherDataSourceLabelName, DbType.String);
+                        parameters.Add("IsPlantLoadDependency", dynamicFormSection.IsPlantLoadDependency == true ? true : null);
                         if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
                         {
 
-                            var query = "UPDATE DynamicFormSectionAttribute SET RemarksLabelName=@RemarksLabelName,IsRadioCheckRemarks=@IsRadioCheckRemarks,RadioLayout=@RadioLayout,DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
+                            var query = "UPDATE DynamicFormSectionAttribute SET IsPlantLoadDependency=@IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName=@PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId=@PlantDropDownWithOtherDataSourceId,RemarksLabelName=@RemarksLabelName,IsRadioCheckRemarks=@IsRadioCheckRemarks,RadioLayout=@RadioLayout,DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
                                 "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsSpinEditType=@IsSpinEditType," +
                                 "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,FormToolTips=@FormToolTips,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader,IsVisible=@IsVisible " +
                                 "WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
@@ -750,9 +833,9 @@ namespace Infrastructure.Repository.Query
                         else
                         {
                             parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
-                            var query = "INSERT INTO DynamicFormSectionAttribute(RemarksLabelName,IsRadioCheckRemarks,RadioLayout,FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
+                            var query = "INSERT INTO DynamicFormSectionAttribute(IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId,RemarksLabelName,IsRadioCheckRemarks,RadioLayout,FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
                                 "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader,IsVisible) VALUES " +
-                                "(@RemarksLabelName,@IsRadioCheckRemarks,@RadioLayout,@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
+                                "(@IsPlantLoadDependency,@PlantDropDownWithOtherDataSourceLabelName,@PlantDropDownWithOtherDataSourceId,@RemarksLabelName,@IsRadioCheckRemarks,@RadioLayout,@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
                                 "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader,@IsVisible)";
 
                             dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters);
@@ -789,7 +872,7 @@ namespace Infrastructure.Repository.Query
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
-                    "WHERE t1.DynamicFormId=@DynamicFormId";
+                    "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId=@DynamicFormId";
 
                 using (var connection = CreateConnection())
                 {
@@ -807,7 +890,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
-                var query = "select t1.*,t9.Name DynamicGridName," +
+                var query = "select t1.*,t9.Name DynamicGridName,t10.DataSourceTable as PlantDropDownWithOtherDataSourceTable," +
                     "(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible," +
                     "t2.UserName as AddedBy,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.IsDynamicFormDropTagBox,t6.DropDownTypeId,t6.DataSourceId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
@@ -818,8 +901,8 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t8 ON t8.AttributeHeaderDataSourceID=t6.DataSourceId\r\n" +
                     "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n" +
-                    "Where t1.DynamicFormSectionId=@DynamicFormSectionId";
-
+                    "LEFT JOIN AttributeHeaderDataSource t10 ON t10.AttributeHeaderDataSourceID=t1.PlantDropDownWithOtherDataSourceId\r\n" +
+                    "Where (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null)  AND t1.DynamicFormSectionId=@DynamicFormSectionId\r\n";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormSectionAttribute>(query, parameters)).ToList();
@@ -838,7 +921,7 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
                 parameters.Add("DynamicFormId", id);
                 parameters.Add("SortOrderBy", SortOrderBy);
-                query = "SELECT * FROM DynamicFormSection Where DynamicFormId = @DynamicFormId AND SortOrderBy>@SortOrderBy";
+                query = "SELECT * FROM DynamicFormSection Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormId = @DynamicFormId AND SortOrderBy>@SortOrderBy";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormSection>(query, parameters)).ToList();
@@ -863,15 +946,16 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("id", dynamicFormSection.DynamicFormSectionId);
                         var sortby = dynamicFormSection.SortOrderBy;
-                        var query = "DELETE  FROM DynamicFormSection WHERE DynamicFormSectionID = @id;";
-                        if (result != null)
+                        //var query = "DELETE  FROM DynamicFormSection WHERE DynamicFormSectionID = @id;";
+                        var query = "UPDATE  DynamicFormSection SET IsDeleted=1 WHERE DynamicFormSectionID = @id;";
+                        /*if (result != null)
                         {
                             result.ForEach(s =>
                             {
                                 query += "Update  DynamicFormSection SET SortOrderBy=" + sortby + "  WHERE DynamicFormSectionID =" + s.DynamicFormSectionId + ";";
                                 sortby++;
                             });
-                        }
+                        }*/
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -902,11 +986,11 @@ namespace Infrastructure.Repository.Query
                 var to = dynamicFormSection.SortOrderAnotherBy > dynamicFormSection.SortOrderBy ? dynamicFormSection.SortOrderAnotherBy : dynamicFormSection.SortOrderBy;
                 parameters.Add("SortOrderByFrom", from);
                 parameters.Add("SortOrderByTo", to);
-                query = "SELECT DynamicFormSectionId,DynamicFormId,SortOrderBy FROM DynamicFormSection Where DynamicFormId = @DynamicFormId  AND SortOrderBy>@SortOrderByFrom and SortOrderBy<=@SortOrderByTo order by SortOrderBy asc";
+                query = "SELECT DynamicFormSectionId,DynamicFormId,SortOrderBy FROM DynamicFormSection Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormId = @DynamicFormId  AND SortOrderBy>@SortOrderByFrom and SortOrderBy<=@SortOrderByTo order by SortOrderBy asc";
 
                 if (dynamicFormSection.SortOrderAnotherBy > dynamicFormSection.SortOrderBy)
                 {
-                    query = "SELECT DynamicFormSectionId,DynamicFormId,SortOrderBy FROM DynamicFormSection Where DynamicFormId = @DynamicFormId  AND SortOrderBy>=@SortOrderByFrom and SortOrderBy<@SortOrderByTo order by SortOrderBy asc";
+                    query = "SELECT DynamicFormSectionId,DynamicFormId,SortOrderBy FROM DynamicFormSection Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormId = @DynamicFormId  AND SortOrderBy>=@SortOrderByFrom and SortOrderBy<@SortOrderByTo order by SortOrderBy asc";
 
                 }
                 using (var connection = CreateConnection())
@@ -932,7 +1016,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var query = string.Empty;
                         int? SortOrder = dynamicFormSection.SortOrderAnotherBy > dynamicFormSection.SortOrderBy ? (dynamicFormSection.SortOrderBy + 1) : dynamicFormSection.SortOrderAnotherBy;
-                        query += "Update  DynamicFormSection SET SortOrderBy=" + dynamicFormSection.SortOrderBy + "  WHERE DynamicFormSectionID =" + dynamicFormSection.DynamicFormSectionId + ";";
+                        query += "Update  DynamicFormSection SET SortOrderBy=" + dynamicFormSection.SortOrderBy + "  WHERE (IsDeleted=0 or IsDeleted is null) AND DynamicFormSectionID =" + dynamicFormSection.DynamicFormSectionId + ";";
                         if (SortOrder > 0)
                         {
                             var result = await GetUpdateDynamicFormSectionSortOrder(dynamicFormSection);
@@ -942,7 +1026,7 @@ namespace Infrastructure.Repository.Query
                                 result.ForEach(s =>
                                 {
 
-                                    query += "Update  DynamicFormSection SET SortOrderBy=" + SortOrder + "  WHERE DynamicFormSectionID =" + s.DynamicFormSectionId + ";";
+                                    query += "Update  DynamicFormSection SET SortOrderBy=" + SortOrder + "  WHERE (IsDeleted=0 or IsDeleted is null) AND DynamicFormSectionID =" + s.DynamicFormSectionId + ";";
                                     SortOrder++;
                                 });
 
@@ -980,7 +1064,7 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
                 parameters.Add("DynamicFormSectionId", id);
                 parameters.Add("SortOrderBy", SortOrderBy);
-                query = "SELECT * FROM DynamicFormSectionAttribute Where DynamicFormSectionId = @DynamicFormSectionId AND SortOrderBy>@SortOrderBy";
+                query = "SELECT * FROM DynamicFormSectionAttribute Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormSectionId = @DynamicFormSectionId AND SortOrderBy>@SortOrderBy";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormSectionAttribute>(query, parameters)).ToList();
@@ -1005,15 +1089,16 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("id", dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
                         var sortby = dynamicFormSectionAttribute.SortOrderBy;
-                        var query = "DELETE  FROM DynamicFormSectionAttribute WHERE DynamicFormSectionAttributeId = @id;";
-                        if (result != null)
+                        //var query = "DELETE  FROM DynamicFormSectionAttribute WHERE DynamicFormSectionAttributeId = @id;";
+                        var query = "UPDATE   DynamicFormSectionAttribute SET IsDeleted=1 WHERE DynamicFormSectionAttributeId = @id;";
+                        /*if (result != null)
                         {
                             result.ForEach(s =>
                             {
                                 query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + sortby + "  WHERE DynamicFormSectionAttributeId =" + s.DynamicFormSectionAttributeId + ";";
                                 sortby++;
                             });
-                        }
+                        }*/
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -1047,11 +1132,11 @@ namespace Infrastructure.Repository.Query
                 var to = dynamicFormSectionAttribute.SortOrderAnotherBy > dynamicFormSectionAttribute.SortOrderBy ? dynamicFormSectionAttribute.SortOrderAnotherBy : dynamicFormSectionAttribute.SortOrderBy;
                 parameters.Add("SortOrderByFrom", from);
                 parameters.Add("SortOrderByTo", to);
-                query = "SELECT DynamicFormSectionId,DynamicFormSectionAttributeId,SortOrderBy FROM DynamicFormSectionAttribute Where DynamicFormSectionId = @DynamicFormSectionId  AND SortOrderBy>@SortOrderByFrom and SortOrderBy<=@SortOrderByTo order by SortOrderBy asc";
+                query = "SELECT DynamicFormSectionId,DynamicFormSectionAttributeId,SortOrderBy FROM DynamicFormSectionAttribute Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormSectionId = @DynamicFormSectionId  AND SortOrderBy>@SortOrderByFrom and SortOrderBy<=@SortOrderByTo order by SortOrderBy asc";
 
                 if (dynamicFormSectionAttribute.SortOrderAnotherBy > dynamicFormSectionAttribute.SortOrderBy)
                 {
-                    query = "SELECT DynamicFormSectionId,DynamicFormSectionAttributeId,SortOrderBy FROM DynamicFormSectionAttribute Where DynamicFormSectionId = @DynamicFormSectionId  AND SortOrderBy>=@SortOrderByFrom and SortOrderBy<@SortOrderByTo order by SortOrderBy asc";
+                    query = "SELECT DynamicFormSectionId,DynamicFormSectionAttributeId,SortOrderBy FROM DynamicFormSectionAttribute Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormSectionId = @DynamicFormSectionId  AND SortOrderBy>=@SortOrderByFrom and SortOrderBy<@SortOrderByTo order by SortOrderBy asc";
 
                 }
                 using (var connection = CreateConnection())
@@ -1077,7 +1162,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var query = string.Empty;
                         int? SortOrder = dynamicFormSectionAttribute.SortOrderAnotherBy > dynamicFormSectionAttribute.SortOrderBy ? (dynamicFormSectionAttribute.SortOrderBy + 1) : dynamicFormSectionAttribute.SortOrderAnotherBy;
-                        query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + dynamicFormSectionAttribute.SortOrderBy + "  WHERE DynamicFormSectionAttributeId =" + dynamicFormSectionAttribute.DynamicFormSectionAttributeId + ";";
+                        query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + dynamicFormSectionAttribute.SortOrderBy + "  WHERE (IsDeleted=0 or IsDeleted is null) AND DynamicFormSectionAttributeId =" + dynamicFormSectionAttribute.DynamicFormSectionAttributeId + ";";
                         if (SortOrder > 0)
                         {
                             var result = await GetUpdateDynamicFormSectionAttributeSortOrder(dynamicFormSectionAttribute);
@@ -1087,7 +1172,7 @@ namespace Infrastructure.Repository.Query
                                 result.ForEach(s =>
                                 {
 
-                                    query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + SortOrder + "  WHERE DynamicFormSectionAttributeId =" + s.DynamicFormSectionAttributeId + ";";
+                                    query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + SortOrder + "  WHERE AND DynamicFormSectionAttributeId =" + s.DynamicFormSectionAttributeId + ";";
                                     SortOrder++;
                                 });
 
@@ -1296,7 +1381,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
                 var query = "select t1.*,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid from DynamicFormData t1 \r\n" +
-                    "WHERE t1.SessionId=@SessionId";
+                    "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -1316,9 +1401,12 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("SessionId", SessionId, DbType.Guid);
                 var query = "select t1.*,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t2.UserName as AddedBy,\r\nt3.UserName as ModifiedBy,t4.CodeValue as StatusCode,\r\nt5.IsApproval,t5.FileProfileTypeID,t6.Name as FileProfileTypeName,\r\n" +
                     "(SELECT COUNT(SessionId) from Documents t7 WHERE t7.SessionId=t1.SessionId AND t7.IsLatest=1 AND (t7.IsDelete IS NULL OR t7.IsDelete=0)) as isDocuments\r\n" +
-                    "from DynamicFormData t1 \r\nJOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\nJOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
+                    "from DynamicFormData t1 \r\n" +
+                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
+                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormId\r\n" +
-                    "LEFT JOIN FileProfileType t6 ON t6.FileProfileTypeID=t5.FileProfileTypeID\r\nWHERE t1.SessionId=@SessionId";
+                    "LEFT JOIN FileProfileType t6 ON t6.FileProfileTypeID=t5.FileProfileTypeID\r\nWHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
                 using (var connection = CreateConnection())
                 {
                     return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
@@ -1337,7 +1425,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("SessionId", SessionId, DbType.Guid);
                 var query = "select *,t2.SessionID as FileProfileTypeSessionId from Documents t1 \r\n" +
                     "LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FilterProfileTypeID\r\n" +
-                    "where t1.SessionID=@SessionId AND t1.FilterProfileTypeID>0 AND  t1.IsLatest=1 AND (t1.IsDelete IS NULL OR t1.IsDelete=0)\r\n";
+                    "where (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionID=@SessionId AND t1.FilterProfileTypeID>0 AND  t1.IsLatest=1 AND (t1.IsDelete IS NULL OR t1.IsDelete=0)\r\n";
                 using (var connection = CreateConnection())
                 {
                     return await connection.QueryFirstOrDefaultAsync<DocumentsModel>(query, parameters);
@@ -1358,7 +1446,7 @@ namespace Infrastructure.Repository.Query
                    "FROM DynamicFormApproved t1 \r\n" +
                    "JOIN Employee t2 ON t1.UserID=t2.UserID \r\n" +
                     "JOIN DynamicFormData t5 ON t5.DynamicFormDataId=t1.DynamicFormDataId \r\n" +
-                   "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId order by t1.DynamicFormApprovedId asc;\r\n";
+                   "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId WHERE (t5.IsDeleted=0 or t5.IsDeleted is null)  order by t1.DynamicFormApprovedId asc;\r\n";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormApproved>(query, null)).ToList();
@@ -1399,7 +1487,7 @@ namespace Infrastructure.Repository.Query
                     "JOIN ApplicationUser t2 ON t2.UserID = t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE t1.DynamicFormId =@DynamicFormId\r\n";
+                    "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId =@DynamicFormId\r\n";
                 if (DynamicFormDataGridId == 0 || DynamicFormDataGridId > 0)
                 {
                     query += "AND t1.DynamicFormDataGridId=@DynamicFormDataGridId;";
@@ -1769,12 +1857,13 @@ namespace Infrastructure.Repository.Query
                 AttributeHeaderListModel attributeHeaderListModel = new AttributeHeaderListModel();
                 using (var connection = CreateConnection())
                 {
-                    var results = await connection.QueryMultipleAsync(@"select * from DynamicFormSection where DynamicFormID=" + Id + " order by  SortOrderBy asc;" +
-                        "select t1.*,t5.SectionName,t6.AttributeName,t7.CodeValue as ControlType,t6.IsDynamicFormDropTagBox,t6.DropDownTypeID,t6.DataSourceID,t6.DynamicFormID as DynamicFormGridDropDownID,t5.DynamicFormID,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable from DynamicFormSectionAttribute t1\r\n" +
+                    var results = await connection.QueryMultipleAsync(@"select * from DynamicFormSection where (IsDeleted=0 or IsDeleted is null) AND DynamicFormID=" + Id + " order by  SortOrderBy asc;" +
+                        "select t1.*,t5.SectionName,t6.AttributeName,t7.CodeValue as ControlType,t6.IsDynamicFormDropTagBox,t6.DropDownTypeID,t6.DataSourceID,t6.DynamicFormID as DynamicFormGridDropDownID,t5.DynamicFormID,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable from\r\n" +
+                        "DynamicFormSectionAttribute t1\r\n" +
                         "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
                         "JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
                         "LEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID\r\n" +
-                        "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere t5.DynamicFormID=" + Id + " order by t1.SortOrderBy asc;");
+                        "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null)  AND t5.DynamicFormID=" + Id + " order by t1.SortOrderBy asc;");
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
                     if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
@@ -1835,11 +1924,12 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
 
-                        var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
-                        query += await DeleteDynamicFormApproved(dynamicFormData);
-                        query += "DELETE  FROM DynamicFormWorkFlowForm WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
-                        query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
-                        query += "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+                        //var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
+                        //query += await DeleteDynamicFormApproved(dynamicFormData);
+                        //query += "DELETE  FROM DynamicFormWorkFlowForm WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+                        //query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+                        //query += "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+                        var query = "UPDATE   DynamicFormData SET IsDeleted=1 WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         return dynamicFormData;
                     }
@@ -2982,7 +3072,11 @@ namespace Infrastructure.Repository.Query
                 var listData = await GetDynamicFormWorkFlowExits(dynamicFormId, 0, dynamicFormDataId);
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormDataID", dynamicFormDataId);
-                var query = "select ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t1.DynamicFormDataID,t1.CompletedDate,t1.DynamicFormWorkFlowFormID,t1.DynamicFormWorkFlowSectionID,t1.UserID,t5.UserName as CompletedBy,t4.SequenceNo,\r\nt2.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t4.UserID as DynamicFormWorkFlowUserID,t6.UserName DynamicFormWorkFlowUser from DynamicFormWorkFlowForm t1 \r\nJOIN DynamicFormWorkFlowSection t2 ON t1.DynamicFormWorkFlowSectionID=t2.DynamicFormWorkFlowSectionID\r\nJOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t2.DynamicFormSectionID\r\nJOIN DynamicFormWorkFlow t4 ON t2.DynamicFormWorkFlowID=t4.DynamicFormWorkFlowID\r\nJOIN ApplicationUser t5 ON t5.UserID=t1.UserID\r\nJOIN ApplicationUser t6 ON t6.UserID=t4.UserID Where  t1.DynamicFormDataID=@DynamicFormDataID order by t4.SequenceNo asc";
+                var query = "select ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t1.DynamicFormDataID,t1.CompletedDate,t1.DynamicFormWorkFlowFormID,t1.DynamicFormWorkFlowSectionID,t1.UserID,t5.UserName as CompletedBy,t4.SequenceNo,\r\nt2.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t4.UserID as DynamicFormWorkFlowUserID,t6.UserName DynamicFormWorkFlowUser from \n\r" +
+                    "DynamicFormWorkFlowForm t1 \r\n" +
+                    "JOIN DynamicFormWorkFlowSection t2 ON t1.DynamicFormWorkFlowSectionID=t2.DynamicFormWorkFlowSectionID\r\nJOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t2.DynamicFormSectionID\r\nJOIN DynamicFormWorkFlow t4 ON t2.DynamicFormWorkFlowID=t4.DynamicFormWorkFlowID\r\n" +
+                    "JOIN ApplicationUser t5 ON t5.UserID=t1.UserID\r\n" +
+                    "JOIN ApplicationUser t6 ON t6.UserID=t4.UserID Where  t1.DynamicFormDataID=@DynamicFormDataID order by t4.SequenceNo asc";
                 var result = new List<DynamicFormWorkFlowForm>();
                 using (var connection = CreateConnection())
                 {

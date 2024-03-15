@@ -23,51 +23,52 @@ namespace Infrastructure.Repository.Query
 
         public async Task<long> Delete(long id)
         {
-           
-                try
+
+            try
+            {
+                using (var connection = CreateConnection())
                 {
-                    using (var connection = CreateConnection())
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
                     {
 
-                        connection.Open();
-                        using (var transaction = connection.BeginTransaction())
+                        try
                         {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("id", id);
 
-                            try
-                            {
-                                var parameters = new DynamicParameters();
-                                parameters.Add("id", id);
-
-                                var query = "DELETE  FROM AttributeDetails WHERE AttributeDetailID = @id";
+                            //var query = "DELETE  FROM AttributeDetails WHERE AttributeDetailID = @id";
+                            var query = "Update AttributeDetails SET Disabled=1 WHERE  AttributeDetailID = @id";
 
 
-                                var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
-                                transaction.Commit();
+                            transaction.Commit();
 
-                                return rowsAffected;
-                            }
-                            catch (Exception exp)
-                            {
-                                transaction.Rollback();
-                                throw new Exception(exp.Message, exp);
-                            }
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
                         }
                     }
+                }
 
-                }
-                catch (Exception exp)
-                {
-                    throw new Exception(exp.Message, exp);
-                }
-            
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
         }
 
         public async Task<IReadOnlyList<AttributeDetails>> GetAllAsync()
         {
             try
             {
-                var query = "SELECT * FROM AttributeDetails ";
+                var query = "SELECT * FROM AttributeDetails WHERE Disabled=0 OR Disabled IS NULL";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<AttributeDetails>(query)).ToList();
@@ -84,7 +85,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM AttributeDetails WHERE AttributeDetailID = @Id";
+                var query = "SELECT * FROM AttributeDetails WHERE (Disabled=0 OR Disabled IS NULL) AND AttributeDetailID = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("Id", id, DbType.Int64);
 
@@ -107,32 +108,32 @@ namespace Infrastructure.Repository.Query
                 {
 
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("AttributeID", attributeDetails.AttributeID);
-                            parameters.Add("AttributeDetailName", attributeDetails.AttributeDetailName);
-                            parameters.Add("Description", attributeDetails.Description);
-                            parameters.Add("Disabled", attributeDetails.Disabled);
-                            parameters.Add("SessionId", attributeDetails.SessionId);
-                            parameters.Add("AddedByUserID", attributeDetails.AddedByUserID);
-                            parameters.Add("AddedDate", DateTime.Now);
-                          
-                            parameters.Add("StatusCodeID", attributeDetails.StatusCodeID);
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("AttributeID", attributeDetails.AttributeID);
+                        parameters.Add("AttributeDetailName", attributeDetails.AttributeDetailName);
+                        parameters.Add("Description", attributeDetails.Description);
+                        parameters.Add("Disabled", attributeDetails.Disabled);
+                        parameters.Add("SessionId", attributeDetails.SessionId);
+                        parameters.Add("AddedByUserID", attributeDetails.AddedByUserID);
+                        parameters.Add("AddedDate", DateTime.Now);
 
-                            var query = "INSERT INTO AttributeDetails(AttributeID,AttributeDetailName,Description,Disabled,SessionId,AddedByUserID,AddedDate,StatusCodeID)  OUTPUT INSERTED.AttributeDetailID  VALUES (@AttributeID,@AttributeDetailName,@Description,@Disabled,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
+                        parameters.Add("StatusCodeID", attributeDetails.StatusCodeID);
+
+                        var query = "INSERT INTO AttributeDetails(AttributeID,AttributeDetailName,Description,Disabled,SessionId,AddedByUserID,AddedDate,StatusCodeID)  OUTPUT INSERTED.AttributeDetailID  VALUES (@AttributeID,@AttributeDetailName,@Description,@Disabled,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
 
                         var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
 
 
                         return insertedId;
-                        }
-                        catch (Exception exp)
-                        {
-                            throw new Exception(exp.Message, exp);
-                        }
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
 
-                    
+
                 }
 
             }
@@ -142,14 +143,14 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public  async Task<IReadOnlyList<AttributeDetails>> LoadAttributelst(long Id)
+        public async Task<IReadOnlyList<AttributeDetails>> LoadAttributelst(long Id)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("id", Id);
 
-                var query = "SELECT * FROM AttributeDetails Where AttributeID = @id";
+                var query = "SELECT * FROM AttributeDetails Where (Disabled=0 OR Disabled IS NULL) AND AttributeID = @id";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<AttributeDetails>(query, parameters)).ToList();
@@ -161,7 +162,7 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-    
+
         }
 
         public async Task<long> UpdateAsync(AttributeDetails attributeDetails)
@@ -220,11 +221,11 @@ namespace Infrastructure.Repository.Query
                 if (attributeDetailId > 0)
                 {
                     parameters.Add("AttributeDetailID", attributeDetailId);
-                    query = "SELECT * FROM AttributeDetails Where AttributeDetailID!=@AttributeDetailID AND AttributeDetailName=@AttributeDetailName AND AttributeID = @AttributeID";
+                    query = "SELECT * FROM AttributeDetails Where (Disabled=0 OR Disabled IS NULL) AND AttributeDetailID!=@AttributeDetailID AND AttributeDetailName=@AttributeDetailName AND AttributeID = @AttributeID";
                 }
                 else
                 {
-                    query = "SELECT * FROM AttributeDetails Where AttributeDetailName=@AttributeDetailName AND AttributeID = @AttributeID";
+                    query = "SELECT * FROM AttributeDetails Where (Disabled=0 OR Disabled IS NULL) AND AttributeDetailName=@AttributeDetailName AND AttributeID = @AttributeID";
                 }
                 using (var connection = CreateConnection())
                 {

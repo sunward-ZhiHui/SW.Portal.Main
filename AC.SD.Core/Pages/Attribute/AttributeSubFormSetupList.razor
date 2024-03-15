@@ -1,0 +1,241 @@
+﻿
+@using Application.Queries;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Repositories.Query;
+@inject IJSRuntime JSRuntime;
+@implements IDisposable
+@using global::Core.Entities.Views;
+@inject NavigationManager NavigationManager
+
+
+<div class="row align-items-end" style="padding: 10px;border: 1px solid #d5d4d4;">
+    <div class="cw-480 ch-220" style="margin-top:10px;">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+
+        <DxLoadingPanel @bind-Visible="PanelVisible"
+                        IsContentBlocked="true"
+                        ApplyBackgroundShading="true"
+                        IndicatorAreaVisible="false"
+                        Text="Fetching Data...">
+            <DxGrid @ref="Grid" Data="@_attributes" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                    KeyFieldName="AttributeID"
+                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                    PageSizeSelectorVisible="true"
+                    PageSizeSelectorAllRowsItemVisible="true"
+                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                    PageSize="20"
+                    style="height: calc(100vh - 220px);"
+                    CssClass="ch-360"
+                    FocusedRowEnabled="true"
+                    AllowSelectRowByClick="true"
+                    RowClick="OnRowclick"
+                    CustomizeElement="Grid_CustomizeElement"
+                    AutoExpandAllGroupRows="true"
+                    SelectionMode="GridSelectionMode.Single"
+                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    RowDoubleClick="OnRowDoubleClick">
+
+                <Columns>
+                    <DxGridDataColumn FieldName="AttributeCompany" MinWidth="50" Caption="Company Name" />
+                    <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="50" />
+                    <DxGridDataColumn FieldName="Description" Caption="Label" MinWidth="50" />
+                    <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="50" />
+                    <DxGridDataColumn FieldName="DropDownTypeId" Caption="Data Source" MinWidth="50" />
+                    <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="DataSource Name" MinWidth="50" />
+                    <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="50" />
+                    <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50" />
+                    <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
+                    <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+
+                </Columns>
+                <TotalSummary>
+                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="AttributeName" />
+                </TotalSummary>
+            </DxGrid>
+        </DxLoadingPanel>
+    </div>
+</div>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="false"
+         HeaderText="Add Sub Controls"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
+    <BodyContentTemplate>
+        <AttributeSetupSubForm RevokeBack="CloseSubFormPopup" _selectedItems="@_selectedItems" Type="@Type" SubAttributeDetailId="@SubAttributeDetailId" SubAttributeId="@SubAttributeId"></AttributeSetupSubForm>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSubFormPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public long? SubAttributeDetailId { get; set; }
+    [Parameter]
+    public string? Type { get; set; }
+    [Parameter]
+    public long? SubAttributeId { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    IGrid? Grid { get; set; }
+    bool PanelVisible { get; set; }
+    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddPopup { get; set; } = false;
+    bool RegEnabled { get; set; } = false;
+    bool isMultipleEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    bool IsCheckBoxEnabled { get; set; } = false;
+    private AttributeHeader _selectedItems;
+    private List<AttributeHeader>? _attributes;
+    public ApplicationUser? applicationUser { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await loadData();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void CloseSubFormPopup()
+    {
+        AddPopup = false;
+        InvokeAsync(loadData);
+        StateHasChanged();
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowclick(e);
+        NavigationManager.NavigateTo("attributesetup/attributesetupForm/" + _selectedItems.SessionId);
+    }
+    void OnRowclick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AttributeID");
+        _selectedItems = _attributes.FirstOrDefault(f => f.AttributeID == (long?)UniqueId);
+        loadSelectedItems();
+    }
+    void loadSelectedItems()
+    {
+
+        EditEnabled = false; DeleteEnabled = false; IsCheckBoxEnabled = false;
+        if (_selectedItems != null)
+        {
+            EditEnabled = true; DeleteEnabled = true;
+            if (_selectedItems.ControlTypeId == 2710)
+            {
+                IsCheckBoxEnabled = true;
+            }
+            if (_selectedItems.FormUsedCount > 0)
+            {
+               // DeleteEnabled = false;
+            }
+        }
+        StateHasChanged();
+    }
+    async Task loadData()
+    {
+        PanelVisible = true;
+        _attributes = await Mediator.Send(new GetAllAttributeNameHeader(true, Type, Type == "SubAttributeDetailID" ? SubAttributeDetailId : SubAttributeId));
+        if (_attributes != null && _attributes.Count > 0)
+        {
+            _selectedItems = _attributes.FirstOrDefault();
+            Grid.SetFocusedRowIndex(0);
+            loadSelectedItems();
+            PanelVisible = false;
+        }
+        else
+        {
+            PanelVisible = false;
+        }
+        StateHasChanged();
+    }
+    void addEdit()
+    {
+        AddPopup = true;
+        StateHasChanged();
+    }
+    void addNew()
+    {
+        _selectedItems = null;
+        AddPopup = true;
+        StateHasChanged();
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        AddPopup = false;
+        Blukdeletepopup = false;
+        StateHasChanged();
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            var request = new DeleteAttributeHeader(_selectedItems.AttributeID);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
+            await loadData();
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}

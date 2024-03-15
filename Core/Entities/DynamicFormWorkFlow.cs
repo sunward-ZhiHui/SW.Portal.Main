@@ -94,4 +94,10 @@ namespace Core.Entities
         public string? DynamicFormWorkFlowUser { get; set; }
         public int? RowID { get; set; }
     }
+    public class DynamicFormDataUploadByPermission
+    {
+        public long? DynamicFormSectionId { get; set; }
+        public bool? IsVisible { get; set; } = false;
+        public bool? IsReadonly { get; set; } = false;
+    }
 }

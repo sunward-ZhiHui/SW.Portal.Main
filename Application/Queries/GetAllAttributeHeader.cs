@@ -21,7 +21,7 @@ namespace Application.Queries
         public bool? IsSubForm { get; set; }
         public string? Type { get; set; }
         public long? SubId { get; set; }
-        public GetAllAttributeNameHeader(bool? isSubForm,string? type,long? subId)
+        public GetAllAttributeNameHeader(bool? isSubForm, string? type, long? subId)
         {
             this.IsSubForm = isSubForm;
             this.Type = type;
@@ -75,5 +75,30 @@ namespace Application.Queries
             this.DynamicForm = dynamicForm;
             this.UserId = userId;
         }
+    }
+    public class GetAllBySessionAttributeName : PagedRequest, IRequest<AttributeHeader>
+    {
+
+        public Guid? SessionId { get; set; }
+        public GetAllBySessionAttributeName(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    public class GetDataSourceDropDownList : PagedRequest, IRequest<List<AttributeDetails>>
+    {
+        public long? CompanyId { get; set; }
+        public List<string?> DataSourceTableIds { get; set; }
+        public string? PlantCode { get; set; }
+        public GetDataSourceDropDownList(long? companyId, List<string?> dataSourceTableIds, string? plantCode)
+        {
+            this.CompanyId = companyId;
+            this.DataSourceTableIds = dataSourceTableIds;
+            this.PlantCode = plantCode;
+        }
+    }
+    public class GetAllDropDownDataSourcesList : PagedRequest, IRequest<DataSourceAttributeDetails>
+    {
+
     }
 }

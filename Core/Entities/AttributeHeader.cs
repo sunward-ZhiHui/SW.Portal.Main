@@ -39,17 +39,17 @@ namespace Core.Entities
         [NotMapped]
         public string? DataSourceTable { get; set; }
         public bool ContainsPersonalData { get; set; }
-        [NotMapped]
-        public string ModifiedBy { get; set; }
-        [NotMapped]
-        public string AddedBy { get; set; }
+        //[NotMapped]
+        //public string ModifiedBy { get; set; }
+        //[NotMapped]
+        //public string AddedBy { get; set; }
         [NotMapped]
         public int? RowIndex { get; set; }
         [Required(ErrorMessage = "Control Type is Required")]
         public int? ControlTypeId { get; set; }
         public bool? IsMultiple { get; set; } = false;
         public bool? IsRequired { get; set; } = false;
-        public bool? RequiredMessage { get; set; }
+        public string? RequiredMessage { get; set; }
         public int? FormUsedCount { get; set; }
         [NotMapped]
         public bool? IsDataSource { get; set; } = false;
@@ -62,6 +62,14 @@ namespace Core.Entities
         public long? SubAttributeDetailId { get; set; }
         public Type? SubDataType { get; set; }
         public string? SubDynamicAttributeName { get; set; }
+        public List<AttributeDetails> SubAttributeDetails = new List<AttributeDetails>();
+        public bool? AttributeIsVisible { get; set; } = false;
+        public string? IsAttributeSpinEditType { get; set; }
+        public bool? IsAttributeDisplayTableHeader { get; set; } = false;
+        public string? AttributeFormToolTips { get; set; }
+        public string? AttributeRadioLayout { get; set; }
+        public string? AttributeCompany { get; set; }
+        public string? SubFormType { get; set; }
     }
     public class AttributeHeaderListModel
     {

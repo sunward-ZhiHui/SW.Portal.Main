@@ -15,6 +15,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 @inject NavigationManager Navigator
+@using System.Collections
 @implements IDisposable
 <style>
     .dxuc-file-list-view {
@@ -280,6 +281,9 @@
     public long? FileProfileTypeId { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
+    [Parameter]
+    public IEnumerable DynamicFormDataUploadByPermissions { get; set; }
+    List<DynamicFormDataUploadByPermission> FolderPathListsItems = new List<DynamicFormDataUploadByPermission>();
     EditContext _editContext;
     public FileProfileTypeModel fileProfileTypeModels { get; set; }
     private DxTreeView _treeView;
@@ -315,6 +319,10 @@
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", "audio/*" };
     protected override async Task OnInitializedAsync()
     {
+        if (DynamicFormDataUploadByPermissions != null)
+        {
+            FolderPathListsItems = DynamicFormDataUploadByPermissions.Cast<DynamicFormDataUploadByPermission>().ToList();
+        }
         _editContext = new EditContext(Data);
         _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, _applicationUser.UserID, _dynamicformData.DynamicFormDataId));
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());

@@ -16,11 +16,11 @@ namespace Core.Entities
         public long AttributeDetailID { get; set; }
         [Required(ErrorMessage = "Value is Required")]
         [AttributeValueCustomValidation]
-        public string?  AttributeDetailName { get; set; }
+        public string? AttributeDetailName { get; set; }
         public long? AttributeID { get; set; }
         public string? Description { get; set; }
-      
-        public bool Disabled { get; set; }
+
+        public bool Disabled { get; set; } = false;
         [NotMapped]
         public string? ModifiedBy { get; set; }
         [NotMapped]
@@ -31,6 +31,11 @@ namespace Core.Entities
         [NotMapped]
         public string? DropDownTypeId { get; set; }
         public long? CompanyId { get; set; }
-
+        public string? CompanyName { get; set; }
+        public List<AttributeHeader> SubAttributeHeaders { get; set; } = new List<AttributeHeader>();
+    }
+    public class DataSourceAttributeDetails
+    {
+        public List<AttributeDetails> AllAttributeDetails { get; set; } = new List<AttributeDetails>();
     }
 }

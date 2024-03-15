@@ -160,6 +160,7 @@
                     <ValidationMessage For="@(() => types.AttributeId)" />
 
                 </DxFormLayoutItem>
+
                 <DxFormLayoutItem Caption="Label Name" ColSpanMd="6">
                     @{
                         var types = (DynamicFormSectionAttribute)EditFormContext.EditModel;
@@ -167,6 +168,25 @@
                     <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
+                @* <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource">
+                    <DxCheckBox @bind-Checked="types.IsPlantLoadDependency"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Dropdown Data Source" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
+                    <DxComboBox Data="@_attributeHeaderDataSource"
+                                NullText="Select Data Source..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                TextFieldName="DisplayName"
+                                ValueFieldName="AttributeHeaderDataSourceId"
+                                Enabled="isFormCountUsed"
+                    @bind-Value="@types.PlantDropDownWithOtherDataSourceId">
+
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.PlantDropDownWithOtherDataSourceId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Dropdown Label Name" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
+                    <DxTextBox @bind-Text="@types.PlantDropDownWithOtherDataSourceLabelName" />
+                </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="Radio Layout" ColSpanMd="6" Visible="IsRadioLayoutEnabled">
                     <DxRadioGroup Items="@TemplateUploadOptions"
                                   Value="@types.RadioLayout"
@@ -272,9 +292,11 @@
 
     </FooterContentTemplate>
 </DxFlyout>
+
 @code {
     [Parameter]
     public DynamicFormSection Items { get; set; }
+    public bool? IsDynamicSubForm { get; set; } = false;
     public long? DynamicFormSectionId { get; set; }
     bool PanelAttibuteVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -305,7 +327,7 @@
     private List<AttributeHeader>? _attributeHeaderData;
     DynamicFormSectionAttribute _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
     private List<DynamicFormSectionSpinEdit> dynamicFormSectionSpinEdit { get; set; } = new List<DynamicFormSectionSpinEdit>();
-    bool isFormCountUsed { get; set; } = true;
+    bool isFormCountUsed { get; set; } = true; private List<AttributeHeaderDataSource> _attributeHeaderDataSource; bool isDataSource { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -354,7 +376,7 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        isFormCountUsed = true;
+        isFormCountUsed = true; isDataSource = false;
         var navitems = (DynamicFormSectionAttribute)e.EditModel;
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
@@ -368,6 +390,11 @@
         }
         else
         {
+            if (navitems.DataSourceTable == "Plant")
+            {
+                isDataSource = true;
+                _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
+            }
             if (navitems.FormUsedCount > 0)
             {
                 isFormCountUsed = false;
@@ -431,10 +458,10 @@
 
                 EditEnabled = true;
                 DeleteEnabled = true;
-                if (_selectedAttributeItems.FormUsedCount > 0)
-                {
-                    DeleteEnabled = false;
-                }
+                // if (_selectedAttributeItems.FormUsedCount > 0)
+                // {
+                //     DeleteEnabled = false;
+                // }
             }
         }
         PanelAttibuteVisible = false;
@@ -447,10 +474,11 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
-    void SelectedItemChanged(AttributeHeader attributeHeader, DynamicFormSectionAttribute data)
+    async Task SelectedItemChanged(AttributeHeader attributeHeader, DynamicFormSectionAttribute data)
     {
         data.DisplayName = attributeHeader.Description;
-        data.ControlTypeId = attributeHeader.ControlTypeId;
+        data.DataSourceTable = attributeHeader.DataSourceTable;
+        data.ControlTypeId = attributeHeader.ControlTypeId; isDataSource = false;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
         if (attributeHeader != null)
         {
@@ -479,12 +507,20 @@
             {
                 data.ColSpan = 12;
             }
+            if (attributeHeader.DataSourceTable == "Plant")
+            {
+                isDataSource = true;
+                _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
+            }
+            else
+            {
+                data.IsPlantLoadDependency = false;
+            }
         }
         StateHasChanged();
     }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
-
         var editModel = (DynamicFormSectionAttribute)e.EditModel;
         var isMultipleFlag = editModel.ControlTypeId == 2706 ? (editModel.IsMultiple == true ? true : false) : false;
         var IsSpinEditType = editModel.ControlTypeId == 2704 ? (string.IsNullOrEmpty(editModel.IsSpinEditType) ? null : editModel.IsSpinEditType) : null;
@@ -503,6 +539,7 @@
                 IsRadioCheckRemarks = "TextBox";
             }
         }
+
         if (e.IsNew)
         {
             var createReq = new InsertOrUpdateDynamicFormSectionAttribute
@@ -527,6 +564,9 @@
                     RadioLayout = IsRadioLayout,
                     IsRadioCheckRemarks = IsRadioCheckRemarks,
                     RemarksLabelName = RemarksLabelName,
+                    IsPlantLoadDependency = editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
+                    PlantDropDownWithOtherDataSourceId = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceId : null,
+                    PlantDropDownWithOtherDataSourceLabelName = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true && editModel.PlantDropDownWithOtherDataSourceId > 0 ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
                 };
 
             try
@@ -571,6 +611,10 @@
                     RadioLayout = IsRadioLayout,
                     IsRadioCheckRemarks = IsRadioCheckRemarks,
                     RemarksLabelName = RemarksLabelName,
+                    IsPlantLoadDependency = editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
+                    PlantDropDownWithOtherDataSourceId = editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceId : null,
+                    PlantDropDownWithOtherDataSourceLabelName = editModel.DataSourceTable == "Plant" && editModel.PlantDropDownWithOtherDataSourceId > 0 ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+
                 };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -631,11 +675,11 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormSectionAttributeId");
         _selectedAttributeItems = _dynamicFormSectionAttributeData.FirstOrDefault(f => f.DynamicFormSectionAttributeId == (long?)UniqueId);
-        DeleteEnabled = true;
-        if (_selectedAttributeItems.FormUsedCount > 0)
-        {
-            DeleteEnabled = false;
-        }
+        // DeleteEnabled = true;
+        //if (_selectedAttributeItems.FormUsedCount > 0)
+        //{
+        //   DeleteEnabled = false;
+        // }
         StateHasChanged();
 
     }

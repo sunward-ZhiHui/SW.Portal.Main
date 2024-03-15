@@ -57,6 +57,10 @@ namespace Core.Entities
         [NotMapped]
         public int? IsWorkFlowBy { get; set; }
         public long? DynamicFormWorkFlowId { get; set; }
+        public bool? UserIsReadWrite { get; set; } = false;
+        public bool? UserIsReadOnly { get; set; } = false;
+        public int? UserCount { get; set; }
+        public bool? UserIsVisible { get; set; } = false;
     }
     public class DynamicFormSectionSortOrder
     {

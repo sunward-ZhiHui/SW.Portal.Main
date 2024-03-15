@@ -63,6 +63,11 @@ namespace Core.Entities
         public string? RemarksLabelName { get; set; }
         public bool? IsDynamicFormDropTagBox { get; set; } = false;
         public List<AttributeHeader> SubAttributeHeaders { get; set; } = new List<AttributeHeader>();
+        public List<AttributeDetails> SubAttributeDetails { get; set; } = new List<AttributeDetails>();
+        public long? PlantDropDownWithOtherDataSourceId { get; set; }
+        public string? PlantDropDownWithOtherDataSourceTable { get; set; }
+        public string? PlantDropDownWithOtherDataSourceLabelName { get; set; }
+        public bool IsPlantLoadDependency { get; set; } = false;
     }
     public class DynamicFormSectionSpinEdit
     {

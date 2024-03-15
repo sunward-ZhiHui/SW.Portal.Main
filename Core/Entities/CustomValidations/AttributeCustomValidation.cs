@@ -15,16 +15,35 @@ namespace Core.Entities.CustomValidations
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class AttributeCustomValidation : ValidationAttribute
     {
+        private IServiceProvider serviceProvider;
+
+        public AttributeCustomValidation()
+        {
+            serviceProvider = AppDependencyResolver.Current.GetService<IServiceProvider>();
+        }
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (value != null)
             {
+                var datas = (AttributeHeader)validationContext.ObjectInstance;
                 string s = value.ToString().Trim();
                 var withoutSpecial = new string(s.Where(c => Char.IsLetterOrDigit(c) || Char.IsWhiteSpace(c)).ToArray());
                 bool fHasSpace = s.Contains(" ");
                 if (s != withoutSpecial || fHasSpace == true)
                 {
                     return new ValidationResult("Special character,no white space not allowed", new[] { validationContext.MemberName });
+                }
+                else
+                {
+                    using (var scope = serviceProvider.CreateScope())
+                    {
+                        var service = scope.ServiceProvider.GetService<IAttributeQueryRepository>();
+                        var results = service.GetAllAttributeNameCheckValidation(datas);
+                        if (results != null)
+                        {
+                            return new ValidationResult("Attribute Name already exits", new[] { validationContext.MemberName });
+                        }
+                    }
                 }
             }
             return ValidationResult.Success;

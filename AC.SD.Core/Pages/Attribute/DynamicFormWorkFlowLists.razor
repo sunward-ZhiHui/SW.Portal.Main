@@ -22,7 +22,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" />
+                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
             </Items>
         </DxMenu>
@@ -104,7 +104,7 @@
         EditEnabled = false; DeleteEnabled = false; emailEnabled = false;
         _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID));
         PanelVisible = true;
-        if (_dynamicForm != null)
+        if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
             EditEnabled = true; DeleteEnabled = true; emailEnabled = true;
             if (SessionId != null)

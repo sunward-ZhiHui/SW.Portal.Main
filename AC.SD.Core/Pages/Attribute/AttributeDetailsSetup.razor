@@ -80,7 +80,7 @@
                 <DxTextBox @bind-Text="@rolePermission.Description" />
             </DxFormLayoutItem>
             @* <DxFormLayoutItem Caption="Is Active:" ColSpanMd="6">
-                <DxCheckBox @bind-Checked="@rolePermission.Disabled" />
+            <DxCheckBox @bind-Checked="@rolePermission.Disabled" />
             </DxFormLayoutItem> *@
 
         </DxFormLayout>
@@ -146,18 +146,30 @@
     public async Task UpdateLst()
     {
         EditEnabled = false;
-        DeleteEnabled = false; AddEnabled = false;
+        DeleteEnabled = false; AddEnabled = false; IsCheckBoxEnabled = false;
+        if (!string.IsNullOrEmpty(ControlType) && selectedAttributeID > 0)
+        {
+            AddEnabled = true;            
+        }
         _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(selectedAttributeID));
-        if (_attributesDetails != null)
+        if (_attributesDetails != null && _attributesDetails.Count > 0)
         {
             _selectedItems = _attributesDetails.FirstOrDefault();
             AttributeDetailId = _selectedItems?.AttributeDetailID;
-            DetailGrid.SetFocusedRowIndex(0);
+            DetailGrid.SetFocusedRowIndex(0); AddEnabled = true;
             if (!string.IsNullOrEmpty(ControlType) && selectedAttributeID > 0)
             {
-                AddEnabled = true;
+
+               
                 if (_selectedItems != null)
                 {
+                    if (!string.IsNullOrEmpty(ControlType))
+                    {
+                        if (ControlType.ToLower() == "RadioGroup".ToLower() || ControlType.ToLower() == "Radio".ToLower())
+                        {
+                            IsCheckBoxEnabled = true;
+                        }
+                    }
                     DeleteEnabled = true;
                     EditEnabled = true;
                     if (_selectedItems.FormUsedCount > 0)
@@ -168,7 +180,7 @@
                 else
                 {
                     DeleteEnabled = false;
-                    EditEnabled = false;
+                    EditEnabled = false; IsCheckBoxEnabled = false;
                 }
             }
         }
@@ -180,13 +192,7 @@
         IsCheckBoxEnabled = false;
         selectedAttributeID = id;
         ControlType = controlType;
-        if (!string.IsNullOrEmpty(ControlType))
-        {
-            if (ControlType.ToLower() == "RadioGroup".ToLower() || ControlType.ToLower() == "Radio".ToLower())
-            {
-                IsCheckBoxEnabled = true;
-            }
-        }
+
         await UpdateLst();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -231,7 +237,7 @@
                     AttributeDetailName = editModel.AttributeDetailName,
                     AttributeID = selectedAttributeID,
                     Description = editModel.Description,
-                    Disabled =  editModel.Disabled,
+                    Disabled = editModel.Disabled,
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,

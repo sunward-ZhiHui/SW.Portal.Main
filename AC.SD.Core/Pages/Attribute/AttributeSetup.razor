@@ -400,7 +400,7 @@
         Data.DropDownTypeId = null;
         Data.IsDataSource = false;
         Data.DynamicFormId = null;
-        Data.IsSubForm = true;
+        Data.IsSubForm = null;
         Data.SubAttributeDetailId = null; Data.AttributeIsVisible = false;
         Data.SubAttributeId = null;
         isAddAttributeEnabled = false;
@@ -414,7 +414,7 @@
         ActiveTabIndex = 0;
         AttributeDetailsEnabled = false; isGridForm = false; DataSourceTable = null;
         Data.IsDynamicFormDropTagBox = false; isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null;
-        IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null;
+        IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null;IsCheckBoxEnabled = false;
         loadPlantItems();
         StateHasChanged();
     }
@@ -451,7 +451,7 @@
     }
     async Task createAttributes()
     {
-        
+
         long? DynamicFormIds = Data.DynamicFormId;
         string? DropDownTypeId = Data.ControlTypeId == 2702 || Data.ControlTypeId == 2708 || Data.ControlTypeId == 2706 ? Data.DropDownTypeId : null;
         long? dataSourceId = Data.ControlTypeId == 2702 || Data.ControlTypeId == 2708 || Data.ControlTypeId == 2706 ? Data.DataSourceId : null;
@@ -597,10 +597,10 @@
             Data.DataSourceId = 0;
             Data.DropDownTypeId = null; Data.DynamicFormId = null; isGridForm = false;
             Data.IsDataSource = false; DataSourceTable = null; Data.IsDynamicFormDropTagBox = false;
-            Data.IsSubForm = false;
+            Data.IsSubForm = null;
             Data.SubAttributeDetailId = null;
             Data.SubAttributeId = null; IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null;
-            isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null;
+            isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null;IsCheckBoxEnabled = false;
             loadPlantItems();
             if (Data.AttributeID > 0)
             {

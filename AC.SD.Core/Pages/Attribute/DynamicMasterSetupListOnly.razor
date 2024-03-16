@@ -21,7 +21,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-               @*  <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                @*  <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" /> *@
                 <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" />
@@ -102,7 +102,7 @@
         EditEnabled = false; DeleteEnabled = false;
         _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
         PanelVisible = true;
-        if (_dynamicForm != null)
+        if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
             EditEnabled = true; DeleteEnabled = true;
             _selectedItems = _dynamicForm.FirstOrDefault();

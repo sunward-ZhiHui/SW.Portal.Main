@@ -433,12 +433,9 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.*,t5.PlantCode as CompanyName,t6.Name as ProfileName,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
-                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
-                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                var query = "select t1.*,t5.PlantCode as CompanyName from DynamicForm t1 \r\n" +
                     "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
-                    "LEFT JOIN DocumentProfileNoSeries t6 ON t6.profileId=t1.profileId\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
+                    "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -2569,6 +2566,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IReadOnlyList<DynamicFormApproved>> GetDynamicFormApprovedList(long? DynamicFormDataId)
         {
+            List<DynamicFormApproved> dynamicFormApprovedList = new List<DynamicFormApproved>();
             try
             {
                 var parameters = new DynamicParameters();
@@ -2582,8 +2580,15 @@ namespace Infrastructure.Repository.Query
                     "Where t1.DynamicFormDataID=@DynamicFormDataId \r\norder by t1.DynamicFormApprovedID asc";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();
+                    dynamicFormApprovedList = (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();
+                    if (dynamicFormApprovedList != null && dynamicFormApprovedList.Count > 0)
+                    {
+                        //var empuserIds = dynamicFormApprovedList.Where(w => w.UserId > 0).Select(s => s.UserId).Distinct().ToList();
+                       // var appuserIds = dynamicFormApprovedList.Where(w => w.ApprovedByUserId > 0).Select(s => s.ApprovedByUserId).Distinct().ToList();
+                       // var acceptanceStatusIds = dynamicFormApprovedList.Where(w => w.ApprovedStatus > 0).Select(s => s.AcceptanceStatus).Distinct().ToList();
+                    }
                 }
+                return dynamicFormApprovedList;
             }
             catch (Exception exp)
             {
@@ -2899,7 +2904,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var parameters = new DynamicParameters();
-                var query = "select t1.DynamicFormID,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID from DynamicFormData t1\r\nJOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID";
+                var query = "select t1.DynamicFormID,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID from DynamicFormData t1\r\nJOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID WHERE (t2.IsDeleted =0 OR t2.IsDeleted is null) AND (t1.IsDeleted =0 OR t1.IsDeleted is null)";
                 var result = new List<DynamicFormDataWrokFlow>();
                 using (var connection = CreateConnection())
                 {

@@ -146,7 +146,7 @@ namespace Infrastructure.Repository.Query
                                 WHERE TNH.AddedByUserID = @UserId
                                     AND TNH.TopicId IS NOT NULL
                                     AND TNH.TopicId > 0
-                                    AND TNU.Status = 'Open'
+                                    --AND TNU.Status = 'Open'
                                     AND TNH.Status = 'Open'
                                     --AND (
                                     --CAST(TNH.DueDate AS DATE) BETWEEN DATEADD(DAY, -7, CAST(GETDATE() AS DATE)) AND CAST(GETDATE() AS DATE)
@@ -609,7 +609,8 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("ID", ID);
 
-                        var query = "update TodoNotesUsers Set Status = 'close' Where ID =@ID";
+                        //var query = "update TodoNotesUsers Set Status = 'close' Where ID =@ID";
+                        var query = "update ToDoNotesHistory Set Status = 'close' Where ID =@ID";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         return rowsAffected;
                     }

@@ -465,7 +465,7 @@ namespace Infrastructure.Repository.Query
                 {
                     result = await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters);
                 }
-                if (result != null)
+                if (result != null && DynamicFormDataId>0)
                 {
                     result.DynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(result.ID, DynamicFormDataId);
                 }
@@ -3077,9 +3077,11 @@ namespace Infrastructure.Repository.Query
                 var listData = await GetDynamicFormWorkFlowExits(dynamicFormId, 0, dynamicFormDataId);
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormDataID", dynamicFormDataId);
-                var query = "select ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t1.DynamicFormDataID,t1.CompletedDate,t1.DynamicFormWorkFlowFormID,t1.DynamicFormWorkFlowSectionID,t1.UserID,t5.UserName as CompletedBy,t4.SequenceNo,\r\nt2.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t4.UserID as DynamicFormWorkFlowUserID,t6.UserName DynamicFormWorkFlowUser from \n\r" +
+                var query = "select ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t1.DynamicFormDataID,t1.CompletedDate,t1.DynamicFormWorkFlowFormID,t1.DynamicFormWorkFlowSectionID,t1.UserID,t5.UserName as CompletedBy,t4.SequenceNo,\r\nt2.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t4.UserID as DynamicFormWorkFlowUserID,t6.UserName as DynamicFormWorkFlowUser from \n\r" +
                     "DynamicFormWorkFlowForm t1 \r\n" +
-                    "JOIN DynamicFormWorkFlowSection t2 ON t1.DynamicFormWorkFlowSectionID=t2.DynamicFormWorkFlowSectionID\r\nJOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t2.DynamicFormSectionID\r\nJOIN DynamicFormWorkFlow t4 ON t2.DynamicFormWorkFlowID=t4.DynamicFormWorkFlowID\r\n" +
+                    "JOIN DynamicFormWorkFlowSection t2 ON t1.DynamicFormWorkFlowSectionID=t2.DynamicFormWorkFlowSectionID\r\n" +
+                    "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t2.DynamicFormSectionID\r\n" +
+                    "JOIN DynamicFormWorkFlow t4 ON t2.DynamicFormWorkFlowID=t4.DynamicFormWorkFlowID\r\n" +
                     "JOIN ApplicationUser t5 ON t5.UserID=t1.UserID\r\n" +
                     "JOIN ApplicationUser t6 ON t6.UserID=t4.UserID Where  t1.DynamicFormDataID=@DynamicFormDataID order by t4.SequenceNo asc";
                 var result = new List<DynamicFormWorkFlowForm>();

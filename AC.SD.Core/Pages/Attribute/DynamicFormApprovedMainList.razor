@@ -57,6 +57,9 @@
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
         </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+        </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
 

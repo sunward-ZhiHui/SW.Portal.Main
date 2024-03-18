@@ -168,10 +168,10 @@
                     <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource">
-                    <DxCheckBox @bind-Checked="types.IsPlantLoadDependency"></DxCheckBox>
+                <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource" Enabled="isFormCountUsed">
+                    <DxCheckBox @bind-Checked="types.IsPlantLoadDependency" Enabled="isFormCountUsed"></DxCheckBox>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Dropdown Data Source" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
+                <DxFormLayoutItem Caption="Dropdown Data Source" ColSpanMd="6" Visible="@types.IsPlantLoadDependency" >
                     <DxComboBox Data="@_attributeHeaderDataSource"
                                 NullText="Select Data Source..."
                                 FilteringMode="DataGridFilteringMode.Contains"
@@ -394,6 +394,11 @@
             {
                 isDataSource = true;
                 _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
+                if (_attributeHeaderDataSource != null && _attributeHeaderDataSource.Count > 0)
+                {
+                    List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid" };
+                    _attributeHeaderDataSource = _attributeHeaderDataSource.Where(w => !dataSourceNotIn.Contains(w.DataSourceTable)).ToList();
+                }
             }
             if (navitems.FormUsedCount > 0)
             {
@@ -511,6 +516,11 @@
             {
                 isDataSource = true;
                 _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
+                if (_attributeHeaderDataSource != null && _attributeHeaderDataSource.Count > 0)
+                {
+                    List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid" };
+                    _attributeHeaderDataSource = _attributeHeaderDataSource.Where(w => !dataSourceNotIn.Contains(w.DataSourceTable)).ToList();
+                }
             }
             else
             {

@@ -38,11 +38,12 @@
         padding: 3px;
         margin-bottom: 10px;
     }
+
     .txtEditorMsg {
         height: calc(100vh - 496px);
     }
-    .dxuc-file-list-view
-    {
+
+    .dxuc-file-list-view {
         padding: 20px;
     }
 
@@ -57,7 +58,7 @@
         border-radius: 4px;
         background: #eef2f0;
         margin-bottom: 10px;
-        min-height:60px;
+        min-height: 60px;
     }
 </style>
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
@@ -68,7 +69,7 @@
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
-                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => onBack())" Enabled = "@BackEnabled" />
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => onBack())" Enabled="@BackEnabled" />
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onClearAll" />
                         <DxMenuItem Text="Sent" Enabled="!isSending" IconCssClass="fa fa-save" Click="@SubmitSentForm">
                             <div class="d-flex">
@@ -77,13 +78,13 @@
                             </div>
                         </DxMenuItem>
                         <DxMenuItem Text="Draft" IconCssClass="fab fa-stack-overflow" Click="@SubmitDraftForm" />
-                       @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
+                        @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
                         <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => addNew(0))" />*@
                     </Items>
                 </DxMenu>
             </div>
-          
-            
+
+
         </div>
     </div>
 </div>
@@ -91,21 +92,20 @@
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
     <div class="text-center">
-       
     </div>
 </DxPopup>
-@if(isValidateSession)
+@if (isValidateSession)
 {
     <div style="color:red; text-align:center;">Invalidate Session or Already Created</div>
-    NavigationManager.NavigateTo($"404",forceLoad:true);
+    NavigationManager.NavigateTo($"404", forceLoad: true);
 }
 else
 {
     <div class="card cw-480 toolnext">
         <EditForm id="@MyID" @ref="myForm" EditContext="this._editContext"
-              OnValidSubmit="@HandleValidSubmit"
-              OnInvalidSubmit="@HandleInvalidSubmit"
-              Context="EditFormContext">
+                  OnValidSubmit="@HandleValidSubmit"
+                  OnInvalidSubmit="@HandleInvalidSubmit"
+                  Context="EditFormContext">
             <DataAnnotationsValidator />
             <div class="card-body">
                 <div class="row">
@@ -115,66 +115,65 @@ else
                                 <DxTextBox @bind-Text="@Data.From" spellcheck="true" ShowValidationIcon="true" Enabled=false />
                             </DxFormLayoutItem>
 
-                              <DxFormLayoutItem Caption="Group" ColSpanMd="4">
+                            <DxFormLayoutItem Caption="Group" ColSpanMd="4">
                                 <DxComboBox Data="@_groupTagItems"
                                             NullText="Select Group..."
                                             FilteringMode="DataGridFilteringMode.Contains"
                                             TextFieldName="Value"
                                             ValueFieldName="ApplicationMasterChildId"
                                             Enabled="@isEnabled"
-                                           
                                             @bind-Value="@CategoryData.GroupTag"
-                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                             SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
-                                             ShowValidationIcon="true">
-                                 </DxComboBox>
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
+                                            ShowValidationIcon="true">
+                                </DxComboBox>
                                 <ValidationMessage For="@(() => CategoryData.GroupTag)" />
                             </DxFormLayoutItem>
 
                             @* <DxFormLayoutItem Caption="Type" ColSpanMd="12">
-                                <DxRadioGroup Items="@UserTypeOptions"
-                                              Enabled="@isRadioGroup"
-                                              Value="@Data.UserType"
-                                              ValueExpression="@(() => Data.UserType )"
-                                              ValueChanged="@((string value) => OnUserTypeChanged(value))"
-                                              Layout="RadioGroupLayout.Horizontal"
-                                              CssClass="dx-demo-radio-group" />
-                            </DxFormLayoutItem> *@
+                        <DxRadioGroup Items="@UserTypeOptions"
+                        Enabled="@isRadioGroup"
+                        Value="@Data.UserType"
+                        ValueExpression="@(() => Data.UserType )"
+                        ValueChanged="@((string value) => OnUserTypeChanged(value))"
+                        Layout="RadioGroupLayout.Horizontal"
+                        CssClass="dx-demo-radio-group" />
+                        </DxFormLayoutItem> *@
 
                             @* <DxFormLayoutItem Caption="Type" ColSpanMd="12">
-                             <div role="radiogroup">
-                                    @foreach (var language in Languages) {
-                                        <DxRadio GroupName="disabled-option-radio-group"
-                                                 @bind-GroupValue="@PreferredLanguage"
-                                                 Value="@language"
-                                                 Layout="RadioGroupLayout.Horizontal"
-                                                 Enabled="@IsLanguageInstalled(language)">
-                                            @GetOptionLabel(language)
-                                        </DxRadio>
-                                    }
-                                </div>
-                            </DxFormLayoutItem> *@
+                        <div role="radiogroup">
+                        @foreach (var language in Languages) {
+                        <DxRadio GroupName="disabled-option-radio-group"
+                        @bind-GroupValue="@PreferredLanguage"
+                        Value="@language"
+                        Layout="RadioGroupLayout.Horizontal"
+                        Enabled="@IsLanguageInstalled(language)">
+                        @GetOptionLabel(language)
+                        </DxRadio>
+                        }
+                        </div>
+                        </DxFormLayoutItem> *@
 
 
                             @if (Data.UserType == "Users")
-                            { 
+                            {
                                 <DxFormLayoutItem Caption="To" ColSpanMd="7">
                                     <DxTagBox Data="_Toparticipant"
-                                         @bind-Values="Data.ToIds"
-                                          FilteringMode="DataGridFilteringMode.Contains"
-                                          NullText="Select To..."                                     
-                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                          ValueFieldName="UserID"
-                                          TextFieldName="Name"                                    
-                                          SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
-                                          ListRenderMode="ListRenderMode.Virtual"                                     
-                                          CssClass="cw-480"> 
-                                       
+                                              @bind-Values="Data.ToIds"
+                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserID"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual"
+                                              CssClass="cw-480">
+
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                                        
+
                                         <div>button</div>
                                     </DxTagBox>
                                     <ValidationMessage For="@(() => Data.ToIds)" />
@@ -191,37 +190,36 @@ else
                                 <DxFormLayoutItem Caption="To Group" ColSpanMd="8">
                                     <DxTagBox Data="_ToUserGroup"
                                               @bind-Values="Data.ToUserGroupIds"
-                                         FilteringMode="DataGridFilteringMode.Contains"
-                                         NullText="Select To Group..."                                     
-                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                          ValueFieldName="UserGroupId"
-                                          TextFieldName="Name"
-                                          SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItemsChanged(values))"
-                                      
-                                          ListRenderMode="ListRenderMode.Virtual"                                     
-                                          CssClass="cw-480">                                    
-                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name"/>                                                                            
-                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)"Caption="Description" />
-                                        
+                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              NullText="Select To Group..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserGroupId"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual"
+                                              CssClass="cw-480">
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
                                     </DxTagBox>
                                     <ValidationMessage For="@(() => Data.ToUserGroupIds)" />
                                 </DxFormLayoutItem>
                             }
 
-                               <DxFormLayoutItem Caption="Category" ColSpanMd="4">
-                                    <DxComboBox Data="@_categoryTagItems"
-                                                NullText="Select Category..."
-                                                Enabled="@isEnabled"
-                                                FilteringMode="DataGridFilteringMode.Contains"
-                                                TextFieldName="Value"
-                                                ValueFieldName="ApplicationMasterChildId"
-                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                @bind-Value="@CategoryData.CategoryTag"
-                                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
-                                    </DxComboBox>
-                                    <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
-                                </DxFormLayoutItem>
-                          
+                            <DxFormLayoutItem Caption="Category" ColSpanMd="4">
+                                <DxComboBox Data="@_categoryTagItems"
+                                            NullText="Select Category..."
+                                            Enabled="@isEnabled"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Value"
+                                            ValueFieldName="ApplicationMasterChildId"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            @bind-Value="@CategoryData.CategoryTag"
+                                            SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
+                            </DxFormLayoutItem>
+
                             @if (Data.UserType == "Users")
                             {
                                 <DxFormLayoutItem Caption="CC" ColSpanMd="7">
@@ -258,23 +256,23 @@ else
                             else
                             {
                                 <DxFormLayoutItem Caption="CC Group" ColSpanMd="8">
-                                <DxTagBox NullText="Select Cc Group..."
-                                      Data="_CCUserGroup"
-                                      @bind-Values="@Data.CCUserGroupIds"
-                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                      ListRenderMode="ListRenderMode.Virtual"
-                                      ValueFieldName="UserGroupId"
-                                      TextFieldName="Name"                                      
-                                      SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItemsChanged(values))"
-                                      FilteringMode="DataGridFilteringMode.Contains"
-                                      CssClass="cw-480">
-                                          
-                                    <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name"/>
+                                    <DxTagBox NullText="Select Cc Group..."
+                                              Data="_CCUserGroup"
+                                              @bind-Values="@Data.CCUserGroupIds"
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ListRenderMode="ListRenderMode.Virtual"
+                                              ValueFieldName="UserGroupId"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItemsChanged(values))"
+                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              CssClass="cw-480">
+
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
-                                          
-                                           
-                                </DxTagBox>
-                            </DxFormLayoutItem>                                
+
+
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
                             }
 
 
@@ -288,38 +286,43 @@ else
                                             TextFieldName="Value"
                                             ValueFieldName="ApplicationMasterChildId"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@CategoryData.ActionTag">
+                                            @bind-Value="@CategoryData.ActionTag">
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => CategoryData.ActionTag)" />
                             </DxFormLayoutItem>
 
 
-                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
+                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="3">
                                 <DxComboBox Data="@_OnBehalfparticipant"
-                                        NullText="Select OnBehalf..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        ListRenderMode="ListRenderMode.Virtual"
-                                        TextFieldName="Name"
-                                        ValueFieldName="UserID"                                        
-                                        SelectedItemChanged="@((ViewEmployee viewEmployee) => onSelectedOnBehalfItemsChanged(viewEmployee))"
-                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"                                        
-                                        @bind-Value="@Data.OnBehalf" ShowValidationIcon="true">
-                                        <Columns>
-                                               
+                                            NullText="Select OnBehalf..."
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            TextFieldName="Name"
+                                            ValueFieldName="UserID"
+                                            SelectedItemChanged="@((ViewEmployee viewEmployee) => onSelectedOnBehalfItemsChanged(viewEmployee))"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            @bind-Value="@Data.OnBehalf" ShowValidationIcon="true">
+                                    <Columns>
+
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
-                                                            Caption="Name"
-                                                            />
+                                                            Caption="Name" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
                                                             Caption="Nick Name" />
-                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                            Caption="Designation" />
-                                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                            Caption="Company"
-                                            Width="100px"/>
-                                       
-                                               
-                                        </Columns>
-                                        </DxComboBox>
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                                            Caption="Designation" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                                            Caption="Company"
+                                                            Width="100px" />
+
+
+                                    </Columns>
+                                </DxComboBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Due Date" ColSpanMd="3">
+                                <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Extend No Of Day" ColSpanMd="2">
+                                <DxSpinEdit @bind-Value="@Data.NoOfDays" MinValue="0"></DxSpinEdit>
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="4">
@@ -331,56 +334,56 @@ else
                                             TextFieldName="Name"
                                             ValueFieldName="Name"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@CategoryData.Name"
-                                @bind-Text="@CategoryData.Name" ShowValidationIcon="true">
+                                            @bind-Value="@CategoryData.Name"
+                                            @bind-Text="@CategoryData.Name" ShowValidationIcon="true">
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => CategoryData.Name)" />
                             </DxFormLayoutItem>
 
-                              
+
 
                             <DxFormLayoutItem Caption="Follow" ColSpanMd="3">
                                 <DxComboBox Data="@Follow"
-                                        NullText="Select Follow..."
-                                        @bind-Value="@Data.Follow"
-                                        CssClass="cw-480">
+                                            NullText="Select Follow..."
+                                            @bind-Value="@Data.Follow"
+                                            CssClass="cw-480">
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.Follow)" />
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="" ColSpanMd="1">
                                 <DxCheckBox CssClass="w-100"
-                                        @bind-Checked="@Data.Urgent"
-                                        Alignment="default"
-                                        LabelPosition="LabelPosition.Right">
+                                            @bind-Checked="@Data.Urgent"
+                                            Alignment="default"
+                                            LabelPosition="LabelPosition.Right">
                                     Urgent
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
                             @*<DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
-                                <DxCheckBox CssClass="w-100"
-                                        @bind-Checked="@Data.OverDue"
-                                        Alignment="default"
-                                        LabelPosition="LabelPosition.Right">
-                                    Allow OverDue
-                                </DxCheckBox>
-                            </DxFormLayoutItem>*@
+                        <DxCheckBox CssClass="w-100"
+                        @bind-Checked="@Data.OverDue"
+                        Alignment="default"
+                        LabelPosition="LabelPosition.Right">
+                        Allow OverDue
+                        </DxCheckBox>
+                        </DxFormLayoutItem>*@
 
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
-                                        @bind-Checked="@Data.IsAllowParticipants"
-                                        Alignment="default"
-                                        LabelPosition="LabelPosition.Right">
+                                            @bind-Checked="@Data.IsAllowParticipants"
+                                            Alignment="default"
+                                            LabelPosition="LabelPosition.Right">
                                     Allow Add Participants
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
-                                <DxCheckBox CssClass="w-100"                                       
-                                        @bind-Checked="@Data.NotifyUser"
-                                        Alignment="default"
-                                        LabelPosition="LabelPosition.Right">
-                                        Notify User
+                                <DxCheckBox CssClass="w-100"
+                                            @bind-Checked="@Data.NotifyUser"
+                                            Alignment="default"
+                                            LabelPosition="LabelPosition.Right">
+                                    Notify User
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
@@ -393,30 +396,24 @@ else
                                             TextFieldName="UserTag"
                                             ValueFieldName="UserTag"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@CategoryData.UserTag"
-                                @bind-Text="@CategoryData.UserTag" ShowValidationIcon="true">
+                                            @bind-Value="@CategoryData.UserTag"
+                                            @bind-Text="@CategoryData.UserTag" ShowValidationIcon="true">
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => CategoryData.UserTag)" />
-                            </DxFormLayoutItem>                            
+                            </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">
-                                <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="" ColSpanMd="8">
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Extend No Of Day" ColSpanMd="4">
-                                <DxSpinEdit @bind-Value="@Data.NoOfDays" MinValue="0"></DxSpinEdit>
-                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="" ColSpanMd="4">
+                            </DxFormLayoutItem>                         
 
                             @if (ActiveSessionId != null)
                             {
 
                                 string ActivityTypes = ActivityType == "FileProfileType" ? "Sunward Libraries" : ActivityType == "DynamicForm" ? DynamicFormName : "Activity";
-                                
-                                 <DxFormLayoutItem Caption=" " ColSpanMd="12">
+
+                                <DxFormLayoutItem Caption=" " ColSpanMd="12">
                                     <div class="replybox">
                                         <div style="font-weight: bold;">@ActivityTypes Comment</div>
                                         <text>@ActComment</text>
@@ -426,26 +423,26 @@ else
                             }
                             <DxFormLayoutItem ColSpanMd="8">
                                 <DxRichEdit DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
-                                  
+
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="4">
-                                <DxFormLayout CssClass="w-100 ">                                   
+                                <DxFormLayout CssClass="w-100 ">
                                     <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
                                         <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
                                         <div class="">
                                             <DxUpload @ref="uploadComponent" Name="files"
-                                                  Visible="@AttachmentUploadVisible"
-                                                  AcceptedFileTypes=@AcceptedFileTypes
-                                                  UploadMode="@UploadMode.OnButtonClick"
-                                                  FileUploadStart="OnFileUploadStart"
-                                                  ChunkSize="200000"
-                                                  AllowMultiFileUpload="true"
-                                                  ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                                                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                                                  FileUploaded="@isUploadSuccess"
-                                                  FileUploadProgressChanged="@OnUploadProgressChanged"
-                                                  FileUploadStarted="@OnFileUploadStarted"
-                                                  FileUploadError="@OnUploadError">
+                                                      Visible="@AttachmentUploadVisible"
+                                                      AcceptedFileTypes=@AcceptedFileTypes
+                                                      UploadMode="@UploadMode.OnButtonClick"
+                                                      FileUploadStart="OnFileUploadStart"
+                                                      ChunkSize="200000"
+                                                      AllowMultiFileUpload="true"
+                                                      ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                                      FileUploaded="@isUploadSuccess"
+                                                      FileUploadProgressChanged="@OnUploadProgressChanged"
+                                                      FileUploadStarted="@OnFileUploadStarted"
+                                                      FileUploadError="@OnUploadError">
                                             </DxUpload>
                                             <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                                         </div>
@@ -502,7 +499,7 @@ else
 
                                                 }
 
-                                                 @if (_PARoutineDoclst != null && _PARoutineDoclst.Any())
+                                                @if (_PARoutineDoclst != null && _PARoutineDoclst.Any())
                                                 {
                                                     <div class="supportDoc"> Production Routine Activity (Supporting Doc) </div>
                                                     <ul class="d-flex flex-column-reverse todo-list">
@@ -533,13 +530,13 @@ else
                                         </div>
                                     </DxFormLayoutGroup>
                                 </DxFormLayout>
-                            </DxFormLayoutItem>                           
+                            </DxFormLayoutItem>
                         </DxFormLayout>
                     </div>
                 </div>
             </div>
         </EditForm>
-       
+
     </div>
 }
 
@@ -562,27 +559,27 @@ else
           Width="max(25vw, 550px)"
           CloseOnOutsideClick=false
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
-    <BodyContentTemplate Context="PopupContext"> 
-        <div class="custom-flyout-body" style="width:100%"> 
-            <DxFormLayout>            
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
                 <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
                     <DxTagBox Data="_ToUserGroup"
-                                @bind-Values="Data.ToUserGroupIds"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                NullText="Select To Group..."
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                ValueFieldName="UserGroupId"
-                                TextFieldName="Name"
+                              @bind-Values="Data.ToUserGroupIds"
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              TextFieldName="Name"
                               SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItems_New_Changed(values))"
-                                ListRenderMode="ListRenderMode.Virtual"
-                                CssClass="cw-480">
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
 
-                    </DxTagBox>                    
+                    </DxTagBox>
                 </DxFormLayoutItem>
             </DxFormLayout>
-           
+
         </div>
     </BodyContentTemplate>
     <FooterContentTemplate>
@@ -610,7 +607,7 @@ else
             <DxFormLayout>
                 <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
                     <DxTagBox Data="_CCUserGroup"
-                             @bind-Values="@Data.CCUserGroupIds"
+                              @bind-Values="@Data.CCUserGroupIds"
                               FilteringMode="DataGridFilteringMode.Contains"
                               NullText="Select To Group..."
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -667,7 +664,7 @@ else
         _CCUserGroup = _participantUserGroup;
 
         //Data.ToUserGroupIds = null;
-        Data.CCUserGroupIds = null;  
+        Data.CCUserGroupIds = null;
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
 
@@ -699,10 +696,10 @@ else
     IEnumerable<string> UserTypeOptions = new[] { "Users", "Group" };
     async void OnUserTypeChanged(string? radioValue)
     {
-        Data.UserType = radioValue;       
+        Data.UserType = radioValue;
 
 
-        if(radioValue == "Group")
+        if (radioValue == "Group")
         {
             await JSRuntime.InvokeAsync<string>("showLoading");
 
@@ -715,14 +712,14 @@ else
             Data.ToIds = null;
             Data.CCIds = null;
 
-            Data.ToUserGroupIds = null;            
-            Data.ToIds = new List<long> { -1};
+            Data.ToUserGroupIds = null;
+            Data.ToIds = new List<long> { -1 };
 
         }
         else
         {
             Data.ToUserGroupIds = null;
-            Data.CCUserGroupIds = null;   
+            Data.CCUserGroupIds = null;
 
             Data.ToUserGroupIds = new List<long> { -1 };
             Data.ToIds = null;
@@ -748,7 +745,7 @@ else
     async Task OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
-        if(draftId == 0)
+        if (draftId == 0)
         {
             loading = true;
         }
@@ -758,8 +755,8 @@ else
         }
 
 
-        var SessionId = _sessionId;        
-        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";            
+        var SessionId = _sessionId;
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
         string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId + "&IsNewSession=false&SourceFrom=Email";
         e.UploadUrl = url;
     }
@@ -830,7 +827,7 @@ else
     }
     async Task onToChange_Change(IEnumerable<UserGroup> values)
     {
-        var groupid = values.Select(x=>x.UserGroupId).LastOrDefault();
+        var groupid = values.Select(x => x.UserGroupId).LastOrDefault();
         var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
         // var userIdsList = userIds.Select(s=>s.UserID.Value).ToList();
 
@@ -841,7 +838,7 @@ else
             Data.ToIds = userIdsList;
 
             if (_participant != null && userIds != null)
-            {                
+            {
                 var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
                 onSelectedToItemsChanged(emplst);
             }
@@ -855,8 +852,8 @@ else
             {
                 v1 = Data.ToIds.Concat(userIdsList).Distinct();
             }
-            else if(Data.ToIds == null)
-            {            
+            else if (Data.ToIds == null)
+            {
                 var T1 = Data.CCIds.Concat(userIdsList).Distinct();
                 v1 = T1.Except(Data.CCIds);
             }
@@ -868,11 +865,11 @@ else
             }
 
             var combinedIds = v1;
-            Data.ToIds = combinedIds;            
+            Data.ToIds = combinedIds;
 
             if (_participant != null && combinedIds != null)
             {
-                var emplst1 =  _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
                 onSelectedToItemsChanged(emplst1);
             }
         }
@@ -902,12 +899,12 @@ else
         var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
         var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
 
-        if (Data.CCIds == null && Data.ToIds ==  null)
+        if (Data.CCIds == null && Data.ToIds == null)
         {
             Data.CCIds = userIdsList;
 
             if (_participant != null && userIds != null)
-            {                
+            {
                 var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
                 onSelectedCCItemsChanged(emplst);
             }
@@ -935,10 +932,10 @@ else
             var combinedIds = v1;
             Data.CCIds = combinedIds;
             if (_participant != null && combinedIds != null)
-            {                
-                var emplst1 =  _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+            {
+                var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
                 onSelectedCCItemsChanged(emplst1);
-            }            
+            }
         }
 
         StateHasChanged();
@@ -979,11 +976,11 @@ else
     void onSelectedCCUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
         if (values != null)
-        {            
+        {
             _ToUserGroup = _participantUserGroup.Except(values).ToList();
         }
         else
-        {            
+        {
             _ToUserGroup = _participantUserGroup.ToList();
         }
         StateHasChanged();
@@ -996,7 +993,7 @@ else
         IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
 
         // Update _OnBehalfparticipant based on the combined selected values
-        _OnBehalfparticipant = _participant.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();       
+        _OnBehalfparticipant = _participant.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
     }
 
 
@@ -1005,11 +1002,11 @@ else
     {
 
         //if (values != null)
-        //{   
+        //{
         //    var onbehalfitem = _participant.Where(c => c.UserID != values.UserID).ToList();
 
         //    IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
-        //    IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);   
+        //    IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
 
         //    _Toparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
         //    _CCparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
@@ -1024,7 +1021,7 @@ else
 
 
         //    _Toparticipant = _participant.Except(selectedCCParticipants).ToList();
-        //    _CCparticipant = _participant.Except(selectedTopParticipants).ToList();            
+        //    _CCparticipant = _participant.Except(selectedTopParticipants).ToList();
         //}
 
 
@@ -1033,7 +1030,7 @@ else
 
     bool IsDraftEnabled { get; set; } = false;
     [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*","audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai" };
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", "audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
     internal DxUpload? uploadComponent;
     Guid? _sessionId;
     string? MyError { get; set; }
@@ -1050,7 +1047,7 @@ else
     internal string MyToUserGroupID = "myToUserGroupForm";
     List<int> selectedValues = new List<int>();
     IGrid? Grid { get; set; }
-    internal bool loading;    
+    internal bool loading;
     internal bool loadingdraft;
     bool MessageVisible { get; set; }
     string styleClass = "";
@@ -1092,7 +1089,7 @@ else
     string? DynamicFormName = "DynamicFormName";
     DateTime? ActAddedDate = DateTime.Now;
     byte[]? replyboxHhtmlArray;
-    internal List<ApplicationUser> _applicationUsers;  
+    internal List<ApplicationUser> _applicationUsers;
 
     List<long> participantIds = new List<long>();
     List<long> selectedToIds = new List<long>();
@@ -1101,7 +1098,7 @@ else
     List<string> sToIds = new List<string>();
     List<string> sCCIds = new List<string>();
 
-    //List<ViewEmployee> ids = new List<ViewEmployee>(); 
+    //List<ViewEmployee> ids = new List<ViewEmployee>();
     [Parameter]
     public string? ActiveSessionId { get; set; }
     public bool IsActiveSessionId { get; set; } = false;
@@ -1142,7 +1139,7 @@ else
         //{
 
         //    _CCparticipant = _Toparticipant.Where(c => c.FirstName != itm).ToList();
-        //}       
+        //}
     }
     void onCcChanged(IEnumerable<string> newTags)
     {
@@ -1166,7 +1163,7 @@ else
         string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
         //string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         string url = BaseUrl + "UploadDocumentsChunkFile?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
-        return url.ToString();       
+        return url.ToString();
     }
     void onloadSession()
     {
@@ -1191,7 +1188,7 @@ else
 
 
             onCompletedUpload();
-        }      
+        }
         InvokeAsync(StateHasChanged);
 
     }
@@ -1218,7 +1215,7 @@ else
             BackEnabled = false;
             //JSRuntime.InvokeAsync<string>("ReloadUrl");
             onRestText_upload();
-        }     
+        }
 
         //onRestText();
         InvokeAsync(StateHasChanged);
@@ -1232,7 +1229,7 @@ else
         InvokeAsync(StateHasChanged);
     }
     protected void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
-    {      
+    {
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
@@ -1241,30 +1238,30 @@ else
 
     internal async Task SubmitForm()
     {
-        //myForm.OnSubmit();    
+        //myForm.OnSubmit();
         // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
         //await JSRuntime.InvokeVoidAsync("submitForm");
         await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
     }
     internal void addNew(int id)
     {
-        draftId = id;        
+        draftId = id;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            if(msgrichEdit != null)
+            if (msgrichEdit != null)
             {
                 await msgrichEdit.NewDocumentAsync();
-            }            
+            }
 
             if (_AllCategory != null)
             {
                 _AllCategory.TrimExcess();
             }
 
-            if(_UserTagList != null)
+            if (_UserTagList != null)
             {
                 _UserTagList.TrimExcess();
             }
@@ -1274,7 +1271,7 @@ else
                 _groupTagItems.TrimExcess();
             }
 
-            if(_UserTagList != null)
+            if (_UserTagList != null)
             {
                 _UserTagList.TrimExcess();
             }
@@ -1284,10 +1281,10 @@ else
                 window.submitForm = function () {
                     document.getElementById('myForm').submit();
                 };
-            ");            
+            ");
         }
-    } 
-    async  void OnCustomizeToolbar(IToolbar toolbar)
+    }
+    async void OnCustomizeToolbar(IToolbar toolbar)
     {
         BarGroupCollection groups = toolbar.Groups;
         toolbar.Groups.Clear();
@@ -1296,25 +1293,25 @@ else
         // Inserts the File group at the first position in the group collection
         //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
         toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
-        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);        
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
         toolbar.Groups.Add(3, RichEditToolbarGroupNames.Picture);
-        toolbar.Groups.Add(4, RichEditToolbarGroupNames.Table);     
+        toolbar.Groups.Add(4, RichEditToolbarGroupNames.Table);
 
 
 
-        IBarGroup clipboardGroup = toolbar.Groups[1];      
+        IBarGroup clipboardGroup = toolbar.Groups[1];
         clipboardGroup.Items.Add(5, RichEditBarItemNames.FontUnderline);
         clipboardGroup.Items.Add(6, RichEditBarItemNames.HighlightText);
         clipboardGroup.Items.Add(7, RichEditBarItemNames.ClipboardMenu);
-        clipboardGroup.Items.Add(8, RichEditBarItemNames.ClearFormatting);   
-        clipboardGroup.Items.Add(9, RichEditBarItemNames.FontStrikeout); 
-        clipboardGroup.Items.Add(10, RichEditBarItemNames.FontScriptMenu);                    
+        clipboardGroup.Items.Add(8, RichEditBarItemNames.ClearFormatting);
+        clipboardGroup.Items.Add(9, RichEditBarItemNames.FontStrikeout);
+        clipboardGroup.Items.Add(10, RichEditBarItemNames.FontScriptMenu);
 
 
-        IBarGroup replace = toolbar.Groups[4];  
-        replace.Items.Add(1, RichEditBarItemNames.ChangeCaseMenu);        
-        replace.Items.Add(2, RichEditBarItemNames.Replace);    
+        IBarGroup replace = toolbar.Groups[4];
+        replace.Items.Add(1, RichEditBarItemNames.ChangeCaseMenu);
+        replace.Items.Add(2, RichEditBarItemNames.Replace);
 
 
         //AddFormattingGroup(groups);
@@ -1334,11 +1331,11 @@ else
         //    fontSizeComboBox.Items.Clear();
         //    fontSizeComboBox.Items.Add("12", "12");
         //    fontSizeComboBox.Items.Add("14", "14");
-        //    fontSizeComboBox.Items.Add("18", "18"); 
+        //    fontSizeComboBox.Items.Add("18", "18");
         //    fontSizeComboBox.Items.Add("24", "24");
         //    fontSizeComboBox.AllowUserInput = false;
         //    //fontSizeComboBox = 2; // Set the default font size
-        //    //int defaultFontSizeIndex = fontSizeComboBox.Items.IndexOf(2);                       
+        //    //int defaultFontSizeIndex = fontSizeComboBox.Items.IndexOf(2);
         //}
         //fontSizeItem.Text = "Font Size:";
         //fontSizeItem.Tooltip = "Changes the selected text's font size.";
@@ -1349,7 +1346,7 @@ else
         //AddFormattingGroup(toolbar.Groups);
 
         IBarGroup undoRedoGroup = toolbar.Groups[0];
-        undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
+        undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
 
         if (ActiveSessionId != null)
         {
@@ -1364,14 +1361,15 @@ else
         }
     }
 
-    void AddFormattingGroup(BarGroupCollection groups) {
+    void AddFormattingGroup(BarGroupCollection groups)
+    {
         IBarGroup formattingGroup = groups.AddCustomGroup();
         formattingGroup.IconCssClass = "tb-icon tb-icon-settings";
         //Adds a custom drop-down item
     }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
-    //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }   
+    //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
 
     void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
     {
@@ -1386,14 +1384,14 @@ else
     void OnSelectedToDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedToDataItems = SelectedToItems;
-        if(SelectedToItems !=null)
+        if (SelectedToItems != null)
         {
-            if(SelectedDataItems != null)
+            if (SelectedDataItems != null)
             {
                 List<object> newList = new List<object>(SelectedDataItems);
                 // Remove the selected items from the new list
                 newList.RemoveAll(item => SelectedToItems.Contains(item));
-                SelectedCCItems = newList;                
+                SelectedCCItems = newList;
             }
 
         }
@@ -1402,9 +1400,9 @@ else
     void OnSelectedCCDataItemsChanged(IReadOnlyList<object> SelectedCCItems)
     {
         SelectedCCDataItems = SelectedCCItems;
-        if(SelectedCCItems != null)
+        if (SelectedCCItems != null)
         {
-            if(SelectedDataItems != null)
+            if (SelectedDataItems != null)
             {
                 List<object> newList = new List<object>(SelectedDataItems);
                 // Remove the selected items from the new list
@@ -1421,20 +1419,20 @@ else
         var res = args;
         var lst = @SelectedDataItems;
 
-        if(args != null)
+        if (args != null)
         {
             //ViewEmployee selectedEmployee = @SelectedDataItems as ViewEmployee;
             ViewEmployee? selectedEmployee = SelectedDataItems as ViewEmployee;
             if (selectedEmployee != null)
             {
-                var lsts = selectedEmployee;               
+                var lsts = selectedEmployee;
 
             }
-        }      
+        }
     }
     internal async void onRestText_old()
     {
-        await JSRuntime.InvokeAsync<string>("ReloadUrl");        
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
     }
     internal async void onRestText_upload()
     {
@@ -1448,7 +1446,7 @@ else
              "Follow Up","No Follow Up"
         };
 
-        if(Data != null)
+        if (Data != null)
         {
             Data.Follow = Follow[1];
             Data.Urgent = false;
@@ -1463,7 +1461,7 @@ else
             Data.From = applicationUser.UserName;
         }
 
-        if(CategoryData != null)
+        if (CategoryData != null)
         {
             CategoryData.GroupTag = null;
             CategoryData.ActionTag = null;
@@ -1479,12 +1477,12 @@ else
         IsActiveSessionId = true;
         //await Task.Delay(2000); // Delay for 2 seconds
 
-        if(msgrichEdit != null)
+        if (msgrichEdit != null)
         {
             await msgrichEdit.NewDocumentAsync();
         }
 
-        if(uploadComponent != null)
+        if (uploadComponent != null)
         {
             uploadComponent.RemoveAllFiles();
         }
@@ -1509,7 +1507,7 @@ else
 
 
 
-        if(Data != null)
+        if (Data != null)
         {
             Data.Follow = Follow[1];
             Data.Urgent = false;
@@ -1526,7 +1524,7 @@ else
             OnUserTypeChanged("Users");
         }
 
-        if(CategoryData != null)
+        if (CategoryData != null)
         {
             CategoryData.GroupTag = null;
             CategoryData.ActionTag = null;
@@ -1543,11 +1541,11 @@ else
         IsActiveSessionId = true;
         //await Task.Delay(2000); // Delay for 2 seconds
 
-        if(msgrichEdit != null)
+        if (msgrichEdit != null)
         {
             await msgrichEdit.NewDocumentAsync();
         }
-        if(uploadComponent != null)
+        if (uploadComponent != null)
         {
             uploadComponent.RemoveAllFiles();
         }
@@ -1559,20 +1557,20 @@ else
 
     }
     internal async void onRestText()
-    {             
+    {
 
-        //_editContext = new EditContext(Data);       
+        //_editContext = new EditContext(Data);
         onloadSession();
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        AppUserId = applicationUser.UserID;        
+        AppUserId = applicationUser.UserID;
         Follow = new List<string>
         {
              "Follow Up","No Follow Up"
         };
 
-        if(Data != null)
+        if (Data != null)
         {
             Data.Follow = Follow[1];
             Data.Urgent = false;
@@ -1589,7 +1587,7 @@ else
             OnUserTypeChanged("Users");
         }
 
-        if(CategoryData != null)
+        if (CategoryData != null)
         {
             CategoryData.GroupTag = null;
             CategoryData.ActionTag = null;
@@ -1636,7 +1634,8 @@ else
             properties.FontSize = 12;
         });
     }
-    protected override async Task OnInitializedAsync() {  
+    protected override async Task OnInitializedAsync()
+    {
         _editContext = new EditContext(Data);
 
         //var tasks = new List<Task>();
@@ -1647,7 +1646,7 @@ else
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         onloadSession();
         CurrentUplodCount = 0;
-        SelectedFilesCount = 0;  
+        SelectedFilesCount = 0;
 
         bool IsUserGroup = Configuration.GetValue<bool>("DocumentsUrl:IsUserGroup");
 
@@ -1666,7 +1665,7 @@ else
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        if(applicationUser != null)
+        if (applicationUser != null)
         {
             AppUserId = applicationUser.UserID;
             _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
@@ -1847,7 +1846,7 @@ else
 
         NavigationManager.LocationChanged += OnLocationChanged;
 
-    }  
+    }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
 
@@ -1855,23 +1854,23 @@ else
     }
     internal async Task SubmitSentForm()
     {
-        if(Data != null)
+        if (Data != null)
         {
             if (Data.ToIds == null)
             {
                 Data.ToIds = null;
             }
-            else if(Data.ToIds.Count() == 0)
+            else if (Data.ToIds.Count() == 0)
             {
                 Data.ToIds = null;
             }
-        }    
+        }
 
 
         if (_editContext.Validate())
         {
             draftId = 0;
-            await this.HandleValidSubmit();            
+            await this.HandleValidSubmit();
         }
     }
     internal async Task SubmitDraftForm()
@@ -1891,18 +1890,18 @@ else
         if (_editContext.Validate())
         {
             draftId = 1;
-            await this.HandleValidSubmit();            
+            await this.HandleValidSubmit();
         }
-    }    
+    }
 
     async Task HandleValidSubmit()
-    {    
+    {
         if (isSending)
         {
             return; // Prevent multiple submissions
         }
 
-        if(submitCount == 0)
+        if (submitCount == 0)
         {
             isSending = true;
             await JSRuntime.InvokeAsync<string>("showLoading");
@@ -2096,7 +2095,7 @@ else
                     ToUserGroup = sToUserGroup,
                     CCUserGroup = sCCUserGroup,
                     ParticipantsUserGroup = sParticipantsUserGroup
-                    
+
                 };
 
 
@@ -2179,8 +2178,8 @@ else
             StateHasChanged();
         }
 
-        
-       
+
+
 
     }
     internal async void onShowPopupMessage(string headerText, string bodyText)
@@ -2194,7 +2193,7 @@ else
     }
     void onClickParticipant()
     {
-        //var lst = SelectedDataItems;        
+        //var lst = SelectedDataItems;
         //PopupVisible = true;
     }
     void HandleInvalidSubmit()
@@ -2233,18 +2232,18 @@ else
         var actItem = activityEmailTopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
 
 
-        if(actItem[0].ActivityType == "FileProfileType")
+        if (actItem[0].ActivityType == "FileProfileType")
         {
             var urls = BaseUrl + "fileprofiletype/" + actItem[0].BackURL + "/" + actItem[0].DocumentSessionId;
             NavigationManager.NavigateTo(urls);
-           await JSRuntime.InvokeAsync<string>("ReloadUrl");
+            await JSRuntime.InvokeAsync<string>("ReloadUrl");
         }
         else
         {
             var url = ProductActivityBaseUrl + actItem[0].BackURL;
             NavigationManager.NavigateTo(url);
-           await JSRuntime.InvokeAsync<string>("ReloadUrl");
-        }       
+            await JSRuntime.InvokeAsync<string>("ReloadUrl");
+        }
 
     }
 
@@ -2252,19 +2251,19 @@ else
     {
         if (applicationMasterChildModel != null)
         {
-           await GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
-            
+            await GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
+
         }
         else
         {
-           await GroupTagChanged(-1);
+            await GroupTagChanged(-1);
             await CategoryTagChange(-1);
         }
     }
     async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
         if (applicationMasterChildModel != null)
-        {            
+        {
             await CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
         }
         else

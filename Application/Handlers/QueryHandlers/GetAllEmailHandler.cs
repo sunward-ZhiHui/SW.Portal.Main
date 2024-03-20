@@ -6,6 +6,7 @@ using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
 using System;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Net.Mime;
 
@@ -558,6 +559,17 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(CreateEmailTopics request, CancellationToken cancellationToken)
         {
+
+            DateTime? expiryDueDate = null; // Use nullable DateTime
+
+            if (request.DueDate.HasValue)
+            {
+                DateTime dueDate = request.DueDate.Value;
+                expiryDueDate = dueDate.AddDays(request.NoOfDays);               
+            }
+
+            request.ExpiryDueDate = expiryDueDate;
+
             var customerEntity = RoleMapper.Mapper.Map<EmailTopics>(request);
 
             if (customerEntity is null)

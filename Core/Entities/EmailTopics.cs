@@ -119,6 +119,12 @@ namespace Core.Entities
 
         [NotMapped]
         public byte[]? Replymsg { get; set; }
+        [NotMapped]
+        public int NoOfDays { get; set; }
+        [NotMapped]
+        public long EmailTopicID { get; set; }
+        [NotMapped]
+        public DateTime? ExpiryDueDate { get; set; }
 
     }
 }

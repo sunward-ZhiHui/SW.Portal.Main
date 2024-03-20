@@ -15,6 +15,7 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
 @inject NavigationManager NavigationManager
+@using System.Text.Json
 
  <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -23,6 +24,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onReset" />
             </Items>
         </DxMenu>
     </div>
@@ -49,6 +51,8 @@
         RowDoubleClick="OnRowDoubleClick"
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         AllowSelectRowByClick="true"
+        LayoutAutoLoading="Grid_LayoutAutoLoading"
+        LayoutAutoSaving="Grid_LayoutAutoSaving"
         EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
     <Columns>        
         <DxGridDataColumn FieldName="MainSubject" Caption="Main Subject" ReadOnly="true"  />
@@ -187,6 +191,41 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    const string LocalStorageKey = "Grid-LayoutMyDayNew-Data";
+    async Task Grid_LayoutAutoLoading(GridPersistentLayoutEventArgs e)
+    {
+        e.Layout = await LoadLayoutFromLocalStorageAsync();
+    }
+    async Task Grid_LayoutAutoSaving(GridPersistentLayoutEventArgs e)
+    {
+        await SaveLayoutToLocalStorageAsync(e.Layout);
+    }
+    async Task<GridPersistentLayout> LoadLayoutFromLocalStorageAsync()
+    {
+        try
+        {
+            var json = await jsRuntime.InvokeAsync<string>("localStorage.getItem", LocalStorageKey);
+            return JsonSerializer.Deserialize<GridPersistentLayout>(json);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+            return null;
+        }
+    }
+    async Task SaveLayoutToLocalStorageAsync(GridPersistentLayout layout)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(layout);
+            await jsRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+        }
+    }
+
     IGrid? Grid { get; set; }
     Documents _documents { get; set; }
     bool UploadPopupVisible { get; set; } = false;
@@ -247,6 +286,25 @@
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
+    }
+    async Task onReset()
+    {
+        await RemoveLayoutFromLocalStorageAsync();
+        await jsRuntime.InvokeVoidAsync("location.reload");        
+        // var urls = BaseUrl + "myday/" + 0;
+        // NavigationManager.NavigateTo(urls);
+        // await jsRuntime.InvokeAsync<string>("ReloadUrl");
+    }
+    async Task RemoveLayoutFromLocalStorageAsync()
+    {
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("localStorage.removeItem", LocalStorageKey);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+        }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {

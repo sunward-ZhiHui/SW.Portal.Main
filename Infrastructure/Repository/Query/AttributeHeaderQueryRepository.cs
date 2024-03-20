@@ -251,10 +251,12 @@ namespace Infrastructure.Repository.Query
                          "LEFT JOIN AttributeHeaderDataSource t11 ON t11.AttributeHeaderDataSourceID=t1.PlantDropDownWithOtherDataSourceId\r\n" +
                         "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere (t6.AttributeIsVisible=1 OR t6.AttributeIsVisible IS NULL) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsVisible= 1 OR t1.IsVisible is null) AND t5.DynamicFormID=" + dynamicForm.ID + " order by t1.SortOrderBy asc;";
                     query += "Select * from Plant;";
+                    query += "Select * from AttributeHeaderDataSource;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
                     attributeHeaderListModel.Plant = results.Read<Plant>().ToList();
+                    attributeHeaderListModel.AttributeHeaderDataSource = results.Read<AttributeHeaderDataSource>().ToList();
                 }
                 if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
                 {
@@ -291,6 +293,14 @@ namespace Infrastructure.Repository.Query
 
                         s.AttributeName = string.IsNullOrEmpty(s.AttributeName) ? string.Empty : char.ToUpper(s.AttributeName[0]) + s.AttributeName.Substring(1);
                         s.DynamicAttributeName = s.DynamicFormSectionAttributeId + "_" + s.AttributeName;
+                        if (s.IsPlantLoadDependency == true && !string.IsNullOrEmpty(s.PlantDropDownWithOtherDataSourceIds))
+                        {
+                            var PlantDropDownWithOtherDataSourceListIds = s.PlantDropDownWithOtherDataSourceIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                            if (PlantDropDownWithOtherDataSourceListIds.Count > 0)
+                            {
+                                s.AttributeHeaderDataSource = attributeHeaderListModel.AttributeHeaderDataSource.Where(z => z.DataSourceTable != null && PlantDropDownWithOtherDataSourceListIds.Contains(z.AttributeHeaderDataSourceId)).ToList();
+                            }
+                        }
                         if (s.ControlType == "TextBox" || s.ControlType == "Memo")
                         {
                             s.DataType = typeof(string);

@@ -693,4 +693,16 @@ namespace Application.Handlers.QueryHandlers
             return await _dynamicFormQueryRepository.InsertCreateEmailFormData(request.DynamicFormData);
         }
     }
+    public class GetEmployeeByUserIdIdHandler : IRequestHandler<GetEmployeeFormByUserId, ViewEmployee>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetEmployeeByUserIdIdHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<ViewEmployee> Handle(GetEmployeeFormByUserId request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetEmployeeByUserIdIdAsync(request.UserId);
+        }
+    }
 }

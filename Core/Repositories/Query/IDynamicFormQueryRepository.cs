@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
@@ -63,6 +64,7 @@ namespace Core.Repositories.Query
 
         Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId);
         Task<DynamicFormData> InsertCreateEmailFormData(DynamicFormData dynamicFormData);
+        Task<ViewEmployee> GetEmployeeByUserIdIdAsync(long? userId);
     }
 
 }

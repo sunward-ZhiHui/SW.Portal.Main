@@ -1161,7 +1161,7 @@
                 </DxDateEdit>
                 <ValidationMessage For="@(() => _dataSubjectDuDate.DueDate)" />
                 <div style="display: @(IsSubjectNoOfDays ? "block" : "none")">
-                    <label for="NoOfDays"> No Of Days: </label>
+                    <label for="NoOfDays"> Allowed Days to Extend DueDate: </label>
                     <DxSpinEdit @bind-Value="@_dataSubjectDuDate.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0"></DxSpinEdit>
                 </div>
                 
@@ -2943,7 +2943,8 @@
     bool isFileUpload = false;
     bool isDueDate =false;
     bool isSubjectDueDate = false;
-    DateTime minDueDate = DateTime.MinValue;
+    // DateTime minDueDate = DateTime.MinValue;
+    DateTime minDueDate = DateTime.Now;
     bool isUserTagChange = false;
     private List<EmailActivityCatgorys>? _UserTagList;
     bool isCancelDueDate = false;
@@ -3459,7 +3460,7 @@
 
             if (CurrentEmailConversations.DueDate.HasValue)
             {
-                minDueDate = CurrentEmailConversations.DueDate.Value;
+               // minDueDate = CurrentEmailConversations.DueDate.Value;
             }
 
 
@@ -4581,7 +4582,7 @@
 
                 Cid = 0;
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
-                _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
+                //_discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
                 _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));
                 var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
@@ -4638,7 +4639,7 @@
             IsValidUser = (_discussionList[0].AddedByUserID == applicationUser.UserID || _discussionList[0].OnBehalf == applicationUser.UserID) ? true : false;
         } 
 
-        _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
+        //_discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));
         var topicToList = await Mediator.Send(new GetEmailTopicToList(RTopicId));

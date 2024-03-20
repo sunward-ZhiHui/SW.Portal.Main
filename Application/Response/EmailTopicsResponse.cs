@@ -56,5 +56,7 @@ namespace Application.Response
         public string? ToUserGroup { get; set; }
         public string? CCUserGroup { get; set;}
         public string? ParticipantsUserGroup { get; set; }
+        public int NoOfDays {  get; set; }
+        public DateTime? ExpiryDueDate { get; set; }
     }
 }

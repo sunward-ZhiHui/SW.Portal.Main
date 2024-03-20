@@ -15,6 +15,19 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
 @inject NavigationManager NavigationManager
+@using System.Text.Json
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>                
+                <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onReset" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 
 <DxGrid Data="_MyToDoList" @ref = "Grid"        
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
@@ -33,6 +46,8 @@
         RowClick="OnRowClick"
         RowDoubleClick="OnRowDoubleClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        LayoutAutoLoading="Grid_LayoutAutoLoading"
+        LayoutAutoSaving="Grid_LayoutAutoSaving"
         AllowSelectRowByClick="true">
     <Columns>
         @*  <DxGridCommandColumn Width="160px" NewButtonVisible="false"  DeleteButtonVisible="false"/>  <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>*@
@@ -150,6 +165,62 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+
+    const string LocalStorageKey = "Grid-LayoutMyTodo-Data";
+    async Task Grid_LayoutAutoLoading(GridPersistentLayoutEventArgs e)
+    {
+        e.Layout = await LoadLayoutFromLocalStorageAsync();
+    }
+    async Task Grid_LayoutAutoSaving(GridPersistentLayoutEventArgs e)
+    {
+        await SaveLayoutToLocalStorageAsync(e.Layout);
+    }
+    async Task<GridPersistentLayout> LoadLayoutFromLocalStorageAsync()
+    {
+        try
+        {
+            var json = await jsRuntime.InvokeAsync<string>("localStorage.getItem", LocalStorageKey);
+            return JsonSerializer.Deserialize<GridPersistentLayout>(json);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+            return null;
+        }
+    }
+    async Task SaveLayoutToLocalStorageAsync(GridPersistentLayout layout)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(layout);
+            await jsRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+        }
+    }
+
+    async Task onReset()
+    {
+        await RemoveLayoutFromLocalStorageAsync();      
+        await jsRuntime.InvokeVoidAsync("location.reload");
+        // var urls = BaseUrl + "myday/" + 2;
+        // NavigationManager.NavigateTo(urls);
+        // await jsRuntime.InvokeAsync<string>("ReloadUrl");
+    }
+    async Task RemoveLayoutFromLocalStorageAsync()
+    {
+        try
+        {
+            await jsRuntime.InvokeVoidAsync("localStorage.removeItem", LocalStorageKey);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+        }
+    }
+
     IGrid? Grid { get; set; }
     Documents _documents { get; set; }
     bool UploadPopupVisible { get; set; } = false;
@@ -166,8 +237,7 @@
     private string? DocumentViewUrl;
     bool Checked { get; set; } = false;
     private List<ViewEmployee>? _participant;
-    public IEnumerable<long> UserIds { get; set; }
-    
+    public IEnumerable<long> UserIds { get; set; }    
 
     protected override async Task OnInitializedAsync()
     {
@@ -178,7 +248,7 @@
         _participant = await Mediator.Send(new GetAllEmployeeListQuery());
         await UpdateDataAsync();
     }
-    public  async Task   UpdateDataAsync()
+    public async Task UpdateDataAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         _MyToDoList = await Mediator.Send(new GetMyToDo(applicationUser.UserID));

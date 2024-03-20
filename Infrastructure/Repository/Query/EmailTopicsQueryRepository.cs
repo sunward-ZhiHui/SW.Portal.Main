@@ -1786,7 +1786,8 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ToUserGroup", EmailTopics.ToUserGroup);
                         parameterss.Add("CCUserGroup", EmailTopics.CCUserGroup);
                         parameterss.Add("ParticipantsUserGroup", EmailTopics.ParticipantsUserGroup);
-                        
+                        parameterss.Add("NoOfDays", EmailTopics.NoOfDays);
+                        parameterss.Add("ExpiryDueDate", EmailTopics.ExpiryDueDate);
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;

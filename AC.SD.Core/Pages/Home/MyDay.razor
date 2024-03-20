@@ -11,24 +11,26 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/MyDay"
+@page "/MyDay/{ActiveIndex:int}"
+@inject NavigationManager NavigationManager
 
 
 <div class="">
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
             <div>
-                <DxFormLayoutTabPage Caption="ToDo">
+                <DxFormLayoutTabPage Caption="ToDo" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <MyDayNew></MyDayNew>
                     </div>
                 </DxFormLayoutTabPage>
 
-                <DxFormLayoutTabPage Caption="Email">
+                <DxFormLayoutTabPage Caption="Email" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
-                        <EmailDueDate></EmailDueDate>
+                        <EmailDueDate TabIndex="@TabIndex"></EmailDueDate>
                     </div>
-                </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="My Todo">
+                </DxFormLayoutTabPage> 
+                <DxFormLayoutTabPage Caption="My Todo" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <MyTodo></MyTodo>
                     </div>
@@ -53,7 +55,10 @@
     </div>
 </div>*@
 @code {
-    int ActiveTabIndex { get; set; } = 0;
+    [Parameter]
+    public int ActiveIndex { get; set; } = 0;
+    public int TabIndex { get; set; }
+    public int ActiveTabIndex { get; set; } = 0;
     private MyRemainderTodo? RefMyRemainderTodo { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
     private List<ToDoNotesHistory>? _ToDoNotesHistory;
@@ -62,12 +67,19 @@
     string styleTreeDisplay = "height: calc(100vh - 190px); padding:10px";
     protected override async Task OnInitializedAsync()
     {
+        ActiveTabIndex = ActiveIndex;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     public async void ReloadGrid()
     {
         RefMyRemainderTodo.Reloadtodo();
         // _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));
+    }
+    void OnTabClick(TabClickEventArgs e)
+    {
+        // var indexid = e.TabIndex;
+        // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
+        // StateHasChanged();
     }
 
 }

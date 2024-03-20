@@ -110,11 +110,10 @@ else
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-12">
-                        <DxFormLayout>
+                        <DxFormLayout CaptionPosition="CaptionPosition.Horizontal" CssClass="w-100">
                             <DxFormLayoutItem Caption="From" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.From" spellcheck="true" ShowValidationIcon="true" Enabled=false />
                             </DxFormLayoutItem>
-
 
                               <DxFormLayoutItem Caption="Group" ColSpanMd="4">
                                 <DxComboBox Data="@_groupTagItems"
@@ -398,16 +397,18 @@ else
                                 @bind-Text="@CategoryData.UserTag" ShowValidationIcon="true">
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => CategoryData.UserTag)" />
-                            </DxFormLayoutItem>
-
-
-                            
+                            </DxFormLayoutItem>                            
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">
                                 <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="" ColSpanMd="8">
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Extend No Of Day" ColSpanMd="4">
+                                <DxSpinEdit @bind-Value="@Data.NoOfDays" MinValue="0"></DxSpinEdit>
                             </DxFormLayoutItem>
 
                             @if (ActiveSessionId != null)
@@ -428,7 +429,7 @@ else
                                   
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="4">
-                                <DxFormLayout CssClass="w-100 ">
+                                <DxFormLayout CssClass="w-100 ">                                   
                                     <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
                                         <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
                                         <div class="">
@@ -1521,6 +1522,7 @@ else
             Data.OnBehalf = null;
             Data.DueDate = null;
             Data.From = applicationUser.UserName;
+            Data.NoOfDays = 0;
             OnUserTypeChanged("Users");
         }
 
@@ -1582,6 +1584,7 @@ else
             Data.CCIds = null;
             Data.OnBehalf = null;
             Data.DueDate = null;
+            Data.NoOfDays = 0;
             Data.From = applicationUser.UserName;
             OnUserTypeChanged("Users");
         }
@@ -2069,6 +2072,7 @@ else
                     Urgent = Data.Urgent,
                     DueDate = Data.DueDate,
                     OverDue = Data.OverDue,
+                    NoOfDays = Data.NoOfDays,
                     IsAllowParticipants = Data.IsAllowParticipants,
                     NotifyUser = Data.NotifyUser,
                     FileData = fileContents,
@@ -2092,6 +2096,7 @@ else
                     ToUserGroup = sToUserGroup,
                     CCUserGroup = sCCUserGroup,
                     ParticipantsUserGroup = sParticipantsUserGroup
+                    
                 };
 
 

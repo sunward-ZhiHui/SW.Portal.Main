@@ -6,17 +6,25 @@
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
 @using MediatR
+@using System.Text.Json
+@inject AC.SD.Core.Services.ToastService toastService
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+
+
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Reload" IconCssClass="fa fa-refresh" Click="@onRefresh"/>
+                <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onReset" />
                 @* <DxMenuItem Text="Message" IconCssClass="fa fa-commenting" Click="@onReplyMsg" Enabled="@ReplyMsgEnabled" /> *@
             </Items>
         </DxMenu>
@@ -25,7 +33,7 @@
 <DxGrid @ref="EmailDueDateGrid" SearchText="@GridSearchText"
         Data="_emailTopicDueDate"
         ShowGroupPanel="true"
-        VirtualScrollingEnabled="true"
+        VirtualScrollingEnabled="false"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -40,7 +48,9 @@
         RowClick="OnRowClick"
         RowDoubleClick="OnEmailDueRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        AllowSelectRowByClick="true">
+        LayoutAutoLoading="Grid_LayoutAutoLoading"
+        LayoutAutoSaving="Grid_LayoutAutoSaving"
+        AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
     <Columns>    
         <DxGridDataColumn FieldName="TopicName" Caption="Main Subject"  FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
         <DxGridDataColumn FieldName="Name" Caption="Subject Name" MinWidth="250" />
@@ -50,7 +60,15 @@
                 @{
                     var item = (EmailTopics)context.DataItem;
                 }
-                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.DueDate)</span>
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.DueDate.Value)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="ExpiryDueDate" Width="180" Caption="Extend DueDate">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.ExpiryDueDate)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
         <DxGridDataColumn FieldName="AssignFrom" Caption="Assign From" MinWidth="100" />
@@ -71,6 +89,24 @@
   @*   <DetailRowTemplate>
         <EmailSubDueDate Items="(EmailTopics)context.DataItem" />
     </DetailRowTemplate> *@
+
+
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var types = (EmailTopics)EditFormContext.EditModel;
+            types.TopicName = "kumar";
+            types.ToIds = new List<long> { -1 };
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
+                <DxDateEdit @bind-Date="@types.DueDate" MinDate="DateTime.Now" TimeSectionVisible="false" />
+            </DxFormLayoutItem>            
+        </DxFormLayout>
+    </EditFormTemplate>
+
+
+
+
     <TotalSummary>
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
     </TotalSummary>
@@ -88,7 +124,87 @@
     </BodyContentTemplate>
 </DxPopup>
 
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span class="@((MessageHeader == "Warning Info" ? "TxtRed" :""))"> @MessageBody</span>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+
 @code {
+    [Parameter]
+    public int TabIndex { get; set; } = 1;
+    const string LocalStorageKey = "Grid-LayoutMyEmailDueDate-Data";
+    async Task Grid_LayoutAutoLoading(GridPersistentLayoutEventArgs e)
+    {
+        e.Layout = await LoadLayoutFromLocalStorageAsync();
+    }
+    async Task Grid_LayoutAutoSaving(GridPersistentLayoutEventArgs e)
+    {
+        await SaveLayoutToLocalStorageAsync(e.Layout);
+    }
+    async Task<GridPersistentLayout> LoadLayoutFromLocalStorageAsync()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", LocalStorageKey);
+            return JsonSerializer.Deserialize<GridPersistentLayout>(json);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+            return null;
+        }
+    }
+    async Task SaveLayoutToLocalStorageAsync(GridPersistentLayout layout)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(layout);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+        }
+    }
+
+    async Task onReset()
+    {
+        await RemoveLayoutFromLocalStorageAsync();              
+        await JSRuntime.InvokeVoidAsync("location.reload");
+        // var urls = BaseUrl + "myday/" + 1;
+        // NavigationManager.NavigateTo(urls);
+        // await JSRuntime.InvokeAsync<string>("ReloadUrl");
+       
+    }
+    
+    async Task RemoveLayoutFromLocalStorageAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", LocalStorageKey);
+        }
+        catch
+        {
+            // Mute exceptions for the server prerender stage
+        }
+    }
+
+    bool MessageVisible { get; set; }
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    public bool EditEnabled { get; set; } = false;
     private int pageNumber = 1; // Initial page number
     private int pageSize = 15; // Number of records per page
     DxPopup? popup;
@@ -109,6 +225,7 @@
     public string? GridSearchText { get; set; }
     [Parameter]
     public Action<string> SubViewAllTopicId { get; set; }
+    private string? BaseUrl;
 
     async Task onRefresh()
     {
@@ -117,13 +234,18 @@
         await JSRuntime.InvokeAsync<string>("hideLoading");
         EmailDueDateGrid.Reload();
     }
+    void addEdit()
+    {
+        EmailDueDateGrid.StartEditDataItemAsync(_selectedItems);
+    }
     async Task onReplyMsg()
     {
         var rlmsg = _selectedItems;
         Previewmsg = true;
-    }
+    }  
     protected override async Task OnInitializedAsync()
     {
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         await JSRuntime.InvokeAsync<string>("showLoading");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _emailTopicDueDate = await Mediator.Send(new GetEmailTopicHome(applicationUser.UserID));
@@ -142,6 +264,7 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _emailTopicDueDate.FirstOrDefault(f => f.ID == (long?)UniqueId);
         ReplyMsgEnabled = true;
+        EditEnabled = true;
         StateHasChanged();
 
     }
@@ -151,7 +274,7 @@
         SelectedGroup = UniqueId.ToString();
 
         var lst = _emailTopicDueDate.Where(x => x.ID == long.Parse(SelectedGroup)).FirstOrDefault();   
-        
+
         NavigationManager.NavigateTo($"ViewEmail/{lst.SessionId}/Email");
         //ATopicId?.Invoke(SelectedGroup);
         ////await LoadData();
@@ -176,5 +299,58 @@
         await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();
         StateHasChanged();
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (EmailTopics)e.EditModel;
+
+
+
+        if (applicationUser.UserID != editModel.UserId)
+        {
+            if (editModel.DueDate.HasValue)
+            {
+
+                DateTime actualDueDate = editModel.DueDate.Value;
+
+
+                if (editModel.ExpiryDueDate >= editModel.DueDate)
+                {
+                    await updateDueDate(editModel);
+                }
+                else
+                {
+                    onShowPopupMessage("Warning Info", "Should you decide to extend the deadline, please update the due date accordingly in our records. However, if no action is taken within the next (" + @Application.Common.Helper.Helper.FormatDate(editModel.ExpiryDueDate) + ") days, please reach out to your administrator or supervisor for further assistance and guidance.");
+                }
+            }
+            else
+            {
+                await updateDueDate(editModel);
+            }
+
+        }
+        else
+        {
+            await updateDueDate(editModel);
+        }
+      
+    }
+    async Task updateDueDate(EmailTopics emailTopics)
+    {
+        var UpdateReq = new UpdateEmailTopicSubjectDueDate
+            {
+                //ID = long.Parse(@SelectedGroup),
+                ID = (int)emailTopics.ID,
+                TopicID = emailTopics.EmailTopicID,
+                NoOfDays = emailTopics.NoOfDays,
+                DueDate = emailTopics.DueDate,
+                UserId = emailTopics.UserId,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+            };
+
+        var result = await Mediator.Send(UpdateReq);
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await onRefresh();
     }
 }

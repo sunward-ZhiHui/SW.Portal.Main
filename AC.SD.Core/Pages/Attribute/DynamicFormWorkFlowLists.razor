@@ -61,6 +61,9 @@
             <DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="50" />
             <DxGridDataColumn FieldName="UserNames" Caption="Release Users" MinWidth="50" />
         </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+        </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
 <DxPopup @bind-Visible="@createEmailpopup"

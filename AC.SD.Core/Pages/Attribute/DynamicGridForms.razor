@@ -434,23 +434,24 @@
     async Task loadDynamicForm()
     {
         bool? deleted = false;
-        var exits = await Mediator.Send(new GetDynamicFormBySession(SessionId));
-        if (exits != null)
+        _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
+        _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
+        if (_dynamicform != null)
         {
             AddEnabled = true; plantIds = new List<long>(); plantCode = null;
-            _dynamicFormDropDown = await Mediator.Send(new GetAllDynamicForm(0));
+            //_dynamicFormDropDown = await Mediator.Send(new GetAllDynamicForm(0));
             ActiveTabIndex = 0; isApproval = false; isApproved = true; IsSendApproval = false; IsSendApprovalVisible = false; ApproveRejectName = "Approve"; isButtonClick = "";
             IsApprovalApproved = false; IsApprovalRejected = false; IsApprovalSave = false; IsDescriptionOpen = false; isSubmit = false; isWorkflowEnabled = false; isSaveEnabled = true;
             dynamicFormApproval = new DynamicFormApproved(); dynamicFormData = new DynamicFormData(); isApprovalEnabled = false;
             _dynamicformData = null; isVisibleButton = true; IsSave = true; IsUploadEnabled = false; _dynamicFormWorkFlowFormList = new List<DynamicFormWorkFlowForm>();
             if (SessionId != null)
             {
-                _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
+
                 if (_dynamicform != null)
                 {
                     plantCode = string.IsNullOrEmpty(_dynamicform.CompanyName) ? null : _dynamicform.CompanyName.ToLower();
 
-                    _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
+
                     if (_dynamicform.IsApproval == true)
                     {
                         isApprovalEnabled = true;

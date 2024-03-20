@@ -100,4 +100,11 @@ namespace Core.Entities
         public bool? IsVisible { get; set; } = false;
         public bool? IsReadonly { get; set; } = false;
     }
+    public class DynamicFormDataAll
+    {
+        public List<DynamicFormWorkFlowForm> DynamicFormWorkFlowForms { get; set; } = new List<DynamicFormWorkFlowForm>();
+        public List<DynamicFormApproved> DynamicFormApproved { get; set; } = new List<DynamicFormApproved>();
+        public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSection { get; set; } = new List<DynamicFormWorkFlowSection>();
+        public List<DynamicFormSection> DynamicFormSection { get; set; } = new List<DynamicFormSection>();
+    }
 }

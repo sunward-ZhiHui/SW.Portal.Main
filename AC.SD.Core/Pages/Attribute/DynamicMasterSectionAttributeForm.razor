@@ -169,7 +169,7 @@
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource">
-                    <DxCheckBox @bind-Checked="types.IsPlantLoadDependency" ></DxCheckBox>
+                    <DxCheckBox @bind-Checked="types.IsPlantLoadDependency"></DxCheckBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Dropdown Data Source" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
                     <DxTagBox Data="@_attributeHeaderDataSource"
@@ -178,14 +178,13 @@
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               TextFieldName="DisplayName"
                               ValueFieldName="AttributeHeaderDataSourceId"
-                             
                     @bind-Values="@types.PlantDropDownWithOtherDataSourceListIds">
 
                     </DxTagBox>
                     <ValidationMessage For="@(() => types.PlantDropDownWithOtherDataSourceListIds)" />
                 </DxFormLayoutItem>
-               @*  <DxFormLayoutItem Caption="Dropdown Label Name" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
-                    <DxTextBox @bind-Text="@types.PlantDropDownWithOtherDataSourceLabelName" />
+                @*  <DxFormLayoutItem Caption="Dropdown Label Name" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
+                <DxTextBox @bind-Text="@types.PlantDropDownWithOtherDataSourceLabelName" />
                 </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="Radio Layout" ColSpanMd="6" Visible="IsRadioLayoutEnabled">
                     <DxRadioGroup Items="@TemplateUploadOptions"
@@ -195,6 +194,12 @@
                                   Layout="RadioGroupLayout.Horizontal"
                                   Enabled="IsRadioLayoutEnabled"
                                   CssClass="dx-demo-radio-group" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Set Default Value" ColSpanMd="3" Visible="@IsSetDefaultValueEnabled">
+                    <DxCheckBox @bind-Checked="types.IsSetDefaultValue"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Default ReadOnly" ColSpanMd="3" Visible="@IsSetDefaultValueEnabled">
+                    <DxCheckBox @bind-Checked="types.IsDefaultReadOnly"></DxCheckBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
                     <DxCheckBox Checked="@types.IsSingleTextBoxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsSingleTextBoxRemarks)" CheckedChanged="@((bool? value) => CheckedSingleTextBoxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is SingleLine TextBox</DxCheckBox>
@@ -308,7 +313,7 @@
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     bool isListMultiple = false;
-    bool IsSpinEditTypeEnabled { get; set; } = false; bool IsRadioLayoutEnabled { get; set; } = false;
+    bool IsSpinEditTypeEnabled { get; set; } = false; bool IsRadioLayoutEnabled { get; set; } = false; bool IsSetDefaultValueEnabled { get; set; } = false;
     bool IsRadioCheckBoxLayoutEnabled { get; set; } = false;
     string? errorMessage;
     string? DeleteerrorMessage;
@@ -380,17 +385,15 @@
         var navitems = (DynamicFormSectionAttribute)e.EditModel;
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
-        navitems.IsSingleTextBoxRemarks = false; navitems.IsSingleTextBoxRemarks = false;
+        navitems.IsSingleTextBoxRemarks = false; navitems.IsSingleTextBoxRemarks = false; IsSetDefaultValueEnabled = false;
         if (e.IsNew)
         {
             navitems.IsSpinEditType = "int";
             navitems.ColSpan = 6;
-
-            //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, -1));
         }
         else
         {
-            if (navitems.DataSourceTable == "Plant")
+            if (navitems.DataSourceTable == "Plant" && navitems.ControlTypeId == 2702)
             {
                 isDataSource = true;
                 _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
@@ -441,15 +444,20 @@
                 }
                 IsRadioCheckBoxLayoutEnabled = true;
             }
-            if(navitems.IsPlantLoadDependency==true)
+            if (navitems.IsPlantLoadDependency == true)
             {
-                if(!string.IsNullOrEmpty(navitems.PlantDropDownWithOtherDataSourceIds))
+                if (!string.IsNullOrEmpty(navitems.PlantDropDownWithOtherDataSourceIds))
                 {
                     navitems.PlantDropDownWithOtherDataSourceListIds = navitems.PlantDropDownWithOtherDataSourceIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
                 }
             }
-
-            //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, navitems.AttributeId));
+            if (navitems.ControlTypeId == 2702 || navitems.ControlTypeId == 2703 || navitems.ControlTypeId == 2706 || navitems.ControlTypeId == 2708 || navitems.ControlTypeId == 2709)
+            {
+                if (navitems.ControlTypeId == 2703 || navitems.ControlTypeId == 2709 || navitems.DataSourceTable == "Employee" || navitems.DataSourceTable == "Plant")
+                {
+                    IsSetDefaultValueEnabled = true;
+                }
+            }
         }
         StateHasChanged();
     }
@@ -490,7 +498,7 @@
     {
         data.DisplayName = attributeHeader.Description;
         data.DataSourceTable = attributeHeader.DataSourceTable;
-        data.ControlTypeId = attributeHeader.ControlTypeId; isDataSource = false;
+        data.ControlTypeId = attributeHeader.ControlTypeId; isDataSource = false; IsSetDefaultValueEnabled = false;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
         if (attributeHeader != null)
         {
@@ -519,7 +527,7 @@
             {
                 data.ColSpan = 12;
             }
-            if (attributeHeader.DataSourceTable == "Plant")
+            if (attributeHeader.DataSourceTable == "Plant" && attributeHeader.ControlTypeId == 2702)
             {
                 isDataSource = true;
                 _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
@@ -533,6 +541,13 @@
             {
                 data.IsPlantLoadDependency = false;
             }
+            if (attributeHeader.ControlTypeId == 2702 || attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2706 || attributeHeader.ControlTypeId == 2708 || attributeHeader.ControlTypeId == 2709)
+            {
+                if (attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2709 || attributeHeader.DataSourceTable == "Employee" || attributeHeader.DataSourceTable == "Plant")
+                {
+                    IsSetDefaultValueEnabled = true;
+                }
+            }
         }
         StateHasChanged();
     }
@@ -544,6 +559,7 @@
         var IsRadioLayout = editModel.ControlTypeId == 2705 || editModel.ControlTypeId == 2711 ? (string.IsNullOrEmpty(editModel.RadioLayout) ? null : editModel.RadioLayout) : null;
         var IsColSpan = editModel.ControlTypeId == 2712 ? 12 : editModel.ColSpan;
         string? IsRadioCheckRemarks = null; string? RemarksLabelName = null;
+        bool _isSetDefaultValue = false; bool _isDefaultReadOnly = false;
         if (editModel.ControlTypeId == 2705 || editModel.ControlTypeId == 2711 || editModel.ControlTypeId == 2710)
         {
             RemarksLabelName = editModel.RemarksLabelName;
@@ -556,7 +572,15 @@
                 IsRadioCheckRemarks = "TextBox";
             }
         }
-
+        if (editModel.ControlTypeId == 2702 || editModel.ControlTypeId == 2703 || editModel.ControlTypeId == 2706 || editModel.ControlTypeId == 2708 || editModel.ControlTypeId == 2709)
+        {
+            _isDefaultReadOnly = false;
+            if (editModel.IsSetDefaultValue == true)
+            {
+                _isSetDefaultValue = true;
+                _isDefaultReadOnly = editModel.IsDefaultReadOnly == true ? true : false;
+            }
+        }
         if (e.IsNew)
         {
             var createReq = new InsertOrUpdateDynamicFormSectionAttribute
@@ -581,10 +605,12 @@
                     RadioLayout = IsRadioLayout,
                     IsRadioCheckRemarks = IsRadioCheckRemarks,
                     RemarksLabelName = RemarksLabelName,
-                    IsPlantLoadDependency = editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
-                    PlantDropDownWithOtherDataSourceListIds = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
-                    PlantDropDownWithOtherDataSourceId = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceId : null,
-                    PlantDropDownWithOtherDataSourceLabelName = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+                    IsPlantLoadDependency = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
+                    PlantDropDownWithOtherDataSourceListIds = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
+                    PlantDropDownWithOtherDataSourceId = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceId : null,
+                    PlantDropDownWithOtherDataSourceLabelName = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+                    IsSetDefaultValue = _isSetDefaultValue,
+                    IsDefaultReadOnly = _isDefaultReadOnly,
                 };
 
             try
@@ -629,10 +655,12 @@
                     RadioLayout = IsRadioLayout,
                     IsRadioCheckRemarks = IsRadioCheckRemarks,
                     RemarksLabelName = RemarksLabelName,
-                    IsPlantLoadDependency = editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
-                    PlantDropDownWithOtherDataSourceListIds = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
-                    PlantDropDownWithOtherDataSourceId = editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceId : null,
-                    PlantDropDownWithOtherDataSourceLabelName = editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+                    IsPlantLoadDependency = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
+                    PlantDropDownWithOtherDataSourceListIds = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
+                    PlantDropDownWithOtherDataSourceId = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceId : null,
+                    PlantDropDownWithOtherDataSourceLabelName = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+                    IsSetDefaultValue = _isSetDefaultValue,
+                    IsDefaultReadOnly = _isDefaultReadOnly,
 
                 };
             var ans = await Mediator.Send(UpdateReq);

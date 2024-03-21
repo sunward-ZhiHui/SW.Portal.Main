@@ -565,7 +565,7 @@ namespace SW.Portal.Solutions.Controllers
             {                
                 return StatusCode(500, "Internal server error.");
             }
-        }
+        }       
 
     }
 }

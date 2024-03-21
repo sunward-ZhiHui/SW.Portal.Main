@@ -228,7 +228,16 @@ namespace Application.Handlers.QueryHandlers
                 conversation.CcIds = CcIds;
                 conversation.Toparticipant = _Toparticipant;
                 conversation.CCparticipant = _CCparticipant;
-                conversation.allparticipant = t3;
+                conversation.allparticipant = t3;                
+                conversation._allparticipants = _allparticipants.Select(employee => new ViewEmployee { 
+                                                UserID = employee.UserID, 
+                                                EmployeeID = employee.EmployeeID,
+                                                FirstName = employee.FirstName,
+                                                LastName = employee.LastName,
+                                                NickName = employee.NickName,
+                                                UserCode = employee.UserCode,
+                                                LoginID = employee.LoginID
+                                                }).ToList();
             return conversation;           
         }
     }

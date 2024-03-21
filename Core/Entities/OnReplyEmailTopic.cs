@@ -18,6 +18,7 @@ namespace Core.Entities
         public List<string>? Toparticipant { get; set; }
         public List<string>? CCparticipant { get; set; }   
         public List<long>? allparticipant { get; set; }
+        public List<ViewEmployee>? _allparticipants { get; set; }
 
 
     }

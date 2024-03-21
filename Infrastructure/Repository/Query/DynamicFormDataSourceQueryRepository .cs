@@ -50,6 +50,22 @@ namespace Infrastructure.Repository.Query
                 {
                     dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
                 }
+                if (dataSourceTableIds.Contains("Division"))
+                {
+                    dataSourceDropDownList.AddRange(await GetDivisionDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (dataSourceTableIds.Contains("Department"))
+                {
+                    dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (dataSourceTableIds.Contains("Section"))
+                {
+                    dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (dataSourceTableIds.Contains("SubSection"))
+                {
+                    dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
+                }
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
@@ -130,6 +146,130 @@ namespace Infrastructure.Repository.Query
                     else
                     {
                         query += "Where t1.PlantId=" + CompanyId + "\r\n";
+                    }
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetDivisionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'Division' as DropDownTypeId,t1.DivisionID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description from Division t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n \r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                    }
+                    else
+                    {
+                        query += "Where t1.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetDepartmentDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'Department' as DropDownTypeId,t1.DepartmentID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description from Department t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                    }
+                    else
+                    {
+                        query += "Where t1.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetSectionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'Section' as DropDownTypeId,t1.SectionID as AttributeDetailID,t2.CompanyID as CompanyId,t3.PlantCode as CompanyName, t1.Name as AttributeDetailName,CONCAT(t2.Name,'||',t1.Description) as Description from Section t1 JOIN Department t2 ON t2.DepartmentID=t1.DepartmentID JOIN Plant t3 ON t2.CompanyID=t3.PlantID\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t2.CompanyID in(" + string.Join(',', plantIds) + ")";
+                    }
+                    else
+                    {
+                        query += "Where t2.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetSubSectionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'SubSection' as DropDownTypeId,t1.SectionID as AttributeDetailID,t4.CompanyID as CompanyId,t4.PlantCode as CompanyName, t1.Name as AttributeDetailName,CONCAT(t2.Name,'||',t3.Name,'||',t1.Description) as Description from SubSection t1 JOIN Section t2 ON t2.SectionID=t1.SectionID  JOIN Department t3 ON t3.DepartmentID=t2.DepartmentID  JOIN Plant t4 ON t3.CompanyID=t4.PlantID\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t3.CompanyID in(" + string.Join(',', plantIds) + ")";
+                    }
+                    else
+                    {
+                        query += "Where t3.CompanyID=" + CompanyId + "\r\n";
                     }
                 }
                 using (var connection = CreateConnection())

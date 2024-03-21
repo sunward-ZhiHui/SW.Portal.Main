@@ -168,25 +168,25 @@
                     <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource" Enabled="isFormCountUsed">
-                    <DxCheckBox @bind-Checked="types.IsPlantLoadDependency" Enabled="isFormCountUsed"></DxCheckBox>
+                <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource">
+                    <DxCheckBox @bind-Checked="types.IsPlantLoadDependency" ></DxCheckBox>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Dropdown Data Source" ColSpanMd="6" Visible="@types.IsPlantLoadDependency" >
-                    <DxComboBox Data="@_attributeHeaderDataSource"
-                                NullText="Select Data Source..."
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                TextFieldName="DisplayName"
-                                ValueFieldName="AttributeHeaderDataSourceId"
-                                Enabled="isFormCountUsed"
-                    @bind-Value="@types.PlantDropDownWithOtherDataSourceId">
+                <DxFormLayoutItem Caption="Dropdown Data Source" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
+                    <DxTagBox Data="@_attributeHeaderDataSource"
+                              NullText="Select Data Source..."
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              TextFieldName="DisplayName"
+                              ValueFieldName="AttributeHeaderDataSourceId"
+                             
+                    @bind-Values="@types.PlantDropDownWithOtherDataSourceListIds">
 
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => types.PlantDropDownWithOtherDataSourceId)" />
+                    </DxTagBox>
+                    <ValidationMessage For="@(() => types.PlantDropDownWithOtherDataSourceListIds)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Dropdown Label Name" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
+               @*  <DxFormLayoutItem Caption="Dropdown Label Name" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
                     <DxTextBox @bind-Text="@types.PlantDropDownWithOtherDataSourceLabelName" />
-                </DxFormLayoutItem>
+                </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="Radio Layout" ColSpanMd="6" Visible="IsRadioLayoutEnabled">
                     <DxRadioGroup Items="@TemplateUploadOptions"
                                   Value="@types.RadioLayout"
@@ -441,6 +441,13 @@
                 }
                 IsRadioCheckBoxLayoutEnabled = true;
             }
+            if(navitems.IsPlantLoadDependency==true)
+            {
+                if(!string.IsNullOrEmpty(navitems.PlantDropDownWithOtherDataSourceIds))
+                {
+                    navitems.PlantDropDownWithOtherDataSourceListIds = navitems.PlantDropDownWithOtherDataSourceIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                }
+            }
 
             //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, navitems.AttributeId));
         }
@@ -575,8 +582,9 @@
                     IsRadioCheckRemarks = IsRadioCheckRemarks,
                     RemarksLabelName = RemarksLabelName,
                     IsPlantLoadDependency = editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
+                    PlantDropDownWithOtherDataSourceListIds = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
                     PlantDropDownWithOtherDataSourceId = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceId : null,
-                    PlantDropDownWithOtherDataSourceLabelName = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true && editModel.PlantDropDownWithOtherDataSourceId > 0 ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+                    PlantDropDownWithOtherDataSourceLabelName = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
                 };
 
             try
@@ -622,8 +630,9 @@
                     IsRadioCheckRemarks = IsRadioCheckRemarks,
                     RemarksLabelName = RemarksLabelName,
                     IsPlantLoadDependency = editModel.DataSourceTable == "Plant" ? editModel.IsPlantLoadDependency : false,
+                    PlantDropDownWithOtherDataSourceListIds = editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceListIds : new List<long?>(),
                     PlantDropDownWithOtherDataSourceId = editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceId : null,
-                    PlantDropDownWithOtherDataSourceLabelName = editModel.DataSourceTable == "Plant" && editModel.PlantDropDownWithOtherDataSourceId > 0 ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
+                    PlantDropDownWithOtherDataSourceLabelName = editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
 
                 };
             var ans = await Mediator.Send(UpdateReq);

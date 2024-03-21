@@ -78,6 +78,7 @@ namespace Core.Entities
         public List<AttributeDetails> AttributeDetails { get; set; }
         public DropDownOptionsGridListModel DropDownOptionsGridListModel { get; set; } = new DropDownOptionsGridListModel();
         public List<Plant> Plant { get; set; } = new List<Plant>();
+        public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
     }
     public class DynamicFormGridModel
     {

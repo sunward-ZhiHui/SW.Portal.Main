@@ -68,6 +68,9 @@ namespace Core.Entities
         public string? PlantDropDownWithOtherDataSourceTable { get; set; }
         public string? PlantDropDownWithOtherDataSourceLabelName { get; set; }
         public bool IsPlantLoadDependency { get; set; } = false;
+        public string? PlantDropDownWithOtherDataSourceIds { get; set; }
+        public IEnumerable<long?> PlantDropDownWithOtherDataSourceListIds { get; set; } = new List<long?>();
+        public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
     }
     public class DynamicFormSectionSpinEdit
     {

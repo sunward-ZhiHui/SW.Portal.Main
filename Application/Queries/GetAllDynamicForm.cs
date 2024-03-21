@@ -421,5 +421,13 @@ namespace Application.Queries
             this.DynamicFormData = dynamicFormData;
         }
     }
+    public class GetEmployeeFormByUserId : PagedRequest, IRequest<ViewEmployee>
+    {
+        public long? UserId { get; set; }
+        public GetEmployeeFormByUserId(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
 }
 

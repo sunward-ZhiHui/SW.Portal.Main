@@ -3678,7 +3678,9 @@
 
     async void SubmitCancelDueDate()
     {
-        var UpdateReq = new UpdateEmailTopicSubjectDueDate
+        if(applicationUser.UserID == CurrentEmailConversations.UserId)
+        {
+            var UpdateReq = new UpdateEmailTopicSubjectDueDate
             {
                 //ID = long.Parse(@SelectedGroup),
                 ID = CurrentEmailConversations.ID,
@@ -3687,8 +3689,15 @@
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now
             };
+            var result = await Mediator.Send(UpdateReq);
+        }
+        else
+        {
+            onShowPopupMessage("Error", "Permission denied current user");
+        }
 
-        var result = await Mediator.Send(UpdateReq);
+
+       
 
         isCancelDueDate = false;
         //onShowPopupMessage("success", "Updated DueDate Successfully");

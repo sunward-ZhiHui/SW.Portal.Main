@@ -58,6 +58,9 @@ namespace Core.AttributeDynamicData
         [FieldType(FieldType.List)]
         [Display(Name = "List")]
         public string List { get; set; }
+        [FieldType(FieldType.TagBox)]
+        [Display(Name = "TagBox")]
+        public IEnumerable<string> TagBoxList { get; set; }
 
     }
 

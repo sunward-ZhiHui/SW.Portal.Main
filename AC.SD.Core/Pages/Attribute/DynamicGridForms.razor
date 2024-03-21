@@ -2206,6 +2206,7 @@
              if (valueData == null && s.IsSetDefaultValue == true)
              {
                  valueData = DateTime.Now;
+                 property.SetValue(Data, valueData);
              }
              editor.OpenComponent<DxDateEdit<DateTime?>>(j + 1);
              editor.AddAttribute(j + 1, "Date", valueData);
@@ -2258,6 +2259,7 @@
              if (valueData == null && s.IsSetDefaultValue == true)
              {
                  valueData = DateTime.Now.TimeOfDay;
+                 property.SetValue(Data, valueData);
              }
              editor.OpenComponent<DxTimeEdit<TimeSpan?>>(j + 1);
              editor.AddAttribute(j + 1, "Time", valueData);
@@ -2551,6 +2553,7 @@
                      if (exitsDefaultData != null)
                      {
                          valueData = applicationUser.UserID;
+                         property.SetValue(Data, valueData);
                      }
                  }
                  if (s.DataSourceTable == "Plant" && _userEmployee != null && _userEmployee.PlantID > 0)
@@ -2559,6 +2562,7 @@
                      if (exitsDefaultData != null)
                      {
                          valueData = _userEmployee.PlantID;
+                         property.SetValue(Data, valueData);
                      }
                  }
              }
@@ -2726,6 +2730,7 @@
                          List<long?> valueDatads = new List<long?>();
                          valueDatads.Add(applicationUser.UserID);
                          valueData = valueDatads;
+                         property.SetValue(Data, valueData);
                      }
                  }
                  if (s.DataSourceTable == "Plant" && _userEmployee != null && _userEmployee.PlantID > 0)
@@ -2736,6 +2741,7 @@
                          List<long?> valueDatads = new List<long?>();
                          valueDatads.Add(_userEmployee.PlantID);
                          valueData = valueDatads;
+                         property.SetValue(Data, valueData);
                      }
                  }
              }
@@ -2935,10 +2941,12 @@
                              List<long?> valueDatads = new List<long?>();
                              valueDatads.Add(applicationUser.UserID);
                              valueData = valueDatads;
+                             property.SetValue(Data, valueData);
                          }
                          else
                          {
                              valueData = applicationUser.UserID;
+                             property.SetValue(Data, valueData);
                          }
                      }
                  }
@@ -2952,10 +2960,12 @@
                              List<long?> valueDatads = new List<long?>();
                              valueDatads.Add(_userEmployee.PlantID);
                              valueData = valueDatads;
+                             property.SetValue(Data, valueData);
                          }
                          else
                          {
                              valueData = _userEmployee.PlantID;
+                             property.SetValue(Data, valueData);
                          }
                      }
                  }

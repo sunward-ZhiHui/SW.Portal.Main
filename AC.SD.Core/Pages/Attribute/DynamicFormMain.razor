@@ -182,7 +182,16 @@
                                     break;
 
                                 }
-
+                            case FieldType.TagBox:
+                                {
+                                    editor.OpenComponent<DxTagBox<String, String>>(j);
+                                    editor.AddAttribute(j++, "Data", AdditionalData.Occupations);
+                                    editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                                    editor.AddAttribute(j++, "ValuesExpression", lambda);
+                                    editor.AddAttribute(j++, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<System.String>>(this, str => { property.SetValue(Data, str); }));
+                                    editor.CloseComponent();
+                                    break;
+                                }
                             // case FieldType.Grid:
                             //     {
                             //         // IEnumerable<string> Languages = new[] { "English", "简体中文", "Español", "Français", "Deutsch" };

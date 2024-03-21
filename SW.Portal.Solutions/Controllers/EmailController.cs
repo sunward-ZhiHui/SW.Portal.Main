@@ -35,9 +35,11 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
         private readonly IMediator _mediator;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
-        public EmailController(IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration)
+        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration)
         {
+            _hostingEnvironment = host;
             _mediator = mediator;
             _applicationUserQueryRepository = applicationUserQueryRepository;
             _configuration = configuration;
@@ -306,7 +308,7 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpGet("GetOnReplyList")]
-        public async Task<IActionResult> GetOnReplyList(long Id, long UserId)
+        public async Task<IActionResult> GetOnReplyList([FromQuery] long Id, [FromQuery] long UserId)
         {
             var result = await _mediator.Send(new OnReplyConversationTopic(Id, UserId));
             return Ok(result);
@@ -538,6 +540,31 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
+        }
+
+        [HttpPost("EmailUploadFile")]
+        public async Task<IActionResult> EmailUploadFile(Guid? SessionId, long? UserId)
+        {
+            try
+            {
+                var sessionid = SessionId;
+                var userId = UserId;
+                // Set BasePath
+                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
+
+                var file = Request.Form.Files[0];
+
+                //var filePath = Path.Combine("uploads", file.FileName);
+
+                //using var stream = new FileStream(filePath, FileMode.Create);
+                //await file.CopyToAsync(stream);
+
+                return Ok("File uploaded successfully.");
+            }
+            catch (Exception ex)
+            {                
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
     }

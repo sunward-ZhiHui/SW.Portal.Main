@@ -121,10 +121,10 @@ namespace Application.Queries
     {
         public long ID { get; private set; }
         public long UserId { get; private set; }
-        public OnReplyConversationTopic(long Id, long UserId)
+        public OnReplyConversationTopic(long Id, long userId)
         {
             this.ID = Id;
-            this.UserId = UserId;
+            this.UserId = userId;
         }
     }
     public class GetEmailConversationList : PagedRequest, IRequest<List<EmailConversations>>

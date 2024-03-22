@@ -25,6 +25,11 @@ using System.Configuration;
 using DevExpress.XtraRichEdit.Import.Html;
 using DevExpress.DataProcessing.InMemoryDataProcessor;
 using Core.EntityModels;
+using System.Net;
+using System;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using DevExpress.DocumentServices.ServiceModel.DataContracts;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -36,13 +41,14 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IMediator _mediator;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _hostingEnvironment;
-
-        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration)
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration, IDocumentsQueryRepository documentsqueryrepository)
         {
             _hostingEnvironment = host;
             _mediator = mediator;
             _applicationUserQueryRepository = applicationUserQueryRepository;
             _configuration = configuration;
+            _documentsqueryrepository = documentsqueryrepository;
         }
 
         
@@ -545,27 +551,90 @@ namespace SW.Portal.Solutions.Controllers
         [HttpPost("EmailUploadFile")]
         public async Task<IActionResult> EmailUploadFile(Guid? SessionId, long? UserId)
         {
-            try
-            {
-                var sessionid = SessionId;
-                var userId = UserId;
-                // Set BasePath
-                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
+            string firebaseStorageUrl = "https://firebasestorage.googleapis.com/v0/b/novatonotify.appspot.com/o/users%2Fuploads%2F1711006773919972.mp3?alt=media&token=b3536d73-2fa9-4601-b890-77a55ef6e24e";
 
-                var file = Request.Form.Files[0];
+            var serverPathss = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
 
-                //var filePath = Path.Combine("uploads", file.FileName);
 
-                //using var stream = new FileStream(filePath, FileMode.Create);
-                //await file.CopyToAsync(stream);
+            int queryIndex = firebaseStorageUrl.IndexOf('?');
+            string urlWithoutQuery = firebaseStorageUrl.Substring(0, queryIndex);
+            // Find the last occurrence of '.' after removing the query parameters
+            int dotIndex = urlWithoutQuery.LastIndexOf('.');
+            // Extract the extension
+            string extension = urlWithoutQuery.Substring(dotIndex);
+            
+            string fileName = Guid.NewGuid().ToString() + extension;
 
-                return Ok("File uploaded successfully.");
-            }
-            catch (Exception ex)
+            await DownloadFileFromFirebaseStorage(firebaseStorageUrl, serverPathss, fileName);
+
+            var filePath = Path.Combine(serverPathss, fileName);
+            if (System.IO.File.Exists(filePath))
             {                
-                return StatusCode(500, "Internal server error.");
+                long fileSize = new FileInfo(filePath).Length;
+                string contentType = GetContentType(filePath);                
+                string fileNames = Path.GetFileName(filePath);
+
+
+                Documents documents = new Documents();
+                documents.UploadDate = DateTime.Now;
+                documents.AddedByUserId = UserId;
+                documents.AddedDate = DateTime.Now;
+                documents.SessionId = SessionId;
+                documents.IsLatest = true;
+                documents.IsTemp = true;
+                documents.FileName = fileNames;
+                documents.ContentType = contentType;
+                documents.FileSize = fileSize;
+                documents.SourceFrom = "Email";
+                documents.FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+                //documentId = response.DocumentId;
+                System.GC.Collect();
+                GC.SuppressFinalize(this);
             }
-        }       
+            else
+            {
+                
+            }
+
+            return Ok("File uploaded successfully.");
+        }
+        static async Task DownloadFileFromFirebaseStorage(string url, string destinationFolderPath, string fileName)
+        {
+            
+            
+            if (!System.IO.Directory.Exists(destinationFolderPath))
+            {
+                System.IO.Directory.CreateDirectory(destinationFolderPath);
+            }
+
+            string destinationFilePath = Path.Combine(destinationFolderPath, fileName);
+
+            using (WebClient client = new WebClient())
+            {
+                await client.DownloadFileTaskAsync(new Uri(url), destinationFilePath);
+            }
+        }
+        private string GetContentType(string path)
+        {
+            string contentType = "application/octet-stream"; // Default content type
+
+            string extension = Path.GetExtension(path).ToLowerInvariant();
+
+            // Content type mappings based on file extension
+            switch (extension)
+            {
+                case ".pdf":
+                    contentType = "application/pdf";
+                    break;
+                case ".txt":
+                    contentType = "text/plain";
+                    break;
+                    // Add more content type mappings for other file types as needed
+            }
+
+            return contentType;
+        }
 
     }
 }

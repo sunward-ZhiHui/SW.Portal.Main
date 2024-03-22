@@ -30,6 +30,9 @@ using System;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using DevExpress.DocumentServices.ServiceModel.DataContracts;
+using AC.SD.Core.Pages.Email;
+using Google.Cloud.Firestore;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -42,13 +45,15 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
-        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration, IDocumentsQueryRepository documentsqueryrepository)
+        private readonly FirestoreDb _db;
+        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration, IDocumentsQueryRepository documentsqueryrepository, FirestoreDb db)
         {
             _hostingEnvironment = host;
             _mediator = mediator;
             _applicationUserQueryRepository = applicationUserQueryRepository;
             _configuration = configuration;
             _documentsqueryrepository = documentsqueryrepository;
+            _db = db ?? throw new ArgumentNullException(nameof(db));
         }
 
         
@@ -402,6 +407,16 @@ namespace SW.Portal.Solutions.Controllers
 
                     var res = await _mediator.Send(createReq);
 
+                    if(emailConversations.FirebaseDocKey != null)
+                    {
+                        List<string> keyList = emailConversations.FirebaseDocKey.Split(',').Select(s => s.Trim()).ToList();
+
+                        foreach (string key in keyList)
+                        {
+                            await EmailUploadFile(createReq.SessionId, createReq.AddedByUserID, key);
+                        }
+                    }
+
                     var emailconversations = new ReplyConversation
                     {
                         id = (int)res,
@@ -549,55 +564,71 @@ namespace SW.Portal.Solutions.Controllers
         }
 
         [HttpPost("EmailUploadFile")]
-        public async Task<IActionResult> EmailUploadFile(Guid? SessionId, long? UserId)
+        public async Task<string> EmailUploadFile(Guid? SessionId, long? UserId,string Id)
         {
-            string firebaseStorageUrl = "https://firebasestorage.googleapis.com/v0/b/novatonotify.appspot.com/o/users%2Fuploads%2F1711006773919972.mp3?alt=media&token=b3536d73-2fa9-4601-b890-77a55ef6e24e";
+            var document = _db.Collection("UploadDocument").Document(Id);
+            var snapshot = await document.GetSnapshotAsync();
+            var lst = snapshot.Exists ? snapshot.ConvertTo<FirebaseEmailDoc>() : null;
+        
+            if(lst != null)
+            {
+                string firebaseStorageUrl = lst.Filepath;
 
-            var serverPathss = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
+                var serverPathss = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
+
+                int queryIndex = firebaseStorageUrl.IndexOf('?');
+                string urlWithoutQuery = firebaseStorageUrl.Substring(0, queryIndex);
+                // Find the last occurrence of '.' after removing the query parameters
+                int dotIndex = urlWithoutQuery.LastIndexOf('.');
+                // Extract the extension
+                string extension = urlWithoutQuery.Substring(dotIndex);
+
+                string fileName = Guid.NewGuid().ToString() + extension;
+
+                await DownloadFileFromFirebaseStorage(firebaseStorageUrl, serverPathss, fileName);
+
+                var filePath = Path.Combine(serverPathss, fileName);
+                if (System.IO.File.Exists(filePath))
+                {
+                    long fileSize = new FileInfo(filePath).Length;
+                    string contentType = GetContentType(filePath);
+                    string fileNames = Path.GetFileName(filePath);
 
 
-            int queryIndex = firebaseStorageUrl.IndexOf('?');
-            string urlWithoutQuery = firebaseStorageUrl.Substring(0, queryIndex);
-            // Find the last occurrence of '.' after removing the query parameters
-            int dotIndex = urlWithoutQuery.LastIndexOf('.');
-            // Extract the extension
-            string extension = urlWithoutQuery.Substring(dotIndex);
-            
-            string fileName = Guid.NewGuid().ToString() + extension;
+                    Documents documents = new Documents();
+                    documents.UploadDate = DateTime.Now;
+                    documents.AddedByUserId = UserId;
+                    documents.AddedDate = DateTime.Now;
+                    documents.SessionId = SessionId;
+                    documents.IsLatest = true;
+                    documents.IsTemp = true;
+                    documents.FileName = fileNames;
+                    documents.ContentType = contentType;
+                    documents.FileSize = fileSize;
+                    documents.SourceFrom = "Email";
+                    documents.FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                    var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+                    //documentId = response.DocumentId;
+                    System.GC.Collect();
+                    GC.SuppressFinalize(this);
 
-            await DownloadFileFromFirebaseStorage(firebaseStorageUrl, serverPathss, fileName);
-
-            var filePath = Path.Combine(serverPathss, fileName);
-            if (System.IO.File.Exists(filePath))
-            {                
-                long fileSize = new FileInfo(filePath).Length;
-                string contentType = GetContentType(filePath);                
-                string fileNames = Path.GetFileName(filePath);
+                    var _documents = _db.Collection("UploadDocument").Document(Id);
+                    await _documents.DeleteAsync();                  
 
 
-                Documents documents = new Documents();
-                documents.UploadDate = DateTime.Now;
-                documents.AddedByUserId = UserId;
-                documents.AddedDate = DateTime.Now;
-                documents.SessionId = SessionId;
-                documents.IsLatest = true;
-                documents.IsTemp = true;
-                documents.FileName = fileNames;
-                documents.ContentType = contentType;
-                documents.FileSize = fileSize;
-                documents.SourceFrom = "Email";
-                documents.FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
-                var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                //documentId = response.DocumentId;
-                System.GC.Collect();
-                GC.SuppressFinalize(this);
+                }
+                else
+                {
+
+                }
             }
             else
             {
-                
-            }
 
-            return Ok("File uploaded successfully.");
+            }
+            
+
+            return "ok";
         }
         static async Task DownloadFileFromFirebaseStorage(string url, string destinationFolderPath, string fileName)
         {

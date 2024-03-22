@@ -50,6 +50,8 @@ namespace Core.Entities
         [NotMapped]
         public IEnumerable<long>? CCUserGroupIds { get; set; }
         [NotMapped]
+        public string? FirebaseDocKey { get; set; }
+        [NotMapped]
         public IEnumerable<long> AllParticipantIds { get; set; }
         [NotMapped]
         public List<EmailAssignToList>? AssignToList { get; set; }

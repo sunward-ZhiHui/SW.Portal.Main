@@ -254,16 +254,20 @@ namespace Application.Handlers.QueryHandlers
 
 
             var Plist = await _employeeQueryRepository.GetAllUserAsync();
-                var cclistDropdown = Plist.Where(c => ToIds.Contains(c.UserID.Value)).ToList();
-            var CCresult = Plist.Where(c => c.UserID != cclistDropdown[0].UserID).ToList();
+                var cclistDropdown = Plist.Where(c => CcIds.Contains(c.UserID.Value)).ToList();
+               // var CCresult = Plist.Where(c => c.UserID != cclistDropdown[0].UserID).ToList();
+            var CCresult = Plist.Except(cclistDropdown).ToList();
 
 
-            var Tolist = await _employeeQueryRepository.GetAllUserAsync();
-            var tolistdropdown = Tolist.Where(c => CcIds.Contains(c.UserID.Value)).ToList();
-            var Toresult = Tolist.Where(c => c.UserID != tolistdropdown[0].UserID).ToList();
+
+
+           
+            var tolistdropdown = Plist.Where(c => ToIds.Contains(c.UserID.Value)).ToList();
+           // var Toresult = Plist.Where(c => c.UserID != tolistdropdown[0].UserID).ToList();
+            var Toresult = Plist.Except(tolistdropdown).ToList();
             _toallparticipants = Toresult.ToList();
             _ccallparticipants = CCresult.ToList();
-          
+
 
 
             var conversation = new OnReplyEmailTopic();

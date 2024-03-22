@@ -324,6 +324,13 @@ namespace SW.Portal.Solutions.Controllers
             var result = await _mediator.Send(new OnReplyConversationTopic(Id, UserId));
             return Ok(result);
         }
+
+        [HttpGet("GetOnDropDownList")]
+        public async Task<IActionResult> GetOnDropDownList(string ToIds, string CcIds)
+        {
+            var result = await _mediator.Send(new OnReplyDropDown(ToIds, CcIds));
+            return Ok(result);
+        }
         [HttpPost("OnSubmitReply")]
         public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> OnSubmitReply(EmailConversations emailConversations)
         {

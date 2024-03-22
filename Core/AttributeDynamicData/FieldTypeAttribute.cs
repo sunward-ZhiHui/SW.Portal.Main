@@ -89,6 +89,7 @@
             RadioGroup = 18,
             ComboBox = 19,
             List = 20,
-        }
+        TagBox = 21,
+    }
     
 }

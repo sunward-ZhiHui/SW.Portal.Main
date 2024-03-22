@@ -227,6 +227,78 @@ namespace Application.Handlers.QueryHandlers
             return conversation;           
         }
     }
+    public class OndropdownHandler : IRequestHandler<OnReplyDropDown, OnReplyEmailTopic>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+        private readonly IEmployeeQueryRepository _employeeQueryRepository;
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public OndropdownHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository, IEmployeeQueryRepository employeeQueryRepository, IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+            _employeeQueryRepository = employeeQueryRepository;
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<OnReplyEmailTopic> Handle(OnReplyDropDown request, CancellationToken cancellationToken)
+        {
+            List<long> ToIds = request.ToIds.Split(',')
+                                .Select(long.Parse)
+                                .ToList();
+           
+            var CcIds = request.CcIds.Split(',')
+                                .Select(long.Parse)
+                                .ToList();
+            var _ccallparticipants = new List<ViewEmployee>();
+            var _toallparticipants = new List<ViewEmployee>();
+
+
+
+            var Plist = await _employeeQueryRepository.GetAllUserAsync();
+                var cclistDropdown = Plist.Where(c => ToIds.Contains(c.UserID.Value)).ToList();
+            var CCresult = Plist.Where(c => c.UserID != cclistDropdown[0].UserID).ToList();
+
+
+            var Tolist = await _employeeQueryRepository.GetAllUserAsync();
+            var tolistdropdown = Tolist.Where(c => CcIds.Contains(c.UserID.Value)).ToList();
+            var Toresult = Tolist.Where(c => c.UserID != tolistdropdown[0].UserID).ToList();
+            _toallparticipants = Toresult.ToList();
+            _ccallparticipants = CCresult.ToList();
+          
+
+
+            var conversation = new OnReplyEmailTopic();
+            // var CCconversation = new OnReplyEmailTopic();
+            //  conversation.ToIds = ToIds;
+            // conversation.CcIds = CcIds;
+
+            conversation._Toallparticipants = _toallparticipants.Select(toemployee => new ViewEmployeeModel
+            {
+                UserID = toemployee.UserID,
+                EmployeeID = toemployee.EmployeeID,
+                FirstName = toemployee.FirstName,
+                LastName = toemployee.LastName,
+                NickName = toemployee.NickName
+                
+            }).ToList();
+               
+            
+           
+
+
+
+            conversation._CCallparticipants = _ccallparticipants.Select(ccemployee => new ViewEmployeeModel
+            {
+                UserID = ccemployee.UserID,
+                EmployeeID = ccemployee.EmployeeID,
+                FirstName = ccemployee.FirstName,
+                LastName = ccemployee.LastName,
+                NickName = ccemployee.NickName
+               
+            }).ToList();
+            return conversation;
+           
+        }
+    }
     public class OnReplyConversationHandler_old : IRequestHandler<OnReplyConversation, OnReplyEmail>
     {
         private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;

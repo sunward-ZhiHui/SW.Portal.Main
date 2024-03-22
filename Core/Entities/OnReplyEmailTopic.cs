@@ -17,6 +17,8 @@ namespace Core.Entities
         public List<long>? CcIds { get; set; }       
         public List<long>? allparticipant { get; set; }
         public List<ViewEmployeeModel>? _allparticipants { get; set; }
+        public List<ViewEmployeeModel>? _Toallparticipants { get; set; }
+        public List<ViewEmployeeModel>? _CCallparticipants { get; set; }
 
 
     }

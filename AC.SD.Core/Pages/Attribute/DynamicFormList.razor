@@ -23,7 +23,7 @@
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled"/>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
@@ -74,6 +74,9 @@
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" /> *@
             @BuildDataColumns();
         </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+        </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
 
@@ -146,6 +149,7 @@
     public List<DynamicFormSectionAttribute> _dynamicFormSectionAttributeList { get; set; }
     private string colDataWidth = $"{colDataWidthInPx}px";
     private string colRowNameWidth = $"{colRowNameWidthInPx}px";
+    private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -175,10 +179,22 @@
                     _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                     {
+                        List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
+                        var DataSourceTablelists = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();
+                        dataSourceTableIds.AddRange(DataSourceTablelists);
+                        PlantDependencySubAttributeDetails = await Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null));
                         _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute;
                         _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
                         {
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader });
+                            if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0)
+                            {
+                                a.AttributeHeaderDataSource.ForEach(dd =>
+                                {
+                                    var nameData = a.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
+                                    dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = dd.DisplayName, Type = "DynamicForm" });
+                                });
+                            }
                         });
                         dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
                         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
@@ -239,19 +255,19 @@
                                                 if (listData != null && listData.Count > 0)
                                                 {
                                                     listData.ForEach(l =>
-                                                    {
-                                                        if (collection != null)
-                                                        {
-                                                            foreach (var v in (collection as IEnumerable<ExpandoObject>))
-                                                            {
-                                                                dynamic eod = v;
-                                                                if ((long?)eod.AttributeDetailID == l)
-                                                                {
-                                                                    displayNames += eod.AttributeDetailName + ",";
-                                                                }
-                                                            }
-                                                        }
-                                                    });
+                                    {
+                                        if (collection != null)
+                                        {
+                                            foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                            {
+                                                dynamic eod = v;
+                                                if ((long?)eod.AttributeDetailID == l)
+                                                {
+                                                    displayNames += eod.AttributeDetailName + ",";
+                                                }
+                                            }
+                                        }
+                                    });
                                                 }
                                                 objectData[attrName] = displayNames.TrimEnd(',');
                                             }
@@ -293,6 +309,23 @@
                                                 else
                                                 {
                                                     objectData[attrName] = string.Empty;
+                                                }
+                                                if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0)
+                                                {
+
+                                                    s.AttributeHeaderDataSource.ForEach(dd =>
+                                                    {
+                                                        var nameData = s.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
+                                                        var itemDepExits = jsonObj.ContainsKey(nameData);
+                                                        if (itemDepExits == true)
+                                                        {
+                                                            var itemDepValue = jsonObj[nameData];
+                                                            long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
+                                                            var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
+                                                            objectData[nameData] = listss;
+                                                        }
+                                                        
+                                                    });
                                                 }
                                             }
                                             else if (s.ControlType == "ListBox" && s.IsMultiple == false)
@@ -513,7 +546,7 @@
     {
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string backurl = "/" + rep1 + "/" + _selectedItems.SessionId;
+        string backurl = rep1 + "/" + _selectedItems.SessionId;
         if (_selectedItems != null)
         {
             var insertData = new DynamicFormData

@@ -190,7 +190,7 @@
     {
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string backurl = "/" + rep1 + "/" + _selectedItems.SessionID;
+        string backurl = rep1 + "/" + _selectedItems.SessionID;
         if (_selectedItems != null)
         {
             var insertData = new DynamicFormData

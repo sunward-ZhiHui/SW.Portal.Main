@@ -60,10 +60,15 @@ namespace Core.AttributeDynamicData
         public string List { get; set; }
         [FieldType(FieldType.TagBox)]
         [Display(Name = "TagBox")]
-        public IEnumerable<string> TagBoxList { get; set; }
+        public IEnumerable<long?> TagBoxList { get; set; }
 
     }
-
+    public class UserDataMultiple
+    {
+        public long AttributeDetailID { get; set; }
+        public string? AttributeDetailName { get; set; }
+        public string? Description { get; set; }
+    }
     public class AdditionalData
     {
         public static IEnumerable<string> Occupations { get; set; } = new List<string>() {

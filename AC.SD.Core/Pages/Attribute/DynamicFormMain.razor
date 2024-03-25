@@ -32,7 +32,31 @@
     UserData Data { get; set; } = new UserData() { List = "Deutsch", Language = "Deutsch" };
 
     string PhoneMask { get; set; } = "(999)000-0000";
+    private List<UserDataMultiple> userDataMultiples { get; set; } = new List<UserDataMultiple>();
+    protected override async Task OnInitializedAsync()
+    {
+        //IEnumerable<string> Languages = new[] { "English", "简体中文", "Español", "Français", "Deutsch" };
+        userDataMultiples = new List<UserDataMultiple>();
+        UserDataMultiple userDataMultiple1 = new UserDataMultiple();
+        userDataMultiple1.AttributeDetailID = 1;
+        userDataMultiple1.AttributeDetailName = "English";
+        userDataMultiples.Add(userDataMultiple1);
 
+        UserDataMultiple userDataMultiple2 = new UserDataMultiple();
+        userDataMultiple2.AttributeDetailID = 2;
+        userDataMultiple2.AttributeDetailName = "Français";
+        userDataMultiples.Add(userDataMultiple2);
+
+        UserDataMultiple userDataMultiple3 = new UserDataMultiple();
+        userDataMultiple3.AttributeDetailID = 3;
+        userDataMultiple3.AttributeDetailName = "Español";
+        userDataMultiples.Add(userDataMultiple3);
+
+        UserDataMultiple userDataMultiple4 = new UserDataMultiple();
+        userDataMultiple4.AttributeDetailID = 4;
+        userDataMultiple4.AttributeDetailName = "Deutsch";
+        userDataMultiples.Add(userDataMultiple4);
+    }
     void HandleValidSubmit()
     {
         FormSubmitResult = "You have been registred successully.";
@@ -48,23 +72,24 @@
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
+
         var propertyList = typeof(UserData).GetProperties();
         formLayoutBuilder.OpenComponent<DxFormLayout>(0);
         formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
         {
             layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(1);
-    //         layoutItemBuilder.AddAttribute(1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
-    // {
-    //     b.OpenElement(0, "span");
-    //     b.AddContent(0, "Work Information");
-    //     b.CloseElement();
-    // }));
+            //         layoutItemBuilder.AddAttribute(1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
+            // {
+            //     b.OpenElement(0, "span");
+            //     b.AddContent(0, "Work Information");
+            //     b.CloseElement();
+            // }));
 
-           layoutItemBuilder.AddAttribute(1, "Caption", "Personal Information");
+            layoutItemBuilder.AddAttribute(1, "Caption", "Personal Information");
             //  layoutItemBuilder.OpenComponent<DxFormLayoutItem>(i++);
             layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
             {
-               
+
                 int i = 0;
                 foreach (var property in propertyList)
                 {
@@ -184,11 +209,28 @@
                                 }
                             case FieldType.TagBox:
                                 {
-                                    editor.OpenComponent<DxTagBox<String, String>>(j);
-                                    editor.AddAttribute(j++, "Data", AdditionalData.Occupations);
-                                    editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                                    var values = property.GetValue(Data);
+                                    editor.OpenComponent<DxTagBox<UserDataMultiple, long?>>(j);
+                                    editor.AddAttribute(j++, "Data", userDataMultiples);
+                                    editor.AddAttribute(j++, "Values", values);
+                                    editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
+                                    editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
                                     editor.AddAttribute(j++, "ValuesExpression", lambda);
-                                    editor.AddAttribute(j++, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<System.String>>(this, str => { property.SetValue(Data, str); }));
+                                    editor.AddAttribute(j++, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { property.SetValue(Data, str); }));
+                                    // editor.AddAttribute(j++, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                                    // {
+
+                                    //     layoutItemBuilders.OpenComponent<DxListEditorColumn>(j++);
+                                    //     layoutItemBuilders.AddAttribute(j++, "FieldName", "AttributeDetailName");
+                                    //     layoutItemBuilders.AddAttribute(j++, "Caption", "Name");
+                                    //     layoutItemBuilders.CloseComponent();
+                                    //     layoutItemBuilders.OpenComponent<DxListEditorColumn>(j++);
+                                    //     layoutItemBuilders.AddAttribute(j++, "FieldName", "Description");
+                                    //     layoutItemBuilders.AddAttribute(j++, "Caption", "Description");
+                                    //     layoutItemBuilders.CloseComponent();
+
+
+                                    // }));
                                     editor.CloseComponent();
                                     break;
                                 }
@@ -229,7 +271,7 @@
 
                 itemBuilder.CloseComponent();
             }));
-            
+
             layoutItemBuilder.CloseComponent();
         }));
         formLayoutBuilder.CloseComponent();

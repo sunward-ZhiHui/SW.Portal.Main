@@ -25,6 +25,14 @@ using System.Configuration;
 using DevExpress.XtraRichEdit.Import.Html;
 using DevExpress.DataProcessing.InMemoryDataProcessor;
 using Core.EntityModels;
+using System.Net;
+using System;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using DevExpress.DocumentServices.ServiceModel.DataContracts;
+using AC.SD.Core.Pages.Email;
+using Google.Cloud.Firestore;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -36,13 +44,16 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IMediator _mediator;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _hostingEnvironment;
-
-        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration)
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        private readonly FirestoreDb _db;
+        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration, IDocumentsQueryRepository documentsqueryrepository, FirestoreDb db)
         {
             _hostingEnvironment = host;
             _mediator = mediator;
             _applicationUserQueryRepository = applicationUserQueryRepository;
             _configuration = configuration;
+            _documentsqueryrepository = documentsqueryrepository;
+            _db = db ?? throw new ArgumentNullException(nameof(db));
         }
 
         
@@ -313,6 +324,13 @@ namespace SW.Portal.Solutions.Controllers
             var result = await _mediator.Send(new OnReplyConversationTopic(Id, UserId));
             return Ok(result);
         }
+
+        [HttpGet("GetOnDropDownList")]
+        public async Task<IActionResult> GetOnDropDownList(string ToIds, string CcIds)
+        {
+            var result = await _mediator.Send(new OnReplyDropDown(ToIds, CcIds));
+            return Ok(result);
+        }
         [HttpPost("OnSubmitReply")]
         public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> OnSubmitReply(EmailConversations emailConversations)
         {
@@ -395,6 +413,16 @@ namespace SW.Portal.Solutions.Controllers
                     };
 
                     var res = await _mediator.Send(createReq);
+
+                    if(emailConversations.FirebaseDocKey != null)
+                    {
+                        List<string> keyList = emailConversations.FirebaseDocKey.Split(',').Select(s => s.Trim()).ToList();
+
+                        foreach (string key in keyList)
+                        {
+                            await EmailUploadFile(createReq.SessionId, createReq.AddedByUserID, key);
+                        }
+                    }
 
                     var emailconversations = new ReplyConversation
                     {
@@ -543,29 +571,108 @@ namespace SW.Portal.Solutions.Controllers
         }
 
         [HttpPost("EmailUploadFile")]
-        public async Task<IActionResult> EmailUploadFile(Guid? SessionId, long? UserId)
+        public async Task<string> EmailUploadFile(Guid? SessionId, long? UserId,string Id)
         {
-            try
+            var document = _db.Collection("UploadDocument").Document(Id);
+            var snapshot = await document.GetSnapshotAsync();
+            var lst = snapshot.Exists ? snapshot.ConvertTo<FirebaseEmailDoc>() : null;
+        
+            if(lst != null)
             {
-                var sessionid = SessionId;
-                var userId = UserId;
-                // Set BasePath
-                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
+                string firebaseStorageUrl = lst.Filepath;
 
-                var file = Request.Form.Files[0];
+                var serverPathss = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
 
-                //var filePath = Path.Combine("uploads", file.FileName);
+                int queryIndex = firebaseStorageUrl.IndexOf('?');
+                string urlWithoutQuery = firebaseStorageUrl.Substring(0, queryIndex);
+                // Find the last occurrence of '.' after removing the query parameters
+                int dotIndex = urlWithoutQuery.LastIndexOf('.');
+                // Extract the extension
+                string extension = urlWithoutQuery.Substring(dotIndex);
 
-                //using var stream = new FileStream(filePath, FileMode.Create);
-                //await file.CopyToAsync(stream);
+                string fileName = Guid.NewGuid().ToString() + extension;
 
-                return Ok("File uploaded successfully.");
+                await DownloadFileFromFirebaseStorage(firebaseStorageUrl, serverPathss, fileName);
+
+                var filePath = Path.Combine(serverPathss, fileName);
+                if (System.IO.File.Exists(filePath))
+                {
+                    long fileSize = new FileInfo(filePath).Length;
+                    string contentType = GetContentType(filePath);
+                    string fileNames = Path.GetFileName(filePath);
+
+
+                    Documents documents = new Documents();
+                    documents.UploadDate = DateTime.Now;
+                    documents.AddedByUserId = UserId;
+                    documents.AddedDate = DateTime.Now;
+                    documents.SessionId = SessionId;
+                    documents.IsLatest = true;
+                    documents.IsTemp = true;
+                    documents.FileName = fileNames;
+                    documents.ContentType = contentType;
+                    documents.FileSize = fileSize;
+                    documents.SourceFrom = "Email";
+                    documents.FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                    var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+                    //documentId = response.DocumentId;
+                    System.GC.Collect();
+                    GC.SuppressFinalize(this);
+
+                    var _documents = _db.Collection("UploadDocument").Document(Id);
+                    await _documents.DeleteAsync();                  
+
+
+                }
+                else
+                {
+
+                }
             }
-            catch (Exception ex)
-            {                
-                return StatusCode(500, "Internal server error.");
+            else
+            {
+
             }
-        }       
+            
+
+            return "ok";
+        }
+        static async Task DownloadFileFromFirebaseStorage(string url, string destinationFolderPath, string fileName)
+        {
+            
+            
+            if (!System.IO.Directory.Exists(destinationFolderPath))
+            {
+                System.IO.Directory.CreateDirectory(destinationFolderPath);
+            }
+
+            string destinationFilePath = Path.Combine(destinationFolderPath, fileName);
+
+            using (WebClient client = new WebClient())
+            {
+                await client.DownloadFileTaskAsync(new Uri(url), destinationFilePath);
+            }
+        }
+        private string GetContentType(string path)
+        {
+            string contentType = "application/octet-stream"; // Default content type
+
+            string extension = Path.GetExtension(path).ToLowerInvariant();
+
+            // Content type mappings based on file extension
+            switch (extension)
+            {
+                case ".pdf":
+                    contentType = "application/pdf";
+                    break;
+                case ".txt":
+                    contentType = "text/plain";
+                    break;
+                    // Add more content type mappings for other file types as needed
+            }
+
+            return contentType;
+        }
 
     }
 }

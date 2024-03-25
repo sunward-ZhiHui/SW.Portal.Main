@@ -127,6 +127,16 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class OnReplyDropDown : PagedRequest, IRequest<OnReplyEmailTopic>
+    {
+        public string ToIds { get; set; }
+        public string CcIds { get; set; }
+        public OnReplyDropDown(string ToIds, string CcIds)
+        {
+            this.CcIds = ToIds;
+            this.ToIds = CcIds;
+        }
+    }
     public class GetEmailConversationList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long ID { get; private set; }

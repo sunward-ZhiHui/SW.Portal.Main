@@ -1323,7 +1323,16 @@
 </DxPopup>
 
 
-
+<DxPopup @bind-Visible="@DueDateMessageVisible" ShowFooter="true" HeaderText="@DueDateMessageHeader">
+    <BodyContentTemplate Context="PopupContext">
+        <div class="@((DueDateMessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span class="@((DueDateMessageHeader == "Warning Info" ? "TxtRed" :""))"> @DueDateMessageBody</span>
+        </div>
+    </BodyContentTemplate>
+    @* <FooterContentTemplate>
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Sent Request" Click="@(() => onSentDueDateRequest())" />        
+    </FooterContentTemplate> *@
+</DxPopup>
 
 <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
@@ -1902,6 +1911,9 @@
     private Guid? _activityEmailSessionId { get; set; }
     public List<DocumentsModel>? fileProfileTypeDocumentsAll { get; set; }
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
+
+
+
     void OnButtonFileProfileTypeLinDocClick()
     {
         IsFileProfileTypeFilterDocOpen = true;
@@ -3009,6 +3021,13 @@
     string styleClass = "";
     string MessageHeader = "Error";
     string MessageBody = "";
+
+
+    bool DueDateMessageVisible { get; set; }    
+    string DueDateMessageHeader = "Error";
+    string DueDateMessageBody = "";
+
+
     Guid? _sessionId;
     private string uploadUrl;   
     private List<EmailAssignToList>? _assigntoItems;
@@ -3460,7 +3479,7 @@
 
             if (CurrentEmailConversations.DueDate.HasValue)
             {
-               // minDueDate = CurrentEmailConversations.DueDate.Value;
+                // minDueDate = CurrentEmailConversations.DueDate.Value;
             }
 
 
@@ -3615,7 +3634,7 @@
                 }
                 else
                 {
-                    onShowPopupMessage("Warning Info", "Should you decide to extend the deadline, please update the due date accordingly in our records. However, if no action is taken within the next ("+ @Application.Common.Helper.Helper.FormatDate(CurrentEmailConversations.ExpiryDueDate) +") days, please reach out to your administrator or supervisor for further assistance and guidance.");
+                    onShowDueDatePopupMessage("Warning Info", "Please update the due date if you extend the deadline. If no action is taken within  (" + @Application.Common.Helper.Helper.FormatDate(CurrentEmailConversations.ExpiryDueDate) + ") days, contact your supervisor for guidance.");
                 }
             }
             else
@@ -3674,6 +3693,13 @@
         }
         isOpenSubjectPop = false;
         StateHasChanged();
+    }
+
+    async void onSentDueDateRequest()
+    {
+        var lst = CurrentEmailConversations;
+        var cList = await Mediator.Send(new GetRequestEmailToCCList(CurrentEmailConversations.ID));        
+        var duedate = _dataSubjectDuDate.DueDate;
     }
 
     async void SubmitCancelDueDate()
@@ -4207,6 +4233,14 @@
         MessageVisible = true;
         MessageBody = bodyText;
         MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    private async void onShowDueDatePopupMessage(string headerText, string bodyText)
+    {
+        DueDateMessageVisible = true;
+        DueDateMessageBody = bodyText;
+        DueDateMessageHeader = headerText;
         loading = false;
         StateHasChanged();
     }

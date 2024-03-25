@@ -58,6 +58,14 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetRequestEmailToCCList : PagedRequest, IRequest<List<RequestEmail>>
+    {
+        public long ConId { get; private set; }
+        public GetRequestEmailToCCList(long conId)
+        {
+            this.ConId = conId;
+        }
+    }
     public class GetListBySession : PagedRequest, IRequest<List<EmailTopics>>
     {
         public string SessionId { get; private set; }

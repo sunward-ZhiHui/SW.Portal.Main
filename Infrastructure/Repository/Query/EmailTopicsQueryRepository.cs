@@ -142,6 +142,31 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<RequestEmail>> RequestEmailToCCList(long ConId)
+        {
+            try
+            {
+                
+                var query = @"SELECT AddedByUserID as ToIds, STRING_AGG(UserId, ',') AS CcIds
+                                FROM EmailConversationAssignCC
+                                WHERE ConversationId = @ConId
+                                GROUP BY AddedByUserID";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("ConId", ConId);
+
+                using (var connection = CreateConnection())
+                {
+                    var res = await connection.QueryAsync<RequestEmail>(query, parameters);
+                    return res.ToList();
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<List<EmailTopics>> GetBySessionTopicList(string SessionId)
         {

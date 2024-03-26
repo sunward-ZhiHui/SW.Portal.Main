@@ -105,7 +105,7 @@ namespace Core.Entities
         public string? Text { get; set; }
         public long? Id { get; set; }
         public string? Type { get; set; }
-        public bool? IsVisible { get; set; } = true;
+        public bool IsVisible { get; set; } = true;
         public long? OrderBy { get; set; } = 0;
         public long AttributeDetailID { get; set; }
         public string? AttributeDetailName { get; set; }

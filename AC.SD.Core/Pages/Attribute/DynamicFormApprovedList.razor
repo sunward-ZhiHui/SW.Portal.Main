@@ -68,7 +68,32 @@
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
-            @BuildDataColumns();
+            @if (dataColumnNames != null && dataColumnNames.Count() > 0)
+            {
+                foreach (var s in dataColumnNames)
+                {
+                    if (s.Value == "IsFileprofileTypeDocument")
+                    {
+
+                        <DxGridDataColumn Caption="" Visible="@s.IsVisible" MinWidth="40" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
+                            <CellDisplayTemplate>
+                                @{
+                                    dynamic item = (ExpandoObject)context.DataItem;
+                                    var items = (int?)item.IsFileprofileTypeDocument;
+                                }
+                                @if (items > 0)
+                                {
+                                    <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@items"></i>
+                                }
+                            </CellDisplayTemplate>
+                        </DxGridDataColumn>
+                    }
+                    else
+                    {
+                        <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                    }
+                }
+            }
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
@@ -149,6 +174,7 @@
         dataColumnNames = new List<DropDownOptionsModel>();
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false;
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
         if (SessionId != null)
@@ -166,7 +192,7 @@
                     _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute;
                     _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
                     {
-                        dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader });
+                        dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                         if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0)
                         {
                             a.AttributeHeaderDataSource.ForEach(dd =>
@@ -215,6 +241,7 @@
                         objectData["CurrentUserName"] = s.CurrentUserName;
                         objectData["StatusName"] = s.StatusName;
                         objectData["IsDynamicFormDataGrid"] = s.IsDynamicFormDataGrid;
+                        objectData["IsFileprofileTypeDocument"] = s.IsFileprofileTypeDocument;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
                             _AttributeHeader.DynamicFormSectionAttribute.ForEach(s =>

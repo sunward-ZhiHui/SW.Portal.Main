@@ -108,6 +108,7 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSections = new List<DynamicFormWorkFlowSection>();
         public string? SectionName { get; set; }
+        public List<long?> DynamicFormSectionIds { get; set; }=new List<long?>();
         public string? UserIds { get; set; }
         public string? UserNames { get; set; }
         public string? StatusName { get; set; }
@@ -115,5 +116,7 @@ namespace Core.Entities
         public bool? IsDynamicFormDataGrid { get; set; } = false;
         public Guid? EmailTopicSessionId { get; set; }
         public bool? IsDraft { get; set; }
+        [NotMapped]
+        public int? IsFileprofileTypeDocument { get; set; } = 0;
     }
 }

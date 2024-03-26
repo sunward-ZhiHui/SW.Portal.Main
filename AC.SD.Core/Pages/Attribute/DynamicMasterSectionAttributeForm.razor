@@ -21,6 +21,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Add Control Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -297,8 +298,22 @@
 
     </FooterContentTemplate>
 </DxFlyout>
-
+<DxPopup @bind-Visible="@addPermissionEnabled"
+         ShowFooter="true"
+         HeaderText="Add Permission Control"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormSectionAttributeSecuritys SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSecuritys>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    [Parameter]
+    public Action? RevokeBack { get; set; }
     [Parameter]
     public DynamicFormSection Items { get; set; }
     public bool? IsDynamicSubForm { get; set; } = false;
@@ -332,6 +347,7 @@
     private List<AttributeHeader>? _attributeHeaderData;
     DynamicFormSectionAttribute _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
     private List<DynamicFormSectionSpinEdit> dynamicFormSectionSpinEdit { get; set; } = new List<DynamicFormSectionSpinEdit>();
+    bool addPermissionEnabled { get; set; } = false;
     bool isFormCountUsed { get; set; } = true; private List<AttributeHeaderDataSource> _attributeHeaderDataSource; bool isDataSource { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
@@ -845,6 +861,17 @@
         _selectedDynamicFormAttributeSectionItems.SortOrderAnotherBy = dynamicFormSection.SortOrderBy;
 
         StateHasChanged();
+    }
+    void addPermission()
+    {
+        RevokeBack?.Invoke();
+        addPermissionEnabled = true;
+    }
+    async Task CloseAddPermissionEnabled()
+    {
+        RevokeBack?.Invoke();
+        await UpdateDataAsync();
+        addPermissionEnabled = false;
     }
     public void Dispose()
     {

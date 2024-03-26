@@ -72,7 +72,7 @@
             <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" /> *@
-            @BuildDataColumns();
+               @BuildDataColumns(); 
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
@@ -255,19 +255,19 @@
                                                 if (listData != null && listData.Count > 0)
                                                 {
                                                     listData.ForEach(l =>
-                                    {
-                                        if (collection != null)
-                                        {
-                                            foreach (var v in (collection as IEnumerable<ExpandoObject>))
-                                            {
-                                                dynamic eod = v;
-                                                if ((long?)eod.AttributeDetailID == l)
-                                                {
-                                                    displayNames += eod.AttributeDetailName + ",";
-                                                }
-                                            }
-                                        }
-                                    });
+                                                    {
+                                                        if (collection != null)
+                                                        {
+                                                            foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                            {
+                                                                dynamic eod = v;
+                                                                if ((long?)eod.AttributeDetailID == l)
+                                                                {
+                                                                    displayNames += eod.AttributeDetailName + ",";
+                                                                }
+                                                            }
+                                                        }
+                                                    });
                                                 }
                                                 objectData[attrName] = displayNames.TrimEnd(',');
                                             }
@@ -324,7 +324,7 @@
                                                             var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
                                                             objectData[nameData] = listss;
                                                         }
-                                                        
+
                                                     });
                                                 }
                                             }
@@ -377,7 +377,19 @@
                                     }
                                     else
                                     {
-                                        objectData[attrName] = string.Empty;
+                                        if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
+                                        {
+                                            objectData[attrName] = string.Empty;
+                                            s.AttributeHeaderDataSource.ForEach(dd =>
+                                            {
+                                                var nameData = s.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
+                                                objectData[nameData] = string.Empty;
+                                            });
+                                        }
+                                        else
+                                        {
+                                            objectData[attrName] = string.Empty;
+                                        }
                                     }
 
 
@@ -640,7 +652,7 @@
         RenderFragment columns = b =>
         {
             int counter = 0;
-            if (dataColumnNames != null)
+            if (dataColumnNames != null && dataColumnNames.Count() > 0)
             {
                 dataColumnNames.ForEach(s =>
                 {

@@ -46,6 +46,8 @@
 @using Application.Command.ApplicationMasterDetails;
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 @implements IDisposable;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
 
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
@@ -1329,9 +1331,10 @@
             <span class="@((DueDateMessageHeader == "Warning Info" ? "TxtRed" :""))"> @DueDateMessageBody</span>
         </div>
     </BodyContentTemplate>
-    @* <FooterContentTemplate>
+    <FooterContentTemplate>
+        <span>@Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)</span>
         <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Sent Request" Click="@(() => onSentDueDateRequest())" />        
-    </FooterContentTemplate> *@
+    </FooterContentTemplate>
 </DxPopup>
 
 <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
@@ -3696,10 +3699,72 @@
     }
 
     async void onSentDueDateRequest()
-    {
+    {      
+
         var lst = CurrentEmailConversations;
         var cList = await Mediator.Send(new GetRequestEmailToCCList(CurrentEmailConversations.ID));        
         var duedate = _dataSubjectDuDate.DueDate;
+
+
+        var participantIds = new List<long>();
+
+        if (cList[0].ToIds.HasValue)
+            participantIds.Add(cList[0].ToIds.Value);
+
+        if (long.TryParse(cList[0].CcIds, out long ccId))
+        {
+            participantIds.Add(ccId);
+        }
+
+        participantIds.Add(applicationUser.UserID);
+
+
+        var emailconlist = new EmailConversations
+        {
+            TopicID = CurrentEmailConversations.TopicID,
+            AssigntoIds = cList[0].ToIds.HasValue ? new List<long> { cList[0].ToIds.Value } : new List<long>(),
+            AssignccIds = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse) : new List<long>(),    
+            Message = "I kindly request a reassignment of the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ").",
+            PlistIdss="",
+            AllowPlistids = "",
+            IsAllowParticipants= false,
+            Urgent = false,
+            ConIds = 0,
+            ReplyId = CurrentEmailConversations.ID,
+            AllParticipantIds = participantIds.Distinct().ToList(),
+            ParticipantId = applicationUser.UserID,
+            Name = CurrentEmailConversations.Name,
+            AddedByUserID = applicationUser.UserID,
+            From = "",
+            LastName = "",
+            UserCode = "",
+            UserName = "",
+            FirstName = "",
+            UserEmail = "",
+            FileData = new byte[0],
+            FirebaseDocKey = "",
+
+        };
+
+        string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+        string url = BaseUrl + "OnSubmitReply";        
+        string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);        
+        var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+        // Send the POST request with the content
+        var response = await httpClient.PostAsync(url, content);
+        var msg = response.StatusCode;
+
+         if (RTopicId == 0)
+         {
+             await LoadDataPosts();
+         }
+         else
+         {
+             await LoadReplyDataPosts();
+         }
+
+        DueDateMessageVisible = false;
+        StateHasChanged();
     }
 
     async void SubmitCancelDueDate()

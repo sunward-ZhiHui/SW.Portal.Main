@@ -668,7 +668,32 @@ namespace SW.Portal.Solutions.Controllers
                 case ".txt":
                     contentType = "text/plain";
                     break;
-                    // Add more content type mappings for other file types as needed
+                case ".html":
+                    contentType = "text/html";
+                    break;
+                case ".jpg":
+                case ".jpeg":
+                    contentType = "image/jpeg";
+                    break;
+                case ".png":
+                    contentType = "image/png";
+                    break;
+                case ".gif":
+                    contentType = "image/gif";
+                    break;
+                case ".xml":
+                    contentType = "application/xml";
+                    break;
+                case ".json":
+                    contentType = "application/json";
+                    break;
+                case ".csv":
+                    contentType = "text/csv";
+                    break;
+                case ".mp3":
+                case ".wav":
+                    contentType = "audio/mpeg";
+                    break;
             }
 
             return contentType;

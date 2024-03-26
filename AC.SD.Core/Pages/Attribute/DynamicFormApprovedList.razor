@@ -189,7 +189,7 @@
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                 }
 
-                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID,null));
+                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null));
                 PanelVisible = true;
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
@@ -311,7 +311,19 @@
                                 }
                                 else
                                 {
-                                    objectData[attrName] = string.Empty;
+                                    if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
+                                    {
+                                        objectData[attrName] = string.Empty;
+                                        s.AttributeHeaderDataSource.ForEach(dd =>
+                                        {
+                                            var nameData = s.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
+                                            objectData[nameData] = string.Empty;
+                                        });
+                                    }
+                                    else
+                                    {
+                                        objectData[attrName] = string.Empty;
+                                    }
                                 }
 
 
@@ -493,7 +505,7 @@
         RenderFragment columns = b =>
         {
             int counter = 0;
-            if (dataColumnNames != null)
+            if (dataColumnNames != null && dataColumnNames.Count() > 0)
             {
                 dataColumnNames.ForEach(s =>
                 {

@@ -216,12 +216,10 @@ namespace Application.Handlers.QueryHandlers
                 conversation.CcIds = CcIds;             
                 conversation.allparticipant = t3;                
                 conversation._allparticipants = _allparticipants.Select(employee => new ViewEmployeeModel { 
-                                                UserID = employee.UserID, 
+                                                UserID = employee.UserID,
+                                                Name = $"{employee.FirstName} {employee.LastName} {employee.NickName}",
                                                 EmployeeID = employee.EmployeeID,
-                                                FirstName = employee.FirstName,
-                                                LastName = employee.LastName,
-                                                NickName = employee.NickName,
-                                                UserCode = employee.UserCode,
+                                                FirstName = employee.FirstName,                                               
                                                 LoginID = employee.LoginID
                                                 }).ToList();
             return conversation;           
@@ -278,25 +276,17 @@ namespace Application.Handlers.QueryHandlers
             conversation._Toallparticipants = _toallparticipants.Select(toemployee => new ViewEmployeeModel
             {
                 UserID = toemployee.UserID,
+                Name = $"{toemployee.FirstName} {toemployee.LastName} {toemployee.NickName}",
                 EmployeeID = toemployee.EmployeeID,
-                FirstName = toemployee.FirstName,
-                LastName = toemployee.LastName,
-                NickName = toemployee.NickName
-                
+                FirstName = toemployee.FirstName
             }).ToList();
-               
-            
-           
-
-
 
             conversation._CCallparticipants = _ccallparticipants.Select(ccemployee => new ViewEmployeeModel
             {
                 UserID = ccemployee.UserID,
+                Name = $"{ccemployee.FirstName} {ccemployee.LastName} {ccemployee.NickName}",
                 EmployeeID = ccemployee.EmployeeID,
-                FirstName = ccemployee.FirstName,
-                LastName = ccemployee.LastName,
-                NickName = ccemployee.NickName
+                FirstName = ccemployee.FirstName               
                
             }).ToList();
             return conversation;

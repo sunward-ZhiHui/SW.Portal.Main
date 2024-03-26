@@ -3724,7 +3724,7 @@
             TopicID = CurrentEmailConversations.TopicID,
             AssigntoIds = cList[0].ToIds.HasValue ? new List<long> { cList[0].ToIds.Value } : new List<long>(),
             AssignccIds = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse) : new List<long>(),    
-            Message = "I kindly request a reassignment of the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ").",
+            Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ").",
             PlistIdss="",
             AllowPlistids = "",
             IsAllowParticipants= false,

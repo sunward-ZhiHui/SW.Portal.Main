@@ -27,6 +27,20 @@ namespace CMS.Application.Handlers.QueryHandlers
            
         }
     }
+    public class GetRequestEmailToCCListHandler : IRequestHandler<GetRequestEmailToCCList, List<RequestEmail>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetRequestEmailToCCListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<RequestEmail>> Handle(GetRequestEmailToCCList request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.RequestEmailToCCList(request.ConId);
+
+        }
+    }
     public class UpdateTopicArchiveHandler : IRequestHandler<UpdateTopicArchive, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

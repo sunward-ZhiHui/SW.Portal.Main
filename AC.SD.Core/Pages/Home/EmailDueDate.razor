@@ -100,8 +100,12 @@
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
                 <DxDateEdit @bind-Date="@types.DueDate" MinDate="DateTime.Now" TimeSectionVisible="false" />
-            </DxFormLayoutItem>            
+            </DxFormLayoutItem>  
+            <DxFormLayoutItem Caption="Allowed Days to Extend DueDate" ColSpanMd="4" Visible="@IsSubjectNoOfDays">
+                <DxSpinEdit @bind-Value="@types.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0"></DxSpinEdit>
+            </DxFormLayoutItem>
         </DxFormLayout>
+
     </EditFormTemplate>
 
 
@@ -133,6 +137,7 @@
 </DxPopup>
 
 @code {
+    bool IsSubjectNoOfDays { get; set; } = false;
     [Parameter]
     public int TabIndex { get; set; } = 1;
     const string LocalStorageKey = "Grid-LayoutMyEmailDueDate-Data";
@@ -265,6 +270,17 @@
         _selectedItems = _emailTopicDueDate.FirstOrDefault(f => f.ID == (long?)UniqueId);
         ReplyMsgEnabled = true;
         EditEnabled = true;
+
+        if (applicationUser.UserID != _selectedItems.UserId)
+        {
+            IsSubjectNoOfDays = false;
+        }
+        else
+        {
+            IsSubjectNoOfDays = true;
+        }
+
+
         StateHasChanged();
 
     }

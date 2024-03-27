@@ -399,10 +399,10 @@ namespace Infrastructure.Repository.Query
                         }
                     });
                 }
-                /*if (userId > 0 && result != null && result.Count() > 0)
+                if (userId > 0 && result != null && result.Count() > 0)
                 {
-                    DynamicFormIds.AddRange(result.Where(w => w.CurrentUserId == userId).Select(s => s.DynamicFormId).ToList());
-                }*/
+                    result = result.Where(w => w.CurrentUserId == userId).ToList();
+                }
                 return result;
 
             }

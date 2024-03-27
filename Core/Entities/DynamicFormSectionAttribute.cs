@@ -73,6 +73,7 @@ namespace Core.Entities
         public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
         public bool IsSetDefaultValue { get; set; } = false;
         public bool IsDefaultReadOnly { get; set; } = false;
+        public List<DynamicFormSectionAttributeSecurity> DynamicFormSectionAttributeSecurity { get; set; } = new List<DynamicFormSectionAttributeSecurity>();
     }
     public class DynamicFormSectionSpinEdit
     {

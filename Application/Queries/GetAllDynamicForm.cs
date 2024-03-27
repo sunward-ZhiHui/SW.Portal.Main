@@ -457,5 +457,13 @@ namespace Application.Queries
             this.Ids = ids;
         }
     }
+    public class GetDynamicFormDataApprovalList : PagedRequest, IRequest<List<DynamicFormData>>
+    {
+        public long? UserId { get; set; }
+        public GetDynamicFormDataApprovalList(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
 }
 

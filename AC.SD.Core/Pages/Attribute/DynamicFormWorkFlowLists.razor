@@ -60,10 +60,16 @@
                     @{
                         var item = (DynamicFormDataWrokFlow)context.DataItem;
                         var items = item.IsFileprofileTypeDocument;
+                        var isDraft = item.IsDraft;
                     }
                     @if (items > 0)
                     {
                         <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@items"></i>
+                    }
+                    @if (isDraft != null)
+                    {
+                        var emailName = isDraft == true ? "Draft" : "View Email";
+                        <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@emailName"></i>
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
@@ -123,13 +129,16 @@
     {
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await UpdateDataAsync();
+        if (applicationUser != null)
+        {
+            await UpdateDataAsync();
+        }
     }
     async Task UpdateDataAsync()
     {
         dynamicFormData = new DynamicFormData();
         EditEnabled = false; DeleteEnabled = false; emailEnabled = false; fileEnabled = false; FileProfileTypeId = null;
-        _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID,0));
+        _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
         PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count > 0)
         {

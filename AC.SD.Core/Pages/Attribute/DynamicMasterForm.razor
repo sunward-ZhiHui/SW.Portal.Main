@@ -242,7 +242,10 @@
     }
     protected override async Task OnParametersSetAsync()
     {
-        await OnParametersSetLoadAsync();
+        if (applicationUser != null)
+        {
+            await OnParametersSetLoadAsync();
+        }
         base.OnParametersSet();
     }
     private async Task SubmitFormExternally()

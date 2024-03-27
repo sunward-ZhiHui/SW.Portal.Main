@@ -1353,7 +1353,7 @@ namespace Infrastructure.Repository.Query
                     if (result != null && result.Count > 0)
                     {
                         var documentPermission = await GetDocumentPermissionByRoll();
-                        var FileProfileTypeIds = result.Select(s => s.FileProfileTypeId).Distinct().ToList();
+                        var FileProfileTypeIds = result.Where(w => w.FilterProfileTypeId > 0).Select(s => s.FileProfileTypeId).Distinct().ToList();
                         var roleItemsList = await GetDocumentUserRoleAsync(FileProfileTypeIds);
                         result.ForEach(s =>
                         {
@@ -1411,7 +1411,7 @@ namespace Infrastructure.Repository.Query
                     if (documents != null && documents.Count > 0)
                     {
                         var documentPermission = await GetDocumentPermissionByRoll();
-                        var FileProfileTypeIds = documents.Select(s => s.FilterProfileTypeId).Distinct().ToList();
+                        var FileProfileTypeIds = documents.Where(w=>w.FilterProfileTypeId>0).Select(s => s.FilterProfileTypeId).Distinct().ToList();
                         var roleItemsList = await GetDocumentUserRoleAsync(FileProfileTypeIds);
                         documents.ForEach(s =>
                         {

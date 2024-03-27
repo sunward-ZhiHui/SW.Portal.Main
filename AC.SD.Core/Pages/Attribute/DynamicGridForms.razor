@@ -447,7 +447,10 @@
     }
     protected override async Task OnParametersSetAsync()
     {
-        await loadDynamicForm();
+        if (applicationUser != null)
+        {
+            await loadDynamicForm();
+        }
         base.OnParametersSet();
     }
     async Task loadDynamicForm()

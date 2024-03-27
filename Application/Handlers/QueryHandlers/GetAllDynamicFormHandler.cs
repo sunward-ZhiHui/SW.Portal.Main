@@ -747,4 +747,19 @@ namespace Application.Handlers.QueryHandlers
             return await _DynamicFormQueryRepository.DeleteDynamicFormSectionAttributeSecurity(request.Id, request.Ids);
         }
     }
+
+    public class GetDynamicFormDataApprovalListHandler : IRequestHandler<GetDynamicFormDataApprovalList, List<DynamicFormData>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataApprovalListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataApprovalList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataApprovalList(request.UserId);
+        }
+
+
+    }
 }

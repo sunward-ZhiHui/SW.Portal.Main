@@ -507,7 +507,10 @@
     }
     protected override async Task OnParametersSetAsync()
     {
-        await loadDynamicForm();
+        if (applicationUser != null)
+        {
+            await loadDynamicForm();
+        }
         base.OnParametersSet();
     }
     async Task loadDynamicForm()
@@ -2369,7 +2372,7 @@
                  }
              }
          }
-        
+
          else if (s.ControlType == "DateEdit")
          {
              if (valueData == null && s.IsSetDefaultValue == true)
@@ -3978,7 +3981,10 @@
                 isWorkflowEnabled = true; isSaveEnabled = true;
                 if (_dynamicformData != null)
                 {
-                    IsUploadEnabled = true;
+                    if (isApproval == true)
+                    {
+                        IsUploadEnabled = true;
+                    }
                 }
                 //         itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 //         itemBuilder.AddAttribute(i++, "ColSpanMd", 12);

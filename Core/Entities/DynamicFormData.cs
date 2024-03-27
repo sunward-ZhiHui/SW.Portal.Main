@@ -77,6 +77,7 @@ namespace Core.Entities
         public string? BackUrl { get; set; }
         public Guid? EmailTopicSessionId { get; set; }
         public bool? IsDraft { get; set; }
+        public string? DynamicFormName { get; set; }
     }
     public class DynamicFormProfile
     {

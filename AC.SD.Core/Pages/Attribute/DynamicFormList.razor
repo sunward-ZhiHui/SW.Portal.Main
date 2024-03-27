@@ -80,10 +80,17 @@
                                 @{
                                     dynamic item = (ExpandoObject)context.DataItem;
                                     var items = (int?)item.IsFileprofileTypeDocument;
+                                    var isDraft = (bool?)item.IsDraft;
+
                                 }
                                 @if (items > 0)
                                 {
                                     <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@items"></i>
+                                }
+                                @if (isDraft!=null)
+                                {
+                                    var emailName = isDraft == true ? "Draft" : "View Email";
+                                    <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@emailName"></i>
                                 }
                             </CellDisplayTemplate>
                         </DxGridDataColumn>
@@ -177,7 +184,10 @@
     }
     protected override async Task OnParametersSetAsync()
     {
-        await UpdateDataAsync();
+        if (applicationUser != null)
+        {
+            await UpdateDataAsync();
+        }
         base.OnParametersSet();
     }
     async Task UpdateDataAsync()
@@ -258,6 +268,7 @@
                             objectData["StatusName"] = s.StatusName;
                             objectData["IsDynamicFormDataGrid"] = s.IsDynamicFormDataGrid;
                             objectData["IsFileprofileTypeDocument"] = s.IsFileprofileTypeDocument;
+                            objectData["IsDraft"] = s.IsDraft;
                             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                             {
                                 _AttributeHeader.DynamicFormSectionAttribute.ForEach(s =>

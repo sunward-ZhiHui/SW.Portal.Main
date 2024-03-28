@@ -519,12 +519,10 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("PageNumber", pageNumber);
                         parameters.Add("PageSize", pageSize);
                         parameters.Add("Option", "SELECT_ASSIGN_ALL");
-
                         //var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 300);
-                        //var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
-                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_ALL_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 600); // Increase timeout to 10 minutes
-
-
+                        //var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure,commandTimeout: 600);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_ALL_EmailTopicList", parameters, commandType: CommandType.StoredProcedure); // Increase timeout to 10 minutes
+                        connection.Close();
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -739,6 +737,7 @@ namespace Infrastructure.Repository.Query
                         
 
                         var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        connection.Close();
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -2235,19 +2234,17 @@ namespace Infrastructure.Repository.Query
                         var query = "";
                         var emailquery = "";
 
-                        if (emailConversations.ModifiedByUserID != emailConversations.UserId)
+                        if ((emailConversations.ModifiedByUserID == emailConversations.UserId) || emailConversations.openAccessUserLink == true)
                         {
-                            query = " UPDATE EmailConversations SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
-
-                            emailquery = "UPDATE EmailTopics SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
+                            query = " UPDATE EmailConversations SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+                            emailquery = "UPDATE EmailTopics SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
 
                         }
                         else
                         {
-                            query = " UPDATE EmailConversations SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
-
-                            emailquery = "UPDATE EmailTopics SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
-
+                            query = " UPDATE EmailConversations SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+                            emailquery = "UPDATE EmailTopics SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
+                           
                         }
 
 

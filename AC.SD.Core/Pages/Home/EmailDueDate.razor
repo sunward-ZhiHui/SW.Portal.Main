@@ -3,6 +3,7 @@
 @using Application.Queries;
 @using Application.Response;
 @using Microsoft.AspNetCore.Http;
+@using System.Text
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
 @using MediatR
@@ -13,8 +14,15 @@
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
 @using Microsoft.Extensions.Configuration;
-@inject IConfiguration Configuration
-
+@inject IConfiguration Configuration;
+@inject HttpClient httpClient;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+<style>
+    .TxtRed {
+        color: red;
+    }
+</style>
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -128,15 +136,20 @@
     </BodyContentTemplate>
 </DxPopup>
 
-<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
-    <BodyTemplate Context="PopupContext">
+<DxPopup @bind-Visible="@MessageVisible" ShowFooter="true" HeaderText="@MessageHeader">
+    <BodyContentTemplate Context="PopupContext">
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
             <span class="@((MessageHeader == "Warning Info" ? "TxtRed" :""))"> @MessageBody</span>
         </div>
-    </BodyTemplate>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <span>@Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate)</span>
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Sent Request" Click="@(() => onSentDueDateRequest())" />
+    </FooterContentTemplate>
 </DxPopup>
 
 @code {
+    private OpenAccessUserLink? _openAccessUserLink { get; set; }
     bool IsSubjectNoOfDays { get; set; } = false;
     [Parameter]
     public int TabIndex { get; set; } = 1;
@@ -182,9 +195,70 @@
         // var urls = BaseUrl + "myday/" + 1;
         // NavigationManager.NavigateTo(urls);
         // await JSRuntime.InvokeAsync<string>("ReloadUrl");
-       
+
     }
-    
+    async void onSentDueDateRequest()
+    {
+
+        var lst = _selectedItems;
+        var cList = await Mediator.Send(new GetRequestEmailToCCList(_selectedItems.ID));
+        var duedate = _dataEditEamilTopics.DueDate;
+
+
+        var participantIds = new List<long>();
+
+        if (cList[0].ToIds.HasValue)
+            participantIds.Add(cList[0].ToIds.Value);
+
+        if (long.TryParse(cList[0].CcIds, out long ccId))
+        {
+            participantIds.Add(ccId);
+        }
+
+        participantIds.Add(applicationUser.UserID);
+
+
+        var emailconlist = new EmailConversations
+            {
+                TopicID = _selectedItems.EmailTopicID,
+                AssigntoIds = cList[0].ToIds.HasValue ? new List<long> { cList[0].ToIds.Value } : new List<long>(),
+                AssignccIds = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse) : new List<long>(),
+                Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate) + ").",
+                PlistIdss = "",
+                AllowPlistids = "",
+                IsAllowParticipants = false,
+                Urgent = false,
+                ConIds = 0,
+                ReplyId = _selectedItems.ID,
+                AllParticipantIds = participantIds.Distinct().ToList(),
+                ParticipantId = applicationUser.UserID,
+                Name = _dataEditEamilTopics.TopicName,
+                AddedByUserID = applicationUser.UserID,
+                From = "",
+                LastName = "",
+                UserCode = "",
+                UserName = "",
+                FirstName = "",
+                UserEmail = "",
+                FileData = new byte[0],
+                FirebaseDocKey = "",
+
+            };
+
+        string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+        string url = BaseUrl + "OnSubmitReply";
+        string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);
+        var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+        // Send the POST request with the content
+        var response = await httpClient.PostAsync(url, content);
+        var msg = response.StatusCode;
+
+        MessageVisible = false;
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await onRefresh();
+        StateHasChanged();
+    }
+
     async Task RemoveLayoutFromLocalStorageAsync()
     {
         try
@@ -217,6 +291,7 @@
     public bool ReplyMsgEnabled { get; set; } = false;
     IGrid EmailDueDateGrid { get; set; }
     private EmailSubDueDate? RefSubAssignAll { get; set; }
+    private EmailTopics _dataEditEamilTopics = new EmailTopics();
     private List<EmailTopics>? _emailTopicDueDate;
     private EmailTopics? _selectedItems;
     string SelectedGroup = "none";
@@ -254,6 +329,7 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _emailTopicDueDate = await Mediator.Send(new GetEmailTopicHome(applicationUser.UserID));
+        _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -271,13 +347,13 @@
         ReplyMsgEnabled = true;
         EditEnabled = true;
 
-        if (applicationUser.UserID != _selectedItems.UserId)
+        if ((applicationUser.UserID == _selectedItems.UserId) || _openAccessUserLink != null)
         {
-            IsSubjectNoOfDays = false;
+            IsSubjectNoOfDays = true;
         }
         else
         {
-            IsSubjectNoOfDays = true;
+            IsSubjectNoOfDays = false;
         }
 
 
@@ -320,24 +396,32 @@
     {
         var editModel = (EmailTopics)e.EditModel;
 
+        _dataEditEamilTopics = (EmailTopics)e.EditModel;
 
-
-        if (applicationUser.UserID != editModel.UserId)
+        if ((applicationUser.UserID != editModel.UserId) || _openAccessUserLink != null)
         {
             if (editModel.DueDate.HasValue)
             {
 
                 DateTime actualDueDate = editModel.DueDate.Value;
 
-
-                if (editModel.ExpiryDueDate >= editModel.DueDate)
+                if (editModel.ExpiryDueDate != null)
                 {
-                    await updateDueDate(editModel);
+                    if (editModel.ExpiryDueDate >= editModel.DueDate)
+                    {
+                        await updateDueDate(editModel);
+                    }
+                    else
+                    {
+                        onShowPopupMessage("Warning Info", "Please update the due date if you extend the deadline. If no action is taken within  (" + @Application.Common.Helper.Helper.FormatDate(editModel.ExpiryDueDate) + ") days, contact your supervisor for guidance.");
+                    }
                 }
                 else
                 {
-                    onShowPopupMessage("Warning Info", "Should you decide to extend the deadline, please update the due date accordingly in our records. However, if no action is taken within the next (" + @Application.Common.Helper.Helper.FormatDate(editModel.ExpiryDueDate) + ") days, please reach out to your administrator or supervisor for further assistance and guidance.");
+                    await updateDueDate(editModel);
                 }
+
+               
             }
             else
             {
@@ -361,6 +445,7 @@
                 NoOfDays = emailTopics.NoOfDays,
                 DueDate = emailTopics.DueDate,
                 UserId = emailTopics.UserId,
+                openAccessUserLink = _openAccessUserLink != null ? true : false,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now
             };

@@ -111,7 +111,8 @@ namespace Core.Entities
         public Guid? EmailFormSectionSessionID { get; set; }
         [NotMapped]
         public long? DynamicFormID { get; set; }
-
+        [NotMapped]
+        public bool? openAccessUserLink { get; set; }
 
     }
     public class EmailDocumentModel
@@ -145,5 +146,6 @@ namespace Core.Entities
         public int? addedDateYear { get; set; }
         public string? addedDateDay { get; set; }
         public string? addedTime { get; set; }
+       
     }
 }

@@ -41,7 +41,6 @@
 @using System.Threading.Tasks
 @using System.Threading
 @using System.Timers;
-@inject HttpClient httpClient;
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
@@ -3486,13 +3485,13 @@
             }
 
 
-            if(applicationUser.UserID != CurrentEmailConversations.UserId)
-            {
-                IsSubjectNoOfDays = false;
-            }
-            else
+            if((applicationUser.UserID == CurrentEmailConversations.UserId) || _openAccessUserLink != null)
             {
                 IsSubjectNoOfDays = true;
+            }             
+            else 
+            {
+                IsSubjectNoOfDays = false;
             }
         }
 
@@ -3623,22 +3622,31 @@
     async void SubmitSubjectDueDate()
     {       
 
-        if(applicationUser.UserID != CurrentEmailConversations.UserId)
+        if((applicationUser.UserID != CurrentEmailConversations.UserId) || _openAccessUserLink != null)
         {
             if (CurrentEmailConversations.DueDate.HasValue)
             {
 
                 DateTime actualDueDate = CurrentEmailConversations.DueDate.Value;
 
-
-                if (CurrentEmailConversations.ExpiryDueDate >= _dataSubjectDuDate.DueDate)
+                if(CurrentEmailConversations.ExpiryDueDate != null)
                 {
-                    await updateDueDate();
+                    if (CurrentEmailConversations.ExpiryDueDate >= _dataSubjectDuDate.DueDate)
+                    {
+                        await updateDueDate();
+                    }
+                    else
+                    {
+                        onShowDueDatePopupMessage("Warning Info", "Please update the due date if you extend the deadline. If no action is taken within  (" + @Application.Common.Helper.Helper.FormatDate(CurrentEmailConversations.ExpiryDueDate) + ") days, contact your supervisor for guidance.");
+                    }
+
                 }
                 else
                 {
-                    onShowDueDatePopupMessage("Warning Info", "Please update the due date if you extend the deadline. If no action is taken within  (" + @Application.Common.Helper.Helper.FormatDate(CurrentEmailConversations.ExpiryDueDate) + ") days, contact your supervisor for guidance.");
+                    await updateDueDate();
                 }
+
+               
             }
             else
             {
@@ -3679,6 +3687,7 @@
                     DueDate = _dataSubjectDuDate.DueDate,
                     UserId = CurrentEmailConversations.UserId,
                     ModifiedByUserID = applicationUser.UserID,
+                    openAccessUserLink = _openAccessUserLink != null ? true :false,
                     ModifiedDate = DateTime.Now
                 };
 
@@ -3701,7 +3710,7 @@
     async void onSentDueDateRequest()
     {      
 
-        var lst = CurrentEmailConversations;
+        //var lst = CurrentEmailConversations;
         var cList = await Mediator.Send(new GetRequestEmailToCCList(CurrentEmailConversations.ID));        
         var duedate = _dataSubjectDuDate.DueDate;
 
@@ -3769,7 +3778,7 @@
 
     async void SubmitCancelDueDate()
     {
-        if(applicationUser.UserID == CurrentEmailConversations.UserId)
+        if((applicationUser.UserID == CurrentEmailConversations.UserId) || (applicationUser.UserID == CurrentEmailConversations.OnBehalf) || _openAccessUserLink != null)
         {
             var UpdateReq = new UpdateEmailTopicSubjectDueDate
             {
@@ -3781,7 +3790,7 @@
                 ModifiedDate = DateTime.Now
             };
             var result = await Mediator.Send(UpdateReq);
-        }
+        }        
         else
         {
             onShowPopupMessage("Error", "Only the email initiator can make changes.");

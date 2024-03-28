@@ -654,8 +654,8 @@ else
     int SelectedFilesCount { get; set; }
     private string? FileUrl;
     bool IsDraftEnabled { get; set; } = false;
-    [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
+    [Parameter]    
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", "audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
     private DxUpload uploadComponent;
     Guid? _sessionId;
     string MyError { get; set; }

@@ -1,0 +1,110 @@
+﻿@using Application.Commands;
+@using Application.Common.Helper;
+@using Application.Queries;
+@using Application.Response;
+@using Microsoft.AspNetCore.Http;
+@using System.Text
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using MediatR
+@using System.Text.Json
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                @* <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Reload" IconCssClass="fa fa-refresh" Click="@onRefresh" />
+                <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onReset" /> *@
+                
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxGrid @ref="DFDataApprovalGrid"
+        Data="_dynamicFormDataApproval"
+        ShowGroupPanel="true"
+        VirtualScrollingEnabled="false"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        KeyFieldName="ID"
+        CustomizeElement="Grid_CustomizeElement"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="w-100" style="height: calc(100vh - 285px);"
+        RowClick="OnRowClick"
+        RowDoubleClick="OnEmailDueRowClick"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"       
+        AllowSelectRowByClick="true">
+    <Columns>
+        <DxGridDataColumn FieldName="DynamicFormApprovalId" Visible="false" />
+        <DxGridDataColumn FieldName="ProfileNo" MinWidth="40" />       
+        <DxGridDataColumn FieldName="DynamicFormName" MinWidth="40" />
+        <DxGridDataColumn FieldName="CurrentUserName" MinWidth="40" />
+        <DxGridDataColumn FieldName="StatusName" MinWidth="40" />
+        <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
+        <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
+        <DxGridCommandColumn Width="160px" Visible="false" />
+    </Columns>
+</DxGrid>
+
+@code {
+    IGrid DFDataApprovalGrid { get; set; }
+    private List<DynamicFormData>? _dynamicFormDataApproval;
+    public ApplicationUser applicationUser { get; private set; }
+    private DynamicFormData? _selectedItems;
+
+    async Task onRefresh()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");        
+        _dynamicFormDataApproval =  await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        DFDataApprovalGrid.Reload();
+    }
+    protected override async Task OnInitializedAsync()
+    {        
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _dynamicFormDataApproval = await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));        
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
+        _selectedItems = _dynamicFormDataApproval.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
+        //ReplyMsgEnabled = true;
+        //EditEnabled = true;      
+
+        StateHasChanged();
+    }
+    async Task OnEmailDueRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        //SelectedGroup = UniqueId.ToString();
+        // var lst = _dynamicFormDataApproval.Where(x => x.ID == long.Parse(SelectedGroup)).FirstOrDefault();
+        // NavigationManager.NavigateTo($"ViewEmail/{lst.SessionId}/Email");        
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+}

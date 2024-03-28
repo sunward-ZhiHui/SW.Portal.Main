@@ -78,6 +78,7 @@ namespace Core.Entities
         public Guid? EmailTopicSessionId { get; set; }
         public bool? IsDraft { get; set; }
         public string? DynamicFormName { get; set; }
+        public Guid? DynamicFormSessionID {  get; set; }
     }
     public class DynamicFormProfile
     {

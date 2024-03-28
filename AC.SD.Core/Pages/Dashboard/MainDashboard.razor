@@ -1,0 +1,51 @@
+﻿@using System.Collections.Generic
+@using DevExpress.Blazor
+@layout MainLayout
+@using Application.Queries;
+@using Application.Response;
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@using MediatR
+@inject IMediator Mediator
+@using AC.SD.Core.Configuration
+@inject DemoConfiguration Configuration
+@inject DemoThemeService Themes
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@page "/Dashboard"
+@page "/Dashboard/{ActiveIndex:int}"
+
+<div class="">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <div>
+                <DxFormLayoutTabPage Caption="Dynamic Form Approval" Click="OnTabClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <DynamicFormPendingApproval></DynamicFormPendingApproval>
+                    </div>
+                </DxFormLayoutTabPage>
+            </div>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+@code {
+    [Parameter]
+    public int ActiveIndex { get; set; } = 0;    
+    public int ActiveTabIndex { get; set; } = 0;
+    public ApplicationUser applicationUser { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ActiveTabIndex = ActiveIndex;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+
+    void OnTabClick(TabClickEventArgs e)
+    {
+        // var indexid = e.TabIndex;
+        // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
+        // StateHasChanged();
+    }
+}

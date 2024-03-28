@@ -319,7 +319,7 @@ namespace Infrastructure.Repository.Query
             {
 
                 var parameters = new DynamicParameters();
-                var query = "select t1.*,t2.Name as DynamicFormName from DynamicFormData t1 \r\nJOIN DynamicForm t2 ON t1.DynamicFormID=t2.ID WHERE t1.IsSendApproval=1 AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t2.IsDeleted=0 or t2.IsDeleted is null)\r\n";
+                var query = "select t1.*,t2.Name as DynamicFormName,t2.SessionID as DynamicFormSessionID from DynamicFormData t1 JOIN DynamicForm t2 ON t1.DynamicFormID=t2.ID WHERE t1.IsSendApproval=1 AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t2.IsDeleted=0 or t2.IsDeleted is null)";
                 var result = new List<DynamicFormData>();
                 using (var connection = CreateConnection())
                 {

@@ -576,65 +576,71 @@ namespace SW.Portal.Solutions.Controllers
             var document = _db.Collection("UploadDocument").Document(Id);
             var snapshot = await document.GetSnapshotAsync();
             var lst = snapshot.Exists ? snapshot.ConvertTo<FirebaseEmailDoc>() : null;
-            string firebaseStorageUrl;
+            string firebaseStorageUrl =  null;
             if (lst != null)
             {
                 if(lst.Filepath != null)
                 {
                      firebaseStorageUrl = lst.Filepath;
                 }
-               else
+                else
                 {
-                     firebaseStorageUrl = lst.imagepath;
+                    if(lst.Imagepath != null)
+                    {
+                        firebaseStorageUrl = lst.Imagepath;
+                    }                     
                 }
 
                 var serverPathss = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
-
-                int queryIndex = firebaseStorageUrl.IndexOf('?');
-                string urlWithoutQuery = firebaseStorageUrl.Substring(0, queryIndex);
-                // Find the last occurrence of '.' after removing the query parameters
-                int dotIndex = urlWithoutQuery.LastIndexOf('.');
-                // Extract the extension
-                string extension = urlWithoutQuery.Substring(dotIndex);
-
-                string fileName = Guid.NewGuid().ToString() + extension;
-
-                await DownloadFileFromFirebaseStorage(firebaseStorageUrl, serverPathss, fileName);
-
-                var filePath = Path.Combine(serverPathss, fileName);
-                if (System.IO.File.Exists(filePath))
+                if(firebaseStorageUrl != null)
                 {
-                    long fileSize = new FileInfo(filePath).Length;
-                    string contentType = GetContentType(filePath);
-                    string fileNames = Path.GetFileName(filePath);
+                    int queryIndex = firebaseStorageUrl.IndexOf('?');
+                    string urlWithoutQuery = firebaseStorageUrl.Substring(0, queryIndex);
+                    // Find the last occurrence of '.' after removing the query parameters
+                    int dotIndex = urlWithoutQuery.LastIndexOf('.');
+                    // Extract the extension
+                    string extension = urlWithoutQuery.Substring(dotIndex);
+
+                    string fileName = Guid.NewGuid().ToString() + extension;
+
+                    await DownloadFileFromFirebaseStorage(firebaseStorageUrl, serverPathss, fileName);
+
+                    var filePath = Path.Combine(serverPathss, fileName);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        long fileSize = new FileInfo(filePath).Length;
+                        string contentType = GetContentType(filePath);
+                        string fileNames = Path.GetFileName(filePath);
 
 
-                    Documents documents = new Documents();
-                    documents.UploadDate = DateTime.Now;
-                    documents.AddedByUserId = UserId;
-                    documents.AddedDate = DateTime.Now;
-                    documents.SessionId = SessionId;
-                    documents.IsLatest = true;
-                    documents.IsTemp = true;
-                    documents.FileName = fileNames;
-                    documents.ContentType = contentType;
-                    documents.FileSize = fileSize;
-                    documents.SourceFrom = "Email";
-                    documents.FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
-                    var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                    //documentId = response.DocumentId;
-                    System.GC.Collect();
-                    GC.SuppressFinalize(this);
+                        Documents documents = new Documents();
+                        documents.UploadDate = DateTime.Now;
+                        documents.AddedByUserId = UserId;
+                        documents.AddedDate = DateTime.Now;
+                        documents.SessionId = SessionId;
+                        documents.IsLatest = true;
+                        documents.IsTemp = true;
+                        documents.FileName = fileNames;
+                        documents.ContentType = contentType;
+                        documents.FileSize = fileSize;
+                        documents.SourceFrom = "Email";
+                        documents.FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                        var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+                        //documentId = response.DocumentId;
+                        System.GC.Collect();
+                        GC.SuppressFinalize(this);
 
-                    var _documents = _db.Collection("UploadDocument").Document(Id);
-                    await _documents.DeleteAsync();                  
+                        var _documents = _db.Collection("UploadDocument").Document(Id);
+                        await _documents.DeleteAsync();
 
 
+                    }
+                    else
+                    {
+
+                    }
                 }
-                else
-                {
-
-                }
+               
             }
             else
             {

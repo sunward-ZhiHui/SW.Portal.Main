@@ -7,12 +7,10 @@ namespace SW.Portal.Solutions.Services
     {
         [FirestoreDocumentId]
         [Key]
-        public string? Id { get; set; }
-        [FirestoreProperty("userCode")]
-        public string? UserCode { get; set; }
+        public string? Id { get; set; }       
         [FirestoreProperty("Filepath")]
         public string? Filepath { get; set; }
-        [FirestoreProperty("imagepath")]
-        public string? imagepath { get; set; }
+        [FirestoreProperty("Imagepath")]
+        public string? Imagepath { get; set; }
     }
 }

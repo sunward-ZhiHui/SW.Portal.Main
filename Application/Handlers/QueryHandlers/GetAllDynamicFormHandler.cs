@@ -328,7 +328,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId,request.DynamicFormDataGridId);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId);
         }
 
 
@@ -627,7 +627,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormWorkFlowSection>> Handle(GetDynamicFormWorkFlowExits request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormWorkFlowSection>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowExits(request.DynamicFormId, request.UserId,request.DynamicFormDataId);
+            return (List<DynamicFormWorkFlowSection>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowExits(request.DynamicFormId, request.UserId, request.DynamicFormDataId);
         }
     }
 
@@ -652,7 +652,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormWorkFlowForm>> Handle(GetDynamicFormWorkFlowFormList request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormWorkFlowForm>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowFormList(request.DynamicFormDataId,request.DynamicFormId);
+            return (List<DynamicFormWorkFlowForm>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowFormList(request.DynamicFormDataId, request.DynamicFormId);
         }
     }
 
@@ -665,7 +665,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DynamicFormWorkFlowForm> Handle(GetDynamicFormWorkFlowFormExits request, CancellationToken cancellationToken)
         {
-            return await _dynamicFormQueryRepository.GetDynamicFormWorkFlowFormExits(request.DynamicFormWorkFlowSectionId,request.UserId, request.DynamicFormDataId);
+            return await _dynamicFormQueryRepository.GetDynamicFormWorkFlowFormExits(request.DynamicFormWorkFlowSectionId, request.UserId, request.DynamicFormDataId);
         }
     }
 
@@ -678,7 +678,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormDataWrokFlow>> Handle(GetDynamicFormWorkFlowListByUser request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormDataWrokFlow>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowListByUser(request.UserId);
+            return (List<DynamicFormDataWrokFlow>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowListByUser(request.UserId,request.DynamicFormDataId);
         }
     }
     public class InsertCreateEmailFormDataHandler : IRequestHandler<InsertCreateEmailFormData, DynamicFormData>
@@ -704,5 +704,62 @@ namespace Application.Handlers.QueryHandlers
         {
             return await _dynamicFormQueryRepository.GetEmployeeByUserIdIdAsync(request.UserId);
         }
+    }
+
+    public class InsertDynamicFormSectionAttributeSecurityHandler : IRequestHandler<InsertDynamicFormSectionAttributeSecurity, DynamicFormSectionAttributeSecurity>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormSectionAttributeSecurityHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<DynamicFormSectionAttributeSecurity> Handle(InsertDynamicFormSectionAttributeSecurity request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormSectionAttributeSecurity(request.DynamicFormSectionAttributeSecurity);
+        }
+
+    }
+    public class GetDynamicFormSectionAttributeSecurityListHandler : IRequestHandler<GetDynamicFormSectionAttributeSecurityList, List<DynamicFormSectionAttributeSecurity>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionAttributeSecurityListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttributeSecurity>> Handle(GetDynamicFormSectionAttributeSecurityList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttributeSecurity>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeSecurityList(request.Id);
+        }
+
+
+    }
+    public class DeleteDynamicFormSectionAttributeSecurityHandler : IRequestHandler<DeleteDynamicFormSectionAttributeSecurity, long>
+    {
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+
+        public DeleteDynamicFormSectionAttributeSecurityHandler(IDynamicFormQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteDynamicFormSectionAttributeSecurity request, CancellationToken cancellationToken)
+        {
+            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionAttributeSecurity(request.Id, request.Ids);
+        }
+    }
+
+    public class GetDynamicFormDataApprovalListHandler : IRequestHandler<GetDynamicFormDataApprovalList, List<DynamicFormData>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataApprovalListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataApprovalList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataApprovalList(request.UserId);
+        }
+
+
     }
 }

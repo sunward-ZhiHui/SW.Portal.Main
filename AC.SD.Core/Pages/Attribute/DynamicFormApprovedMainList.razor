@@ -78,7 +78,10 @@
     {
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await UpdateDataAsync();
+        if (applicationUser != null)
+        {
+            await UpdateDataAsync();
+        }
     }
     async Task UpdateDataAsync()
     {

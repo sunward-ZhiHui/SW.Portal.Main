@@ -24,6 +24,7 @@
             <Items>
                 <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
+                <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -54,6 +55,24 @@
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
+            <DxGridDataColumn Caption="" MinWidth="30">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormDataWrokFlow)context.DataItem;
+                        var items = item.IsFileprofileTypeDocument;
+                        var isDraft = item.IsDraft;
+                    }
+                    @if (items > 0)
+                    {
+                        <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@items"></i>
+                    }
+                    @if (isDraft != null)
+                    {
+                        var emailName = isDraft == true ? "Draft" : "View Email";
+                        <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@emailName"></i>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProfileNo" MinWidth="50" Caption="Profile No" />
             <DxGridDataColumn FieldName="Name" Caption="Form Name" MinWidth="50" />
             <DxGridDataColumn FieldName="IsDynamicFormDataGrid" MinWidth="20" Caption="Is Grid" />
@@ -82,7 +101,16 @@
 
     </FooterContentTemplate>
 </DxPopup>
-
+<DxPopup @bind-Visible="@PopupUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@dynamicFormData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -93,23 +121,28 @@
     private List<DynamicFormDataWrokFlow> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicFormDataWrokFlow _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
-    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false; public long? FileProfileTypeId { get; set; }
+    bool DeleteEnabled { get; set; } = false; bool PopupUpload { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false; bool fileEnabled { get; set; } = false;
+    DynamicFormData dynamicFormData = new DynamicFormData();
     protected override async Task OnInitializedAsync()
     {
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await UpdateDataAsync();
+        if (applicationUser != null)
+        {
+            await UpdateDataAsync();
+        }
     }
     async Task UpdateDataAsync()
     {
-        EditEnabled = false; DeleteEnabled = false; emailEnabled = false;
-        _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID));
+        dynamicFormData = new DynamicFormData();
+        EditEnabled = false; DeleteEnabled = false; emailEnabled = false; fileEnabled = false; FileProfileTypeId = null;
+        _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
         PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
-            EditEnabled = true; DeleteEnabled = true; emailEnabled = true;
+            EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
             if (SessionId != null)
             {
                 var items = _dynamicForm.Where(f => f.SessionID == SessionId).ToList();
@@ -117,17 +150,23 @@
                 {
                     _dynamicForm = items;
                     _selectedItems = items.FirstOrDefault();
+                    dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                    dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
                     Grid.SetFocusedRowIndex(0);
                 }
                 else
                 {
                     _selectedItems = _dynamicForm.FirstOrDefault();
+                    dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                    dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
                     Grid.SetFocusedRowIndex(0);
                 }
             }
             else
             {
                 _selectedItems = _dynamicForm.FirstOrDefault();
+                dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
                 Grid.SetFocusedRowIndex(0);
             }
 
@@ -144,10 +183,14 @@
     }
     void OnRowclick(GridRowClickEventArgs e)
     {
+        dynamicFormData = new DynamicFormData();
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
         EditEnabled = true;
-        DeleteEnabled = true; emailEnabled = true;
+        DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
+        dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+        dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
+        StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
@@ -161,7 +204,20 @@
             NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
         }
     }
+    void addDetailFile()
+    {
+        if (_selectedItems != null)
+        {
+            PopupUpload = true;
+        }
+    }
+    void BackUpload()
+    {
+        InvokeAsync(UpdateDataAsync);
+        PopupUpload = false;
+        StateHasChanged();
 
+    }
     async Task addDetailEmailCreate()
     {
         if (_selectedItems != null)

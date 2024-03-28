@@ -407,9 +407,11 @@ namespace Application.Queries
 
     public class GetDynamicFormWorkFlowListByUser : PagedRequest, IRequest<List<DynamicFormDataWrokFlow>>
     {
+        public long? DynamicFormDataId { get; set; }
         public long? UserId { get; set; }
-        public GetDynamicFormWorkFlowListByUser(long? userId)
+        public GetDynamicFormWorkFlowListByUser(long? userId, long? dynamicFormDataId)
         {
+            this.DynamicFormDataId = dynamicFormDataId;
             this.UserId = userId;
         }
     }
@@ -425,6 +427,40 @@ namespace Application.Queries
     {
         public long? UserId { get; set; }
         public GetEmployeeFormByUserId(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
+    public class InsertDynamicFormSectionAttributeSecurity : PagedRequest, IRequest<DynamicFormSectionAttributeSecurity>
+    {
+        public DynamicFormSectionAttributeSecurity DynamicFormSectionAttributeSecurity { get; private set; }
+        public InsertDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeSecurity dynamicFormSectionAttributeSecurity)
+        {
+            this.DynamicFormSectionAttributeSecurity = dynamicFormSectionAttributeSecurity;
+        }
+    }
+    public class GetDynamicFormSectionAttributeSecurityList : PagedRequest, IRequest<List<DynamicFormSectionAttributeSecurity>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormSectionAttributeSecurityList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class DeleteDynamicFormSectionAttributeSecurity : DynamicFormSectionAttributeSecurity, IRequest<long>
+    {
+        public long? Id { get; set; }
+        public List<long?> Ids { get; set; }
+        public DeleteDynamicFormSectionAttributeSecurity(long? id, List<long?> ids)
+        {
+            this.Id = id;
+            this.Ids = ids;
+        }
+    }
+    public class GetDynamicFormDataApprovalList : PagedRequest, IRequest<List<DynamicFormData>>
+    {
+        public long? UserId { get; set; }
+        public GetDynamicFormDataApprovalList(long? userId)
         {
             this.UserId = userId;
         }

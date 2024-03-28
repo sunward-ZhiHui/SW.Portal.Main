@@ -576,10 +576,17 @@ namespace SW.Portal.Solutions.Controllers
             var document = _db.Collection("UploadDocument").Document(Id);
             var snapshot = await document.GetSnapshotAsync();
             var lst = snapshot.Exists ? snapshot.ConvertTo<FirebaseEmailDoc>() : null;
-        
-            if(lst != null)
+            string firebaseStorageUrl;
+            if (lst != null)
             {
-                string firebaseStorageUrl = lst.Filepath;
+                if(lst.Filepath != null)
+                {
+                     firebaseStorageUrl = lst.Filepath;
+                }
+               else
+                {
+                     firebaseStorageUrl = lst.imagepath;
+                }
 
                 var serverPathss = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
 

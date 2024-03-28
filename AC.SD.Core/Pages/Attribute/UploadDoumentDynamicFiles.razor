@@ -381,7 +381,10 @@
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", "audio/*" };
     protected override async Task OnInitializedAsync()
     {
-        await loadDataList();
+        if (_applicationUser != null)
+        {
+            await loadDataList();
+        }
     }
     public async Task loadDataList()
     {

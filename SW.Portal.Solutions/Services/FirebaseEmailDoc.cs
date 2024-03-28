@@ -12,5 +12,7 @@ namespace SW.Portal.Solutions.Services
         public string? UserCode { get; set; }
         [FirestoreProperty("Filepath")]
         public string? Filepath { get; set; }
+        [FirestoreProperty("imagepath")]
+        public string? imagepath { get; set; }
     }
 }

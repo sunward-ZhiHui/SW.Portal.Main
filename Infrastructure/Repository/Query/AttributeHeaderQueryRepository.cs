@@ -228,7 +228,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 AttributeHeaderListModel attributeHeaderListModel = new AttributeHeaderListModel();
-
+                var dynamicFormSectionAttributeSecurity = new List<DynamicFormSectionAttributeSecurity>();
                 using (var connection = CreateConnection())
                 {
                     var query = "select t1.DynamicFormSectionID,t1.SectionName,t1.SessionID,t1.StatusCodeID,t1.Instruction,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SortOrderBy," +
@@ -252,11 +252,13 @@ namespace Infrastructure.Repository.Query
                         "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere (t6.AttributeIsVisible=1 OR t6.AttributeIsVisible IS NULL) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsVisible= 1 OR t1.IsVisible is null) AND t5.DynamicFormID=" + dynamicForm.ID + " order by t1.SortOrderBy asc;";
                     query += "Select * from Plant;";
                     query += "Select * from AttributeHeaderDataSource;";
+                    query += "Select * from DynamicFormSectionAttributeSecurity;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
                     attributeHeaderListModel.Plant = results.Read<Plant>().ToList();
                     attributeHeaderListModel.AttributeHeaderDataSource = results.Read<AttributeHeaderDataSource>().ToList();
+                    dynamicFormSectionAttributeSecurity = results.Read<DynamicFormSectionAttributeSecurity>().ToList();
                 }
                 if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
                 {
@@ -290,7 +292,7 @@ namespace Infrastructure.Repository.Query
                     attributeHeaderListModel.AttributeDetails.AddRange(dataSourceList);
                     attributeHeaderListModel.DynamicFormSectionAttribute.ForEach(s =>
                     {
-
+                        s.DynamicFormSectionAttributeSecurity = dynamicFormSectionAttributeSecurity != null && dynamicFormSectionAttributeSecurity.Count > 0 ? dynamicFormSectionAttributeSecurity.Where(d => d.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).ToList() : new List<DynamicFormSectionAttributeSecurity>();
                         s.AttributeName = string.IsNullOrEmpty(s.AttributeName) ? string.Empty : char.ToUpper(s.AttributeName[0]) + s.AttributeName.Substring(1);
                         s.DynamicAttributeName = s.DynamicFormSectionAttributeId + "_" + s.AttributeName;
                         if (s.IsPlantLoadDependency == true && !string.IsNullOrEmpty(s.PlantDropDownWithOtherDataSourceIds))
@@ -740,7 +742,7 @@ namespace Infrastructure.Repository.Query
                 {
                     a.DynamicAttributeName = a.DynamicFormSectionAttributeId + "_" + a.AttributeName;
                     counts += 1;
-                    dataColumnNames.Add(new DropDownOptionsModel() { OrderBy = counts, AttributeDetailID = counts, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader, AttributeDetailName = a.DisplayName });
+                    dataColumnNames.Add(new DropDownOptionsModel() { OrderBy = counts, AttributeDetailID = counts, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value, AttributeDetailName = a.DisplayName });
                 });
                 counts++;
                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "Current User" });

@@ -62,9 +62,14 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormWorkFlowForm>> GetDynamicFormWorkFlowFormList(long? dynamicFormDataId, long? dynamicFormId);
         Task<DynamicFormWorkFlowForm> GetDynamicFormWorkFlowFormExits(long? dynamicFormWorkFlowSectionId, long? userId, long? dynamicFormDataId);
 
-        Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId);
+        Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId,long? dynamicFormDataId);
         Task<DynamicFormData> InsertCreateEmailFormData(DynamicFormData dynamicFormData);
         Task<ViewEmployee> GetEmployeeByUserIdIdAsync(long? userId);
+        Task<DynamicFormSectionAttributeSecurity> InsertDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeSecurity value);
+        Task<IReadOnlyList<DynamicFormSectionAttributeSecurity>> GetDynamicFormSectionAttributeSecurityList(long? Id);
+        Task<long> DeleteDynamicFormSectionAttributeSecurity(long? Id, List<long?> Ids);
+
+        Task<IReadOnlyList<DynamicFormData?>> GetDynamicFormDataApprovalList(long? userId);
     }
 
 }

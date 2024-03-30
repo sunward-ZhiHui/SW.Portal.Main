@@ -3646,7 +3646,7 @@
                     await updateDueDate();
                 }
 
-               
+
             }
             else
             {
@@ -3763,6 +3763,21 @@
         var response = await httpClient.PostAsync(url, content);
         var msg = response.StatusCode;
 
+
+
+        var emailDueDateHistory = new InsertEmailDueDateHistory
+        {
+            ID = CurrentEmailConversations.ID,
+            DueDate = _dataSubjectDuDate.DueDate,
+            NoOfDays = _dataSubjectDuDate.NoOfDays,
+            ModifiedByUserID = applicationUser.UserID,
+            ModifiedDate = DateTime.Now
+
+        };
+
+        var result = await Mediator.Send(emailDueDateHistory);
+
+
          if (RTopicId == 0)
          {
              await LoadDataPosts();
@@ -3790,6 +3805,18 @@
                 ModifiedDate = DateTime.Now
             };
             var result = await Mediator.Send(UpdateReq);
+
+
+            var emailDueDateHistory = new InsertEmailDueDateHistory
+            {
+                ID = CurrentEmailConversations.ID,
+                DueDate = null,
+                NoOfDays = 0,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+
+            };
+
         }        
         else
         {

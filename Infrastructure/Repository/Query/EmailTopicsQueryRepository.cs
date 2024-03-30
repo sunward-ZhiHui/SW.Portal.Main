@@ -1649,6 +1649,27 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailDueDateHistory>> GetEmailDueDateHistoryList(long Id)
+        {
+            try
+            {
+                var query = @"SELECT EDH.*, (E.FirstName + ' ' + E.LastName) as AddedBy FROM EmailDueDateHistory EDH
+                            INNER JOIN Employee E on E.UserID = EDH.UserID
+                            WHERE ConversationID = @Id";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("Id", Id);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailDueDateHistory>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<EmailTopics> GetCustomerByEmail(string name)
         {
             try
@@ -2248,6 +2269,11 @@ namespace Infrastructure.Repository.Query
                         }
 
 
+                        var emailDueDateHistory = "INSERT INTO EmailDueDateHistory(ConversationID,UserID,DueDate,NoOfDays,ExpiryDueDate,AddedByUserID,AddedDate) VALUES (@ID,@ModifiedByUserID,@DueDate,@NoOfDays,@ExpiryDueDate,@ModifiedByUserID,@ModifiedDate)";
+
+                        var historyRowsAffected = await connection.ExecuteAsync(emailDueDateHistory, parameters);
+
+
                         var ckquery = "SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicId AND ReplyId = 0 ORDER BY ID";
                             var actresult = await connection.QueryAsync<EmailConversations>(ckquery, parameters);
 
@@ -2274,6 +2300,57 @@ namespace Infrastructure.Repository.Query
                             throw new Exception(exp.Message, exp);
                         }
                     
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<long> InsertEmailDueDateHistory(EmailConversations emailConversations)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DueDate", emailConversations.DueDate);
+                        parameters.Add("NoOfDays", emailConversations.NoOfDays);
+                        parameters.Add("ID", emailConversations.ID);                        
+                        parameters.Add("ModifiedByUserID", emailConversations.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", emailConversations.ModifiedDate);
+
+                        DateTime? expiryDueDate = null; // Use nullable DateTime
+
+                        if (emailConversations.DueDate.HasValue)
+                        {
+                            DateTime dueDate = emailConversations.DueDate.Value;
+                            expiryDueDate = dueDate.AddDays(emailConversations.NoOfDays);
+
+                            // Check if expiryDueDate falls within the valid range for SQL datetime
+                            if (expiryDueDate < SqlDateTime.MinValue.Value || expiryDueDate > SqlDateTime.MaxValue.Value)
+                            {
+                                throw new Exception("Expiry due date is out of range for SQL datetime.");
+                            }
+                        }
+
+                        parameters.Add("ExpiryDueDate", expiryDueDate, DbType.DateTime); // Use DbType.DateTime for null values
+
+                        var emailDueDateHistory = "INSERT INTO EmailDueDateHistory(ConversationID,UserID,DueDate,NoOfDays,ExpiryDueDate,AddedByUserID,AddedDate) VALUES (@ID,@ModifiedByUserID,@DueDate,@NoOfDays,@ExpiryDueDate,@ModifiedByUserID,@ModifiedDate)";
+
+                        var rowsAffected = await connection.ExecuteAsync(emailDueDateHistory, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
 
             }

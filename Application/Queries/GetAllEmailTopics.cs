@@ -460,6 +460,18 @@ namespace Application.Queries
     public class UpdateEmailTopicSubjectDueDate : EmailConversations, IRequest<long>
     {
     }
+    public class InsertEmailDueDateHistory: EmailConversations,IRequest<long>
+    {
+
+    }
+    public class GetEmailDueDateHistory : PagedRequest, IRequest<List<EmailDueDateHistory>>
+    {
+        public long ID { get; private set; }
+        public GetEmailDueDateHistory(long ID)
+        {
+            this.ID = ID;
+        }
+    }
     public class UpdateEmailSubjectName : EmailConversations, IRequest<long>
     {
     }

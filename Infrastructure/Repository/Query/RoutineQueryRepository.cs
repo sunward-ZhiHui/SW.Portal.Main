@@ -158,7 +158,7 @@ namespace Infrastructure.Repository.Query
                     (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
                     (select COUNT(tt1.ProductionActivityAppLineDocId) from ProductionActivityAppLineDoc tt1 WHERE tt1.Type = 'Production Routine' AND tt1.ProductionActivityAppLineID=t1.ProductionActivityRoutineAppLineID) as SupportDocCount,t12.NameOfTemplate,t12.Link,t12.LocationToSaveId
                     from ProductionActivityRoutineAppLine t1 
-                    JOIN ProductionActivityRoutineApp t2 ON t1.ProductionActivityRoutineAppID=t2.ProductionActivityRoutineAppID
+                    JOIN ProductionActivityRoutineApp t2 ON t1.ProductionActivityRoutineAppID=t2.ProductionActivityRoutineAppID AND t2.TimeSheetAction IS NULL
                     JOIN Plant as t10 ON t10.PlantID = t2.CompanyID 
                     LEFT JOIN ICTMaster t14 ON t14.ictMasterId=t2.LocationId
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId

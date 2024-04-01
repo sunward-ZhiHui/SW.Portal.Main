@@ -144,25 +144,10 @@
     </BodyContentTemplate>
 </DxPopup>
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="max(25vw, 550px)" @bind-Visible="@isDueDateHistory">
+<DxPopup @ref="popup" HeaderText="Due Date History" ShowCloseButton="true" Width="max(25vw, 550px)" @bind-Visible="@isDueDateHistory">
     <BodyContentTemplate>
         <div style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-
-            @if (_DueDateHistoryList != null && _DueDateHistoryList.Any())
-            {
-                <table style="width:100%;">                    
-                    @foreach (var item in _DueDateHistoryList)
-                    {
-                        <div class="" style="width:100%;">
-                            <tr>
-                                <td>@item.AddedBy</td>
-                                <td>@Application.Common.Helper.Helper.FormatDateTime(@item.DueDate)</td>
-                                <td>@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</td>
-                            </tr>
-                        </div>
-                    }
-                </table>
-            }           
+            <DueDateHistory @ref=RefDueDateHistoryList Cid="@Cid"></DueDateHistory>           
         </div>
     </BodyContentTemplate>
 </DxPopup>
@@ -180,6 +165,9 @@
 </DxPopup>
 
 @code {
+    private DueDateHistory? RefDueDateHistoryList { get; set; }
+    [Parameter]
+    public long Cid { get; set; }
     private OpenAccessUserLink? _openAccessUserLink { get; set; }
     bool IsSubjectNoOfDays { get; set; } = false;
     [Parameter]
@@ -367,10 +355,11 @@
         Previewmsg = true;
     }  
     async Task onDueDateHistory(long id)
-    {        
-        await JSRuntime.InvokeAsync<string>("showLoading");
-            _DueDateHistoryList = await Mediator.Send(new GetEmailDueDateHistory(id));
-        await JSRuntime.InvokeAsync<string>("hideLoading");
+    {
+        // await JSRuntime.InvokeAsync<string>("showLoading");
+        //     _DueDateHistoryList = await Mediator.Send(new GetEmailDueDateHistory(id));
+        // await JSRuntime.InvokeAsync<string>("hideLoading");
+        Cid = id;
         isDueDateHistory = true;
     }
     protected override async Task OnInitializedAsync()

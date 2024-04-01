@@ -1,0 +1,81 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@implements IDisposable;
+
+
+<DxGrid @ref="DDHistoryGrid"
+        Data="_events"
+        ShowGroupPanel="false"
+        ShowGroupedColumns="false" 
+        VirtualScrollingEnabled="false"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        KeyFieldName="DynamicFormDataId"       
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="false"
+        PageSizeSelectorAllRowsItemVisible="false"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        ValidationEnabled="false"
+        AutoExpandAllGroupRows="false"
+        CssClass="w-100" style="height: calc(100vh - 250px);"
+        TextWrapEnabled="false"       
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        AllowSelectRowByClick="false">
+    <Columns>
+        <DxGridDataColumn FieldName="ID" Visible="false" />
+        <DxGridDataColumn FieldName="AddedBy" MinWidth="40" />
+        
+        <DxGridDataColumn FieldName="DueDate" MinWidth="100">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailDueDateHistory)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.DueDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="AddedDate" MinWidth="100">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailDueDateHistory)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+    </Columns>
+</DxGrid>
+
+@code {
+    IGrid? DDHistoryGrid { get; set; }
+    private List<EmailDueDateHistory>? _events;
+    public ApplicationUser? applicationUser { get; private set; }   
+    [Parameter]
+    public long Cid { get; set; }   
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        _events = await Mediator.Send(new GetEmailDueDateHistory(Cid));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

@@ -1,0 +1,255 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@implements IDisposable
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="addNewSupportingDocuments" />
+                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewEnabled" />
+                <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
+
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+@* <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <span style="font-weight: bold;padding: 10px;line-height: 30px;color:green;">File ProfileType Name:  @selectedFiles.FileName</span>
+    </div>
+</div> *@
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_supportDocselectedFile"
+            KeyFieldName="DocumentID"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="ContentType" Caption="Type" MinWidth="40" />
+            <DxGridDataColumn FieldName="FileSize" Caption="Size(KB)" MinWidth="40" />
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="40" />
+
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@PopupSupportingUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
+    <BodyContentTemplate>
+        <UploadSupportingDocFilesRoutine _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" ProductionActivityRoutineAppLineId="@ProductionActivityRoutineAppLineId" RevokeUploadBack="BackUploadSupportingUpload"></UploadSupportingDocFilesRoutine>
+
+    </BodyContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@BlukdeleteDocument"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete this Document
+        </p>
+        <strong>@DeleteDocumentName</strong>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onDeleteSupportDocument" />
+
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool BlukdeleteDocument { get; set; } = false;
+    public string DeleteDocumentName { get; set; }
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    public Guid? UploadSessionId { get; set; }
+    [Parameter]
+    public ProductionActivityRoutineAppModel selectedFiles { get; set; }
+    public long? ProductionActivityRoutineAppLineId { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    private List<DocumentsModel> _supportDocselectedFile { get; set; }
+    public DocumentsModel _selectedItems { get; set; }
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    private string? FileUrl;
+    bool DownloadEnabled { get; set; } = false;
+    bool viewEnabled { get; set; } = false; bool DeleteEnabled { get; set; } = false;
+    bool copylinkEnabled { get; set; } = false;
+    bool PopupSupportingUpload { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await loadSupportingDocFiles();
+
+    }
+    async Task loadSupportingDocFiles()
+    {
+        PanelVisible = true; DownloadEnabled = false; viewEnabled = false; DeleteEnabled = false; copylinkEnabled = false;
+        if (selectedFiles.ProductionActivityRoutineAppLineId > 0)
+        {
+            ProductionActivityRoutineAppLineId = selectedFiles.ProductionActivityRoutineAppLineId;
+            _supportDocselectedFile = await Mediator.Send(new GetSupportingDocuments(selectedFiles.ProductionActivityRoutineAppLineId, "Production Routine"));
+            if (_supportDocselectedFile.Count() > 0)
+            {
+                _selectedItems = _supportDocselectedFile.FirstOrDefault();
+                DownloadEnabled = true;
+                viewEnabled = true; DeleteEnabled = true;
+                copylinkEnabled = true;
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async void OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
+        _selectedItems = _supportDocselectedFile.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
+        StateHasChanged();
+
+    }
+    async Task Download()
+    {
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //  Trigger file download
+                await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            }
+        }
+    }
+    async void onView()
+    {
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+
+        }
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+
+    private async Task onCopy()
+    {
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+
+        }
+    }
+    void addNewSupportingDocuments()
+    {
+        PopupSupportingUpload = true;
+    }
+    void BackUploadSupportingUpload()
+    {
+        InvokeAsync(loadSupportingDocFiles);
+        PopupSupportingUpload = false;
+        StateHasChanged();
+    }
+    async Task onDeleteSupportDocument()
+    {
+        if (_selectedItems != null)
+        {
+            BlukdeleteDocument = false;
+            await Mediator.Send(new DeleteSupportingDocuments(_selectedItems));
+            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await loadSupportingDocFiles();
+        }
+    }
+    void EulaPopupDocumentClosed(PopupClosedEventArgs args)
+    {
+        BlukdeleteDocument = false;
+    }
+    void onDelete()
+    {
+        BlukdeleteDocument = true;
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}

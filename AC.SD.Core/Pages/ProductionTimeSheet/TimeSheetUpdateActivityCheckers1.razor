@@ -1,0 +1,404 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@using global::Core.Entities.Views;
+@inject IJSRuntime jsRuntime
+@implements IDisposable
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                @if (string.IsNullOrEmpty(onShowMain))
+                {
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Auto">
+                        <Items>
+                            <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                            <DxMenuItem Text="Add" IconCssClass="fas fa-add" Click="@onAddNew" />
+                            <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@onEditNew" Enabled="EditEnabled" />
+                            <DxMenuItem Text="Delete" IconCssClass="fas fa-remove" Click="@onDeleteNew" Enabled="DeleteEnabled" />
+                            <DxMenuItem Text="Email" IconCssClass="fas fa-envelope" Click="@onMailNew" />
+                        </Items>
+                    </DxMenu>
+                }
+                else
+                {
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Auto">
+                        <Items>
+                            <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                            <DxMenuItem Text="Add" IconCssClass="fas fa-add" Click="@onAddNew" />
+                            <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@onEditNew" Enabled="EditEnabled" />
+                            <DxMenuItem Text="Delete" IconCssClass="fas fa-remove" Click="@onDeleteNew" Enabled="DeleteEnabled" />
+                            <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitProductionFormExternally" Enabled="SaveEnabled" />
+                            <DxMenuItem Text="Email" IconCssClass="fas fa-envelope" Click="@onMailNew" />
+                        </Items>
+                    </DxMenu>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div style="@onShowMain">
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_supportDocselectedFile"
+                KeyFieldName="ProductionActivityRoutineCheckedDetailsId"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true">
+            <Columns>
+                <DxGridDataColumn FieldName="CheckedByUserName" Caption="CheckedBy" MinWidth="80" />
+                <DxGridDataColumn FieldName="CheckedDate" Caption="Checked Date" MinWidth="40" />
+                <DxGridDataColumn FieldName="IsCheckNoIssue" Caption="No Issue" MinWidth="40" />
+                <DxGridDataColumn FieldName="IsCheckReferSupportDocument" Caption="Refer Support Doc" MinWidth="40" />
+                <DxGridDataColumn FieldName="CheckedComment" Caption="Comment" MinWidth="40" />
+                <DxGridDataColumn FieldName="RoutineResultName" Caption="Routine Result" MinWidth="80" />
+                <DxGridDataColumn FieldName="RoutineStatusName" Caption="Routine Status" MinWidth="80" />
+            </Columns>
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+<div style="@onShowForm">
+    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
+
+        <DataAnnotationsValidator />
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+
+                <DxCheckBox @bind-Checked="@Data.IsCheckNoIssue" LabelPosition="LabelPosition.Right">No Issue</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+                <DxCheckBox @bind-Checked="@Data.IsCheckReferSupportDocument" LabelPosition="LabelPosition.Right">Refer to supporting Document/Email</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Checked By" ColSpanMd="6">
+                <DxTextBox @bind-Text="@Data.CheckedByUserName" CssClass="cw-480" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Checked Date:" ColSpanMd="6">
+                <DxDateEdit NullText="Select a Checked Date..." @bind-Date="@Data.CheckedDate" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
+                <DxComboBox Data="@_ActivityResult"
+                            NullText="Select Activity Result..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterDetailID"
+                @bind-Value="Data.RoutineResultId"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="6">
+                <DxComboBox Data="@_ActivityStatusItem"
+                            NullText="Select Activity Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterDetailID"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                @bind-Value="Data.RoutineStatusId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
+                <DxMemo @bind-Text="Data.CheckedComment" Rows="5" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                <div ref="target" @onclick="onCopyPasteFileclick" style='cursor:pointer'>Click here and Upload the image.</div>
+                <img src="@ImageSource" id="onCopyImagesOn" style="width:100%;height:200px;" alt="Upload Image" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditForm>
+</div>
+<DxPopup @bind-Visible="@BlukdeleteDocument"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete this?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onRecDelete" />
+
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@ActivityEmailPopup"
+         ShowFooter="false"
+         HeaderText="Activity Email"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <RoutineEmails selectedFiles="@selectedFiles" applicationUser="@applicationUser" RevokeBack="CloseUploadPopup"></RoutineEmails>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseUploadPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<InputFile @ref="filePicker" OnChange="OnChange" style="display:none;" accept="image/*"></InputFile>
+@code {
+    InputFile filePicker;
+    bool ActivityEmailPopup { get; set; } = false;
+    bool BlukdeleteDocument { get; set; } = false;
+    string onShowMain = "";
+    string onShowForm = "display:none;";
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    EditContext _editContext;
+    [Parameter]
+    public ProductionActivityRoutineAppModel selectedFiles { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    bool SaveEnabled { get; set; } = true; bool DeleteEnabled { get; set; } = false; bool EditEnabled { get; set; } = false;
+    private List<View_ApplicationMasterDetail> _ActivityStatusItem;
+    private List<View_ApplicationMasterDetail> _ActivityResult;
+    ProductionActivityRoutineCheckedDetailsModel Data = new ProductionActivityRoutineCheckedDetailsModel();
+    private List<ProductionActivityRoutineCheckedDetailsModel> _supportDocselectedFile { get; set; }
+    public ProductionActivityRoutineCheckedDetailsModel _selectedItems { get; set; }
+    public long? ProductionActivityRoutineCheckedDetailsId { get; set; }
+    string? ImageSource { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        _ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(324));
+        _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(334));
+        await loadSupportingDocFiles();
+    }
+    async Task loadSupportingDocFiles()
+    {
+        PanelVisible = true; DeleteEnabled = false; EditEnabled = false;
+        if (selectedFiles.ProductionActivityRoutineAppLineId > 0)
+        {
+            _supportDocselectedFile = await Mediator.Send(new GetProductionRoutineCheckedDetails(selectedFiles.ProductionActivityRoutineAppLineId));
+            if (_supportDocselectedFile.Count() > 0)
+            {
+                DeleteEnabled = true; EditEnabled = true;
+                _selectedItems = _supportDocselectedFile.FirstOrDefault();
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async Task onMailNew()
+    {
+        if (selectedFiles != null)
+        {
+            if (selectedFiles.IsEmailCreated == true && selectedFiles.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + selectedFiles.EmailSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else if (selectedFiles.IsEmailCreated == false && selectedFiles.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "CreateEmail/" + selectedFiles.EmailActivitySessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                ActivityEmailPopup = true;
+            }
+        }
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionActivityRoutineCheckedDetailsId");
+        _selectedItems = _supportDocselectedFile.FirstOrDefault(f => f.ProductionActivityRoutineCheckedDetailsId == (long?)UniqueId);
+        DeleteEnabled = true; EditEnabled = true;
+        StateHasChanged();
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void onAddNew()
+    {
+        onShowMain = "display:none;";
+        onShowForm = "";
+        _editContext = new EditContext(Data);
+        Data.AddedDate = DateTime.Now;
+        Data.AddedByUserID = applicationUser.UserID;
+        Data.CheckedById = applicationUser.UserID;
+        Data.CheckedDate = DateTime.Now;
+        Data.ModifiedDate = DateTime.Now;
+        Data.ModifiedByUserID = applicationUser.UserID;
+        Data.CommentImage = null;
+        Data.CommentImageType = null;
+        Data.CheckedByUserName = applicationUser.UserName;
+        Data.IsCheckNoIssue = selectedFiles.IsCheckNoIssue;
+        Data.RoutineResultId = null; Data.RoutineStatusId = null;
+        Data.IsCheckReferSupportDocument = false;
+        Data.CheckedComment = null;
+        Data.SessionId = Guid.NewGuid();
+        Data.ProductionActivityRoutineCheckedDetailsId = 0;
+        ProductionActivityRoutineCheckedDetailsId = 0;
+        Data.ProductionActivityRoutineAppLineId = selectedFiles.ProductionActivityRoutineAppLineId;
+        Data.ProductionActivityRoutineAppId = selectedFiles.ProductionActivityRoutineAppId;
+        ImageSource = ""; Data.CommentImages = null;
+        StateHasChanged();
+    }
+    void onEditNew()
+    {
+        onShowMain = "display:none;";
+        onShowForm = "";
+        _editContext = new EditContext(Data);
+        Data.AddedDate = _selectedItems.AddedDate;
+        Data.AddedByUserID = applicationUser.UserID;
+        Data.CheckedById = _selectedItems.CheckedById != null ? _selectedItems.CheckedById : applicationUser.UserID;
+        Data.ModifiedDate = _selectedItems.ModifiedByUserID != null ? _selectedItems.ModifiedDate : DateTime.Now;
+        Data.SessionId = _selectedItems.SessionId != null ? _selectedItems.SessionId : Guid.NewGuid();
+        Data.RoutineResultId = _selectedItems.RoutineResultId; Data.RoutineStatusId = _selectedItems.RoutineResultId;
+        Data.ModifiedByUserID = _selectedItems.ModifiedByUserID != null ? _selectedItems.ModifiedByUserID : applicationUser.UserID;
+        Data.CheckedDate = _selectedItems.CheckedDate;
+        Data.CommentImage = _selectedItems.CommentImage;
+        Data.CommentImageType = _selectedItems.CommentImageType;
+        Data.CheckedByUserName = _selectedItems.CheckedByUserName;
+        Data.IsCheckNoIssue = _selectedItems.IsCheckNoIssue;
+        Data.IsCheckReferSupportDocument = _selectedItems.IsCheckReferSupportDocument;
+        Data.CheckedComment = _selectedItems.CheckedComment;
+        Data.ProductionActivityRoutineCheckedDetailsId = _selectedItems.ProductionActivityRoutineCheckedDetailsId; ;
+        ProductionActivityRoutineCheckedDetailsId = _selectedItems.ProductionActivityRoutineCheckedDetailsId;
+        Data.ProductionActivityRoutineAppLineId = selectedFiles.ProductionActivityRoutineAppLineId;
+        Data.ProductionActivityRoutineAppId = selectedFiles.ProductionActivityRoutineAppId;
+        ImageSource = ""; Data.CommentImages = null;
+        if (!string.IsNullOrEmpty(_selectedItems.CommentImageType) && _selectedItems.CommentImage != null)
+        {
+            Data.CommentImages = Convert.ToBase64String(_selectedItems.CommentImage);
+            ImageSource = $"{_selectedItems.CommentImageType},{Data.CommentImages}";
+        }
+        StateHasChanged();
+    }
+    private async Task SubmitProductionFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleProductionFormValidSubmit();
+        }
+    }
+    async Task onCopyPasteFileclick()
+    {
+        await jsRuntime.InvokeAsync<object>("triggerClick", filePicker.Element);
+    }
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480);
+            var buf = new byte[resizedFile.Size];
+            using (var stream = resizedFile.OpenReadStream())
+            {
+                await stream.ReadAsync(buf);
+            }
+
+            ImageSource = $"data:{file.ContentType};base64,{Convert.ToBase64String(buf)}";
+            Data.CommentImage = buf;
+            Data.CommentImages = Convert.ToBase64String(buf);
+            Data.CommentImageType = $"data:{file.ContentType};base64";
+        }
+    }
+    void CloseUploadPopup()
+    {
+        ActivityEmailPopup = false;
+        InvokeAsync(loadSupportingDocFiles);
+        StateHasChanged();
+    }
+    async Task HandleProductionFormValidSubmit()
+    {
+        SaveEnabled = false;
+        var request = await Mediator.Send(new InsertProductionRoutineCheckedDetails(Data));
+        if (ProductionActivityRoutineCheckedDetailsId > 0)
+        {
+            ProductionActivityRoutineCheckedDetailsId = request.ProductionActivityRoutineCheckedDetailsId;
+            SaveEnabled = true;
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await onBack();
+        }
+        else
+        {
+            ProductionActivityRoutineCheckedDetailsId = request.ProductionActivityRoutineCheckedDetailsId;
+            SaveEnabled = true;
+            toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await onBack();
+        }
+        StateHasChanged();
+    }
+    async Task onBack()
+    {
+        if (string.IsNullOrEmpty(onShowMain))
+        {
+            RevokeBack?.Invoke();
+        }
+        else
+        {
+            onShowMain = "";
+            onShowForm = "display:none;";
+            await loadSupportingDocFiles();
+            StateHasChanged();
+        }
+
+    }
+    void EulaPopupDocumentClosed()
+    {
+        BlukdeleteDocument = false;
+    }
+    void onDeleteNew()
+    {
+        BlukdeleteDocument = true;
+    }
+    async Task onRecDelete()
+    {
+        if (_selectedItems != null)
+        {
+            var request = await Mediator.Send(new DeleteProductionRoutineCheckedDetails(_selectedItems));
+            if (request.ProductionActivityRoutineCheckedDetailsId > 0)
+            {
+                toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                BlukdeleteDocument = false;
+                await loadSupportingDocFiles();
+            }
+        }
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}

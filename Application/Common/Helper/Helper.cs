@@ -16,7 +16,7 @@ namespace Application.Common.Helper
         public static string FormatDate(DateTime? dateTime)
         {
             // Define your desired date format here
-            if (dateTime.HasValue)
+            if (dateTime.HasValue && dateTime != DateTime.MinValue)
             {
                 // Define your desired date format here
                 return dateTime.Value.ToString("dd-MMM-yyyy");

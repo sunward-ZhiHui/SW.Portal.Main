@@ -1655,7 +1655,7 @@ namespace Infrastructure.Repository.Query
             {
                 var query = @"SELECT EDH.*, (E.FirstName + ' ' + E.LastName) as AddedBy FROM EmailDueDateHistory EDH
                             INNER JOIN Employee E on E.UserID = EDH.UserID
-                            WHERE ConversationID = @Id";
+                            WHERE ConversationID = @Id ORDER BY AddedDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("Id", Id);

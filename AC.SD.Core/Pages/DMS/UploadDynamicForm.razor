@@ -705,6 +705,7 @@
                                         addTempSectionAttributess.DataType = typeof(long?);
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
+
                                     });
                                 }
                                 if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
@@ -748,6 +749,19 @@
                                                         addTempSectionAttributes.Add(addTempSectionAttribute);
                                                         typesLists.Add(d.SubDataType);
                                                         objectNameLists.Add(a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName);
+                                                        if (d.SubApplicationMaster != null && d.SubApplicationMaster.Count > 0)
+                                                        {
+                                                            d.SubApplicationMaster.ForEach(ab =>
+                                                            {
+                                                                AddTempSectionAttribute addTempSectionAttributeSub = new AddTempSectionAttribute();
+                                                                var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                                                                addTempSectionAttributeSub.DataType = d.SubDataType;
+                                                                addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
+                                                                addTempSectionAttributes.Add(addTempSectionAttributeSub);
+                                                                typesLists.Add(d.SubDataType);
+                                                                objectNameLists.Add(appendAppMaster);
+                                                            });
+                                                        }
                                                     }
                                                     else
                                                     {
@@ -777,6 +791,19 @@
                                                             addTempSectionAttributes.Add(addTempSectionAttribute);
                                                             typesLists.Add(d.SubDataType);
                                                             objectNameLists.Add(a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName);
+                                                            if (d.SubApplicationMaster != null && d.SubApplicationMaster.Count > 0)
+                                                            {
+                                                                d.SubApplicationMaster.ForEach(ab =>
+                                                                {
+                                                                    AddTempSectionAttribute addTempSectionAttributeSub = new AddTempSectionAttribute();
+                                                                    var appendAppMaster = a.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                                                                    addTempSectionAttributeSub.DataType = d.SubDataType;
+                                                                    addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
+                                                                    addTempSectionAttributes.Add(addTempSectionAttributeSub);
+                                                                    typesLists.Add(d.SubDataType);
+                                                                    objectNameLists.Add(appendAppMaster);
+                                                                });
+                                                            }
                                                         }
                                                         else
                                                         {
@@ -1148,6 +1175,43 @@
                                      Data.GetType().GetProperty(subAttrName).SetValue(Data, values);
                                  }
                              }
+                         }
+                         if (d.DataSourceTable == "ApplicationMaster" && d.SubApplicationMaster != null && d.SubApplicationMaster.Count() > 0)
+                         {
+                             d.SubApplicationMaster.ForEach(ab =>
+                             {
+                                 var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + d.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                                 var SubNamesss = jsonObjs.ContainsKey(appendAppMaster);
+                                 if (SubNamesss == true)
+                                 {
+                                     var itemValues = jsonObjs[appendAppMaster];
+                                     if (itemValues is JArray)
+                                     {
+                                         var values = (JArray)itemValues;
+                                         List<long?> listDatas = values.ToObject<List<long?>>();
+                                         if (d.IsMultiple == true || d.ControlType == "TagBox")
+                                         {
+                                             Data.GetType().GetProperty(appendAppMaster).SetValue(Data, listDatas);
+                                         }
+                                     }
+                                     else
+                                     {
+                                         if (d.ControlType == "ComboBox")
+                                         {
+                                             long? values = itemValues == null ? null : (long)itemValues;
+                                             Data.GetType().GetProperty(appendAppMaster).SetValue(Data, values);
+                                         }
+                                         else
+                                         {
+                                             if (d.ControlType == "ListBox" && d.IsMultiple == false)
+                                             {
+                                                 long? values = itemValues == null ? null : (long)itemValues;
+                                                 Data.GetType().GetProperty(appendAppMaster).SetValue(Data, values);
+                                             }
+                                         }
+                                     }
+                                 }
+                             });
                          }
                      }
                  }
@@ -1983,6 +2047,17 @@
                     addTempSectionAttribute.DataType = s.SubDataType;
                     addTempSectionAttribute.DynamicAttributeName = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + s.SubDynamicAttributeName;
                     addTempSectionAttributes.Add(addTempSectionAttribute);
+                    if (s.SubApplicationMaster != null && s.SubApplicationMaster.Count > 0)
+                    {
+                        s.SubApplicationMaster.ForEach(ab =>
+                        {
+                            AddTempSectionAttribute addTempSectionAttributeSub = new AddTempSectionAttribute();
+                            var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + s.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                            addTempSectionAttributeSub.DataType = s.SubDataType;
+                            addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
+                            addTempSectionAttributes.Add(addTempSectionAttributeSub);
+                        });
+                    }
                 });
 
                 addTempSectionAttributes.ForEach(s =>
@@ -1997,6 +2072,14 @@
                 dynamicFormSectionAttribute.SubAttributeHeaders.ForEach(s =>
                 {
                     addTempSectionAttributes.RemoveAll(r => r.DynamicAttributeName == dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + s.SubDynamicAttributeName);
+                    if (s.SubApplicationMaster != null && s.SubApplicationMaster.Count > 0)
+                    {
+                        s.SubApplicationMaster.ForEach(ab =>
+                        {
+                            var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + s.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                            addTempSectionAttributes.RemoveAll(r => r.DynamicAttributeName == appendAppMaster);
+                        });
+                    }
                 });
                 addTempSectionAttributes.ForEach(s =>
                 {
@@ -2107,6 +2190,17 @@
                 addTempSectionAttribute.DataType = s.SubDataType;
                 addTempSectionAttribute.DynamicAttributeName = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + s.SubDynamicAttributeName;
                 addTempSectionAttributes.Add(addTempSectionAttribute);
+                if (s.SubApplicationMaster != null && s.SubApplicationMaster.Count > 0)
+                {
+                    s.SubApplicationMaster.ForEach(ab =>
+                    {
+                        AddTempSectionAttribute addTempSectionAttributeSub = new AddTempSectionAttribute();
+                        var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + s.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                        addTempSectionAttributeSub.DataType = s.SubDataType;
+                        addTempSectionAttributeSub.DynamicAttributeName = appendAppMaster;
+                        addTempSectionAttributes.Add(addTempSectionAttributeSub);
+                    });
+                }
             });
 
             addTempSectionAttributes.ForEach(s =>
@@ -2122,9 +2216,17 @@
                 if (l.SubAttributeHeaders != null && l.SubAttributeHeaders.Count > 0)
                 {
                     l.SubAttributeHeaders.ForEach(v =>
-        {
-            addTempSectionAttributes.RemoveAll(p => p.DynamicAttributeName == dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + v.SubDynamicAttributeName);
-        });
+                    {
+                        addTempSectionAttributes.RemoveAll(p => p.DynamicAttributeName == dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + v.SubDynamicAttributeName);
+                        if (v.SubApplicationMaster != null && v.SubApplicationMaster.Count > 0)
+                        {
+                            v.SubApplicationMaster.ForEach(ab =>
+                            {
+                                var appendAppMaster = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + v.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+                                addTempSectionAttributes.RemoveAll(r => r.DynamicAttributeName == appendAppMaster);
+                            });
+                        }
+                    });
                 }
             });
             addTempSectionAttributes.ForEach(s =>
@@ -3560,431 +3662,350 @@
                 {
                     int m = 0;
                     var appendProSubNames = s.DynamicFormSectionAttributeId + "_" + q.SubDynamicAttributeName;
-                    var propertySub = Data.GetType().GetProperty(appendProSubNames);
-                    if (propertySub != null)
+                    if (q.DataSourceTable == "ApplicationMaster")
                     {
-                        itemBuilder.OpenComponent<DxFormLayoutItem>(2);
-                        itemBuilder.AddAttribute(i++, "Caption", q.Description);
-                        itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
-                        itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
+                        if (q.SubApplicationMaster != null && q.SubApplicationMaster.Count() > 0)
+                        {
+                            loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly);
+                        }
+                    }
+                    else
                     {
+                        var propertySub = Data.GetType().GetProperty(appendProSubNames);
+                        if (propertySub != null)
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(2);
+                            itemBuilder.AddAttribute(i++, "Caption", q.Description);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
+                        {
 
-                        var valueDataSub = propertySub.GetValue(Data);
-                        var accessSub = Expression.Property(Expression.Constant(Data), appendProSubNames);
-                        var lambdaSub = Expression.Lambda(typeof(Func<>).MakeGenericType(q.SubDataType), accessSub);
-                        var propertySubType = Nullable.GetUnderlyingType(propertySub.PropertyType) ?? propertySub.PropertyType;
-                        if (q.ControlType == "TextBox")
-                        {
-                            editor1.OpenComponent<DxTextBox>(m + 1);
-                            editor1.AddAttribute(m + 1, "Text", valueDataSub);
-                            editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
-                            // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                            editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
-                            if (q.IsRequired == true)
+                            var valueDataSub = propertySub.GetValue(Data);
+                            var accessSub = Expression.Property(Expression.Constant(Data), appendProSubNames);
+                            var lambdaSub = Expression.Lambda(typeof(Func<>).MakeGenericType(q.SubDataType), accessSub);
+                            var propertySubType = Nullable.GetUnderlyingType(propertySub.PropertyType) ?? propertySub.PropertyType;
+                            if (q.ControlType == "TextBox")
                             {
-                                if (string.IsNullOrEmpty((string)valueDataSub))
-                                {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
-                                    {
-                                        // editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                    }
-                                }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (string.IsNullOrEmpty((string)valueDataSub) && isSubmit == true)
-                                {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                            }
-                        }
-                        else if (q.ControlType == "Memo")
-                        {
-                            editor1.OpenComponent<DxMemo>(m + 1);
-                            editor1.AddAttribute(m + 1, "Text", valueDataSub);
-                            editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
-                            editor1.AddAttribute(m + 1, "Rows", 5);
-                            // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                            editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
-                            if (q.IsRequired == true)
-                            {
-                                if (string.IsNullOrEmpty((string)valueDataSub))
-                                {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
-                                    {
-                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                    }
-                                }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (string.IsNullOrEmpty((string)valueDataSub) && isSubmit == true)
-                                {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                            }
-                        }
-                        else if (q.ControlType == "DateEdit")
-                        {
-                            editor1.OpenComponent<DxDateEdit<DateTime?>>(m + 1);
-                            editor1.AddAttribute(m + 1, "Date", valueDataSub);
-                            editor1.AddAttribute(m + 1, "DateExpression", lambdaSub);
-                            //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                            editor1.AddAttribute(m + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { propertySub.SetValue(Data, str); }));
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null)
-                                {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
-                                    {
-                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                    }
-                                }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null && isSubmit == true)
-                                {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                            }
-                        }
-                        else if (q.ControlType == "TimeEdit")
-                        {
-                            editor1.OpenComponent<DxTimeEdit<TimeSpan?>>(m + 1);
-                            editor1.AddAttribute(m + 1, "Time", valueDataSub);
-                            editor1.AddAttribute(m + 1, "TimeExpression", lambdaSub);
-                            //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                            editor1.AddAttribute(m + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { propertySub.SetValue(Data, str); }));
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null)
-                                {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
-                                    {
-                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                    }
-                                }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null && isSubmit == true)
-                                {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                            }
-                        }
-                        else if (q.ControlType == "SpinEdit")
-                        {
-                            if (propertySubType.Name == "Int32")
-                            {
-                                editor1.OpenComponent<DxSpinEdit<int?>>(m + 1);
-                                editor1.AddAttribute(m + 1, "Value", valueDataSub);
-                                editor1.AddAttribute(m + 1, "MinValue", 0);
-                                //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                                editor1.AddAttribute(m + 1, "BindValueMode", BindValueMode.OnInput);
+                                editor1.OpenComponent<DxTextBox>(m + 1);
+                                editor1.AddAttribute(m + 1, "Text", valueDataSub);
+                                editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
+                                // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                                 editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                                editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { propertySub.SetValue(Data, str); }));
-                            }
-                            if (propertySubType.Name == "Decimal")
-                            {
-                                editor1.OpenComponent<DxSpinEdit<decimal?>>(m + 1);
-                                editor1.AddAttribute(m + 1, "Value", valueDataSub);
-                                editor1.AddAttribute(m + 1, "Increment", 0.1M);
-                                //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                                editor1.AddAttribute(m + 1, "MinValue", 0M);
-                                editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                                editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { propertySub.SetValue(Data, str); }));
-                            }
-                            editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null)
+                                editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
+                                if (q.IsRequired == true)
                                 {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
+                                    if (string.IsNullOrEmpty((string)valueDataSub))
                                     {
-                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                    }
-                                }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null && isSubmit == true)
-                                {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                            }
-                        }
-                        else if (q.ControlType == "CheckBox")
-                        {
-                            editor1.OpenComponent<DxCheckBox<bool?>>(m + 1);
-                            editor1.AddAttribute(m + 1, "Checked", valueDataSub ?? false);
-                            editor1.AddAttribute(m + 1, "CheckedExpression", lambdaSub);
-                            //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            //editor1.AddAttribute(i+1, "LabelPosition", LabelPosition.Right);
-                            editor1.AddAttribute(m + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertySub.SetValue(Data, str); }));
-                            if (s.IsRequired == true)
-                            {
-                                if (valueDataSub == null || (bool)valueDataSub == false)
-                                {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
-                                    {
-                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                    }
-                                }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null || (bool)valueDataSub == false && isSubmit == true)
-                                {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                            }
-                        }
-                        else if (q.ControlType == "RadioGroup" || q.ControlType == "Radio")
-                        {
-                            editor1.OpenComponent<DxRadioGroup<AttributeDetails, long?>>(m + 1);
-                            editor1.AddAttribute(m + 1, "Items", q.SubAttributeDetails);
-                            editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
-                            editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
-                            editor1.AddAttribute(m + 1, "Value", valueDataSub);
-                            //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
-                            editor1.AddAttribute(m + 1, "Layout", q.AttributeRadioLayout == "Vertical" ? RadioGroupLayout.Vertical : RadioGroupLayout.Horizontal);
-                            editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null)
-                                {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
-                                    {
-                                        editor1.AddAttribute(m + 1, "style", "color:red;");
-                                    }
-                                }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null && isSubmit == true)
-                                {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                            }
-                        }
-                        else if (q.ControlType == "ComboBox")
-                        {
-                            editor1.OpenComponent<DxComboBox<AttributeDetails, long?>>(m + 1);
-                            editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
-                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
-                            editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
-                            editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
-                            editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
-                            editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
-                            editor1.AddAttribute(m + 1, "FilteringMode", DataGridFilteringMode.Contains);
-                            editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                            editor1.AddAttribute(m + 1, "Value", valueDataSub);
-                            // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
-                            editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
-                            editor1.AddAttribute(m + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
-                            {
-                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                                layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
-                                layoutItemBuilders.AddAttribute(0, "Caption", "Name");
-                                layoutItemBuilders.CloseComponent();
-                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                                layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                                layoutItemBuilders.CloseComponent();
-                            }));
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null)
-                                {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
-                                    {
-                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                    }
-                                }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null && isSubmit == true)
-                                {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                            }
-                        }
-                        else if (q.ControlType == "TagBox")
-                        {
-                            editor1.OpenComponent<DxTagBox<AttributeDetails, long?>>(m + 1);
-                            editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
-                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
-                            editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
-                            editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
-                            editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
-                            editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
-                            editor1.AddAttribute(m + 1, "FilteringMode", DataGridFilteringMode.Contains);
-                            editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                            editor1.AddAttribute(m + 1, "Values", valueDataSub);
-                            editor1.AddAttribute(m + 1, "ValuesExpression", lambdaSub);
-                            //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            editor1.AddAttribute(m + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertySub.SetValue(Data, str); }));
-                            editor1.AddAttribute(m + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
-                            {
-                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                                layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
-                                layoutItemBuilders.AddAttribute(0, "Caption", "Name");
-                                layoutItemBuilders.CloseComponent();
-                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                                layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                                layoutItemBuilders.CloseComponent();
-                            }));
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null)
-                                {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
-                                    {
-                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                    }
-                                }
-                                else
-                                {
-                                    IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
-                                    if (valueDatas != null)
-                                    {
-                                        List<long?> listData = valueDatas.ToList();
-                                        if (listData.Count() == 0)
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
                                         {
-                                            isRequiredCount += 1;
-                                            if (isSubmit == true)
-                                            {
-                                                //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                            }
+                                            // editor1.AddAttribute(m + 1, "style", "border-color:red;");
                                         }
                                     }
                                 }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null && isSubmit == true)
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
                                 {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                                else
-                                {
-                                    IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
-                                    if (valueDatas != null)
+                                    if (string.IsNullOrEmpty((string)valueDataSub) && isSubmit == true)
                                     {
-                                        List<long?> listData = valueDatas.ToList();
-                                        if (listData.Count() == 0 && isSubmit == true)
-                                        {
-                                            editor1.OpenElement(m + 1, "span");
-                                            editor1.AddAttribute(m + 1, "class", "text-danger");
-                                            editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                            editor1.CloseElement();
-                                        }
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
                                     }
                                 }
                             }
-                        }
-                        else if (q.ControlType == "ListBox")
-                        {
-                            editor1.OpenComponent<DxListBox<AttributeDetails, long?>>(m + 1);
-                            editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
-                            editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
-                            editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
-                            //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                            editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
-                            editor1.AddAttribute(m + 1, "ShowCheckboxes", true);
-                            if (q.IsMultiple == true)
+                            else if (q.ControlType == "Memo")
                             {
+                                editor1.OpenComponent<DxMemo>(m + 1);
+                                editor1.AddAttribute(m + 1, "Text", valueDataSub);
+                                editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
+                                editor1.AddAttribute(m + 1, "Rows", 5);
+                                // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
+                                if (q.IsRequired == true)
+                                {
+                                    if (string.IsNullOrEmpty((string)valueDataSub))
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
+                                    }
+                                }
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
+                                {
+                                    if (string.IsNullOrEmpty((string)valueDataSub) && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                }
+                            }
+                            else if (q.ControlType == "DateEdit")
+                            {
+                                editor1.OpenComponent<DxDateEdit<DateTime?>>(m + 1);
+                                editor1.AddAttribute(m + 1, "Date", valueDataSub);
+                                editor1.AddAttribute(m + 1, "DateExpression", lambdaSub);
+                                //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor1.AddAttribute(m + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { propertySub.SetValue(Data, str); }));
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null)
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
+                                    }
+                                }
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                }
+                            }
+                            else if (q.ControlType == "TimeEdit")
+                            {
+                                editor1.OpenComponent<DxTimeEdit<TimeSpan?>>(m + 1);
+                                editor1.AddAttribute(m + 1, "Time", valueDataSub);
+                                editor1.AddAttribute(m + 1, "TimeExpression", lambdaSub);
+                                //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor1.AddAttribute(m + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { propertySub.SetValue(Data, str); }));
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null)
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
+                                    }
+                                }
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                }
+                            }
+                            else if (q.ControlType == "SpinEdit")
+                            {
+                                if (propertySubType.Name == "Int32")
+                                {
+                                    editor1.OpenComponent<DxSpinEdit<int?>>(m + 1);
+                                    editor1.AddAttribute(m + 1, "Value", valueDataSub);
+                                    editor1.AddAttribute(m + 1, "MinValue", 0);
+                                    //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                    editor1.AddAttribute(m + 1, "BindValueMode", BindValueMode.OnInput);
+                                    editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                    editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { propertySub.SetValue(Data, str); }));
+                                }
+                                if (propertySubType.Name == "Decimal")
+                                {
+                                    editor1.OpenComponent<DxSpinEdit<decimal?>>(m + 1);
+                                    editor1.AddAttribute(m + 1, "Value", valueDataSub);
+                                    editor1.AddAttribute(m + 1, "Increment", 0.1M);
+                                    //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                    editor1.AddAttribute(m + 1, "MinValue", 0M);
+                                    editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                    editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { propertySub.SetValue(Data, str); }));
+                                }
+                                editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null)
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
+                                    }
+                                }
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                }
+                            }
+                            else if (q.ControlType == "CheckBox")
+                            {
+                                editor1.OpenComponent<DxCheckBox<bool?>>(m + 1);
+                                editor1.AddAttribute(m + 1, "Checked", valueDataSub ?? false);
+                                editor1.AddAttribute(m + 1, "CheckedExpression", lambdaSub);
+                                //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                //editor1.AddAttribute(i+1, "LabelPosition", LabelPosition.Right);
+                                editor1.AddAttribute(m + 1, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { propertySub.SetValue(Data, str); }));
+                                if (s.IsRequired == true)
+                                {
+                                    if (valueDataSub == null || (bool)valueDataSub == false)
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
+                                    }
+                                }
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null || (bool)valueDataSub == false && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                }
+                            }
+                            else if (q.ControlType == "RadioGroup" || q.ControlType == "Radio")
+                            {
+                                editor1.OpenComponent<DxRadioGroup<AttributeDetails, long?>>(m + 1);
+                                editor1.AddAttribute(m + 1, "Items", q.SubAttributeDetails);
+                                editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
+                                editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
+                                editor1.AddAttribute(m + 1, "Value", valueDataSub);
+                                //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
+                                editor1.AddAttribute(m + 1, "Layout", q.AttributeRadioLayout == "Vertical" ? RadioGroupLayout.Vertical : RadioGroupLayout.Horizontal);
+                                editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null)
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            editor1.AddAttribute(m + 1, "style", "color:red;");
+                                        }
+                                    }
+                                }
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                }
+                            }
+                            else if (q.ControlType == "ComboBox")
+                            {
+                                editor1.OpenComponent<DxComboBox<AttributeDetails, long?>>(m + 1);
+                                editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
+                                editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
+                                editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
+                                editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
+                                editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
+                                editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
+                                editor1.AddAttribute(m + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                                editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor1.AddAttribute(m + 1, "Value", valueDataSub);
+                                // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
+                                editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
+                                editor1.AddAttribute(m + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                                {
+                                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
+                                    layoutItemBuilders.AddAttribute(0, "Caption", "Name");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                                    layoutItemBuilders.CloseComponent();
+                                }));
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null)
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
+                                    }
+                                }
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                }
+                            }
+                            else if (q.ControlType == "TagBox")
+                            {
+                                editor1.OpenComponent<DxTagBox<AttributeDetails, long?>>(m + 1);
+                                editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
+                                editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
+                                editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
+                                editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
+                                editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
+                                editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
+                                editor1.AddAttribute(m + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                                editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                                 editor1.AddAttribute(m + 1, "Values", valueDataSub);
                                 editor1.AddAttribute(m + 1, "ValuesExpression", lambdaSub);
-                                editor1.AddAttribute(m + 1, "SelectionMode", ListBoxSelectionMode.Multiple);
+                                //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                                 editor1.AddAttribute(m + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertySub.SetValue(Data, str); }));
-                            }
-                            else
-                            {
-                                editor1.AddAttribute(m + 1, "Value", valueDataSub);
-                                editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
-                                editor1.AddAttribute(m + 1, "SelectionMode", ListBoxSelectionMode.Single);
-                                editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
-                            }
-                            editor1.AddAttribute(m + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
-                            {
-                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                                layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
-                                layoutItemBuilders.AddAttribute(0, "Caption", "Name");
-                                layoutItemBuilders.CloseComponent();
-                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                                layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                                layoutItemBuilders.CloseComponent();
-                            }));
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null)
+                                editor1.AddAttribute(m + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
                                 {
-                                    isRequiredCount += 1;
-                                    if (isSubmit == true)
+                                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
+                                    layoutItemBuilders.AddAttribute(0, "Caption", "Name");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                                    layoutItemBuilders.CloseComponent();
+                                }));
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null)
                                     {
-                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    if (q.IsMultiple == true)
+                                    else
                                     {
                                         IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
                                         if (valueDatas != null)
@@ -4001,20 +4022,17 @@
                                         }
                                     }
                                 }
-                            }
-                            editor1.CloseComponent();
-                            if (q.IsRequired == true)
-                            {
-                                if (valueDataSub == null && isSubmit == true)
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
                                 {
-                                    editor1.OpenElement(m + 1, "span");
-                                    editor1.AddAttribute(m + 1, "class", "text-danger");
-                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
-                                    editor1.CloseElement();
-                                }
-                                else
-                                {
-                                    if (q.IsMultiple == true)
+                                    if (valueDataSub == null && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                    else
                                     {
                                         IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
                                         if (valueDatas != null)
@@ -4031,9 +4049,103 @@
                                     }
                                 }
                             }
+                            else if (q.ControlType == "ListBox")
+                            {
+                                editor1.OpenComponent<DxListBox<AttributeDetails, long?>>(m + 1);
+                                editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
+                                editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
+                                editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
+                                //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
+                                editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
+                                editor1.AddAttribute(m + 1, "ShowCheckboxes", true);
+                                if (q.IsMultiple == true)
+                                {
+                                    editor1.AddAttribute(m + 1, "Values", valueDataSub);
+                                    editor1.AddAttribute(m + 1, "ValuesExpression", lambdaSub);
+                                    editor1.AddAttribute(m + 1, "SelectionMode", ListBoxSelectionMode.Multiple);
+                                    editor1.AddAttribute(m + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertySub.SetValue(Data, str); }));
+                                }
+                                else
+                                {
+                                    editor1.AddAttribute(m + 1, "Value", valueDataSub);
+                                    editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
+                                    editor1.AddAttribute(m + 1, "SelectionMode", ListBoxSelectionMode.Single);
+                                    editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
+                                }
+                                editor1.AddAttribute(m + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                                {
+                                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
+                                    layoutItemBuilders.AddAttribute(0, "Caption", "Name");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                                    layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                                    layoutItemBuilders.CloseComponent();
+                                }));
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null)
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (q.IsMultiple == true)
+                                        {
+                                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
+                                            if (valueDatas != null)
+                                            {
+                                                List<long?> listData = valueDatas.ToList();
+                                                if (listData.Count() == 0)
+                                                {
+                                                    isRequiredCount += 1;
+                                                    if (isSubmit == true)
+                                                    {
+                                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                editor1.CloseComponent();
+                                if (q.IsRequired == true)
+                                {
+                                    if (valueDataSub == null && isSubmit == true)
+                                    {
+                                        editor1.OpenElement(m + 1, "span");
+                                        editor1.AddAttribute(m + 1, "class", "text-danger");
+                                        editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                        editor1.CloseElement();
+                                    }
+                                    else
+                                    {
+                                        if (q.IsMultiple == true)
+                                        {
+                                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataSub;
+                                            if (valueDatas != null)
+                                            {
+                                                List<long?> listData = valueDatas.ToList();
+                                                if (listData.Count() == 0 && isSubmit == true)
+                                                {
+                                                    editor1.OpenElement(m + 1, "span");
+                                                    editor1.AddAttribute(m + 1, "class", "text-danger");
+                                                    editor1.AddContent(m + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                                    editor1.CloseElement();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        })));
+                            itemBuilder.CloseComponent();
                         }
-                    })));
-                        itemBuilder.CloseComponent();
                     }
                 });
 
@@ -4118,107 +4230,196 @@
                 itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
                 itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
+            {
+                if (s.ControlType == "ComboBox")
                 {
-                    if (s.ControlType == "ComboBox")
+                    editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(l + 1);
+                    editor11.AddAttribute(l + 1, "Data", PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>());
+                    editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
+                    editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                    editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
+                    if (isAccessOnly == true)
                     {
-                        editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(l + 1);
-                        editor11.AddAttribute(l + 1, "Data", PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == "ApplicationMaster" && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>());
-                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
-                        editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
-                        editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
-                        editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
-                        editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
-                        editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
-                        editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                        editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
-                        if (isAccessOnly == true)
+                        editor11.AddAttribute(l + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(l + 1, "Enabled", isAccessOnly);
+                    }
+                    editor11.AddAttribute(l + 1, "ValueExpression", lambdapropertyAppMaster);
+                    editor11.AddAttribute(l + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                    {
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
+                        layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
+                        layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
+                        layoutItemBuilders1.CloseComponent();
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
+                        layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
+                        layoutItemBuilders1.CloseComponent();
+                    }));
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataAppMaster == null)
                         {
-                            editor11.AddAttribute(l + 1, "Enabled", isReadonly);
-                        }
-                        else
-                        {
-                            editor11.AddAttribute(l + 1, "Enabled", isAccessOnly);
-                        }
-                        editor11.AddAttribute(l + 1, "ValueExpression", lambdapropertyAppMaster);
-                        editor11.AddAttribute(l + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyAppMaster.SetValue(Data, str); }));
-                        editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
-                        {
-                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
-                            layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
-                            layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
-                            layoutItemBuilders1.CloseComponent();
-                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
-                            layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
-                            layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
-                            layoutItemBuilders1.CloseComponent();
-                        }));
-                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                        {
-                            if (valueDataAppMaster == null)
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
                             {
-                                isRequiredCount += 1;
-                                if (isSubmit == true)
-                                {
-                                    //editor11.AddAttribute(i + 1, "style", "border-color:red;");
-                                }
-                            }
-                        }
-                        editor11.CloseComponent();
-                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                        {
-                            if (valueDataAppMaster == null && isSubmit == true)
-                            {
-                                editor11.OpenElement(l + 1, "span");
-                                editor11.AddAttribute(l + 1, "class", "text-danger");
-                                editor11.AddContent(l + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
-                                editor11.CloseElement();
+                                //editor11.AddAttribute(i + 1, "style", "border-color:red;");
                             }
                         }
                     }
-                    if (s.ControlType == "TagBox")
+                    editor11.CloseComponent();
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
                     {
-                        editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(l + 1);
-                        editor11.AddAttribute(l + 1, "Data", PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == "ApplicationMaster" && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>());
-                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
-                        editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
-                        editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
-                        editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
-                        editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
-                        editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
-                        editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                        editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
-                        if (isAccessOnly == true)
+                        if (valueDataAppMaster == null && isSubmit == true)
                         {
-                            editor11.AddAttribute(l + 1, "Enabled", isReadonly);
+                            editor11.OpenElement(l + 1, "span");
+                            editor11.AddAttribute(l + 1, "class", "text-danger");
+                            editor11.AddContent(l + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                            editor11.CloseElement();
+                        }
+                    }
+                }
+                if (s.ControlType == "TagBox")
+                {
+                    editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(l + 1);
+                    editor11.AddAttribute(l + 1, "Data", PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>());
+                    editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
+                    editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                    editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
+                    if (isAccessOnly == true)
+                    {
+                        editor11.AddAttribute(l + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(l + 1, "Enabled", isAccessOnly);
+                    }
+                    editor11.AddAttribute(l + 1, "ValuesExpression", lambdapropertyAppMaster);
+                    editor11.AddAttribute(l + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                    {
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
+                        layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
+                        layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
+                        layoutItemBuilders1.CloseComponent();
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
+                        layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
+                        layoutItemBuilders1.CloseComponent();
+                    }));
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataAppMaster == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor11.AddAttribute(i + 1, "style", "border-color:red;");
+                            }
                         }
                         else
                         {
-                            editor11.AddAttribute(l + 1, "Enabled", isAccessOnly);
-                        }
-                        editor11.AddAttribute(l + 1, "ValuesExpression", lambdapropertyAppMaster);
-                        editor11.AddAttribute(l + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyAppMaster.SetValue(Data, str); }));
-                        editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
-                        {
-                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
-                            layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
-                            layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
-                            layoutItemBuilders1.CloseComponent();
-                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
-                            layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
-                            layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
-                            layoutItemBuilders1.CloseComponent();
-                        }));
-                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                        {
-                            if (valueDataAppMaster == null)
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
+                            if (valueDatas != null)
                             {
-                                isRequiredCount += 1;
-                                if (isSubmit == true)
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0)
                                 {
-                                    //editor11.AddAttribute(i + 1, "style", "border-color:red;");
+                                    isRequiredCount += 1;
+                                    if (isSubmit == true)
+                                    {
+                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                    }
                                 }
                             }
-                            else
+                        }
+                    }
+                    editor11.CloseComponent();
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataAppMaster == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(l + 1, "span");
+                            editor11.AddAttribute(l + 1, "class", "text-danger");
+                            editor11.AddContent(l + 1, "This field is Required");
+                            editor11.CloseElement();
+                        }
+                        else
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0 && isSubmit == true)
+                                {
+                                    editor11.OpenElement(l + 1, "span");
+                                    editor11.AddAttribute(l + 1, "class", "text-danger");
+                                    editor11.AddContent(l + 1, "This field is Required");
+                                    editor11.CloseElement();
+                                }
+                            }
+                        }
+                    }
+                }
+                if (s.ControlType == "ListBox")
+                {
+                    editor11.OpenComponent<DxListBox<AttributeDetails, long?>>(i + 1);
+                    editor11.AddAttribute(i + 1, "Data", PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>());
+                    editor11.AddAttribute(i + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(i + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(i + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(i + 1, "ShowCheckboxes", true);
+                    if (s.IsMultiple == true)
+                    {
+                        editor11.AddAttribute(i + 1, "Values", valueDataAppMaster);
+                        editor11.AddAttribute(i + 1, "ValuesExpression", lambdapropertyAppMaster);
+                        editor11.AddAttribute(i + 1, "SelectionMode", ListBoxSelectionMode.Multiple);
+                        editor11.AddAttribute(i + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(i + 1, "Value", valueDataAppMaster);
+                        editor11.AddAttribute(i + 1, "ValueExpression", lambdapropertyAppMaster);
+                        editor11.AddAttribute(i + 1, "SelectionMode", ListBoxSelectionMode.Single);
+                        editor11.AddAttribute(i + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    }
+                    editor11.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                            layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
+                            layoutItemBuilders.AddAttribute(0, "Caption", "Name");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                            layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                            layoutItemBuilders.CloseComponent();
+                        }));
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataAppMaster == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                            }
+                        }
+                        else
+                        {
+                            if (s.IsMultiple == true)
                             {
                                 IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
                                 if (valueDatas != null)
@@ -4235,17 +4436,277 @@
                                 }
                             }
                         }
-                        editor11.CloseComponent();
-                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    }
+                    editor11.CloseComponent();
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataAppMaster == null && isSubmit == true)
                         {
-                            if (valueDataAppMaster == null && isSubmit == true)
+                            editor11.OpenElement(i + 1, "span");
+                            editor11.AddAttribute(i + 1, "class", "text-danger");
+                            editor11.AddContent(i + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                            editor11.CloseElement();
+                        }
+                        else
+                        {
+                            if (s.IsMultiple == true)
                             {
-                                editor11.OpenElement(l + 1, "span");
-                                editor11.AddAttribute(l + 1, "class", "text-danger");
-                                editor11.AddContent(l + 1, "This field is Required");
-                                editor11.CloseElement();
+                                IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
+                                if (valueDatas != null)
+                                {
+                                    List<long?> listData = valueDatas.ToList();
+                                    if (listData.Count() == 0 && isSubmit == true)
+                                    {
+                                        editor11.OpenElement(i + 1, "span");
+                                        editor11.AddAttribute(i + 1, "class", "text-danger");
+                                        editor11.AddContent(i + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                                        editor11.CloseElement();
+                                    }
+                                }
                             }
-                            else
+                        }
+                    }
+                }
+            })));
+                itemBuilder.CloseComponent();
+
+            }
+        });
+    }
+    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    {
+        q.SubApplicationMaster.ForEach(ab =>
+        {
+            int l = 0;
+            var appendAppMaster = s.DynamicFormSectionAttributeId + "_" + q.SubDynamicAttributeName + "_" + ab.ApplicationMasterCodeId + "_SubAppMaster";
+            var propertyAppMaster = Data.GetType().GetProperty(appendAppMaster);
+            if (propertyAppMaster != null)
+            {
+                var valueDataAppMaster = propertyAppMaster.GetValue(Data);
+                var accesspropertyAppMaster = Expression.Property(Expression.Constant(Data), appendAppMaster);
+                var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(q.SubDataType), accesspropertyAppMaster);
+                itemBuilder.OpenComponent<DxFormLayoutItem>(4);
+                itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
+            {
+                if (q.ControlType == "ComboBox")
+                {
+                    editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(l + 1);
+                    editor11.AddAttribute(l + 1, "Data", q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>());
+                    editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
+                    editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                    editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
+                    if (isAccessOnly == true)
+                    {
+                        editor11.AddAttribute(l + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(l + 1, "Enabled", isAccessOnly);
+                    }
+                    editor11.AddAttribute(l + 1, "ValueExpression", lambdapropertyAppMaster);
+                    editor11.AddAttribute(l + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                    {
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
+                        layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
+                        layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
+                        layoutItemBuilders1.CloseComponent();
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
+                        layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
+                        layoutItemBuilders1.CloseComponent();
+                    }));
+                    if (q.IsRequired == true)
+                    {
+                        if (valueDataAppMaster == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor11.AddAttribute(i + 1, "style", "border-color:red;");
+                            }
+                        }
+                    }
+                    editor11.CloseComponent();
+                    if (q.IsRequired == true)
+                    {
+                        if (valueDataAppMaster == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(l + 1, "span");
+                            editor11.AddAttribute(l + 1, "class", "text-danger");
+                            editor11.AddContent(l + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                            editor11.CloseElement();
+                        }
+                    }
+                }
+                if (q.ControlType == "TagBox")
+                {
+                    editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(l + 1);
+                    editor11.AddAttribute(l + 1, "Data", q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>()); editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
+                    editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                    editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
+                    if (isAccessOnly == true)
+                    {
+                        editor11.AddAttribute(l + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(l + 1, "Enabled", isAccessOnly);
+                    }
+                    editor11.AddAttribute(l + 1, "ValuesExpression", lambdapropertyAppMaster);
+                    editor11.AddAttribute(l + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                    {
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
+                        layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
+                        layoutItemBuilders1.AddAttribute(0, "Caption", "Name");
+                        layoutItemBuilders1.CloseComponent();
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders1.AddAttribute(1, "FieldName", "Description");
+                        layoutItemBuilders1.AddAttribute(1, "Caption", "Description");
+                        layoutItemBuilders1.CloseComponent();
+                    }));
+                    if (q.IsRequired == true)
+                    {
+                        if (valueDataAppMaster == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor11.AddAttribute(i + 1, "style", "border-color:red;");
+                            }
+                        }
+                        else
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0)
+                                {
+                                    isRequiredCount += 1;
+                                    if (isSubmit == true)
+                                    {
+                                        //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    editor11.CloseComponent();
+                    if (q.IsRequired == true)
+                    {
+                        if (valueDataAppMaster == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(l + 1, "span");
+                            editor11.AddAttribute(l + 1, "class", "text-danger");
+                            editor11.AddContent(l + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                            editor11.CloseElement();
+                        }
+                        else
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0 && isSubmit == true)
+                                {
+                                    editor11.OpenElement(l + 1, "span");
+                                    editor11.AddAttribute(l + 1, "class", "text-danger");
+                                    editor11.AddContent(l + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                                    editor11.CloseElement();
+                                }
+                            }
+                        }
+                    }
+                }
+                if (q.ControlType == "ListBox")
+                {
+                    editor11.OpenComponent<DxListBox<AttributeDetails, long?>>(l + 1);
+                    editor11.AddAttribute(l + 1, "Data", q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>()); editor11.AddAttribute(i + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(l + 1, "ShowCheckboxes", true);
+                    if (q.IsMultiple == true)
+                    {
+                        editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
+                        editor11.AddAttribute(l + 1, "ValuesExpression", lambdapropertyAppMaster);
+                        editor11.AddAttribute(l + 1, "SelectionMode", ListBoxSelectionMode.Multiple);
+                        editor11.AddAttribute(l + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
+                        editor11.AddAttribute(l + 1, "ValueExpression", lambdapropertyAppMaster);
+                        editor11.AddAttribute(l + 1, "SelectionMode", ListBoxSelectionMode.Single);
+                        editor11.AddAttribute(l + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    }
+                    editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                            layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
+                            layoutItemBuilders.AddAttribute(0, "Caption", "Name");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                            layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                            layoutItemBuilders.CloseComponent();
+                        }));
+                    if (q.IsRequired == true)
+                    {
+                        if (valueDataAppMaster == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                            }
+                        }
+                        else
+                        {
+                            if (q.IsMultiple == true)
+                            {
+                                IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
+                                if (valueDatas != null)
+                                {
+                                    List<long?> listData = valueDatas.ToList();
+                                    if (listData.Count() == 0)
+                                    {
+                                        isRequiredCount += 1;
+                                        if (isSubmit == true)
+                                        {
+                                            //editor1.AddAttribute(m + 1, "style", "border-color:red;");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    editor11.CloseComponent();
+                    if (q.IsRequired == true)
+                    {
+                        if (valueDataAppMaster == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(l + 1, "span");
+                            editor11.AddAttribute(l + 1, "class", "text-danger");
+                            editor11.AddContent(l + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
+                            editor11.CloseElement();
+                        }
+                        else
+                        {
+                            if (q.IsMultiple == true)
                             {
                                 IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
                                 if (valueDatas != null)
@@ -4255,108 +4716,17 @@
                                     {
                                         editor11.OpenElement(l + 1, "span");
                                         editor11.AddAttribute(l + 1, "class", "text-danger");
-                                        editor11.AddContent(l + 1, "This field is Required");
+                                        editor11.AddContent(l + 1, !string.IsNullOrEmpty(q.RequiredMessage) ? q.RequiredMessage : "This field is Required");
                                         editor11.CloseElement();
                                     }
                                 }
                             }
                         }
                     }
-                    if (s.ControlType == "ListBox")
-                    {
-                        editor11.OpenComponent<DxListBox<AttributeDetails, long?>>(i + 1);
-                        editor11.AddAttribute(i + 1, "Data", PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == "ApplicationMaster" && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>());
-                        editor11.AddAttribute(i + 1, "TextFieldName", "AttributeDetailName");
-                        editor11.AddAttribute(i + 1, "ValueFieldName", "AttributeDetailID");
-                        editor11.AddAttribute(i + 1, "ListRenderMode", ListRenderMode.Virtual);
-                        editor11.AddAttribute(i + 1, "ShowCheckboxes", true);
-                        if (s.IsMultiple == true)
-                        {
-                            editor11.AddAttribute(i + 1, "Values", valueDataAppMaster);
-                            editor11.AddAttribute(i + 1, "ValuesExpression", lambdapropertyAppMaster);
-                            editor11.AddAttribute(i + 1, "SelectionMode", ListBoxSelectionMode.Multiple);
-                            editor11.AddAttribute(i + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyAppMaster.SetValue(Data, str); }));
-                        }
-                        else
-                        {
-                            editor11.AddAttribute(i + 1, "Value", valueDataAppMaster);
-                            editor11.AddAttribute(i + 1, "ValueExpression", lambdapropertyAppMaster);
-                            editor11.AddAttribute(i + 1, "SelectionMode", ListBoxSelectionMode.Single);
-                            editor11.AddAttribute(i + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyAppMaster.SetValue(Data, str); }));
-                        }
-                        editor11.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
-                            {
-                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
-                                layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
-                                layoutItemBuilders.AddAttribute(0, "Caption", "Name");
-                                layoutItemBuilders.CloseComponent();
-                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                                layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
-                                layoutItemBuilders.AddAttribute(1, "Caption", "Description");
-                                layoutItemBuilders.CloseComponent();
-                            }));
-                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                        {
-                            if (valueDataAppMaster == null)
-                            {
-                                isRequiredCount += 1;
-                                if (isSubmit == true)
-                                {
-                                    //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                }
-                            }
-                            else
-                            {
-                                if (s.IsMultiple == true)
-                                {
-                                    IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
-                                    if (valueDatas != null)
-                                    {
-                                        List<long?> listData = valueDatas.ToList();
-                                        if (listData.Count() == 0)
-                                        {
-                                            isRequiredCount += 1;
-                                            if (isSubmit == true)
-                                            {
-                                                //editor1.AddAttribute(m + 1, "style", "border-color:red;");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        editor11.CloseComponent();
-                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
-                        {
-                            if (valueDataAppMaster == null && isSubmit == true)
-                            {
-                                editor11.OpenElement(i + 1, "span");
-                                editor11.AddAttribute(i + 1, "class", "text-danger");
-                                editor11.AddContent(i + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
-                                editor11.CloseElement();
-                            }
-                            else
-                            {
-                                if (s.IsMultiple == true)
-                                {
-                                    IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataAppMaster;
-                                    if (valueDatas != null)
-                                    {
-                                        List<long?> listData = valueDatas.ToList();
-                                        if (listData.Count() == 0 && isSubmit == true)
-                                        {
-                                            editor11.OpenElement(i + 1, "span");
-                                            editor11.AddAttribute(i + 1, "class", "text-danger");
-                                            editor11.AddContent(i + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
-                                            editor11.CloseElement();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                })));
+                }
+            })));
                 itemBuilder.CloseComponent();
+
             }
         });
     }

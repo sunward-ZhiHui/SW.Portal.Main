@@ -75,7 +75,8 @@
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
-         HeaderText="CRT"
+         ShowCloseButton="true"
+         HeaderText="Delete"
          Closed="EulaPopupClosed"
          Width="300px">
     <BodyContentTemplate>
@@ -94,7 +95,7 @@
          Closed="EulaPopupClosed"
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
-         CloseOnEscape="false" ShowCloseButton="false">
+         CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
         <AttributeSubFormSetupList RevokeBack="CloseSubFormPopup" Type="SubAttributeID" SubAttributeId="@_selectedItems.AttributeID"></AttributeSubFormSetupList>
 

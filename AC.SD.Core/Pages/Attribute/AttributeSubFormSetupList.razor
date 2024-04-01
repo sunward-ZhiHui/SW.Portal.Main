@@ -53,6 +53,7 @@
 
                 <Columns>
                     <DxGridDataColumn FieldName="AttributeCompany" MinWidth="50" Caption="Company Name" />
+                    <DxGridDataColumn FieldName="AttributeIsVisible" Caption="Is Visible" MinWidth="50" />
                     <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="50" />
                     <DxGridDataColumn FieldName="Description" Caption="Label" MinWidth="50" />
                     <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="50" />
@@ -74,7 +75,8 @@
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
-         HeaderText="CRT"
+         HeaderText="Delete"
+         ShowCloseButton="true"
          Closed="EulaPopupClosed"
          Width="300px">
     <BodyContentTemplate>
@@ -93,7 +95,7 @@
          Closed="EulaPopupClosed"
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
-         CloseOnEscape="false" ShowCloseButton="false">
+         CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
         <AttributeSetupSubForm RevokeBack="CloseSubFormPopup" _selectedItems="@_selectedItems" Type="@Type" SubAttributeDetailId="@SubAttributeDetailId" SubAttributeId="@SubAttributeId"></AttributeSetupSubForm>
 
@@ -151,8 +153,8 @@
 
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        OnRowclick(e);
-        NavigationManager.NavigateTo("attributesetup/attributesetupForm/" + _selectedItems.SessionId);
+        AddPopup = true;
+        StateHasChanged();
     }
     void OnRowclick(GridRowClickEventArgs e)
     {

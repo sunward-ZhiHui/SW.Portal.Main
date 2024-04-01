@@ -90,11 +90,13 @@ namespace Application.Queries
         public long? CompanyId { get; set; }
         public List<string?> DataSourceTableIds { get; set; }
         public string? PlantCode { get; set; }
-        public GetDataSourceDropDownList(long? companyId, List<string?> dataSourceTableIds, string? plantCode)
+        public List<long?> ApplicationMasterIds { get; set; }
+        public GetDataSourceDropDownList(long? companyId, List<string?> dataSourceTableIds, string? plantCode, List<long?> applicationMasterIds)
         {
             this.CompanyId = companyId;
             this.DataSourceTableIds = dataSourceTableIds;
             this.PlantCode = plantCode;
+            this.ApplicationMasterIds = applicationMasterIds;
         }
     }
     public class GetAllDropDownDataSourcesList : PagedRequest, IRequest<DataSourceAttributeDetails>

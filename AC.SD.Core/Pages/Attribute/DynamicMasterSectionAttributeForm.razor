@@ -41,7 +41,7 @@
     </div>
 </DxPopup>
 
-<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+<DxPopup @bind-Visible="@MessageVisible" ShowCloseButton="true" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
             <span> @MessageBody</span>
@@ -169,6 +169,18 @@
                     <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Application Master" ColSpanMd="6" Visible="@isApplicationMasterEnabled">
+                    <DxTagBox Data="@_applicationMasterItems"
+                              NullText="Select Application Master..."
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              TextFieldName="ApplicationMasterName"
+                              ValueFieldName="ApplicationMasterId"
+                              Enabled="isFormCountUsed"
+                    @bind-Values="@types.ApplicationMasterIdsListIds">
+                    </DxTagBox>
+                    <ValidationMessage For="@(() => types.ApplicationMasterIdsListIds)" />
+
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Plant Load Dependency" ColSpanMd="6" Visible="@isDataSource">
                     <DxCheckBox @bind-Checked="types.IsPlantLoadDependency"></DxCheckBox>
                 </DxFormLayoutItem>
@@ -202,15 +214,15 @@
                 <DxFormLayoutItem Caption="Is Default ReadOnly" ColSpanMd="3" Visible="@IsSetDefaultValueEnabled">
                     <DxCheckBox @bind-Checked="types.IsDefaultReadOnly"></DxCheckBox>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
-                    <DxCheckBox Checked="@types.IsSingleTextBoxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsSingleTextBoxRemarks)" CheckedChanged="@((bool? value) => CheckedSingleTextBoxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is SingleLine TextBox</DxCheckBox>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
-                    <DxCheckBox Checked="types.IsMultiLineTextboxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsMultiLineTextboxRemarks)" CheckedChanged="@((bool? value) => CheckedIsMultiLineTextboxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is MultiLine TextBox</DxCheckBox>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Remarks Label Name" ColSpanMd="6" Visible="IsRadioCheckBoxLayoutEnabled">
-                    <DxTextBox @bind-Text="@types.RemarksLabelName" />
-                </DxFormLayoutItem>
+               @*   <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
+                     <DxCheckBox Checked="@types.IsSingleTextBoxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsSingleTextBoxRemarks)" CheckedChanged="@((bool? value) => CheckedSingleTextBoxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is SingleLine TextBox</DxCheckBox>
+                 </DxFormLayoutItem>
+                 <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
+                     <DxCheckBox Checked="types.IsMultiLineTextboxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsMultiLineTextboxRemarks)" CheckedChanged="@((bool? value) => CheckedIsMultiLineTextboxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is MultiLine TextBox</DxCheckBox>
+                 </DxFormLayoutItem>
+                 <DxFormLayoutItem Caption="Remarks Label Name" ColSpanMd="6" Visible="IsRadioCheckBoxLayoutEnabled">
+                     <DxTextBox @bind-Text="@types.RemarksLabelName" />
+                 </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="IsSpinEditTypeEnabled">
                     <DxComboBox Data="@dynamicFormSectionSpinEdit"
                     @bind-Value="@types.IsSpinEditType"
@@ -257,7 +269,8 @@
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
-         HeaderText="CRT"
+         HeaderText="Delete"
+         ShowCloseButton="true"
          Closed="EulaPopupClosed"
          Width="300px">
     <BodyContentTemplate>
@@ -302,7 +315,7 @@
          ShowFooter="true"
          HeaderText="Add Permission Control"
          CloseOnOutsideClick="false"
-         ShowCloseButton="false"
+         ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
         <DynamicFormSectionAttributeSecuritys SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSecuritys>
@@ -347,8 +360,9 @@
     private List<AttributeHeader>? _attributeHeaderData;
     DynamicFormSectionAttribute _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
     private List<DynamicFormSectionSpinEdit> dynamicFormSectionSpinEdit { get; set; } = new List<DynamicFormSectionSpinEdit>();
-    bool addPermissionEnabled { get; set; } = false;
+    bool addPermissionEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false;
     bool isFormCountUsed { get; set; } = true; private List<AttributeHeaderDataSource> _attributeHeaderDataSource; bool isDataSource { get; set; } = false;
+    private List<global::Core.Entities.ApplicationMaster> _applicationMasterItems;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -366,6 +380,7 @@
         }
         dynamicFormSectionSpinEdit.Add(new DynamicFormSectionSpinEdit() { Value = "int", Text = "Integer" });
         dynamicFormSectionSpinEdit.Add(new DynamicFormSectionSpinEdit() { Value = "decimal", Text = "Decimal" });
+        _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
         await UpdateDataAsync();
     }
     public async Task loadChildData(long? dynamicFormIds)
@@ -397,7 +412,7 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        isFormCountUsed = true; isDataSource = false;
+        isFormCountUsed = true; isDataSource = false; isApplicationMasterEnabled = false;
         var navitems = (DynamicFormSectionAttribute)e.EditModel;
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
@@ -417,6 +432,14 @@
                 {
                     List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid" };
                     _attributeHeaderDataSource = _attributeHeaderDataSource.Where(w => !dataSourceNotIn.Contains(w.DataSourceTable)).ToList();
+                }
+            }
+            if (navitems.DataSourceTable == "ApplicationMaster")
+            {
+                isApplicationMasterEnabled = true;
+                if (!string.IsNullOrEmpty(navitems.ApplicationMasterIds))
+                {
+                    navitems.ApplicationMasterIdsListIds = navitems.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
                 }
             }
             if (navitems.FormUsedCount > 0)
@@ -474,6 +497,7 @@
                     IsSetDefaultValueEnabled = true;
                 }
             }
+
         }
         StateHasChanged();
     }
@@ -514,7 +538,7 @@
     {
         data.DisplayName = attributeHeader.Description;
         data.DataSourceTable = attributeHeader.DataSourceTable;
-        data.ControlTypeId = attributeHeader.ControlTypeId; isDataSource = false; IsSetDefaultValueEnabled = false;
+        data.ControlTypeId = attributeHeader.ControlTypeId; isDataSource = false; IsSetDefaultValueEnabled = false; isApplicationMasterEnabled = false;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
         if (attributeHeader != null)
         {
@@ -557,6 +581,10 @@
             {
                 data.IsPlantLoadDependency = false;
             }
+            if (attributeHeader.DataSourceTable == "ApplicationMaster")
+            {
+                isApplicationMasterEnabled = true;
+            }
             if (attributeHeader.ControlTypeId == 2702 || attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2706 || attributeHeader.ControlTypeId == 2708 || attributeHeader.ControlTypeId == 2709)
             {
                 if (attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2709 || attributeHeader.DataSourceTable == "Employee" || attributeHeader.DataSourceTable == "Plant")
@@ -597,6 +625,13 @@
                 _isDefaultReadOnly = editModel.IsDefaultReadOnly == true ? true : false;
             }
         }
+        long? applicationMasterId = null;
+        IEnumerable<long?> applicationMasterIdsListIds = new List<long?>();
+        if (editModel.DataSourceTable == "ApplicationMaster")
+        {
+            applicationMasterId = editModel.ApplicationMasterId;
+            applicationMasterIdsListIds = editModel.ApplicationMasterIdsListIds;
+        }
         if (e.IsNew)
         {
             var createReq = new InsertOrUpdateDynamicFormSectionAttribute
@@ -627,6 +662,8 @@
                     PlantDropDownWithOtherDataSourceLabelName = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
                     IsSetDefaultValue = _isSetDefaultValue,
                     IsDefaultReadOnly = _isDefaultReadOnly,
+                    ApplicationMasterId = applicationMasterId,
+                    ApplicationMasterIdsListIds = applicationMasterIdsListIds
                 };
 
             try
@@ -677,6 +714,8 @@
                     PlantDropDownWithOtherDataSourceLabelName = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" ? editModel.PlantDropDownWithOtherDataSourceLabelName : null,
                     IsSetDefaultValue = _isSetDefaultValue,
                     IsDefaultReadOnly = _isDefaultReadOnly,
+                    ApplicationMasterId = applicationMasterId,
+                    ApplicationMasterIdsListIds = applicationMasterIdsListIds
 
                 };
             var ans = await Mediator.Send(UpdateReq);

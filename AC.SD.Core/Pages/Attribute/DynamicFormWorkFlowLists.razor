@@ -87,6 +87,7 @@
 </DxLoadingPanel>
 <DxPopup @bind-Visible="@createEmailpopup"
          ShowFooter="true"
+         ShowCloseButton="true"
          HeaderText="Create Email"
          Closed="EulaPopupClosed"
          Width="300px">
@@ -104,7 +105,7 @@
 <DxPopup @bind-Visible="@PopupUpload"
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
-         ShowCloseButton="false"
+         ShowCloseButton="true"
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>

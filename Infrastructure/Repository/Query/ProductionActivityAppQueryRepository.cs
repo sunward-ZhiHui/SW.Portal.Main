@@ -530,7 +530,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<ProductionActivityRoutineAppModel> GetAllRoutineListAsync(long? CompanyId, string? Replanrefno, long? locationId)
+        public async Task<ProductionActivityRoutineAppModel> GetAllRoutineListAsync(long? CompanyId, string? Replanrefno, long? locationId,bool? TimeSheetAction)
         {
             try
             {
@@ -538,7 +538,8 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("CompanyID", CompanyId);
                 parameters.Add("ProdOrderNo", Replanrefno);
                 parameters.Add("locationId", locationId);
-                var query = "SELECT * FROM ProductionActivityRoutineApp WHERE CompanyId=@CompanyId AND ProdOrderNo=@ProdOrderNo";
+                parameters.Add("TimeSheetAction", TimeSheetAction);
+                var query = "SELECT * FROM ProductionActivityRoutineApp WHERE CompanyId=@CompanyId AND ProdOrderNo=@ProdOrderNo  AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0))";
                 if (locationId > 0)
                 {
                     query += " AND locationId=@locationId";
@@ -571,16 +572,18 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("AddedDate", PPAlist.AddedDate, DbType.DateTime);
                         parameters.Add("LocationID", PPAlist.LocationId);
                         parameters.Add("StatusCodeID", PPAlist.StatusCodeID);
-                        var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId);
+                        parameters.Add("TimeSheetAction", PPAlist.TimeSheetAction);
+                        
+                        var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId,PPAlist.TimeSheetAction);
                         if (lists != null)
                         {
                             PPAlist.ProductionActivityRoutineAppId = lists.ProductionActivityRoutineAppId;
                         }
                         else
                         {
-                            var query = @"INSERT INTO ProductionActivityRoutineApp(SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate) 
+                            var query = @"INSERT INTO ProductionActivityRoutineApp(TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate) 
 				                       OUTPUT INSERTED.ProductionActivityRoutineAppId 
-				                       VALUES (@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate)";
+				                       VALUES (@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
 
                             PPAlist.ProductionActivityRoutineAppId = insertedId;

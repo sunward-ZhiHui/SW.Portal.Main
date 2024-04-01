@@ -510,6 +510,7 @@
             FilterData.AddedByUserID = applicationUser.UserID;
             FilterData.GetTypes = "User";
             FilterData.LocationId = LocationID;
+            FilterData.TimeSheetAction = true;
             _AppLines = await Mediator.Send(new GetAllProductionActivityRoutineAppLineQuery(FilterData));
             _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(CompanyID, NAVProdOrderno));
             if (_AppLines.Count() > 0)

@@ -396,6 +396,7 @@
                 IsTemplateUploadFlag = Data.IsTemplateUpload == true ? "Yes" : "No",
                 ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0 ? Data.ProductActivityCaseLineId : null,
                 RoutineInfoIds = Data.RoutineInfoIds,
+                TimeSheetAction = true,
             };
 
         var result = await Mediator.Send(request);

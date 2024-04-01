@@ -54,7 +54,7 @@
 
                 <Columns>
                     <DxGridDataColumn FieldName="AttributeCompany" MinWidth="50" Caption="Company Name" />
-                    <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="50" />
+                   @*  <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="50" /> *@
                     <DxGridDataColumn FieldName="Description" Caption="Label" MinWidth="50" />
                     <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="50" />
                     <DxGridDataColumn FieldName="DropDownTypeId" Caption="Data Source" MinWidth="50" />
@@ -66,7 +66,7 @@
 
                 </Columns>
                 <TotalSummary>
-                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="AttributeName" />
+                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ControlType" />
                 </TotalSummary>
             </DxGrid>
         </DxLoadingPanel>
@@ -75,7 +75,8 @@
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
-         HeaderText="CRT"
+         ShowCloseButton="true"
+         HeaderText="Delete"
          Closed="EulaPopupClosed"
          Width="300px">
     <BodyContentTemplate>
@@ -94,7 +95,7 @@
          Closed="EulaPopupClosed"
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
-         CloseOnEscape="false" ShowCloseButton="false">
+         CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
         <AttributeSubFormSetupList RevokeBack="CloseSubFormPopup" Type="SubAttributeID" SubAttributeId="@_selectedItems.AttributeID"></AttributeSubFormSetupList>
 

@@ -16,6 +16,7 @@ using NAV;
 using Application.Queries;
 using System.ComponentModel.Design;
 using System.Collections;
+using Core.EntityModel;
 
 namespace Infrastructure.Repository.Query
 {
@@ -26,14 +27,14 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public async Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds, string? plantCode)
+        public async Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds, string? plantCode, List<long?> applicationMasterIds)
         {
-            var dataSourceDropDownList = new List<AttributeDetails>();
+            var dataSourceDropDownList = new List<AttributeDetails>(); List<long> plantIds = new List<long>();
+            var plantsData = await GetPlantDataSource();
             if (dataSourceTableIds != null && dataSourceTableIds.Count() > 0)
             {
-                var plantsData = await GetPlantDataSource();
                 List<string?> plantNames = new List<string?>() { "SWMY", "SWSG" };
-                List<long> plantIds = new List<long>();
+
                 if (plantsData != null && plantsData.Count > 0)
                 {
                     plantIds = plantsData.Where(w => plantNames.Contains(w.AttributeDetailName)).Select(s => s.AttributeDetailID).ToList();
@@ -72,8 +73,56 @@ namespace Infrastructure.Repository.Query
                 {
                     dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
                 }
+                if (dataSourceTableIds.Contains("ApplicationMaster") && applicationMasterIds.Count>0)
+                {
+                    dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
+                }
+            }
+            else
+            {
+                dataSourceDropDownList.AddRange(plantsData);
+                dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetDivisionDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
+                var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
+                var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
+                if (soCustomerList.Count() > 0)
+                {
+                    dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
+                }
+                if (applicationMasterIds.Count > 0)
+                {
+                    dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
+                }
             }
             return dataSourceDropDownList;
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetApplicationMasterDataSource(List<long?> applicationMasterIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'ApplicationMaster' as DropDownTypeId,t1.ApplicationMasterId, t1.ApplicationMasterDetailID as AttributeDetailID,Value as AttributeDetailName,t1.Description,t2.ApplicationMasterName,t2.ApplicationMasterCodeID as ApplicationMasterCodeID from ApplicationMasterDetail t1 JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID\r\n";
+                if (applicationMasterIds != null && applicationMasterIds.Count > 0)
+                {
+                    applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };
+                    query += "where t1.ApplicationMasterId in(" + string.Join(',', applicationMasterIds) + ")";
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         private async Task<IReadOnlyList<AttributeDetails>> GetPlantDataSource()
         {

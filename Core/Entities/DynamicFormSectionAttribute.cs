@@ -74,6 +74,12 @@ namespace Core.Entities
         public bool IsSetDefaultValue { get; set; } = false;
         public bool IsDefaultReadOnly { get; set; } = false;
         public List<DynamicFormSectionAttributeSecurity> DynamicFormSectionAttributeSecurity { get; set; } = new List<DynamicFormSectionAttributeSecurity>();
+
+        public long? ApplicationMasterId { get; set; }
+        public string? ApplicationMasterName { get; set; }
+        public string? ApplicationMasterIds { get; set; }
+        public IEnumerable<long?> ApplicationMasterIdsListIds { get; set; } = new List<long?>();
+        public List<ApplicationMaster> ApplicationMaster { get; set; } = new List<ApplicationMaster>();
     }
     public class DynamicFormSectionSpinEdit
     {

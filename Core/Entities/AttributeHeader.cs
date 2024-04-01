@@ -17,8 +17,8 @@ namespace Core.Entities
         [Key]
 
         public long AttributeID { get; set; }
-        [Required(ErrorMessage = "Field Name is Required")]
-        [AttributeCustomValidation]
+        //[Required(ErrorMessage = "Field Name is Required")]
+       // [AttributeCustomValidation]
         public string AttributeName { get; set; }
         [Required(ErrorMessage = "Label Name is Required")]
         public string Description { get; set; }
@@ -70,6 +70,11 @@ namespace Core.Entities
         public string? AttributeRadioLayout { get; set; }
         public string? AttributeCompany { get; set; }
         public string? SubFormType { get; set; }
+        public long? ApplicationMasterSubFormId { get; set; }
+        public bool? IsDeleted { get; set; }
+        public string? SubApplicationMasterIDs { get; set; }
+        public IEnumerable<long?> SubApplicationMasterIdsListIds { get; set; } = new List<long?>();
+        public List<ApplicationMaster> SubApplicationMaster { get; set; } = new List<ApplicationMaster>();
     }
     public class AttributeHeaderListModel
     {
@@ -87,7 +92,7 @@ namespace Core.Entities
         public List<DynamicFormApproved> DynamicFormApproved { get; set; } = new List<DynamicFormApproved>();
         public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
         public List<DynamicForm> DynamicForm { get; set; } = new List<DynamicForm>();
-
+        public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
     }
     public class DropDownGridOptionsModel
     {
@@ -98,6 +103,7 @@ namespace Core.Entities
     {
         public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
         public List<AttributeHeader> AttributeHeader { get; set; } = new List<AttributeHeader>();
+        public List<ApplicationMaster> ApplicationMaster { get; set; } = new List<ApplicationMaster>();
     }
     public class DropDownOptionsModel
     {

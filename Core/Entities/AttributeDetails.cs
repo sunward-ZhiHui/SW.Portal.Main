@@ -33,6 +33,9 @@ namespace Core.Entities
         public long? CompanyId { get; set; }
         public string? CompanyName { get; set; }
         public List<AttributeHeader> SubAttributeHeaders { get; set; } = new List<AttributeHeader>();
+        public long? ApplicationMasterId { get; set; }
+        public string? ApplicationMasterName { get; set; }
+        public long? ApplicationMasterCodeId { get; set; }
     }
     public class DataSourceAttributeDetails
     {

@@ -41,7 +41,7 @@
     </div>
 </DxPopup>
 
-<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+<DxPopup @bind-Visible="@MessageVisible" ShowCloseButton="true" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
             <span> @MessageBody</span>
@@ -110,11 +110,13 @@
                               FilteringMode="DataGridFilteringMode.Contains"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ListRenderMode="ListRenderMode.Virtual"
-                              EditFormat="{0}"
+                              TextFieldName="Description"
+                              ValueFieldName="AttributeID"
+                              EditFormat="{0}-{1}"
                     @bind-Values="@types.AttributeIds">
-                        <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
-                                            Caption="Field Name"
-                                            Width="100px" />
+                         @* <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
+                                             Caption="Field Name"
+                                             Width="100px" /> *@
                         <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
                                             Caption="Label Name"
                                             Width="100px" />
@@ -146,8 +148,9 @@
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
-         HeaderText="CRT"
+         HeaderText="Delete"
          Closed="EulaPopupClosed"
+         ShowCloseButton="true"
          Width="300px">
     <BodyContentTemplate>
         <p>
@@ -191,7 +194,7 @@
          ShowFooter="true"
          HeaderText="Add Permission"
          CloseOnOutsideClick="false"
-         ShowCloseButton="false"
+         ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
         <AddPermissionSection SelectedItems="@_selectedItems" applicationUser="@applicationUser"></AddPermissionSection>

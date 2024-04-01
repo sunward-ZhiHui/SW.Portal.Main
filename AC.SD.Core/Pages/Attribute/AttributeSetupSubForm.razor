@@ -58,7 +58,7 @@
                             </DxComboBox>
                             <ValidationMessage For="@(() => Data.AttributeCompanyId)" />
                         </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isSelectEnabled">
+                        @* <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isSelectEnabled">
                             <DxTextBox @bind-Text="@Data.AttributeName"></DxTextBox>
                             <ValidationMessage For="@(() => Data.AttributeName)" />
                         </DxFormLayoutItem>
@@ -66,7 +66,7 @@
                             <DxTextBox @bind-Text="Data.AttributeName">
                             </DxTextBox>
                             <ValidationMessage For="@(() => Data.AttributeName)" />
-                        </DxFormLayoutItem>
+                        </DxFormLayoutItem> *@
 
                         <DxFormLayoutItem Caption="Label Name" ColSpanMd="6">
                             <DxTextBox @bind-Text="@Data.Description"></DxTextBox>
@@ -367,7 +367,7 @@
         Data.IsRequired = false;
         Data.RequiredMessage = null;
         Data.AttributeID = 0;
-        Data.AttributeName = null;
+        Data.AttributeName = "SubAttr";
         Data.SessionId = null;
         Data.DataSourceId = 0;
         Data.DropDownTypeId = null;
@@ -455,7 +455,8 @@
         var createReq = new CreateAttributeHeader
             {
                 AttributeID = Data.AttributeID,
-                AttributeName = Data.AttributeName,
+                //AttributeName = Data.AttributeName,
+                AttributeName = "SubAttr",
                 Description = Data.Description,
                 AttributeCompanyId = Data.AttributeCompanyId,
                 ControlType = Data.ControlType,

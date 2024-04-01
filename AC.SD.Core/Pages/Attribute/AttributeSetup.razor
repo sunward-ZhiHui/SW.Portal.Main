@@ -62,15 +62,15 @@
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.AttributeCompanyId)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isSelectEnabled">
-                                    <DxTextBox @bind-Text="@Data.AttributeName"></DxTextBox>
-                                    <ValidationMessage For="@(() => Data.AttributeName)" />
+                            @*   <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isSelectEnabled">
+                            <DxTextBox @bind-Text="@Data.AttributeName"></DxTextBox>
+                            <ValidationMessage For="@(() => Data.AttributeName)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isAddAttributeEnabled">
-                                <DxTextBox @bind-Text="Data.AttributeName">
-                                </DxTextBox>
-                                <ValidationMessage For="@(() => Data.AttributeName)" />
-                            </DxFormLayoutItem>
+                            <DxTextBox @bind-Text="Data.AttributeName">
+                            </DxTextBox>
+                            <ValidationMessage For="@(() => Data.AttributeName)" />
+                            </DxFormLayoutItem> *@
 
                             <DxFormLayoutItem Caption="Label Name" ColSpanMd="6">
                                 <DxTextBox @bind-Text="@Data.Description"></DxTextBox>
@@ -97,21 +97,21 @@
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.ControlTypeId)" />
                             </DxFormLayoutItem>
-                           @*  <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="IsSpinEditTypeEnabled">
-                                <DxComboBox Data="@dynamicFormSectionSpinEdit"
-                                @bind-Value="@Data.IsAttributeSpinEditType"
-                                            Enabled="@IsSpinEditTypeEnabled"
-                                            TextFieldName="Text"
-                                            ValueFieldName="Value" ShowValidationIcon="true" />
+                            @*  <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="IsSpinEditTypeEnabled">
+                            <DxComboBox Data="@dynamicFormSectionSpinEdit"
+                            @bind-Value="@Data.IsAttributeSpinEditType"
+                            Enabled="@IsSpinEditTypeEnabled"
+                            TextFieldName="Text"
+                            ValueFieldName="Value" ShowValidationIcon="true" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Radio Layout" ColSpanMd="6" Visible="IsRadioLayoutEnabled">
-                                <DxRadioGroup Items="@RadioButtonOptions"
-                                              Value="@Data.AttributeRadioLayout"
-                                              ValueExpression="@(() => Data.AttributeRadioLayout )"
-                                              ValueChanged="@((string value) => OnTemplateUploadRadioGroupValueChanged(value))"
-                                              Layout="RadioGroupLayout.Horizontal"
-                                              Enabled="IsRadioLayoutEnabled"
-                                              CssClass="dx-demo-radio-group" />
+                            <DxRadioGroup Items="@RadioButtonOptions"
+                            Value="@Data.AttributeRadioLayout"
+                            ValueExpression="@(() => Data.AttributeRadioLayout )"
+                            ValueChanged="@((string value) => OnTemplateUploadRadioGroupValueChanged(value))"
+                            Layout="RadioGroupLayout.Horizontal"
+                            Enabled="IsRadioLayoutEnabled"
+                            CssClass="dx-demo-radio-group" />
                             </DxFormLayoutItem> *@
                             <DxFormLayoutItem Caption="Is Data Source" ColSpanMd="6" Visible="@isDropDownType">
                                 <DxCheckBox Checked="@Data.IsDataSource" CheckedExpression="@(() => Data.IsDataSource)" CheckedChanged="@((bool? value) => OnTemplateDataSourceGroupValueChanged(value))" Enabled="isEdit"></DxCheckBox>
@@ -161,17 +161,17 @@
                                 <ValidationMessage For="@(() => Data.DynamicFormId)" />
                             </DxFormLayoutItem>
                             @* <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6" Visible="@isListMultiple">
-                                <DxCheckBox @bind-Checked="Data.IsMultiple" Enabled="@isListMultiple"></DxCheckBox>
+                            <DxCheckBox @bind-Checked="Data.IsMultiple" Enabled="@isListMultiple"></DxCheckBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Is Required" ColSpanMd="6">
-                                <DxCheckBox @bind-Checked="Data.IsRequired"></DxCheckBox>
+                            <DxCheckBox @bind-Checked="Data.IsRequired"></DxCheckBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Required Message" ColSpanMd="6">
-                                <DxTextBox @bind-Text="@Data.RequiredMessage" />
-                                <ValidationMessage For="@(() => Data.RequiredMessage)" />
+                            <DxTextBox @bind-Text="@Data.RequiredMessage" />
+                            <ValidationMessage For="@(() => Data.RequiredMessage)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Is Visible" ColSpanMd="6">
-                                <DxCheckBox @bind-Checked="Data.AttributeIsVisible"></DxCheckBox>
+                            <DxCheckBox @bind-Checked="Data.AttributeIsVisible"></DxCheckBox>
                             </DxFormLayoutItem> *@
                             @*   <DxFormLayoutItem Caption="Entry Mask" ColSpanMd="6">
                             <DxTextBox @bind-Text="Data.EntryMask" Enabled="@MaskEnabled"></DxTextBox>
@@ -395,7 +395,7 @@
         Data.IsRequired = false;
         Data.RequiredMessage = null;
         Data.AttributeID = 0;
-        Data.AttributeName = null;
+        Data.AttributeName = "Attr";
         Data.SessionId = null;
         Data.DataSourceId = 0;
         Data.DropDownTypeId = null;
@@ -415,7 +415,7 @@
         ActiveTabIndex = 0;
         AttributeDetailsEnabled = false; isGridForm = false; DataSourceTable = null;
         Data.IsDynamicFormDropTagBox = false; isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null;
-        IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null;IsCheckBoxEnabled = false;
+        IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null; IsCheckBoxEnabled = false;
         loadPlantItems();
         StateHasChanged();
     }
@@ -479,7 +479,8 @@
         var createReq = new CreateAttributeHeader
             {
                 AttributeID = Data.AttributeID,
-                AttributeName = Data.AttributeName,
+                // AttributeName = Data.AttributeName,
+                AttributeName = "Attr",
                 Description = Data.Description,
                 AttributeCompanyId = Data.AttributeCompanyId,
                 ControlType = Data.ControlType,
@@ -593,7 +594,7 @@
             Data.IsRequired = false;
             Data.RequiredMessage = null;
             Data.AttributeID = 0;
-            Data.AttributeName = null;
+            Data.AttributeName = "Attr";
             Data.SessionId = null;
             Data.DataSourceId = 0;
             Data.DropDownTypeId = null; Data.DynamicFormId = null; isGridForm = false;
@@ -601,7 +602,7 @@
             Data.IsSubForm = null;
             Data.SubAttributeDetailId = null;
             Data.SubAttributeId = null; IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null;
-            isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null;IsCheckBoxEnabled = false;
+            isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null; IsCheckBoxEnabled = false;
             loadPlantItems();
             if (Data.AttributeID > 0)
             {
@@ -649,7 +650,7 @@
             if (_master.FormUsedCount > 0)
             {
                 isEdit = false;
-               // DeleteEnabled = false;
+                // DeleteEnabled = false;
             }
             if (Data.DropDownTypeId == "Data Source")
             {

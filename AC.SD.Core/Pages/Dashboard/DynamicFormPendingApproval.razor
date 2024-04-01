@@ -31,12 +31,16 @@
         </DxMenu>
     </div>
 </div>
+
+
+
 <DxGrid @ref="DFDataApprovalGrid"
         Data="_dynamicFormDataApproval"
         ShowGroupPanel="true"
+        ShowGroupedColumns="true" ShowSearchBox="true"
         VirtualScrollingEnabled="false"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        KeyFieldName="ID"
+        KeyFieldName="DynamicFormDataId"
         CustomizeElement="Grid_CustomizeElement"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -46,19 +50,40 @@
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 285px);"
+        TextWrapEnabled="false"
         RowClick="OnRowClick"
-        RowDoubleClick="OnEmailDueRowClick"
+        RowDoubleClick="OnDueRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"       
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="DynamicFormApprovalId" Visible="false" />
-        <DxGridDataColumn FieldName="ProfileNo" MinWidth="40" />       
-        <DxGridDataColumn FieldName="DynamicFormName" MinWidth="40" />
-        <DxGridDataColumn FieldName="CurrentUserName" MinWidth="40" />
-        <DxGridDataColumn FieldName="StatusName" MinWidth="40" />
-        <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-        <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
-        <DxGridCommandColumn Width="160px" Visible="false" />
+        <DxGridDataColumn FieldName="ProfileNo" MinWidth="40" />
+        <DxGridDataColumn FieldName="DynamicFormName" Caption="Name" MinWidth="240" />
+        <DxGridDataColumn FieldName="PendingUser" MinWidth="40" />
+        
+        <DxGridDataColumn FieldName="StatusName" FixedPosition="GridColumnFixedPosition.Left" MinWidth="40" />
+
+        <DxGridDataColumn FieldName="ApprovedUser" MinWidth="40" />       
+        <DxGridDataColumn FieldName="ApprovedDate" MinWidth="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (DynamicFormData)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.ApprovedDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+
+
+        <DxGridDataColumn FieldName="RejectedUser" MinWidth="40" />       
+        
+        <DxGridDataColumn FieldName="RejectedDate" MinWidth="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (DynamicFormData)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.RejectedDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
     </Columns>
 </DxGrid>
 
@@ -67,6 +92,7 @@
     private List<DynamicFormData>? _dynamicFormDataApproval;
     public ApplicationUser applicationUser { get; private set; }
     private DynamicFormData? _selectedItems;
+    string SelectedGroup = "none";
 
     async Task onRefresh()
     {
@@ -91,12 +117,12 @@
 
         StateHasChanged();
     }
-    async Task OnEmailDueRowClick(GridRowClickEventArgs e)
+    async Task OnDueRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        //SelectedGroup = UniqueId.ToString();
-        // var lst = _dynamicFormDataApproval.Where(x => x.ID == long.Parse(SelectedGroup)).FirstOrDefault();
-        // NavigationManager.NavigateTo($"ViewEmail/{lst.SessionId}/Email");        
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
+        SelectedGroup = UniqueId.ToString();
+        var lst = _dynamicFormDataApproval.Where(x => x.DynamicFormDataId == long.Parse(SelectedGroup)).FirstOrDefault();
+        NavigationManager.NavigateTo($"DynamicMasterSetup/dynamicForms/{lst.DynamicFormSessionID}/{lst.SessionId}");
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

@@ -777,6 +777,38 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class InsertEmailDueDateHistoryHandler : IRequestHandler<InsertEmailDueDateHistory, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public InsertEmailDueDateHistoryHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+
+        }
+
+        public async Task<long> Handle(InsertEmailDueDateHistory request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.InsertEmailDueDateHistory(request);
+            return req;
+        }
+    }
+    public class GetEmailDueDateHistoryHandler : IRequestHandler<GetEmailDueDateHistory, List<EmailDueDateHistory>>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public GetEmailDueDateHistoryHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+
+        }
+
+        public async Task<List<EmailDueDateHistory>> Handle(GetEmailDueDateHistory request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.GetEmailDueDateHistoryList(request.ID);
+            return req;
+        }
+    }
     public class UpdateEmailSubjectNameHandler : IRequestHandler<UpdateEmailSubjectName, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

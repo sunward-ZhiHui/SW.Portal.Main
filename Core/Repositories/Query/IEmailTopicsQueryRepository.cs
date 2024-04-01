@@ -53,10 +53,12 @@ namespace Core.Repositories.Query
         long EmailTopicUpdate(EmailTopics EmailTopics);
         long Insert_sp_Participant(TopicParticipant topicParticipant);
         Task<long> InsertParticipant(TopicParticipant topicParticipant);
-        Task<EmailTopics> GetTopicListAsync();      
+        Task<EmailTopics> GetTopicListAsync();
+        Task<List<EmailDueDateHistory>> GetEmailDueDateHistoryList(long id);
         Task<long> UpdateDueDate(EmailTopics EmailTopics);        
         Task<long> CreateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys);        
         Task<long> UpdateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys);
+        Task<long> InsertEmailDueDateHistory(EmailConversations emailConversations);
         Task<long> CreateEmailTimelineEventAsync(EmailTimelineEvent emailTimelineEvent);
         Task<long> UpdateEmailTimelineEventAsync(EmailTimelineEvent emailTimelineEvent);
         Task<List<EmailTimelineEvent>> GetEmailTimelineEvent(long DocumentId);

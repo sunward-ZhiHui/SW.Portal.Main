@@ -93,6 +93,14 @@
                 
             </CellDisplayTemplate>
         </DxGridDataColumn> 
+        <DxGridDataColumn FieldName="DueDate" Caption="History" Width="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                    <span class="fa fa-history" @onclick="@(() => onDueDateHistory(item.ID))"></span>
+                }
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
     </Columns>
   @*   <DetailRowTemplate>
         <EmailSubDueDate Items="(EmailTopics)context.DataItem" />
@@ -132,6 +140,29 @@
                 string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
                 @((MarkupString)htmlContent)
             }
+        </div>
+    </BodyContentTemplate>
+</DxPopup>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="max(25vw, 550px)" @bind-Visible="@isDueDateHistory">
+    <BodyContentTemplate>
+        <div style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+
+            @if (_DueDateHistoryList != null && _DueDateHistoryList.Any())
+            {
+                <table style="width:100%;">                    
+                    @foreach (var item in _DueDateHistoryList)
+                    {
+                        <div class="" style="width:100%;">
+                            <tr>
+                                <td>@item.AddedBy</td>
+                                <td>@Application.Common.Helper.Helper.FormatDateTime(@item.DueDate)</td>
+                                <td>@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</td>
+                            </tr>
+                        </div>
+                    }
+                </table>
+            }           
         </div>
     </BodyContentTemplate>
 </DxPopup>
@@ -253,6 +284,16 @@
         var response = await httpClient.PostAsync(url, content);
         var msg = response.StatusCode;
 
+        var emailDueDateHistory = new InsertEmailDueDateHistory
+            {
+                ID = (int)_selectedItems.ID,
+                DueDate = _dataEditEamilTopics.DueDate,
+                NoOfDays = _dataEditEamilTopics.NoOfDays,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+
+            };
+
         MessageVisible = false;
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await onRefresh();
@@ -288,6 +329,8 @@
     private int pageSize = 15; // Number of records per page
     DxPopup? popup;
     bool Previewmsg { get; set; } = false;
+    private List<EmailDueDateHistory>? _DueDateHistoryList;
+    bool isDueDateHistory { get; set; } = false;
     public bool ReplyMsgEnabled { get; set; } = false;
     IGrid EmailDueDateGrid { get; set; }
     private EmailSubDueDate? RefSubAssignAll { get; set; }
@@ -323,6 +366,13 @@
         var rlmsg = _selectedItems;
         Previewmsg = true;
     }  
+    async Task onDueDateHistory(long id)
+    {        
+        await JSRuntime.InvokeAsync<string>("showLoading");
+            _DueDateHistoryList = await Mediator.Send(new GetEmailDueDateHistory(id));
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        isDueDateHistory = true;
+    }
     protected override async Task OnInitializedAsync()
     {
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];

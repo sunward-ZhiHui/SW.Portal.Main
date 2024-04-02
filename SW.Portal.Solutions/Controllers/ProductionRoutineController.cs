@@ -149,5 +149,75 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        [HttpGet("GetTemplateList")]
+        public async Task<ActionResult<ResponseModel<List<ProductActivityCaseLineModel>>>> GetTemplateList(long ManufacturingProcessChildId, long ProdActivityCategoryChildId,long ProdActivityActionChildD)
+        {
+
+            var response = new ResponseModel<ProductActivityCaseLineModel>();
+
+            if (ManufacturingProcessChildId > 0 && ProdActivityCategoryChildId > 0)
+            {
+                var result = await _mediator.Send(new GetProductActivityCaseLineTemplateItems(ManufacturingProcessChildId, ProdActivityCategoryChildId, ProdActivityActionChildD));
+
+
+                try
+                {
+                    response.ResponseCode = ResponseCode.Success;
+                    response.Results = (List<ProductActivityCaseLineModel>)result;
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+            }
+            return Ok(response);
+        }
+        [HttpPost("InsertRoutineMaster")]
+        public async Task<ActionResult<ResponseModel<ProductionActivityRoutineAppModel>>> InsertRoutineMaster(ProductionActivityRoutineAppModel value)
+        {
+            var response = new ResponseModel<ProductionActivityRoutineAppModel>();
+            var request = new CreateProductionActivityRoutineAppCommand
+            {
+               // ProductionActivityRoutineAppLineId = ProductionActivityRoutineAppLineId,
+                CompanyId = value.CompanyID,
+                ProdOrderNo = value.ProdOrderNo,
+                LocationId = value.LocationID,
+              //  AddedDate = _selectedEditItems != null ? _selectedEditItems.AddedDate : DateTime.Now,
+              // SessionId = _selectedEditItems != null ? _selectedEditItems.SessionId : Guid.NewGuid(),
+               // LineSessionId = _selectedEditItems != null ? _selectedEditItems.LineSessionId : Guid.NewGuid(),
+               // StatusCodeID = _selectedEditItems != null ? _selectedEditItems.StatusCodeID : 1,
+               // AddedByUserID = _selectedEditItems != null ? _selectedEditItems.AddedByUserID : applicationUser.UserID,
+                ManufacturingProcessChildId = value.ManufacturingProcessChildId,
+                ProdActivityCategoryChildId = value.ProdActivityCategoryChildId,
+                ProdActivityActionChildD = value.ProdActivityActionChildD,
+                ProdActivityResultId = value.ProdActivityResultId,
+                RoutineStatusId = value.RoutineStatusId,
+                LineComment = value.LineComment,
+                NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
+                ModifiedByUserID = value.AddedByUserID,
+                ModifiedDate = DateTime.Now,
+                IsOthersOptions = value.OthersOptions == "Yes" ? true : false,
+                //IsOthersOptions=Data.IsOthersOptions,
+                IsTemplateUpload = value.IsTemplateUpload,
+                IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
+                ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
+                RoutineInfoIds = value.RoutineInfoIds,
+            };
+
+            var result = await _mediator.Send(request);
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                //response.Result = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 }

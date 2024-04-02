@@ -67,7 +67,14 @@
                                 </DxComboBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Ticket No" ColSpanMd="4">
-                                <DxComboBox Data="@_ponumberActivities"
+                                <DxTextBox @bind-Text="@Data.ProdOrderNo" spellcheck="true" ShowValidationIcon="true" NullText="Ticket No">
+                                <Buttons>
+                                    <DxEditorButton IconCssClass="fa fa-qrcode"
+                                                    Tooltip="Scan Ticket No"
+                                                    Click="@(_ => OnButtonTicketNoClick())" />
+                                </Buttons>
+                                </DxTextBox>
+                               @*  <DxComboBox Data="@_ponumberActivities"
                                             NullText="Select Ticket No..."
                                             SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod?.ProdOrderNo))"
                                             FilteringMode="DataGridFilteringMode.Contains"
@@ -82,7 +89,7 @@
                                                         Tooltip="Scan Ticket No"
                                                         Click="@(_ => OnButtonTicketNoClick())" />
                                     </Buttons>
-                                </DxComboBox>
+                                </DxComboBox> *@
                                 <ValidationMessage For="@(() => Data.ProdOrderNo)" />
                             </DxFormLayoutItem> 
                             <DxFormLayoutItem Caption="Lot No" ColSpanMd="4">
@@ -754,8 +761,8 @@
     void addvalidate()
     {
         addNew();
-        if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
-        //if(CompanyID > 0)
+        //if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        if(CompanyID > 0)
         {
             _selectedEditItems = null;
             AddPopup = true;

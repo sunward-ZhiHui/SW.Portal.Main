@@ -84,6 +84,14 @@
                                     </Buttons>
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.ProdOrderNo)" />
+                            </DxFormLayoutItem> 
+                            <DxFormLayoutItem Caption="Lot No" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@Data.LotNo" spellcheck="true" ShowValidationIcon="true" NullText="Lot No" />
+                                <ValidationMessage For="@(() => Data.LotNo)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Item Name" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@Data.ItemName" spellcheck="true" ShowValidationIcon="true" NullText="Item Name" />
+                                <ValidationMessage For="@(() => Data.ItemName)" />
                             </DxFormLayoutItem>
 
                         </DxFormLayout>
@@ -747,6 +755,7 @@
     {
         addNew();
         if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        //if(CompanyID > 0)
         {
             _selectedEditItems = null;
             AddPopup = true;

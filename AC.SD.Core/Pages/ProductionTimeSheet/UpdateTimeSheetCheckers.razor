@@ -1,0 +1,107 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@using global::Core.Entities.Views;
+@implements IDisposable
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitProductionFormExternally" Enabled="SaveEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
+
+    <DataAnnotationsValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="" ColSpanMd="6">
+
+            <DxCheckBox @bind-Checked="@Data.IsCheckNoIssue" LabelPosition="LabelPosition.Right">No Issue</DxCheckBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@Data.IsCheckReferSupportDocument" LabelPosition="LabelPosition.Right">Refer to supporting Document/Email</DxCheckBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Checked By" ColSpanMd="6">
+            <DxTextBox @bind-Text="@Data.CheckedByUser" CssClass="cw-480" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Checked Date:" ColSpanMd="6">
+            <DxDateEdit NullText="Select a Checked Date..." @bind-Date="@Data.CheckedDate" CssClass="cw-320" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
+            <DxMemo @bind-Text="Data.CheckedRemark" Rows="5" />
+        </DxFormLayoutItem>
+
+    </DxFormLayout>
+</EditForm>
+@code {
+    EditContext _editContext;
+    [Parameter]
+    public ProductionActivityRoutineAppModel selectedFiles { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    bool SaveEnabled { get; set; } = true;
+    private List<ApplicationMasterChildModel> _ManuFactureProcessLines;
+    private List<ApplicationMasterChildModel> _categoryItems;
+    private List<ApplicationMasterChildModel> _actionItems;
+    ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        Data.AddedDate = DateTime.Now;
+        Data.CheckedDate = DateTime.Now;
+        Data.CheckedById = selectedFiles.CheckedById > 0 ? selectedFiles.CheckedById : applicationUser.UserID;
+        Data.CheckedByUser = selectedFiles.CheckedById > 0 ? selectedFiles.CheckedByUser : applicationUser.UserName;
+        Data.IsCheckNoIssue = selectedFiles.IsCheckNoIssue;
+        Data.IsCheckReferSupportDocument = selectedFiles.IsCheckReferSupportDocument;
+        Data.CheckedRemark = selectedFiles.CheckedRemark;
+        Data.ProductionActivityRoutineAppLineId = selectedFiles.ProductionActivityRoutineAppLineId;
+        StateHasChanged();
+    }
+
+    private async Task SubmitProductionFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleProductionFormValidSubmit();
+        }
+    }
+    async Task HandleProductionFormValidSubmit()
+    {
+        SaveEnabled = false;
+        var request = await Mediator.Send(new UpdateRoutineChecker(Data));
+        if (request.ProductionActivityRoutineAppLineId > 0)
+        {
+            SaveEnabled = true;
+            toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            onBack();
+        }
+        StateHasChanged();
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}

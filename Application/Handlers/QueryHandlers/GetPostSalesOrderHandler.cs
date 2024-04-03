@@ -47,4 +47,35 @@ namespace Application.Handlers.QueryHandlers
             return response;
         }
     }
+    public class RawitemSalesOrderHandler : IRequestHandler<rawitemSalesOrderQuery, string>
+    {
+        private readonly ISalesOrderService _salesOrderService;
+
+        public RawitemSalesOrderHandler(ISalesOrderService salesOrderService)
+        {
+            _salesOrderService = salesOrderService;
+        }
+
+        public async Task<string> Handle(rawitemSalesOrderQuery request, CancellationToken cancellationToken)
+        {
+            string result = "";
+            if(request.Type == "RawMatItem")
+            {
+                result = await _salesOrderService.RawMatItemAsync(request.CompanyName, request.Companyid, request.Type);
+            }
+            else if(request.Type == "PackagingItem")
+            {
+                result = await _salesOrderService.PackagingItemAsync(request.CompanyName, request.Companyid, request.Type);
+            }
+            else
+            {
+                result = await _salesOrderService.ProcessItemAsync(request.CompanyName, request.Companyid, request.Type);
+            }
+            
+
+            // Return the result as a string
+            return result;
+        }
+    }
+
 }

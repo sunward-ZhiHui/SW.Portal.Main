@@ -2,11 +2,13 @@
 using Core.Entities.Views;
 using Core.Repositories.Query;
 using Dapper;
+using Infrastructure.Repository.Query;
 using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service.Config;
 using Microsoft.Extensions.Configuration;
 using NAV;
 using System;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Data.Services.Client;
 using System.Linq;
@@ -17,14 +19,173 @@ namespace Infrastructure.Service
     public class SalesOrderService : QueryRepository<PostSalesOrder>, ISalesOrderService
     {
         private readonly IConfiguration _configuration;
+        private readonly IPostSalesOrderQueryRepository _postSalesOrderQueryRepository;
 
         //public SalesOrderService(IConfiguration configuration)
         //{
         //    _configuration = configuration;
         //}
-        public SalesOrderService(IConfiguration configuration) : base(configuration)
+        public SalesOrderService(IConfiguration configuration, IPostSalesOrderQueryRepository postSalesOrderQueryRepository) : base(configuration)
         {
             _configuration = configuration;
+            _postSalesOrderQueryRepository = postSalesOrderQueryRepository;
+        }
+        public async Task<string> RawMatItemAsync(string company,long companyid,string type)
+        {
+            try
+            {
+                //int pageSize = 1000;
+                //int page = 0;
+                //while (true)
+                //{
+                var context = new NAVService(_configuration, company);
+                var nquery = context.Context.RawMatItemList;
+                DataServiceQuery<NAV.RawMatItemList> query = (DataServiceQuery<NAV.RawMatItemList>)nquery;
+
+                TaskFactory<IEnumerable<NAV.RawMatItemList>> taskFactory = new TaskFactory<IEnumerable<NAV.RawMatItemList>>();
+                IEnumerable<NAV.RawMatItemList> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+
+                var ItemBatchInfo = new List<Core.Entities.RawMatItemList>();
+
+                prodCodes.ForEach(b =>
+                {
+                    ItemBatchInfo.Add(new Core.Entities.RawMatItemList
+                    {
+                        ItemNo = b.No,
+                        Description = b.Description,
+                        Description2 = b.Description_2,
+                        Inventory = b.Inventory,
+                        InternalRef = b.Internal_Ref,
+                        ItemRegistration = b.Item_Registration,
+                        BatchNos = b.Batch_Nos,
+                        PSOItemNo = b.PSO_Item_No,
+                        ProductionRecipeNo = b.Production_Recipe_No,
+                        SafetyLeadTime = b.Safety_Lead_Time,
+                        ProductionBOMNo = b.Production_BOM_No,
+                        RoutingNo = b.Routing_No,
+                        BaseUnitofMeasure = b.Base_Unit_of_Measure,
+                        StandardCost = b.Standard_Cost,
+                        UnitCost = b.Unit_Cost,
+                        LastDirectCost = b.Last_Direct_Cost,
+                        ItemCategoryCode = b.Item_Category_Code,
+                        ProductGroupCode = b.Product_Group_Code,
+                        CompanyId = companyid,
+                        Type = type
+                    });
+                });
+
+                var lsst = await _postSalesOrderQueryRepository.InsertRawMatItemList(ItemBatchInfo);
+
+                return lsst;
+                //}
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<string> PackagingItemAsync(string company, long companyid, string type)
+        {
+            try
+            {
+                //int pageSize = 1000;
+                //int page = 0;
+                //while (true)
+                //{
+                var context = new NAVService(_configuration, company);
+                var nquery = context.Context.PackagingItemList;
+                DataServiceQuery<NAV.PackagingItemList> query = (DataServiceQuery<NAV.PackagingItemList>)nquery;
+
+                TaskFactory<IEnumerable<NAV.PackagingItemList>> taskFactory = new TaskFactory<IEnumerable<NAV.PackagingItemList>>();
+                IEnumerable<NAV.PackagingItemList> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+
+                var ItemBatchInfo = new List<Core.Entities.RawMatItemList>();
+
+                prodCodes.ForEach(b =>
+                {
+                    ItemBatchInfo.Add(new Core.Entities.RawMatItemList
+                    {
+                        ItemNo = b.No,
+                        Description = b.Description,
+                        Description2 = b.Description_2,
+                        Inventory = b.Inventory,
+                        InternalRef = b.Internal_Ref,
+                        BaseUnitofMeasure = b.Base_Unit_of_Measure,                       
+                        ItemCategoryCode = b.Item_Category_Code,
+                        CompanyId = companyid,
+                        Type = type
+
+                    });
+                });
+                var lsst = await _postSalesOrderQueryRepository.InsertRawMatItemList(ItemBatchInfo);
+
+                return lsst;
+                //}
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<string> ProcessItemAsync(string company, long companyid, string type)
+        {
+            try
+            {
+                //int pageSize = 1000;
+                //int page = 0;
+                //while (true)
+                //{
+                var context = new NAVService(_configuration, company);
+                var nquery = context.Context.ProcessItemList;
+                DataServiceQuery<NAV.ProcessItemList> query = (DataServiceQuery<NAV.ProcessItemList>)nquery;
+
+                TaskFactory<IEnumerable<NAV.ProcessItemList>> taskFactory = new TaskFactory<IEnumerable<NAV.ProcessItemList>>();
+                IEnumerable<NAV.ProcessItemList> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+
+                var ItemBatchInfo = new List<Core.Entities.RawMatItemList>();
+
+                prodCodes.ForEach(b =>
+                {
+                    ItemBatchInfo.Add(new Core.Entities.RawMatItemList
+                    {
+                        ItemNo = b.No,
+                        Description = b.Description,
+                        Description2 = b.Description_2,
+                        Inventory = b.Inventory,
+                        InternalRef = b.Internal_Ref,
+                        ItemRegistration = b.Item_Registration,
+                        BatchNos = b.Batch_Nos,
+                        PSOItemNo = b.PSO_Item_No,
+                        ProductionRecipeNo = b.Production_Recipe_No,
+                        SafetyLeadTime = b.Safety_Lead_Time,
+                        ProductionBOMNo = b.Production_BOM_No,
+                        RoutingNo = b.Routing_No,
+                        BaseUnitofMeasure = b.Base_Unit_of_Measure,
+                        StandardCost = b.Standard_Cost,
+                        UnitCost = b.Unit_Cost,
+                        LastDirectCost = b.Last_Direct_Cost,
+                        ItemCategoryCode = b.Item_Category_Code,
+                        ProductGroupCode = b.Product_Group_Code,
+                        CompanyId = companyid,
+                        Type = type
+
+                    });
+                });
+                var lsst = await _postSalesOrderQueryRepository.InsertRawMatItemList(ItemBatchInfo);
+
+                return lsst;
+                //}
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         public async Task<List<Core.Entities.ItemBatchInfo>> SyncBatchAsync(string company, string itemNo)
         {

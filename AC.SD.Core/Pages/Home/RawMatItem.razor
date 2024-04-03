@@ -1,0 +1,119 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using global::Core.Entities.Views;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using System.ComponentModel.DataAnnotations
+@page "/RawItem"
+
+
+
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>                   
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />                    
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card cw-480 toolnext">
+
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="NavCompanyName"
+                                ValueFieldName="PlantID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@Data.PlantID" @bind-Text="@NavCompanyName" ShowValidationIcon="true">
+                    </DxComboBox>                    
+                </div> 
+                <div class="col-md-6">
+                    <DxComboBox Data="@Types"
+                                NullText="Select Type..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                @bind-Value="@Value"
+                                @bind-Text="@Text"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @* <EditForm @ref="myForm" EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                            <DxComboBox Data="@_plantItems"
+                                        NullText="Select Company..."
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="NavCompany"
+                                        ValueFieldName="PlantID"
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        @bind-Value="@Data.CompanyId" ShowValidationIcon="true">                               
+                            </DxComboBox>
+                            <ValidationMessage For="@(() => Data.CompanyId)" />
+                        </DxFormLayoutItem>                 
+                    </div>
+                </div>
+            </div>
+    </EditForm> *@
+</div>
+
+@code{
+    internal EditForm? myForm;
+    private List<ViewPlants>? _plantItems;
+    public ApplicationUser applicationUser { get; private set; }
+    EditContext _editContext;    
+    IEnumerable<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
+    string Text { get; set; } = "RawMatItem";
+    string Value { get; set; }
+    string NavCompanyName { get; set; }
+    private Model Data = new Model();
+
+    public class Model
+    {       
+        public long PlantID { get; set; }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
+    }
+    private async Task SubmitFormExternally()
+    {       
+        var result = await Mediator.Send(new rawitemSalesOrderQuery(NavCompanyName, Data.PlantID, Text));
+    }
+    async Task HandleValidSubmit()
+    {
+
+    }
+}

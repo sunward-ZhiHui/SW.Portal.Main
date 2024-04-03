@@ -104,6 +104,9 @@ namespace Core.Entities
         public string? GetTypes { get; set; }
         public Guid? EmailSessionId { get; set; }
         public Guid? EmailActivitySessionId { get; set; }
+        public bool? TimeSheetAction { get; set; }=  false;
+        public string? LotNo { get; set; }
+        public string? ItemName { get; set; }
     }
     public class ProductionActivityRoutineAppLineQaCheckerModel
     {

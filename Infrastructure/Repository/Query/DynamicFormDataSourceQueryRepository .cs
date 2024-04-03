@@ -73,6 +73,13 @@ namespace Infrastructure.Repository.Query
                 {
                     dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
                 }
+                var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
+                var rawMatItemList = rawMatItemType.Intersect(dataSourceTableIds).ToList();
+                if (rawMatItemList.Count() > 0)
+                {
+                    dataSourceDropDownList.AddRange(await GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds));
+                }
+
                 if (dataSourceTableIds.Contains("ApplicationMaster") && applicationMasterIds.Count>0)
                 {
                     dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
@@ -92,6 +99,12 @@ namespace Infrastructure.Repository.Query
                 if (soCustomerList.Count() > 0)
                 {
                     dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
+                }
+                var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
+                var rawMatItemList = rawMatItemType.Intersect(dataSourceTableIds).ToList();
+                if (rawMatItemList.Count() > 0)
+                {
+                    dataSourceDropDownList.AddRange(await GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds));
                 }
                 if (applicationMasterIds.Count > 0)
                 {
@@ -342,6 +355,38 @@ namespace Infrastructure.Repository.Query
                 dataSourceTableIds = dataSourceTableIds != null && dataSourceTableIds.Count > 0 ? dataSourceTableIds : new List<string?>() { "a" };
                 query += "select Type as DropDownTypeId, SoCustomerID as AttributeDetailID,CustomerName as AttributeDetailName,Address1 as Description from SoCustomer Where type  in(" + string.Join(",", dataSourceTableIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ");";
 
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetRawMatItemListDataSource(List<string?> dataSourceTableIds, long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                dataSourceTableIds = dataSourceTableIds != null && dataSourceTableIds.Count > 0 ? dataSourceTableIds : new List<string?>() { "a" };
+                query += "select Type as DropDownTypeId,t1.ID as AttributeDetailID,t1.CompanyId,ItemNo as AttributeDetailName,t2.PlantCode as CompanyName,CONCAT(t1.Description,(case when ISNULL(NULLIF(t1.Description2, ''), null) is NULL then  t1.Description2 ELSE  CONCAT(' | ',t1.Description2) END)) as Description from RawMatItemList t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID Where t1.type  in(" + string.Join(",", dataSourceTableIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ")\n\r";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                    }
+                    else
+                    {
+                        query += "Where t1.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
                 using (var connection = CreateConnection())
                 {
                     var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();

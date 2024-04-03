@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<PostSalesOrder>> GetAllAsync();
         Task<PostSalesOrder> GetByIdAsync(Int64 id);
+        Task<string> InsertRawMatItemList(IEnumerable<RawMatItemList> rawMatItemList);
     }
    
 }

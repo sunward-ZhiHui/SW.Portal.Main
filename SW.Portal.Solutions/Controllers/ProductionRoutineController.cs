@@ -188,43 +188,48 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpPost("InsertRoutineMaster")]
-        public async Task<ActionResult<Services.ResponseModel<ProductionActivityRoutineAppModel>>> InsertRoutineMaster(ProductionActivityRoutineAppModel value)
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<ProductionRoutine>>>> InsertRoutineMaster(ProductionRoutine value)
         {
-            var response = new Services.ResponseModel<ProductionActivityRoutineAppModel>();
-            var request = new CreateProductionActivityRoutineAppCommand
+            var response = new Services.ResponseModel<ProductionRoutine>();
+           var request = new CreateProductionActivityRoutineAppCommand
 
-            {
-                ProductionActivityRoutineAppLineId = 0,
-                CompanyId = value.CompanyID,
-                ProdOrderNo = value.ProdOrderNo,
-                LocationId = value.LocationID,
-                AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid(),
-                LineSessionId = Guid.NewGuid(),
-                StatusCodeID = 1,
-                AddedByUserID = value.AddedByUserID,
-                ManufacturingProcessChildId = value.ManufacturingProcessChildId,
-                ProdActivityCategoryChildId = value.ProdActivityCategoryChildId,
-                ProdActivityActionChildD = value.ProdActivityActionChildD,
-                ProdActivityResultId = value.ProdActivityResultId,
-                RoutineStatusId = value.RoutineStatusId,
-                LineComment = value.LineComment,
-                NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
-                // ModifiedByUserID = value.AddedByUserID,
-                //  ModifiedDate = DateTime.Now,
-                IsOthersOptions = value.OthersOptions == "Yes" ? true : false,
+           {
+               ProductionActivityRoutineAppLineId = 0,
+               CompanyId = value.CompanyID,
+               ProdOrderNo = value.ProdOrderNo,
+               LocationId = value.LocationID,
+               AddedDate = DateTime.Now,
+               SessionId = Guid.NewGuid(),
+               LineSessionId = Guid.NewGuid(),
+               StatusCodeID = 1,
+               AddedByUserID = value.AddedByUserID,
+               ManufacturingProcessChildId = value.ManufacturingProcessChildId,
+               ProdActivityCategoryChildId = value.ProdActivityCategoryChildId,
+               ProdActivityActionChildD = value.ProdActivityActionChildD,
+               ProdActivityResultId = value.ProdActivityResultId,
+               RoutineStatusId = value.RoutineStatusId,
+               LineComment = value.LineComment,
+               NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
+               ModifiedByUserID = value.AddedByUserID,
+               ModifiedDate = DateTime.Now,
+               IsOthersOptions = value.OthersOptions == "Yes" ? true : false,
 
-                IsTemplateUpload = value.IsTemplateUpload,
-                IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
-                ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
-                RoutineInfoIds = value.RoutineInfoIds,
-            };
+               IsTemplateUpload = value.IsTemplateUpload,
+               IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
+               ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
+               RoutineInfoIds = value.RoutineInfoIds,
+           };
 
             var result = await _mediator.Send(request);
+            var emailconversations = new ProductionRoutine
+            {
+                ProductionActivityRoutineAppId = (int)result,
+
+            };
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Result = request;
+                response.Result = emailconversations;
             }
             catch (Exception ex)
             {

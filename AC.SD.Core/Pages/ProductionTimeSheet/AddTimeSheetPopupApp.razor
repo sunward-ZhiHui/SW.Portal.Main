@@ -34,7 +34,7 @@
 
     <DataAnnotationsValidator />
     <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
+       @*  <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
             <DxComboBox Data="@_ponumberActivities"
                         NullText="Select ProdOrderNo..."
                         FilteringMode="DataGridFilteringMode.Contains"
@@ -45,7 +45,7 @@
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
-        </DxFormLayoutItem>
+        </DxFormLayoutItem> *@
         <DxFormLayoutItem Caption="Other Options" ColSpanMd="6">
             <DxRadioGroup Items="@IsOtherOptionsItems"
                           Value="@Data.OthersOptions"
@@ -63,6 +63,7 @@
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
             @bind-Value="Data.ManufacturingProcessChildId"
+            @bind-Text="@TimeSheetRoutine"
                         SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemManuFactureChanged(plant))"
                         ShowValidationIcon="true">
                 <Buttons>
@@ -210,6 +211,7 @@
     [Parameter]
     public Action RevokeBack { get; set; }
     long? ProductionActivityRoutineAppLineId { get; set; }
+    string TimeSheetRoutine { get; set; } = "TimeSheet";
     protected override async Task OnInitializedAsync()
     {
         addEnabled = true; saveEnabled = true;
@@ -397,6 +399,9 @@
                 ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0 ? Data.ProductActivityCaseLineId : null,
                 RoutineInfoIds = Data.RoutineInfoIds,
                 TimeSheetAction = true,
+                LotNo = ParentData.LotNo,
+                ItemName = ParentData.ItemName
+               
             };
 
         var result = await Mediator.Send(request);

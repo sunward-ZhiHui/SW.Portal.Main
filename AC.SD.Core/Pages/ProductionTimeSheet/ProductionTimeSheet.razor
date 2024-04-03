@@ -66,15 +66,15 @@
                                     </Buttons>
                                 </DxComboBox>
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Ticket No" ColSpanMd="4">
-                                <DxTextBox @bind-Text="@Data.ProdOrderNo" spellcheck="true" ShowValidationIcon="true" NullText="Ticket No">
+                            @* @*  <DxFormLayoutItem Caption="Ticket No" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@Data.TicketNo" spellcheck="true" ShowValidationIcon="true" NullText="Ticket No" >
                                 <Buttons>
                                     <DxEditorButton IconCssClass="fa fa-qrcode"
                                                     Tooltip="Scan Ticket No"
                                                     Click="@(_ => OnButtonTicketNoClick())" />
                                 </Buttons>
-                                </DxTextBox>
-                               @*  <DxComboBox Data="@_ponumberActivities"
+                                </DxTextBox> 
+                               <DxComboBox Data="@_ponumberActivities"
                                             NullText="Select Ticket No..."
                                             SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod?.ProdOrderNo))"
                                             FilteringMode="DataGridFilteringMode.Contains"
@@ -89,18 +89,29 @@
                                                         Tooltip="Scan Ticket No"
                                                         Click="@(_ => OnButtonTicketNoClick())" />
                                     </Buttons>
-                                </DxComboBox> *@
+                                </DxComboBox> 
                                 <ValidationMessage For="@(() => Data.ProdOrderNo)" />
-                            </DxFormLayoutItem> 
+                            </DxFormLayoutItem>  *@ 
                             <DxFormLayoutItem Caption="Lot No" ColSpanMd="4">
-                                <DxTextBox @bind-Text="@Data.LotNo" spellcheck="true" ShowValidationIcon="true" NullText="Lot No" />
+                                <DxTextBox @bind-Text="@Data.LotNo" spellcheck="true" ShowValidationIcon="true" NullText="Lot No" >
+                                    <Buttons>
+                                        <DxEditorButton IconCssClass="fa fa-qrcode"
+                                                        Tooltip="Scan Ticket No"
+                                                        Click="@(_ => OnButtonTicketNoClick())" />
+                                    </Buttons>
+                                </DxTextBox>
                                 <ValidationMessage For="@(() => Data.LotNo)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Item Name" ColSpanMd="4">
                                 <DxTextBox @bind-Text="@Data.ItemName" spellcheck="true" ShowValidationIcon="true" NullText="Item Name" />
                                 <ValidationMessage For="@(() => Data.ItemName)" />
                             </DxFormLayoutItem>
-
+                            <DxFormLayoutItem Caption="filter"   ColSpanMd="4">
+                                <DxButton IconCssClass="fa fa-filter" RenderStyle="ButtonRenderStyle.Secondary"
+                                                    Click="@(_ => onLoadDataList())" />
+                                      
+                                   
+                            </DxFormLayoutItem>
                         </DxFormLayout>
 
                     </EditForm>
@@ -518,16 +529,18 @@
         _AppLines = new List<ProductionActivityRoutineAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
         FilterData = new ProductionActivityRoutineAppModel();
-        if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        // if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        if (CompanyID > 0 && !string.IsNullOrEmpty(Data.LotNo) && !string.IsNullOrEmpty(Data.ItemName))
         {
             FilterData.CompanyId = CompanyID;
-            FilterData.ProdOrderNo = NAVProdOrderno;
+            FilterData.LotNo = Data.LotNo;
+            FilterData.ItemName = Data.ItemName;
             FilterData.AddedByUserID = applicationUser.UserID;
             FilterData.GetTypes = "User";
             FilterData.LocationId = LocationID;
             FilterData.TimeSheetAction = true;
             _AppLines = await Mediator.Send(new GetAllProductionActivityRoutineAppLineQuery(FilterData));
-            _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(CompanyID, NAVProdOrderno));
+            _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(CompanyID, Data.LotNo));
             if (_AppLines.Count() > 0)
             {
                 _selectedItems = _AppLines.FirstOrDefault();
@@ -831,21 +844,25 @@
             var ticketNo = TicketNo.Split("~");
             if (ticketNo.Length > 0)
             {
-                var exists = ticketNo.ElementAtOrDefault(5) != null;
+                var exists = ticketNo.ElementAtOrDefault(1) != null;
                 if (exists == true)
                 {
-                    var poNo = _ponumberActivities.Where(w => w.ProdOrderNo != null).FirstOrDefault(f => f.ProdOrderNo.ToLower() == ticketNo[5].ToLower());
-                    if (poNo != null)
-                    {
-                        Data.ProdOrderNo = poNo.ProdOrderNo; NAVProdOrderno = poNo.ProdOrderNo;
-                        toastService.ShowToast("TicketNo Found Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        CloseTicketNoPopup();
-                        await onLoadDataList();
-                    }
-                    else
-                    {
-                        toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
-                    }
+
+                   
+                    Data.ItemName = ticketNo[0];
+                    Data.LotNo = ticketNo[1];
+                    // var poNo = _ponumberActivities.Where(w => w.ProdOrderNo != null).FirstOrDefault(f => f.ProdOrderNo.ToLower() == ticketNo[5].ToLower());
+                    // if (poNo != null)
+                    // {
+                    //     Data.ProdOrderNo = poNo.ProdOrderNo; NAVProdOrderno = poNo.ProdOrderNo;
+                    //     toastService.ShowToast("TicketNo Found Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    //     CloseTicketNoPopup();
+                    //     await onLoadDataList();
+                    // }
+                    // else
+                    // {
+                    //     toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
+                    // }
                 }
                 else
                 {
@@ -861,7 +878,9 @@
         {
             toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
         }
+       
         StateHasChanged();
+        await onLoadDataList();
     }
     void addUploadFilesPopup()
     {

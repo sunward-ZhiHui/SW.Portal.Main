@@ -153,7 +153,27 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("StartDate", value.StartDate, DbType.DateTime);
                 parameters.Add("EndDate", value.EndDate, DbType.DateTime);
                 parameters.Add("TimeSheetAction", value.TimeSheetAction);
-                var query = @"select t1.ProductionActivityRoutineAppLineID,t1.ProductionActivityRoutineAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.ProductActivityCaseID,t1.VisaMasterID,t1.RoutineStatusID,t1.CommentImage,t1.CommentImageType,t1.ProfileID,t1.ProfileNo,t1.IsCheckNoIssue,t1.CheckedByID,t1.CheckedDate,t1.CheckedRemark,t1.IsCheckReferSupportDocument,CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId
+                parameters.Add("ItemName", value.ItemName);
+                parameters.Add("LotNo", value.LotNo);
+                var query = "";
+
+                if(value.TimeSheetAction == true)
+                {
+                    query = @"select t1.ProductionActivityRoutineAppLineID,t1.ProductionActivityRoutineAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.ProductActivityCaseID,t1.VisaMasterID,t1.RoutineStatusID,t1.CommentImage,t1.CommentImageType,t1.ProfileID,t1.ProfileNo,t1.IsCheckNoIssue,t1.CheckedByID,t1.CheckedDate,t1.CheckedRemark,t1.IsCheckReferSupportDocument,CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId
+                    ,t2.CompanyID,t10.PlantCode as CompanyName,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,
+                    'Production Routine' as Type,
+                    (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
+                    (select COUNT(tt1.ProductionActivityAppLineDocId) from ProductionActivityAppLineDoc tt1 WHERE tt1.Type = 'Production Routine' AND tt1.ProductionActivityAppLineID=t1.ProductionActivityRoutineAppLineID) as SupportDocCount,t12.NameOfTemplate,t12.Link,t12.LocationToSaveId
+                    from ProductionActivityRoutineAppLine t1 
+                    JOIN ProductionActivityRoutineApp t2 ON t1.ProductionActivityRoutineAppID=t2.ProductionActivityRoutineAppID  AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0)) AND ItemName = @ItemName AND LotNo = @LotNo
+                    JOIN Plant as t10 ON t10.PlantID = t2.CompanyID 
+                    LEFT JOIN ICTMaster t14 ON t14.ictMasterId=t2.LocationId
+                    LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
+                    WHERE t1.ProductionActivityRoutineAppLineID>0";
+                }
+                else
+                {
+                    query = @"select t1.ProductionActivityRoutineAppLineID,t1.ProductionActivityRoutineAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.ProductActivityCaseID,t1.VisaMasterID,t1.RoutineStatusID,t1.CommentImage,t1.CommentImageType,t1.ProfileID,t1.ProfileNo,t1.IsCheckNoIssue,t1.CheckedByID,t1.CheckedDate,t1.CheckedRemark,t1.IsCheckReferSupportDocument,CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId
                     ,t2.CompanyID,t10.PlantCode as CompanyName,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,
                     'Production Routine' as Type,
                     (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
@@ -164,6 +184,8 @@ namespace Infrastructure.Repository.Query
                     LEFT JOIN ICTMaster t14 ON t14.ictMasterId=t2.LocationId
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
                     WHERE t1.ProductionActivityRoutineAppLineID>0";
+                }
+                
                 if (value.NavprodOrderLineId > 0)
                 {
                     query += "\n\rAND t1.NavprodOrderLineId=@NavprodOrderLineId";

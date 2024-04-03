@@ -530,7 +530,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<ProductionActivityRoutineAppModel> GetAllRoutineListAsync(long? CompanyId, string? Replanrefno, long? locationId,bool? TimeSheetAction)
+        public async Task<ProductionActivityRoutineAppModel> GetAllRoutineListAsync(long? CompanyId, string? Replanrefno, long? locationId,bool? TimeSheetAction,string LotNo,string ItemName)
         {
             try
             {
@@ -539,7 +539,19 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ProdOrderNo", Replanrefno);
                 parameters.Add("locationId", locationId);
                 parameters.Add("TimeSheetAction", TimeSheetAction);
-                var query = "SELECT * FROM ProductionActivityRoutineApp WHERE CompanyId=@CompanyId AND ProdOrderNo=@ProdOrderNo  AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0))";
+                parameters.Add("LotNo", LotNo);
+                parameters.Add("ItemName", ItemName);
+                var query = "";
+
+                if(TimeSheetAction == true)
+                {
+                    query = "SELECT * FROM ProductionActivityRoutineApp WHERE CompanyId=@CompanyId   AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0)) AND ItemName = @ItemName AND LotNo = @LotNo";
+                }
+                else
+                {
+                    query = "SELECT * FROM ProductionActivityRoutineApp WHERE CompanyId=@CompanyId AND ProdOrderNo=@ProdOrderNo  AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0))";
+                }
+              
                 if (locationId > 0)
                 {
                     query += " AND locationId=@locationId";
@@ -573,17 +585,20 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("LocationID", PPAlist.LocationId);
                         parameters.Add("StatusCodeID", PPAlist.StatusCodeID);
                         parameters.Add("TimeSheetAction", PPAlist.TimeSheetAction);
-                        
-                        var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId,PPAlist.TimeSheetAction);
+                        parameters.Add("LotNo", PPAlist.LotNo);
+                        parameters.Add("ItemName", PPAlist.ItemName);
+                       
+
+                        var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId,PPAlist.TimeSheetAction, PPAlist.LotNo,PPAlist.ItemName);
                         if (lists != null)
                         {
                             PPAlist.ProductionActivityRoutineAppId = lists.ProductionActivityRoutineAppId;
                         }
                         else
                         {
-                            var query = @"INSERT INTO ProductionActivityRoutineApp(TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate) 
+                            var query = @"INSERT INTO ProductionActivityRoutineApp(TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate,LotNo,ItemName) 
 				                       OUTPUT INSERTED.ProductionActivityRoutineAppId 
-				                       VALUES (@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate)";
+				                       VALUES (@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate,@LotNo,@ItemName)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
 
                             PPAlist.ProductionActivityRoutineAppId = insertedId;

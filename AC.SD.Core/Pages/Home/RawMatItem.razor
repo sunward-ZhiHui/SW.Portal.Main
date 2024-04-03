@@ -109,8 +109,10 @@
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
     }
     private async Task SubmitFormExternally()
-    {       
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var result = await Mediator.Send(new rawitemSalesOrderQuery(NavCompanyName, Data.PlantID, Text));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     async Task HandleValidSubmit()
     {

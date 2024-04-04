@@ -380,11 +380,11 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                        query += "AND t1.CompanyID in(" + string.Join(',', plantIds) + ")";
                     }
                     else
                     {
-                        query += "Where t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "AND t1.CompanyID=" + CompanyId + "\r\n";
                     }
                 }
                 using (var connection = CreateConnection())

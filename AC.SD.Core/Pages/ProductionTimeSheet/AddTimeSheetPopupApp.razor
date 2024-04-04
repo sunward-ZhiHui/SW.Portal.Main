@@ -59,11 +59,12 @@
         <DxFormLayoutItem Caption="Routine:" ColSpanMd="6">
             <DxComboBox Data="@_ManuFactureProcessLines"
                         NullText="Select Routine..."
+                        Enabled="false"
                         FilteringMode="DataGridFilteringMode.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
-            @bind-Value="Data.ManufacturingProcessChildId"
-            @bind-Text="@TimeSheetRoutine"
+                        @bind-Value="Data.ManufacturingProcessChildId"
+                        @bind-Text="@TimeSheetRoutine"
                         SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemManuFactureChanged(plant))"
                         ShowValidationIcon="true">
                 <Buttons>

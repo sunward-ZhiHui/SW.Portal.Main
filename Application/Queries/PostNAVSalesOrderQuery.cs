@@ -17,9 +17,9 @@ namespace Application.Queries
     public class rawitemSalesOrderQuery : PagedRequest, IRequest<string>
     {
         public string CompanyName { get; set; }
-        public long Companyid { get; set; }
+        public long? Companyid { get; set; }
         public string Type { get; set; }
-        public rawitemSalesOrderQuery(string CompanyName,long Companyid,string type)
+        public rawitemSalesOrderQuery(string CompanyName,long? Companyid,string type)
         {
             this.CompanyName = CompanyName;
             this.Companyid = Companyid;

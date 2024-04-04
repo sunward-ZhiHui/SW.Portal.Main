@@ -61,15 +61,15 @@ namespace Application.Handlers.QueryHandlers
             string result = "";
             if(request.Type == "RawMatItem")
             {
-                result = await _salesOrderService.RawMatItemAsync(request.CompanyName, request.Companyid, request.Type);
+                result = await _salesOrderService.RawMatItemAsync(request.CompanyName, (long)request.Companyid, request.Type);
             }
             else if(request.Type == "PackagingItem")
             {
-                result = await _salesOrderService.PackagingItemAsync(request.CompanyName, request.Companyid, request.Type);
+                result = await _salesOrderService.PackagingItemAsync(request.CompanyName, (long)request.Companyid, request.Type);
             }
             else
             {
-                result = await _salesOrderService.ProcessItemAsync(request.CompanyName, request.Companyid, request.Type);
+                result = await _salesOrderService.ProcessItemAsync(request.CompanyName, (long)request.Companyid, request.Type);
             }
             
 

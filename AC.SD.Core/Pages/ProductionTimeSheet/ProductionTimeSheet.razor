@@ -783,7 +783,8 @@
     void addEdit()
     {
         addNew();
-        if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        //if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        if (CompanyID > 0)
         {
             _selectedEditItems = _selectedItems;
             AddPopup = true;

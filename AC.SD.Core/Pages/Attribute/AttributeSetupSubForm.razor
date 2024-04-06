@@ -188,7 +188,9 @@
                         <DxFormLayoutItem Caption="Reg.Exp" ColSpanMd="6">
                         <DxTextBox @bind-Text="Data.RegExp" Enabled="@RegEnabled"></DxTextBox>
                         </DxFormLayoutItem> *@
-
+                        <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                            <DxMemo @bind-Text="@Data.AttrDescription" Rows="5" />
+                        </DxFormLayoutItem>
                     </DxFormLayout>
 
                 </EditForm>
@@ -362,7 +364,7 @@
         Data.RegExp = null;
         Data.IsInternal = false;
         Data.ControlTypeId = null; Data.ControlType = null;
-        Data.AttributeCompanyId = null;
+        Data.AttributeCompanyId = null;Data.AttrDescription = null;
         Data.IsMultiple = false;
         Data.IsRequired = false;
         Data.RequiredMessage = null;
@@ -484,6 +486,7 @@
                 IsAttributeSpinEditType = IsSpinEditType,
                 AttributeRadioLayout = IsRadioLayout,
                 SubApplicationMasterIdsListIds=applicationMasterIdsListIds,
+                AttrDescription=Data.AttrDescription,
             };
         var result = await Mediator.Send(createReq);
         if (result > 0)
@@ -566,7 +569,8 @@
             Data.SubAttributeDetailId = _selectedItems.SubAttributeDetailId;
             Data.SubAttributeId = _selectedItems.SubAttributeId;
             Data.AttributeIsVisible = _selectedItems.AttributeIsVisible;
-            Data.AttributeRadioLayout = _selectedItems.AttributeRadioLayout; ;
+            Data.AttributeRadioLayout = _selectedItems.AttributeRadioLayout; 
+            Data.AttrDescription =  _selectedItems.AttrDescription; 
             Data.IsAttributeSpinEditType = string.IsNullOrEmpty(_selectedItems.IsAttributeSpinEditType) ? "int" : _selectedItems.IsAttributeSpinEditType;
             SelectedControlChanged(Data.ControlTypeId, "Edit");
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _selectedItems.ControlType.ToLower().Contains(f.ToLower()));

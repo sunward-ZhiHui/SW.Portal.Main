@@ -176,7 +176,17 @@
                               FilteringMode="DataGridFilteringMode.Contains"
                               TextFieldName="ApplicationMasterName"
                               ValueFieldName="ApplicationMasterId"
-                              Enabled="isFormCountUsed"
+                    @bind-Values="@types.ApplicationMasterIdsListIds">
+                    </DxTagBox>
+                    <ValidationMessage For="@(() => types.ApplicationMasterIdsListIds)" />
+
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Application Master Parent" ColSpanMd="6" Visible="@isApplicationMasterParentEnabled">
+                    <DxTagBox Data="@_applicationMasterParentItems"
+                              NullText="Select Application Master..."
+                              FilteringMode="DataGridFilteringMode.Contains"
+                              TextFieldName="ApplicationMasterName"
+                              ValueFieldName="ApplicationMasterParentCodeId"
                     @bind-Values="@types.ApplicationMasterIdsListIds">
                     </DxTagBox>
                     <ValidationMessage For="@(() => types.ApplicationMasterIdsListIds)" />
@@ -361,9 +371,9 @@
     private List<AttributeHeader>? _attributeHeaderData;
     DynamicFormSectionAttribute _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
     private List<DynamicFormSectionSpinEdit> dynamicFormSectionSpinEdit { get; set; } = new List<DynamicFormSectionSpinEdit>();
-    bool addPermissionEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false;
+    bool addPermissionEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false;bool isApplicationMasterParentEnabled { get; set; } = false;
     bool isFormCountUsed { get; set; } = true; private List<AttributeHeaderDataSource> _attributeHeaderDataSource; bool isDataSource { get; set; } = false;
-    private List<global::Core.Entities.ApplicationMaster> _applicationMasterItems;
+    private List<global::Core.Entities.ApplicationMaster> _applicationMasterItems; private List<ApplicationMasterParent>? _applicationMasterParentItems;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -382,6 +392,7 @@
         dynamicFormSectionSpinEdit.Add(new DynamicFormSectionSpinEdit() { Value = "int", Text = "Integer" });
         dynamicFormSectionSpinEdit.Add(new DynamicFormSectionSpinEdit() { Value = "decimal", Text = "Decimal" });
         _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
+        _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
         await UpdateDataAsync();
     }
     public async Task loadChildData(long? dynamicFormIds)
@@ -413,7 +424,7 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        isFormCountUsed = true; isDataSource = false; isApplicationMasterEnabled = false;
+        isFormCountUsed = true; isDataSource = false; isApplicationMasterEnabled = false;isApplicationMasterParentEnabled = false;
         var navitems = (DynamicFormSectionAttribute)e.EditModel;
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
@@ -438,6 +449,14 @@
             if (navitems.DataSourceTable == "ApplicationMaster")
             {
                 isApplicationMasterEnabled = true;
+                if (!string.IsNullOrEmpty(navitems.ApplicationMasterIds))
+                {
+                    navitems.ApplicationMasterIdsListIds = navitems.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                }
+            }
+            if (navitems.DataSourceTable == "ApplicationMasterParent")
+            {
+                isApplicationMasterParentEnabled = true;
                 if (!string.IsNullOrEmpty(navitems.ApplicationMasterIds))
                 {
                     navitems.ApplicationMasterIdsListIds = navitems.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
@@ -540,7 +559,7 @@
         data.DisplayName = attributeHeader.Description;
         data.DataSourceTable = attributeHeader.DataSourceTable;
         data.ControlTypeId = attributeHeader.ControlTypeId; isDataSource = false; IsSetDefaultValueEnabled = false; isApplicationMasterEnabled = false;
-        isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
+        isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false; isApplicationMasterParentEnabled = false;
         if (attributeHeader != null)
         {
             if (attributeHeader.ControlTypeId == 2706)
@@ -586,6 +605,10 @@
             {
                 isApplicationMasterEnabled = true;
             }
+            if (attributeHeader.DataSourceTable == "ApplicationMasterParent")
+            {
+                isApplicationMasterParentEnabled = true;
+            }
             if (attributeHeader.ControlTypeId == 2702 || attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2706 || attributeHeader.ControlTypeId == 2708 || attributeHeader.ControlTypeId == 2709)
             {
                 if (attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2709 || attributeHeader.DataSourceTable == "Employee" || attributeHeader.DataSourceTable == "Plant")
@@ -628,7 +651,7 @@
         }
         long? applicationMasterId = null;
         IEnumerable<long?> applicationMasterIdsListIds = new List<long?>();
-        if (editModel.DataSourceTable == "ApplicationMaster")
+        if (editModel.DataSourceTable == "ApplicationMaster" || editModel.DataSourceTable == "ApplicationMasterParent")
         {
             applicationMasterId = editModel.ApplicationMasterId;
             applicationMasterIdsListIds = editModel.ApplicationMasterIdsListIds;

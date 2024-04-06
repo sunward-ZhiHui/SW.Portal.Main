@@ -42,5 +42,6 @@ namespace Core.Entities.Views
         public string AssetCategory { get; set; }
         public string AssetType { get; set; }
         public string AssetGrouping { get; set; }
+        public string? AssetCatalogNo { get; set; }
     }
 }

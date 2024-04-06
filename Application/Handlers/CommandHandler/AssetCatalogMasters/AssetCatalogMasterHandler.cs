@@ -5,6 +5,7 @@ using Application.Response;
 using Core.Entities;
 using Core.Repositories.Command;
 using Core.Repositories.Query;
+using Core.Repositories.Query.Base;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -17,25 +18,29 @@ namespace Application.Handlers.CommandHandler.AssetCatalogMasters
     public class CreateAssetCatalogMasterHandler : IRequestHandler<CreateAssetCatalogMasterCommand, AssetCatalogMasterResponse>
     {
         private readonly IAssetCatalogMasterCommandRepository _commandRepository;
-        public CreateAssetCatalogMasterHandler(IAssetCatalogMasterCommandRepository commandRepository)
+        private readonly IAssetCatalogMasterQueryRepository _queryRepository;
+        public CreateAssetCatalogMasterHandler(IAssetCatalogMasterCommandRepository commandRepository, IAssetCatalogMasterQueryRepository queryRepository)
         {
             _commandRepository = commandRepository;
+            _queryRepository = queryRepository;
         }
         public async Task<AssetCatalogMasterResponse> Handle(CreateAssetCatalogMasterCommand request, CancellationToken cancellationToken)
         {
+
             var queryEntity = RoleMapper.Mapper.Map<AssetCatalogMaster>(request);
 
             if (queryEntity is null)
             {
                 throw new ApplicationException("There is a problem in mapper");
             }
-
+            queryEntity.AssetCatalogNo = await _queryRepository.GenerateAssetCatalogNo();
             var data = await _commandRepository.AddAsync(queryEntity);
             var response = new AssetCatalogMasterResponse
             {
                 AssetCatalogMasterId = (long)data,
                 StatusCodeId = queryEntity.StatusCodeId,
                 AssetDescription = queryEntity.AssetDescription,
+                AssetCatalogNo = queryEntity.AssetCatalogNo,
             };
             return response;
         }
@@ -60,6 +65,10 @@ namespace Application.Handlers.CommandHandler.AssetCatalogMasters
 
             try
             {
+                if (string.IsNullOrEmpty(queryrEntity.AssetCatalogNo))
+                {
+                    queryrEntity.AssetCatalogNo = await _queryRepository.GenerateAssetCatalogNo();
+                }
                 await _commandRepository.UpdateAsync(queryrEntity);
             }
             catch (Exception exp)
@@ -73,6 +82,7 @@ namespace Application.Handlers.CommandHandler.AssetCatalogMasters
                 AddedByUserId = queryrEntity.AddedByUserId,
                 StatusCodeId = queryrEntity.StatusCodeId,
                 AssetDescription = queryrEntity.AssetDescription,
+                AssetCatalogNo = queryrEntity.AssetCatalogNo,
             };
 
             return response;

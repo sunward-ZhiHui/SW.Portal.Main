@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.EntityModel;
 using Core.Entities.Views;
+using Core.Entities;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Infrastructure.Repository.Query
 {
@@ -57,6 +59,31 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        public async Task<string?> GenerateAssetCatalogNo()
+        {
+            var AssetCatalogMaster = new AssetCatalogMaster();
+            try
+            {
+                var query = "SELECT * FROM AssetCatalogMaster where AssetCatalogNo <>'' order by AssetCatalogNo desc";
+                using (var connection = CreateConnection())
+                {
+                    AssetCatalogMaster = await connection.QueryFirstOrDefaultAsync<AssetCatalogMaster>(query);
+                }
+                if (AssetCatalogMaster == null)
+                {
+                    var num = 1;
+                    return num.ToString("D6"); ;
+                }
+                else
+                {
+                    var num = Convert.ToInt64(AssetCatalogMaster.AssetCatalogNo) + 1;
+                    return num.ToString("D6");
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

@@ -27,7 +27,7 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public async Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds, string? plantCode, List<long?> applicationMasterIds)
+        public async Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds, string? plantCode, List<long?> applicationMasterIds, List<long?> applicationMasterParentIds)
         {
             var dataSourceDropDownList = new List<AttributeDetails>(); List<long> plantIds = new List<long>();
             var plantsData = await GetPlantDataSource();
@@ -84,6 +84,10 @@ namespace Infrastructure.Repository.Query
                 {
                     dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
                 }
+                if (dataSourceTableIds.Contains("ApplicationMasterParent") && applicationMasterParentIds.Count > 0)
+                {
+                    dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
+                }
             }
             else
             {
@@ -110,6 +114,10 @@ namespace Infrastructure.Repository.Query
                 {
                     dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
                 }
+                if (dataSourceTableIds.Contains("ApplicationMasterParent") && applicationMasterParentIds.Count > 0)
+                {
+                    dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
+                }
             }
             return dataSourceDropDownList;
         }
@@ -124,6 +132,33 @@ namespace Infrastructure.Repository.Query
                 {
                     applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };
                     query += "where t1.ApplicationMasterId in(" + string.Join(',', applicationMasterIds) + ")";
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetApplicationMasterParentDataSource(List<long?> applicationMasterIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                if (applicationMasterIds != null && applicationMasterIds.Count > 0)
+                {
+                    applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };
+                    query += "WITH ApplicationMasterParent_cte AS (\r\n  SELECT\r\n    ApplicationMasterParentID,\r\n    ApplicationMasterName,\r\n    ApplicationMasterParentCodeID,\r\n    ParentID,\r\n    1 AS level\r\n  FROM ApplicationMasterParent\r\n  WHERE ApplicationMasterParentCodeID in(" + string.Join(',', applicationMasterIds) + ")\r\n  UNION ALL\r\n  SELECT\r\n    e.ApplicationMasterParentID,\r\n    e.ApplicationMasterName,\r\n    e.ApplicationMasterParentCodeID,\r\n    e.ParentID,\r\n    level + 1\r\n  FROM ApplicationMasterParent e\r\n  INNER JOIN ApplicationMasterParent_cte r\r\n    ON e.ParentID = r.ApplicationMasterParentCodeID\r\n)select 'ApplicationMasterParent' as DropDownTypeId,t1.ApplicationMasterChildID as AttributeDetailID,t1.Value as AttributeDetailName,t1.Description,t1.ApplicationMasterParentID as ApplicationMasterParentCodeId,t2.ApplicationMasterName as ApplicationMasterName,t1.ParentId,t3.Value as ParentName from ApplicationMasterChild  t1 JOIN ApplicationMasterParent t2 ON t1.ApplicationMasterParentID=t2.ApplicationMasterParentCodeID LEFT JOIN ApplicationMasterChild t3 ON t1.ParentID=t3.ApplicationMasterChildID where t1.ApplicationMasterParentID in(SELECT ApplicationMasterParentCodeID FROM ApplicationMasterParent_cte);";
+                }
+                else
+                {
+                    query += "select 'ApplicationMasterParent' as DropDownTypeId,t1.ApplicationMasterChildID as AttributeDetailID,t1.Value as AttributeDetailName,t1.Description,t1.ApplicationMasterParentID as ApplicationMasterParentCodeId,t2.ApplicationMasterName as ApplicationMasterName,t1.ParentId,t3.Value as ParentName from ApplicationMasterChild  t1 JOIN ApplicationMasterParent t2 ON t1.ApplicationMasterParentID=t2.ApplicationMasterParentCodeID LEFT JOIN ApplicationMasterChild t3 ON t1.ParentID=t3.ApplicationMasterChildID";
                 }
                 using (var connection = CreateConnection())
                 {

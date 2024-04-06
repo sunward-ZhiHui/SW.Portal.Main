@@ -215,24 +215,45 @@
                     {
                         List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
                         var DataSourceTablelists = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.AttributeHeaderDataSource.Count > 0).SelectMany(a => a.AttributeHeaderDataSource.Select(s => s.DataSourceTable)).ToList().Distinct().ToList();
-                        dataSourceTableIds.AddRange(DataSourceTablelists); List<long?> ApplicationMasterIds = new List<long?>();
+                        dataSourceTableIds.AddRange(DataSourceTablelists); List<long?> ApplicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();
                         ApplicationMasterIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMaster.Count > 0).SelectMany(a => a.ApplicationMaster.Select(s => (long?)s.ApplicationMasterId)).ToList().Distinct().ToList();
+                        ApplicationMasterParentIds = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ApplicationMasterParents.Count > 0).SelectMany(a => a.ApplicationMasterParents.Select(s => (long?)s.ApplicationMasterParentCodeId)).ToList().Distinct().ToList();
                         if (ApplicationMasterIds.Count > 0)
                         {
                             dataSourceTableIds.Add("ApplicationMaster");
                         }
-                        PlantDependencySubAttributeDetails = await Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds));
+                        if (ApplicationMasterParentIds != null && ApplicationMasterParentIds.Count > 0)
+                        {
+                            dataSourceTableIds.Add("ApplicationMasterParent");
+                        }
+                        PlantDependencySubAttributeDetails = await Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>()));
+
                         _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute;
                         _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
                         {
                             if (a.DataSourceTable == "ApplicationMaster")
                             {
+                                dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                                 if (a.IsDisplayTableHeader == true && a.ApplicationMaster.Count() > 0)
                                 {
                                     a.ApplicationMaster.ForEach(ab =>
                                     {
                                         var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
                                         dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
+                                    });
+                                }
+                            }
+                            else if (a.DataSourceTable == "ApplicationMasterParent")
+                            {
+                                dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                                if (a.IsDisplayTableHeader == true && a.ApplicationMasterParents.Count() > 0)
+                                {
+                                    a.ApplicationMasterParents.ForEach(ab =>
+                                    {
+                                        var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                        dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
+                                        RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
+
                                     });
                                 }
                             }
@@ -302,6 +323,7 @@
                                     {
                                         if (s.DataSourceTable == "ApplicationMaster")
                                         {
+                                            objectData[attrName] = string.Empty;
                                             if (s.ApplicationMaster != null && s.ApplicationMaster.Count() > 0)
                                             {
                                                 s.ApplicationMaster.ForEach(ab =>
@@ -329,7 +351,7 @@
                                                         if (s.ControlType == "ComboBox")
                                                         {
                                                             long? values = itemValue == null ? -1 : (long)itemValue;
-                                                            var listss = PlantDependencySubAttributeDetails!=null?PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName:string.Empty;
+                                                            var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                                                             objectData[nameData] = listss;
                                                         }
                                                         else
@@ -349,6 +371,24 @@
                                                 }
 
                                             });
+                                            }
+                                        }
+                                        else if (s.DataSourceTable == "ApplicationMasterParent")
+                                        {
+                                            objectData[attrName] = string.Empty;
+                                            List<string?> nameDatas = new List<string?>();
+                                            s.ApplicationMasterParents.ForEach(ab =>
+                                            {
+                                                nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
+                                                RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
+                                                
+                                            });
+                                            if (nameDatas != null && nameDatas.Count() > 0)
+                                            {
+                                                nameDatas.ForEach(n =>
+                                                {
+                                                    loadApplicationMasterParentData(jsonObj,s,n, objectData);
+                                                });
                                             }
                                         }
                                         else
@@ -501,7 +541,25 @@
                                         }
                                         else
                                         {
-                                            if (s.DataSourceTable == "ApplicationMaster")
+                                            if (s.DataSourceTable == "ApplicationMasterParent")
+                                            {
+                                                objectData[attrName] = string.Empty;
+                                                List<string?> nameDatas = new List<string?>();
+                                                s.ApplicationMasterParents.ForEach(ab =>
+                                                {
+                                                    nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
+                                                    RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
+                                                });
+                                                    if(nameDatas!=null && nameDatas.Count()>0)
+                                                    {
+                                                        nameDatas.ForEach(n =>
+                                                        {
+                                                            objectData[n] = string.Empty;
+                                                        });
+                                                    }
+                                                
+                                            }
+                                            else if (s.DataSourceTable == "ApplicationMaster")
                                             {
                                                 objectData[attrName] = string.Empty;
                                                 if (s.ApplicationMaster.Count() > 0)
@@ -568,6 +626,82 @@
             StateHasChanged();
         }
     }
+    void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s,string nameData, IDictionary<string, object> objectData)
+    {
+
+        var SubNamess = jsonObj.ContainsKey(nameData);
+        if (SubNamess == true)
+        {
+            var itemValue = jsonObj[nameData];
+            if (itemValue is JArray)
+            {
+                List<long?> listData = itemValue.ToObject<List<long?>>();
+                if (s.IsMultiple == true || s.ControlType == "TagBox")
+                {
+                    var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                    objectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                }
+                else
+                {
+                    objectData[nameData] = string.Empty;
+                }
+            }
+            else
+            {
+                if (s.ControlType == "ComboBox")
+                {
+                    long? values = itemValue == null ? -1 : (long)itemValue;
+                    var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
+                    objectData[nameData] = listss;
+                }
+                else
+                {
+                    if (s.ControlType == "ListBox" && s.IsMultiple == false)
+                    {
+                        long? values = itemValue == null ? -1 : (long)itemValue;
+                        var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
+                        objectData[nameData] = listss;
+                    }
+                    else
+                    {
+                        objectData[nameData] = string.Empty;
+                    }
+                }
+            }
+        }
+        else
+        {
+            objectData[nameData] = string.Empty;
+        }
+
+
+    }
+    void RemoveApplicationMasterParentSingleItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<DropDownOptionsModel> dataColumnNames)
+    {
+        if (applicationMasterParent != null)
+        {
+            var listss = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == applicationMasterParent.ApplicationMasterParentCodeId);
+            if (listss != null)
+            {
+                var nameData = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + listss.ApplicationMasterParentCodeId + "_AppMasterPar";
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = listss.ApplicationMasterName, Type = "DynamicForm" });
+                RemoveApplicationMasterParentSingleItem(listss, dynamicFormSectionAttribute, dataColumnNames);
+            }
+        }
+    }
+    void RemoveApplicationMasterParentSingleNameItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<string?> dataColumnNames)
+    {
+        if (applicationMasterParent != null)
+        {
+            var listss = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == applicationMasterParent.ApplicationMasterParentCodeId);
+            if (listss != null)
+            {
+                var nameData = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + listss.ApplicationMasterParentCodeId + "_AppMasterPar";
+                dataColumnNames.Add(nameData);
+                RemoveApplicationMasterParentSingleNameItem(listss, dynamicFormSectionAttribute, dataColumnNames);
+            }
+        }
+    } 
     private static bool IsValidJson(string strInput)
     {
         if (string.IsNullOrWhiteSpace(strInput)) { return false; }

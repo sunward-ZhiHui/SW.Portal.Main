@@ -30,7 +30,7 @@ namespace Core.Entities
         public string RegExp { get; set; }
         public string ListDefault { get; set; }
         public bool IsInternal { get; set; } = false;
-
+        public string? AttrDescription { get; set; }
         public string? DropDownTypeId { get; set; } = null;
         [Required(ErrorMessage = "Data Source is Required")]
         public long? DataSourceId { get; set; }
@@ -84,6 +84,7 @@ namespace Core.Entities
         public DropDownOptionsGridListModel DropDownOptionsGridListModel { get; set; } = new DropDownOptionsGridListModel();
         public List<Plant> Plant { get; set; } = new List<Plant>();
         public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
+        public List<ApplicationMasterParent> ApplicationMasterParent { get; set; } = new List<ApplicationMasterParent>();
     }
     public class DynamicFormGridModel
     {
@@ -93,6 +94,7 @@ namespace Core.Entities
         public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
         public List<DynamicForm> DynamicForm { get; set; } = new List<DynamicForm>();
         public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
+        public List<ApplicationMasterParent> ApplicationMasterParent { get; set; } = new List<ApplicationMasterParent>();
     }
     public class DropDownGridOptionsModel
     {

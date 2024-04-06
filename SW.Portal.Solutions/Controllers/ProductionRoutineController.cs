@@ -9,6 +9,7 @@ using Core.Entities;
 using Core.Repositories.Query;
 using AC.SD.Core.Data;
 using AC.SD.Core.Pages.Masters;
+using Google.Api.Gax.ResourceNames;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -247,5 +248,30 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        [HttpGet("GetLocationScan")]
+        public async Task<ActionResult<Services.ResponseModel<List<ProductionActivityApp>>>> GetLocationScan(string LocationName)
+        {
+
+            var response = new Services.ResponseModel<ProductionActivityApp>();
+
+            if (LocationName != null)
+            {
+                var result = await _mediator.Send(new GetAllProductionActivityLocationAppQuery(LocationName));
+
+
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+                    response.Result = result;
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+            }
+            return Ok(response);
+        }
+       
     }
 }

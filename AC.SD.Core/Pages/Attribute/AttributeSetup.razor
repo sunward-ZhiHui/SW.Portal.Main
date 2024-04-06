@@ -179,7 +179,9 @@
                             <DxFormLayoutItem Caption="Reg.Exp" ColSpanMd="6">
                             <DxTextBox @bind-Text="Data.RegExp" Enabled="@RegEnabled"></DxTextBox>
                             </DxFormLayoutItem> *@
-
+                              <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                                  <DxMemo @bind-Text="@Data.AttrDescription" Rows="5" />
+                              </DxFormLayoutItem>
                         </DxFormLayout>
 
                     </EditForm>
@@ -390,7 +392,7 @@
         Data.RegExp = null;
         Data.IsInternal = false;
         Data.ControlTypeId = null; Data.ControlType = null;
-        Data.AttributeCompanyId = null;
+        Data.AttributeCompanyId = null; Data.AttrDescription = null;
         Data.IsMultiple = false;
         Data.IsRequired = false;
         Data.RequiredMessage = null;
@@ -507,6 +509,7 @@
                 AttributeIsVisible = Data.AttributeIsVisible,
                 IsAttributeSpinEditType = IsSpinEditType,
                 AttributeRadioLayout = IsRadioLayout,
+                AttrDescription=Data.AttrDescription,
             };
         var result = await Mediator.Send(createReq);
         if (result > 0)
@@ -586,7 +589,7 @@
         else
         {
             Data.Description = null; Data.AttributeCompanyId = null;
-            Data.EntryMask = null;
+            Data.EntryMask = null; Data.AttrDescription = null;
             Data.RegExp = null;
             Data.IsInternal = false; Data.ControlType = null;
             Data.ControlTypeId = null;
@@ -638,7 +641,8 @@
             Data.SubAttributeDetailId = _master.SubAttributeDetailId;
             Data.SubAttributeId = _master.SubAttributeId;
             Data.AttributeIsVisible = _master.AttributeIsVisible;
-            Data.AttributeRadioLayout = _master.AttributeRadioLayout; ;
+            Data.AttributeRadioLayout = _master.AttributeRadioLayout; 
+            Data.AttrDescription = _master.AttrDescription;
             Data.IsAttributeSpinEditType = string.IsNullOrEmpty(_master.IsAttributeSpinEditType) ? "int" : _master.IsAttributeSpinEditType;
             SelectedControlChanged(Data.ControlTypeId, "Edit");
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _master.ControlType.ToLower().Contains(f.ToLower()));

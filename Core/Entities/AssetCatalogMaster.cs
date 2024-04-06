@@ -29,5 +29,6 @@ namespace Core.Entities
         public long? AssetGroupingId { get; set; }
         public long? AssetTypeId { get; set; }
         public long? AssetCategoryId { get; set; }
+        public string? AssetCatalogNo { get; set; }
     }
 }

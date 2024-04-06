@@ -104,7 +104,7 @@
                     <DxTextBox @bind-Text="@types.SectionName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.SectionName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Field Name" ColSpanMd="6">
+               @*  <DxFormLayoutItem Caption="Field Name" ColSpanMd="6">
                     <DxTagBox Data="@_attributeHeaderData"
                               NullText="Select Field..."
                               FilteringMode="DataGridFilteringMode.Contains"
@@ -114,9 +114,9 @@
                               ValueFieldName="AttributeID"
                               EditFormat="{0}-{1}"
                     @bind-Values="@types.AttributeIds">
-                         @* <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
+                          <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
                                              Caption="Field Name"
-                                             Width="100px" /> *@
+                                             Width="100px" /> 
                         <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
                                             Caption="Label Name"
                                             Width="100px" />
@@ -129,7 +129,7 @@
                     </DxTagBox>
                     <ValidationMessage For="@(() => types.AttributeIds)" />
 
-                </DxFormLayoutItem>
+                </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="Instruction" ColSpanMd="12">
 
                     <DxMemo @bind-Text="@types.Instruction" Rows="5" />

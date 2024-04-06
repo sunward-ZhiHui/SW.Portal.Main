@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<View_AssetCatalogMaster>> GetAllAsync(long? CategoryId,long? SubSectionId);
         Task<View_AssetCatalogMaster> GetByIdAsync(Int64 id);
+        Task<string?> GenerateAssetCatalogNo();
     }
     public interface IAssetPartsMaintenaceMasterQueryRepository : IQueryRepository<View_AssetPartsMaintenaceMaster>
     {

@@ -165,7 +165,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeDetails>> Handle(GetDataSourceDropDownList request, CancellationToken cancellationToken)
         {
-            return (List<AttributeDetails>)await _attrubutequeryRepository.GetDataSourceDropDownList(request.CompanyId, request.DataSourceTableIds, request.PlantCode,request.ApplicationMasterIds);
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetDataSourceDropDownList(request.CompanyId, request.DataSourceTableIds, request.PlantCode,request.ApplicationMasterIds,request.ApplicationMasterParentIds);
         }
     }
     public class GetAllDropDownDataSourcesListHandler : IRequestHandler<GetAllDropDownDataSourcesList, DataSourceAttributeDetails>

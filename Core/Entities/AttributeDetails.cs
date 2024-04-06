@@ -36,6 +36,10 @@ namespace Core.Entities
         public long? ApplicationMasterId { get; set; }
         public string? ApplicationMasterName { get; set; }
         public long? ApplicationMasterCodeId { get; set; }
+        public long? ApplicationMasterParentCodeId { get; set; }
+        public long? ParentId { get; set; }
+        public List<long?> ApplicationMasterParentSectionIds { get; set; } = new List<long?>();
+        public string? ParentName { get; set; }
     }
     public class DataSourceAttributeDetails
     {

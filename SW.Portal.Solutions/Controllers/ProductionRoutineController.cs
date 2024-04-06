@@ -34,7 +34,8 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = (List<ViewPlants>)result;
+                response.Results = (List<ViewPlants>)(result.Count > 0 ? result : new List<ViewPlants> { new ViewPlants() });
+                
             }
             catch (Exception ex)
             {
@@ -67,7 +68,8 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = displayResult;
+                // response.Results = displayResult;
+                response.Results = displayResult.Count > 0 ? displayResult : new List<ProductionActivityAppModel> { new ProductionActivityAppModel() };
             }
             catch (Exception ex)
             {
@@ -87,7 +89,7 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services. ResponseCode.Success;
-                response.Results = (List<ApplicationMasterChildModel>)result;
+                response.Results = result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() };
             }
             catch (Exception ex)
             {
@@ -106,10 +108,14 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<ApplicationMasterChildModel>();
 
             var result = await _mediator.Send(new GetAllApplicationMasterChildByIdQuery(ManufacturingProcessChildId));
+          
+           
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = (List<ApplicationMasterChildModel>)result;
+               
+                response.Results = result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() };
+
             }
             catch (Exception ex)
             {
@@ -131,7 +137,7 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = (List<ApplicationMasterChildModel>)result;
+                response.Results = result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() };
             }
             catch (Exception ex)
             {
@@ -153,7 +159,7 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = (List<View_ApplicationMasterDetail>)result;
+                response.Results = result.Count > 0 ? result : new List<View_ApplicationMasterDetail> { new View_ApplicationMasterDetail() };
             }
             catch (Exception ex)
             {
@@ -177,7 +183,7 @@ namespace SW.Portal.Solutions.Controllers
                 try
                 {
                     response.ResponseCode = Services.ResponseCode.Success;
-                    response.Results = (List<ProductActivityCaseLineModel>)result;
+                    response.Results = result.Count > 0 ? result : new List<ProductActivityCaseLineModel> { new ProductActivityCaseLineModel() };
                 }
                 catch (Exception ex)
                 {
@@ -218,6 +224,8 @@ namespace SW.Portal.Solutions.Controllers
                IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
                ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
                RoutineInfoIds = value.RoutineInfoIds,
+               LotNo =value.LotNo,
+               ItemName = value.ItemName
            };
 
             var result = await _mediator.Send(request);

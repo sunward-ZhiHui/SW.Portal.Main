@@ -106,10 +106,9 @@
                                 <DxTextBox @bind-Text="@Data.ItemName" spellcheck="true" ShowValidationIcon="true" NullText="Item Name" />
                                 <ValidationMessage For="@(() => Data.ItemName)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="filter"   ColSpanMd="4">
-                                <DxButton IconCssClass="fa fa-filter" RenderStyle="ButtonRenderStyle.Secondary"
-                                                    Click="@(_ => onLoadDataList())" />
-                                      
+                            <DxFormLayoutItem ColSpanMd="4">
+                                <DxButton IconCssClass="fa fa-filter" Text="Search" RenderStyle="ButtonRenderStyle.Secondary"
+                                                    Click="@(_ => onLoadDataList())" />                                     
                                    
                             </DxFormLayoutItem>
                         </DxFormLayout>
@@ -334,7 +333,7 @@
          CloseOnEscape="false"
          MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
     <BodyContentTemplate>
-        <UploadProductionRoutineFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionRoutineFiles>
+        <UploadProductionTimeSheetFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionTimeSheetFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxFlyout @bind-IsOpen=IsDescriptionOpen
@@ -784,7 +783,8 @@
     void addEdit()
     {
         addNew();
-        if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        //if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        if (CompanyID > 0)
         {
             _selectedEditItems = _selectedItems;
             AddPopup = true;

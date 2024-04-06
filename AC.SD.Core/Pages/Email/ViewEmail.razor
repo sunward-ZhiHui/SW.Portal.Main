@@ -3716,23 +3716,51 @@
 
 
         var participantIds = new List<long>();
+        var AssigntoIdss = new List<long>();
+        var AssignccIdss = new List<long>();
 
-        if (cList[0].ToIds.HasValue)
-            participantIds.Add(cList[0].ToIds.Value);
-
-        if (long.TryParse(cList[0].CcIds, out long ccId))
+        if (cList.Count > 0)
         {
-            participantIds.Add(ccId);
-        }
 
-        participantIds.Add(applicationUser.UserID);
+            if (cList[0].ToIds.HasValue)
+                participantIds.Add(cList[0].ToIds.Value);
+
+            if (long.TryParse(cList[0].CcIds, out long ccId))
+            {
+                participantIds.Add(ccId);
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            AssigntoIdss = cList[0].ToIds.HasValue ? new List<long> { cList[0].ToIds.Value } : new List<long>();
+            AssignccIdss = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+
+        }
+        else
+        {
+            var ToOnlyList = await Mediator.Send(new GetRequestEmailToOnlyList(CurrentEmailConversations.ID));
+
+
+            if (ToOnlyList[0].ToIds.HasValue)
+                participantIds.Add(ToOnlyList[0].ToIds.Value);
+
+            if (long.TryParse(ToOnlyList[0].CcIds, out long ccId))
+            {
+                participantIds.Add(ccId);
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            AssigntoIdss = ToOnlyList[0].ToIds.HasValue ? new List<long> { ToOnlyList[0].ToIds.Value } : new List<long>();
+            AssignccIdss = ToOnlyList[0].CcIds != null ? ToOnlyList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+        }
 
 
         var emailconlist = new EmailConversations
         {
             TopicID = CurrentEmailConversations.TopicID,
-            AssigntoIds = cList[0].ToIds.HasValue ? new List<long> { cList[0].ToIds.Value } : new List<long>(),
-            AssignccIds = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse) : new List<long>(),    
+            AssigntoIds = AssigntoIdss,
+            AssignccIds = AssignccIdss,
             Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ").",
             PlistIdss="",
             AllowPlistids = "",

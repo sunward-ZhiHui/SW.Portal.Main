@@ -41,6 +41,20 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetRequestEmailToOnlyListHandler : IRequestHandler<GetRequestEmailToOnlyList, List<RequestEmail>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetRequestEmailToOnlyListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<RequestEmail>> Handle(GetRequestEmailToOnlyList request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.RequestEmailToOnlyList(request.ConId);
+
+        }
+    }
     public class UpdateTopicArchiveHandler : IRequestHandler<UpdateTopicArchive, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

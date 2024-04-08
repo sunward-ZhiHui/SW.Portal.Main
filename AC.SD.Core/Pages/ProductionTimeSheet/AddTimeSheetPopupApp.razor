@@ -83,6 +83,7 @@
                         ValueFieldName="ApplicationMasterChildId"
                         SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemCategoryChanged(plant))"
             @bind-Value="Data.ProdActivityCategoryChildId"
+            @bind-Text="@Category"
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.ProdActivityCategoryChildId)" />
@@ -96,6 +97,7 @@
                         ValueFieldName="ApplicationMasterChildId"
                         SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemActionChanged(plant))"
             @bind-Value="Data.ProdActivityActionChildD"
+            @bind-Text = "@Action"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
@@ -162,7 +164,7 @@
          ShowFooter="false"
          MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
     <BodyContentTemplate>
-        <UploadProductionRoutineFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUpload"></UploadProductionRoutineFiles>
+        <UploadProductionTimeSheetFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUpload"></UploadProductionTimeSheetFiles>
 
     </BodyContentTemplate>
 </DxPopup>
@@ -180,6 +182,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+
     [Parameter]
     public ProductionActivityRoutineAppModel? _selectedEditItems { get; set; }
     bool PopupManuFactureScanVisible { get; set; } = false;
@@ -213,6 +216,8 @@
     public Action RevokeBack { get; set; }
     long? ProductionActivityRoutineAppLineId { get; set; }
     string TimeSheetRoutine { get; set; } = "TimeSheet";
+    string Category { get; set; } = "";
+    string Action { get; set; } = "";
     protected override async Task OnInitializedAsync()
     {
         addEnabled = true; saveEnabled = true;
@@ -226,6 +231,8 @@
         _ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(324));
         _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(331));
         _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(334));
+        Category = "";
+        Action = "";
         if (_selectedEditItems != null)
         {
             Data.ProductionActivityRoutineAppLineId = _selectedEditItems.ProductionActivityRoutineAppLineId;
@@ -239,7 +246,9 @@
             Data.RoutineStatusId = _selectedEditItems.RoutineStatusId;
             Data.RoutineInfoIds = _selectedEditItems.RoutineInfoIds;
             Data.LineComment = _selectedEditItems.LineComment;
-            Data.OthersOptions = "No";
+            Category = _selectedEditItems.ProdActivityCategoryChild; 
+            Action = _selectedEditItems.ProdActivityActionChild;
+            Data.OthersOptions = _selectedEditItems.OthersOptions; 
             if (_selectedEditItems.IsOthersOptions == true)
             {
                 Data.OthersOptions = "Yes";

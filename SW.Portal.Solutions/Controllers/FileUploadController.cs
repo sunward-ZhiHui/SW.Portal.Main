@@ -19,6 +19,7 @@ using AC.SD.Core.Data;
 using Microsoft.AspNetCore.SignalR;
 using Plugin.Firebase.Firestore;
 using System.IO;
+using SW.Portal.Solutions.Models;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -302,6 +303,70 @@ namespace SW.Portal.Solutions.Controllers
                 return BadRequest(e.Message);
             }
             return Ok("Ok");
+        }
+        [HttpPost("MobileUploadFile")]
+        public async Task<ResponseModel> MobileUploadFile(Guid? SessionId, long? addedByUserId)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                if (!Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase))
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Invalid content type.";
+                    return response;
+                }
+
+                var file = Request.Form.Files[0];
+                if (file == null || file.Length == 0)
+                {
+                    response.IsSuccess = false;
+                    response.Message = "No file uploaded.";
+                    return response;
+                }
+                
+                var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", SessionId.ToString());
+                if (!Directory.Exists(serverPaths))
+                {
+                    Directory.CreateDirectory(serverPaths);
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Appending the extension to the filename
+                var filePath = Path.Combine(serverPaths, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var contentType = file.ContentType;
+                var fileSize = file.Length;
+                var fileExtension = Path.GetExtension(file.FileName); // Extracting the file extension
+
+                Documents documents = new Documents();
+                documents.UploadDate = DateTime.Now;
+                documents.AddedByUserId = addedByUserId;
+                documents.AddedDate = DateTime.Now;
+                documents.SessionId =  SessionId;
+                documents.IsLatest = true;
+                documents.IsTemp = true;
+                documents.FileName = fileName;
+                documents.ContentType = contentType;
+                documents.FileSize = fileSize;
+                documents.SourceFrom = "FileProfile";
+                documents.FilePath = serverPaths.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                var responsesss = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+
+                response.IsSuccess = true;
+                response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = $"Internal server error: {ex.Message}";
+                return response;
+            }
         }
     }
 }

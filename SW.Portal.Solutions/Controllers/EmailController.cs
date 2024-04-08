@@ -711,6 +711,5 @@ namespace SW.Portal.Solutions.Controllers
 
             return contentType;
         }
-
     }
 }

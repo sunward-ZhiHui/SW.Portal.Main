@@ -106,6 +106,7 @@
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
+         Closed="EulaPopupClosed"
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>
@@ -152,6 +153,7 @@
                     _dynamicForm = items;
                     _selectedItems = items.FirstOrDefault();
                     dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                    FileProfileTypeId = _selectedItems.FileProfileTypeId;
                     dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
                     Grid.SetFocusedRowIndex(0);
                 }
@@ -160,6 +162,7 @@
                     _selectedItems = _dynamicForm.FirstOrDefault();
                     dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
                     dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
+                    FileProfileTypeId = _selectedItems.FileProfileTypeId;
                     Grid.SetFocusedRowIndex(0);
                 }
             }
@@ -191,6 +194,7 @@
         DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
         dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
         dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
+        FileProfileTypeId = _selectedItems.FileProfileTypeId;
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -241,6 +245,7 @@
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
+        BackUpload();
         createEmailpopup = false;
     }
     async Task createEmailYes()

@@ -95,6 +95,7 @@
          HeaderText="Add Sub Controls"
          Closed="EulaPopupClosed"
          CloseOnOutsideClick="false"
+         
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
@@ -207,6 +208,7 @@
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         AddPopup = false;
+        InvokeAsync(loadData);
         Blukdeletepopup = false;
         StateHasChanged();
     }

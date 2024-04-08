@@ -126,6 +126,7 @@
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
+         Closed="EulaPopupClosed"
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>
@@ -137,6 +138,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
          ShowFooter="false"
+         Closed="EulaPopupClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1500px" MaxHeight="1000px">
     <BodyContentTemplate>
         <DynamicGridForms SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
@@ -199,9 +201,10 @@
         // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
         if (SessionId != null)
         {
-            _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
+            _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1)); _dynamicformObjectDataList = new List<object>();
             if (_dynamicForm != null && applicationUser != null)
             {
+                _dynamicformObjectDataList = new List<object>();
                 _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
                 if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
@@ -278,7 +281,7 @@
                 }
 
                 _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId));
-                PanelVisible = true;
+                PanelVisible = true; _dynamicformObjectDataList = new List<object>();
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
                     _dynamicformDataList.ForEach(s =>
@@ -310,6 +313,7 @@
                                 {
                                     if (s.DataSourceTable == "ApplicationMaster")
                                     {
+                                        objectData[attrName] = string.Empty;
                                         if (s.ApplicationMaster != null && s.ApplicationMaster.Count() > 0)
                                         {
                                             s.ApplicationMaster.ForEach(ab =>
@@ -768,8 +772,11 @@
     {
         Blukdeletepopup = true;
     }
-    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    void EulaPopupClosed(PopupClosedEventArgs args)
     {
+        PopupUpload = false;
+        PopupGridForm = false;
+        InvokeAsync(UpdateDataAsync);
         Blukdeletepopup = false;
 
         // await UpdateDataAsync();

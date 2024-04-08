@@ -323,7 +323,7 @@ namespace SW.Portal.Solutions.Controllers
         [HttpPost("DeleteRoutineMaster")]
         public async Task<ActionResult<Services.ResponseModel<IEnumerable<ProductionRoutineModel>>>> DeleteRoutineMaster(ProductionRoutineModel value)
         {
-            var response = new Services.ResponseModel<ProductionActivityRoutineAppModel>();
+            var response = new Services.ResponseModel<ProductionRoutineModel>();
             ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
             Data.ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId;
 
@@ -333,7 +333,15 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-               response.Result = result;
+
+                var emailconversations = new ProductionRoutineModel
+                {
+                   
+                    Message = "Delete Successfully"
+                };
+
+                response.Result = emailconversations;
+               
             }
             catch (Exception ex)
             {

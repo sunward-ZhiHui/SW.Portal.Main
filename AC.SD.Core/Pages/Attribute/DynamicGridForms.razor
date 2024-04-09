@@ -321,6 +321,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
          ShowFooter="false"
+         Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
         <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
@@ -1243,14 +1244,14 @@
                             {
                                 curData = listDatas;
                             }
-                                if (preData.Count() > 0)
-                                {
-                                    preData.ForEach(t =>
-                                    {
+                            if (preData.Count() > 0)
+                            {
+                                preData.ForEach(t =>
+                            {
                                         loadApplicationMasterParentDataLoad(t, dynamicFormSectionAttributes);
                                     });
-                                }
-                            
+                            }
+
                         }
                     }
                 }
@@ -1982,6 +1983,7 @@
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
+        BackUpload();
         isApprovedPopup = false;
     }
     void addUploadDocument()

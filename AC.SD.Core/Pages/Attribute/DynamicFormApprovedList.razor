@@ -113,6 +113,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
          ShowFooter="false"
+         Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
         <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
@@ -177,6 +178,7 @@
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
+        BackUpload();
         createEmailpopup = false;
     }
     async Task UpdateDataAsync()
@@ -191,9 +193,11 @@
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
         if (SessionId != null)
         {
+            _dynamicformObjectDataList = new List<object>();
             _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
             if (_dynamicForm != null)
             {
+                _dynamicformObjectDataList = new List<object>();
                 _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
                 if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
@@ -269,7 +273,7 @@
                 }
 
                 _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null));
-                PanelVisible = true;
+                PanelVisible = true; _dynamicformObjectDataList = new List<object>();
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
                     if (FormSessionId != null)

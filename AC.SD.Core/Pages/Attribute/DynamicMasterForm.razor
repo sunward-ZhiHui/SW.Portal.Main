@@ -118,17 +118,17 @@
                     <DxFormLayoutItem Caption="Is Grid Form" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsGridForm"></DxCheckBox>
                     </DxFormLayoutItem>
-                    @* <DxFormLayoutItem Caption="SW Library" ColSpanMd="6" Visible="@Data.IsUpload">
-                    <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
-                    <Buttons>
-                    <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
-                    Tooltip="Select File ProfileType"
-                    Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
-                    </Buttons>
-                    </DxTextBox>
-                    <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
-                    <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
-                    </DxFormLayoutItem> *@
+                      <DxFormLayoutItem Caption="SW Library" ColSpanMd="6" Visible="@Data.IsUpload">
+                          <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                              <Buttons>
+                                  <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                                  Tooltip="Select File ProfileType"
+                                                  Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                              </Buttons>
+                          </DxTextBox>
+                          <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                          <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                      </DxFormLayoutItem>
 
                     @*  <DxFormLayoutItem Caption="Is Generate ProfileNo" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsProfileNoGenerate"></DxCheckBox>
@@ -275,7 +275,7 @@
         Data.IsGridForm = false;
         Data.StatusCodeID = null; Data.CompanyId = null; Data.ProfileId = null;
         Data.IsApproval = false;
-        Data.IsUpload = false; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
+        Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
         if (SessionIds != null)
         {
             var dynamicFormData = await Mediator.Send(new GetDynamicFormBySession(SessionIds));
@@ -295,7 +295,7 @@
                 Data.Name = dynamicFormData.Name;
                 Data.SessionId = dynamicFormData.SessionId;
                 Data.StatusCodeID = dynamicFormData.StatusCodeID;
-                Data.IsUpload = dynamicFormData.IsUpload;
+                Data.IsUpload = true;
                 Data.FileProfileTypeId = dynamicFormData.FileProfileTypeId;
                 Data.CompanyId = dynamicFormData.CompanyId;
                 Data.ProfileId = dynamicFormData.ProfileId;

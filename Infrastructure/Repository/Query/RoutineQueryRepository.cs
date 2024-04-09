@@ -580,7 +580,7 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("SessionId", value.LineSessionId, DbType.Guid);
+                        parameters.Add("SessionId", value.LineSessionId);
                         parameters.Add("ProductionActivityRoutineAppLineId", value.ProductionActivityRoutineAppLineId);
                         var query = "Delete from  RoutineInfoMultiple WHERE ProductionActivityRoutineAppLineId=@ProductionActivityRoutineAppLineId;";
                         query += "Delete from  ProductionActivityRoutineAppLine WHERE ProductionActivityRoutineAppLineId=@ProductionActivityRoutineAppLineId;";

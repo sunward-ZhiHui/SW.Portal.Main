@@ -107,7 +107,7 @@
                     @DataSourceNames
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-           
+
             <DxGridDataColumn FieldName="SortOrderBy" Caption="Sort Order By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" MinWidth="40">
                 <CellDisplayTemplate>
                     @{
@@ -146,8 +146,8 @@
                     @bind-Value="@types.AttributeId">
                         <Columns>
                             @*  <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
-                                                 Caption="Field Name"
-                                                 Width="100px" /> *@
+                            Caption="Field Name"
+                            Width="100px" /> *@
                             <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
                                                 Caption="Label Name"
                                                 Width="100px" />
@@ -177,6 +177,10 @@
                               TextFieldName="ApplicationMasterName"
                               ValueFieldName="ApplicationMasterId"
                     @bind-Values="@types.ApplicationMasterIdsListIds">
+                        <DxListEditorColumn FieldName="@nameof(ApplicationMaster.ApplicationMasterName)"
+                                            Caption="Name" Width="100px" />
+                        <DxListEditorColumn FieldName="@nameof(ApplicationMaster.ApplicationMasterDescription)"
+                                            Caption="Description" Width="130px" />
                     </DxTagBox>
                     <ValidationMessage For="@(() => types.ApplicationMasterIdsListIds)" />
 
@@ -188,6 +192,10 @@
                               TextFieldName="ApplicationMasterName"
                               ValueFieldName="ApplicationMasterParentCodeId"
                     @bind-Values="@types.ApplicationMasterIdsListIds">
+                        <DxListEditorColumn FieldName="@nameof(ApplicationMasterParent.ApplicationMasterName)"
+                                            Caption="Name" Width="100px" />
+                        <DxListEditorColumn FieldName="@nameof(ApplicationMasterParent.Description)"
+                                            Caption="Description" Width="130px" />
                     </DxTagBox>
                     <ValidationMessage For="@(() => types.ApplicationMasterIdsListIds)" />
 
@@ -225,15 +233,15 @@
                 <DxFormLayoutItem Caption="Is Default ReadOnly" ColSpanMd="3" Visible="@IsSetDefaultValueEnabled">
                     <DxCheckBox @bind-Checked="types.IsDefaultReadOnly"></DxCheckBox>
                 </DxFormLayoutItem>
-               @*   <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
-                     <DxCheckBox Checked="@types.IsSingleTextBoxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsSingleTextBoxRemarks)" CheckedChanged="@((bool? value) => CheckedSingleTextBoxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is SingleLine TextBox</DxCheckBox>
-                 </DxFormLayoutItem>
-                 <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
-                     <DxCheckBox Checked="types.IsMultiLineTextboxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsMultiLineTextboxRemarks)" CheckedChanged="@((bool? value) => CheckedIsMultiLineTextboxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is MultiLine TextBox</DxCheckBox>
-                 </DxFormLayoutItem>
-                 <DxFormLayoutItem Caption="Remarks Label Name" ColSpanMd="6" Visible="IsRadioCheckBoxLayoutEnabled">
-                     <DxTextBox @bind-Text="@types.RemarksLabelName" />
-                 </DxFormLayoutItem> *@
+                @*   <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
+                <DxCheckBox Checked="@types.IsSingleTextBoxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsSingleTextBoxRemarks)" CheckedChanged="@((bool? value) => CheckedSingleTextBoxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is SingleLine TextBox</DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="IsRadioCheckBoxLayoutEnabled">
+                <DxCheckBox Checked="types.IsMultiLineTextboxRemarks" Enabled="@IsRadioCheckBoxLayoutEnabled" CheckedExpression="@(() => types.IsMultiLineTextboxRemarks)" CheckedChanged="@((bool? value) => CheckedIsMultiLineTextboxRemarksChanged(value,types))" LabelPosition="LabelPosition.Right">Is MultiLine TextBox</DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Remarks Label Name" ColSpanMd="6" Visible="IsRadioCheckBoxLayoutEnabled">
+                <DxTextBox @bind-Text="@types.RemarksLabelName" />
+                </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="IsSpinEditTypeEnabled">
                     <DxComboBox Data="@dynamicFormSectionSpinEdit"
                     @bind-Value="@types.IsSpinEditType"
@@ -371,7 +379,7 @@
     private List<AttributeHeader>? _attributeHeaderData;
     DynamicFormSectionAttribute _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
     private List<DynamicFormSectionSpinEdit> dynamicFormSectionSpinEdit { get; set; } = new List<DynamicFormSectionSpinEdit>();
-    bool addPermissionEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false;bool isApplicationMasterParentEnabled { get; set; } = false;
+    bool addPermissionEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false; bool isApplicationMasterParentEnabled { get; set; } = false;
     bool isFormCountUsed { get; set; } = true; private List<AttributeHeaderDataSource> _attributeHeaderDataSource; bool isDataSource { get; set; } = false;
     private List<global::Core.Entities.ApplicationMaster> _applicationMasterItems; private List<ApplicationMasterParent>? _applicationMasterParentItems;
     protected override async Task OnInitializedAsync()
@@ -424,7 +432,7 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        isFormCountUsed = true; isDataSource = false; isApplicationMasterEnabled = false;isApplicationMasterParentEnabled = false;
+        isFormCountUsed = true; isDataSource = false; isApplicationMasterEnabled = false; isApplicationMasterParentEnabled = false;
         var navitems = (DynamicFormSectionAttribute)e.EditModel;
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
@@ -558,6 +566,7 @@
     {
         data.DisplayName = attributeHeader.Description;
         data.DataSourceTable = attributeHeader.DataSourceTable;
+        data.FormToolTips = attributeHeader.AttrDescription;
         data.ControlTypeId = attributeHeader.ControlTypeId; isDataSource = false; IsSetDefaultValueEnabled = false; isApplicationMasterEnabled = false;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false; isApplicationMasterParentEnabled = false;
         if (attributeHeader != null)

@@ -20,12 +20,13 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IMediator _mediator;
         private readonly IPlantQueryRepository _PlantQueryRepository;
         private readonly IProductionActivityAppQueryRepository _ProductionActivityAppQueryRepository;
-
-        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository)
+        private readonly IRoutineQueryRepository _RoutineQueryRepository;
+        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository)
         {
             _mediator = mediator;
             _PlantQueryRepository = PlantQueryRepository;
             _ProductionActivityAppQueryRepository = productionActivityAppQueryRepository;
+            _RoutineQueryRepository = routineQueryRepository;
         }
         [HttpGet("GetCompanyList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyList()
@@ -198,29 +199,29 @@ namespace SW.Portal.Solutions.Controllers
         public async Task<ActionResult<Services.ResponseModel<IEnumerable<ProductionRoutine>>>> InsertRoutineMaster(ProductionRoutine value)
         {
             var response = new Services.ResponseModel<ProductionRoutine>();
-           var request = new CreateProductionActivityRoutineAppCommand
+            var request = new CreateProductionActivityRoutineAppCommand
 
-           {
-               ProductionActivityRoutineAppLineId = 0,
-               CompanyId = value.CompanyID,
-               ProdOrderNo = value.ProdOrderNo,
-               LocationId = value.LocationID,
-               AddedDate = DateTime.Now,
-               SessionId = Guid.NewGuid(),
-               LineSessionId = Guid.NewGuid(),
-               StatusCodeID = 1,
-               AddedByUserID = value.AddedByUserID,
-               ManufacturingProcessChildId = value.ManufacturingProcessChildId,
-               ProdActivityCategoryChildId = value.ProdActivityCategoryChildId,
-               ProdActivityActionChildD = value.ProdActivityActionChildD,
-               ProdActivityResultId = value.ProdActivityResultId,
-               RoutineStatusId = value.RoutineStatusId,
-               LineComment = value.LineComment,
-               NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
-               ModifiedByUserID = value.AddedByUserID,
-               ModifiedDate = DateTime.Now,
-               IsOthersOptions = value.OthersOptions == "Yes" ? true : false,
-
+            {
+                ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId,
+                CompanyId = value.CompanyID,
+                ProdOrderNo = value.ProdOrderNo,
+                LocationId = value.LocationID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid(),
+                LineSessionId = Guid.NewGuid(),
+                StatusCodeID = 1,
+                AddedByUserID = value.AddedByUserID,
+                ManufacturingProcessChildId = value.ManufacturingProcessChildId,
+                ProdActivityCategoryChildId = value.ProdActivityCategoryChildId,
+                ProdActivityActionChildD = value.ProdActivityActionChildD,
+                ProdActivityResultId = value.ProdActivityResultId,
+                RoutineStatusId = value.RoutineStatusId,
+                LineComment = value.LineComment,
+                NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
+                ModifiedByUserID = value.AddedByUserID,
+                ModifiedDate = DateTime.Now,
+                IsOthersOptions = value.OthersOptions == "Yes" ? true : false,
+                TimeSheetAction = true,
                IsTemplateUpload = value.IsTemplateUpload,
                IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
                ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
@@ -272,6 +273,83 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(response);
         }
-       
+        [HttpGet("GetRoutineDetailResult")]
+        public async Task<ActionResult<Services.ResponseModel<List<ProductionRoutineDetailModel>>>> GetRoutineDetailResult(ProductionRoutineDetailModel RoutineDetailModel)
+        {
+
+            var response = new Services.ResponseModel<ProductionRoutineDetailModel>();
+            ProductionActivityRoutineAppModel FilterData = new ProductionActivityRoutineAppModel();
+            if (RoutineDetailModel.CompanyId> 0 && !string.IsNullOrEmpty(RoutineDetailModel.LotNo) && !string.IsNullOrEmpty(RoutineDetailModel.ItemName))
+            {
+                FilterData.CompanyId = RoutineDetailModel.CompanyId;
+                FilterData.LotNo = RoutineDetailModel.LotNo;
+                FilterData.ItemName = RoutineDetailModel.ItemName;
+                FilterData.AddedByUserID = RoutineDetailModel.AddedByUserID;
+                FilterData.GetTypes = "User";
+                FilterData.LocationId = RoutineDetailModel.LocationId;
+                FilterData.TimeSheetAction = true;
+                var result = await _mediator.Send(new GetAllProductionActivityRoutineAppLineQuery(FilterData));
+
+
+                var displayResult = result?.Select(topic => new ProductionRoutineDetailModel
+                {
+
+                  Type =topic.Type,
+                    ActivityProfileNo =topic.ActivityProfileNo,
+                    AddedDate =topic.AddedDate,
+                    ManufacturingProcessChild = topic.ManufacturingProcessChild,
+                    ProdActivityCategoryChild = topic.ProdActivityCategoryChild,
+                    ProdActivityActionChild = topic.ProdActivityActionChild,
+                    LineComment = topic.LineComment,
+                    ModifiedByUser = topic.ModifiedByUser,
+                    ModifiedDate = topic.ModifiedDate,
+                    ProdActivityResult = topic.ProdActivityResult
+
+                }).ToList();
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+                    response.Results = displayResult;
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("DeleteRoutineMaster")]
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<ProductionRoutineModel>>>> DeleteRoutineMaster(ProductionRoutineModel value)
+        {
+            var response = new Services.ResponseModel<ProductionRoutineModel>();
+            ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
+            Data.ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId;
+
+            var result = await _RoutineQueryRepository.DeleteproductActivityRoutineAppLine(Data);
+
+
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                var emailconversations = new ProductionRoutineModel
+                {
+                   
+                    Message = "Delete Successfully"
+                };
+
+                response.Result = emailconversations;
+               
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 }

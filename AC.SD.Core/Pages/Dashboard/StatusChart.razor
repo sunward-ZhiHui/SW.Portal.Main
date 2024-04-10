@@ -1,0 +1,159 @@
+﻿@page "/raja"
+@using Application.Queries;
+@using MediatR
+@using Microsoft.Extensions.Configuration;
+@using System.Drawing.Printing;
+@using System.Drawing;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IConfiguration Configuration
+@using System.Windows;
+@using System.Windows.Input;
+@using System.Collections.Generic
+
+<div class="row">
+    <div class="col-md-4">
+        <DxPieChart Data="@ChartData" InnerDiameter="0.60">
+            <DxChartTitle Text="Status" />
+
+            <DxPieChartSeries ValueField="@((SampleData i) => i.Value)"
+                              ArgumentField="@(i => i.Label)"
+                              SummaryMethod="Enumerable.Sum"                               
+                              VisibleChanged="@VisibleChangedHandler">
+                <DxChartSeriesLabel Visible="true" Position="RelativePosition.Inside" />
+                
+            </DxPieChartSeries>
+            <DxChartTooltip Enabled="true"
+                            Position="RelativePosition.Outside">
+                <div style="margin: 0.75rem">
+                    <div class="fw-bold">@context.Point.Argument</div>
+                    <div>@($"{context.Point.Value:#,0.}")</div>
+                </div>
+            </DxChartTooltip>
+            <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
+                           VerticalAlignment="VerticalEdge.Bottom"
+                           Position="RelativePosition.Outside"
+                           Orientation="Orientation.Horizontal" />
+        </DxPieChart>
+    </div>
+    <div class="col-md-4">
+        <DxPieChart Data="@ChartDataApproved" InnerDiameter="0.60">
+            <DxChartTitle Text="Workflow" />
+
+            <DxPieChartSeries ValueField="@((SampleData i) => i.Value)"
+                              ArgumentField="@(i => i.Label)"
+                              SummaryMethod="Enumerable.Sum"
+                              VisibleChanged="@VisibleChangedHandler">
+                <DxChartSeriesLabel Visible="true" Position="RelativePosition.Inside" />
+
+            </DxPieChartSeries>
+            <DxChartTooltip Enabled="true"
+                            Position="RelativePosition.Outside">
+                <div style="margin: 0.75rem">
+                    <div class="fw-bold">@context.Point.Argument</div>
+                    <div>@($"{context.Point.Value:#,0.}")</div>
+                </div>
+            </DxChartTooltip>
+            <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
+                           VerticalAlignment="VerticalEdge.Bottom"
+                           Position="RelativePosition.Outside"
+                           Orientation="Orientation.Horizontal" />
+        </DxPieChart>
+    </div>
+    <div class="col-md-4">
+        <DxPieChart Data="@ChartDataApproved" InnerDiameter="0.60">
+            <DxChartTitle Text="Today Approved Status" />
+
+            <DxPieChartSeries ValueField="@((SampleData i) => i.Value)"
+                              ArgumentField="@(i => i.Label)"
+                              SummaryMethod="Enumerable.Sum"
+                              VisibleChanged="@VisibleChangedHandler">
+                <DxChartSeriesLabel Visible="true" Position="RelativePosition.Inside" />
+
+            </DxPieChartSeries>
+            <DxChartTooltip Enabled="true"
+                            Position="RelativePosition.Outside">
+                <div style="margin: 0.75rem">
+                    <div class="fw-bold">@context.Point.Argument</div>
+                    <div>@($"{context.Point.Value:#,0.}")</div>
+                </div>
+            </DxChartTooltip>
+            <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
+                           VerticalAlignment="VerticalEdge.Bottom"
+                           Position="RelativePosition.Outside"
+                           Orientation="Orientation.Horizontal" />
+        </DxPieChart>
+    </div>
+</div>
+
+
+
+@code {
+    private List<DynamicFormData>? _dynamicFormDataApproval;
+    private List<DynamicFormDataWrokFlow>? _dynamicForm;
+
+    public ApplicationUser? applicationUser { get; private set; }
+    public class SampleData
+    {
+        public string? Label { get; set; }
+        public double Value { get; set; }
+    }
+
+    private List<SampleData>? ChartData;
+    private List<SampleData>? ChartDataWrokFlow;
+
+    List<SampleData> ChartDataApproved = new List<SampleData>()
+    {
+        new SampleData(){ Label = "Approved", Value = 30 } 
+        
+    };
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        _dynamicFormDataApproval = await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));
+       
+
+        ChartData = _dynamicFormDataApproval
+         .Where(data => data.StatusName != null) // Filter out items where StatusName is null
+         .GroupBy(data => data.StatusName)
+         .Select(group => new SampleData
+             {
+                 Label = group.Key, // Key is the StatusName
+                 Value = group.Count(item => item.DynamicFormId != null) // Count occurrences of non-null DynamicFormId within each group
+             })
+         .ToList();
+
+
+        _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
+        ChartDataWrokFlow = _dynamicForm.Where(data => data.StatusName != null) // Filter out items where StatusName is null
+                .GroupBy(data => data.StatusName)
+                .Select(group => new SampleData
+                    {
+                        Label = group.Key, // Key is the StatusName
+                        Value = group.Count(item => item.DynamicFormId != null) // Count occurrences of non-null DynamicFormId within each group
+                    })
+                .ToList();
+    }
+    void VisibleChangedHandler()
+    {
+
+    }
+    void onopen()
+    {
+        
+    }
+
+
+   
+}

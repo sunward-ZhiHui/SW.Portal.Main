@@ -165,7 +165,9 @@ namespace Infrastructure.Repository.Query
                     (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
                     (select COUNT(tt1.ProductionActivityAppLineDocId) from ProductionActivityAppLineDoc tt1 WHERE tt1.Type = 'Production Routine' AND tt1.ProductionActivityAppLineID=t1.ProductionActivityRoutineAppLineID) as SupportDocCount,t12.NameOfTemplate,t12.Link,t12.LocationToSaveId
                     from ProductionActivityRoutineAppLine t1 
-                    JOIN ProductionActivityRoutineApp t2 ON t1.ProductionActivityRoutineAppID=t2.ProductionActivityRoutineAppID  AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0)) AND ItemName = @ItemName AND LotNo = @LotNo
+                    JOIN ProductionActivityRoutineApp t2 ON t1.ProductionActivityRoutineAppID=t2.ProductionActivityRoutineAppID  AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0)) 
+                    
+                  
                     JOIN Plant as t10 ON t10.PlantID = t2.CompanyID 
                     LEFT JOIN ICTMaster t14 ON t14.ictMasterId=t2.LocationId
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
@@ -210,6 +212,26 @@ namespace Infrastructure.Repository.Query
                 {
                     query += "\n\rAND t2.CompanyId=@CompanyID";
                 }
+                if (value.TimeSheetAction == true)
+                {
+                    if (value.ItemName == null || value.ItemName == "")
+                    {
+                        query += "\n\rAND t2.ItemName IS NULL";
+                    }
+                    else
+                    {
+                        query += "\n\rAND t2.ItemName=@ItemName";
+                    }                    
+                    if (value.LotNo == null || value.LotNo == "")
+                    {
+                        query += "\n\rAND t2.LotNo IS NULL";
+                    }
+                    else
+                    {
+                        query += "\n\rAND t2.LotNo=@LotNo";
+                    }                   
+                }
+                
                 if (value.LocationId > 0)
                 {
                     query += "\n\rAND t2.LocationID=@LocationID";

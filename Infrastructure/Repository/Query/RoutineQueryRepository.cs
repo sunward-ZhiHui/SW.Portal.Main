@@ -216,7 +216,7 @@ namespace Infrastructure.Repository.Query
                 {
                     if (value.ItemName == null || value.ItemName == "")
                     {
-                        query += "\n\rAND t2.ItemName IS NULL";
+                        query += "\n\rAND t2.ItemName IS NULL or t2.ItemName = ''";
                     }
                     else
                     {
@@ -225,23 +225,30 @@ namespace Infrastructure.Repository.Query
                     
                     if (value.LotNo == null || value.LotNo == "")
                     {
-                        query += "\n\rAND t2.LotNo IS NULL";
+                        query += "\n\rAND t2.LotNo IS NULL OR t2.LotNo = ''";
                     }
                     else
                     {
                         query += "\n\rAND t2.LotNo=@LotNo";
                     }
 
-                   
-
-                }
-               
                     if (value.LocationId > 0)
                     {
                         query += "\n\rAND t2.LocationID=@LocationID";
                     }
-                
-                
+                    else
+                    {                        
+                        query += "\n\rAND t2.LocationID IS NULL or t2.LocationID = 0 or t2.LocationID = ''";
+                    }
+
+                }
+                else
+                {
+                    if (value.LocationId > 0)
+                    {
+                        query += "\n\rAND t2.LocationID=@LocationID";
+                    }
+                }
                
                 if (value.ProdActivityResultId > 0)
                 {

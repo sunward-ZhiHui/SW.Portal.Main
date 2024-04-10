@@ -279,7 +279,7 @@ namespace SW.Portal.Solutions.Controllers
 
             var response = new Services.ResponseModel<ProductionRoutineDetailModel>();
             ProductionActivityRoutineAppModel FilterData = new ProductionActivityRoutineAppModel();
-            if (RoutineDetailModel.CompanyId> 0 && !string.IsNullOrEmpty(RoutineDetailModel.LotNo) && !string.IsNullOrEmpty(RoutineDetailModel.ItemName))
+            if (RoutineDetailModel.CompanyId> 0)
             {
                 FilterData.CompanyId = RoutineDetailModel.CompanyId;
                 FilterData.LotNo = RoutineDetailModel.LotNo;
@@ -326,7 +326,7 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<ProductionRoutineModel>();
             ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
             Data.ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId;
-
+            Data.LineSessionId = value.LineSessionId;
             var result = await _RoutineQueryRepository.DeleteproductActivityRoutineAppLine(Data);
 
 

@@ -10,6 +10,7 @@ using Core.Repositories.Query;
 using AC.SD.Core.Data;
 using AC.SD.Core.Pages.Masters;
 using Google.Api.Gax.ResourceNames;
+using DevExpress.Web;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -253,17 +254,34 @@ namespace SW.Portal.Solutions.Controllers
         public async Task<ActionResult<Services.ResponseModel<List<ProductionActivityApp>>>> GetLocationScan(string LocationName)
         {
 
-            var response = new Services.ResponseModel<ProductionActivityApp>();
+            var response = new Services.ResponseModel<RoutineScanModel>();
 
             if (LocationName != null)
             {
                 var result = await _mediator.Send(new GetAllProductionActivityLocationAppQuery(LocationName));
+                var display = new RoutineScanModel();
+                if(result != null)
+                 {
+                    display = new RoutineScanModel
+                    {
+                        IctMasterID = result.ICTMasterID,
+                        CompantId = result.CompanyID,
 
+                    };
+                }
+                else
+                {
+                     display = new RoutineScanModel
+                    {
+                       Message = "Location Not Found"
 
+                    };
+                }
                 try
                 {
                     response.ResponseCode = Services.ResponseCode.Success;
-                    response.Result = result;
+                   
+                    response.Result = display;
                 }
                 catch (Exception ex)
                 {
@@ -273,7 +291,7 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("GetRoutineDetailResult")]
+        [HttpPost("GetRoutineDetailResult")]
         public async Task<ActionResult<Services.ResponseModel<List<ProductionRoutineDetailModel>>>> GetRoutineDetailResult(ProductionRoutineDetailModel RoutineDetailModel)
         {
 

@@ -1376,6 +1376,59 @@ namespace Infrastructure.Repository.Query
             documentNoSeriesModel.DivisionId = value.DivisionId;
             return await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
         }
+        public async Task<long?> GeDynamicFormDataSortOrdrByNo(DynamicFormData dynamicFormData)
+        {
+            try
+            {
+                long? SortOrderBy = null;
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormId", dynamicFormData.DynamicFormId);
+                parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId > 0 ? dynamicFormData.DynamicFormDataId : -1);
+                query += "SELECT DynamicFormId,SortOrderByNo,DynamicFormDataId FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormDataId=@DynamicFormDataId AND DynamicFormId = @DynamicFormId order by  SortOrderByNo desc;";
+                query += "SELECT DynamicFormId,SortOrderByNo FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormId = @DynamicFormId order by  SortOrderByNo desc";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    var result1 = results.Read<DynamicFormData>().FirstOrDefault();
+                    var result = results.Read<DynamicFormData>().FirstOrDefault();
+                    if (result1 == null)
+                    {
+                        if (result != null)
+                        {
+                            SortOrderBy = result.SortOrderByNo + 1;
+                        }
+                    }
+                    else
+                    {
+                        if (result1.SortOrderByNo == null)
+                        {
+                            if (result != null)
+                            {
+                                if (result.SortOrderByNo == null)
+                                {
+                                    SortOrderBy = 1;
+                                }
+                                else
+                                {
+                                    SortOrderBy = result.SortOrderByNo + 1;
+                                }
+                            }
+                        }
+                        else
+
+                        {
+                            SortOrderBy = result1.SortOrderByNo;
+                        }
+                    }
+                }
+                return SortOrderBy;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData)
         {
             try
@@ -1412,9 +1465,11 @@ namespace Infrastructure.Repository.Query
                         }
                         parameters.Add("ProfileId", ProfileId);
                         parameters.Add("ProfileNo", profileNo, DbType.String);
+                        var sortNo = await GeDynamicFormDataSortOrdrByNo(dynamicFormData);
+                        parameters.Add("SortOrderByNo", sortNo);
                         if (dynamicFormData.DynamicFormDataId > 0)
                         {
-                            var query = "UPDATE DynamicFormData SET DynamicFormDataGridId=@DynamicFormDataGridId,DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId,ProfileId=@ProfileId," +
+                            var query = "UPDATE DynamicFormData SET SortOrderByNo=@SortOrderByNo,DynamicFormDataGridId=@DynamicFormDataGridId,DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId,ProfileId=@ProfileId," +
                                 "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsSendApproval=@IsSendApproval,ProfileNo=@ProfileNo " +
                                 "WHERE DynamicFormDataId = @DynamicFormDataId;\n\r";
                             query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Update");
@@ -1424,8 +1479,8 @@ namespace Infrastructure.Repository.Query
                         else
                         {
 
-                            var query = "INSERT INTO DynamicFormData(DynamicFormDataGridId,DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID,ProfileId,ProfileNo)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
-                                "(@DynamicFormDataGridId,@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID,@ProfileId,@ProfileNo);\n\r";
+                            var query = "INSERT INTO DynamicFormData(SortOrderByNo,DynamicFormDataGridId,DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID,ProfileId,ProfileNo)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
+                                "(@SortOrderByNo,@DynamicFormDataGridId,@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID,@ProfileId,@ProfileNo);\n\r";
                             query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
                             dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
@@ -1612,7 +1667,7 @@ namespace Infrastructure.Repository.Query
                     "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId =@DynamicFormId\r\n";
                 if (DynamicFormDataGridId == 0 || DynamicFormDataGridId > 0)
                 {
-                    query += "AND t1.DynamicFormDataGridId=@DynamicFormDataGridId;";
+                    query += "AND t1.DynamicFormDataGridId=@DynamicFormDataGridId\r\n";
                 }
                 else
                 {
@@ -1622,9 +1677,10 @@ namespace Infrastructure.Repository.Query
                     }
                     else
                     {
-                        query += "AND t1.DynamicFormDataGridId is null;";
+                        query += "AND t1.DynamicFormDataGridId is null\r\n";
                     }
                 }
+                query += "order by t1.SortOrderByNo asc;";
                 var result = new List<DynamicFormData>();
                 using (var connection = CreateConnection())
                 {
@@ -2035,6 +2091,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<DynamicFormData>> UpdateDynamicFormDataSort(long? id, long? SortOrderBy)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormId", id);
+                parameters.Add("SortOrderByNo", SortOrderBy);
+                query = "SELECT DynamicFormDataId,DynamicFormId,SortOrderByNo FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormId = @DynamicFormId AND SortOrderByNo>@SortOrderByNo order by SortOrderByNo asc";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData)
         {
             try
@@ -2045,15 +2120,24 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
+                        var result = await UpdateDynamicFormDataSort(dynamicFormData.DynamicFormId, dynamicFormData.SortOrderByNo);
                         var parameters = new DynamicParameters();
                         parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
 
-                        //var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
-                        //query += await DeleteDynamicFormApproved(dynamicFormData);
-                        //query += "DELETE  FROM DynamicFormWorkFlowForm WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
-                        //query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
-                        //query += "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
-                        var query = "UPDATE   DynamicFormData SET IsDeleted=1 WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+                        var query = "UPDATE DynamicFormData SET IsDeleted=1 WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+
+                        if (dynamicFormData.SortOrderByNo > 0)
+                        {
+                            var sortby = dynamicFormData.SortOrderByNo;
+                            if (result != null)
+                            {
+                                result.ForEach(s =>
+                                {
+                                    query += "Update  DynamicFormData SET SortOrderByNo=" + sortby + "  WHERE DynamicFormDataId =" + s.DynamicFormDataId + ";";
+                                    sortby++;
+                                });
+                            }
+                        }
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         return dynamicFormData;
                     }
@@ -3027,6 +3111,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId, long? dynamicFormDataId)
         {
+            var resultsa = await GenerateDynamicFormDataSortOrderByNo();
             List<DynamicFormDataWrokFlow> dynamicFormWorkFlowSections = new List<DynamicFormDataWrokFlow>();
             try
             {
@@ -3035,7 +3120,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormDataId", dynamicFormDataId);
                 var query = "select t1.DynamicFormID,t2.FileProfileTypeId," +
                     "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
-                    "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID from DynamicFormData t1\r\n" +
+                    "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID,t1.SortOrderByNo from DynamicFormData t1\r\n" +
                     "JOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID WHERE (t2.IsDeleted =0 OR t2.IsDeleted is null) AND (t1.IsDeleted =0 OR t1.IsDeleted is null) AND t1.DynamicFormID in( select t3.DynamicFormID from DynamicFormWorkFlow t3 where t3.UserID=@UserId)\r\n";
                 if (dynamicFormDataId > 0)
                 {
@@ -3518,6 +3603,165 @@ namespace Infrastructure.Repository.Query
                     }
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<DynamicFormData>> GetUpdateDynamicFormDataSortOrder(DynamicFormData dynamicFormData)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormID", dynamicFormData.DynamicFormId);
+                var from = dynamicFormData.SortOrderAnotherBy > dynamicFormData.SortOrderByNo ? dynamicFormData.SortOrderByNo : dynamicFormData.SortOrderAnotherBy;
+                var to = dynamicFormData.SortOrderAnotherBy > dynamicFormData.SortOrderByNo ? dynamicFormData.SortOrderAnotherBy : dynamicFormData.SortOrderByNo;
+                parameters.Add("SortOrderByFrom", from);
+                parameters.Add("SortOrderByTo", to);
+                query = "SELECT DynamicFormID,DynamicFormDataId,SortOrderByNo FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormID = @DynamicFormID  AND SortOrderByNo>@SortOrderByFrom and SortOrderByNo<=@SortOrderByTo order by SortOrderByNo asc";
+
+                if (dynamicFormData.SortOrderAnotherBy > dynamicFormData.SortOrderByNo)
+                {
+                    query = "SELECT DynamicFormID,DynamicFormDataId,SortOrderByNo FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormID = @DynamicFormID  AND SortOrderByNo>=@SortOrderByFrom and SortOrderByNo<@SortOrderByTo order by SortOrderByNo asc";
+
+                }
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormData> UpdateDynamicFormDataSortOrder(DynamicFormData dynamicFormData)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+
+
+                    try
+                    {
+                        var query = string.Empty;
+                        long? SortOrder = dynamicFormData.SortOrderAnotherBy > dynamicFormData.SortOrderByNo ? (dynamicFormData.SortOrderByNo + 1) : dynamicFormData.SortOrderAnotherBy;
+                        query += "Update  DynamicFormData SET SortOrderByNo=" + dynamicFormData.SortOrderByNo + "  WHERE (IsDeleted=0 or IsDeleted is null) AND DynamicFormDataId =" + dynamicFormData.DynamicFormDataId + ";";
+                        if (SortOrder > 0)
+                        {
+                            var result = await GetUpdateDynamicFormDataSortOrder(dynamicFormData);
+                            if (result != null && result.Count > 0)
+                            {
+
+                                result.ForEach(s =>
+                                {
+
+                                    query += "Update  DynamicFormData SET SortOrderByNo=" + SortOrder + "  WHERE  DynamicFormDataId =" + s.DynamicFormDataId + ";";
+                                    SortOrder++;
+                                });
+
+                            }
+                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, null);
+                        return dynamicFormData;
+                    }
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public async Task<long> UpdateGenerateDynamicFormDataSortOrderByNo(string? query)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(query))
+                        {
+
+                            await connection.QuerySingleOrDefaultAsync<long>(query);
+                        }
+                        return 1;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long?> GenerateDynamicFormDataSortOrderByNo()
+        {
+            List<DynamicFormData> dynamicFormData = new List<DynamicFormData>();
+            try
+            {
+                var query = string.Empty;
+                var querys = "select DynamicFormDataID,DynamicFormID,SortOrderByNo from DynamicFormData where IsDeleted is null or IsDeleted=0";
+
+                using (var connection = CreateConnection())
+                {
+                    dynamicFormData = (await connection.QueryAsync<DynamicFormData>(querys)).ToList();
+                }
+                if (dynamicFormData != null && dynamicFormData.Count() > 0)
+                {
+                    var dynamicFormIds = dynamicFormData.Where(w => w.DynamicFormId > 0).Select(d => d.DynamicFormId).Distinct().ToList();
+                    if (dynamicFormIds != null && dynamicFormIds.Count() > 0)
+                    {
+                        dynamicFormIds.ForEach(s =>
+                        {
+                            var dynamicFormDatas = dynamicFormData.Where(a => a.DynamicFormId == s).OrderBy(q => q.DynamicFormDataId).ToList();
+                            if (dynamicFormDatas != null && dynamicFormDatas.Count() > 0)
+                            {
+                                long? inc = 1;
+                                var SortOrderByNo = dynamicFormDatas.OrderByDescending(o => o.SortOrderByNo).FirstOrDefault();
+                                if (SortOrderByNo != null && SortOrderByNo.SortOrderByNo > 0)
+                                {
+                                    inc = SortOrderByNo.SortOrderByNo + 1;
+                                }
+                                dynamicFormDatas.ForEach(d =>
+                                {
+                                    if (d.SortOrderByNo > 0)
+                                    {
+                                    }
+                                    else
+                                    {
+                                        query += "Update DynamicFormData SET SortOrderByNo=" + inc + " WHERE DynamicFormDataId=" + d.DynamicFormDataId + ";\n\r";
+                                        inc++;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+                if (!string.IsNullOrEmpty(query))
+                {
+                    var results = await UpdateGenerateDynamicFormDataSortOrderByNo(query);
+                }
+                return 1;
             }
             catch (Exception exp)
             {

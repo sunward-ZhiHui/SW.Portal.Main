@@ -217,6 +217,7 @@
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         AddPopup = false;
+        InvokeAsync(loadData);
         Blukdeletepopup = false;
         StateHasChanged();
     }

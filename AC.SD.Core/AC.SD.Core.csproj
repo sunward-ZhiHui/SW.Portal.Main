@@ -70,6 +70,7 @@
 	  <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
 	  <PackageReference Include="Blazored.Toast" Version="4.1.0" />
 	  <PackageReference Include="BlazorStateManager" Version="1.0.7" />
+	  <PackageReference Include="ChartJs.Blazor" Version="1.1.0" />
 	  <PackageReference Include="Chronos.Blazor.Cropper" Version="1.2.16" />
 	  <PackageReference Include="CorePush" Version="4.1.0" />
 	  <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="23.1.3" />

@@ -363,6 +363,7 @@
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
+         Closed="EulaPopupClosed"
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>
@@ -2081,6 +2082,7 @@
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
+        BackUpload();
         isApprovedPopup = false;
     }
     void addUploadDocument()

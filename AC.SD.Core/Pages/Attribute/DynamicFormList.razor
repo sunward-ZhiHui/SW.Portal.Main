@@ -131,6 +131,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
          ShowFooter="false"
+         Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
         <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
@@ -205,11 +206,13 @@
         // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
         if (SessionId != null)
         {
+            _dynamicformObjectDataList = new List<object>();
             _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
             if (_dynamicForm != null)
             {
                 if (_dynamicForm != null)
                 {
+                    _dynamicformObjectDataList = new List<object>();
                     _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                     {
@@ -286,7 +289,7 @@
                     }
 
                     _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1));
-                    PanelVisible = true;
+                    PanelVisible = true; _dynamicformObjectDataList = new List<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {
                         if (FormSessionId != null)
@@ -381,7 +384,7 @@
                                             {
                                                 nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
                                                 RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
-                                                
+
                                             });
                                             if (nameDatas != null && nameDatas.Count() > 0)
                                             {
@@ -550,14 +553,14 @@
                                                     nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
                                                     RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
                                                 });
-                                                    if(nameDatas!=null && nameDatas.Count()>0)
-                                                    {
-                                                        nameDatas.ForEach(n =>
-                                                        {
+                                                if(nameDatas!=null && nameDatas.Count()>0)
+                                                {
+                                                    nameDatas.ForEach(n =>
+                                                {
                                                             objectData[n] = string.Empty;
                                                         });
-                                                    }
-                                                
+                                                }
+
                                             }
                                             else if (s.DataSourceTable == "ApplicationMaster")
                                             {
@@ -588,7 +591,7 @@
                         FileProfileTypeId = _selectedItems.FileProfileTypeId;
                         Grid.SetFocusedRowIndex(0);
                         // if (FormSessionId != null)
-                        // {
+                        // {ss
                         //     var items = _dynamicformDataList.Where(f => f.SessionId == FormSessionId).ToList();
                         //     if (items != null && items.Count > 0)
                         //     {
@@ -884,8 +887,9 @@
     {
         Blukdeletepopup = true;
     }
-    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    void EulaPopupClosed(PopupClosedEventArgs args)
     {
+        BackUpload();
         Blukdeletepopup = false;
         createEmailpopup = false;
         // await UpdateDataAsync();

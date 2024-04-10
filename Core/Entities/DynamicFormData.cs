@@ -120,5 +120,6 @@ namespace Core.Entities
         public bool? IsDraft { get; set; }
         [NotMapped]
         public int? IsFileprofileTypeDocument { get; set; } = 0;
+        public long? FileProfileTypeId { get; set; }
     }
 }

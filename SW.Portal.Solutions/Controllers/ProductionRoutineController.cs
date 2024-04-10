@@ -10,6 +10,8 @@ using Core.Repositories.Query;
 using AC.SD.Core.Data;
 using AC.SD.Core.Pages.Masters;
 using Google.Api.Gax.ResourceNames;
+using DevExpress.Web;
+using DevExpress.DocumentServices.ServiceModel.DataContracts;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -253,17 +255,34 @@ namespace SW.Portal.Solutions.Controllers
         public async Task<ActionResult<Services.ResponseModel<List<ProductionActivityApp>>>> GetLocationScan(string LocationName)
         {
 
-            var response = new Services.ResponseModel<ProductionActivityApp>();
+            var response = new Services.ResponseModel<RoutineScanModel>();
 
             if (LocationName != null)
             {
                 var result = await _mediator.Send(new GetAllProductionActivityLocationAppQuery(LocationName));
+                var display = new RoutineScanModel();
+                if(result != null)
+                 {
+                    display = new RoutineScanModel
+                    {
+                        IctMasterID = result.ICTMasterID,
+                        CompantId = result.CompanyID,
 
+                    };
+                }
+                else
+                {
+                     display = new RoutineScanModel
+                    {
+                       Message = "Location Not Found"
 
+                    };
+                }
                 try
                 {
                     response.ResponseCode = Services.ResponseCode.Success;
-                    response.Result = result;
+                   
+                    response.Result = display;
                 }
                 catch (Exception ex)
                 {
@@ -273,13 +292,13 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(response);
         }
-        [HttpGet("GetRoutineDetailResult")]
+        [HttpPost("GetRoutineDetailResult")]
         public async Task<ActionResult<Services.ResponseModel<List<ProductionRoutineDetailModel>>>> GetRoutineDetailResult(ProductionRoutineDetailModel RoutineDetailModel)
         {
 
             var response = new Services.ResponseModel<ProductionRoutineDetailModel>();
             ProductionActivityRoutineAppModel FilterData = new ProductionActivityRoutineAppModel();
-            if (RoutineDetailModel.CompanyId> 0 && !string.IsNullOrEmpty(RoutineDetailModel.LotNo) && !string.IsNullOrEmpty(RoutineDetailModel.ItemName))
+            if (RoutineDetailModel.CompanyId> 0)
             {
                 FilterData.CompanyId = RoutineDetailModel.CompanyId;
                 FilterData.LotNo = RoutineDetailModel.LotNo;
@@ -326,7 +345,7 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<ProductionRoutineModel>();
             ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
             Data.ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId;
-
+            Data.LineSessionId = value.LineSessionId;
             var result = await _RoutineQueryRepository.DeleteproductActivityRoutineAppLine(Data);
 
 
@@ -342,6 +361,86 @@ namespace SW.Portal.Solutions.Controllers
 
                 response.Result = emailconversations;
                
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetDivisionList")]
+        public async Task<ActionResult<Services.ResponseModel<List<ViewDivision>>>> GetDivisionList(long CompanyID)
+        {
+
+            var response = new Services.ResponseModel<ViewDivision>();
+
+            var result = await _mediator.Send(new GetDivisionByCompany(CompanyID));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<ViewDivision> { new ViewDivision() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetDepartmentList")]
+        public async Task<ActionResult<Services.ResponseModel<List<ViewDepartment>>>> GetDepartmentList(long divisionId)
+        {
+
+            var response = new Services.ResponseModel<ViewDepartment>();
+
+            var result = await _mediator.Send(new GetDepartmentByDivision(divisionId));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<ViewDepartment> { new ViewDepartment() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetSectionList")]
+        public async Task<ActionResult<Services.ResponseModel<List<ViewSection>>>> GetSectionList(long departmentId)
+        {
+
+            var response = new Services.ResponseModel<ViewSection>();
+
+            var result = await _mediator.Send(new GetSectionByDepartment(departmentId));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<ViewSection> { new ViewSection() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetSubSectionList")]
+        public async Task<ActionResult<Services.ResponseModel<List<ViewSubSection>>>> GetSubSectionList(long sectionId)
+        {
+
+            var response = new Services.ResponseModel<ViewSubSection>();
+
+            var result = await _mediator.Send(new GetSubSectionBySection(sectionId));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<ViewSubSection> { new ViewSubSection() };
             }
             catch (Exception ex)
             {

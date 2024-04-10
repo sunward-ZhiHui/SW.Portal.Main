@@ -93,24 +93,25 @@
                                 <ValidationMessage For="@(() => Data.ProdOrderNo)" />
                             </DxFormLayoutItem>  *@ 
                             <DxFormLayoutItem Caption="Lot No" ColSpanMd="4">
-                                <DxTextBox @bind-Text="@Data.LotNo" spellcheck="true" ShowValidationIcon="true" NullText="Lot No" >
+                                <DxTextBox Text="@Data.LotNo" spellcheck="true" ShowValidationIcon="true" NullText="Lot No" TextExpression="@(() => Data.LotNo )" TextChanged="@((newValue) => OnTextChanged(newValue))">
                                     <Buttons>
                                         <DxEditorButton IconCssClass="fa fa-qrcode"
                                                         Tooltip="Scan Ticket No"
                                                         Click="@(_ => OnButtonTicketNoClick())" />
                                     </Buttons>
                                 </DxTextBox>
+                              
                                 <ValidationMessage For="@(() => Data.LotNo)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Item Name" ColSpanMd="4">
-                                <DxTextBox @bind-Text="@Data.ItemName" spellcheck="true" ShowValidationIcon="true" NullText="Item Name" />
+                                <DxTextBox Text="@Data.ItemName" spellcheck="true" ShowValidationIcon="true" NullText="Item Name" TextExpression="@(() => Data.ItemName )" TextChanged="@((newValue) => OnItemNameChanged(newValue))" />
                                 <ValidationMessage For="@(() => Data.ItemName)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem ColSpanMd="4">
+                          @*   <DxFormLayoutItem ColSpanMd="4">
                                 <DxButton IconCssClass="fa fa-filter" Text="Search" RenderStyle="ButtonRenderStyle.Secondary"
                                                     Click="@(_ => onLoadDataList())" />                                     
                                    
-                            </DxFormLayoutItem>
+                            </DxFormLayoutItem> *@
                         </DxFormLayout>
 
                     </EditForm>
@@ -508,6 +509,16 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
     }
+    async void OnTextChanged(string newValue)
+    {
+        Data.LotNo =newValue;
+        await onLoadDataList();
+    }
+    async void OnItemNameChanged(string newValue)
+    {
+        Data.ItemName = newValue;
+        await onLoadDataList();
+    }
     async Task SelectedItemloc(ProductionActivityApp loc)
     {
         LocationID = 0; _editContext = new EditContext(Data);
@@ -529,7 +540,8 @@
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
         FilterData = new ProductionActivityRoutineAppModel();
         // if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
-        if (CompanyID > 0 && !string.IsNullOrEmpty(Data.LotNo) && !string.IsNullOrEmpty(Data.ItemName))
+       // if (CompanyID > 0 && !string.IsNullOrEmpty(Data.LotNo) && !string.IsNullOrEmpty(Data.ItemName))
+        if (CompanyID > 0 )
         {
             FilterData.CompanyId = CompanyID;
             FilterData.LotNo = Data.LotNo;
@@ -690,7 +702,11 @@
             Data.CompanyID = CompanyID;
             _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(CompanyID));
             _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(CompanyID));
+            
+            await onLoadDataList();
         }
+
+        StateHasChanged();
     }
     async Task SelectedLoadItemPlantChanged(long? companyId, long? locationID)
     {

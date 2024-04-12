@@ -189,6 +189,7 @@
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false;
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "SortOrderByNo", Text = "No", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
         if (SessionId != null)
@@ -288,6 +289,7 @@
                             jsonObj = JsonConvert.DeserializeObject(s.DynamicFormItem);
                         }
                         IDictionary<string, object> objectData = new ExpandoObject();
+                        objectData["SortOrderByNo"] = s.SortOrderByNo;
                         objectData["DynamicFormDataId"] = s.DynamicFormDataId;
                         objectData["ProfileNo"] = s.ProfileNo;
                         objectData["SessionId"] = s.SessionId;
@@ -310,6 +312,7 @@
                                 {
                                     if (s.DataSourceTable == "ApplicationMaster")
                                     {
+                                        objectData[attrName] = string.Empty;
                                         if (s.ApplicationMaster != null && s.ApplicationMaster.Count() > 0)
                                         {
                                             s.ApplicationMaster.ForEach(ab =>

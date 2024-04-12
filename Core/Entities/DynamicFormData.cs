@@ -79,6 +79,8 @@ namespace Core.Entities
         public bool? IsDraft { get; set; }
         public string? DynamicFormName { get; set; }
         public Guid? DynamicFormSessionID {  get; set; }
+        public long? SortOrderByNo { get; set; }
+        public long? SortOrderAnotherBy { get; set; }
     }
     public class DynamicFormProfile
     {
@@ -121,5 +123,6 @@ namespace Core.Entities
         [NotMapped]
         public int? IsFileprofileTypeDocument { get; set; } = 0;
         public long? FileProfileTypeId { get; set; }
+        public long? SortOrderByNo { get; set; }
     }
 }

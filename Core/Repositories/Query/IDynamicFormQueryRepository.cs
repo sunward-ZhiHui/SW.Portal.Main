@@ -70,6 +70,8 @@ namespace Core.Repositories.Query
         Task<long> DeleteDynamicFormSectionAttributeSecurity(long? Id, List<long?> Ids);
 
         Task<IReadOnlyList<DynamicFormData?>> GetDynamicFormDataApprovalList(long? userId);
+
+        Task<DynamicFormData> UpdateDynamicFormDataSortOrder(DynamicFormData dynamicFormData);
     }
 
 }

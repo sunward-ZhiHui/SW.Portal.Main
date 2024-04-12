@@ -9,13 +9,33 @@
 @using global::Core.Repositories.Query;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@inject IJSRuntime JSRuntime;
+@inject IJSRuntime JS;
 @inject NavigationManager NavigationManager
 @using Newtonsoft.Json.Linq;
 @using Newtonsoft.Json;
 @implements IDisposable
+@using System.Collections.ObjectModel
 
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<style scoped>
+    .ui-state-highlight {
+        background-color: rgba(var(--bs-primary-rgb), .3);
+    }
 
+    .ui-state-hover {
+        background: rgba(var(--bs-primary-rgb), .3);
+    }
+
+    .ui-draggable-dragging {
+        box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
+    }
+
+    .dxbl-grid .dxbl-grid-table > tbody > tr[data-visible-index] {
+        cursor: pointer;
+    }
+
+</style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -48,7 +68,10 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    <DxGrid @ref="Grid" Data="@_dynamicformObjectDataList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid"
+            
+            Data="Items" @key="@myKey"
+            EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -156,6 +179,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    Guid myKey { get; set; } = Guid.NewGuid();
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
@@ -181,6 +205,10 @@
     private string colDataWidth = $"{colDataWidthInPx}px";
     private string colRowNameWidth = $"{colRowNameWidthInPx}px";
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
+    ObservableCollection<object> Items { get; set; } = new ObservableCollection<object>();
+    bool ReInitializeDragging { get; set; }
+    DotNetObjectReference<DynamicFormList> DotNetHelper { get; set; }
+    IJSObjectReference JsModule { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -193,6 +221,25 @@
         }
         base.OnParametersSet();
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/Within.js");
+
+            DotNetHelper = DotNetObjectReference.Create(this);
+            await JsModule.InvokeVoidAsync("setDotNetHelper", DotNetHelper);
+            await JsModule.InvokeVoidAsync("initialize");
+        }
+        else
+        {
+            if (ReInitializeDragging)
+            {
+                ReInitializeDragging = false;
+                await JsModule.InvokeVoidAsync("initialize");
+            }
+        }
+    }
     async Task UpdateDataAsync()
     {
         _selectedItems = null; FileProfileTypeId = null;
@@ -200,6 +247,7 @@
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false;
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "SortOrderByNo", Text = "No", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsDynamicFormDataGrid", Text = "Is Grid", Type = "Form" });
 
@@ -304,10 +352,12 @@
                                 jsonObj = JsonConvert.DeserializeObject(s.DynamicFormItem);
                             }
                             IDictionary<string, object> objectData = new ExpandoObject();
+                            objectData["SortOrderByNo"] = s.SortOrderByNo;
                             objectData["DynamicFormDataId"] = s.DynamicFormDataId;
                             objectData["ProfileNo"] = s.ProfileNo;
                             objectData["SessionId"] = s.SessionId;
                             objectData["ScreenID"] = s.ScreenID;
+                            objectData["DynamicFormId"] = s.DynamicFormId;
                             objectData["Name"] = s.Name;
                             objectData["ModifiedBy"] = s.ModifiedBy;
                             objectData["ModifiedDate"] = s.ModifiedDate;
@@ -390,7 +440,7 @@
                                             {
                                                 nameDatas.ForEach(n =>
                                                 {
-                                                    loadApplicationMasterParentData(jsonObj,s,n, objectData);
+                                                    loadApplicationMasterParentData(jsonObj, s, n, objectData);
                                                 });
                                             }
                                         }
@@ -553,12 +603,12 @@
                                                     nameDatas.Add(s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar");
                                                     RemoveApplicationMasterParentSingleNameItem(ab, s, nameDatas);
                                                 });
-                                                if(nameDatas!=null && nameDatas.Count()>0)
+                                                if (nameDatas != null && nameDatas.Count() > 0)
                                                 {
                                                     nameDatas.ForEach(n =>
                                                 {
-                                                            objectData[n] = string.Empty;
-                                                        });
+                                                    objectData[n] = string.Empty;
+                                                });
                                                 }
 
                                             }
@@ -590,29 +640,6 @@
                         _selectedItems = _dynamicformDataList.FirstOrDefault();
                         FileProfileTypeId = _selectedItems.FileProfileTypeId;
                         Grid.SetFocusedRowIndex(0);
-                        // if (FormSessionId != null)
-                        // {ss
-                        //     var items = _dynamicformDataList.Where(f => f.SessionId == FormSessionId).ToList();
-                        //     if (items != null && items.Count > 0)
-                        //     {
-                        //         _dynamicformDataList = items;
-                        //         _selectedItems = items.FirstOrDefault();
-                        //         FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                        //         Grid.SetFocusedRowIndex(0);
-                        //     }
-                        //     else
-                        //     {
-                        //         _selectedItems = _dynamicformDataList.FirstOrDefault();
-                        //         FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                        //         Grid.SetFocusedRowIndex(0);
-                        //     }
-                        // }
-                        // else
-                        // {
-                        //     _selectedItems = _dynamicformDataList.FirstOrDefault();
-                        //     FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                        //     Grid.SetFocusedRowIndex(0);
-                        // }
                     }
                 }
                 else
@@ -626,10 +653,14 @@
                 AddEnabled = false;
             }
             PanelVisible = false;
+            if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
+            {
+                Items = new ObservableCollection<object>(_dynamicformObjectDataList);
+            }
             StateHasChanged();
         }
     }
-    void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s,string nameData, IDictionary<string, object> objectData)
+    void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> objectData)
     {
 
         var SubNamess = jsonObj.ContainsKey(nameData);
@@ -704,7 +735,7 @@
                 RemoveApplicationMasterParentSingleNameItem(listss, dynamicFormSectionAttribute, dataColumnNames);
             }
         }
-    } 
+    }
     private static bool IsValidJson(string strInput)
     {
         if (string.IsNullOrWhiteSpace(strInput)) { return false; }
@@ -737,6 +768,10 @@
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
         {
             e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.DataRow)
+        {
+            e.Attributes["data-visible-index"] = e.VisibleIndex;
         }
     }
     async void OnRowclick(GridRowClickEventArgs e)
@@ -810,12 +845,12 @@
             if (_selectedItems.IsDraft == true)
             {
                 var url = NavigationManager.BaseUri + "EmailDrafts";
-                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                await JS.InvokeVoidAsync("window.open", url, "_blank");
             }
             if (_selectedItems.IsDraft == false)
             {
                 var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItems.EmailTopicSessionId;
-                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                await JS.InvokeVoidAsync("window.open", url, "_blank");
             }
         }
     }
@@ -844,7 +879,7 @@
                 toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
                 createEmailpopup = false;
                 var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
-                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                await JS.InvokeVoidAsync("window.open", url, "_blank");
                 await UpdateDataAsync();
             }
         }
@@ -912,6 +947,39 @@
     {
         System.GC.Collect();
         GC.SuppressFinalize(this);
+    }
+    [JSInvokable]
+    public async Task ReorderGridRows(int draggableRowVisibleIndex, int prevRowVisibleIndex, int nextRowVisibleIndex)
+    {
+        var hasPrevRow = prevRowVisibleIndex > -1;
+        var hasNextRow = nextRowVisibleIndex > -1;
+
+        var sourceItem = (dynamic)Grid.GetDataItem(draggableRowVisibleIndex);
+        var hasSamePosition = hasPrevRow && draggableRowVisibleIndex == prevRowVisibleIndex + 1 || hasNextRow && draggableRowVisibleIndex == nextRowVisibleIndex - 1;
+        if (hasSamePosition)
+            return;
+
+        var moveTop = false;
+        if (!hasPrevRow || prevRowVisibleIndex <= draggableRowVisibleIndex)
+            moveTop = true;
+        var newVisibleIndex = moveTop ? nextRowVisibleIndex : prevRowVisibleIndex;
+
+        var sourceItemIndex = Items.IndexOf(sourceItem);
+        var newItemIndex = Items.IndexOf((object)Grid.GetDataItem(newVisibleIndex));
+       // Items.Move(sourceItemIndex, newItemIndex);
+
+        myKey = Guid.NewGuid();
+        ReInitializeDragging = true;
+        DynamicFormData dynamicFormData = new DynamicFormData();
+        dynamicFormData.DynamicFormDataId = (long)sourceItem.DynamicFormDataId;
+        dynamicFormData.DynamicFormId = (long?)sourceItem.DynamicFormId;
+        dynamicFormData.SortOrderAnotherBy = sourceItemIndex + 1;
+        dynamicFormData.SortOrderByNo = newItemIndex + 1;
+        var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+       toastService.ShowToast("Record Moved successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        StateHasChanged();
     }
     private RenderFragment BuildDataColumns()
     {

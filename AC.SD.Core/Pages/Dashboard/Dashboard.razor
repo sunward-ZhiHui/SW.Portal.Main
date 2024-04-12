@@ -16,13 +16,106 @@
 @inject AC.SD.Core.Services.ToastService toastService
 
 
-<DxScheduler DataStorage="@DataStorage"
+@* <DxScheduler DataStorage="@DataStorage"
              AppointmentInserting="AppointmentInserting"
              AppointmentRemoving="@AppointmentRemoving"
              AppointmentUpdating="AppointmentUpdating">
     <DxSchedulerDayView ShowWorkTimeOnly="true" />
     <DxSchedulerWeekView ShowWorkTimeOnly="true" />
     <DxSchedulerMonthView />
+</DxScheduler> *@
+
+<DxScheduler DataStorage="@DataStorage"
+             GroupType="SchedulerGroupType.Date"            
+             CssClass="w-100">
+    <Views>
+        <DxSchedulerDayView ShowWorkTimeOnly="true">
+            @* <HorizontalAppointmentTemplate>
+                @{
+                    string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
+                }
+                <div class="demo-sc-apt @(IsAccepted(context.Appointment) ? "demo-sc-accepted" : "")" style="width: 100%;">
+                    <div class="card demo-apt-bg @backgroundCss" style="width: 100%;"></div>
+                    <div class="card shadow-sm p-1 demo-sc-apt-content text-white" style="width:100%;">
+                        @context.Appointment.Subject
+                    </div>
+                </div>
+            </HorizontalAppointmentTemplate> *@
+            @* <VerticalAppointmentTemplate>
+                @{
+                    string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
+                }
+                <div class="shadow-sm demo-sc-apt @(IsAccepted(context.Appointment) ? "demo-sc-accepted"  : "")">
+                    <div class="card demo-apt-bg @backgroundCss"></div>
+                    <div class="card demo-sc-apt-content text-white">
+                        <div class="card demo-sc-status-container">
+                            <div class="card demo-apt-status @backgroundCss"></div>
+                        </div>
+                        <div class="demo-apt-subject">
+                            @context.Appointment.Subject
+                        </div>
+                    </div>
+                </div>
+            </VerticalAppointmentTemplate> *@
+        </DxSchedulerDayView>
+        <DxSchedulerWeekView ShowWorkTimeOnly="true" />
+        <DxSchedulerMonthView />
+    </Views>
+    <AppointmentTooltipHeaderTemplate>
+        <div class="tooltip-text-header" style="width: 90% !important;">@context.Appointment.Subject</div>
+       @*  @if (IsAccepted(context.Appointment))
+        {
+            <div style="margin-right: .3em;">(Accepted)</div>
+        } *@
+
+        @if (!IsAccepted(context.Appointment))
+        {
+            <DxSchedulerShowAppointmentCompactFormButton></DxSchedulerShowAppointmentCompactFormButton>
+            <DxSchedulerDeleteAppointmentButton></DxSchedulerDeleteAppointmentButton>
+            
+        }       
+        <DxSchedulerCloseAppointmentButton></DxSchedulerCloseAppointmentButton>
+    </AppointmentTooltipHeaderTemplate>
+    <AppointmentTooltipTemplate>
+        @{
+            string resourceCssClass = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
+            bool accepted = IsAccepted(context.Appointment);
+            string buttonText = accepted ? "View Email" : "Tentative";
+            string iconCssClass = accepted ? "dx-icon-accepted" : "dx-icon-tentative";
+            string startDateTime = $"{context.Appointment.Start.ToString("ddd, MMM dd")}, {context.Appointment.Start.ToShortTimeString()} - {context.Appointment.End.ToShortTimeString()}";
+            Guid sessionId = SessionId(context.Appointment);
+
+        }
+        <div class="container">
+            <div class="row mb-3">
+                <div class="col-auto ms-1">
+                   @*  <div class="dxsc-label-item @resourceCssClass"></div> *@
+                </div>
+                <div class="col ps-0">
+                    <span class="dxsc-subject" style="vertical-align: middle;">
+                        @context.Appointment.Subject                        
+                    </span>                  
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-auto ms-1">
+                    <svg class="dx-icon-time dx-icon" role="img">
+                        <use href="#dxsc-time-icon"></use>
+                    </svg>
+                </div>
+                <div class="col ps-0"><span style="vertical-align: middle;">@startDateTime</span></div>
+            </div>
+             @if (IsAccepted(context.Appointment))
+             {
+                <hr />
+                <div class="sc-tooltip-bottom-container">
+                    <DxButton @onclick="@(() => OnEmailDueClick(sessionId))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
+                              Text="@buttonText" IconCssClass="@iconCssClass">
+                    </DxButton>
+                </div>
+             }
+        </div>
+    </AppointmentTooltipTemplate>
 </DxScheduler>
 
 @code {
@@ -41,10 +134,18 @@
                 StatusId = "Status",
                 Location = "Location",
                 Description = "Description",
-                RecurrenceInfo = "Recurrence"
+                RecurrenceInfo = "Recurrence",
+                CustomFieldMappings = new List<DxSchedulerCustomFieldMapping> {
+                new DxSchedulerCustomFieldMapping{ Name = "Accepted", Mapping = "Accepted" },
+                new DxSchedulerCustomFieldMapping{ Name = "SessionId", Mapping = "SessionId" }
+                }
             }
         };
 
+    bool IsAccepted(DxSchedulerAppointmentItem apt) => true == (bool?)apt.CustomFields["Accepted"];    
+    Guid SessionId(DxSchedulerAppointmentItem apt) => (Guid)(apt.CustomFields["SessionId"] ?? Guid.Empty);
+
+    void SwitchAccepted(SchedulerAppointmentTooltipInfo tooltipInfo, MouseEventArgs mouseArgs) => tooltipInfo.CustomFields["Accepted"] = !IsAccepted(tooltipInfo.Appointment);
     protected override async void OnInitialized()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -111,5 +212,10 @@
             toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
 
+    }
+    void OnEmailDueClick(Guid sessionid)
+    {       
+        NavigationManager.NavigateTo($"ViewEmail/{sessionid}/Email");        
+        StateHasChanged();
     }
 }

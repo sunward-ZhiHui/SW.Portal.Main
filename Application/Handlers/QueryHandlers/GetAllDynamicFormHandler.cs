@@ -762,4 +762,18 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class UpdateDynamicFormDataSortOrderHandler : IRequestHandler<UpdateDynamicFormDataSortOrder, DynamicFormData>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormDataSortOrderHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormData> Handle(UpdateDynamicFormDataSortOrder request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormDataSortOrder(request.DynamicFormData);
+
+        }
+    }
 }

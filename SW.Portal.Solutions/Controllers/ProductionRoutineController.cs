@@ -325,7 +325,8 @@ namespace SW.Portal.Solutions.Controllers
                     LineComment = topic.LineComment,
                     ModifiedByUser = topic.ModifiedByUser,
                     ModifiedDate = topic.ModifiedDate,
-                    ProdActivityResult = topic.ProdActivityResult
+                    ProdActivityResult = topic.ProdActivityResult,
+                    MasterProductionFileProfileTypeId =topic.MasterProductionFileProfileTypeId
 
                 }).ToList();
                 try

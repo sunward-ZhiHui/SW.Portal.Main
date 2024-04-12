@@ -197,6 +197,7 @@
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>();
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "SortOrderByNo", Text = "No", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "ProfileNo", Text = "Profile No", Type = "Form" });
         // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
         if (SessionId != null)
@@ -292,6 +293,7 @@
                             jsonObj = JsonConvert.DeserializeObject(s.DynamicFormItem);
                         }
                         IDictionary<string, object> objectData = new ExpandoObject();
+                        objectData["SortOrderByNo"] = s.SortOrderByNo;
                         objectData["DynamicFormDataId"] = s.DynamicFormDataId;
                         objectData["ProfileNo"] = s.ProfileNo;
                         objectData["SessionId"] = s.SessionId;

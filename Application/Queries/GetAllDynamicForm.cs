@@ -465,5 +465,14 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class UpdateDynamicFormDataSortOrder : PagedRequest, IRequest<DynamicFormData>
+    {
+        public DynamicFormData? DynamicFormData { get; set; }
+        public UpdateDynamicFormDataSortOrder(DynamicFormData? dynamicFormData)
+        {
+            this.DynamicFormData = dynamicFormData;
+        }
+    }
+
 }
 

@@ -1,6 +1,7 @@
 ﻿using Core.EntityModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -89,6 +90,8 @@ namespace Core.Entities
         public string? ProfileNo { get; set; }
         public string? ActivityProfileNo { get; set; }
         public long? FileProfileTypeId { get; set; }
+        [NotMapped]
+        public long? MasterProductionFileProfileTypeId { get; set; }
         public int? IsDocuments { get; set; }
         public Guid? UniqueSessionId { get; set; }
         public bool? IsNewPath { get; set; }

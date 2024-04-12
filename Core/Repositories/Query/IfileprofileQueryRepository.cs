@@ -12,6 +12,8 @@ namespace Core.Repositories.Query
 {
     public interface IFileprofileQueryRepository : IQueryRepository<Fileprofiletype>
     {
+      
+        Task<DocumentsModel> GetAllFileProfileDocumentSessionId(long FileProfileTypeID);
         Task<IReadOnlyList<Fileprofiletype>> GetFileprofiletypeAsync();
         Task<long?> DeleteFileProfileType(long? fileProfileTypeId);
         Task<FileProfileTypeModel> GetFileProfileTypeBySession(Guid? SessionId);
@@ -63,5 +65,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentsModel>> GetUploadedButNoProfileNo(DocumentsUploadModel documentsUploadModel);
         Task<IReadOnlyList<DocumentsModel>> GetNoProfileNo(long? UserId,DateTime? StartDate);
         Task<DocumentsUploadModel> GetDocumentDeleteForNoProfileNo(DocumentsUploadModel documentsModel);
+        
     }
 }

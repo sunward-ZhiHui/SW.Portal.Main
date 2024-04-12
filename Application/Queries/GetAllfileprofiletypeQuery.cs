@@ -477,4 +477,12 @@ namespace Application.Queries
             this.DocumentsUploadModel = documentsUploadModel;
         }
     }
+    public class GetFileProfileTypeList : PagedRequest, IRequest<DocumentsModel>
+    {
+        public long FileProfileType { get; set; }
+        public GetFileProfileTypeList(long FileProfileType)
+        {
+            this.FileProfileType = FileProfileType;
+        }
+    }
 }

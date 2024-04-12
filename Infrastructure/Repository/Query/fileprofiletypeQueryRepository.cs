@@ -2609,5 +2609,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+       
+        public async Task<DocumentsModel>GetAllFileProfileDocumentSessionId(long FileProfileTypeID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("FileProfileTypeID", FileProfileTypeID);
+                var query = "select SessionId,Name,Description,ProfileID,FileProfileTypeID From FileProfileType where FileProfileTypeID = @FileProfileTypeID";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<DocumentsModel>(query, parameters));
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+
+            }
+        }
     }
 }

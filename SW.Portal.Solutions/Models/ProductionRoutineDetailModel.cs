@@ -9,7 +9,7 @@ namespace SW.Portal.Solutions.Models
         public string ItemName { get; set; }
         public long AddedByUserID { get; set; }
         public string GetTypes { get; set;}
-        public long LocationId { get; set; }
+        public long? LocationId { get; set; }
         public bool TimeSheetAction { get; set; }
         public string? Type { get; set; }
         public string? ActivityProfileNo { get; set; }

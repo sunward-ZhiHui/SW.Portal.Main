@@ -130,7 +130,9 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", userId);
-                var query = @"SELECT * from Appointment WHERE AddedByUserID  = @UserId";
+                var query = @"SELECT *,0 as Accepted,NEWID() as SessionId from Appointment WHERE AddedByUserID  = @UserId
+                                UNION ALL
+                              SELECT ID,0 as AppointmentType,DueDate as StartDate,DueDate + NoOfDays AS EndDate,Name AS Caption, 1 as Label, 3 as Status, 0 as AllDay, null as  Recurrence, null as Location, null as Description,AddedByUserID,AddedDate,1 as Accepted,TS.SessionId from EmailConversations TS where TS.DueDate IS NOT NULL AND TS.AddedByUserID  = @UserId";
 
                 using (var connection = CreateConnection())
                 {

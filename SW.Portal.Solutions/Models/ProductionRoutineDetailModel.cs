@@ -19,7 +19,7 @@ namespace SW.Portal.Solutions.Models
         public string? ProdActivityActionChild { get; set; }
         public string? LineComment { get; set; }
         public string? ProdActivityResult { get; set; }
-
+        public long? MasterProductionFileProfileTypeId { get; set; }
         [DisplayName("Modified By")]
         public string ModifiedByUser { get; set; }
         [DisplayName("Modified Date")]

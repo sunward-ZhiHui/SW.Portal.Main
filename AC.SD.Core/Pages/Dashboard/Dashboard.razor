@@ -27,7 +27,8 @@
 
 <DxScheduler DataStorage="@DataStorage"
              GroupType="SchedulerGroupType.Date"            
-             CssClass="w-100">
+             CssClass="w-100"
+             AllowEditAppointment="@AllowEditAppointment">
     <Views>
         <DxSchedulerDayView ShowWorkTimeOnly="true">
             @* <HorizontalAppointmentTemplate>
@@ -71,8 +72,7 @@
         @if (!IsAccepted(context.Appointment))
         {
             <DxSchedulerShowAppointmentCompactFormButton></DxSchedulerShowAppointmentCompactFormButton>
-            <DxSchedulerDeleteAppointmentButton></DxSchedulerDeleteAppointmentButton>
-            
+            <DxSchedulerDeleteAppointmentButton></DxSchedulerDeleteAppointmentButton>           
         }       
         <DxSchedulerCloseAppointmentButton></DxSchedulerCloseAppointmentButton>
     </AppointmentTooltipHeaderTemplate>
@@ -119,6 +119,7 @@
 </DxScheduler>
 
 @code {
+    bool AllowEditAppointment { get; set; } = true;
     public ApplicationUser? applicationUser { get; private set; }
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
         {

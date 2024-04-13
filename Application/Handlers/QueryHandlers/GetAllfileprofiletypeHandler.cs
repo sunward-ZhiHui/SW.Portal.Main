@@ -818,5 +818,18 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
+        public class GetFileProfileTypeHandler : IRequestHandler<GetFileProfileTypeList, DocumentsModel>
+        {
+            private readonly IFileprofileQueryRepository _documentsqueryrepository;
+            public GetFileProfileTypeHandler(IFileprofileQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<DocumentsModel> Handle(GetFileProfileTypeList request, CancellationToken cancellationToken)
+            {
+                return (DocumentsModel)await _documentsqueryrepository.GetAllFileProfileDocumentSessionId(request.FileProfileType);
+            }
+
+        }
     }
 }

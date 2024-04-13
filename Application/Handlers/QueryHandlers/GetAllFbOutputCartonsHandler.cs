@@ -42,6 +42,23 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+
+    public class CreateDispensedMeterialHandler : IRequestHandler<CreateDispensedMeterialQuery, long>
+    {
+        private readonly IFbOutputCartonsQueryRepository _CartonsqueryRepository;
+        public CreateDispensedMeterialHandler(IFbOutputCartonsQueryRepository CartonsqueryRepository)
+        {
+            _CartonsqueryRepository = CartonsqueryRepository;
+        }
+
+        public async Task<long> Handle(CreateDispensedMeterialQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _CartonsqueryRepository.DispensedMeterialInsert(request);
+            return newlist;
+
+        }
+
+    }
     public class EditFbOutputCartonsHandler : IRequestHandler<EditFbOutputCartonsQuery, long>
     {
         private readonly IFbOutputCartonsQueryRepository _CartonsqueryRepository;

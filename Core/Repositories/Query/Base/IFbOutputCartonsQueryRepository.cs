@@ -12,7 +12,8 @@ namespace Core.Repositories.Query.Base
     {
         Task<IReadOnlyList<FbOutputCartons>> GetAllAsync();
         Task<long> Insert(FbOutputCartons fbOutputCartons);
-       Task<long> Update(FbOutputCartons fbOutputCartons);
+        Task<long> DispensedMeterialInsert(DispensedMeterial dispensedmeterial);
+        Task<long> Update(FbOutputCartons fbOutputCartons);
        Task<long> Delete(long id);
         Task<IReadOnlyList<FbOutputCartons>> GetAllCartonsCountAsync(string PalletNo);
         Task<IReadOnlyList<FbOutputCartons>> GetAllFullCartonsAsync(string PalletNo);

@@ -28,7 +28,10 @@
 <DxScheduler DataStorage="@DataStorage"
              GroupType="SchedulerGroupType.Date"            
              CssClass="w-100"
-             AllowEditAppointment="@AllowEditAppointment">
+             AllowEditAppointment="@AllowEditAppointment"
+             AppointmentInserting="AppointmentInserting"
+             AppointmentRemoving="AppointmentRemoving"
+             AppointmentUpdating="AppointmentUpdating">
     <Views>
         <DxSchedulerDayView ShowWorkTimeOnly="true">
             @* <HorizontalAppointmentTemplate>
@@ -84,6 +87,7 @@
             string iconCssClass = accepted ? "dx-icon-accepted" : "dx-icon-tentative";
             string startDateTime = $"{context.Appointment.Start.ToString("ddd, MMM dd")}, {context.Appointment.Start.ToShortTimeString()} - {context.Appointment.End.ToShortTimeString()}";
             Guid sessionId = SessionId(context.Appointment);
+            string statusType = StatusType(context.Appointment);
 
         }
         <div class="container">
@@ -93,7 +97,7 @@
                 </div>
                 <div class="col ps-0">
                     <span class="dxsc-subject" style="vertical-align: middle;">
-                        @context.Appointment.Subject                        
+                        @context.Appointment.Subject                     
                     </span>                  
                 </div>
             </div>
@@ -109,9 +113,19 @@
              {
                 <hr />
                 <div class="sc-tooltip-bottom-container">
-                    <DxButton @onclick="@(() => OnEmailDueClick(sessionId))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
-                              Text="@buttonText" IconCssClass="@iconCssClass">
-                    </DxButton>
+
+                    @if(statusType == "EmailDueDate")
+                    {
+                        <DxButton @onclick="@(() => OnEmailDueClick(sessionId))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
+                                  Text="View Email" IconCssClass="@iconCssClass">
+                        </DxButton>
+                    }
+                    else if(statusType == "TodoDueDate")
+                    {
+                        <DxButton @onclick="@(() => OnTodoDueDateClick(sessionId))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
+                                  Text="View Todo Email" IconCssClass="@iconCssClass">
+                        </DxButton>
+                    }
                 </div>
              }
         </div>
@@ -138,13 +152,15 @@
                 RecurrenceInfo = "Recurrence",
                 CustomFieldMappings = new List<DxSchedulerCustomFieldMapping> {
                 new DxSchedulerCustomFieldMapping{ Name = "Accepted", Mapping = "Accepted" },
-                new DxSchedulerCustomFieldMapping{ Name = "SessionId", Mapping = "SessionId" }
+                new DxSchedulerCustomFieldMapping{ Name = "SessionId", Mapping = "SessionId" },
+                new DxSchedulerCustomFieldMapping{ Name = "StatusType", Mapping = "StatusType" }
                 }
             }
         };
 
     bool IsAccepted(DxSchedulerAppointmentItem apt) => true == (bool?)apt.CustomFields["Accepted"];    
     Guid SessionId(DxSchedulerAppointmentItem apt) => (Guid)(apt.CustomFields["SessionId"] ?? Guid.Empty);
+    string StatusType(DxSchedulerAppointmentItem apt) => (string)(apt.CustomFields["StatusType"] ?? string.Empty);
 
     void SwitchAccepted(SchedulerAppointmentTooltipInfo tooltipInfo, MouseEventArgs mouseArgs) => tooltipInfo.CustomFields["Accepted"] = !IsAccepted(tooltipInfo.Appointment);
     protected override async void OnInitialized()
@@ -217,6 +233,11 @@
     void OnEmailDueClick(Guid sessionid)
     {       
         NavigationManager.NavigateTo($"ViewEmail/{sessionid}/Email");        
+        StateHasChanged();
+    }
+    void OnTodoDueDateClick(Guid sessionid)
+    {
+        NavigationManager.NavigateTo($"ViewEmail/{sessionid}/Todo");        
         StateHasChanged();
     }
 }

@@ -14,6 +14,9 @@ namespace Application.Queries.Base
     public class CreateFbOutputCartonsQuery : FbOutputCartons, IRequest<long>
     {
     }
+    public class GetAllDispensedMeterialQuery : PagedRequest, IRequest<List<DispensedMeterial>>
+    {
+    }
     public class CreateDispensedMeterialQuery : DispensedMeterial, IRequest<long>
     {
     }

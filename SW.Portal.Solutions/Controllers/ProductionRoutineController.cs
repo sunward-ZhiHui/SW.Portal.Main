@@ -517,24 +517,28 @@ namespace SW.Portal.Solutions.Controllers
                         if (itemsId == 1)
                         {
                             Data.isPlant = true;
-
+                            
                         }
                         if (itemsId == 2)
                         {
                             Data.isDepartment = true;
-
+                            Data.isDivision = true;
+                           
                         }
                         if (itemsId == 3)
                         {
-                            Data.isSection = true;
-
+                            Data. isSection = true;
+                           
                         }
                         if (itemsId == 4)
                         {
                             Data.isSubSection = true;
-
+                            
                         }
                     }
+
+
+                
                 }
             }
            

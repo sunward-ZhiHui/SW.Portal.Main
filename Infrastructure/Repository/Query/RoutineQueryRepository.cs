@@ -489,7 +489,7 @@ namespace Infrastructure.Repository.Query
                             productActivityApp.ProdOrderNoDesc = s.ProdOrderNo;
                             productActivityApp.BatchNo = s.BatchNo;
                         }
-
+                        productActivityApp.MasterProductionFileProfileTypeId = s.MasterProductionFileProfileTypeId;
                         productActivityApp.NavprodOrderLineId = s.NavprodOrderLineId;
                         productActivityApp.IsOthersOptions = s.IsOthersOptions;
                         productActivityApp.ManufacturingProcessChildId = s.ManufacturingProcessChildId;

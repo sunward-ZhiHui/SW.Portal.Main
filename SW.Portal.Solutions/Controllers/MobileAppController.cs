@@ -1,5 +1,6 @@
 ﻿using AC.SD.Core.Data;
 using Application.Queries.Base;
+using ChartJs.Blazor.ChartJS.Common.Axes;
 using Core.Entities;
 using Core.EntityModels;
 using Core.Repositories.Query;
@@ -218,6 +219,72 @@ namespace SW.Portal.Solutions.Controllers
                 response.ResponseCode = Services.ResponseCode.Success;
                 var userNotifications = await _FbOutputCartonsQueryRepository.GetAllLooseCartonsAsync(PalletNo);
                 response.Results = (List<FbOutputCartons>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpPost]
+        [Route("InsertDispensedMeterial")]
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<DispensedMeterial>>>> InsertDispensedMeterial([FromBody] DispensedMeterial insertDispensedMeterialmodel)
+        {
+            var response = new Services.ResponseModel<long>();
+
+            try
+            {
+
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                var lst = new CreateDispensedMeterialQuery()
+                {
+
+
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    MaterialName = insertDispensedMeterialmodel.MaterialName,
+                    BatchNo = insertDispensedMeterialmodel.BatchNo,
+                    QCReference = insertDispensedMeterialmodel.QCReference,
+                    SubLotNo = insertDispensedMeterialmodel.SubLotNo,
+                    Description = insertDispensedMeterialmodel.Description,
+                    ProductionOrderNo = insertDispensedMeterialmodel.ProductionOrderNo,
+                    TareWeight = insertDispensedMeterialmodel.TareWeight,
+                    ActualWeight = insertDispensedMeterialmodel.ActualWeight,
+                    AddedByUserID = insertDispensedMeterialmodel.AddedByUserID,
+                    UOM = insertDispensedMeterialmodel.UOM,
+                    PrintLabel= insertDispensedMeterialmodel.PrintLabel,
+                    StatusCodeID = 1
+                };
+
+                var Result = await _mediator.Send(lst);
+
+
+                response.Result = Result;
+
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.Result = 0;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+
+        }
+        [HttpGet("GetDispensedMeterialList")]
+        public async Task<ActionResult<Services.ResponseModel<List<DispensedMeterial>>>> GetDispensedMeterialList()
+        {
+            var response = new Services.ResponseModel<DispensedMeterial>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _FbOutputCartonsQueryRepository.GetAllDispensedMeterialAsync();
+                response.Results = (List<DispensedMeterial>)userNotifications; // Assign the list of results
             }
             catch (Exception ex)
             {

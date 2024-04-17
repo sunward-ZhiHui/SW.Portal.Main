@@ -20,6 +20,11 @@ using Microsoft.AspNetCore.SignalR;
 using Plugin.Firebase.Firestore;
 using System.IO;
 using SW.Portal.Solutions.Models;
+using AC.SD.Core.Pages.Masters;
+using Grpc.Core;
+using AC.SD.Core.Pages.DMS;
+using Application.Queries;
+using MediatR;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -30,11 +35,15 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
         private readonly IReportFileUploadsQueryRepository _fileuploadqueryRepository;
-        public FileUploadController(IWebHostEnvironment host, IDocumentsQueryRepository documentsqueryrepository, IReportFileUploadsQueryRepository fileuploadqueryRepository)
+        private readonly IMediator _mediator;
+        private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
+        public FileUploadController(IWebHostEnvironment host, IDocumentsQueryRepository documentsqueryrepository, IReportFileUploadsQueryRepository fileuploadqueryRepository,  IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository, IMediator mediator)
         {
             _hostingEnvironment = host;
             _documentsqueryrepository = documentsqueryrepository;
             _fileuploadqueryRepository = fileuploadqueryRepository;
+            _mediator = mediator;
+            _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
         }
         [HttpPost]
         [Route("UploadDocumentsBySession")]
@@ -305,7 +314,7 @@ namespace SW.Portal.Solutions.Controllers
             return Ok("Ok");
         }
         [HttpPost("MobileUploadFile")]
-        public async Task<ResponseModel> MobileUploadFile(string? SessionId, long? addedByUserId)
+        public async Task<ResponseModel> MobileUploadFile( string? SessionId, long? addedByUserId)
         {
             ResponseModel response = new ResponseModel();
             try
@@ -355,6 +364,89 @@ namespace SW.Portal.Solutions.Controllers
                 documents.FileSize = fileSize;
                 documents.SourceFrom = "FileProfile";
                 documents.FilePath = serverPaths.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                var responsesss = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+
+                response.IsSuccess = true;
+                response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = $"Internal server error: {ex.Message}";
+                return response;
+            }
+        }
+        [HttpPost("MobileFileProfileType")]
+        public async Task<ResponseModel> MobileFileProfileType(Models.FileProfileTypeModel value)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                if (!Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase))
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Invalid content type.";
+                    return response;
+                }
+
+                var file = Request.Form.Files[0];
+                if (file == null || file.Length == 0)
+                {
+                    response.IsSuccess = false;
+                    response.Message = "No file uploaded.";
+                    return response;
+                }
+
+                var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId);
+                if (!Directory.Exists(serverPaths))
+                {
+                    Directory.CreateDirectory(serverPaths);
+                }
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Appending the extension to the filename
+                var filePath = Path.Combine(serverPaths, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var contentType = file.ContentType;
+                var fileSize = file.Length;
+                var fileExtension = Path.GetExtension(file.FileName); // Extracting the file extension
+
+             
+              
+                var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
+                var FileSessionID = FileProfileSessionID.SessionId.ToString();
+                  var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId, @"\", FileSessionID, ".", fileExtension);
+                var documentNoSeriesModel = new DocumentNoSeriesModel
+                {
+                    AddedByUserID = value.UserID,
+                    StatusCodeID = 710,
+                ProfileID = value.ProfileId,
+                PlantID = value.PlantId,
+                DepartmentId = value.DepartmentId,
+                SectionId = value.SectionId,
+                SubSectionId = value.SubSectionId,
+                DivisionId = value.DivisionId,
+
+            };
+            var  profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
+                Documents documents = new Documents();
+                documents.UploadDate = DateTime.Now;
+                documents.AddedByUserId = value.addedByUserId;
+                documents.AddedDate = DateTime.Now;
+                documents.SessionId = Guid.Parse(value.SessionId);
+                documents.IsLatest = true;
+                documents.IsTemp = true;
+                documents.FileName = fileName;
+                documents.ContentType = contentType;
+                documents.FileSize = fileSize;
+                documents.FilterProfileTypeId = value.FileProfileTypeId;
+                documents.SourceFrom = "FileProfile";
+                documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                 var responsesss = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
 
                 response.IsSuccess = true;

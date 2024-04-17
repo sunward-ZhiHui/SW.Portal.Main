@@ -25,7 +25,20 @@ namespace Application.Handlers.QueryHandlers
             return (List<FbOutputCartons>)await _CartonsqueryRepository.GetAllAsync();
         }
     }
-   
+    public class GetAllDispensedmeterialHandler : IRequestHandler<GetAllDispensedMeterialQuery, List<DispensedMeterial>>
+    {
+
+        private readonly IFbOutputCartonsQueryRepository _CartonsqueryRepository;
+        public GetAllDispensedmeterialHandler(IFbOutputCartonsQueryRepository CartonsqueryRepository)
+        {
+            _CartonsqueryRepository = CartonsqueryRepository;
+        }
+        public async Task<List<DispensedMeterial>> Handle(GetAllDispensedMeterialQuery request, CancellationToken cancellationToken)
+        {
+            return (List<DispensedMeterial>)await _CartonsqueryRepository.GetAllDispensedMeterialAsync();
+        }
+    }
+
     public class CreateFbOutputCartonsHandler : IRequestHandler<CreateFbOutputCartonsQuery, long>
     {
         private readonly IFbOutputCartonsQueryRepository _CartonsqueryRepository;
@@ -37,6 +50,23 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(CreateFbOutputCartonsQuery request, CancellationToken cancellationToken)
         {
             var newlist = await _CartonsqueryRepository.Insert(request);
+            return newlist;
+
+        }
+
+    }
+
+    public class CreateDispensedMeterialHandler : IRequestHandler<CreateDispensedMeterialQuery, long>
+    {
+        private readonly IFbOutputCartonsQueryRepository _CartonsqueryRepository;
+        public CreateDispensedMeterialHandler(IFbOutputCartonsQueryRepository CartonsqueryRepository)
+        {
+            _CartonsqueryRepository = CartonsqueryRepository;
+        }
+
+        public async Task<long> Handle(CreateDispensedMeterialQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _CartonsqueryRepository.DispensedMeterialInsert(request);
             return newlist;
 
         }

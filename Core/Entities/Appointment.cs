@@ -23,5 +23,8 @@ namespace Core.Entities
         public string? Recurrence { get; set; }
         public long AddedByUserID { get; set; }
         public DateTime AddedDate { get; set; }
+        public bool Accepted { get; set; } = false;
+        public Guid? SessionId { get; set; }
+        public string StatusType { get; set; }
     }
 }

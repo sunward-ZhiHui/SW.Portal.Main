@@ -12,6 +12,7 @@ using AC.SD.Core.Pages.Masters;
 using Google.Api.Gax.ResourceNames;
 using DevExpress.Web;
 using DevExpress.DocumentServices.ServiceModel.DataContracts;
+using Newtonsoft.Json;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -23,12 +24,14 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IPlantQueryRepository _PlantQueryRepository;
         private readonly IProductionActivityAppQueryRepository _ProductionActivityAppQueryRepository;
         private readonly IRoutineQueryRepository _RoutineQueryRepository;
+      
         public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository)
         {
             _mediator = mediator;
             _PlantQueryRepository = PlantQueryRepository;
             _ProductionActivityAppQueryRepository = productionActivityAppQueryRepository;
             _RoutineQueryRepository = routineQueryRepository;
+            
         }
         [HttpGet("GetCompanyList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyList()
@@ -322,7 +325,8 @@ namespace SW.Portal.Solutions.Controllers
                     LineComment = topic.LineComment,
                     ModifiedByUser = topic.ModifiedByUser,
                     ModifiedDate = topic.ModifiedDate,
-                    ProdActivityResult = topic.ProdActivityResult
+                    ProdActivityResult = topic.ProdActivityResult,
+                    MasterProductionFileProfileTypeId =topic.MasterProductionFileProfileTypeId
 
                 }).ToList();
                 try
@@ -441,6 +445,87 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = Services.ResponseCode.Success;
                 response.Results = result.Count > 0 ? result : new List<ViewSubSection> { new ViewSubSection() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetFileProfileTypeList")]
+        public async Task<ActionResult<Services.ResponseModel<List<DocumentsModel>>>> GetFileProfileTypeList(long FileProfileTypeID)
+        {
+
+            var response = new Services.ResponseModel<DocumentfileType>();
+           
+            var result = await _mediator.Send(new GetFileProfileTypeList(FileProfileTypeID));
+
+            DocumentfileType FilterData = new DocumentfileType();
+            FilterData.Name = result.Name;
+            FilterData.Description = result.Description;
+            FilterData.SessionId = (Guid)result.SessionId;
+            FilterData.FileProfileTypeID = (long)result.FileProfileTypeId;
+            FilterData.ProfileID = (long)result.ProfileID;
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Result = FilterData;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetFilleProfileTypeTree")]
+        public async Task<ActionResult<Services.ResponseModel<List<FileProfileDropDown>>>> GetFilleProfileTypeTree(long ProfileID)
+        {
+            
+            var response = new Services.ResponseModel<FileProfileDropDown>();
+            FileProfileDropDown Data = new FileProfileDropDown();
+
+         var documentProfileNoSeriesData = await _mediator.Send(new GetDocumentProfileNoSeriesById(ProfileID));
+            if(documentProfileNoSeriesData != null)
+            {
+                dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+                if (abbreviation != null)
+                {
+                    foreach (var item in abbreviation)
+                    {
+                        var itemsId = item.Id;
+                        if (itemsId == 1)
+                        {
+                            Data.isPlant = true;
+
+                        }
+                        if (itemsId == 2)
+                        {
+                            Data.isDepartment = true;
+
+                        }
+                        if (itemsId == 3)
+                        {
+                            Data.isSection = true;
+
+                        }
+                        if (itemsId == 4)
+                        {
+                            Data.isSubSection = true;
+
+                        }
+                    }
+                }
+            }
+           
+           
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Result = Data;
             }
             catch (Exception ex)
             {

@@ -44,6 +44,7 @@ namespace Core.EntityModels
         public Guid? FileSessionId { get; set; }
         public string? SourceFrom { get; set; }
         public bool? IsSourceFrom { get; set; } = false;
+        public string? TemplateUploadOrReserveNo { get; set; }
         public string? TemplateUploadType { get; set; }
         [Required(ErrorMessage = "New File is Required")]
         public string? ChangeNewFileName { get; set; } = "New File Empty";
@@ -58,5 +59,7 @@ namespace Core.EntityModels
         [Required(ErrorMessage = "Section is Required")]
         public long? DynamicFormSectionId { get; set; } = 0;
         public long? IpirAppId { get; set; }
+        [Required(ErrorMessage = "Reserve is Required")]
+        public long? NumberSeriesId { get; set; } = 0;
     }
 }

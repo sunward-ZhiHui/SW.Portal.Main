@@ -16,10 +16,10 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicForm>> GetComboBoxList();
         Task<long> Insert(AttributeHeader attributeHeader);
         Task<long> UpdateAsync(AttributeHeader attributeHeader);
-        Task<long> DeleteAsync(long id);
+        Task<long> DeleteAsync(AttributeHeader attributeHeader);
         AttributeHeader GetAllAttributeNameCheckValidation(AttributeHeader attributeHeader);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeNameNotInDynamicForm(long? dynamicFormSectionId, long? attributeID);
         Task<AttributeHeader> GetAllBySessionAttributeName(Guid? SessionId);
-
+        Task<AttributeHeader> UpdateAttributeHeaderSortOrder(AttributeHeader attributeHeader);
     }
 }

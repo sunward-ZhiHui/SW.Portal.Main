@@ -13,6 +13,8 @@ using Google.Api.Gax.ResourceNames;
 using DevExpress.Web;
 using DevExpress.DocumentServices.ServiceModel.DataContracts;
 using Newtonsoft.Json;
+using DevExpress.Xpo;
+using Application.Queries.Base;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -24,14 +26,14 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IPlantQueryRepository _PlantQueryRepository;
         private readonly IProductionActivityAppQueryRepository _ProductionActivityAppQueryRepository;
         private readonly IRoutineQueryRepository _RoutineQueryRepository;
-      
+        private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
         public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository)
         {
             _mediator = mediator;
             _PlantQueryRepository = PlantQueryRepository;
             _ProductionActivityAppQueryRepository = productionActivityAppQueryRepository;
             _RoutineQueryRepository = routineQueryRepository;
-            
+
         }
         [HttpGet("GetCompanyList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyList()
@@ -42,7 +44,7 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = Services.ResponseCode.Success;
                 response.Results = (List<ViewPlants>)(result.Count > 0 ? result : new List<ViewPlants> { new ViewPlants() });
-                
+
             }
             catch (Exception ex)
             {
@@ -62,13 +64,13 @@ namespace SW.Portal.Solutions.Controllers
             var result = await _ProductionActivityAppQueryRepository.GetAllAsync(CompanyID);
             var displayResult = result?.Select(topic => new ProductionActivityAppModel
             {
-               ProductionActivityAppID =topic.ProductionActivityAppID,
-                CompanyID =topic.CompanyID,
+                ProductionActivityAppID = topic.ProductionActivityAppID,
+                CompanyID = topic.CompanyID,
                 LocationID = topic.LocationID,
                 ProdOrderNo = topic.ProdOrderNo,
                 Comment = topic.Comment,
-                ICTMasterID =topic.ICTMasterID,
-                TopicID =topic.TopicID,
+                ICTMasterID = topic.ICTMasterID,
+                TopicID = topic.TopicID,
                 DeropdownName = topic.DeropdownName,
             }).ToList();
 
@@ -95,12 +97,12 @@ namespace SW.Portal.Solutions.Controllers
             var result = await _mediator.Send(new GetAllApplicationMasterChildListQuery("108"));
             try
             {
-                response.ResponseCode = Services. ResponseCode.Success;
+                response.ResponseCode = Services.ResponseCode.Success;
                 response.Results = result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() };
             }
             catch (Exception ex)
             {
-                response.ResponseCode = Services. ResponseCode.Failure;
+                response.ResponseCode = Services.ResponseCode.Failure;
                 response.ErrorMessages.Add(ex.Message);
             }
 
@@ -115,12 +117,12 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<ApplicationMasterChildModel>();
 
             var result = await _mediator.Send(new GetAllApplicationMasterChildByIdQuery(ManufacturingProcessChildId));
-          
-           
+
+
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-               
+
                 response.Results = result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() };
 
             }
@@ -177,7 +179,7 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpGet("GetTemplateList")]
-        public async Task<ActionResult<Services.ResponseModel<List<ProductActivityCaseLineModel>>>> GetTemplateList(long ManufacturingProcessChildId, long ProdActivityCategoryChildId,long ProdActivityActionChildD)
+        public async Task<ActionResult<Services.ResponseModel<List<ProductActivityCaseLineModel>>>> GetTemplateList(long ManufacturingProcessChildId, long ProdActivityCategoryChildId, long ProdActivityActionChildD)
         {
 
             var response = new Services.ResponseModel<ProductActivityCaseLineModel>();
@@ -227,13 +229,13 @@ namespace SW.Portal.Solutions.Controllers
                 ModifiedDate = DateTime.Now,
                 IsOthersOptions = value.OthersOptions == "Yes" ? true : false,
                 TimeSheetAction = true,
-               IsTemplateUpload = value.IsTemplateUpload,
-               IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
-               ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
-               RoutineInfoIds = value.RoutineInfoIds,
-               LotNo =value.LotNo,
-               ItemName = value.ItemName
-           };
+                IsTemplateUpload = value.IsTemplateUpload,
+                IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
+                ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
+                RoutineInfoIds = value.RoutineInfoIds,
+                LotNo = value.LotNo,
+                ItemName = value.ItemName
+            };
 
             var result = await _mediator.Send(request);
             var emailconversations = new ProductionRoutine
@@ -264,8 +266,8 @@ namespace SW.Portal.Solutions.Controllers
             {
                 var result = await _mediator.Send(new GetAllProductionActivityLocationAppQuery(LocationName));
                 var display = new RoutineScanModel();
-                if(result != null)
-                 {
+                if (result != null)
+                {
                     display = new RoutineScanModel
                     {
                         IctMasterID = result.ICTMasterID,
@@ -275,16 +277,16 @@ namespace SW.Portal.Solutions.Controllers
                 }
                 else
                 {
-                     display = new RoutineScanModel
+                    display = new RoutineScanModel
                     {
-                       Message = "Location Not Found"
+                        Message = "Location Not Found"
 
                     };
                 }
                 try
                 {
                     response.ResponseCode = Services.ResponseCode.Success;
-                   
+
                     response.Result = display;
                 }
                 catch (Exception ex)
@@ -301,7 +303,7 @@ namespace SW.Portal.Solutions.Controllers
 
             var response = new Services.ResponseModel<ProductionRoutineDetailModel>();
             ProductionActivityRoutineAppModel FilterData = new ProductionActivityRoutineAppModel();
-            if (RoutineDetailModel.CompanyId> 0)
+            if (RoutineDetailModel.CompanyId > 0)
             {
                 FilterData.CompanyId = RoutineDetailModel.CompanyId;
                 FilterData.LotNo = RoutineDetailModel.LotNo;
@@ -316,9 +318,9 @@ namespace SW.Portal.Solutions.Controllers
                 var displayResult = result?.Select(topic => new ProductionRoutineDetailModel
                 {
 
-                  Type =topic.Type,
-                    ActivityProfileNo =topic.ActivityProfileNo,
-                    AddedDate =topic.AddedDate,
+                    Type = topic.Type,
+                    ActivityProfileNo = topic.ActivityProfileNo,
+                    AddedDate = topic.AddedDate,
                     ManufacturingProcessChild = topic.ManufacturingProcessChild,
                     ProdActivityCategoryChild = topic.ProdActivityCategoryChild,
                     ProdActivityActionChild = topic.ProdActivityActionChild,
@@ -326,7 +328,7 @@ namespace SW.Portal.Solutions.Controllers
                     ModifiedByUser = topic.ModifiedByUser,
                     ModifiedDate = topic.ModifiedDate,
                     ProdActivityResult = topic.ProdActivityResult,
-                    MasterProductionFileProfileTypeId =topic.MasterProductionFileProfileTypeId
+                    MasterProductionFileProfileTypeId = topic.MasterProductionFileProfileTypeId
 
                 }).ToList();
                 try
@@ -359,12 +361,12 @@ namespace SW.Portal.Solutions.Controllers
 
                 var emailconversations = new ProductionRoutineModel
                 {
-                   
+
                     Message = "Delete Successfully"
                 };
 
                 response.Result = emailconversations;
-               
+
             }
             catch (Exception ex)
             {
@@ -459,7 +461,7 @@ namespace SW.Portal.Solutions.Controllers
         {
 
             var response = new Services.ResponseModel<DocumentfileType>();
-           
+
             var result = await _mediator.Send(new GetFileProfileTypeList(FileProfileTypeID));
 
             DocumentfileType FilterData = new DocumentfileType();
@@ -484,12 +486,12 @@ namespace SW.Portal.Solutions.Controllers
         [HttpGet("GetFilleProfileTypeTree")]
         public async Task<ActionResult<Services.ResponseModel<List<FileProfileDropDown>>>> GetFilleProfileTypeTree(long ProfileID)
         {
-            
+
             var response = new Services.ResponseModel<FileProfileDropDown>();
             FileProfileDropDown Data = new FileProfileDropDown();
 
-         var documentProfileNoSeriesData = await _mediator.Send(new GetDocumentProfileNoSeriesById(ProfileID));
-            if(documentProfileNoSeriesData != null)
+            var documentProfileNoSeriesData = await _mediator.Send(new GetDocumentProfileNoSeriesById(ProfileID));
+            if (documentProfileNoSeriesData != null)
             {
                 dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
                 if (abbreviation != null)
@@ -520,8 +522,8 @@ namespace SW.Portal.Solutions.Controllers
                     }
                 }
             }
-           
-           
+
+
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
@@ -535,5 +537,232 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+
+
+        [HttpGet("GetIpirAppList")]
+        public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> GetIpirAppList()
+        {
+
+            var response = new Services.ResponseModel<IpirAppModel>();
+
+            var result = await _mediator.Send(new GetAllIpirAppQuery());
+
+
+            var displayResult = result?.Select(topic => new IpirAppModel
+            {
+
+                IpirAppId = topic.IpirAppId,
+                FixedAssetNo = topic.FixedAssetNo,
+                ProdOrderNo = topic.ProdOrderNo,
+                CompanyID = topic.CompanyID,
+                StatusCodeID = topic.StatusCodeID,
+                AddedByUserID = topic.AddedByUserID,
+                AddedDate = DateTime.Now,
+                ModifiedDate = topic.ModifiedDate,
+                SessionID = topic.SessionID,
+                ModifiedByUserID = topic.ModifiedByUserID,
+                NavprodOrderLineID = topic.NavprodOrderLineID,
+                LocationID = topic.LocationID,
+                Comment = topic.Comment,
+                ReportingPersonal = topic.ReportingPersonal,
+                RefNo = topic.RefNo,
+                ProfileNo = topic.ProfileNo,
+                ProfileId = topic.ProfileId,
+                DetectedBy = topic.DetectedBy,
+                MachineName = topic.MachineName,
+                ActivityStatusId = topic.ActivityStatusId
+
+            }).ToList();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = displayResult;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetTicketNoIpirList")]
+        public async Task<ActionResult<Services.ResponseModel<List<NavprodOrderLineModel>>>> GetTicketNOIpirList(long companyid)
+        {
+
+            var response = new Services.ResponseModel<NavprodOrderLineModel>();
+
+            var result = await _mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<NavprodOrderLineModel> { new NavprodOrderLineModel() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("GetProfileIpirList")]
+        public async Task<ActionResult<Services.ResponseModel<List<DocumentProfileNoSeriesModel>>>> GetProfileIpirList()
+        {
+
+            var response = new Services.ResponseModel<DocumentProfileNoSeriesModel>();
+
+            var result = await _mediator.Send(new GetDocumentProfiles());
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<DocumentProfileNoSeriesModel> { new DocumentProfileNoSeriesModel() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("GetReportingPersonalIpirList")]
+        public async Task<ActionResult<Services.ResponseModel<List<ViewEmployee>>>> GetReportingPersonalIpirList()
+        {
+
+            var response = new Services.ResponseModel<ViewEmployee>();
+
+            var result = await _mediator.Send(new GetAllEmployeeQuery());
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<ViewEmployee> { new ViewEmployee() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetActivitySatusIpirList")]
+        public async Task<ActionResult<Services.ResponseModel<List<View_ApplicationMasterDetail>>>> GetActivitySatusIpirList()
+        {
+
+            var response = new Services.ResponseModel<View_ApplicationMasterDetail>();
+
+            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(341));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<View_ApplicationMasterDetail> { new View_ApplicationMasterDetail() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetIssueRelatedIpirList")]
+        public async Task<ActionResult<Services.ResponseModel<List<View_ApplicationMasterDetail>>>> GetIssueRelatedIpirList()
+        {
+
+            var response = new Services.ResponseModel<View_ApplicationMasterDetail>();
+
+            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(340));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<View_ApplicationMasterDetail> { new View_ApplicationMasterDetail() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetDeparmentIpirList")]
+        public async Task<ActionResult<Services.ResponseModel<List<ViewDepartment>>>> GetDeparmentIpirList(long? CompanyId)
+        {
+
+            var response = new Services.ResponseModel<ViewDepartment>();
+
+            var result = await _mediator.Send(new GetDepartmentByCompany(CompanyId));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<ViewDepartment> { new ViewDepartment() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
+        //[HttpPost("InsertIpirApp")]
+        //public async Task<ActionResult<Services.ResponseModel<IEnumerable<IpirApp>>>>InsertIpirApp(IpirApp ipirApp)
+        //{
+        //    var response = new Services.ResponseModel<IpirApp>();
+        //    var result = new InsertOrUpdateIpirApp(ipirApp);
+
+        //    return Ok(response);
+        //}
+        [HttpPost("InsertIpirApp")]
+        public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> InsertIpirApp(IpirAppModel IpirAppModel)
+        {
+
+            var response = new Services.ResponseModel<IpirApp>();
+            IpirApp FilterData = new IpirApp();
+           {
+                FilterData.CompanyID= IpirAppModel.CompanyID;
+               // FilterData.CompanyID = IpirAppModel.CompanyID;
+                FilterData.IpirAppId = IpirAppModel.IpirAppId;
+                FilterData.LocationID = IpirAppModel.LocationID;
+                FilterData.ProfileId = IpirAppModel.ProfileId;
+                FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
+                FilterData.ProfileNo = IpirAppModel.ProfileNo;
+                FilterData.MachineName = IpirAppModel.MachineName;
+                FilterData.RefNo=IpirAppModel.RefNo;
+                FilterData.ActivityStatusId = IpirAppModel.ActivityStatusId;
+                FilterData.FixedAssetNo = IpirAppModel.FixedAssetNo;
+                FilterData.ProdOrderNo = IpirAppModel.ProdOrderNo;
+                FilterData.NavprodOrderLineID = IpirAppModel.NavprodOrderLineID;
+                FilterData.ReportingPersonal = IpirAppModel.ReportingPersonal;
+                FilterData.DetectedBy = IpirAppModel.DetectedBy;
+                FilterData.Comment = IpirAppModel.Comment;
+                FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
+                FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
+                FilterData.AddedDate = IpirAppModel.AddedDate;
+                FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
+                FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
+                FilterData.SessionID = IpirAppModel.SessionID;
+                FilterData.DepartmentIds = IpirAppModel.DepartmentIds;
+                FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds;
+                var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
+
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+                    response.Result = result;
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+            }
+            return Ok(response);
+        }
+
     }
 }

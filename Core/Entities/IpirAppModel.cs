@@ -29,15 +29,18 @@ namespace Core.Entities
         public string? FixedAssetNo { get; set; }
         public long? ReportingPersonal { get; set; }
         public long? DetectedBy { get; set; }
-       
+        public string? AddedBy { get; set; }
+        public string? ReportingPersonalName { get; set; }
+        public string? DetectedByName { get; set; }
         public string? MachineName { get; set; }
         public string? RefNo { get; set; }
-      
+        public string? LocationName { get; set; }
         public long? ProfileId { get; set; }
         public string? ProfileNo { get; set; }
-       
-       
+        public string? CompanyName { get; set; }
+        public string? ProfileName { get; set; }
         public long? ActivityStatusId { get; set; }
+       
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
 

@@ -578,7 +578,7 @@ namespace SW.Portal.Solutions.Controllers
                 CompanyID = topic.CompanyID,
                 StatusCodeID = topic.StatusCodeID,
                 AddedByUserID = topic.AddedByUserID,
-                AddedDate = DateTime.Now,
+                AddedDate = topic.AddedDate,
                 ModifiedDate = topic.ModifiedDate,
                 SessionID = topic.SessionID,
                 ModifiedByUserID = topic.ModifiedByUserID,
@@ -591,12 +591,21 @@ namespace SW.Portal.Solutions.Controllers
                 ProfileId = topic.ProfileId,
                 DetectedBy = topic.DetectedBy,
                 MachineName = topic.MachineName,
-                ActivityStatusId = topic.ActivityStatusId
-
+                ActivityStatusId = topic.ActivityStatusId,
+                AddedBy =topic.AddedBy,
+                LocationName = topic.LocationName,
+                CompanyName = topic.CompanyName,
+                DetectedByName = topic.DetectedByName,
+                ProfileName = topic.ProfileName,
+                ReportingPersonalName = topic.ReportingPersonalName,
+                ActivityIssueRelateIds = topic.ActivityIssueRelateIds,
+                DepartmentIds = topic.DepartmentIds,
+               
             }).ToList();
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
+
                 response.Results = displayResult;
             }
             catch (Exception ex)
@@ -730,19 +739,12 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
 
-        //[HttpPost("InsertIpirApp")]
-        //public async Task<ActionResult<Services.ResponseModel<IEnumerable<IpirApp>>>>InsertIpirApp(IpirApp ipirApp)
-        //{
-        //    var response = new Services.ResponseModel<IpirApp>();
-        //    var result = new InsertOrUpdateIpirApp(ipirApp);
-
-        //    return Ok(response);
-        //}
+        
         [HttpPost("InsertIpirApp")]
         public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> InsertIpirApp(IpirAppModel IpirAppModel)
         {
 
-            var response = new Services.ResponseModel<IpirApp>();
+            var response = new Services.ResponseModel<IpirAppModel>();
             IpirApp FilterData = new IpirApp();
            {
                 FilterData.CompanyID= IpirAppModel.CompanyID;
@@ -763,10 +765,10 @@ namespace SW.Portal.Solutions.Controllers
                 FilterData.Comment = IpirAppModel.Comment;
                 FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
                 FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
-                FilterData.AddedDate = IpirAppModel.AddedDate;
+                FilterData.AddedDate = DateTime.Now;
                 FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
                 FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
-                FilterData.SessionID = IpirAppModel.SessionID;
+                FilterData.SessionID = Guid.NewGuid();
                 FilterData.DepartmentIds = IpirAppModel.DepartmentIds;
                 FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds;
                 var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
@@ -774,7 +776,11 @@ namespace SW.Portal.Solutions.Controllers
                 try
                 {
                     response.ResponseCode = Services.ResponseCode.Success;
-                    response.Result = result;
+                    var display = new IpirAppModel
+                    {
+                        IpirAppId = result.IpirAppId
+                    };
+                    response.Result = display;
                 }
                 catch (Exception ex)
                 {

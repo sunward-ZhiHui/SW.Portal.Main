@@ -75,6 +75,8 @@ namespace Core.Entities
         public string? SubApplicationMasterIDs { get; set; }
         public IEnumerable<long?> SubApplicationMasterIdsListIds { get; set; } = new List<long?>();
         public List<ApplicationMaster> SubApplicationMaster { get; set; } = new List<ApplicationMaster>();
+        public int? AttributeSortBy { get; set; }
+        public int? SortOrderAnotherBy {  get; set; }
     }
     public class AttributeHeaderListModel
     {
@@ -118,6 +120,7 @@ namespace Core.Entities
         public long AttributeDetailID { get; set; }
         public string? AttributeDetailName { get; set; }
         public long? DynamicFormId { get; set; }
+        public bool? IsDynamicGrid { get; set; } = false;
     }
     public class DropDownOptionsGridListModel
     {

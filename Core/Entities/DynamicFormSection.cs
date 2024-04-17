@@ -65,6 +65,8 @@ namespace Core.Entities
         public bool? UserIsReadOnly { get; set; } = false;
         public int? UserCount { get; set; }
         public bool? UserIsVisible { get; set; } = false;
+        [NotMapped]
+        public string? ProfileNo { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

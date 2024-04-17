@@ -242,6 +242,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", Id);
                 var query = "select t1.*,\r\n(Select tt2.FileName from Documents tt2 where tt2.SessionID=t1.SessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
+                    "(Select t22.ProfileNo from Documents t22 where t22.SessionID=t1.SessionID ANd t22.IsLatest=1) as ProfileNo,\r\n" +
                     "(Select t2.DocumentID from Documents t2 where t2.SessionID=t1.SessionID ANd t2.IsLatest=1) as DocumentID,\r\n" +
                     "(Select t4.SessionID from Documents t3 JOIN FileProfileType t4 ON t4.FileProfileTypeID=t3.FilterProfileTypeID where t3.SessionID=t1.SessionID ANd t3.IsLatest=1) as FileProfileSessionID,\r\n" +
                     "(Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=t1.SessionID ANd tt3.IsLatest=1) as FileProfileName\r\n" +
@@ -272,6 +273,7 @@ namespace Infrastructure.Repository.Query
                 dynamicFormSection.DynamicFormDataId = resultData.DynamicFormDataId;
                 dynamicFormSection.DynamicFormDataUploadAddedUserId = resultData.AddedByUserId;
                 dynamicFormSection.UploadSessionID = resultData.SessionId;
+                dynamicFormSection.ProfileNo = resultData.ProfileNo;
                 dynamicFormSection.DocumentId = resultData.DocumentId;
                 dynamicFormSection.FileName = resultData.FileName;
                 dynamicFormSection.FileProfileName = resultData.FileProfileName;
@@ -287,7 +289,9 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("UserId", UserId);
                 parameters.Add("DynamicFormDataID", dynamicFormDataId);
                 query = "SELECT tt1.*,(case when tt1.DynamicFormDataUploadID is NULL then  'No' ELSE 'Yes' END) as IsFileExits,\n\r" +
-                    " (Select tt2.FileName from Documents tt2 where tt2.SessionID=tt1.UploadSessionID ANd tt2.IsLatest=1) as FileName,\r\n(Select ttt2.DocumentID from Documents ttt2 where ttt2.SessionID=tt1.UploadSessionID ANd ttt2.IsLatest=1) as DocumentID,\r\n(Select ttt4.SessionID from Documents ttt3 JOIN FileProfileType ttt4 ON ttt4.FileProfileTypeID=ttt3.FilterProfileTypeID where ttt3.SessionID=tt1.UploadSessionID ANd ttt3.IsLatest=1) as FileProfileSessionID,\r\n(Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=tt1.UploadSessionID ANd tt3.IsLatest=1) as FileProfileName\r\n from (select t1.*,\r\n" +
+                     "(Select t22.ProfileNo from Documents t22 where t22.SessionID=tt1.UploadSessionID ANd t22.IsLatest=1) as ProfileNo,\r\n" +
+                    " (Select tt2.FileName from Documents tt2 where tt2.SessionID=tt1.UploadSessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
+                    "(Select ttt2.DocumentID from Documents ttt2 where ttt2.SessionID=tt1.UploadSessionID ANd ttt2.IsLatest=1) as DocumentID,\r\n(Select ttt4.SessionID from Documents ttt3 JOIN FileProfileType ttt4 ON ttt4.FileProfileTypeID=ttt3.FilterProfileTypeID where ttt3.SessionID=tt1.UploadSessionID ANd ttt3.IsLatest=1) as FileProfileSessionID,\r\n(Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=tt1.UploadSessionID ANd tt3.IsLatest=1) as FileProfileName\r\n from (select t1.*,\r\n" +
                     "(select t4.DynamicFormDataUploadID from DynamicFormDataUpload t4 WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadID,\r\n" +
                     "(select t2.SessionID from DynamicFormDataUpload t2 WHERE t2.DynamicFormSectionID=t1.DynamicFormSectionID AND t2.DynamicFormDataID=@dynamicFormDataId) as UploadSessionID,\r\n" +
                     "(select t3.AddedByUserID from DynamicFormDataUpload t3 WHERE t3.DynamicFormSectionID=t1.DynamicFormSectionID AND t3.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadAddedUserID,\r\n" +
@@ -1396,7 +1400,18 @@ namespace Infrastructure.Repository.Query
                     {
                         if (result != null)
                         {
-                            SortOrderBy = result.SortOrderByNo + 1;
+                            if (result.SortOrderByNo == null)
+                            {
+                                SortOrderBy = 1;
+                            }
+                            else
+                            {
+                                SortOrderBy = result.SortOrderByNo + 1;
+                            }
+                        }
+                        else
+                        {
+                            SortOrderBy = 1;
                         }
                     }
                     else

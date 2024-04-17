@@ -73,6 +73,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DispensedMeterial>> GetAllDispensedMeterialAsync()
+        {
+            try
+            {
+                var query = "SELECT * FROM DispensedMeterial";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DispensedMeterial>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<IReadOnlyList<FbOutputCartons>> GetAllCartonsCountAsync(string PalletNo)
         {
@@ -236,11 +252,64 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<long> DispensedMeterialInsert(DispensedMeterial dispensedmeterial)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("MaterialName", dispensedmeterial.MaterialName);
+                        parameters.Add("QCReference", dispensedmeterial.QCReference);                     
+                        parameters.Add("SubLotNo", dispensedmeterial.SubLotNo);
+                        parameters.Add("Description", dispensedmeterial.Description);
+                        parameters.Add("ProductionOrderNo", dispensedmeterial.ProductionOrderNo);
+                        parameters.Add("BatchNo", dispensedmeterial.BatchNo);
+                        parameters.Add("TareWeight", dispensedmeterial.TareWeight);
+                        parameters.Add("ActualWeight", dispensedmeterial.ActualWeight);
+                        parameters.Add("UOM", dispensedmeterial.UOM);
+                        parameters.Add("PrintLabel", dispensedmeterial.PrintLabel);
+                        parameters.Add("SessionId", dispensedmeterial.SessionId);
+                        parameters.Add("AddedByUserID", dispensedmeterial.AddedByUserID);
+                        parameters.Add("AddedDate", dispensedmeterial.AddedDate);
+                        parameters.Add("StatusCodeID", dispensedmeterial.StatusCodeID);
+
+                        var query = @"INSERT INTO DispensedMeterial(MaterialName,QCReference,SubLotNo,Description,ProductionOrderNo,BatchNo,TareWeight,ActualWeight,UOM,PrintLabel,SessionId,AddedByUserID,AddedDate,StatusCodeID)
+                         VALUES (@MaterialName,@QCReference,@SubLotNo,@Description,@ProductionOrderNo,@BatchNo,@TareWeight,@ActualWeight,@UOM,@PrintLabel,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
     }
-   
 
-    
-   
 
-    
+
+
+
 }

@@ -314,7 +314,7 @@ namespace SW.Portal.Solutions.Controllers
             return Ok("Ok");
         }
         [HttpPost("MobileUploadFile")]
-        public async Task<ResponseModel> MobileUploadFile( string? SessionId, long? addedByUserId)
+        public async Task<ResponseModel> MobileUploadFile([FromForm] Guid? SessionId, [FromForm] long? addedByUserId)
         {
             ResponseModel response = new ResponseModel();
             try
@@ -334,7 +334,7 @@ namespace SW.Portal.Solutions.Controllers
                     return response;
                 }
                 
-                var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", SessionId);
+                var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", SessionId.ToString());
                 if (!Directory.Exists(serverPaths))
                 {
                     Directory.CreateDirectory(serverPaths);
@@ -356,7 +356,7 @@ namespace SW.Portal.Solutions.Controllers
                 documents.UploadDate = DateTime.Now;
                 documents.AddedByUserId = addedByUserId;
                 documents.AddedDate = DateTime.Now;
-                documents.SessionId = Guid.Parse(SessionId);
+                documents.SessionId = SessionId;
                 documents.IsLatest = true;
                 documents.IsTemp = true;
                 documents.FileName = fileName;
@@ -378,7 +378,8 @@ namespace SW.Portal.Solutions.Controllers
             }
         }
         [HttpPost("MobileFileProfileType")]
-        public async Task<ResponseModel> MobileFileProfileType(Models.FileProfileTypeModel value)
+      
+        public async Task<ResponseModel> MobileFileProfileType([FromForm] Models.FileProfileTypeModel value)
         {
             ResponseModel response = new ResponseModel();
             try
@@ -398,7 +399,7 @@ namespace SW.Portal.Solutions.Controllers
                     return response;
                 }
 
-                var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId);
+                var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString());
                 if (!Directory.Exists(serverPaths))
                 {
                     Directory.CreateDirectory(serverPaths);
@@ -420,7 +421,7 @@ namespace SW.Portal.Solutions.Controllers
               
                 var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
                 var FileSessionID = FileProfileSessionID.SessionId.ToString();
-                  var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId, @"\", FileSessionID, ".", fileExtension);
+                  var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString(), @"\", FileSessionID, ".", fileExtension);
                 var documentNoSeriesModel = new DocumentNoSeriesModel
                 {
                     AddedByUserID = value.UserID,
@@ -438,7 +439,7 @@ namespace SW.Portal.Solutions.Controllers
                 documents.UploadDate = DateTime.Now;
                 documents.AddedByUserId = value.addedByUserId;
                 documents.AddedDate = DateTime.Now;
-                documents.SessionId = Guid.Parse(value.SessionId);
+                documents.SessionId = value.SessionId;
                 documents.IsLatest = true;
                 documents.IsTemp = true;
                 documents.FileName = fileName;

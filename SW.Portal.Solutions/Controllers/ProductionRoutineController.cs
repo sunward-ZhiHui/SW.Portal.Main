@@ -328,7 +328,24 @@ namespace SW.Portal.Solutions.Controllers
                     ModifiedByUser = topic.ModifiedByUser,
                     ModifiedDate = topic.ModifiedDate,
                     ProdActivityResult = topic.ProdActivityResult,
-                    MasterProductionFileProfileTypeId = topic.MasterProductionFileProfileTypeId
+                    MasterProductionFileProfileTypeId =topic.MasterProductionFileProfileTypeId,
+                    ProductionActivityRoutineAppLineId = topic.ProductionActivityRoutineAppLineId,
+                    ProductionActivityRoutineAppId = topic.ProductionActivityRoutineAppId,
+                    ManufacturingProcessChildId = topic.ManufacturingProcessChildId,
+                    ProdActivityCategoryChildId = topic.ProdActivityCategoryChildId,
+                    ProdActivityActionChildD = topic.ProdActivityActionChildD,
+                    IsTemplateUpload = topic.IsTemplateUpload,
+                    ProductActivityCaseLineId = topic.ProductActivityCaseLineId,
+                    LineSessionId = topic.LineSessionId.ToString(),
+                    IsOthersOptions = topic.IsOthersOptions,
+                    ProdActivityResultId = topic.ProdActivityResultId,
+                    RoutineStatusId = topic.RoutineStatusId,
+                    LocationName = topic.LocationName,
+                    RoutineInfoStatus =topic.RoutineInfoStatus,
+                    IsTemplateUploadFlag = topic.IsTemplateUploadFlag,
+                    NameOfTemplate = topic.NameOfTemplate,
+                    OthersOptions = topic.OthersOptions,
+                    RoutineInfoIds =topic.RoutineInfoIds
 
                 }).ToList();
                 try
@@ -502,24 +519,28 @@ namespace SW.Portal.Solutions.Controllers
                         if (itemsId == 1)
                         {
                             Data.isPlant = true;
-
+                            
                         }
                         if (itemsId == 2)
                         {
                             Data.isDepartment = true;
-
+                            Data.isDivision = true;
+                           
                         }
                         if (itemsId == 3)
                         {
-                            Data.isSection = true;
-
+                            Data. isSection = true;
+                           
                         }
                         if (itemsId == 4)
                         {
                             Data.isSubSection = true;
-
+                            
                         }
                     }
+
+
+                
                 }
             }
 

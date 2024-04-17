@@ -35,5 +35,7 @@ namespace Core.Entities
         public Guid? FileProfileSessionID { get; set; }
         [NotMapped]
         public string? FileProfileName { get; set; }
+        [NotMapped]
+        public string? ProfileNo { get; set; }
     }
 }

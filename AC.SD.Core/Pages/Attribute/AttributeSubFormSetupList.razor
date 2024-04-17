@@ -1,5 +1,4 @@
-﻿
-@using Application.Queries;
+﻿@using Application.Queries;
 @using global::Core.Entities;
 @using MediatR
 @inject IMediator Mediator
@@ -54,16 +53,25 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AttributeCompany" MinWidth="50" Caption="Company Name" />
                     <DxGridDataColumn FieldName="AttributeIsVisible" Caption="Is Visible" MinWidth="50" />
+                    <DxGridDataColumn FieldName="AttributeSortBy" Caption="Sort Order By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" MinWidth="40">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (AttributeHeader)context.DataItem;
+                            }
+                            <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.AttributeID}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.AttributeSortBy"></i>
+                            @item.AttributeSortBy
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
                     @* <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="50" /> *@
                     <DxGridDataColumn FieldName="Description" Caption="Label" MinWidth="50" />
                     <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="50" />
                     <DxGridDataColumn FieldName="DropDownTypeId" Caption="Data Source" MinWidth="50" />
                     <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="DataSource Name" MinWidth="50" />
                     <DxGridDataColumn FieldName="AttrDescription" Caption="Description" MinWidth="50" />
-                    <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="50" />
+                    @* <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="50" />
                     <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50" />
                     <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-                    <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+                    <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" /> *@
 
                 </Columns>
                 <TotalSummary>
@@ -105,6 +113,34 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSubFormPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsSortOrderByOpen
+          PositionTarget=@($"#flyout-overview-target-container-RenameFilename-{_selectedItems?.AttributeID}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Update Sort Order"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
+                <DxComboBox Data="@sortOrderList"
+                @bind-Value="@_selectedDynamicFormSectionItems.AttributeSortBy"
+                            TextFieldName="Text"
+                            ValueFieldName="Value" ShowValidationIcon="true" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderBy()) />
+
+
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     [Parameter]
     public long? SubAttributeDetailId { get; set; }
@@ -116,7 +152,7 @@
     public Action RevokeBack { get; set; }
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
-    bool DeleteEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool IsSortOrderByOpen { get; set; } = false;
     bool EditEnabled { get; set; } = false;
     bool AddPopup { get; set; } = false;
     bool RegEnabled { get; set; } = false;
@@ -126,7 +162,8 @@
     private AttributeHeader _selectedItems;
     private List<AttributeHeader>? _attributes;
     public ApplicationUser? applicationUser { get; private set; }
-
+    private List<DynamicFormSectionSortOrder> sortOrderList { get; set; }
+    AttributeHeader _selectedDynamicFormSectionItems = new AttributeHeader();
     protected override async Task OnInitializedAsync()
     {
 
@@ -176,7 +213,7 @@
             }
             if (_selectedItems.FormUsedCount > 0)
             {
-               // DeleteEnabled = false;
+                // DeleteEnabled = false;
             }
         }
         StateHasChanged();
@@ -225,7 +262,7 @@
     {
         try
         {
-            var request = new DeleteAttributeHeader(_selectedItems.AttributeID);
+            var request = new DeleteAttributeHeader(_selectedItems);
             await Mediator.Send(request);
             Blukdeletepopup = false;
             toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
@@ -236,6 +273,57 @@
             Blukdeletepopup = false;
             toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    void OnButtonSortOrderByClick(AttributeHeader dynamicFormSection)
+    {
+        _selectedDynamicFormSectionItems = new AttributeHeader();
+        _selectedDynamicFormSectionItems.AttributeSortBy = dynamicFormSection.AttributeSortBy;
+        sortOrderList = new List<DynamicFormSectionSortOrder>();
+        IsSortOrderByOpen = true;
+        if (_attributes != null && _attributes.Count > 0)
+        {
+            if (dynamicFormSection.AttributeSortBy > 0)
+            {
+                var count = _attributes.Where(w => w.AttributeSortBy > 0).Count();
+                if (count > 0)
+                {
+                    for (int i = 1; i <= count; i++)
+                    {
+                        DynamicFormSectionSortOrder dynamicFormSectionSortOrder = new DynamicFormSectionSortOrder();
+                        dynamicFormSectionSortOrder.Text = i.ToString();
+                        dynamicFormSectionSortOrder.Value = i;
+                        sortOrderList.Add(dynamicFormSectionSortOrder);
+                    }
+                }
+            }
+            else
+            {
+                var last = _attributes.Where(w => w.AttributeSortBy > 0).OrderByDescending(o => o.AttributeSortBy).FirstOrDefault()?.AttributeSortBy;
+                var num = last > 0 ? (last + 1) : 1;
+                DynamicFormSectionSortOrder dynamicFormSectionSortOrder = new DynamicFormSectionSortOrder();
+                dynamicFormSectionSortOrder.Text = num.ToString();
+                dynamicFormSectionSortOrder.Value = num;
+                sortOrderList.Add(dynamicFormSectionSortOrder);
+                _selectedDynamicFormSectionItems.AttributeSortBy = num;
+            }
+        }
+        
+        _selectedDynamicFormSectionItems.ModifiedByUserID = applicationUser.UserID;
+        _selectedDynamicFormSectionItems.ModifiedDate = DateTime.Now;
+        _selectedDynamicFormSectionItems.AttributeID = dynamicFormSection.AttributeID;
+        _selectedDynamicFormSectionItems.SubAttributeId = dynamicFormSection.SubAttributeId;
+        _selectedDynamicFormSectionItems.SubAttributeDetailId = dynamicFormSection.SubAttributeDetailId;
+        _selectedDynamicFormSectionItems.SortOrderAnotherBy = dynamicFormSection.AttributeSortBy;
+
+        StateHasChanged();
+    }
+    async Task OnUpdateSortOrderBy()
+    {
+        await Mediator.Send(new UpdateAttributeHeaderSortOrder(_selectedDynamicFormSectionItems));
+        await loadData();
+        Grid.SortBy("AttributeSortBy", GridColumnSortOrder.Ascending, 0);
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsSortOrderByOpen = false;
     }
     public void Dispose()
     {

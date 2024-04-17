@@ -423,7 +423,7 @@
         // Console.WriteLine(result);
         // await UpdateDataAsync();
 
-        var request = new DeleteAttributeHeader(editModel.AttributeID);
+        var request = new DeleteAttributeHeader(editModel);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);

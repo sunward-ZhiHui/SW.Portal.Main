@@ -54,7 +54,7 @@
 
                 <Columns>
                     <DxGridDataColumn FieldName="AttributeCompany" MinWidth="50" Caption="Company Name" />
-                   @*  <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="50" /> *@
+                    @*  <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="50" /> *@
                     <DxGridDataColumn FieldName="Description" Caption="Label" MinWidth="50" />
                     <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="50" />
                     <DxGridDataColumn FieldName="DropDownTypeId" Caption="Data Source" MinWidth="50" />
@@ -95,7 +95,6 @@
          HeaderText="Add Sub Controls"
          Closed="EulaPopupClosed"
          CloseOnOutsideClick="false"
-         
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
@@ -109,8 +108,8 @@
 @code {
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
-    bool DeleteEnabled { get; set; } = false; 
-    bool EditEnabled { get; set; } = false; 
+    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
     bool AddPopup { get; set; } = false;
     bool RegEnabled { get; set; } = false;
     bool isMultipleEnabled { get; set; } = false;
@@ -122,7 +121,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await loadData();
     }
@@ -160,7 +158,7 @@
     void loadSelectedItems()
     {
 
-        EditEnabled = false; DeleteEnabled = false;IsCheckBoxEnabled = false;
+        EditEnabled = false; DeleteEnabled = false; IsCheckBoxEnabled = false;
         if (_selectedItems != null)
         {
             EditEnabled = true; DeleteEnabled = true;
@@ -170,7 +168,7 @@
             }
             if (_selectedItems.FormUsedCount > 0)
             {
-              //  DeleteEnabled = false;
+                //  DeleteEnabled = false;
             }
         }
         StateHasChanged();

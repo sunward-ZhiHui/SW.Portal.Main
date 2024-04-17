@@ -9,8 +9,8 @@
        public int? StatusCodeID { get; set; }
        
         public long FileProfileTypeId { get; set; }
-       public string SessionId { get; set; }
-       public long? addedByUserId {  get; set; }
+      
+      
         public long? DepartmentId { get; set; } = 0;
       
         public long? SectionId { get; set; } = 0;
@@ -22,7 +22,9 @@
         public string? SectionName { get; set; }
         public string? SubSectionName { get; set; }
         public string? DepartmentName { get; set; }
-      
-        public Guid? FileSessionId { get; set; }
+        public Guid SessionId { get; set; }
+        public long? addedByUserId { get; set; }
+        public IFormFile File { get; set; }
+       // public Guid? FileSessionId { get; set; }
     }
 }

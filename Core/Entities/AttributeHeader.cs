@@ -18,7 +18,7 @@ namespace Core.Entities
 
         public long AttributeID { get; set; }
         //[Required(ErrorMessage = "Field Name is Required")]
-       // [AttributeCustomValidation]
+        // [AttributeCustomValidation]
         public string AttributeName { get; set; }
         [Required(ErrorMessage = "Label Name is Required")]
         public string Description { get; set; }
@@ -75,6 +75,8 @@ namespace Core.Entities
         public string? SubApplicationMasterIDs { get; set; }
         public IEnumerable<long?> SubApplicationMasterIdsListIds { get; set; } = new List<long?>();
         public List<ApplicationMaster> SubApplicationMaster { get; set; } = new List<ApplicationMaster>();
+        public int? AttributeSortBy { get; set; }
+        public int? SortOrderAnotherBy { get; set; }
     }
     public class AttributeHeaderListModel
     {
@@ -118,11 +120,32 @@ namespace Core.Entities
         public long AttributeDetailID { get; set; }
         public string? AttributeDetailName { get; set; }
         public long? DynamicFormId { get; set; }
+        public bool? IsDynamicGrid { get; set; } = false;
     }
     public class DropDownOptionsGridListModel
     {
         public object? ObjectData { get; set; }
         public List<DropDownGridOptionsModel> DropDownGridOptionsModel { get; set; } = new List<DropDownGridOptionsModel>();
     }
-
+    public class ApplicationMasterParentByListModel
+    {
+        public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute { get; set; } = new List<DynamicFormSectionAttribute>();
+        public List<ApplicationMasterParent> ApplicationMasterParent { get; set; } = new List<ApplicationMasterParent>();
+        public List<DynamicFormData> DynamicFormData { get; set; } = new List<DynamicFormData>();
+        public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute2 { get; set; } = new List<DynamicFormSectionAttribute>();
+        public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
+        public List<DynamicFormData> DynamicFormData2 { get; set; } = new List<DynamicFormData>();
+    }
+    public class DropDownOptionsListModel
+    {
+        public long Id { get; set; }
+        public string? Value { get; set; }
+        public string? Text { get; set; }
+        public Guid? SessionId { get; set; }
+        public string? ProfileNo { get; set; }
+        public long? DynamicFormId { get; set; }
+        public string? Description { get; set; }
+        public long? ValueId { get; set; }
+        public string? Label { get; set; }
+    }
 }

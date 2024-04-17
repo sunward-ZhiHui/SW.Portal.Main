@@ -25,7 +25,20 @@ namespace Application.Handlers.QueryHandlers
             return (List<FbOutputCartons>)await _CartonsqueryRepository.GetAllAsync();
         }
     }
-   
+    public class GetAllDispensedmeterialHandler : IRequestHandler<GetAllDispensedMeterialQuery, List<DispensedMeterial>>
+    {
+
+        private readonly IFbOutputCartonsQueryRepository _CartonsqueryRepository;
+        public GetAllDispensedmeterialHandler(IFbOutputCartonsQueryRepository CartonsqueryRepository)
+        {
+            _CartonsqueryRepository = CartonsqueryRepository;
+        }
+        public async Task<List<DispensedMeterial>> Handle(GetAllDispensedMeterialQuery request, CancellationToken cancellationToken)
+        {
+            return (List<DispensedMeterial>)await _CartonsqueryRepository.GetAllDispensedMeterialAsync();
+        }
+    }
+
     public class CreateFbOutputCartonsHandler : IRequestHandler<CreateFbOutputCartonsQuery, long>
     {
         private readonly IFbOutputCartonsQueryRepository _CartonsqueryRepository;

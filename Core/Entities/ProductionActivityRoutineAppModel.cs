@@ -90,7 +90,8 @@ namespace Core.Entities
         public string? ProfileNo { get; set; }
         public string? ActivityProfileNo { get; set; }
         public long? FileProfileTypeId { get; set; }
-        [NotMapped]
+
+       
         public long? MasterProductionFileProfileTypeId { get; set; }
         public int? IsDocuments { get; set; }
         public Guid? UniqueSessionId { get; set; }

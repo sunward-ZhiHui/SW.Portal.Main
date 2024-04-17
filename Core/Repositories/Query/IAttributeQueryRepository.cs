@@ -10,16 +10,17 @@ namespace Core.Repositories.Query
 {
     public interface IAttributeQueryRepository : IQueryRepository<AttributeHeader>
     {
-        Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm,long? UserId);
+        Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm, long? UserId);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeName(bool? IsSubForm, string? type, long? subId);
         Task<IReadOnlyList<AttributeHeaderDataSource>> GetAttributeHeaderDataSource();
         Task<IReadOnlyList<DynamicForm>> GetComboBoxList();
         Task<long> Insert(AttributeHeader attributeHeader);
         Task<long> UpdateAsync(AttributeHeader attributeHeader);
-        Task<long> DeleteAsync(long id);
+        Task<long> DeleteAsync(AttributeHeader attributeHeader);
         AttributeHeader GetAllAttributeNameCheckValidation(AttributeHeader attributeHeader);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeNameNotInDynamicForm(long? dynamicFormSectionId, long? attributeID);
         Task<AttributeHeader> GetAllBySessionAttributeName(Guid? SessionId);
-
+        Task<AttributeHeader> UpdateAttributeHeaderSortOrder(AttributeHeader attributeHeader);
+        Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByList(IDictionary<string, object> DynamicMasterParentIds,long? applicationMasterParentId);
     }
 }

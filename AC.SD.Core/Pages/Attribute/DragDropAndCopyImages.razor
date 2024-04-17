@@ -1,0 +1,75 @@
+﻿@page "/DragDropAndCopyImages"
+@using System.IO;
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<h1>Upload files!</h1>
+<style scoped>
+    .drop-zone {
+        padding: 20px;
+        width: 100%;
+        min-height: 100px;
+        border: 2px dashed #0087F7;
+        border-radius: 5px;
+    }
+
+        .drop-zone.hover {
+            border-style: solid;
+        }
+</style>
+<div @ref="dropZoneElement" class="drop-zone">
+    <div ref="target" @onclick="onCopyPasteFileclick" style='cursor:pointer'>Click here and Upload the image.</div>
+    <InputFile OnChange="@OnChange" @ref="inputFile" style="display:none;" />
+</div>
+
+@* Display the uploaded image *@
+<img src="@src" />
+
+@code {
+    ElementReference dropZoneElement;
+    InputFile inputFile;
+
+    IJSObjectReference _module;
+    IJSObjectReference _dropZoneInstance;
+    long maxFileSize = 1024L * 1024L * 1024L * 2L;
+    string src;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Load the JS file
+            _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/dropZone.js");
+
+            // Initialize the drop zone
+            _dropZoneInstance = await _module.InvokeAsync<IJSObjectReference>("initializeFileDropZone", dropZoneElement, inputFile.Element);
+        }
+    }
+    async Task onCopyPasteFileclick()
+    {
+        await JSRuntime.InvokeAsync<object>("triggerClick", inputFile.Element);
+    }
+    // Called when a new file is uploaded
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        using var stream = e.File.OpenReadStream(maxFileSize);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        src = "data:" + e.File.ContentType + ";base64," + Convert.ToBase64String(ms.ToArray());
+    }
+
+    // Unregister the drop zone events
+    public async ValueTask DisposeAsync()
+    {
+        if (_dropZoneInstance != null)
+        {
+            await _dropZoneInstance.InvokeVoidAsync("dispose");
+            await _dropZoneInstance.DisposeAsync();
+        }
+
+        if (_module != null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}

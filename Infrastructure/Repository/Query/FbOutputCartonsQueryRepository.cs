@@ -73,6 +73,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DispensedMeterial>> GetAllDispensedMeterialAsync()
+        {
+            try
+            {
+                var query = "SELECT * FROM DispensedMeterial";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DispensedMeterial>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<IReadOnlyList<FbOutputCartons>> GetAllCartonsCountAsync(string PalletNo)
         {

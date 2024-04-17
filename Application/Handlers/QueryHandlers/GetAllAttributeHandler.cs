@@ -104,7 +104,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteAttributeHeader request, CancellationToken cancellationToken)
         {
-            var req = await _conversationQueryRepository.DeleteAsync(request.AttributeID);
+            var req = await _conversationQueryRepository.DeleteAsync(request.AttributeHeader);
             return req;
         }
     }
@@ -180,6 +180,34 @@ namespace Application.Handlers.QueryHandlers
         public async Task<DataSourceAttributeDetails> Handle(GetAllDropDownDataSourcesList request, CancellationToken cancellationToken)
         {
             return await _attrubutequeryRepository.GetAllDropDownDataSources();
+        }
+    }
+    public class UpdateAttributeHeaderSortOrderHandler : IRequestHandler<UpdateAttributeHeaderSortOrder, AttributeHeader>
+    {
+        private readonly IAttributeQueryRepository _queryRepository;
+        public UpdateAttributeHeaderSortOrderHandler(IAttributeQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<AttributeHeader> Handle(UpdateAttributeHeaderSortOrder request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateAttributeHeaderSortOrder(request.AttributeHeader);
+
+        }
+    }
+
+    public class GetApplicationMasterParentByListHandler : IRequestHandler<GetApplicationMasterParentByList, List<DropDownOptionsListModel>>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetApplicationMasterParentByListHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<DropDownOptionsListModel>> Handle(GetApplicationMasterParentByList request, CancellationToken cancellationToken)
+        {
+            return (List<DropDownOptionsListModel>)await _attrubutequeryRepository.GetApplicationMasterParentByList(request.DynamicMasterParentIds,request.ApplicationMasterParentId);
         }
     }
 }

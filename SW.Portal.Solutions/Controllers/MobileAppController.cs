@@ -276,6 +276,24 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
 
         }
+        [HttpGet("GetDispensedMeterialList")]
+        public async Task<ActionResult<Services.ResponseModel<List<DispensedMeterial>>>> GetDispensedMeterialList()
+        {
+            var response = new Services.ResponseModel<DispensedMeterial>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _FbOutputCartonsQueryRepository.GetAllDispensedMeterialAsync();
+                response.Results = (List<DispensedMeterial>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 }
 

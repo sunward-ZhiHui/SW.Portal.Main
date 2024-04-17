@@ -152,6 +152,9 @@
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             @bind-Value="@Data.DynamicFormId" ShowValidationIcon="true">
                                 <Columns>
+                                     @* <DxListEditorColumn FieldName="@nameof(DynamicForm.IsGridForm)"
+                                                         Caption="Grid Form"
+                                                         Width="100px" /> *@
                                     <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
                                                         Caption="Name"
                                                         Width="180px" />
@@ -380,7 +383,7 @@
         isSelectEnabled = true;
         isDisplay = "display:none;";
         isDisplay1 = "";
-        isEdit = true;
+        isEdit = true; Data.AttributeSortBy = null;
         DeleteEnabled = false;
         isDropDownType = false; IsDynamicFormDropTagBoxEnabled = false;
         isDataSource = false;
@@ -456,6 +459,7 @@
         var IsSpinEditType = Data.ControlTypeId == 2704 ? (string.IsNullOrEmpty(Data.IsAttributeSpinEditType) ? null : Data.IsAttributeSpinEditType) : null;
         var createReq = new CreateAttributeHeader
             {
+                AttributeSortBy = Data.AttributeSortBy,
                 AttributeID = Data.AttributeID,
                 //AttributeName = Data.AttributeName,
                 AttributeName = "SubAttr",
@@ -571,6 +575,7 @@
             Data.AttributeIsVisible = _selectedItems.AttributeIsVisible;
             Data.AttributeRadioLayout = _selectedItems.AttributeRadioLayout; 
             Data.AttrDescription =  _selectedItems.AttrDescription; 
+            Data.AttributeSortBy = _selectedItems.AttributeSortBy;
             Data.IsAttributeSpinEditType = string.IsNullOrEmpty(_selectedItems.IsAttributeSpinEditType) ? "int" : _selectedItems.IsAttributeSpinEditType;
             SelectedControlChanged(Data.ControlTypeId, "Edit");
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _selectedItems.ControlType.ToLower().Contains(f.ToLower()));
@@ -804,7 +809,7 @@
     {
         try
         {
-            var request = new DeleteAttributeHeader(Data.AttributeID);
+            var request = new DeleteAttributeHeader(Data);
             await Mediator.Send(request);
             Blukdeletepopup = false;
             toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);

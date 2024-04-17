@@ -58,10 +58,10 @@ namespace Application.Queries
 
     public class DeleteAttributeHeader : PagedRequest, IRequest<long>
     {
-        public long AttributeID { get; set; }
-        public DeleteAttributeHeader(long attributeID)
+        public AttributeHeader AttributeHeader { get; set; }
+        public DeleteAttributeHeader(AttributeHeader attributeHeader)
         {
-            this.AttributeID = attributeID;
+            this.AttributeHeader = attributeHeader;
         }
     }
 
@@ -104,5 +104,23 @@ namespace Application.Queries
     public class GetAllDropDownDataSourcesList : PagedRequest, IRequest<DataSourceAttributeDetails>
     {
 
+    }
+    public class UpdateAttributeHeaderSortOrder : PagedRequest, IRequest<AttributeHeader>
+    {
+        public AttributeHeader AttributeHeader { get; private set; }
+        public UpdateAttributeHeaderSortOrder(AttributeHeader attributeHeader)
+        {
+            this.AttributeHeader = attributeHeader;
+        }
+    }
+    public class GetApplicationMasterParentByList : PagedRequest, IRequest<List<DropDownOptionsListModel>>
+    {
+        public IDictionary<string, object> DynamicMasterParentIds { get; set; }
+        public long? ApplicationMasterParentId { get; set; }
+        public GetApplicationMasterParentByList(IDictionary<string, object> dynamicMasterParentIds, long? applicationMasterParentId)
+        {
+            this.DynamicMasterParentIds = dynamicMasterParentIds;
+            this.ApplicationMasterParentId = applicationMasterParentId;
+        }
     }
 }

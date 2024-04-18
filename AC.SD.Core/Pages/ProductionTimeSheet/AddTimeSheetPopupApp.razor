@@ -12,6 +12,7 @@
 @using BlazorBarcodeScanner.ZXing.JS
 @using System.Text.Json;
 @using System.IO;
+@using System.Dynamic;
 @implements IDisposable
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
@@ -127,9 +128,9 @@
             <DxComboBox Data="@_ActivityResult"
                         NullText="Select Activity Result..."
                         FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="Data.ProdActivityResultId"
+                        TextFieldName="Text"
+                        ValueFieldName="Id"
+                        @bind-Value="Data.ProdActivityResultId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
@@ -137,9 +138,9 @@
             <DxComboBox Data="@_ActivityStatusItem"
                         NullText="Select Routine Status..."
                         FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="Data.RoutineStatusId"
+                        TextFieldName="Text"
+                        ValueFieldName="Id"
+                        @bind-Value="Data.RoutineStatusId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
@@ -147,9 +148,9 @@
             <DxTagBox NullText="Select Routine Info..."
                       Data="@_ActivityMaster"
                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="Value"
-                      ValueFieldName="ApplicationMasterDetailID"
-            @bind-Values="@Data.RoutineInfoIds"
+                      TextFieldName="Text"
+                      ValueFieldName="Id"
+                      @bind-Values="@Data.RoutineInfoIds"
                       CssClass="cw-480" />
         </DxFormLayoutItem>
 
@@ -196,9 +197,12 @@
     public IEnumerable _poOrderDetails { get; set; }
     private List<ProductionActivityApp> _productionActivities;
     private List<NavprodOrderLineModel> _ponumberActivities;
-    private List<View_ApplicationMasterDetail> _ActivityResult;
-    private List<View_ApplicationMasterDetail> _ActivityStatusItem;
-    private List<View_ApplicationMasterDetail> _ActivityMaster;
+    // private List<View_ApplicationMasterDetail> _ActivityResult;
+    // private List<View_ApplicationMasterDetail> _ActivityStatusItem;
+    // private List<View_ApplicationMasterDetail> _ActivityMaster;
+    private List<DropDownOptionsListModel> _ActivityResult;
+    private List<DropDownOptionsListModel> _ActivityStatusItem;
+    private List<DropDownOptionsListModel> _ActivityMaster;
     ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
     ProductionActivityRoutineAppModel DataLine = new ProductionActivityRoutineAppModel();
     public ApplicationUser applicationUser { get; private set; }
@@ -223,6 +227,11 @@
     string jsonText = @"[{""ApplicationMasterDetailID"": 1, ""Value"": ""Result 1""},
                       {""ApplicationMasterDetailID"": 2, ""Value"": ""Result 2""}
                     ]";
+
+    string parentId2 = "-1";
+    long parentchildId2 = -1;
+    string timesheetMasterParentid = "-1";
+    long timesheetMasterchildid = -1;
     protected override async Task OnInitializedAsync()
     {
         addEnabled = true; saveEnabled = true;
@@ -235,9 +244,20 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         //_ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(324));
         // Deserialize JSON to List<ActivityResult>
-        _ActivityResult = JsonSerializer.Deserialize<List<View_ApplicationMasterDetail>>(jsonText);
-        _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(331));
-        _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(334));
+        //_ActivityResult = JsonSerializer.Deserialize<List<View_ApplicationMasterDetail>>(jsonText);
+        //_ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(331));
+        //_ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(334));
+        IDictionary<string, object> dynamicsData = new ExpandoObject();
+        var time_sheet_lst = _ManuFactureProcessLines.Where(x => x.Value == "Timesheet").ToList();
+        timesheetMasterchildid = time_sheet_lst[0].ApplicationMasterChildId;
+        timesheetMasterParentid = time_sheet_lst[0].ApplicationMasterParentId.ToString();        
+        dynamicsData[timesheetMasterParentid] = timesheetMasterchildid;      
+
+        var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData, 108));
+        _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+        _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+        _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+
         Category = "";
         Action = "";
         if (_selectedEditItems != null)
@@ -371,6 +391,42 @@
         if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
         {
             _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem.ApplicationMasterChildId));
+
+            IDictionary<string, object> dynamicsData1 = new ExpandoObject();
+            var parentId = timesheetMasterParentid;
+            dynamicsData1[parentId] = timesheetMasterchildid;
+
+            parentId2 = selectItem.ApplicationMasterParentId.ToString();
+            dynamicsData1[parentId2] = selectItem.ApplicationMasterChildId;
+
+            parentchildId2 = selectItem.ApplicationMasterChildId;
+
+            // var parentId3 = 109.ToString();
+            // dynamicsData[parentId3] = 241;
+
+            _ActivityStatusItem = new List<DropDownOptionsListModel>();
+            _ActivityResult = new List<DropDownOptionsListModel>();
+            _ActivityMaster = new List<DropDownOptionsListModel>();
+
+            Data.ProdActivityResultId = null;
+            Data.RoutineStatusId = null;
+            Data.RoutineInfoIds = null;
+
+            var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData1, 108));
+            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+
+            StateHasChanged();
+        }
+        else
+        {
+            parentId2 = null;
+            parentchildId2 = 0;
+
+            Data.ProdActivityResultId = null;
+            Data.RoutineStatusId = null;
+            Data.RoutineInfoIds = null;
         }
         await OnTemplateUploadGroupValueChanged("No");
     }
@@ -379,6 +435,30 @@
         if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
         {
             await getTemplateItems();
+
+            IDictionary<string, object> dynamicsData2 = new ExpandoObject();
+            var parentId = timesheetMasterParentid;
+            dynamicsData2[parentId] = timesheetMasterchildid;
+
+            //var parentId2 = selectItem.ApplicationMasterParentId.ToString();
+            dynamicsData2[parentId2] = parentchildId2;
+
+            var parentId3 = selectItem.ApplicationMasterParentId.ToString();
+            dynamicsData2[parentId3] = selectItem.ApplicationMasterChildId;
+
+            _ActivityStatusItem = new List<DropDownOptionsListModel>();
+            _ActivityResult = new List<DropDownOptionsListModel>();
+            _ActivityMaster = new List<DropDownOptionsListModel>();
+
+            Data.ProdActivityResultId = null;
+            Data.RoutineStatusId = null;
+            Data.RoutineInfoIds = null;
+
+            var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData2, 108));
+            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+
         }
         await OnTemplateUploadGroupValueChanged("No");
     }

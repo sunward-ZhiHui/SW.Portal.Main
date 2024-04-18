@@ -344,6 +344,13 @@ namespace Infrastructure.Repository.Query
                                                                         {
                                                                             DynamicFormDataIDs.Add(f.DynamicFormDataId);
                                                                         }
+                                                                        else
+                                                                        {
+                                                                            if (DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0)
+                                                                            {
+                                                                                DynamicFormDataIDs.Remove(f.DynamicFormDataId);
+                                                                            }
+                                                                        }
                                                                     });
                                                                 }
                                                             }

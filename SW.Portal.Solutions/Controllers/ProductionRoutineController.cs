@@ -790,6 +790,34 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(response);
         }
+        [HttpPost("DeleteIPIRApp")]
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<DeleteIPIRAppModel>>>> DeleteIPIRApp(DeleteIPIRAppModel value)
+        {
+              var response = new Services.ResponseModel<DeleteIPIRAppModel>();
+              IpirApp Data = new IpirApp();
+              Data.IpirAppId = (long)value.IpirAppId;
+              var result = await _mediator.Send(new DeleteIpirApp(Data));
 
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                var emailconversations = new DeleteIPIRAppModel
+                {
+
+                    Message = "Delete Successfully"
+                };
+
+                response.Result = emailconversations;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 }

@@ -6,4 +6,10 @@
         public string Message { get; set; }
         public Guid? LineSessionId { get; set; }
     }
+    public class DeleteIPIRAppModel
+    {
+        public long? IpirAppId { get; set; }
+        public string Message { get; set; }
+       
+    }
 }

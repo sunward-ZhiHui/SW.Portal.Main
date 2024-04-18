@@ -274,7 +274,7 @@ namespace Infrastructure.Repository.Query
                 var dynamicscounts = dynamicsData.Count();
                 if (dynamicscounts > 0 && applicationMasterParentId > 0)
                 {
-                    var query = "select t1.*,\r\n(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID,t6.DynamicFormID as DynamicFormGridDropDownID from DynamicFormSectionAttribute t1\r\nJOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId  \r\nJOIN DynamicForm t10 ON t5.DynamicFormID=t10.ID  \r\nJOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID  \r\nLEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID  \r\nJOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID  Where (t6.IsDeleted=0 OR t6.IsDeleted IS NULL) AND (t6.AttributeIsVisible=1 OR t6.AttributeIsVisible IS NULL) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsVisible= 1 OR t1.IsVisible is null)  \r\nAND t6.DropDownTypeID='Data Source' AND t8.DataSourceTable='ApplicationMasterParent'\r\nAND  (',' + RTRIM(t1.ApplicationMasterIDs) + ',') LIKE '%,' + '" + applicationMasterParentId + "' + ',%'\r\norder by t1.SortOrderBy asc\r\n;";
+                    var query = "select t1.DynamicFormSectionAttributeId,t1.ApplicationMasterIds,t1.AttributeId,\r\n(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID,t6.DynamicFormID as DynamicFormGridDropDownID from DynamicFormSectionAttribute t1\r\nJOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId  \r\nJOIN DynamicForm t10 ON t5.DynamicFormID=t10.ID  \r\nJOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID  \r\nLEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID  \r\nJOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID  Where (t6.IsDeleted=0 OR t6.IsDeleted IS NULL) AND (t6.AttributeIsVisible=1 OR t6.AttributeIsVisible IS NULL) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsVisible= 1 OR t1.IsVisible is null)  \r\nAND t6.DropDownTypeID='Data Source' AND t8.DataSourceTable='ApplicationMasterParent'\r\nAND  (',' + RTRIM(t1.ApplicationMasterIDs) + ',') LIKE '%,' + '" + applicationMasterParentId + "' + ',%'\r\norder by t1.SortOrderBy asc\r\n;";
                     query += "Select * from ApplicationMasterParent;";
                     using (var connection = CreateConnection())
                     {
@@ -285,7 +285,7 @@ namespace Infrastructure.Repository.Query
                         var dynamicFormIds = ApplicationMasterParentByListModel.DynamicFormSectionAttribute.Select(s => s.DynamicFormId).Distinct().ToList();
                         dynamicFormIds = dynamicFormIds != null && dynamicFormIds.Count() > 0 ? dynamicFormIds : new List<long?>() { -1 };
 
-                        var query1 = "select * from DynamicFormData where DynamicFormID  in(" + string.Join(',', dynamicFormIds) + ");\n\r";
+                        var query1 = "select DynamicFormItem,DynamicFormID,DynamicFormDataId from DynamicFormData where (IsDeleted=0 or IsDeleted is null) AND DynamicFormID  in(" + string.Join(',', dynamicFormIds) + ");\n\r";
                         var results1 = await connection.QueryMultipleAsync(query1);
                         ApplicationMasterParentByListModel.DynamicFormData = results1.Read<DynamicFormData>().ToList();
                         List<long> DynamicFormDataIDs = new List<long>();
@@ -306,53 +306,50 @@ namespace Infrastructure.Repository.Query
                                             var Names = jsonObjs.ContainsKey(attrName);
                                             if (Names == true)
                                             {
-
                                                 var applicationMasterIds = secAttr.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
                                                 if (applicationMasterIds != null && applicationMasterIds.Count() > 0)
                                                 {
-                                                    if (applicationMasterIds.Count > 0)
+                                                    var ab = ApplicationMasterParentByListModel.ApplicationMasterParent.Where(z => z.ApplicationMasterParentCodeId > 0 && applicationMasterIds.Contains(z.ApplicationMasterParentCodeId) && z.ApplicationMasterParentCodeId == applicationMasterParentId).FirstOrDefault();
+                                                    if (ab != null)
                                                     {
-                                                        var ab = ApplicationMasterParentByListModel.ApplicationMasterParent.Where(z => z.ApplicationMasterParentCodeId > 0 && applicationMasterIds.Contains(z.ApplicationMasterParentCodeId) && z.ApplicationMasterParentCodeId == applicationMasterParentId).FirstOrDefault();
-                                                        if (ab != null)
+                                                        List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
+                                                        var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                                        var SubNamess = jsonObjs.ContainsKey(namesattr);
+                                                        if (SubNamess == true)
                                                         {
-                                                            List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
-                                                            var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                                            var SubNamess = jsonObjs.ContainsKey(namesattr);
-                                                            if (SubNamess == true)
+                                                            nameDatas.Add(ab);
+                                                            RemoveApplicationMasterParentSingleDataItem(ab, secAttr, nameDatas, ApplicationMasterParentByListModel.ApplicationMasterParent);
+                                                            if (nameDatas != null && nameDatas.Count() > 0)
                                                             {
-                                                                nameDatas.Add(ab);
-                                                                RemoveApplicationMasterParentSingleDataItem(ab, secAttr, nameDatas, ApplicationMasterParentByListModel.ApplicationMasterParent);
-                                                                if (nameDatas != null && nameDatas.Count() > 0)
+                                                                nameDatas.ForEach(n =>
                                                                 {
-                                                                    nameDatas.ForEach(n =>
+                                                                    var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                                                    var SubNamess = jsonObjs.ContainsKey(namesattr);
+                                                                    if (SubNamess == true)
                                                                     {
-                                                                        var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                                                        var SubNamess = jsonObjs.ContainsKey(namesattr);
-                                                                        if (SubNamess == true)
-                                                                        {
-                                                                            var itemValue = jsonObjs[namesattr];
-                                                                            long? values = itemValue == null ? null : (long)itemValue;
-                                                                            n.ApplicationMasterChildId = values;
-                                                                        }
-
-                                                                    });
-                                                                    var exitsCount = nameDatas.Where(w => w.ApplicationMasterChildId > 0).ToList();
-                                                                    if (exitsCount.Count() == dynamicscounts)
-                                                                    {
-                                                                        exitsCount.ForEach(e =>
-                                                                        {
-                                                                            long? KeyValue = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Key);
-                                                                            long? Value = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Value);
-                                                                            if (e.ApplicationMasterParentCodeId == KeyValue && e.ApplicationMasterChildId == Value)
-                                                                            {
-                                                                                DynamicFormDataIDs.Add(f.DynamicFormDataId);
-                                                                            }
-                                                                        });
+                                                                        var itemValue = jsonObjs[namesattr];
+                                                                        long? values = itemValue == null ? null : (long)itemValue;
+                                                                        n.ApplicationMasterChildId = values;
                                                                     }
+
+                                                                });
+                                                                var exitsCount = nameDatas.Where(w => w.ApplicationMasterChildId > 0).ToList();
+                                                                if (exitsCount.Count() == dynamicscounts)
+                                                                {
+                                                                    exitsCount.ForEach(e =>
+                                                                    {
+                                                                        long? KeyValue = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Key);
+                                                                        long? Value = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Value);
+                                                                        if (e.ApplicationMasterParentCodeId == KeyValue && e.ApplicationMasterChildId == Value)
+                                                                        {
+                                                                            DynamicFormDataIDs.Add(f.DynamicFormDataId);
+                                                                        }
+                                                                    });
                                                                 }
                                                             }
                                                         }
                                                     }
+
                                                 }
                                             }
                                         }
@@ -361,14 +358,14 @@ namespace Infrastructure.Repository.Query
                             });
                         }
                         DynamicFormDataIDs = DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0 ? DynamicFormDataIDs.Distinct().ToList() : new List<long>() { -1 };
-                        var query4 = "select * from DynamicFormData where DynamicFormDataGridID in(" + string.Join(',', DynamicFormDataIDs) + ");\n\r";
+                        var query4 = "select DynamicFormItem,DynamicFormID,DynamicFormDataId,ProfileNo,SessionId from DynamicFormData where (IsDeleted=0 or IsDeleted is null) AND DynamicFormDataGridID in(" + string.Join(',', DynamicFormDataIDs) + ");\n\r";
                         var results4 = await connection.QueryMultipleAsync(query4);
                         ApplicationMasterParentByListModel.DynamicFormData2 = results4.Read<DynamicFormData>().ToList();
 
 
                         var dynamicFormIdss = ApplicationMasterParentByListModel.DynamicFormData2.Select(s => s.DynamicFormId).Distinct().ToList();
                         dynamicFormIdss = dynamicFormIdss != null && dynamicFormIdss.Count() > 0 ? dynamicFormIdss : new List<long?>() { -1 };
-                        var query2 = "select t1.*,\r\n(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID,t6.DynamicFormID as DynamicFormGridDropDownID from DynamicFormSectionAttribute t1\r\nJOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId  \r\nJOIN DynamicForm t10 ON t5.DynamicFormID=t10.ID  \r\nJOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID  \r\nLEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID  \r\nJOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID  Where (t6.IsDeleted=0 OR t6.IsDeleted IS NULL) AND (t6.AttributeIsVisible=1 OR t6.AttributeIsVisible IS NULL) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsVisible= 1 OR t1.IsVisible is null)  \r\nAND t6.DropDownTypeID Is null AND t6.DataSourceID Is Null\r\nAND t6.ControlTypeId IN(2701,2702)\r\nAND t5.DynamicFormID IN(" + string.Join(',', dynamicFormIdss) + ")\r\norder by t1.SortOrderBy asc";
+                        var query2 = "select t1.DynamicFormSectionAttributeId,t1.AttributeId,t1.ApplicationMasterIds,\r\n(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t6.IsDynamicFormDropTagBox,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID,t6.DynamicFormID as DynamicFormGridDropDownID from DynamicFormSectionAttribute t1\r\nJOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId  \r\nJOIN DynamicForm t10 ON t5.DynamicFormID=t10.ID  \r\nJOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID  \r\nLEFT JOIN AttributeHeaderDataSource t8 ON t6.DataSourceId=t8.AttributeHeaderDataSourceID  \r\nJOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID  Where (t6.IsDeleted=0 OR t6.IsDeleted IS NULL) AND (t6.AttributeIsVisible=1 OR t6.AttributeIsVisible IS NULL) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsVisible= 1 OR t1.IsVisible is null)  \r\nAND t6.DropDownTypeID Is null AND t6.DataSourceID Is Null\r\nAND t6.ControlTypeId IN(2701,2702)\r\nAND t5.DynamicFormID IN(" + string.Join(',', dynamicFormIdss) + ")\r\norder by t1.SortOrderBy asc";
                         var results2 = await connection.QueryMultipleAsync(query2);
                         ApplicationMasterParentByListModel.DynamicFormSectionAttribute2 = results2.Read<DynamicFormSectionAttribute>().ToList();
                         var AttributeIds = ApplicationMasterParentByListModel.DynamicFormSectionAttribute2.Select(s => s.AttributeId).Distinct().ToList();

@@ -113,4 +113,14 @@ namespace Application.Queries
             this.AttributeHeader = attributeHeader;
         }
     }
+    public class GetApplicationMasterParentByList : PagedRequest, IRequest<List<DropDownOptionsListModel>>
+    {
+        public IDictionary<string, object> DynamicMasterParentIds { get; set; }
+        public long? ApplicationMasterParentId { get; set; }
+        public GetApplicationMasterParentByList(IDictionary<string, object> dynamicMasterParentIds, long? applicationMasterParentId)
+        {
+            this.DynamicMasterParentIds = dynamicMasterParentIds;
+            this.ApplicationMasterParentId = applicationMasterParentId;
+        }
+    }
 }

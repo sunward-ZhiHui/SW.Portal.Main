@@ -447,6 +447,7 @@ namespace SW.Portal.Solutions.Controllers
                 documents.FileSize = fileSize;
                 documents.FilterProfileTypeId = value.FileProfileTypeId;
                 documents.SourceFrom = "FileProfile";
+                documents.ProfileNo = profileNo;
                 documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                 var responsesss = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
 

@@ -180,7 +180,6 @@
                                                 ValueFieldName="PlantID"
                                                 SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
                                                 Enabled="isPlant"
-
                                     @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
                                         <Columns>
                                             <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
@@ -1162,14 +1161,14 @@
                             {
                                 curData = listDatas;
                             }
-                                if (preData.Count() > 0)
-                                {
-                                    preData.ForEach(t =>
-                                    {
-                                        loadApplicationMasterParentDataLoad(t, dynamicFormSectionAttributes);
-                                    });
-                                }
-                            
+                            if (preData.Count() > 0)
+                            {
+                                preData.ForEach(t =>
+                            {
+                                loadApplicationMasterParentDataLoad(t, dynamicFormSectionAttributes);
+                            });
+                            }
+
                         }
                     }
                 }
@@ -1872,7 +1871,7 @@
                         // await onApproved();
                     }
                     loading = false;
-                    NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + createReq.SessionId);
+                    redirectToPage(SessionId, createReq.SessionId);
                     StateHasChanged();
                 }
             }
@@ -2003,7 +2002,7 @@
                         // await onApproved();
                     }
                     loading = false;
-                    NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + createReq.SessionId);
+                    redirectToPage(SessionId, createReq.SessionId);
                     StateHasChanged();
                 }
             }
@@ -2013,7 +2012,21 @@
             toastService.ShowToast("Validation error occured.Please check the required field values!.", AC.SD.Core.Services.ToastLevel.Warning);
         }
     }
-
+    void redirectToPage(Guid? SessionId1, Guid? createReqSessionId)
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+        }
+    }
     async Task InsertOrUpdateDynamicFormApprovedData(DynamicFormData dynamicFormData)
     {
         var response = await Mediator.Send(new InsertOrUpdateDynamicFormApproved(dynamicFormData));

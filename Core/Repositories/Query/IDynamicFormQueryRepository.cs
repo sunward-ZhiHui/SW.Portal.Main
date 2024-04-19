@@ -72,6 +72,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormData?>> GetDynamicFormDataApprovalList(long? userId);
 
         Task<DynamicFormData> UpdateDynamicFormDataSortOrder(DynamicFormData dynamicFormData);
+        Task<DynamicFormDataUpload> InsertDmsDocumentDynamicFormData(DynamicFormDataUpload dynamicFormDataUpload);
+        
     }
 
 }

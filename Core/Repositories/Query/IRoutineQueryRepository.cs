@@ -28,5 +28,6 @@ namespace Core.Repositories.Query
         Task<ProductionActivityRoutineCheckedDetailsModel> InsertProductionActivityRoutineCheckedDetails(ProductionActivityRoutineCheckedDetailsModel value);
 
         Task<IReadOnlyList<ProductionActivityRoutineEmailModel>> GetProductionActivityRoutineEmailList(long? ProductionActivityRoutineAppLineID);
+        Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByIDAsync(string Ids);
     }
 }

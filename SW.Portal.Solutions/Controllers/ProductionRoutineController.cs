@@ -15,6 +15,7 @@ using DevExpress.DocumentServices.ServiceModel.DataContracts;
 using Newtonsoft.Json;
 using DevExpress.Xpo;
 using Application.Queries.Base;
+using Infrastructure.Repository.Query;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -810,6 +811,26 @@ namespace SW.Portal.Solutions.Controllers
 
                 response.Result = emailconversations;
 
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetActivityList")]
+        public async Task<ActionResult<Services.ResponseModel<List<ApplicationMasterChildModel>>>> GetDeparmentIpirList(string applicationMasterID)
+        {
+
+            var response = new Services.ResponseModel<ApplicationMasterChildModel>();
+
+            var result = await _RoutineQueryRepository.GetAllByIDAsync(applicationMasterID);
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results= (List<ApplicationMasterChildModel>)(result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() });
             }
             catch (Exception ex)
             {

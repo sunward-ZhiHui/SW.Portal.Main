@@ -43,7 +43,7 @@
     </div>
 </div>
 <div class="" style="margin-left:10px; height: calc(100vh - 200px); overflow: auto; overflow-x: hidden;">
-    <DxTabs RenderMode="TabsRenderMode.Default" @bind-ActiveTabIndex="@ActiveTabIndex">
+    <DxTabs RenderMode="TabsRenderMode.Default" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
         <DxTabPage Text="File List">
             <DxLoadingPanel @bind-Visible="PanelVisible"
                             IsContentBlocked="true"
@@ -94,7 +94,7 @@
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
                                     <DxMenuItem Text="Select File" IconCssClass="fa fa-file" id="attachmentSelectButton" Enabled="@isFilesUpload" />
-                                   @*  <DxMenuItem Text="Select Image" IconCssClass="fa fa-file" Click="@onImageToPdfSelectFile" Enabled="@isImageUpload" /> *@
+                                    @*  <DxMenuItem Text="Select Image" IconCssClass="fa fa-file" Click="@onImageToPdfSelectFile" Enabled="@isImageUpload" /> *@
                                     <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="SubmitFormExternally" Enabled="@Uploadloading" />
                                 </Items>
                             </DxMenu>
@@ -138,26 +138,6 @@
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.DynamicFormSectionId)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Upload Type" ColSpanMd="6">
-                                <DxRadioGroup Items="@TemplateUploadOrReserveNoOptions"
-                                              Value="@Data.TemplateUploadOrReserveNo"
-                                              ValueExpression="@(() => Data.TemplateUploadOrReserveNo )"
-                                              ValueChanged="@((string value) => OnTemplateUploadTypeGroupValueChanged(value))"
-                                              Layout="RadioGroupLayout.Horizontal"
-                                              CssClass="dx-demo-radio-group" />
-                            </DxFormLayoutItem>
-                             @* <DxFormLayoutItem Caption="DMS/Reseve No" ColSpanMd="4">
-                                 <DxRadioGroup Items="@TemplateUploadOptions"
-                                               Value="@Data.TemplateUploadType"
-                                               ValueExpression="@(() => Data.TemplateUploadType )"
-                                               ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value))"
-                                               Layout="RadioGroupLayout.Horizontal"
-                                               CssClass="dx-demo-radio-group" />
-                             </DxFormLayoutItem> *@
-                            <DxFormLayoutItem Caption="New File Name" ColSpanMd="6" Visible="@isTemplateUploadTypeImages">
-                                <DxTextBox @bind-Text="@Data.ChangeNewFileName" ShowValidationIcon="true" />
-                                <ValidationMessage For="@(() => Data.ChangeNewFileName)" />
-                            </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="SW Library" ColSpanMd="10">
                                 <DxTextBox @bind-Text=@FileprofiletypeName>
                                     <Buttons>
@@ -169,6 +149,27 @@
                                 <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
                             </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Upload Type" ColSpanMd="10">
+                                <DxRadioGroup Items="@TemplateUploadOrReserveNoOptions"
+                                              Value="@Data.TemplateUploadOrReserveNo"
+                                              ValueExpression="@(() => Data.TemplateUploadOrReserveNo )"
+                                              ValueChanged="@((string value) => OnTemplateUploadTypeGroupValueChanged(value))"
+                                              Layout="RadioGroupLayout.Horizontal"
+                                              CssClass="dx-demo-radio-group" />
+                            </DxFormLayoutItem>
+                            @* <DxFormLayoutItem Caption="DMS/Reseve No" ColSpanMd="4">
+                            <DxRadioGroup Items="@TemplateUploadOptions"
+                            Value="@Data.TemplateUploadType"
+                            ValueExpression="@(() => Data.TemplateUploadType )"
+                            ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value))"
+                            Layout="RadioGroupLayout.Horizontal"
+                            CssClass="dx-demo-radio-group" />
+                            </DxFormLayoutItem> *@
+                            <DxFormLayoutItem Caption="New File Name" ColSpanMd="6" Visible="@isTemplateUploadTypeImages">
+                                <DxTextBox @bind-Text="@Data.ChangeNewFileName" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => Data.ChangeNewFileName)" />
+                            </DxFormLayoutItem>
+
                             <DxFormLayoutItem Caption="Reserve No" ColSpanMd="6" Visible="@isReserveNoVisibile">
                                 <DxComboBox Data="@_reserveProfileNumberSeriesList"
                                             NullText="Select Reserve No..."
@@ -309,27 +310,32 @@
 
                         </DxFormLayout>
                     </EditForm>
-                    <div style="@fileUploadStyle">
-                        <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
-                            <DxUpload @ref="uploadComponent" Name="files"
-                                      Visible="@AttachmentUploadVisible"
-                                      AcceptedFileTypes=@AcceptedFileTypes
-                                      ChunkSize="200000"
-                                      UploadMode="@UploadMode.OnButtonClick"
-                                      FileUploadStart="OnFileUploadStart"
-                                      AllowMultiFileUpload="false"
-                                      ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                                      FileUploaded="@isUploadSuccess"
-                                      FileUploadProgressChanged="@OnUploadProgressChanged"
-                                      FileUploadStarted="@OnFileUploadStarted"
-                                      FileUploadError="@OnUploadError">
-                            </DxUpload>
+                    <div style="@fileUploadStyle1">
+                        <div style="@fileUploadStyle">
+                            <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
+                                <DxUpload @ref="uploadComponent" Name="files"
+                                          Visible="@AttachmentUploadVisible"
+                                          AcceptedFileTypes=@AcceptedFileTypes
+                                          ChunkSize="200000"
+                                          UploadMode="@UploadMode.OnButtonClick"
+                                          FileUploadStart="OnFileUploadStart"
+                                          AllowMultiFileUpload="false"
+                                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                          SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                          FileUploaded="@isUploadSuccess"
+                                          FileUploadProgressChanged="@OnUploadProgressChanged"
+                                          FileUploadStarted="@OnFileUploadStarted"
+                                          FileUploadError="@OnUploadError">
+                                </DxUpload>
 
+                            </div>
+                        </div>
+                        <div style="@imageUploadStyle">
+                            <AC.SD.Core.Pages.ProductionActivity.UploadFileImagesToPdf @ref="refUploadFileImagesToPdf" _applicationUser="@_applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId"></AC.SD.Core.Pages.ProductionActivity.UploadFileImagesToPdf>
                         </div>
                     </div>
-                    <div style="@imageUploadStyle">
-                        <AC.SD.Core.Pages.ProductionActivity.UploadFileImagesToPdf @ref="refUploadFileImagesToPdf" _applicationUser="@_applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId"></AC.SD.Core.Pages.ProductionActivity.UploadFileImagesToPdf>
+                    <div style="@fileUploadStyle2">
+                        <LinkFileprofileTypeLists @ref="refLinkFileprofileTypeLists" ParentSelectedFiles="@selectedFiles" RevokeBack="BalckloadDataList"></LinkFileprofileTypeLists>
                     </div>
                 </div>
             </div>
@@ -393,13 +399,15 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    private LinkFileprofileTypeLists? refLinkFileprofileTypeLists;
     bool isTemplateUploadOrReserveNoImages { get; set; } = true; bool isReserveNoVisibile { get; set; } = false; bool isFilesExpiryDate { get; set; } = false;
-    IEnumerable<string> TemplateUploadOrReserveNoOptions = new[] { "New Upload", "Reserve No" };
+    IEnumerable<string> TemplateUploadOrReserveNoOptions = new[] { "New Upload", "Reserve No", "DMS" };
     IEnumerable<string> TemplateUploadOptions = new[] { "Files", "Images" }; bool isTemplateUploadTypeImages { get; set; } = false;
     private AC.SD.Core.Pages.ProductionActivity.UploadFileImagesToPdf refUploadFileImagesToPdf;
     bool isFilesUpload { get; set; } = false; bool isImageUpload { get; set; } = false;
     string? TabType { get; set; } = "Files";
     string? fileUploadStyle { get; set; } = "padding:5px;"; string? imageUploadStyle { get; set; } = "display:none;";
+    string? fileUploadStyle1 { get; set; } = ""; string? fileUploadStyle2 { get; set; } = "display:none;";
     public Guid? UploadSessionId { get; set; }
     public bool Uploadloading { get; set; } = true;
     public List<DocumentNoSeriesModel> _reserveProfileNumberSeriesList { get; set; }
@@ -423,7 +431,7 @@
     private DxTreeView _treeView;
     string FilterString { get; set; }
     public string FileprofiletypeName { get; set; }
-   // public bool loading { get; set; } = false;
+    // public bool loading { get; set; } = false;
     public bool IsFileProfileTypeOpen { get; set; }
     string Message = "Upload";
     public bool IsFileProfileTypeShow { get; set; } = false;
@@ -470,6 +478,10 @@
         var child = locations.AsEnumerable().Union(fileProfileTypeDocumentsAll.AsEnumerable().Where(x => x.ParentId == id).SelectMany(y => GetChild(y.FileProfileTypeId))).ToList();
         return child;
     }
+    void BalckloadDataList()
+    {
+        InvokeAsync(loadDataList);
+    }
     public async Task loadDataList()
     {
         ActiveTabIndex = 0;
@@ -479,9 +491,9 @@
             FolderPathListsItems = DynamicFormDataUploadByPermissions.Cast<DynamicFormDataUploadByPermission>().ToList();
         }
         _editContext = new EditContext(Data);
-        Data.TemplateUploadOrReserveNo = "New Upload"; 
+        Data.TemplateUploadOrReserveNo = "New Upload";
         Data.TemplateUploadType = "Files";
-        isFilesUpload = true;
+        isFilesUpload = true; fileUploadStyle1 = ""; fileUploadStyle2 = "display:none;";
         _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, _applicationUser.UserID, _dynamicformData.DynamicFormDataId));
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
 
@@ -537,6 +549,17 @@
 
         return cats;
     }
+    void OnTabClick(TabClickEventArgs e)
+    {
+        if (e.TabIndex == 1)
+        {
+            fileUploadStyle2 = ""; fileUploadStyle1 = "display:none;";
+            isTemplateUploadOrReserveNoImages = true; isReserveNoVisibile = false;
+            Data.TemplateUploadOrReserveNo = "New Upload";
+            fileUploadStyle1 = ""; fileUploadStyle2 = "display:none;";
+            StateHasChanged();
+        }
+    }
     public async Task loadData(DocumentsModel _selectedFiles)
     {
         UploadSessionId = Guid.NewGuid();
@@ -572,6 +595,7 @@
         if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
         {
             selectedFiles = _selectedFiles;
+
             documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
 
             dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
@@ -614,6 +638,10 @@
             _selectedModelItems = _selectedFiles;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             _reserveProfileNumberSeriesList = await Mediator.Send(new GetReserveProfileNumberSeries(Data.FileProfileTypeId, Data.ProfileId));
+            //DocumentSearchModel documentSearchModel = new DocumentSearchModel();
+            //documentSearchModel.SessionId = _selectedFiles.SessionID == null ? _selectedFiles.SessionId : _selectedFiles.SessionID;
+            //documentSearchModel.FileProfileTypeId = _selectedFiles.FileProfileTypeId;
+            //var dmsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentSearchModel));
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
         }
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
@@ -707,7 +735,7 @@
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             _selectedModelItems = nodeName;
             await loadData(nodeName);
-
+            await refLinkFileprofileTypeLists.loadTreeItems(nodeName, Data, _dynamicformData);
             IsFileProfileTypeOpen = false;
         }
 
@@ -1007,10 +1035,11 @@
         }
         StateHasChanged();
     }
-    void OnTemplateUploadTypeGroupValueChanged(string? radioValue)
+    async Task OnTemplateUploadTypeGroupValueChanged(string? radioValue)
     {
         Data.TemplateUploadOrReserveNo = radioValue;
         isTemplateUploadOrReserveNoImages = true; isReserveNoVisibile = false; isExpiryDate = false;
+        fileUploadStyle1 = ""; fileUploadStyle2 = "display:none;";
         if (radioValue == "New Upload")
         {
             Data.NumberSeriesId = Data.NumberSeriesId > 0 ? Data.NumberSeriesId : 0;
@@ -1019,8 +1048,6 @@
             Data.DivisionId = isDivision == true ? (Data.DivisionId > 0 ? Data.DivisionId : null) : 0;
             Data.SectionId = isSection == true ? (Data.SectionId > 0 ? Data.SectionId : null) : 0;
             Data.SubSectionId = isSubSection == true ? (Data.SubSectionId > 0 ? Data.SubSectionId : null) : 0;
-            //await loadData(_selectedModelItems);
-
         }
         if (radioValue == "Reserve No")
         {
@@ -1036,6 +1063,40 @@
                 isExpiryDate = true;
             }
             isReserveNoVisibile = true;
+        }
+        if (radioValue == "DMS")
+        {
+            Data.PlantId = Data.PlantId > 0 ? Data.PlantId : 0;
+            Data.DepartmentId = Data.DepartmentId > 0 ? Data.DepartmentId : 0;
+            Data.DivisionId = Data.DivisionId > 0 ? Data.DivisionId : 0;
+            Data.SectionId = Data.SectionId > 0 ? Data.SectionId : 0;
+            Data.SubSectionId = Data.SubSectionId > 0 ? Data.SubSectionId : 0;
+            Data.NumberSeriesId = Data.NumberSeriesId > 0 ? Data.NumberSeriesId : 0;
+            fileUploadStyle2 = ""; fileUploadStyle1 = "display:none;";
+            isTemplateUploadOrReserveNoImages = false; isReserveNoVisibile = false;
+            if (Data.FileProfileTypeId == null || Data.DynamicFormSectionId == null)
+            {
+                if (Data.FileProfileTypeId == null && Data.DynamicFormSectionId == null)
+                {
+                    toastService.ShowToast("Select SW Library And Section Name", AC.SD.Core.Services.ToastLevel.Error);
+                }
+                if (Data.FileProfileTypeId > 0 && Data.DynamicFormSectionId == null)
+                {
+                    toastService.ShowToast("Select Section Name", AC.SD.Core.Services.ToastLevel.Error);
+                }
+                if (Data.FileProfileTypeId == null && Data.DynamicFormSectionId != null)
+                {
+                    toastService.ShowToast("Select SW Library", AC.SD.Core.Services.ToastLevel.Error);
+                }
+                Data.TemplateUploadOrReserveNo = "New Upload";
+                fileUploadStyle1 = ""; fileUploadStyle2 = "display:none;";
+                isTemplateUploadOrReserveNoImages = true;
+            }
+            else
+            {
+                fileUploadStyle2 = ""; fileUploadStyle1 = "display:none;";
+                await refLinkFileprofileTypeLists.loadTreeItems(selectedFiles, Data, _dynamicformData);
+            }
         }
         StateHasChanged();
     }

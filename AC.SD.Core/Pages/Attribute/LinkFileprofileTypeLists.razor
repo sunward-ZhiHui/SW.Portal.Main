@@ -1,0 +1,395 @@
+﻿@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IDisposable
+@* <div class="demo-breadcrumbs-container theme-blazing-berry">
+     <div class="breadcrumb">
+         <div class="demo-breadcrumbs sidebar-hidden">
+             <!--!-->
+
+             <div class="items">
+                 <a href="javascript:void(0);" onclick="@(() => openFileProfileMainLink())">Main</a>
+                 @if (FolderPathLists.Count > 0)
+                 {
+                     <span class="separator"></span>
+                     @foreach (var item in FolderPathLists)
+                     {
+                         var names = item.FileName.Length > 20 ? item.FileName.Substring(0, 20) + "..." : item.FileName;
+                         if (FolderPathLists.IndexOf(item) == FolderPathLists.Count - 1)
+                         {
+                             <span title="@item.FileName">@names</span>
+                         }
+                         else
+                         {
+                             <a href="javascript:void(0);" title="@item.FileName" onclick="@(() => openFileProfileLink(item))">@names</a>
+                         }
+                         <span class="separator"></span>
+                     }
+                 }
+             </div>
+         </div>
+     </div>
+ </div> *@
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+
+            <DxMenu Data="@FolderPathListsItems" ItemClick="OnItemClick"
+                    DisplayMode="MenuDisplayMode.Auto">
+                <DataMappings>
+                    <DxMenuDataMapping Text="FileName"
+                                       Children="Children"
+                                       BeginGroup="BeginGroup"
+                                       CssClass="CssClass"
+                                       Enabled="Enabled" />
+                </DataMappings>
+            </DxMenu>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisibleLink"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="linkDocGrid"
+            Data="fileProfileTypeDocumentsLink"
+            KeyFieldName="DocumentID"
+            EditMode="GridEditMode.EditForm"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            EditorRenderMode="GridEditorRenderMode.Integrated"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" CustomizeElement="Grid_Link_CustomizeElement" ValidationEnabled="false"
+            RowClick="OnRowLinkClick"
+            RowDoubleClick="OnRowDoubleLinkClick"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            CssClass="ch-360"
+            style="height: calc(100vh - 250px);">
+        <Columns>
+            <DxGridDataColumn FieldName="DocumentID" Visible="false" />
+            <DxGridSelectionColumn AllowSelectAll="false" Width="60px" />
+            <DxGridDataColumn FieldName="FileName" Caption="Name" MinWidth="80">
+                <CellDisplayTemplate>
+
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                        var contentType = item.ContentType != null ? item.ContentType.Split("/").First().ToLower() : "";
+                    }
+                    @if (item.Type == "Document")
+                    {
+                        @if (item.Extension == "xlsx" || item.Extension == "xls")
+                        {
+                            <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "ppt" || item.Extension == "pptx")
+                        {
+                            <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "doc" || item.Extension == "docx")
+                        {
+                            <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "pdf")
+                        {
+                            <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "txt")
+                        {
+                            <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else
+                        {
+                            if (contentType == "image")
+                            {
+                                <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@item.FileName"></i>
+                            }
+                            else if (contentType == "video")
+                            {
+                                <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@item.FileName"></i>
+                            }
+                            else if (contentType == "audio")
+                            {
+                                <i class="fa fa-file-audio" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#005675" title="@item.FileName"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
+                            }
+                        }
+                        @if (item.IsLocked == true)
+                        {
+                            <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
+                        }
+
+                    }
+                    else
+                    {
+                        <i class="fa fa-folder" aria-hidden="true" style="padding:5px;margin-right: 5px;color:yellow" title="@item.FileName"></i>
+                    }
+                    <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}")>@item.FileName</span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="80" />
+            <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                    }
+
+                    @(item.FileSizes + (!string.IsNullOrEmpty(item.FileCounts) ? ("," + item.FileCounts) : ""))
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="40" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added" MinWidth="40" />
+            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="40" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="40" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Move"
+         ShowCloseButton="true"
+         Closed="EulaPopupMoveDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to add this Document?
+        </p>
+        <strong>@DeleteProfileTypeName</strong>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="moveToFileProfileTypes" />
+
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool Blukdeletepopup { get; set; } = false;
+    string? DeleteProfileTypeName { get; set; }
+    List<DocumentsModel> FolderPathListsItems = new List<DocumentsModel>();
+    IGrid linkDocGrid { get; set; }
+    [Parameter]
+    public DocumentsModel ParentSelectedFiles { get; set; }
+    [Parameter]
+    public DocumentLinkModel LinkProfileSelectedFiles { get; set; }
+    [Parameter]
+    public string LinkType { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    public Guid? SessionId { get; set; }
+    public bool PanelVisibleLink { get; set; } = false;
+    public bool PopupVisibleLinkDocument { get; set; } = false;
+    public DocumentsModel selectedFiles { get; set; }
+    public long? FileProfileTypeId { get; set; }
+    private List<DocumentsModel> fileProfileTypeDocumentsLink { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAllList { get; set; }
+    private DocumentTypeModel _fileProfileselectedlstItemsList { get; set; }
+    bool PanelVisible { get; set; }
+    List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
+    private DocumentsModel _selectedItemsList;
+    public ApplicationUser applicationUser { get; private set; }
+    DocumentSearchModel documentLinkSearchModel = new DocumentSearchModel();
+    public DocumentsUploadModel documentsUploadModel { get; set; }
+    public DynamicFormData dynamicFormData { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        fileProfileTypeDocumentsAllList = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+    }
+    public async Task loadTreeItems(DocumentsModel parentSelectedFiles, DocumentsUploadModel _documentsUploadModel, DynamicFormData _dynamicformData)
+    {
+        documentsUploadModel = _documentsUploadModel;
+        dynamicFormData = _dynamicformData;
+        ParentSelectedFiles = parentSelectedFiles;
+        documentLinkSearchModel.SessionId = ParentSelectedFiles.SessionID != null ? ParentSelectedFiles.SessionID : ParentSelectedFiles.SessionId;
+        FileProfileTypeId = ParentSelectedFiles.FileProfileTypeId;
+        await loadFileProfileDataList();
+    }
+    public async Task loadFileProfileDataList()
+    {
+        FolderPathListsItems = new List<DocumentsModel>();
+        documentLinkSearchModel.FileProfileTypeId = null;
+        documentLinkSearchModel.FileProfileTypeIds = new List<long?>();
+        FolderPathLists = new List<DocumentsModel>();
+        if (FileProfileTypeId > 0)
+        {
+
+            var fileType = fileProfileTypeDocumentsAllList.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
+            if (fileType != null)
+            {
+
+                FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAllList, fileType, FolderPathLists);
+                FolderPathLists.Add(fileType);
+                FolderPathListsItems.AddRange(FolderPathLists);
+            }
+        }
+        await loadFileProfileDataLists();
+    }
+    void EulaPopupMoveDocumentClosed()
+    {
+        Blukdeletepopup = false;
+    }
+    async Task loadFileProfileDataLists()
+    {
+        PanelVisibleLink = true;
+
+        if (FileProfileTypeId > 0)
+        {
+            documentLinkSearchModel.FileProfileTypeId = FileProfileTypeId;
+            documentLinkSearchModel.FileProfileTypeIds.Add(FileProfileTypeId);
+        }
+        _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentLinkSearchModel));
+        fileProfileTypeDocumentsLink = _fileProfileselectedlstItemsList.DocumentsData;
+        if (fileProfileTypeDocumentsLink.Count > 0 && ParentSelectedFiles != null && ParentSelectedFiles.Type == "Document")
+        {
+            fileProfileTypeDocumentsLink = fileProfileTypeDocumentsLink.Where(w => w.DocumentID != ParentSelectedFiles.DocumentID).ToList();
+        }
+        if (fileProfileTypeDocumentsLink.Count > 0)
+        {
+            _selectedItemsList = fileProfileTypeDocumentsLink.FirstOrDefault();
+            //linkDocGrid.SetFocusedRowIndex(0);
+        }
+        PanelVisibleLink = false;
+        StateHasChanged();
+    }
+    private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
+    {
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetAllFileProfileTypeName(foldersListItems, items, foldersModel);
+            foldersModel.Add(items);
+        }
+        return foldersModel;
+    }
+    async Task openFileProfileMainLink()
+    {
+        FileProfileTypeId = null;
+        await loadFileProfileDataList();
+    }
+    async Task openFileProfileLink(DocumentsModel documentsModel)
+    {
+        FileProfileTypeId = documentsModel.FileProfileTypeId;
+        await loadFileProfileDataList();
+    }
+    async Task OnItemClick(MenuItemClickEventArgs e)
+    {
+        var data = (DocumentsModel)e.ItemInfo.Data;
+        if (data.FileProfileTypeId > 0)
+        {
+            await openFileProfileLink(data);
+        }
+        else
+        {
+            await openFileProfileMainLink();
+        }
+    }
+    void OnRowLinkClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
+        _selectedItemsList = fileProfileTypeDocumentsLink.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
+        StateHasChanged();
+    }
+    async Task OnRowDoubleLinkClick(GridRowClickEventArgs e)
+    {
+        if (_selectedItemsList != null && _selectedItemsList.FileProfileTypeId > 0)
+        {
+            FileProfileTypeId = _selectedItemsList.FileProfileTypeId;
+            await loadFileProfileDataList();
+        }
+        else
+        {
+            OnRowLinkClick(e);
+        }
+    }
+    void Grid_Link_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+    async void moveToFileProfileTypes()
+    {
+        if (_selectedItemsList != null && _selectedItemsList.FilterProfileTypeId > 0)
+        {
+            var sessionid = Guid.NewGuid();
+            var insertDynamicFormDataUpload = new DynamicFormDataUpload
+                {
+                    DynamicFormDataUploadId = -1,
+                    DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+                    DynamicFormSectionId = documentsUploadModel.DynamicFormSectionId > 0 ? documentsUploadModel.DynamicFormSectionId : null,
+                    FileProfileTypeId = documentsUploadModel.FileProfileTypeId,
+                    DocumentsModel = _selectedItemsList,
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedByUserId = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeId = 1,
+                    FileProfileSessionID = sessionid,
+                    SessionId = sessionid,
+                };
+            var request = await Mediator.Send(new InsertDmsDocumentDynamicFormData(insertDynamicFormDataUpload));
+            toastService.ShowToast("Document Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            RevokeBack?.Invoke();
+        }
+    }
+    async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        DeleteProfileTypeName = "";
+        if (documentsUploadModel.DynamicFormSectionId == null)
+        {
+            toastService.ShowToast("Must Select Section Name", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            if (SelectedToItems is IGridSelectionChanges changes)
+            {
+                var SelectedItemsInfo = changes.SelectedDataItems.FirstOrDefault();
+                _selectedItemsList = (DocumentsModel)SelectedItemsInfo;
+                if (_selectedItemsList != null && _selectedItemsList.FilterProfileTypeId > 0)
+                {
+                    //var fileTypes = fileProfileTypeDocumentsAllList.Where(w => w.FileProfileTypeId == _selectedItemsList.FileProfileTypeId).FirstOrDefault();
+                    DeleteProfileTypeName = _selectedItemsList.FileProfileTypeName + " To " + ParentSelectedFiles.FileName;
+                    Blukdeletepopup = true;
+                }
+            }
+        }
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}

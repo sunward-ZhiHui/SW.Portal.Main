@@ -969,5 +969,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByIDAsync(string Ids)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("Ids", Ids);
+                var query = @"select * from ApplicationMasterChild where ApplicationMasterChildID = @Ids";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationMasterChildModel>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

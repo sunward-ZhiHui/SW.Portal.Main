@@ -346,7 +346,8 @@ namespace SW.Portal.Solutions.Controllers
                     IsTemplateUploadFlag = topic.IsTemplateUploadFlag,
                     NameOfTemplate = topic.NameOfTemplate,
                     OthersOptions = topic.OthersOptions,
-                    RoutineInfoIds =topic.RoutineInfoIds
+                    RoutineInfoIds =topic.RoutineInfoIds,
+                    RoutineStatus = topic.RoutineStatus
 
                 }).ToList();
                 try

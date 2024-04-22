@@ -289,81 +289,111 @@ namespace Infrastructure.Repository.Query
                         var results1 = await connection.QueryMultipleAsync(query1);
                         ApplicationMasterParentByListModel.DynamicFormData = results1.Read<DynamicFormData>().ToList();
                         List<long> DynamicFormDataIDs = new List<long>();
-                        if (ApplicationMasterParentByListModel.DynamicFormData != null && ApplicationMasterParentByListModel.DynamicFormData.Count() > 0)
+                        //if (ApplicationMasterParentByListModel.DynamicFormData != null && ApplicationMasterParentByListModel.DynamicFormData.Count() > 0)
+                        //{
+                        //    ApplicationMasterParentByListModel.DynamicFormData.ForEach(f =>
+                        //    {
+                        //        if (f.DynamicFormItem != null && IsValidJson(f.DynamicFormItem))
+                        //        {
+                        //            dynamic jsonObjs = new object();
+                        //            jsonObjs = JsonConvert.DeserializeObject(f.DynamicFormItem);
+                        //            var secAttr = ApplicationMasterParentByListModel.DynamicFormSectionAttribute.FirstOrDefault(w => w.DynamicFormId == f.DynamicFormId);
+                        //            if (secAttr != null)
+                        //            {
+                        //                if (secAttr.ControlType == "ComboBox" && secAttr.DataSourceTable == "ApplicationMasterParent" && !string.IsNullOrEmpty(secAttr.ApplicationMasterIds))
+                        //                {
+                        //                    string attrName = secAttr.DynamicFormSectionAttributeId + "_" + secAttr.AttributeName;
+                        //                    var Names = jsonObjs.ContainsKey(attrName);
+                        //                    if (Names == true)
+                        //                    {
+                        //                        var applicationMasterIds = secAttr.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                        //                        if (applicationMasterIds != null && applicationMasterIds.Count() > 0)
+                        //                        {
+                        //                            var ab = ApplicationMasterParentByListModel.ApplicationMasterParent.Where(z => z.ApplicationMasterParentCodeId > 0 && applicationMasterIds.Contains(z.ApplicationMasterParentCodeId) && z.ApplicationMasterParentCodeId == applicationMasterParentId).FirstOrDefault();
+                        //                            if (ab != null)
+                        //                            {
+                        //                                List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
+                        //                                var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
+                        //                                var SubNamess = jsonObjs.ContainsKey(namesattr);
+                        //                                if (SubNamess == true)
+                        //                                {
+                        //                                    nameDatas.Add(ab);
+                        //                                    RemoveApplicationMasterParentSingleDataItem(ab, secAttr, nameDatas, ApplicationMasterParentByListModel.ApplicationMasterParent);
+                        //                                    if (nameDatas != null && nameDatas.Count() > 0)
+                        //                                    {
+                        //                                        nameDatas.ForEach(n =>
+                        //                                        {
+                        //                                            var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
+                        //                                            var SubNamess = jsonObjs.ContainsKey(namesattr);
+                        //                                            if (SubNamess == true)
+                        //                                            {
+                        //                                                var itemValue = jsonObjs[namesattr];
+                        //                                                long? values = itemValue == null ? null : (long)itemValue;
+                        //                                                n.ApplicationMasterChildId = values;
+                        //                                            }
+
+                        //                                        });
+                        //                                        var exitsCount = nameDatas.Where(w => w.ApplicationMasterChildId > 0).ToList();
+                        //                                        if (exitsCount.Count() == dynamicscounts)
+                        //                                        {
+                        //                                            exitsCount.ForEach(e =>
+                        //                                            {
+                        //                                                long? KeyValue = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Key);
+                        //                                                long? Value = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Value);
+                        //                                                if (e.ApplicationMasterParentCodeId == KeyValue && e.ApplicationMasterChildId == Value)
+                        //                                                {
+                        //                                                    DynamicFormDataIDs.Add(f.DynamicFormDataId);
+                        //                                                }
+                        //                                                else
+                        //                                                {
+                        //                                                    if (DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0)
+                        //                                                    {
+                        //                                                        DynamicFormDataIDs.Remove(f.DynamicFormDataId);
+                        //                                                    }
+                        //                                                }
+                        //                                            });
+                        //                                        }
+                        //                                    }
+                        //                                }
+                        //                            }
+
+                        //                        }
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //    });
+                        //}
+
+                        if(dynamicscounts == 3)
                         {
-                            ApplicationMasterParentByListModel.DynamicFormData.ForEach(f =>
+                            DynamicFormDataIDs = loadDynamicformData(dynamicsData, ApplicationMasterParentByListModel, applicationMasterParentId);
+
+                            if (DynamicFormDataIDs.Contains(-1))
                             {
-                                if (f.DynamicFormItem != null && IsValidJson(f.DynamicFormItem))
+
+
+                                var keyValueList = dynamicsData.ToList();
+
+                                // Check if the dictionary is not empty
+                                if (keyValueList.Any())
                                 {
-                                    dynamic jsonObjs = new object();
-                                    jsonObjs = JsonConvert.DeserializeObject(f.DynamicFormItem);
-                                    var secAttr = ApplicationMasterParentByListModel.DynamicFormSectionAttribute.FirstOrDefault(w => w.DynamicFormId == f.DynamicFormId);
-                                    if (secAttr != null)
-                                    {
-                                        if (secAttr.ControlType == "ComboBox" && secAttr.DataSourceTable == "ApplicationMasterParent" && !string.IsNullOrEmpty(secAttr.ApplicationMasterIds))
-                                        {
-                                            string attrName = secAttr.DynamicFormSectionAttributeId + "_" + secAttr.AttributeName;
-                                            var Names = jsonObjs.ContainsKey(attrName);
-                                            if (Names == true)
-                                            {
-                                                var applicationMasterIds = secAttr.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
-                                                if (applicationMasterIds != null && applicationMasterIds.Count() > 0)
-                                                {
-                                                    var ab = ApplicationMasterParentByListModel.ApplicationMasterParent.Where(z => z.ApplicationMasterParentCodeId > 0 && applicationMasterIds.Contains(z.ApplicationMasterParentCodeId) && z.ApplicationMasterParentCodeId == applicationMasterParentId).FirstOrDefault();
-                                                    if (ab != null)
-                                                    {
-                                                        List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
-                                                        var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                                        var SubNamess = jsonObjs.ContainsKey(namesattr);
-                                                        if (SubNamess == true)
-                                                        {
-                                                            nameDatas.Add(ab);
-                                                            RemoveApplicationMasterParentSingleDataItem(ab, secAttr, nameDatas, ApplicationMasterParentByListModel.ApplicationMasterParent);
-                                                            if (nameDatas != null && nameDatas.Count() > 0)
-                                                            {
-                                                                nameDatas.ForEach(n =>
-                                                                {
-                                                                    var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                                                    var SubNamess = jsonObjs.ContainsKey(namesattr);
-                                                                    if (SubNamess == true)
-                                                                    {
-                                                                        var itemValue = jsonObjs[namesattr];
-                                                                        long? values = itemValue == null ? null : (long)itemValue;
-                                                                        n.ApplicationMasterChildId = values;
-                                                                    }
+                                    // Get the last key-value pair
+                                    var lastKeyValuePair = keyValueList.Last();
 
-                                                                });
-                                                                var exitsCount = nameDatas.Where(w => w.ApplicationMasterChildId > 0).ToList();
-                                                                if (exitsCount.Count() == dynamicscounts)
-                                                                {
-                                                                    exitsCount.ForEach(e =>
-                                                                    {
-                                                                        long? KeyValue = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Key);
-                                                                        long? Value = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Value);
-                                                                        if (e.ApplicationMasterParentCodeId == KeyValue && e.ApplicationMasterChildId == Value)
-                                                                        {
-                                                                            DynamicFormDataIDs.Add(f.DynamicFormDataId);
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            if (DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0)
-                                                                            {
-                                                                                DynamicFormDataIDs.Remove(f.DynamicFormDataId);
-                                                                            }
-                                                                        }
-                                                                    });
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-
-                                                }
-                                            }
-                                        }
-                                    }
+                                    // Remove the last key-value pair from the dictionary
+                                    dynamicsData.Remove(lastKeyValuePair.Key);
                                 }
-                            });
+
+                                DynamicFormDataIDs = loadDynamicformData(dynamicsData, ApplicationMasterParentByListModel, applicationMasterParentId);
+                            }
                         }
+                        else
+                        {
+                            DynamicFormDataIDs =  loadDynamicformData(dynamicsData,ApplicationMasterParentByListModel, applicationMasterParentId);
+                        }
+
+
                         DynamicFormDataIDs = DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0 ? DynamicFormDataIDs.Distinct().ToList() : new List<long>() { -1 };
                         var query4 = "select DynamicFormItem,DynamicFormID,DynamicFormDataId,ProfileNo,SessionId from DynamicFormData where (IsDeleted=0 or IsDeleted is null) AND DynamicFormDataGridID in(" + string.Join(',', DynamicFormDataIDs) + ");\n\r";
                         var results4 = await connection.QueryMultipleAsync(query4);
@@ -441,6 +471,96 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+        private List<long> loadDynamicformData(IDictionary<string, object> dynamicsData, ApplicationMasterParentByListModel ApplicationMasterParentByListModel, long? applicationMasterParentId)
+        {
+            List<DropDownOptionsListModel> dropDownOptionsListModels = new List<DropDownOptionsListModel>();
+            
+            var dynamicscounts = dynamicsData.Count();
+            List<long> DynamicFormDataIDs = new List<long>();
+            if (ApplicationMasterParentByListModel.DynamicFormData != null && ApplicationMasterParentByListModel.DynamicFormData.Count() > 0)
+            {
+                ApplicationMasterParentByListModel.DynamicFormData.ForEach(f =>
+                {
+                    if (f.DynamicFormItem != null && IsValidJson(f.DynamicFormItem))
+                    {
+                        dynamic jsonObjs = new object();
+                        jsonObjs = JsonConvert.DeserializeObject(f.DynamicFormItem);
+                        var secAttr = ApplicationMasterParentByListModel.DynamicFormSectionAttribute.FirstOrDefault(w => w.DynamicFormId == f.DynamicFormId);
+                        if (secAttr != null)
+                        {
+                            if (secAttr.ControlType == "ComboBox" && secAttr.DataSourceTable == "ApplicationMasterParent" && !string.IsNullOrEmpty(secAttr.ApplicationMasterIds))
+                            {
+                                string attrName = secAttr.DynamicFormSectionAttributeId + "_" + secAttr.AttributeName;
+                                var Names = jsonObjs.ContainsKey(attrName);
+                                if (Names == true)
+                                {
+                                    var applicationMasterIds = secAttr.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                                    if (applicationMasterIds != null && applicationMasterIds.Count() > 0)
+                                    {
+                                        var ab = ApplicationMasterParentByListModel.ApplicationMasterParent.Where(z => z.ApplicationMasterParentCodeId > 0 && applicationMasterIds.Contains(z.ApplicationMasterParentCodeId) && z.ApplicationMasterParentCodeId == applicationMasterParentId).FirstOrDefault();
+                                        if (ab != null)
+                                        {
+                                            List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
+                                            var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                            var SubNamess = jsonObjs.ContainsKey(namesattr);
+                                            if (SubNamess == true)
+                                            {
+                                                nameDatas.Add(ab);
+                                                RemoveApplicationMasterParentSingleDataItem(ab, secAttr, nameDatas, ApplicationMasterParentByListModel.ApplicationMasterParent);
+                                                if (nameDatas != null && nameDatas.Count() > 0)
+                                                {
+                                                    nameDatas.ForEach(n =>
+                                                    {
+                                                        var namesattr = secAttr.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                                        var SubNamess = jsonObjs.ContainsKey(namesattr);
+                                                        if (SubNamess == true)
+                                                        {
+                                                            var itemValue = jsonObjs[namesattr];
+                                                            long? values = itemValue == null ? null : (long)itemValue;
+                                                            n.ApplicationMasterChildId = values;
+                                                        }
+
+                                                    });
+                                                    var exitsCount = nameDatas.Where(w => w.ApplicationMasterChildId > 0).ToList();
+                                                    if (exitsCount.Count() == dynamicscounts)
+                                                    {
+                                                        exitsCount.ForEach(e =>
+                                                        {
+                                                            long? KeyValue = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Key);
+                                                            long? Value = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Value);
+                                                            if (e.ApplicationMasterParentCodeId == KeyValue && e.ApplicationMasterChildId == Value)
+                                                            {
+                                                                var exitss = DynamicFormDataIDs.Where(a => a == f.DynamicFormDataId).Count();
+                                                                if (exitss == 0)
+                                                                {
+                                                                    DynamicFormDataIDs.Add(f.DynamicFormDataId);
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                if (DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0)
+                                                                {
+                                                                    if (e.ApplicationMasterChildId != Value)
+                                                                    {
+                                                                        DynamicFormDataIDs.Remove(f.DynamicFormDataId);
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            return DynamicFormDataIDs = DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0 ? DynamicFormDataIDs.Distinct().ToList() : new List<long>() { -1 };
         }
         void RemoveApplicationMasterParentSingleDataItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<ApplicationMasterParent> dataColumnNames, List<ApplicationMasterParent> applicationMasterParents)
         {

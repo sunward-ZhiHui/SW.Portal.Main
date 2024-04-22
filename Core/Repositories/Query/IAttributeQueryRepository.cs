@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
@@ -22,5 +23,7 @@ namespace Core.Repositories.Query
         Task<AttributeHeader> GetAllBySessionAttributeName(Guid? SessionId);
         Task<AttributeHeader> UpdateAttributeHeaderSortOrder(AttributeHeader attributeHeader);
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByList(IDictionary<string, object> DynamicMasterParentIds,long? applicationMasterParentId);
+        Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByMobileList(IDictionary<string, JsonElement> DynamicMasterParentIds, long? applicationMasterParentId);
+        
     }
 }

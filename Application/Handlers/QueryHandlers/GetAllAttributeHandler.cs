@@ -210,4 +210,17 @@ namespace Application.Handlers.QueryHandlers
             return (List<DropDownOptionsListModel>)await _attrubutequeryRepository.GetApplicationMasterParentByList(request.DynamicMasterParentIds,request.ApplicationMasterParentId);
         }
     }
+    public class GetApplicationMasterParentMobileByListHandler : IRequestHandler<GetApplicationMasterParentMobileByList, List<DropDownOptionsListModel>>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetApplicationMasterParentMobileByListHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<DropDownOptionsListModel>> Handle(GetApplicationMasterParentMobileByList request, CancellationToken cancellationToken)
+        {
+            return (List<DropDownOptionsListModel>)await _attrubutequeryRepository.GetApplicationMasterParentByMobileList(request.DynamicMasterParentIds, request.ApplicationMasterParentId);
+        }
+    }
 }

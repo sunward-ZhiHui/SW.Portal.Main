@@ -34,6 +34,7 @@ using AC.SD.Core.Pages.Email;
 using Google.Cloud.Firestore;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using System.Dynamic;
+using System.Text.Json;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -718,7 +719,7 @@ namespace SW.Portal.Solutions.Controllers
         {
 
             var response = new ResponseModel<DropDownMasterListModel>();            
-            var results = await _mediator.Send(new GetApplicationMasterParentByList(request.DynamicsData, request.Id));
+            var results = await _mediator.Send(new GetApplicationMasterParentMobileByList(request.DynamicsData, request.Id));
 
             var _ActivityStatusItem = results.Where(x => x.Value == "Routine Status").Select(MapToDropDownMasterListModel).ToList();
             var _ActivityResult = results.Where(x => x.Value == "Routine Result").Select(MapToDropDownMasterListModel).ToList();

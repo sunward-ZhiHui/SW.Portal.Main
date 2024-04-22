@@ -228,10 +228,10 @@ namespace SW.Portal.Solutions.Controllers
                 NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
                 ModifiedByUserID = value.AddedByUserID,
                 ModifiedDate = DateTime.Now,
-                IsOthersOptions = value.OthersOptions == "Yes" ? true : false,
+                IsOthersOptions = value.IsOthersOptions,
                 TimeSheetAction = true,
                 IsTemplateUpload = value.IsTemplateUpload,
-                IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
+               
                 ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
                 RoutineInfoIds = value.RoutineInfoIds,
                 LotNo = value.LotNo,

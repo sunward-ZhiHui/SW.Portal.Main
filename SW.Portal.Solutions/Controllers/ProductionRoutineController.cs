@@ -232,7 +232,7 @@ namespace SW.Portal.Solutions.Controllers
                 TimeSheetAction = true,
                 IsTemplateUpload = value.IsTemplateUpload,
                
-                ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
+                ProductActivityCaseLineId = value.ProductActivityCaseLineId ,
                 RoutineInfoIds = value.RoutineInfoIds,
                 LotNo = value.LotNo,
                 ItemName = value.ItemName

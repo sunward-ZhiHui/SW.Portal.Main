@@ -1,0 +1,40 @@
+﻿
+@page "/ProductionActivityReport"
+
+
+@using AC.SD.Core.Reports;
+@using DevExpress.Blazor.Reporting
+@using DevExpress.XtraReports.UI
+@using DevExpress.Blazor.Reporting.Models
+
+
+<div @ref="viewerComponent" style="width: 100%; height: calc(100vh - 150px);" >
+    <DxReportViewer @ref="reportViewer" Report="Report" SizeMode="SizeMode.Small" SinglePagePreview="true" RootCssClasses="w-100 h-100" />
+</div>
+@code {
+    // The page uses a service that translates a report name to a report instance.
+    [Inject] public DevExpress.XtraReports.Services.IReportProvider reportProvider { get; set; }
+    DxReportViewer reportViewer;
+    XtraReport Report;
+
+    private ElementReference viewerComponent;
+    [Parameter]
+    public string ReportName { get; set; } = "ProductionActivitysReport";
+    protected override void OnInitialized()
+    {
+       
+        Report = reportProvider.GetReport(ReportName, null);
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //reportViewer.TabPanelModel.
+            //reportViewer.TabPanelModel[TabContentKind.Parameters].Visible = false;
+            //reportViewer.TabPanelModel[TabContentKind.Search].Visible = false;
+            reportViewer.TabPanelModel[TabContentKind.ExportOptions].Visible = false;
+            //reportViewer.TabPanelModel[TabContentKind.DocumentMap].Visible = false;
+        }
+        base.OnAfterRender(firstRender);
+    }
+}

@@ -58,6 +58,7 @@
   <ItemGroup>
     <Content Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <Content Remove="Pages\QuotationHistorys\AddQuotationAwardLines.razor" />
+    <Content Remove="Pages\Reports\ProductionActivitysReport.razor" />
     <Content Remove="wwwroot\images\icons\align-left.svg" />
   </ItemGroup>
   <ItemGroup>
@@ -139,10 +140,12 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <_ContentIncludedByDefault Remove="Pages\HR\Employee.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Reports\ProductionActivitysReport.razor" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <None Include="Pages\HR\Employee.razor" />
+    <None Include="Pages\Reports\ProductionActivitysReport.razor" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="DevExpress.Blazor.Reporting.v23.1.JSBasedControls.BlazorServer">
@@ -163,6 +166,9 @@
   </ItemGroup>
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Reports\ProductionActivitysReport.razor" />
   </ItemGroup>
 
 </Project>

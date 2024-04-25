@@ -2630,5 +2630,21 @@ namespace Infrastructure.Repository.Query
 
             }
         }
+
+        public async Task<IReadOnlyList<FileProfileTypeModel>> GetAllFileProfileDropdownAsync()
+        {
+            try
+            {
+                var query = "Select * From FileProfileType where ParentID Is Null";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<FileProfileTypeModel>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

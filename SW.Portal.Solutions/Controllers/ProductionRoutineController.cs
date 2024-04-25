@@ -841,5 +841,28 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("GetFileProfileTypeDropdownList")]
+        public async Task<ActionResult<Services.ResponseModel<List<Core.EntityModels.FileProfileTypeModel>>>> GetFileProfileTypeDropdownList()
+        {
+
+            var response = new Services.ResponseModel<Core.EntityModels.FileProfileTypeModel>();
+
+            var result = await _mediator.Send(new GetAllfileprofiletypeDrodownQuery());
+
+          
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 }

@@ -16,10 +16,10 @@ namespace SW.Portal.Solutions.Models
         public long? CompanyID { get; set; }
         public string? ProdOrderNo { get; set; }
         public long? LocationID { get; set; }
-       
+        public bool? IsOthersOptions { get; set; }
         public bool IsTemplateUpload { get; set; } = false;
        
-        public bool IsTemplateUploadFlag { get; set; }
+        public bool? IsTemplateUploadFlag { get; set; }
         public long? ProductActivityCaseLineId { get; set; }
         public long? NavprodOrderLineId { get; set; }
         public Guid? LineSessionId { get; set; }

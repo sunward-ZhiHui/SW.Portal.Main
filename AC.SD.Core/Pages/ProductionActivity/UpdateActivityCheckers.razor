@@ -9,7 +9,22 @@
 @inject NavigationManager NavigationManager
 @using global::Core.Entities.Views;
 @inject IJSRuntime jsRuntime
-@implements IDisposable
+ @implements IDisposable
+@using System.IO;
+@implements IAsyncDisposable
+<style scoped>
+    .drop-zone {
+        padding: 20px;
+        width: 100%;
+        min-height: 100px;
+        border: 2px dashed #0087F7;
+        border-radius: 5px;
+    }
+
+        .drop-zone.hover {
+            border-style: solid;
+        }
+</style>
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -111,7 +126,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
-                @bind-Value="Data.ActivityResultId"
+                            @bind-Value="Data.ActivityResultId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -123,21 +138,26 @@
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="Data.ActivityStatusId"
+                            @bind-Value="Data.ActivityStatusId"
                             ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
                 <DxMemo @bind-Text="Data.CheckedComment" Rows="5" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="" ColSpanMd="12">
-                <div ref="target" @onclick="onCopyPasteFileclick" style='cursor:pointer'>Click here and Upload the image.</div>
-                @*  <div ref="target" @onpaste="HandlePasteEvent" style='cursor:pointer'>Click here and use Control-V to paste the image.</div> *@
-                <img src="@ImageSource" id="onCopyImagesOn" style="width:100%;height:200px;" alt="Upload Image" />
-                <canvas style="border:1px solid grey;" id="mycanvasss" />
+            <DxFormLayoutItem ColSpanMd="12">
+
             </DxFormLayoutItem>
+
         </DxFormLayout>
     </EditForm>
+    <div @ref="dropZoneElement" class="drop-zone">
+        <div ref="target" @onclick="onCopyPasteFileclick" style='cursor:pointer'>Click here and Upload the image and Copy/Paste Image</div>
+        <InputFile OnChange="@OnChange" @ref="inputFile" style="display:none;" />
+    </div>
+
+    @* Display the uploaded image *@
+    <img src="@ImageSource" style="width:100%;height:200px;padding:10px;" />
 </div>
 <DxPopup @bind-Visible="@BlukdeleteDocument"
          ShowFooter="true"
@@ -169,9 +189,17 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
     </FooterContentTemplate>
 </DxPopup>
-<InputFile @ref="filePicker" OnChange="OnChange" style="display:none;" accept="image/*"></InputFile>
 @code {
-    InputFile filePicker;
+
+
+    ElementReference dropZoneElement;
+    InputFile inputFile;
+
+    IJSObjectReference _module;
+    IJSObjectReference _dropZoneInstance;
+    long maxFileSize = 1024L * 1024L * 1024L * 2L;
+
+
     bool ActivityEmailPopup { get; set; } = false;
     bool BlukdeleteDocument { get; set; } = false;
     string onShowMain = "";
@@ -203,23 +231,50 @@
         _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
         await loadSupportingDocFiles();
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Load the JS file
+            _module = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/dropZone.js");
+
+            // Initialize the drop zone
+            _dropZoneInstance = await _module.InvokeAsync<IJSObjectReference>("initializeFileDropZone", dropZoneElement, inputFile.Element);
+        }
+    }
     public class EmailDetailss
     {
         public string? Name { get; set; }
         public string? Server { get; set; }
         public string? Domain { get; set; }
     }
-    async Task GetClipboardImage()
+    public async ValueTask DisposeAsync()
     {
-        var result = await jsRuntime.InvokeAsync<string>("getClipboardImage");
+        if (_dropZoneInstance != null)
+        {
+            await _dropZoneInstance.InvokeVoidAsync("dispose");
+            await _dropZoneInstance.DisposeAsync();
+        }
+
+        if (_module != null)
+        {
+            await _module.DisposeAsync();
+        }
     }
-    private async Task HandlePasteEvent()
+    async Task onCopyPasteFileclick()
     {
-        await GetClipboardImage();
-        //ImageSource = image;
-        // Data.CommentImageType = "image/png";
-        // Data.CommentImage = System.Text.Encoding.ASCII.GetBytes(image);
-        StateHasChanged();
+        await jsRuntime.InvokeAsync<object>("triggerClick", inputFile.Element);
+    }
+    // Called when a new file is uploaded
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        using var stream = e.File.OpenReadStream(maxFileSize);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        ImageSource = "data:" + e.File.ContentType + ";base64," + Convert.ToBase64String(ms.ToArray());
+        Data.CommentImage = ms.ToArray();
+        Data.CommentImages = Convert.ToBase64String(ms.ToArray());
+        Data.CommentImageType = $"data:{e.File.ContentType};base64";
     }
     void CloseHistoryPopup()
     {
@@ -343,32 +398,26 @@
             await this.HandleProductionFormValidSubmit();
         }
     }
-    async Task onCopyPasteFileclick()
-    {
-        await jsRuntime.InvokeAsync<object>("triggerClick", filePicker.Element);
-    }
-    async Task OnChange(InputFileChangeEventArgs e)
-    {
-        var files = e.GetMultipleFiles();
-        foreach (var file in files)
-        {
-            var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480);
-            var buf = new byte[resizedFile.Size];
-            using (var stream = resizedFile.OpenReadStream())
-            {
-                await stream.ReadAsync(buf);
-            }
+    // async Task OnChange(InputFileChangeEventArgs e)
+    // {
+    //     var files = e.GetMultipleFiles();
+    //     foreach (var file in files)
+    //     {
+    //         var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480);
+    //         var buf = new byte[resizedFile.Size];
+    //         using (var stream = resizedFile.OpenReadStream())
+    //         {
+    //             await stream.ReadAsync(buf);
+    //         }
 
-            ImageSource = $"data:{file.ContentType};base64,{Convert.ToBase64String(buf)}";
-            Data.CommentImage = buf;
-            Data.CommentImages = Convert.ToBase64String(buf);
-            Data.CommentImageType = $"data:{file.ContentType};base64";
-        }
-    }
+    //         ImageSource = $"data:{file.ContentType};base64,{Convert.ToBase64String(buf)}";
+    //         Data.CommentImage = buf;
+    //         Data.CommentImages = Convert.ToBase64String(buf);
+    //         Data.CommentImageType = $"data:{file.ContentType};base64";
+    //     }
+    // }
     async Task HandleProductionFormValidSubmit()
     {
-        var results = await JSRuntimeExtensions.InvokeAsync<string>(jsRuntime, "interopDuringOnInit");
-        //  Data.CommentImage = System.Text.Encoding.ASCII.GetBytes(results);
         SaveEnabled = false;
         var request = await Mediator.Send(new InsertProductionActivityCheckedDetails(Data));
         if (ProductionActivityCheckedDetailsId > 0)

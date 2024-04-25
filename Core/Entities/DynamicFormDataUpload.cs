@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.EntityModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -37,5 +38,8 @@ namespace Core.Entities
         public string? FileProfileName { get; set; }
         [NotMapped]
         public string? ProfileNo { get; set; }
+        [NotMapped]
+        public DocumentsModel? DocumentsModel { get; set; }
+        public long? FileProfileTypeId { get; set; }
     }
 }

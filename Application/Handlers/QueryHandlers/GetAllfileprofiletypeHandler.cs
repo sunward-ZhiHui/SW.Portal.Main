@@ -55,6 +55,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetAllfileprofiletypeDropdownQueryHandler : IRequestHandler<GetAllfileprofiletypeDrodownQuery, List<FileProfileTypeModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetAllfileprofiletypeDropdownQueryHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<FileProfileTypeModel>> Handle(GetAllfileprofiletypeDrodownQuery request, CancellationToken cancellationToken)
+        {
+            return (List<FileProfileTypeModel>)await _fileprofileQueryRepository.GetAllFileProfileDropdownAsync();
+        }
+
+    }
+    
     public class GetAllselectedfileprofiletypeHandler : IRequestHandler<GetAllSelectedfileprofiletypeQuery, DocumentTypeModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;

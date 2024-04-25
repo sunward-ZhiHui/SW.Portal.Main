@@ -1682,6 +1682,7 @@
                             IsSendApproval = IsSendApproval,
                             FileProfileSessionID = FileProfileSessionId,
                             DynamicFormDataGridId = DynamicFormDataGridId,
+                            IsDynamicFormDataGrid = true,
                         };
 
                     var result = await Mediator.Send(editReq);
@@ -1738,6 +1739,7 @@
                             ObjectData = Data,
                             IsSendApproval = IsSendApproval,
                             DynamicFormDataGridId = DynamicFormDataGridId,
+                            IsDynamicFormDataGrid=true,
                         };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
@@ -1814,6 +1816,7 @@
                             IsSendApproval = IsSendApproval,
                             FileProfileSessionID = FileProfileSessionId,
                             DynamicFormDataGridId = DynamicFormDataGridId,
+                            IsDynamicFormDataGrid=true,
                         };
 
                     var result = await Mediator.Send(editReq);
@@ -1870,6 +1873,7 @@
                             ObjectData = Data,
                             IsSendApproval = IsSendApproval,
                             DynamicFormDataGridId = DynamicFormDataGridId,
+                            IsDynamicFormDataGrid = true,
                         };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)

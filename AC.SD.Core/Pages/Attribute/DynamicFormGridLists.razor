@@ -14,8 +14,27 @@
 @using Newtonsoft.Json.Linq;
 @using Newtonsoft.Json;
 @implements IDisposable
+@using System.Collections.ObjectModel
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<style scoped>
+    .ui-state-highlight {
+        background-color: rgba(var(--bs-primary-rgb), .3);
+    }
 
+    .ui-state-hover {
+        background: rgba(var(--bs-primary-rgb), .3);
+    }
 
+    .ui-draggable-dragging {
+        box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
+    }
+
+    .dxbl-grid .dxbl-grid-table > tbody > tr[data-visible-index] {
+        cursor: pointer;
+    }
+
+</style>
 @if (IsShow == true)
 {
     <div class="card w-100" style="margin-bottom:10px;">
@@ -50,17 +69,20 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    <DxGrid @ref="Grid" Data="@_dynamicformObjectDataList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Never"
+    <DxGrid @ref="Grid"
+            Data="Items" @key="@myKey"
+            EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
-            style="height: calc(100vh - 520px);"
+            style="height: calc(100vh - 220px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
+            KeyFieldName="DynamicFormDataId"
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -88,33 +110,33 @@
                     }
                     else
                     {
-                    if (s.Value == "IsFileprofileTypeDocument")
-                    {
+                        if (s.Value == "IsFileprofileTypeDocument")
+                        {
 
-                        <DxGridDataColumn Caption="" Visible="@s.IsVisible" MinWidth="40" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
-                            <CellDisplayTemplate>
-                                @{
-                                    dynamic item = (ExpandoObject)context.DataItem;
-                                    var items = (int?)item.IsFileprofileTypeDocument;
-                                    var isDraft = (bool?)item.IsDraft;
+                            <DxGridDataColumn Caption="" Visible="@s.IsVisible" MinWidth="40" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
+                                <CellDisplayTemplate>
+                                    @{
+                                        dynamic item = (ExpandoObject)context.DataItem;
+                                        var items = (int?)item.IsFileprofileTypeDocument;
+                                        var isDraft = (bool?)item.IsDraft;
 
-                                }
-                                @if (items > 0)
-                                {
-                                    <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@items"></i>
-                                }
-                                @if (isDraft != null)
-                                {
-                                    var emailName = isDraft == true ? "Draft" : "View Email";
-                                    <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@emailName"></i>
-                                }
-                            </CellDisplayTemplate>
-                        </DxGridDataColumn>
-                    }
-                    else
-                    {
-                        <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
-                    }
+                                    }
+                                    @if (items > 0)
+                                    {
+                                        <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@items"></i>
+                                    }
+                                    @if (isDraft != null)
+                                    {
+                                        var emailName = isDraft == true ? "Draft" : "View Email";
+                                        <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@emailName"></i>
+                                    }
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                        }
+                        else
+                        {
+                            <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                        }
                     }
                 }
             }
@@ -213,6 +235,11 @@
     public Guid? DynamicFormSessionId { get; set; }
     public Guid? MainSessionIds { get; set; }
     public long? DynamicFormDataGridIds { get; set; }
+    Guid myKey { get; set; } = Guid.NewGuid();
+    ObservableCollection<object> Items { get; set; } = new ObservableCollection<object>();
+    bool ReInitializeDragging { get; set; }
+    DotNetObjectReference<DynamicFormGridLists> DotNetHelper { get; set; }
+    IJSObjectReference JsModule { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -224,6 +251,25 @@
             await UpdateDataAsync();
         }
         base.OnParametersSet();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            JsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/Within.js");
+
+            DotNetHelper = DotNetObjectReference.Create(this);
+            await JsModule.InvokeVoidAsync("setDotNetHelper", DotNetHelper);
+            await JsModule.InvokeVoidAsync("initialize");
+        }
+        else
+        {
+            if (ReInitializeDragging)
+            {
+                ReInitializeDragging = false;
+                await JsModule.InvokeVoidAsync("initialize");
+            }
+        }
     }
     async Task UpdateDataAsync()
     {
@@ -340,8 +386,9 @@
                             jsonObj = JsonConvert.DeserializeObject(s.DynamicFormItem);
                         }
                         IDictionary<string, object> objectData = new ExpandoObject();
-                        objectData["SortOrderByNo"] = s.SortOrderByNo;
+                        objectData["SortOrderByNo"] = s.GridSortOrderByNo;
                         objectData["DynamicFormDataId"] = s.DynamicFormDataId;
+                        objectData["DynamicFormId"] = s.DynamicFormId;
                         objectData["ProfileNo"] = s.ProfileNo;
                         objectData["SessionId"] = s.SessionId;
                         objectData["ScreenID"] = s.ScreenID;
@@ -650,6 +697,10 @@
                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
             }
             PanelVisible = false;
+            if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
+            {
+                Items = new ObservableCollection<object>(_dynamicformObjectDataList);
+            }
             StateHasChanged();
         }
     }
@@ -883,6 +934,41 @@
     {
         System.GC.Collect();
         GC.SuppressFinalize(this);
+    }
+    [JSInvokable]
+    public async Task ReorderGridRows(int draggableRowVisibleIndex, int prevRowVisibleIndex, int nextRowVisibleIndex)
+    {
+        var hasPrevRow = prevRowVisibleIndex > -1;
+        var hasNextRow = nextRowVisibleIndex > -1;
+
+        var sourceItem = (dynamic)Grid.GetDataItem(draggableRowVisibleIndex);
+        var hasSamePosition = hasPrevRow && draggableRowVisibleIndex == prevRowVisibleIndex + 1 || hasNextRow && draggableRowVisibleIndex == nextRowVisibleIndex - 1;
+        if (hasSamePosition)
+            return;
+
+        var moveTop = false;
+        if (!hasPrevRow || prevRowVisibleIndex <= draggableRowVisibleIndex)
+            moveTop = true;
+        var newVisibleIndex = moveTop ? nextRowVisibleIndex : prevRowVisibleIndex;
+
+        var sourceItemIndex = Items.IndexOf(sourceItem);
+        var newItemIndex = Items.IndexOf((object)Grid.GetDataItem(newVisibleIndex));
+        // Items.Move(sourceItemIndex, newItemIndex);
+
+        myKey = Guid.NewGuid();
+        ReInitializeDragging = true;
+        DynamicFormData dynamicFormData = new DynamicFormData();
+        dynamicFormData.DynamicFormDataId = (long)sourceItem.DynamicFormDataId;
+        dynamicFormData.DynamicFormId = (long?)sourceItem.DynamicFormId;
+        dynamicFormData.DynamicFormDataGridId = DynamicFormDataGridId;
+        dynamicFormData.GridSortOrderAnotherByNo = sourceItemIndex + 1;
+        dynamicFormData.IsDynamicFormDataGrid = true;
+        dynamicFormData.GridSortOrderByNo = newItemIndex + 1;
+        var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        toastService.ShowToast("Record Moved successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        StateHasChanged();
     }
     private RenderFragment BuildDataColumns()
     {

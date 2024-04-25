@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Application.Queries
@@ -118,6 +119,16 @@ namespace Application.Queries
         public IDictionary<string, object> DynamicMasterParentIds { get; set; }
         public long? ApplicationMasterParentId { get; set; }
         public GetApplicationMasterParentByList(IDictionary<string, object> dynamicMasterParentIds, long? applicationMasterParentId)
+        {
+            this.DynamicMasterParentIds = dynamicMasterParentIds;
+            this.ApplicationMasterParentId = applicationMasterParentId;
+        }
+    }
+    public class GetApplicationMasterParentMobileByList : PagedRequest, IRequest<List<DropDownOptionsListModel>>
+    {
+        public IDictionary<string, JsonElement> DynamicMasterParentIds { get; set; }
+        public long? ApplicationMasterParentId { get; set; }
+        public GetApplicationMasterParentMobileByList(IDictionary<string, JsonElement> dynamicMasterParentIds, long? applicationMasterParentId)
         {
             this.DynamicMasterParentIds = dynamicMasterParentIds;
             this.ApplicationMasterParentId = applicationMasterParentId;

@@ -776,4 +776,18 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class InsertDmsDocumentDynamicFormDataHandler : IRequestHandler<InsertDmsDocumentDynamicFormData, DynamicFormDataUpload>
+    {
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+
+        public InsertDmsDocumentDynamicFormDataHandler(IDynamicFormQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<DynamicFormDataUpload> Handle(InsertDmsDocumentDynamicFormData request, CancellationToken cancellationToken)
+        {
+            return await _DynamicFormQueryRepository.InsertDmsDocumentDynamicFormData(request.DynamicFormDataUpload);
+        }
+    }
 }

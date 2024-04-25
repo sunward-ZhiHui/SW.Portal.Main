@@ -81,6 +81,8 @@ namespace Core.Entities
         public Guid? DynamicFormSessionID {  get; set; }
         public long? SortOrderByNo { get; set; }
         public long? SortOrderAnotherBy { get; set; }
+        public long? GridSortOrderByNo { get; set; }
+        public long? GridSortOrderAnotherByNo { get; set; }
     }
     public class DynamicFormProfile
     {

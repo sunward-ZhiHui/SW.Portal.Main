@@ -33,6 +33,10 @@ using DevExpress.DocumentServices.ServiceModel.DataContracts;
 using AC.SD.Core.Pages.Email;
 using Google.Cloud.Firestore;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using System.Dynamic;
+using System.Text.Json;
+using static iText.Svg.SvgConstants;
+using System.Text.Json.Nodes;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -711,5 +715,55 @@ namespace SW.Portal.Solutions.Controllers
 
             return contentType;
         }
+
+        [HttpPost("GetDropDownOptionsList")]
+        public async Task<ActionResult<ResponseModel<List<DropDownMasterListModel>>>> GetDropDownOptionsList([FromBody] RequestModel request)
+        {
+           if(request.DynamicsData .ContainsKey("0"))
+            {
+                request.DynamicsData.Remove("0");
+            }
+           
+        
+            var response = new ResponseModel<DropDownMasterListModel>();            
+            var results = await _mediator.Send(new GetApplicationMasterParentMobileByList(request.DynamicsData, request.Id));
+
+            var _ActivityStatusItem = results.Where(x => x.Value == "Routine Status").Select(MapToDropDownMasterListModel).ToList();
+            var _ActivityResult = results.Where(x => x.Value == "Routine Result").Select(MapToDropDownMasterListModel).ToList();
+            var _ActivityMaster = results.Where(x => x.Value == "Routine Info").Select(MapToDropDownMasterListModel).ToList();
+
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                response.Results = new List<DropDownMasterListModel>
+                {
+                    new DropDownMasterListModel
+                    {
+                         ActivityStatusItem =  _ActivityStatusItem.Count >0? _ActivityStatusItem : new List<DropDownMasterListModel> { new DropDownMasterListModel() },
+                        ActivityResult = _ActivityResult.Count >0? _ActivityResult : new List<DropDownMasterListModel> { new DropDownMasterListModel() },
+                        ActivityMaster = _ActivityMaster.Count >0? _ActivityMaster : new List<DropDownMasterListModel> { new DropDownMasterListModel() }
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
+
+        private DropDownMasterListModel MapToDropDownMasterListModel(DropDownOptionsListModel item)
+        {
+            return new DropDownMasterListModel
+            {
+                Id = item.Id,
+                Value = item.Value,
+                Text = item.Text
+            };
+        }
+
     }
 }

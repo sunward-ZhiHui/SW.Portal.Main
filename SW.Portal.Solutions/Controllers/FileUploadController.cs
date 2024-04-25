@@ -398,14 +398,24 @@ namespace SW.Portal.Solutions.Controllers
                     response.Message = "No file uploaded.";
                     return response;
                 }
+                //var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
 
-                var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString());
+                // var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString());
+
+                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\"+ value.SessionId.ToString();
                 if (!Directory.Exists(serverPaths))
                 {
                     Directory.CreateDirectory(serverPaths);
                 }
 
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); // Appending the extension to the filename
+                 var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
+                var FileSessionID = FileProfileSessionID.SessionId;
+                Guid? FileNameSessionID = Guid.NewGuid();
+                if (FileSessionID != null)
+                {
+                    FileNameSessionID = FileSessionID;
+                }
+                var fileName = FileNameSessionID.ToString() + Path.GetExtension(file.FileName); // Appending the extension to the filename
                 var filePath = Path.Combine(serverPaths, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -417,11 +427,13 @@ namespace SW.Portal.Solutions.Controllers
                 var fileSize = file.Length;
                 var fileExtension = Path.GetExtension(file.FileName); // Extracting the file extension
 
-             
-              
-                var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
-                var FileSessionID = FileProfileSessionID.SessionId.ToString();
-                  var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString(), @"\", FileSessionID, ".", fileExtension);
+
+
+
+                // var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString(), @"\", FileSessionID, ".", fileExtension);
+                var serverPath = serverPaths+@"\" + FileSessionID.ToString()+fileExtension; 
+
+              //  var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString(), FileSessionID.ToString(), fileExtension);
                 var documentNoSeriesModel = new DocumentNoSeriesModel
                 {
                     AddedByUserID = value.UserID,
@@ -442,7 +454,7 @@ namespace SW.Portal.Solutions.Controllers
                 documents.SessionId = value.SessionId;
                 documents.IsLatest = true;
                 documents.IsTemp = true;
-                documents.FileName = fileName;
+                documents.FileName = file.FileName;
                 documents.ContentType = contentType;
                 documents.FileSize = fileSize;
                 documents.FilterProfileTypeId = value.FileProfileTypeId;

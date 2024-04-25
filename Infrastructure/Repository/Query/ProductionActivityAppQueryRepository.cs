@@ -603,6 +603,7 @@ namespace Infrastructure.Repository.Query
 
                             PPAlist.ProductionActivityRoutineAppId = insertedId;
                         }
+                        parameters.Add("ProductActivityCaseLineId", PPAlist.ProductActivityCaseLineId);
                         parameters.Add("ProductionActivityRoutineAppLineId", PPAlist.ProductionActivityRoutineAppLineId);
                         parameters.Add("Appid", PPAlist.ProductionActivityRoutineAppId);
                         parameters.Add("IsOthersOptions", PPAlist.IsOthersOptions == true ? true : false);
@@ -645,16 +646,16 @@ namespace Infrastructure.Repository.Query
                         if (PPAlist.ProductionActivityRoutineAppLineId > 0)
                         {
                             var appquery = " UPDATE ProductionActivityRoutineAppLine SET ProductionActivityRoutineAppId = @Appid,ProdActivityResultID =@ProdActivityResultID,ManufacturingProcessChildID =@ManufacturingProcessChildID,ProdActivityCategoryChildID=@ProdActivityCategoryChildID," +
-                            "ProdActivityActionChildD=@ProdActivityActionChildD,Comment=@PAApplineComment,NavprodOrderLineId=@AppLineNavprodOrderLineID,SessionId=@applineSessionId,StatusCodeID=@applineStatusCodeID,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,RoutineStatusId=@RoutineStatusId,IsOthersOptions=@IsOthersOptions,LocationID=@LocationID,QaCheck=@QaCheck WHERE ProductionActivityRoutineAppLineId = @ProductionActivityRoutineAppLineId";
+                            "ProdActivityActionChildD=@ProdActivityActionChildD,Comment=@PAApplineComment,NavprodOrderLineId=@AppLineNavprodOrderLineID,SessionId=@applineSessionId,StatusCodeID=@applineStatusCodeID,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,RoutineStatusId=@RoutineStatusId,IsOthersOptions=@IsOthersOptions,LocationID=@LocationID,QaCheck=@QaCheck ,ProductActivityCaseLineId = @ProductActivityCaseLineId WHERE ProductionActivityRoutineAppLineId = @ProductionActivityRoutineAppLineId";
 
                             await connection.ExecuteAsync(appquery, parameters);
                         }
                         else
                         {
 
-                            var applinequery = "INSERT INTO ProductionActivityRoutineAppLine(IsCheckNoIssue,IsCheckReferSupportDocument,ProductionActivityRoutineAppId,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,RoutineStatusId,IsOthersOptions,LocationID,QaCheck,ProfileNo,ProfileId) " +
+                            var applinequery = "INSERT INTO ProductionActivityRoutineAppLine(IsCheckNoIssue,IsCheckReferSupportDocument,ProductionActivityRoutineAppId,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,RoutineStatusId,IsOthersOptions,LocationID,QaCheck,ProfileNo,ProfileId,ProductActivityCaseLineId) " +
                                 " OUTPUT INSERTED.ProductionActivityRoutineAppLineId " +
-                                "VALUES (@IsCheckNoIssue,@IsCheckReferSupportDocument,@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@RoutineStatusId,@IsOthersOptions,@LocationID,@QaCheck,@ProfileNo,@ProfileId)";
+                                "VALUES (@IsCheckNoIssue,@IsCheckReferSupportDocument,@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@RoutineStatusId,@IsOthersOptions,@LocationID,@QaCheck,@ProfileNo,@ProfileId,@ProductActivityCaseLineId)";
 
                             PPAlist.ProductionActivityRoutineAppLineId = await connection.ExecuteScalarAsync<long>(applinequery, parameters);
                         }

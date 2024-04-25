@@ -473,6 +473,15 @@ namespace Application.Queries
             this.DynamicFormData = dynamicFormData;
         }
     }
+    public class InsertDmsDocumentDynamicFormData : PagedRequest, IRequest<DynamicFormDataUpload>
+    {
+        public DynamicFormDataUpload? DynamicFormDataUpload { get; set; }
+        public InsertDmsDocumentDynamicFormData(DynamicFormDataUpload? dynamicFormDataUpload)
+        {
+            this.DynamicFormDataUpload = dynamicFormDataUpload;
+        }
+    }
+    
 
 }
 

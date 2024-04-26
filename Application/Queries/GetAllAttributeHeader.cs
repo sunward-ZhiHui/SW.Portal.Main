@@ -33,6 +33,11 @@ namespace Application.Queries
 
 
     }
+    public class GetFilterDataSource : PagedRequest, IRequest<List<DynamicFormFilter>>
+    {
+
+
+    }
     public class GetAllAttributeNameNotInDynamicForm : PagedRequest, IRequest<List<AttributeHeader>>
     {
         public long? AttributeID { get; set; }
@@ -121,6 +126,38 @@ namespace Application.Queries
         {
             this.DynamicMasterParentIds = dynamicMasterParentIds;
             this.ApplicationMasterParentId = applicationMasterParentId;
+        }
+    }
+    public class GetAllFilterDropDownDataSources : PagedRequest, IRequest<DynamicFormFilterDataSoureList>
+    {
+
+    }
+    public class GetDynamicFormFilterByDataSource : PagedRequest, IRequest<List<DynamicFormFilterBy>>
+    {
+        public List<string?> DataSourceTableIds { get; set; }
+        public GetDynamicFormFilterByDataSource( List<string?> dataSourceTableIds)
+        {
+            this.DataSourceTableIds = dataSourceTableIds;
+        }
+    }
+    public class GetFilterDataSourceLists : PagedRequest, IRequest<List<AttributeDetails>>
+    {
+        public List<DynamicFormFilterBy> DynamicFormFilterBy { get; set; }
+        public GetFilterDataSourceLists(List<DynamicFormFilterBy> dynamicFormFilterBy)
+        {
+            this.DynamicFormFilterBy = dynamicFormFilterBy;
+        }
+    }
+    public class GetFilterByDataSourceLists : PagedRequest, IRequest<List<AttributeDetails>>
+    {
+        public List<DynamicFormFilterBy> DynamicFormFilterBy { get; set; }
+        public object Data { get; set; }
+        public string DataSource { get; set; }
+        public GetFilterByDataSourceLists(List<DynamicFormFilterBy> dynamicFormFilterBy, object data, string dataSource)
+        {
+            this.DynamicFormFilterBy = dynamicFormFilterBy;
+            this.Data = data;
+            this.DataSource = dataSource;
         }
     }
 }

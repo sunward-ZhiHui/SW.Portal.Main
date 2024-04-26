@@ -273,7 +273,7 @@
     async Task UpdateDataAsync()
     {
         _selectedItems = null; FileProfileTypeId = null;
-        dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true;
+        dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true; Items = new ObservableCollection<object>();
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false;
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
@@ -284,13 +284,13 @@
         // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
         if (SessionId != null)
         {
-            _dynamicformObjectDataList = new List<object>();
+            _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
             _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
             if (_dynamicForm != null)
             {
                 if (_dynamicForm != null)
                 {
-                    _dynamicformObjectDataList = new List<object>();
+                    _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                     {
@@ -379,7 +379,7 @@
                     }
 
                     _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1));
-                    PanelVisible = true; _dynamicformObjectDataList = new List<object>();
+                    PanelVisible = true; _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {
                         if (FormSessionId != null)

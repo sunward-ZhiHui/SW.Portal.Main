@@ -766,6 +766,7 @@ namespace Infrastructure.Repository.Query
                             documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
                             documentsModels.OriginalFileName = s.FileName;
                             documentsModels.ContentType = s.ContentType;
+                            documentsModels.OriginalFileSize = s.FileSize;
                             documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
                             documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
                             documentsModels.UploadDate = s.UploadDate;

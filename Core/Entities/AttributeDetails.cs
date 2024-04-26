@@ -45,4 +45,16 @@ namespace Core.Entities
     {
         public List<AttributeDetails> AllAttributeDetails { get; set; } = new List<AttributeDetails>();
     }
+    public class AttributeFilterDetailsList
+    {
+        public List<AttributeFilterDetails> AttributeFilterDetails { get; set; } = new List<AttributeFilterDetails>();
+    }
+    public class AttributeFilterDetails
+    {
+        public string? AttributeName { get; set; }
+        public string? DataSourceName { get; set; }
+        public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
+        public List<DynamicFormFilterBy> DynamicFormFilterBy { get; set; } = new List<DynamicFormFilterBy>();
+        public object Data { get; set; } = new object();
+    }
 }

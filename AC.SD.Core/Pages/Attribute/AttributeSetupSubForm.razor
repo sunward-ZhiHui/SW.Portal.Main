@@ -377,7 +377,7 @@
         Data.DataSourceId = 0;
         Data.DropDownTypeId = null;
         Data.IsDataSource = false;
-        Data.DynamicFormId = null;
+        Data.DynamicFormId = null; Data.FilterDataSocurceId = 0;
         Data.AttributeIsVisible = false;
         isAddAttributeEnabled = false;
         isSelectEnabled = true;
@@ -576,6 +576,7 @@
             Data.AttributeRadioLayout = _selectedItems.AttributeRadioLayout; 
             Data.AttrDescription =  _selectedItems.AttrDescription; 
             Data.AttributeSortBy = _selectedItems.AttributeSortBy;
+            Data.FilterDataSocurceId =0;
             Data.IsAttributeSpinEditType = string.IsNullOrEmpty(_selectedItems.IsAttributeSpinEditType) ? "int" : _selectedItems.IsAttributeSpinEditType;
             SelectedControlChanged(Data.ControlTypeId, "Edit");
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _selectedItems.ControlType.ToLower().Contains(f.ToLower()));

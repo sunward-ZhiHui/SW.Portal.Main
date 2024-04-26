@@ -34,6 +34,9 @@ using AC.SD.Core.Pages.Email;
 using Google.Cloud.Firestore;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using System.Dynamic;
+using System.Text.Json;
+using static iText.Svg.SvgConstants;
+using System.Text.Json.Nodes;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -716,9 +719,14 @@ namespace SW.Portal.Solutions.Controllers
         [HttpPost("GetDropDownOptionsList")]
         public async Task<ActionResult<ResponseModel<List<DropDownMasterListModel>>>> GetDropDownOptionsList([FromBody] RequestModel request)
         {
-
+           if(request.DynamicsData .ContainsKey("0"))
+            {
+                request.DynamicsData.Remove("0");
+            }
+           
+        
             var response = new ResponseModel<DropDownMasterListModel>();            
-            var results = await _mediator.Send(new GetApplicationMasterParentByList(request.DynamicsData, request.Id));
+            var results = await _mediator.Send(new GetApplicationMasterParentMobileByList(request.DynamicsData, request.Id));
 
             var _ActivityStatusItem = results.Where(x => x.Value == "Routine Status").Select(MapToDropDownMasterListModel).ToList();
             var _ActivityResult = results.Where(x => x.Value == "Routine Result").Select(MapToDropDownMasterListModel).ToList();
@@ -731,9 +739,9 @@ namespace SW.Portal.Solutions.Controllers
                 {
                     new DropDownMasterListModel
                     {
-                        ActivityStatusItem = _ActivityStatusItem,
-                        ActivityResult = _ActivityResult,
-                        ActivityMaster = _ActivityMaster
+                         ActivityStatusItem =  _ActivityStatusItem.Count >0? _ActivityStatusItem : new List<DropDownMasterListModel> { new DropDownMasterListModel() },
+                        ActivityResult = _ActivityResult.Count >0? _ActivityResult : new List<DropDownMasterListModel> { new DropDownMasterListModel() },
+                        ActivityMaster = _ActivityMaster.Count >0? _ActivityMaster : new List<DropDownMasterListModel> { new DropDownMasterListModel() }
                     }
                 };
             }

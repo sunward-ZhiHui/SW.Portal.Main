@@ -23,6 +23,10 @@ namespace Application.Queries
     {
 
     }
+    public class GetAllfileprofiletypeDrodownQuery : PagedRequest, IRequest<List<FileProfileTypeModel>>
+    {
+
+    }
     public class DeleteFileProfileType : PagedRequest, IRequest<long?>
     {
         public long? FileProfileTypeID { get; private set; }

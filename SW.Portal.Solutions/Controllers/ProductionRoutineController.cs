@@ -228,11 +228,11 @@ namespace SW.Portal.Solutions.Controllers
                 NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
                 ModifiedByUserID = value.AddedByUserID,
                 ModifiedDate = DateTime.Now,
-                IsOthersOptions = value.OthersOptions == "Yes" ? true : false,
+                IsOthersOptions = value.IsOthersOptions,
                 TimeSheetAction = true,
                 IsTemplateUpload = value.IsTemplateUpload,
-                IsTemplateUploadFlag = value.IsTemplateUpload == true ? "Yes" : "No",
-                ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
+               
+                ProductActivityCaseLineId = value.ProductActivityCaseLineId ,
                 RoutineInfoIds = value.RoutineInfoIds,
                 LotNo = value.LotNo,
                 ItemName = value.ItemName
@@ -346,7 +346,8 @@ namespace SW.Portal.Solutions.Controllers
                     IsTemplateUploadFlag = topic.IsTemplateUploadFlag,
                     NameOfTemplate = topic.NameOfTemplate,
                     OthersOptions = topic.OthersOptions,
-                    RoutineInfoIds =topic.RoutineInfoIds
+                    RoutineInfoIds =topic.RoutineInfoIds,
+                    RoutineStatus = topic.RoutineStatus
 
                 }).ToList();
                 try
@@ -831,6 +832,29 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = Services.ResponseCode.Success;
                 response.Results= (List<ApplicationMasterChildModel>)(result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() });
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("GetFileProfileTypeDropdownList")]
+        public async Task<ActionResult<Services.ResponseModel<List<Core.EntityModels.FileProfileTypeModel>>>> GetFileProfileTypeDropdownList()
+        {
+
+            var response = new Services.ResponseModel<Core.EntityModels.FileProfileTypeModel>();
+
+            var result = await _mediator.Send(new GetAllfileprofiletypeDrodownQuery());
+
+          
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result;
             }
             catch (Exception ex)
             {

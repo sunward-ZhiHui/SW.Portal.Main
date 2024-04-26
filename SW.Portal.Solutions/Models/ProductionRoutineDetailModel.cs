@@ -42,6 +42,7 @@ namespace SW.Portal.Solutions.Models
         public string? IsTemplateUploadFlag { get; set; }
         public string? NameOfTemplate { get; set; }
         public string? OthersOptions { get; set; }
+        public string? RoutineStatus { get; set; }
         public IEnumerable<long?> RoutineInfoIds { get; set; } = new List<long?>();
     }
 }

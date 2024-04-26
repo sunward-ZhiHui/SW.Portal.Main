@@ -1,6 +1,4 @@
-﻿
-@page "/ProductionActivityReport"
-
+﻿@page "/ActivityReport"
 
 @using AC.SD.Core.Reports;
 @using DevExpress.Blazor.Reporting
@@ -8,7 +6,7 @@
 @using DevExpress.Blazor.Reporting.Models
 
 
-<div @ref="viewerComponent" style="width: 100%; height: calc(100vh - 150px);" >
+<div @ref="viewerComponent" style="width: 100%; height: calc(100vh - 150px);">
     <DxReportViewer @ref="reportViewer" Report="Report" SizeMode="SizeMode.Small" SinglePagePreview="true" RootCssClasses="w-100 h-100" />
 </div>
 @code {
@@ -22,7 +20,7 @@
     public string ReportName { get; set; } = "ProductionActivitysReport";
     protected override void OnInitialized()
     {
-       
+
         Report = reportProvider.GetReport(ReportName, null);
     }
     protected override void OnAfterRender(bool firstRender)
@@ -38,3 +36,4 @@
         base.OnAfterRender(firstRender);
     }
 }
+

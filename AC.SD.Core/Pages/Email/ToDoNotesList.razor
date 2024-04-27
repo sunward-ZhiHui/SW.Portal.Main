@@ -359,6 +359,7 @@
         </Columns>
         @*  @bind-SelectedDataItems="SelectedDataItems"*@
         <EditFormTemplate Context="EditFormContext">
+            <DataAnnotationsValidator />
             @{
                 var types = (ToDoNotesHistory)EditFormContext.EditModel;
 
@@ -397,6 +398,7 @@
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                        <ValidationMessage For="@(() => types.UserIds)" />
                     </DxTagBox>
 
                     @*<DxComboBox Data="@_participant"
@@ -793,9 +795,9 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        
+
         PanelVisible = true;
-       
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         //_ToDoNotesHistory = await Mediator.Send(new GetAllToDoNotesHistory());
         PanelVisible = false;
@@ -809,7 +811,7 @@
         }
 
         NavigationManager.LocationChanged += OnLocationChanged;
-        
+
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -885,19 +887,42 @@
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
-       
+
         var editModel = (ToDoNotesHistory)e.EditModel;
-         // string useridsString = null;
-         // if(UserIds != null)
-         // {
-         //     useridsString = string.Join(",", UserIds);
-         // }
 
-         // if (!string.IsNullOrEmpty(useridsString))
-         // {
-         //    editModel.UserIds = useridsString.Split(',').Select(long.Parse);
-         // }
 
+        if (editModel.UserIds == null)
+        {
+            editModel.UserIds = null;
+        }
+        else if (editModel.UserIds.Count() == 0)
+        {
+            editModel.UserIds = null;
+        }
+
+
+        // string useridsString = null;
+        // if(UserIds != null)
+        // {
+        //     useridsString = string.Join(",", UserIds);
+        // }
+
+        // if (!string.IsNullOrEmpty(useridsString))
+        // {
+        //    editModel.UserIds = useridsString.Split(',').Select(long.Parse);
+        // }
+
+        // if (editModel.UserIds != null && editModel.UserIds.Any())
+        // {
+        //     // UserIds is not null and contains elements
+        // }
+        // else
+        // {
+        //     toastService.ShowToast("Add At least one Assign To", AC.SD.Core.Services.ToastLevel.Error);
+        //     return;            
+        // }
+        
+      
 
         if (e.IsNew)
         {  

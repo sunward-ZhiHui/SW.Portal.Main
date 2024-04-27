@@ -1,6 +1,7 @@
 ﻿
 using Application.Queries.Base;
 using Core.Entities;
+using Core.Entities.Views;
 using Core.EntityModels;
 using MediatR;
 using System;
@@ -252,5 +253,11 @@ namespace Application.Queries
         {
             this.ProductionActivityRoutineCheckedDetailsModel = productionActivityRoutineCheckedDetailsModel;
         }
+    }
+
+    public class GetProductionActivityReportList : PagedRequest, IRequest<List<View_ProductionActivityReport>>
+    {
+      
+     
     }
 }

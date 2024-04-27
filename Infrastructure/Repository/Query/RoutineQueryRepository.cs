@@ -157,7 +157,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("LotNo", value.LotNo);
                 var query = "";
 
-                if(value.TimeSheetAction == true)
+                if (value.TimeSheetAction == true)
                 {
                     query = @"select t1.ProductionActivityRoutineAppLineID,t1.ProductionActivityRoutineAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.ProductActivityCaseID,t1.VisaMasterID,t1.RoutineStatusID,t1.CommentImage,t1.CommentImageType,t1.ProfileID,t1.ProfileNo,t1.IsCheckNoIssue,t1.CheckedByID,t1.CheckedDate,t1.CheckedRemark,t1.IsCheckReferSupportDocument,CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId
                     ,t2.CompanyID,t10.PlantCode as CompanyName,t12.LocationToSaveId AS MasterProductionFileProfileTypeId,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,
@@ -189,7 +189,7 @@ namespace Infrastructure.Repository.Query
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
                     WHERE t1.ProductionActivityRoutineAppLineID>0";
                 }
-                
+
                 if (value.NavprodOrderLineId > 0)
                 {
                     query += "\n\rAND t1.NavprodOrderLineId=@NavprodOrderLineId";
@@ -223,8 +223,8 @@ namespace Infrastructure.Repository.Query
                     else
                     {
                         query += "\n\rAND t2.ItemName=@ItemName";
-                    }                    
-                    
+                    }
+
                     if (value.LotNo == null || value.LotNo == "")
                     {
                         query += "\n\rAND (t2.LotNo IS NULL OR t2.LotNo = '')";
@@ -239,7 +239,7 @@ namespace Infrastructure.Repository.Query
                         query += "\n\rAND t2.LocationID=@LocationID";
                     }
                     else
-                    {                        
+                    {
                         query += "\n\rAND (t2.LocationID IS NULL or t2.LocationID = 0 or t2.LocationID = '')";
                     }
 
@@ -251,7 +251,7 @@ namespace Infrastructure.Repository.Query
                         query += "\n\rAND t2.LocationID=@LocationID";
                     }
                 }
-               
+
                 if (value.ProdActivityResultId > 0)
                 {
                     query += "\n\rAND t1.ProdActivityResultID=@ProdActivityResultId";
@@ -988,5 +988,57 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<IReadOnlyList<View_ProductionActivityReport>> GetProductionActivityReportList()
+        {
+
+            try
+            {
+                var query = @"Select * From View_Production_Activity_Filter_Report";
+
+
+                using (var connection = CreateConnection())
+                {
+                    var Result = (await connection.QueryAsync<View_ProductionActivityReport>(query)).ToList();
+                    if (Result.Count > 0)
+                    {
+                        foreach (var item in Result)
+                        {
+
+                            var parametersDocs = new DynamicParameters();
+                            parametersDocs.Add("SessionID", item.SessionID);
+
+                            var Docsquery = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
+                            var DocResult = (await connection.QueryAsync<Documents>(Docsquery, parametersDocs)).ToList();
+
+                            if (DocResult.Count > 0)
+                            {
+                                foreach (var Docsitem in DocResult)
+                                {
+                                    var documentpath = ReadPdfAndGetProfileImagesAsync(Docsitem);
+                                   // item.DocumentList = documentpath;
+                                }
+
+                            }
+                        }
+                    }
+
+                    return Result;
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
+        public async Task<List<FileProfileImages>> ReadPdfAndGetProfileImagesAsync(Documents document)
+        {
+            var profileImages = new List<FileProfileImages>();
+            return profileImages;
+        }
     }
+
 }

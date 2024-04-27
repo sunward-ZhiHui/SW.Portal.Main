@@ -57,8 +57,33 @@
                     @*  <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="50" /> *@
                     <DxGridDataColumn FieldName="Description" Caption="Label" MinWidth="50" />
                     <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="50" />
-                    <DxGridDataColumn FieldName="DropDownTypeId" Caption="Data Source" MinWidth="50" />
-                    <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="DataSource Name" MinWidth="50" />
+                    <DxGridDataColumn FieldName="DropDownTypeId" Caption="Data Source" MinWidth="50">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (AttributeHeader)context.DataItem;
+                                var Names = item.DropDownTypeId;
+                                if (item.IsFilterDataSource == true)
+                                {
+                                    Names = "Filter Data Source";
+                                }
+                            }
+                            @Names
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="DataSource Name" MinWidth="50">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (AttributeHeader)context.DataItem;
+                                var Names = item.DataSourceDisplayName;
+                                if (item.IsFilterDataSource == true)
+                                {
+                                    Names = item.FilterDataSourceDisplayName;
+                                }
+                            }
+                            @Names
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="DynamicFormName" Caption="Dynamic Form" MinWidth="50" />
                     <DxGridDataColumn FieldName="AttrDescription" Caption="Description" MinWidth="50" />
                     <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="50" />
                     <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50" />

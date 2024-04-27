@@ -23,6 +23,7 @@ namespace Core.Entities
         public bool? IsMultiple { get; set; } = false;
         public bool? IsRequired { get; set; } = false;
         public bool? IsDisplayTableHeader { get; set; } = false;
+        public bool? IsDisplayDropDownHeader { get; set; } = false;
         public bool? IsVisible { get; set; } = false;
         public string? RequiredMessage { get; set; }
         public string? IsSpinEditType { get; set; }
@@ -74,7 +75,10 @@ namespace Core.Entities
         public bool IsSetDefaultValue { get; set; } = false;
         public bool IsDefaultReadOnly { get; set; } = false;
         public List<DynamicFormSectionAttributeSecurity> DynamicFormSectionAttributeSecurity { get; set; } = new List<DynamicFormSectionAttributeSecurity>();
-
+        public string? FilterDataSourceTableName { get; set; }
+        public string? FilterDataSourceDisplayName { get; set; }
+        public bool? IsFilterDataSource { get; set; } = false;
+        public long? FilterDataSocurceId { get; set; }
         public long? ApplicationMasterId { get; set; }
         public string? ApplicationMasterName { get; set; }
         public string? ApplicationMasterIds { get; set; }

@@ -48,6 +48,9 @@ namespace Core.Entities
         [Required(ErrorMessage = "Control Type is Required")]
         public int? ControlTypeId { get; set; }
         public bool? IsMultiple { get; set; } = false;
+        public bool? IsFilterDataSource { get; set; } = false;
+        [Required(ErrorMessage = "Filter Data Socurce is Required")]
+        public long? FilterDataSocurceId { get; set; }
         public bool? IsRequired { get; set; } = false;
         public string? RequiredMessage { get; set; }
         public int? FormUsedCount { get; set; }
@@ -55,7 +58,7 @@ namespace Core.Entities
         public bool? IsDataSource { get; set; } = false;
         [Required(ErrorMessage = "Grid Form is Required")]
         public long? DynamicFormId { get; set; }
-
+        public string? DynamicFormName { get; set; }
         public bool? IsDynamicFormDropTagBox { get; set; } = false;
         public bool? IsSubForm { get; set; } = false;
         public long? SubAttributeId { get; set; }
@@ -77,6 +80,9 @@ namespace Core.Entities
         public List<ApplicationMaster> SubApplicationMaster { get; set; } = new List<ApplicationMaster>();
         public int? AttributeSortBy { get; set; }
         public int? SortOrderAnotherBy { get; set; }
+        public string? FilterDataSourceTableName { get; set; }
+        public string? FilterDataSourceDisplayName { get; set; }
+        public string? DropDownTypeIds { get; set; } = null;
     }
     public class AttributeHeaderListModel
     {
@@ -147,5 +153,10 @@ namespace Core.Entities
         public string? Description { get; set; }
         public long? ValueId { get; set; }
         public string? Label { get; set; }
+    }
+    public class DynamicFormFilterDataSoureList
+    {
+        public List<ViewEmployee> Employee { get; set; } = new List<ViewEmployee>();
+        public List<View_NavItems> NavItems { get; set; } = new List<View_NavItems>();
     }
 }

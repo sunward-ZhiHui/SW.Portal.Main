@@ -103,6 +103,10 @@
                         {
                             DataSourceNames += " - " + item.DynamicGridName;
                         }
+                        if (item.IsFilterDataSource == true)
+                        {
+                            DataSourceNames = "Is Filter - " + item.FilterDataSourceDisplayName;
+                        }
                     }
                     @DataSourceNames
                 </CellDisplayTemplate>
@@ -153,7 +157,7 @@
                                                 Width="100px" />
                             <DxListEditorColumn FieldName="@nameof(AttributeHeader.ControlType)"
                                                 Caption="Control Type" Width="100px" />
-                            <DxListEditorColumn FieldName="@nameof(AttributeHeader.DropDownTypeId)"
+                            <DxListEditorColumn FieldName="@nameof(AttributeHeader.DropDownTypeIds)"
                                                 Caption="DropDown Type" Width="100px" />
                             <DxListEditorColumn FieldName="@nameof(AttributeHeader.DataSourceDisplayName)"
                                                 Caption="Data Source" Width="100px" />
@@ -271,6 +275,9 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Table Header" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="types.IsDisplayTableHeader"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Dropdown Header" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsDisplayDropDownHeader"></DxCheckBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Tool Tips" ColSpanMd="6">
 
@@ -696,7 +703,8 @@
                     IsSetDefaultValue = _isSetDefaultValue,
                     IsDefaultReadOnly = _isDefaultReadOnly,
                     ApplicationMasterId = applicationMasterId,
-                    ApplicationMasterIdsListIds = applicationMasterIdsListIds
+                    ApplicationMasterIdsListIds = applicationMasterIdsListIds,
+                    IsDisplayDropDownHeader=editModel.IsDisplayDropDownHeader,
                 };
 
             try
@@ -748,7 +756,8 @@
                     IsSetDefaultValue = _isSetDefaultValue,
                     IsDefaultReadOnly = _isDefaultReadOnly,
                     ApplicationMasterId = applicationMasterId,
-                    ApplicationMasterIdsListIds = applicationMasterIdsListIds
+                    ApplicationMasterIdsListIds = applicationMasterIdsListIds,
+                    IsDisplayDropDownHeader = editModel.IsDisplayDropDownHeader,
 
                 };
             var ans = await Mediator.Send(UpdateReq);

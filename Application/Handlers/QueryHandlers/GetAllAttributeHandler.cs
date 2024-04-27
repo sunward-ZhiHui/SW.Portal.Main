@@ -139,6 +139,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<AttributeHeaderDataSource>)await _attrubutequeryRepository.GetAttributeHeaderDataSource();
         }
     }
+    public class GetFilterDataSourceHandler : IRequestHandler<GetFilterDataSource, List<DynamicFormFilter>>
+    {
+
+        private readonly IQueryRepository<DynamicFormFilter> _queryRepository;
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetFilterDataSourceHandler(IQueryRepository<DynamicFormFilter> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _queryRepository = queryRepository;
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<DynamicFormFilter>> Handle(GetFilterDataSource request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormFilter>)await _attrubutequeryRepository.GetFilterDataSource();
+        }
+    }
     public class GetAllBySessionAttributeNameHandler : IRequestHandler<GetAllBySessionAttributeName, AttributeHeader>
     {
 
@@ -165,7 +180,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeDetails>> Handle(GetDataSourceDropDownList request, CancellationToken cancellationToken)
         {
-            return (List<AttributeDetails>)await _attrubutequeryRepository.GetDataSourceDropDownList(request.CompanyId, request.DataSourceTableIds, request.PlantCode,request.ApplicationMasterIds,request.ApplicationMasterParentIds);
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetDataSourceDropDownList(request.CompanyId, request.DataSourceTableIds, request.PlantCode, request.ApplicationMasterIds, request.ApplicationMasterParentIds);
         }
     }
     public class GetAllDropDownDataSourcesListHandler : IRequestHandler<GetAllDropDownDataSourcesList, DataSourceAttributeDetails>
@@ -207,7 +222,61 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DropDownOptionsListModel>> Handle(GetApplicationMasterParentByList request, CancellationToken cancellationToken)
         {
-            return (List<DropDownOptionsListModel>)await _attrubutequeryRepository.GetApplicationMasterParentByList(request.DynamicMasterParentIds,request.ApplicationMasterParentId);
+            return (List<DropDownOptionsListModel>)await _attrubutequeryRepository.GetApplicationMasterParentByList(request.DynamicMasterParentIds, request.ApplicationMasterParentId);
+        }
+    }
+    public class GetAllFilterDropDownDataSourcesHandler : IRequestHandler<GetAllFilterDropDownDataSources, DynamicFormFilterDataSoureList>
+    {
+
+        private readonly IDynamicFormDataSourceQueryRepository _attrubutequeryRepository;
+        public GetAllFilterDropDownDataSourcesHandler(IDynamicFormDataSourceQueryRepository attrubutequeryRepository)
+        {
+
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<DynamicFormFilterDataSoureList> Handle(GetAllFilterDropDownDataSources request, CancellationToken cancellationToken)
+        {
+            return await _attrubutequeryRepository.GetAllFilterDropDownDataSources();
+        }
+    }
+
+    public class GetDynamicFormFilterByDataSourceHandler : IRequestHandler<GetDynamicFormFilterByDataSource, List<DynamicFormFilterBy>>
+    {
+
+        private readonly IDynamicFormDataSourceQueryRepository _attrubutequeryRepository;
+        public GetDynamicFormFilterByDataSourceHandler(IDynamicFormDataSourceQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<DynamicFormFilterBy>> Handle(GetDynamicFormFilterByDataSource request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormFilterBy>)await _attrubutequeryRepository.GetDynamicFormFilterByDataSource(request.DataSourceTableIds);
+        }
+    }
+    public class GetFilterDataSourceListsHandler : IRequestHandler<GetFilterDataSourceLists, List<AttributeDetails>>
+    {
+
+        private readonly IDynamicFormDataSourceQueryRepository _attrubutequeryRepository;
+        public GetFilterDataSourceListsHandler(IDynamicFormDataSourceQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeDetails>> Handle(GetFilterDataSourceLists request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetFilterDataSourceLists(request.DynamicFormFilterBy);
+        }
+    }
+    public class GetFilterByDataSourceListsHandler : IRequestHandler<GetFilterByDataSourceLists, List<AttributeDetails>>
+    {
+
+        private readonly IDynamicFormDataSourceQueryRepository _attrubutequeryRepository;
+        public GetFilterByDataSourceListsHandler(IDynamicFormDataSourceQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeDetails>> Handle(GetFilterByDataSourceLists request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetFilterByDataSourceLists(request.DynamicFormFilterBy,request.Data,request.DataSource);
         }
     }
     public class GetApplicationMasterParentMobileByListHandler : IRequestHandler<GetApplicationMasterParentMobileByList, List<DropDownOptionsListModel>>

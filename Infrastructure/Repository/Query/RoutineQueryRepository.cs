@@ -4,22 +4,49 @@ using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
 using Infrastructure.Repository.Query.Base;
+
+
+using iText.Layout;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+
+
+using System;
+using System.IO;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
+using iText.Kernel.Pdf.Canvas.Parser.Data;
+using iText.Kernel.Geom;
+using iText.IO.Image;
+using iText.Kernel.Pdf.Xobject;
+using System.Drawing.Imaging;
+using iTextSharp.text.pdf.parser;
+using iTextSharp.text.pdf;
+using PdfReader = iTextSharp.text.pdf.PdfReader;
+using TextRenderInfo = iTextSharp.text.pdf.parser.TextRenderInfo;
+using ImageRenderInfo = iTextSharp.text.pdf.parser.ImageRenderInfo;
+
 
 namespace Infrastructure.Repository.Query
 {
     public class RoutineQueryRepository : QueryRepository<ProductionActivityRoutineAppLine>, IRoutineQueryRepository
     {
-        public RoutineQueryRepository(IConfiguration configuration)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IConfiguration _configuration;
+        public RoutineQueryRepository(IConfiguration configuration, IWebHostEnvironment hostingEnvironment, IConfiguration configurations)
            : base(configuration)
         {
-
+            _hostingEnvironment = hostingEnvironment;
+            _configuration = configurations;
         }
         private string DocumentQueryString()
         {
@@ -1006,18 +1033,38 @@ namespace Infrastructure.Repository.Query
                         {
 
                             var parametersDocs = new DynamicParameters();
-                            parametersDocs.Add("SessionID", item.SessionID);
+                            parametersDocs.Add("ProductionActivityAppLineID", item.ProductionActivityAppLineID);
 
-                            var Docsquery = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
+                            var Docsquery = @"select D.* from Documents D
+                                                INNER JOIN ProductionActivityAppLineDoc PALD ON PALD.DocumentID = D.DocumentID
+                                                WHERE PALD.ProductionActivityAppLineID = @ProductionActivityAppLineID AND D.IsLatest =1";
                             var DocResult = (await connection.QueryAsync<Documents>(Docsquery, parametersDocs)).ToList();
 
                             if (DocResult.Count > 0)
                             {
+                                //item.DocumentList ??= new List<FileProfileImages>();
+                                item.DocumentList ??= new List<string>();
+                                var filePaths = new List<string>(); // Create a list to store file paths
+                                string firstFilePath = null; // Variable to store the first file path
+
                                 foreach (var Docsitem in DocResult)
                                 {
-                                    var documentpath = ReadPdfAndGetProfileImagesAsync(Docsitem);
-                                   // item.DocumentList = documentpath;
+                                    string extension = System.IO.Path.GetExtension(Docsitem.FileName).ToLower();
+                                    if(extension == ".pdf")
+                                    {
+                                        var documentPaths = await ReadPdfAndGetProfileImagesAsync(Docsitem);
+                                        filePaths.AddRange(documentPaths);                                        
+                                       
+
+                                    }
+                                    else if (IsImageFile(extension))
+                                    {
+                                        var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];                                                                                
+                                        filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
+                                    }
                                 }
+                               
+                                item.DocumentList = filePaths;
 
                             }
                         }
@@ -1034,11 +1081,154 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public async Task<List<FileProfileImages>> ReadPdfAndGetProfileImagesAsync(Documents document)
+        public async Task<List<string>> ReadPdfAndGetProfileImagesAsync(Documents document)
         {
-            var profileImages = new List<FileProfileImages>();
-            return profileImages;
-        }
-    }
+            var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + document.SessionId + @"\";
+            string fileName = document.SessionId + ".pdf";
+            var pdfFilePath = serverPaths + fileName;
+            var imageFilePaths = new List<string>();
+            var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
 
+            if (Directory.Exists(serverPaths))
+            {                
+                string[] files = Directory.GetFiles(serverPaths);
+                string[] imageFiles = files.Where(f => IsImageFile(f)).ToArray();
+
+                // Process the image files
+                foreach (string imageFile in imageFiles)
+                {
+                    var path = imageFile.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                    imageFilePaths.Add(DocumentViewUrl + path);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Directory does not exist.");
+            }
+
+
+            // byte[] fileBytes = File.ReadAllBytes(pdfFilePath);
+            // string base64Strings = Convert.ToBase64String(fileBytes);
+            //using (MemoryStream memoryStream = new MemoryStream(fileBytes))
+            //{
+            //    iText.Kernel.Pdf.PdfDocument pdfDocument = new iText.Kernel.Pdf.PdfDocument(new iText.Kernel.Pdf.PdfReader(memoryStream));
+            //    //Document document = new Document(pdfDocument); 
+            //    pdfDocument.Close();
+            //}
+
+            //using (PdfReader reader = new PdfReader(pdfFilePath))
+            //{
+            //    for (int pageNum = 1; pageNum <= reader.NumberOfPages; pageNum++)
+            //    {
+            //        using (Bitmap pageImage = ExtractImageFromPdf(reader, pageNum))
+            //        {
+            //            if (pageImage != null)
+            //            {
+            //                string base64Image = ImageToBase64(pageImage, ImageFormat.Jpeg);
+            //                var lsls = $"Page {pageNum} Base64 Image: {base64Image}";
+            //                Console.WriteLine($"Page {pageNum} Base64 Image: {base64Image}");
+            //            }
+            //            else
+            //            {
+            //                Console.WriteLine($"Failed to extract image from page {pageNum}");
+            //            }
+            //        }
+            //    }
+            //}            
+
+            return imageFilePaths;
+        }
+        static bool IsImageFile(string filePath)
+        {
+            string extension = System.IO.Path.GetExtension(filePath).ToLower();
+            return extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif" || extension == ".bmp";
+            
+        }
+        class ImageRenderListener : IRenderListener
+        {
+            private Bitmap bitmap;
+
+            public ImageRenderListener(Bitmap bitmap)
+            {
+                this.bitmap = bitmap;
+            }
+
+            public void BeginTextBlock() { }
+            public void EndTextBlock() { }
+            public void RenderImage(ImageRenderInfo renderInfo)
+            {
+                //PdfImageObject image = renderInfo.GetImage();
+                //if (image == null)
+                //    return;
+
+                //using (MemoryStream memoryStream = new MemoryStream(image.GetImageAsBytes()))
+                //{
+                //    Image img = Image.FromStream(memoryStream);
+                //    iTextSharp.text.pdf.parser.Matrix matrix = renderInfo.GetImageCTM();
+                //    Graphics.FromImage(bitmap).DrawImage(img, new RectangleF(matrix[4], matrix[5], matrix[0], matrix[3]));
+                //}
+
+
+                PdfImageObject imageObject = renderInfo.GetImage();
+                if (imageObject != null)
+                {
+                    try
+                    {
+                        Image img = imageObject.GetDrawingImage();
+                        iTextSharp.text.pdf.parser.Matrix matrix = renderInfo.GetImageCTM();
+                        float width = img.Width * matrix[0];
+                        float height = img.Height * matrix[4];
+                        RectangleF rect = new RectangleF(matrix[6], matrix[7], width, height);
+                        Graphics graphics = Graphics.FromImage(bitmap);
+                        graphics.DrawImage(img, rect);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error rendering image: {ex.Message}");
+                    }
+                }
+
+            }
+
+            public void RenderText(TextRenderInfo renderInfo) { }
+        }       
+        static Bitmap ExtractImageFromPdf(PdfReader reader, int pageNum)
+        {
+            try
+            {
+                iTextSharp.text.Rectangle pageSize = reader.GetPageSize(pageNum);
+                Bitmap pageImage = new Bitmap((int)pageSize.Width, (int)pageSize.Height);
+
+                using (Graphics graphics = Graphics.FromImage(pageImage))
+                {
+                    graphics.Clear(Color.White);
+
+                    PdfReaderContentParser parser = new PdfReaderContentParser(reader);
+                    ImageRenderListener listener = new ImageRenderListener(pageImage);
+                    parser.ProcessContent(pageNum, listener);
+                }
+
+                return pageImage;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error extracting image from page {pageNum}: {ex.Message}");
+                return null;
+            }
+        }
+        static string ImageToBase64(Image image, System.Drawing.Imaging.ImageFormat format)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                // Convert Image to byte[]
+                image.Save(ms, format);
+                byte[] imageBytes = ms.ToArray();
+
+                // Convert byte[] to Base64 String
+                return Convert.ToBase64String(imageBytes);
+            }
+        }  
+    }
 }
+
+

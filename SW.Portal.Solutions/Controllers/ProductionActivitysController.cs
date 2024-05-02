@@ -486,16 +486,16 @@ namespace SW.Portal.Solutions.Controllers
         }
 
         [HttpGet("GetActivityReportDocList")]
-        public async Task<ActionResult<Services.ResponseModel<List<Documents>>>> GetActivityReportDocList(long ProductionActivityAppLineID)
+        public async Task<ActionResult<Services.ResponseModel<List<imgDocList>>>> GetActivityReportDocList(long ProductionActivityAppLineID)
         {
 
-            var response = new Services.ResponseModel<Documents>();
+            var response = new Services.ResponseModel<imgDocList>();
 
             var result = await _mediator.Send(new GetProductionActivityReportDocumentList(ProductionActivityAppLineID));
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = result.Count > 0 ? result : new List<Documents> { new Documents() };
+                response.Results = result.Count > 0 ? result : new List<imgDocList> { new imgDocList() };
             }
             catch (Exception ex)
             {

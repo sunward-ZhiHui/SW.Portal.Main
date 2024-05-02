@@ -15,6 +15,7 @@ namespace Core.Repositories.Query
       
         Task<IReadOnlyList<ProductionActivityRoutineAppLine>> GetAllAsync();
         Task<IReadOnlyList<View_ProductionActivityReport>> GetProductionActivityReportList();
+        Task<IReadOnlyList<Documents>> GetProductionActivityReportDocList(long ProductionActivityAppLineID);
         Task<IReadOnlyList<ProductionActivityRoutineAppModel>> GetAllProductionActivityRoutineAsync(ProductionActivityRoutineAppModel value);
         Task<ProductionActivityRoutineAppModel> DeleteproductActivityRoutineAppLine(ProductionActivityRoutineAppModel productionActivityRoutineAppModel);
         Task<ProductionActivityRoutineAppModel> UpdateproductActivityRoutineAppLineCommentField(ProductionActivityRoutineAppModel value);

@@ -260,4 +260,14 @@ namespace Application.Queries
       
      
     }
+    public class GetProductionActivityReportDocumentList : PagedRequest, IRequest<List<Documents>>
+    {
+
+        public long ProductionActivityAppLineID { get;  set; }
+        public GetProductionActivityReportDocumentList(long ProductionActivityAppLineID)
+        {
+            this.ProductionActivityAppLineID = ProductionActivityAppLineID;
+
+        }
+    }
 }

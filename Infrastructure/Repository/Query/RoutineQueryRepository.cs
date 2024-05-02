@@ -34,6 +34,8 @@ using iTextSharp.text.pdf;
 using PdfReader = iTextSharp.text.pdf.PdfReader;
 using TextRenderInfo = iTextSharp.text.pdf.parser.TextRenderInfo;
 using ImageRenderInfo = iTextSharp.text.pdf.parser.ImageRenderInfo;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace Infrastructure.Repository.Query
@@ -1050,20 +1052,20 @@ namespace Infrastructure.Repository.Query
                                 foreach (var Docsitem in DocResult)
                                 {
                                     string extension = System.IO.Path.GetExtension(Docsitem.FileName).ToLower();
-                                    if(extension == ".pdf")
+                                    if (extension == ".pdf")
                                     {
                                         var documentPaths = await ReadPdfAndGetProfileImagesAsync(Docsitem);
-                                        filePaths.AddRange(documentPaths);                                        
-                                       
+                                        filePaths.AddRange(documentPaths);
+
 
                                     }
                                     else if (IsImageFile(extension))
                                     {
-                                        var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];                                                                                
+                                        var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
                                         filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
                                     }
                                 }
-                               
+
                                 item.DocumentList = filePaths;
 
                             }
@@ -1090,7 +1092,7 @@ namespace Infrastructure.Repository.Query
             var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
 
             if (Directory.Exists(serverPaths))
-            {                
+            {
                 string[] files = Directory.GetFiles(serverPaths);
                 string[] imageFiles = files.Where(f => IsImageFile(f)).ToArray();
 
@@ -1142,7 +1144,7 @@ namespace Infrastructure.Repository.Query
         {
             string extension = System.IO.Path.GetExtension(filePath).ToLower();
             return extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif" || extension == ".bmp";
-            
+
         }
         class ImageRenderListener : IRenderListener
         {
@@ -1191,7 +1193,7 @@ namespace Infrastructure.Repository.Query
             }
 
             public void RenderText(TextRenderInfo renderInfo) { }
-        }       
+        }
         static Bitmap ExtractImageFromPdf(PdfReader reader, int pageNum)
         {
             try
@@ -1227,7 +1229,66 @@ namespace Infrastructure.Repository.Query
                 // Convert byte[] to Base64 String
                 return Convert.ToBase64String(imageBytes);
             }
-        }  
+        }
+
+        public async Task<IReadOnlyList<Documents>> GetProductionActivityReportDocList(long ProductionActivityAppLineID)
+        {
+            try
+            {
+
+
+
+                using (var connection = CreateConnection())
+                {
+
+
+                    var parametersDocs = new DynamicParameters();
+                    parametersDocs.Add("ProductionActivityAppLineID", ProductionActivityAppLineID);
+
+                    var Docsquery = @"select D.* from Documents D
+                                                INNER JOIN ProductionActivityAppLineDoc PALD ON PALD.DocumentID = D.DocumentID
+                                                WHERE PALD.ProductionActivityAppLineID = @ProductionActivityAppLineID AND D.IsLatest =1";
+                    var DocResult = (await connection.QueryAsync<Documents>(Docsquery, parametersDocs)).ToList();
+
+                    if (DocResult.Count > 0)
+                    {
+                        //item.DocumentList ??= new List<FileProfileImages>();
+                       
+                        var filePaths = new List<string>(); // Create a list to store file paths
+                        string firstFilePath = null; // Variable to store the first file path
+
+                        foreach (var Docsitem in DocResult)
+                        {
+                            string extension = System.IO.Path.GetExtension(Docsitem.FileName).ToLower();
+                            if (extension == ".pdf")
+                            {
+                                var documentPaths = await ReadPdfAndGetProfileImagesAsync(Docsitem);
+                                filePaths.AddRange(documentPaths);
+
+
+                            }
+                            else if (IsImageFile(extension))
+                            {
+                                var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
+                                filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
+                            }
+                        }
+
+                       
+                    }
+                    return DocResult;
+                }
+                          
+
+                    
+
+                
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }
 

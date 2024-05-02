@@ -964,7 +964,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,
+                var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
                                 FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName
@@ -972,7 +972,7 @@ namespace Infrastructure.Repository.Query
                                 EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
                             LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
-                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                            INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
                             LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
@@ -1008,14 +1008,14 @@ namespace Infrastructure.Repository.Query
                                 FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,                               
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
-								AU.UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
+								CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
                                 EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType,FC.NoOfDays,FC.ExpiryDueDate,
                                 DYSN.SectionName AS DynamicFormEmailSectionName
 
                             FROM
                             EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                            
-                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                            INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID       
                             OUTER APPLY(select DFS.SectionName from DynamicFormSection DFS
                                         INNER JOIN EmailDynamicFormSection EDFS ON EDFS.FormSectionSessionID = DFS.SessionID AND  EDFS.FormSectionSessionID = FC.DynamicFormDataUploadSessionID AND EDFS.EmailSessionID = FC.SessionID)DYSN
@@ -1425,8 +1425,8 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT FC.Name,FC.ID, FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.SessionId,FC.FileData,EN.IsRead,EN.ID as EmailNotificationId,ISNULL(FC.IsMobile, 0) AS IsMobile,FC.UserType FROM EmailConversations FC \r\n";
-                    query += "INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId \r\n";
+                var query = "SELECT FC.Name,FC.ID, FC.AddedDate,FC.Message,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,FC.ReplyId,FC.SessionId,FC.FileData,EN.IsRead,EN.ID as EmailNotificationId,ISNULL(FC.IsMobile, 0) AS IsMobile,FC.UserType FROM EmailConversations FC \r\n";
+                    query += "INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId \r\n";
                     query += "LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId =" + UserId + " \r\n";
                     query += "WHERE FC.ReplyId in(" + string.Join(',', replyIds) + ") ORDER BY FC.AddedDate DESC \r\n";
            

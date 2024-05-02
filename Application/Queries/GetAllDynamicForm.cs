@@ -184,11 +184,13 @@ namespace Application.Queries
         public long? Id { get; set; }
         public long? UserId { get; set; }
         public long? DynamicFormDataGridId { get; set; }
-        public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId)
+        public long? DynamicFormSectionGridAttributeId { get; set; }
+        public GetDynamicFormDataById(long? id, long? userId, long? dynamicFormDataGridId, long? dynamicFormSectionGridAttributeId)
         {
             this.Id = id;
             this.UserId = userId;
             this.DynamicFormDataGridId = dynamicFormDataGridId;
+            this.DynamicFormSectionGridAttributeId = dynamicFormSectionGridAttributeId;
         }
     }
     public class DeleteDynamicFormData : DynamicFormData, IRequest<DynamicFormData>

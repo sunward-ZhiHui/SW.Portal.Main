@@ -85,6 +85,7 @@ namespace Core.Entities
         public IEnumerable<long?> ApplicationMasterIdsListIds { get; set; } = new List<long?>();
         public List<ApplicationMaster> ApplicationMaster { get; set; } = new List<ApplicationMaster>();
         public List<ApplicationMasterParent> ApplicationMasterParents { get; set; } = new List<ApplicationMasterParent>();
+        public List<DynamicFormData> DynamicGridDynamicFormData { get; set; } = new List<DynamicFormData>();
     }
     public class DynamicFormSectionSpinEdit
     {

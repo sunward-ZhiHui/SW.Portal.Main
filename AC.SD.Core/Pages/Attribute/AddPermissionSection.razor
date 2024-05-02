@@ -48,7 +48,7 @@
                                               ValueFieldName="UserID"
                                               TextFieldName="FirstName"
                                               FilteringMode="DataGridFilteringMode.Contains"
-                                              EditFormat="{0}-{1}"
+                                              EditFormat="{0}-{1}-{2}"
                                               SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />

@@ -457,7 +457,7 @@
                 _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
                 if (_attributeHeaderDataSource != null && _attributeHeaderDataSource.Count > 0)
                 {
-                    List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid" };
+                    List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid", "ApplicationMaster", "ApplicationMasterParent" };
                     _attributeHeaderDataSource = _attributeHeaderDataSource.Where(w => !dataSourceNotIn.Contains(w.DataSourceTable)).ToList();
                 }
             }
@@ -609,7 +609,7 @@
                 _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
                 if (_attributeHeaderDataSource != null && _attributeHeaderDataSource.Count > 0)
                 {
-                    List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid" };
+                    List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid", "ApplicationMaster", "ApplicationMasterParent" };
                     _attributeHeaderDataSource = _attributeHeaderDataSource.Where(w => !dataSourceNotIn.Contains(w.DataSourceTable)).ToList();
                 }
             }

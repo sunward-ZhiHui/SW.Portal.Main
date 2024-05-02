@@ -567,32 +567,91 @@ namespace Infrastructure.Repository.Query
             List<AttributeDetails> attributeDetails = new List<AttributeDetails>();
             try
             {
+                var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 List<string?> plantNames = new List<string?>() { "SWMY", "SWSG" };
+                var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
                 List<long> plantIds = new List<long>();
                 var plantsData = await GetPlantDataSource();
                 plantIds = plantsData.Where(w => plantNames.Contains(w.AttributeDetailName)).Select(s => s.AttributeDetailID).ToList();
                 var query = string.Empty;
-                query += "select\r";
+                query += "\r";
                 if (DataSource == "Employee")
                 {
-                    query += "\r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description\r";
+                    query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID\r";
                 }
-                if (DataSource == "NavItems")
+                else if (DataSource == "NavItems")
                 {
-                    query += "\r'NavItems' as DropDownTypeId,t1.ItemId as AttributeDetailID,t1.CompanyId,No as AttributeDetailName,t2.PlantCode as CompanyName,CONCAT(t1.Description,(case when ISNULL(NULLIF(t1.Description2, ''), null) is NULL then  t1.Description2 ELSE  CONCAT(' | ',t1.Description2) END)) as Description\r";
+                    query += "select\r'NavItems' as DropDownTypeId,t1.ItemId as AttributeDetailID,t1.CompanyId,No as AttributeDetailName,t2.PlantCode as CompanyName,CONCAT(t1.Description,(case when ISNULL(NULLIF(t1.Description2, ''), null) is NULL then  t1.Description2 ELSE  CONCAT(' | ',t1.Description2) END)) as Description from NavItems t1 JOIN Plant t2 ON t1.CompanyID = t2.PlantID\r";
                 }
-                query += "\rfrom " + DataSource + "\rt1\n\r";
-                if (DataSource == "Employee")
+                else if (DataSource == "Division")
                 {
-                    query += "\rJOIN Plant t2 ON t1.PlantID = t2.PlantID\r";
+                    query += "select\r'Division' as DropDownTypeId,t1.DivisionID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description from Division t1 JOIN Plant t2 ON t1.CompanyID = t2.PlantID\r";
+
                 }
-                if (DataSource == "NavItems")
+                else if (DataSource == "Department")
                 {
-                    query += "\rJOIN Plant t2 ON t1.CompanyID = t2.PlantID\r";
+                    query += "select\r'Department' as DropDownTypeId,t1.DepartmentID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description from Department t1 JOIN Plant t2 ON t1.CompanyID = t2.PlantID\r";
+
+                }
+                else if (DataSource == "Section")
+                {
+                    query += "select\r'Section' as DropDownTypeId,t1.SectionID as AttributeDetailID,t2.CompanyID as CompanyId,t3.PlantCode as CompanyName, t1.Name as AttributeDetailName,CONCAT(t2.Name,'||',t1.Description) as Description from Section t1 JOIN Department t2 ON t2.DepartmentID=t1.DepartmentID JOIN Plant t3 ON t2.CompanyID=t3.PlantID\r";
+
+                }
+                else if (DataSource == "SubSection")
+                {
+                    query += "select\r'SubSection' as DropDownTypeId,t1.SectionID as AttributeDetailID,t4.CompanyID as CompanyId,t4.PlantCode as CompanyName, t1.Name as AttributeDetailName,CONCAT(t2.Name,'||',t3.Name,'||',t1.Description) as Description from SubSection t1 JOIN Section t2 ON t2.SectionID=t1.SectionID  JOIN Department t3 ON t3.DepartmentID=t2.DepartmentID  JOIN Plant t4 ON t3.CompanyID=t4.PlantID\r";
+
+                }
+                else
+                {
+
+                    if (soCustomerType.Contains(DataSource))
+                    {
+                        query += "select Type as DropDownTypeId, t1.SoCustomerID as AttributeDetailID,t1.CustomerName as AttributeDetailName,t1.Address1 as Description from SoCustomer t1\r";
+                        if (dynamicFormFilterBies == null)
+                        {
+                            query += "where t1.type='" + DataSource + "'\rAND\r";
+                        }
+                        if (dynamicFormFilterBies != null && dynamicFormFilterBies.Count == 0)
+                        {
+                            query += "where t1.type='" + DataSource + "'\rAND\r";
+                        }
+                    }
+                    else
+                    {
+                        if (rawMatItemType.Contains(DataSource))
+                        {
+                            query += "select Type as DropDownTypeId,t1.ID as AttributeDetailID,t1.CompanyId,ItemNo as AttributeDetailName,t2.PlantCode as CompanyName,CONCAT(t1.Description,(case when ISNULL(NULLIF(t1.Description2, ''), null) is NULL then  t1.Description2 ELSE  CONCAT(' | ',t1.Description2) END)) as Description from RawMatItemList t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r";
+                            if (dynamicFormFilterBies == null)
+                            {
+                                query += "where t1.type='" + DataSource + "'\rAND\r";
+                            }
+                            if (dynamicFormFilterBies != null && dynamicFormFilterBies.Count == 0)
+                            {
+                                query += "where t1.type='" + DataSource + "'\rAND\r";
+                            }
+                        }
+                    }
                 }
                 if (dynamicFormFilterBies != null && dynamicFormFilterBies.Count() > 0)
                 {
-                    query += "where";
+
+                    if (soCustomerType.Contains(DataSource))
+                    {
+                        query += "where t1.type='" + DataSource + "' AND\r";
+                    }
+                    else
+                    {
+                        if (rawMatItemType.Contains(DataSource))
+                        {
+                            query += "where t1.type='" + DataSource + "' AND\r";
+                        }
+                        else
+                        {
+                            query += "where";
+                        }
+                    }
                     var query1 = string.Empty;
                     DynamicFormFilterBy first = dynamicFormFilterBies.ToList().First();
                     dynamicFormFilterBies.ForEach(s =>
@@ -636,7 +695,7 @@ namespace Infrastructure.Repository.Query
                                                 if (plantCode == "swgp")
                                                 {
                                                     plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                                                    if (s.FilterTableName == "Plant")
+                                                    if (s.FilterTableName == "Plant" || s.FilterTableName == "Division" || DataSource == "Department" || DataSource == "Section" || DataSource == "SubSection")
                                                     {
                                                         query1 += "\rt1." + s.FromFilterFieldName + "\rin(" + string.Join(',', plantIds) + ")\r";
                                                     }
@@ -646,7 +705,14 @@ namespace Infrastructure.Repository.Query
                                                     }
                                                     else
                                                     {
-                                                        query1 += "\rt1." + s.FromFilterFieldName + "\r='" + valueData + "'\r";
+                                                        if (rawMatItemType.Contains(DataSource))
+                                                        {
+                                                            query1 += "\rt1." + s.FromFilterFieldName + "\rin(" + string.Join(',', plantIds) + ")\r";
+                                                        }
+                                                        else
+                                                        {
+                                                            query1 += "\rt1." + s.FromFilterFieldName + "\r='" + valueData + "'\r";
+                                                        }
                                                     }
                                                 }
                                                 else

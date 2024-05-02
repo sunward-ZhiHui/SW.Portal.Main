@@ -83,6 +83,11 @@ namespace Core.Entities
         public long? SortOrderAnotherBy { get; set; }
         public long? GridSortOrderByNo { get; set; }
         public long? GridSortOrderAnotherByNo { get; set; }
+        public long? CompanyId { get; set; }
+        public string? PlantCode { get; set; }
+        public long? DynamicFormDataGridFormId { get; set; }
+        public string? DynamicFormDataGridProfileNo { get; set; }
+        public long? DynamicFormSectionGridAttributeId { get; set; }
     }
     public class DynamicFormProfile
     {

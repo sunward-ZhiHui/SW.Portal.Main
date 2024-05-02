@@ -988,6 +988,7 @@ namespace Infrastructure.Repository.Query
 
         public async Task<IReadOnlyList<DynamicFormSection>> GetDynamicFormSectionAsync(long? dynamicFormId)
         {
+
             try
             {
                 var parameters = new DynamicParameters();
@@ -1027,7 +1028,7 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t8 ON t8.AttributeHeaderDataSourceID=t6.DataSourceId\r\n" +
                     "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n" +
-                    "LEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterID=t6.FilterDataSocurceID\r\n"+
+                    "LEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterID=t6.FilterDataSocurceID\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t10 ON t10.AttributeHeaderDataSourceID=t1.PlantDropDownWithOtherDataSourceId\r\n" +
                     "Where (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null)  AND t1.DynamicFormSectionId=@DynamicFormSectionId\r\n";
                 using (var connection = CreateConnection())
@@ -1456,9 +1457,10 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
                 parameters.Add("DynamicFormId", dynamicFormData.DynamicFormId);
                 parameters.Add("DynamicFormDataGridId", dynamicFormData.DynamicFormDataGridId);
+                parameters.Add("DynamicFormSectionGridAttributeId", dynamicFormData.DynamicFormSectionGridAttributeId);
                 parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId > 0 ? dynamicFormData.DynamicFormDataId : -1);
-                query += "SELECT DynamicFormId,GridSortOrderByNo,DynamicFormDataId,DynamicFormDataGridId FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormDataId=@DynamicFormDataId AND DynamicFormId = @DynamicFormId AND DynamicFormDataGridId=@DynamicFormDataGridId order by  SortOrderByNo desc;";
-                query += "SELECT DynamicFormId,GridSortOrderByNo,DynamicFormDataGridId FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormId = @DynamicFormId AND DynamicFormDataGridId=@DynamicFormDataGridId  order by  GridSortOrderByNo desc";
+                query += "SELECT DynamicFormId,GridSortOrderByNo,DynamicFormDataId,DynamicFormDataGridId,DynamicFormSectionGridAttributeId FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormDataId=@DynamicFormDataId AND DynamicFormId = @DynamicFormId  AND DynamicFormDataGridId=@DynamicFormDataGridId order by  SortOrderByNo desc;";
+                query += "SELECT DynamicFormId,GridSortOrderByNo,DynamicFormDataGridId,DynamicFormSectionGridAttributeId FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormId = @DynamicFormId AND DynamicFormDataGridId=@DynamicFormDataGridId   order by  GridSortOrderByNo desc";
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query, parameters);
@@ -1533,6 +1535,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsSendApproval", dynamicFormData.IsSendApproval);
                         parameters.Add("FileProfileSessionID", dynamicFormData.FileProfileSessionID);
                         parameters.Add("DynamicFormDataGridId", dynamicFormData.DynamicFormDataGridId);
+                        parameters.Add("DynamicFormSectionGridAttributeId", dynamicFormData.DynamicFormSectionGridAttributeId);
                         var ProfileId = dynamicFormData.DynamicFormProfile.ProfileId > 0 ? dynamicFormData.DynamicFormProfile.ProfileId : null;
                         var profileNo = dynamicFormData.ProfileNo;
                         if (dynamicFormData.ProfileId > 0)
@@ -1558,7 +1561,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("GridSortOrderByNo", gridSortOrderByNo);
                         if (dynamicFormData.DynamicFormDataId > 0)
                         {
-                            var query = "UPDATE DynamicFormData SET GridSortOrderByNo=@GridSortOrderByNo,SortOrderByNo=@SortOrderByNo,DynamicFormDataGridId=@DynamicFormDataGridId,DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId,ProfileId=@ProfileId," +
+                            var query = "UPDATE DynamicFormData SET DynamicFormSectionGridAttributeId=@DynamicFormSectionGridAttributeId,GridSortOrderByNo=@GridSortOrderByNo,SortOrderByNo=@SortOrderByNo,DynamicFormDataGridId=@DynamicFormDataGridId,DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId,ProfileId=@ProfileId," +
                                 "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsSendApproval=@IsSendApproval,ProfileNo=@ProfileNo " +
                                 "WHERE DynamicFormDataId = @DynamicFormDataId;\n\r";
                             query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Update");
@@ -1568,8 +1571,8 @@ namespace Infrastructure.Repository.Query
                         else
                         {
 
-                            var query = "INSERT INTO DynamicFormData(GridSortOrderByNo,SortOrderByNo,DynamicFormDataGridId,DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID,ProfileId,ProfileNo)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
-                                "(@GridSortOrderByNo,@SortOrderByNo,@DynamicFormDataGridId,@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID,@ProfileId,@ProfileNo);\n\r";
+                            var query = "INSERT INTO DynamicFormData(DynamicFormSectionGridAttributeId,GridSortOrderByNo,SortOrderByNo,DynamicFormDataGridId,DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID,ProfileId,ProfileNo)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
+                                "(@DynamicFormSectionGridAttributeId,@GridSortOrderByNo,@SortOrderByNo,@DynamicFormDataGridId,@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID,@ProfileId,@ProfileNo);\n\r";
                             query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
                             dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
@@ -1738,7 +1741,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId)
+        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId)
         {
             try
             {
@@ -1746,6 +1749,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", id);
                 parameters.Add("DynamicFormDataGridId", DynamicFormDataGridId);
+                parameters.Add("DynamicFormSectionGridAttributeId", DynamicFormSectionGridAttributeId);
                 var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
                     "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
                     "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid\r\n" +
@@ -1757,6 +1761,7 @@ namespace Infrastructure.Repository.Query
                 if (DynamicFormDataGridId == 0 || DynamicFormDataGridId > 0)
                 {
                     query += "AND t1.DynamicFormDataGridId=@DynamicFormDataGridId order by t1.GridSortOrderByNo asc;\r\n";
+                    //query += "AND t1.DynamicFormDataGridId=@DynamicFormDataGridId And (t1.DynamicFormSectionGridAttributeID=@DynamicFormSectionGridAttributeId or t1.DynamicFormSectionGridAttributeID is null) order by t1.GridSortOrderByNo asc;\r\n";
                 }
                 else
                 {
@@ -3769,15 +3774,16 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
                 parameters.Add("DynamicFormID", dynamicFormData.DynamicFormId);
                 parameters.Add("DynamicFormDataGridId", dynamicFormData.DynamicFormDataGridId);
+                parameters.Add("DynamicFormSectionGridAttributeId", dynamicFormData.DynamicFormSectionGridAttributeId);
                 var from = dynamicFormData.GridSortOrderAnotherByNo > dynamicFormData.GridSortOrderByNo ? dynamicFormData.GridSortOrderByNo : dynamicFormData.GridSortOrderAnotherByNo;
                 var to = dynamicFormData.GridSortOrderAnotherByNo > dynamicFormData.GridSortOrderByNo ? dynamicFormData.GridSortOrderAnotherByNo : dynamicFormData.GridSortOrderByNo;
                 parameters.Add("SortOrderByFrom", from);
                 parameters.Add("SortOrderByTo", to);
-                query = "SELECT DynamicFormID,DynamicFormDataId,SortOrderByNo,GridSortOrderByNo FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormID = @DynamicFormID  AND DynamicFormDataGridId=@DynamicFormDataGridId AND GridSortOrderByNo>@SortOrderByFrom and GridSortOrderByNo<=@SortOrderByTo order by GridSortOrderByNo asc";
+                query = "SELECT DynamicFormID,DynamicFormDataId,SortOrderByNo,GridSortOrderByNo,DynamicFormSectionGridAttributeId FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormID = @DynamicFormID   AND DynamicFormDataGridId=@DynamicFormDataGridId AND GridSortOrderByNo>@SortOrderByFrom and GridSortOrderByNo<=@SortOrderByTo order by GridSortOrderByNo asc";
 
                 if (dynamicFormData.GridSortOrderAnotherByNo > dynamicFormData.GridSortOrderByNo)
                 {
-                    query = "SELECT DynamicFormID,DynamicFormDataId,SortOrderByNo,GridSortOrderByNo FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormID = @DynamicFormID  AND DynamicFormDataGridId=@DynamicFormDataGridId AND GridSortOrderByNo>=@SortOrderByFrom and GridSortOrderByNo<@SortOrderByTo order by GridSortOrderByNo asc";
+                    query = "SELECT DynamicFormID,DynamicFormDataId,SortOrderByNo,GridSortOrderByNo,DynamicFormSectionGridAttributeId FROM DynamicFormData Where (IsDeleted=0 or IsDeleted is null) AND DynamicFormID = @DynamicFormID  AND DynamicFormDataGridId=@DynamicFormDataGridId AND GridSortOrderByNo>=@SortOrderByFrom and GridSortOrderByNo<@SortOrderByTo order by GridSortOrderByNo asc";
 
                 }
                 using (var connection = CreateConnection())
@@ -3903,7 +3909,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                var querys = "select DynamicFormDataID,DynamicFormID,SortOrderByNo,DynamicFormDataGridID,GridSortOrderByNo from DynamicFormData where IsDeleted is null or IsDeleted=0";
+                var querys = "select DynamicFormDataID,DynamicFormID,SortOrderByNo,DynamicFormDataGridID,GridSortOrderByNo,DynamicFormSectionGridAttributeId from DynamicFormData where IsDeleted is null or IsDeleted=0";
 
                 using (var connection = CreateConnection())
                 {

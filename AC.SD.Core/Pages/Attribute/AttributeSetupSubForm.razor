@@ -278,7 +278,7 @@
         Data.SubAttributeDetailId = SubAttributeDetailId;
         Data.SubAttributeId = SubAttributeId;
         Data.IsSubForm = true;
-        Data.SubFormType = Type;
+        Data.SubFormType = Type;Data.FilterDataSocurceId = 0;
         DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "InBuild", Text = "InBuild" });
         DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "DataSource", Text = "Data Source" });
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");

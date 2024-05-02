@@ -25,6 +25,7 @@ using Grpc.Core;
 using AC.SD.Core.Pages.DMS;
 using Application.Queries;
 using MediatR;
+using Google.Cloud.Firestore;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -275,16 +276,22 @@ namespace SW.Portal.Solutions.Controllers
                     Document document = new Document(pdfDocument);
                     int i = 0;
                     foreach (var f in files.Files)
-                    {
+                    {                        
                         var file = f;
                         var fs = file.OpenReadStream();
-                        var br = new BinaryReader(fs);
+                        var br = new BinaryReader(fs);                        
+                        var filePath = Path.Combine(serverPaths, file.FileName);
                         Byte[] documentByte = br.ReadBytes((Int32)fs.Length);
                         var image = new Image(ImageDataFactory.Create(documentByte));
                         pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
                         image.SetFixedPosition(i + 1, 0, 0);
                         document.Add(image);
                         i++;
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(fileStream);
+                        }
                     }
                     pdfDocument.Close();
                     byte[] fileData = memoryStream.ToArray();

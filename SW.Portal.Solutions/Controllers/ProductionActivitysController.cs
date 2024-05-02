@@ -462,5 +462,48 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+
+
+        [HttpGet("GetActivityReportList")]
+        public async Task<ActionResult<Services.ResponseModel<List<View_ProductionActivityReport>>>> GetActivityReportList()
+        {
+
+            var response = new Services.ResponseModel<View_ProductionActivityReport>();
+
+            var result = await _mediator.Send(new GetProductionActivityReportList());
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<View_ProductionActivityReport> { new View_ProductionActivityReport() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("GetActivityReportDocList")]
+        public async Task<ActionResult<Services.ResponseModel<List<Documents>>>> GetActivityReportDocList(long ProductionActivityAppLineID)
+        {
+
+            var response = new Services.ResponseModel<Documents>();
+
+            var result = await _mediator.Send(new GetProductionActivityReportDocumentList(ProductionActivityAppLineID));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<Documents> { new Documents() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 }

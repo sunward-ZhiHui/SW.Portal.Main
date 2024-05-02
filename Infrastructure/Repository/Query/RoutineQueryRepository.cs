@@ -4,22 +4,51 @@ using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
 using Infrastructure.Repository.Query.Base;
+
+
+using iText.Layout;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+
+
+using System;
+using System.IO;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
+using iText.Kernel.Pdf.Canvas.Parser.Data;
+using iText.Kernel.Geom;
+using iText.IO.Image;
+using iText.Kernel.Pdf.Xobject;
+using System.Drawing.Imaging;
+using iTextSharp.text.pdf.parser;
+using iTextSharp.text.pdf;
+using PdfReader = iTextSharp.text.pdf.PdfReader;
+using TextRenderInfo = iTextSharp.text.pdf.parser.TextRenderInfo;
+using ImageRenderInfo = iTextSharp.text.pdf.parser.ImageRenderInfo;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace Infrastructure.Repository.Query
 {
     public class RoutineQueryRepository : QueryRepository<ProductionActivityRoutineAppLine>, IRoutineQueryRepository
     {
-        public RoutineQueryRepository(IConfiguration configuration)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IConfiguration _configuration;
+        public RoutineQueryRepository(IConfiguration configuration, IWebHostEnvironment hostingEnvironment, IConfiguration configurations)
            : base(configuration)
         {
-
+            _hostingEnvironment = hostingEnvironment;
+            _configuration = configurations;
         }
         private string DocumentQueryString()
         {
@@ -157,7 +186,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("LotNo", value.LotNo);
                 var query = "";
 
-                if(value.TimeSheetAction == true)
+                if (value.TimeSheetAction == true)
                 {
                     query = @"select t1.ProductionActivityRoutineAppLineID,t1.ProductionActivityRoutineAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.ProductActivityCaseID,t1.VisaMasterID,t1.RoutineStatusID,t1.CommentImage,t1.CommentImageType,t1.ProfileID,t1.ProfileNo,t1.IsCheckNoIssue,t1.CheckedByID,t1.CheckedDate,t1.CheckedRemark,t1.IsCheckReferSupportDocument,CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId
                     ,t2.CompanyID,t10.PlantCode as CompanyName,t12.LocationToSaveId AS MasterProductionFileProfileTypeId,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,
@@ -189,7 +218,7 @@ namespace Infrastructure.Repository.Query
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
                     WHERE t1.ProductionActivityRoutineAppLineID>0";
                 }
-                
+
                 if (value.NavprodOrderLineId > 0)
                 {
                     query += "\n\rAND t1.NavprodOrderLineId=@NavprodOrderLineId";
@@ -223,8 +252,8 @@ namespace Infrastructure.Repository.Query
                     else
                     {
                         query += "\n\rAND t2.ItemName=@ItemName";
-                    }                    
-                    
+                    }
+
                     if (value.LotNo == null || value.LotNo == "")
                     {
                         query += "\n\rAND (t2.LotNo IS NULL OR t2.LotNo = '')";
@@ -239,7 +268,7 @@ namespace Infrastructure.Repository.Query
                         query += "\n\rAND t2.LocationID=@LocationID";
                     }
                     else
-                    {                        
+                    {
                         query += "\n\rAND (t2.LocationID IS NULL or t2.LocationID = 0 or t2.LocationID = '')";
                     }
 
@@ -251,7 +280,7 @@ namespace Infrastructure.Repository.Query
                         query += "\n\rAND t2.LocationID=@LocationID";
                     }
                 }
-               
+
                 if (value.ProdActivityResultId > 0)
                 {
                     query += "\n\rAND t1.ProdActivityResultID=@ProdActivityResultId";
@@ -988,5 +1017,276 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<IReadOnlyList<View_ProductionActivityReport>> GetProductionActivityReportList()
+        {
+
+            try
+            {
+                var query = @"Select * From View_Production_Activity_Filter_Report";
+
+
+                using (var connection = CreateConnection())
+                {
+                    var Result = (await connection.QueryAsync<View_ProductionActivityReport>(query)).ToList();
+                    if (Result.Count > 0)
+                    {
+                        foreach (var item in Result)
+                        {
+
+                            var parametersDocs = new DynamicParameters();
+                            parametersDocs.Add("ProductionActivityAppLineID", item.ProductionActivityAppLineID);
+
+                            var Docsquery = @"select D.* from Documents D
+                                                INNER JOIN ProductionActivityAppLineDoc PALD ON PALD.DocumentID = D.DocumentID
+                                                WHERE PALD.ProductionActivityAppLineID = @ProductionActivityAppLineID AND D.IsLatest =1";
+                            var DocResult = (await connection.QueryAsync<Documents>(Docsquery, parametersDocs)).ToList();
+
+                            if (DocResult.Count > 0)
+                            {
+                                //item.DocumentList ??= new List<FileProfileImages>();
+                                item.DocumentList ??= new List<string>();
+                                var filePaths = new List<string>(); // Create a list to store file paths
+                                string firstFilePath = null; // Variable to store the first file path
+
+                                foreach (var Docsitem in DocResult)
+                                {
+                                    string extension = System.IO.Path.GetExtension(Docsitem.FileName).ToLower();
+                                    if (extension == ".pdf")
+                                    {
+                                        var documentPaths = await ReadPdfAndGetProfileImagesAsync(Docsitem);
+                                        filePaths.AddRange(documentPaths);
+
+
+                                    }
+                                    else if (IsImageFile(extension))
+                                    {
+                                        var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
+                                        filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
+                                    }
+                                }
+
+                                item.DocumentList = filePaths;
+
+                            }
+                        }
+                    }
+
+                    return Result;
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
+        public async Task<List<string>> ReadPdfAndGetProfileImagesAsync(Documents document)
+        {
+            var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + document.SessionId + @"\";
+            string fileName = document.SessionId + ".pdf";
+            var pdfFilePath = serverPaths + fileName;
+            var imageFilePaths = new List<string>();
+            var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
+
+            if (Directory.Exists(serverPaths))
+            {
+                string[] files = Directory.GetFiles(serverPaths);
+                string[] imageFiles = files.Where(f => IsImageFile(f)).ToArray();
+
+                // Process the image files
+                foreach (string imageFile in imageFiles)
+                {
+                    var path = imageFile.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                    imageFilePaths.Add(DocumentViewUrl + path);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Directory does not exist.");
+            }
+
+
+            // byte[] fileBytes = File.ReadAllBytes(pdfFilePath);
+            // string base64Strings = Convert.ToBase64String(fileBytes);
+            //using (MemoryStream memoryStream = new MemoryStream(fileBytes))
+            //{
+            //    iText.Kernel.Pdf.PdfDocument pdfDocument = new iText.Kernel.Pdf.PdfDocument(new iText.Kernel.Pdf.PdfReader(memoryStream));
+            //    //Document document = new Document(pdfDocument); 
+            //    pdfDocument.Close();
+            //}
+
+            //using (PdfReader reader = new PdfReader(pdfFilePath))
+            //{
+            //    for (int pageNum = 1; pageNum <= reader.NumberOfPages; pageNum++)
+            //    {
+            //        using (Bitmap pageImage = ExtractImageFromPdf(reader, pageNum))
+            //        {
+            //            if (pageImage != null)
+            //            {
+            //                string base64Image = ImageToBase64(pageImage, ImageFormat.Jpeg);
+            //                var lsls = $"Page {pageNum} Base64 Image: {base64Image}";
+            //                Console.WriteLine($"Page {pageNum} Base64 Image: {base64Image}");
+            //            }
+            //            else
+            //            {
+            //                Console.WriteLine($"Failed to extract image from page {pageNum}");
+            //            }
+            //        }
+            //    }
+            //}            
+
+            return imageFilePaths;
+        }
+        static bool IsImageFile(string filePath)
+        {
+            string extension = System.IO.Path.GetExtension(filePath).ToLower();
+            return extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif" || extension == ".bmp";
+
+        }
+        class ImageRenderListener : IRenderListener
+        {
+            private Bitmap bitmap;
+
+            public ImageRenderListener(Bitmap bitmap)
+            {
+                this.bitmap = bitmap;
+            }
+
+            public void BeginTextBlock() { }
+            public void EndTextBlock() { }
+            public void RenderImage(ImageRenderInfo renderInfo)
+            {
+                //PdfImageObject image = renderInfo.GetImage();
+                //if (image == null)
+                //    return;
+
+                //using (MemoryStream memoryStream = new MemoryStream(image.GetImageAsBytes()))
+                //{
+                //    Image img = Image.FromStream(memoryStream);
+                //    iTextSharp.text.pdf.parser.Matrix matrix = renderInfo.GetImageCTM();
+                //    Graphics.FromImage(bitmap).DrawImage(img, new RectangleF(matrix[4], matrix[5], matrix[0], matrix[3]));
+                //}
+
+
+                PdfImageObject imageObject = renderInfo.GetImage();
+                if (imageObject != null)
+                {
+                    try
+                    {
+                        Image img = imageObject.GetDrawingImage();
+                        iTextSharp.text.pdf.parser.Matrix matrix = renderInfo.GetImageCTM();
+                        float width = img.Width * matrix[0];
+                        float height = img.Height * matrix[4];
+                        RectangleF rect = new RectangleF(matrix[6], matrix[7], width, height);
+                        Graphics graphics = Graphics.FromImage(bitmap);
+                        graphics.DrawImage(img, rect);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error rendering image: {ex.Message}");
+                    }
+                }
+
+            }
+
+            public void RenderText(TextRenderInfo renderInfo) { }
+        }
+        static Bitmap ExtractImageFromPdf(PdfReader reader, int pageNum)
+        {
+            try
+            {
+                iTextSharp.text.Rectangle pageSize = reader.GetPageSize(pageNum);
+                Bitmap pageImage = new Bitmap((int)pageSize.Width, (int)pageSize.Height);
+
+                using (Graphics graphics = Graphics.FromImage(pageImage))
+                {
+                    graphics.Clear(Color.White);
+
+                    PdfReaderContentParser parser = new PdfReaderContentParser(reader);
+                    ImageRenderListener listener = new ImageRenderListener(pageImage);
+                    parser.ProcessContent(pageNum, listener);
+                }
+
+                return pageImage;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error extracting image from page {pageNum}: {ex.Message}");
+                return null;
+            }
+        }
+        static string ImageToBase64(Image image, System.Drawing.Imaging.ImageFormat format)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                // Convert Image to byte[]
+                image.Save(ms, format);
+                byte[] imageBytes = ms.ToArray();
+
+                // Convert byte[] to Base64 String
+                return Convert.ToBase64String(imageBytes);
+            }
+        }
+
+        public async Task<IReadOnlyList<Documents>> GetProductionActivityReportDocList(long ProductionActivityAppLineID)
+        {
+
+
+            try
+            {
+                var parametersDocs = new DynamicParameters();
+                parametersDocs.Add("ProductionActivityAppLineID", ProductionActivityAppLineID);
+
+                var Docsquery = @"select D.* from Documents D
+                                                INNER JOIN ProductionActivityAppLineDoc PALD ON PALD.DocumentID = D.DocumentID
+                                                WHERE PALD.ProductionActivityAppLineID = @ProductionActivityAppLineID AND D.IsLatest =1";
+                using (var connection = CreateConnection())
+                {
+                    var DocResult = (await connection.QueryAsync<Documents>(Docsquery, parametersDocs)).ToList();
+
+
+                    if (DocResult.Count > 0)
+                    {
+                        //item.DocumentList ??= new List<FileProfileImages>();
+
+                        var filePaths = new List<string>(); // Create a list to store file paths
+                        string firstFilePath = null; // Variable to store the first file path
+
+                        foreach (var Docsitem in DocResult)
+                        {
+                            string extension = System.IO.Path.GetExtension(Docsitem.FileName).ToLower();
+                            if (extension == ".pdf")
+                            {
+                                var documentPaths = await ReadPdfAndGetProfileImagesAsync(Docsitem);
+                                filePaths.AddRange(documentPaths);
+
+
+                            }
+                            else if (IsImageFile(extension))
+                            {
+                                var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
+                                filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
+                               
+                            }
+                        }
+
+
+                    }
+                    return DocResult;
+                }
+               
+              
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+          
+        }
     }
 }
+
+

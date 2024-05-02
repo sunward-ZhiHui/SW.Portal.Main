@@ -1233,27 +1233,25 @@ namespace Infrastructure.Repository.Query
 
         public async Task<IReadOnlyList<Documents>> GetProductionActivityReportDocList(long ProductionActivityAppLineID)
         {
+
+
             try
             {
+                var parametersDocs = new DynamicParameters();
+                parametersDocs.Add("ProductionActivityAppLineID", ProductionActivityAppLineID);
 
-
-
-                using (var connection = CreateConnection())
-                {
-
-
-                    var parametersDocs = new DynamicParameters();
-                    parametersDocs.Add("ProductionActivityAppLineID", ProductionActivityAppLineID);
-
-                    var Docsquery = @"select D.* from Documents D
+                var Docsquery = @"select D.* from Documents D
                                                 INNER JOIN ProductionActivityAppLineDoc PALD ON PALD.DocumentID = D.DocumentID
                                                 WHERE PALD.ProductionActivityAppLineID = @ProductionActivityAppLineID AND D.IsLatest =1";
+                using (var connection = CreateConnection())
+                {
                     var DocResult = (await connection.QueryAsync<Documents>(Docsquery, parametersDocs)).ToList();
+
 
                     if (DocResult.Count > 0)
                     {
                         //item.DocumentList ??= new List<FileProfileImages>();
-                       
+
                         var filePaths = new List<string>(); // Create a list to store file paths
                         string firstFilePath = null; // Variable to store the first file path
 
@@ -1271,23 +1269,22 @@ namespace Infrastructure.Repository.Query
                             {
                                 var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
                                 filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
+                               
                             }
                         }
 
-                       
+
                     }
                     return DocResult;
                 }
-                          
-
-                    
-
-                
+               
+              
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
+          
         }
     }
 }

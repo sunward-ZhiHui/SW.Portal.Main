@@ -171,4 +171,14 @@ namespace Application.Queries
             this.ApplicationMasterParentId = applicationMasterParentId;
         }
     }
+    public class GetDynamicGridNested : PagedRequest, IRequest<DropDownOptionsGridListModel>
+    {
+        public List<long?> DynamicFormDataId { get; set; }
+        public long? UserId { get; set; }
+        public GetDynamicGridNested(List<long?> dynamicFormDataId, long? userId)
+        {
+            this.DynamicFormDataId = dynamicFormDataId;
+            this.UserId = userId;
+        }
+    }
 }

@@ -181,7 +181,7 @@
          Closed="EulaPopupClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1500px" MaxHeight="1000px">
     <BodyContentTemplate>
-        <DynamicGridForms SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
+        <DynamicGridForms DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeId" SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
@@ -201,6 +201,8 @@
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
+    [Parameter]
+    public long? DynamicFormSectionGridAttributeId { get; set; }
     [Parameter]
     public bool IsReadonly { get; set; } = true;
     [Parameter]
@@ -375,7 +377,7 @@
                 }
                 if (DynamicFormDataGridId > 0)
                 {
-                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId));
+                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId));
                     PanelVisible = true; _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {
@@ -966,6 +968,7 @@
         dynamicFormData.GridSortOrderAnotherByNo = sourceItemIndex + 1;
         dynamicFormData.IsDynamicFormDataGrid = true;
         dynamicFormData.GridSortOrderByNo = newItemIndex + 1;
+        dynamicFormData.DynamicFormSectionGridAttributeId=DynamicFormSectionGridAttributeId;
         var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
         await Mediator.Send(request);
         await UpdateDataAsync();

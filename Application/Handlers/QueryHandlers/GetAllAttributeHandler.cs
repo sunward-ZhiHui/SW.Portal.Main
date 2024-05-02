@@ -276,7 +276,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeDetails>> Handle(GetFilterByDataSourceLists request, CancellationToken cancellationToken)
         {
-            return (List<AttributeDetails>)await _attrubutequeryRepository.GetFilterByDataSourceLists(request.DynamicFormFilterBy,request.Data,request.DataSource);
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetFilterByDataSourceLists(request.DynamicFormFilterBy, request.Data, request.DataSource);
         }
     }
     public class GetApplicationMasterParentMobileByListHandler : IRequestHandler<GetApplicationMasterParentMobileByList, List<DropDownOptionsListModel>>
@@ -290,6 +290,19 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<DropDownOptionsListModel>> Handle(GetApplicationMasterParentMobileByList request, CancellationToken cancellationToken)
         {
             return (List<DropDownOptionsListModel>)await _attrubutequeryRepository.GetApplicationMasterParentByMobileList(request.DynamicMasterParentIds, request.ApplicationMasterParentId);
+        }
+    }
+    public class GetDynamicGridNestedHandler : IRequestHandler<GetDynamicGridNested, DropDownOptionsGridListModel>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetDynamicGridNestedHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<DropDownOptionsGridListModel> Handle(GetDynamicGridNested request, CancellationToken cancellationToken)
+        {
+            return await _attrubutequeryRepository.GetDynamicGridNested(request.DynamicFormDataId, request.UserId);
         }
     }
 }

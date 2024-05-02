@@ -259,7 +259,7 @@
         Data.IsUpload = false;
         Data.AddedByUserID = applicationUser.UserID;
         Data.ModifiedByUserID = applicationUser.UserID;
-        
+
         Data.AddedDate = DateTime.Now;
         Data.ModifiedDate = DateTime.Now;
         Data.AddedByUser = applicationUser.UserName;
@@ -321,11 +321,14 @@
         if (Data.ProfileID > 0)
         {
             var response = await Mediator.Send(new InsertOrUpdateReserveProfileNumberSeries(Data));
-            Data.NumberSeriesId = response.NumberSeriesId;
-            Data.DocumentNo = response.DocumentNo;
-            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loadingLinkDoc = false;
-            LinkDocbackUrl();
+            if (response.ProfileID > 0)
+            {
+                Data.NumberSeriesId = response.NumberSeriesId;
+                Data.DocumentNo = response.DocumentNo;
+                toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                loadingLinkDoc = false;
+                LinkDocbackUrl();
+            }
             StateHasChanged();
         }
         else

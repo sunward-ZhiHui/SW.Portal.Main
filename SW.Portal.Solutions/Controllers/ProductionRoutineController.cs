@@ -347,7 +347,8 @@ namespace SW.Portal.Solutions.Controllers
                     NameOfTemplate = topic.NameOfTemplate,
                     OthersOptions = topic.OthersOptions,
                     RoutineInfoIds =topic.RoutineInfoIds,
-                    RoutineStatus = topic.RoutineStatus
+                    RoutineStatus = topic.RoutineStatus,
+                    UniqueSessionId = topic.UniqueSessionId,
 
                 }).ToList();
                 try

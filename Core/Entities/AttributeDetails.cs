@@ -40,6 +40,10 @@ namespace Core.Entities
         public long? ParentId { get; set; }
         public List<long?> ApplicationMasterParentSectionIds { get; set; } = new List<long?>();
         public string? ParentName { get; set; }
+        public string? SiteName { get; set; }
+        public string? ZoneName { get; set; }
+        public string? LocationName { get; set; }
+        public string? AreaName { get; set; }
     }
     public class DataSourceAttributeDetails
     {

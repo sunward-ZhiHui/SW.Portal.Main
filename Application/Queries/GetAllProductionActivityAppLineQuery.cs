@@ -260,7 +260,7 @@ namespace Application.Queries
       
      
     }
-    public class GetProductionActivityReportDocumentList : PagedRequest, IRequest<List<Documents>>
+    public class GetProductionActivityReportDocumentList : PagedRequest, IRequest<List<imgDocList>>
     {
 
         public long ProductionActivityAppLineID { get;  set; }

@@ -354,16 +354,16 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    public class ProductionActivityReportDocumentHandler : IRequestHandler<GetProductionActivityReportDocumentList, List<Documents>>
+    public class ProductionActivityReportDocumentHandler : IRequestHandler<GetProductionActivityReportDocumentList, List<imgDocList>>
     {
         private readonly IRoutineQueryRepository _productionactivityQueryRepository;
         public ProductionActivityReportDocumentHandler(IRoutineQueryRepository productionactivityQueryRepository)
         {
             _productionactivityQueryRepository = productionactivityQueryRepository;
         }
-        public async Task<List<Documents>> Handle(GetProductionActivityReportDocumentList request, CancellationToken cancellationToken)
+        public async Task<List<imgDocList>> Handle(GetProductionActivityReportDocumentList request, CancellationToken cancellationToken)
         {
-            return (List<Documents>)await _productionactivityQueryRepository.GetProductionActivityReportDocList(request.ProductionActivityAppLineID);
+            return (List<imgDocList>)await _productionactivityQueryRepository.GetProductionActivityReportDocList(request.ProductionActivityAppLineID);
         }
 
     }

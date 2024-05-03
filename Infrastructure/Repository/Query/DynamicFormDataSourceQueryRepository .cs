@@ -88,6 +88,26 @@ namespace Infrastructure.Repository.Query
                 {
                     dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
                 }
+                if (dataSourceTableIds.Contains("Site"))
+                {
+                    dataSourceDropDownList.AddRange(await GetSiteDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (dataSourceTableIds.Contains("Zone"))
+                {
+                    dataSourceDropDownList.AddRange(await GetZoneDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (dataSourceTableIds.Contains("Location"))
+                {
+                    dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (dataSourceTableIds.Contains("Area"))
+                {
+                    dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (dataSourceTableIds.Contains("SpecificArea"))
+                {
+                    dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
+                }
             }
             else
             {
@@ -98,6 +118,11 @@ namespace Infrastructure.Repository.Query
                 dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
                 dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
                 dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetSiteDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetZoneDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
@@ -434,6 +459,181 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private async Task<IReadOnlyList<AttributeDetails>> GetSiteDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'Site' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n \r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=570";
+                    }
+                    else
+                    {
+                        query += "Where t1.MasterType=570 AND t1.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                else
+                {
+                    query += "Where t1.MasterType=570";
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetZoneDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'Zone' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as SiteName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=571";
+                    }
+                    else
+                    {
+                        query += "Where t1.MasterType=571 AND t1.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                else
+                {
+                    query += "Where t1.MasterType=571";
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetLocationDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'Location' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as ZoneName,t4.Name as SiteName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=572";
+                    }
+                    else
+                    {
+                        query += "Where t1.MasterType=572 AND t1.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                else
+                {
+                    query += "Where t1.MasterType=572";
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetAreaDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'Area' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as LocationName,t4.Name as SiteName,t5.Name as ZoneName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r\n JOIN ICTMaster t5 ON t5.ICTMasterID=t1.ZoneID\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=573";
+                    }
+                    else
+                    {
+                        query += "Where t1.MasterType=573 AND t1.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                else
+                {
+                    query += "Where t1.MasterType=573";
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetSpecificAreaDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'SpecificArea' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as AreaName,t4.Name as SiteName,t5.Name as ZoneName,t6.Name as LocationName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r\n JOIN ICTMaster t5 ON t5.ICTMasterID=t1.ZoneID\r\n JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=574";
+                    }
+                    else
+                    {
+                        query += "Where t1.MasterType=574 AND t1.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                else
+                {
+                    query += "Where t1.MasterType=574";
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DataSourceAttributeDetails> GetAllDropDownDataSources()
         {
             DataSourceAttributeDetails attributeDetails = new DataSourceAttributeDetails();
@@ -534,6 +734,10 @@ namespace Infrastructure.Repository.Query
                         {
                             query += "where CodeType='" + s.ApplicationMasterCodeId + "'\n\r";
                         }
+                        if (s.FilterTableName == "ICTMaster" && !string.IsNullOrEmpty(s.ApplicationMasterCodeId))
+                        {
+                            query += "where MasterType='" + s.ApplicationMasterCodeId + "'\n\r";
+                        }
                         if (s.FilterTableName == "ApplicationMasterDetail" && !string.IsNullOrEmpty(s.ApplicationMasterCodeId))
                         {
                             query += "JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID WHERE t2.ApplicationMasterCodeID=" + s.ApplicationMasterCodeId + "";
@@ -570,6 +774,7 @@ namespace Infrastructure.Repository.Query
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 List<string?> plantNames = new List<string?>() { "SWMY", "SWSG" };
                 var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
+                var LocationType = new List<string?>() { "Site", "Zone", "Location", "Area", "SpecificArea" };
                 List<long> plantIds = new List<long>();
                 var plantsData = await GetPlantDataSource();
                 plantIds = plantsData.Where(w => plantNames.Contains(w.AttributeDetailName)).Select(s => s.AttributeDetailID).ToList();
@@ -605,24 +810,36 @@ namespace Infrastructure.Repository.Query
                 }
                 else
                 {
-
-                    if (soCustomerType.Contains(DataSource))
+                    if (DataSource == "Site")
                     {
-                        query += "select Type as DropDownTypeId, t1.SoCustomerID as AttributeDetailID,t1.CustomerName as AttributeDetailName,t1.Address1 as Description from SoCustomer t1\r";
-                        if (dynamicFormFilterBies == null)
-                        {
-                            query += "where t1.type='" + DataSource + "'\rAND\r";
-                        }
-                        if (dynamicFormFilterBies != null && dynamicFormFilterBies.Count == 0)
-                        {
-                            query += "where t1.type='" + DataSource + "'\rAND\r";
-                        }
+                        query += "select 'Site' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n \r\n";
+                        query += "Where t1.MasterType=570\rAND\r";
+                    }
+                    if (DataSource == "Zone")
+                    {
+                        query += "select 'Zone' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as SiteName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID\r";
+                        query += "Where t1.MasterType=571\rAND\r";
+                    }
+                    if (DataSource == "Location")
+                    {
+                        query += "select 'Location' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as ZoneName,t4.Name as SiteName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r";
+                        query += "Where t1.MasterType=572\rAND\r";
+                    }
+                    if (DataSource == "Area")
+                    {
+                        query += "select 'Area' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as LocationName,t4.Name as SiteName,t5.Name as ZoneName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r\n JOIN ICTMaster t5 ON t5.ICTMasterID=t1.ZoneID\r";
+                        query += "Where t1.MasterType=573\rAND\r";
+                    }
+                    if (DataSource == "SpecificArea")
+                    {
+                        query += "select 'SpecificArea' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as AreaName,t4.Name as SiteName,t5.Name as ZoneName,t6.Name as LocationName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r\n JOIN ICTMaster t5 ON t5.ICTMasterID=t1.ZoneID\r\n JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID\r";
+                        query += "Where t1.MasterType=574\r AND\r";
                     }
                     else
                     {
-                        if (rawMatItemType.Contains(DataSource))
+                        if (soCustomerType.Contains(DataSource))
                         {
-                            query += "select Type as DropDownTypeId,t1.ID as AttributeDetailID,t1.CompanyId,ItemNo as AttributeDetailName,t2.PlantCode as CompanyName,CONCAT(t1.Description,(case when ISNULL(NULLIF(t1.Description2, ''), null) is NULL then  t1.Description2 ELSE  CONCAT(' | ',t1.Description2) END)) as Description from RawMatItemList t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r";
+                            query += "select Type as DropDownTypeId, t1.SoCustomerID as AttributeDetailID,t1.CustomerName as AttributeDetailName,t1.Address1 as Description from SoCustomer t1\r";
                             if (dynamicFormFilterBies == null)
                             {
                                 query += "where t1.type='" + DataSource + "'\rAND\r";
@@ -630,6 +847,21 @@ namespace Infrastructure.Repository.Query
                             if (dynamicFormFilterBies != null && dynamicFormFilterBies.Count == 0)
                             {
                                 query += "where t1.type='" + DataSource + "'\rAND\r";
+                            }
+                        }
+                        else
+                        {
+                            if (rawMatItemType.Contains(DataSource))
+                            {
+                                query += "select Type as DropDownTypeId,t1.ID as AttributeDetailID,t1.CompanyId,ItemNo as AttributeDetailName,t2.PlantCode as CompanyName,CONCAT(t1.Description,(case when ISNULL(NULLIF(t1.Description2, ''), null) is NULL then  t1.Description2 ELSE  CONCAT(' | ',t1.Description2) END)) as Description from RawMatItemList t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r";
+                                if (dynamicFormFilterBies == null)
+                                {
+                                    query += "where t1.type='" + DataSource + "'\rAND\r";
+                                }
+                                if (dynamicFormFilterBies != null && dynamicFormFilterBies.Count == 0)
+                                {
+                                    query += "where t1.type='" + DataSource + "'\rAND\r";
+                                }
                             }
                         }
                     }
@@ -646,6 +878,10 @@ namespace Infrastructure.Repository.Query
                         if (rawMatItemType.Contains(DataSource))
                         {
                             query += "where t1.type='" + DataSource + "' AND\r";
+                        }
+                        if (LocationType.Contains(DataSource))
+                        {
+                            query += "";
                         }
                         else
                         {
@@ -709,6 +945,10 @@ namespace Infrastructure.Repository.Query
                                                         {
                                                             query1 += "\rt1." + s.FromFilterFieldName + "\rin(" + string.Join(',', plantIds) + ")\r";
                                                         }
+                                                        else if (LocationType.Contains(DataSource))
+                                                        {
+                                                            query1 += "\rt1." + s.FromFilterFieldName + "\rin(" + string.Join(',', plantIds) + ")\r";
+                                                        }
                                                         else
                                                         {
                                                             query1 += "\rt1." + s.FromFilterFieldName + "\r='" + valueData + "'\r";
@@ -717,10 +957,7 @@ namespace Infrastructure.Repository.Query
                                                 }
                                                 else
                                                 {
-                                                    //if (DataSource == "Plant")
-                                                    //{
-                                                    //    query1 += "\rt1." + s.FromFilterFieldName + "\r='" + valueData + "'\r";
-                                                    //}
+
                                                     if (DataSource == "NavItems")
                                                     {
                                                         query1 += "\r t1.no like 'FP%' AND t1.CompanyId = '" + valueData + "'\r";
@@ -733,10 +970,6 @@ namespace Infrastructure.Repository.Query
                                             }
                                             else
                                             {
-                                                //if (DataSource == "Plant")
-                                                //{
-                                                //    query1 += "\rt1." + s.FromFilterFieldName + "\r='" + valueData + "'\r";
-                                                //}
                                                 if (DataSource == "NavItems")
                                                 {
                                                     query1 += "\r t1.no like 'FP%' AND t1.CompanyId = '" + valueData + "'\r";

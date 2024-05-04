@@ -67,6 +67,8 @@ namespace Core.Entities
         public bool? UserIsVisible { get; set; } = false;
         [NotMapped]
         public string? ProfileNo { get; set; }
+        public long? SectionFileProfileTypeId { get; set; }
+        public string? SectionFileProfileTypeName { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

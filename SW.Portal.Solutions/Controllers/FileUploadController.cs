@@ -288,10 +288,10 @@ namespace SW.Portal.Solutions.Controllers
                         document.Add(image);
                         i++;
 
-                        using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(fileStream);
-                        }
+                        //using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        //{
+                        //    await file.CopyToAsync(fileStream);
+                        //}
                     }
                     pdfDocument.Close();
                     byte[] fileData = memoryStream.ToArray();

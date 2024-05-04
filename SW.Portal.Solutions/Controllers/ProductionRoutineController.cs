@@ -207,54 +207,63 @@ namespace SW.Portal.Solutions.Controllers
         public async Task<ActionResult<Services.ResponseModel<IEnumerable<ProductionRoutine>>>> InsertRoutineMaster(ProductionRoutine value)
         {
             var response = new Services.ResponseModel<ProductionRoutine>();
-            var request = new CreateProductionActivityRoutineAppCommand
-
+            var message = new List<String>();
+            if (value.ManufacturingProcessChildId > 0 && value.ProdActivityCategoryChildId > 0 && value.ProductActivityCaseLineId > 0)
             {
-                ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId,
-                CompanyId = value.CompanyID,
-                ProdOrderNo = value.ProdOrderNo,
-                LocationId = value.LocationID,
-                AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid(),
-                LineSessionId = Guid.NewGuid(),
-                StatusCodeID = 1,
-                AddedByUserID = value.AddedByUserID,
-                ManufacturingProcessChildId = value.ManufacturingProcessChildId,
-                ProdActivityCategoryChildId = value.ProdActivityCategoryChildId,
-                ProdActivityActionChildD = value.ProdActivityActionChildD,
-                ProdActivityResultId = value.ProdActivityResultId,
-                RoutineStatusId = value.RoutineStatusId,
-                LineComment = value.LineComment,
-                NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
-                ModifiedByUserID = value.AddedByUserID,
-                ModifiedDate = DateTime.Now,
-                IsOthersOptions = value.IsOthersOptions,
-                TimeSheetAction = true,
-                IsTemplateUpload = value.IsTemplateUpload,
-               
-                ProductActivityCaseLineId = value.ProductActivityCaseLineId ,
-                RoutineInfoIds = value.RoutineInfoIds,
-                LotNo = value.LotNo,
-                ItemName = value.ItemName
-            };
+                var request = new CreateProductionActivityRoutineAppCommand
 
-            var result = await _mediator.Send(request);
-            var emailconversations = new ProductionRoutine
-            {
-                ProductionActivityRoutineAppId = (int)result,
+                {
+                    ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId,
+                    CompanyId = value.CompanyID,
+                    ProdOrderNo = value.ProdOrderNo,
+                    LocationId = value.LocationID > 0 ? value.NavprodOrderLineId : null,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    LineSessionId = Guid.NewGuid(),
+                    StatusCodeID = 1,
+                    AddedByUserID = value.AddedByUserID,
+                    ManufacturingProcessChildId = value.ManufacturingProcessChildId > 0 ? value.ManufacturingProcessChildId : null,
+                    ProdActivityCategoryChildId = value.ProdActivityCategoryChildId > 0 ? value.ProdActivityCategoryChildId : null,
+                    ProdActivityActionChildD = value.ProdActivityActionChildD > 0 ? value.ProdActivityActionChildD : null,
+                    ProdActivityResultId = value.ProdActivityResultId > 0 ? value.ProdActivityResultId : null,
+                    RoutineStatusId = value.RoutineStatusId > 0 ? value.RoutineStatusId : null,
+                    LineComment = value.LineComment,
+                    NavprodOrderLineId = value.NavprodOrderLineId > 0 ? value.NavprodOrderLineId : null,
+                    ModifiedByUserID = value.AddedByUserID,
+                    ModifiedDate = DateTime.Now,
+                    IsOthersOptions = value.IsOthersOptions,
+                    TimeSheetAction = true,
+                    IsTemplateUpload = value.IsTemplateUpload,
 
-            };
-            try
-            {
-                response.ResponseCode = Services.ResponseCode.Success;
-                response.Result = emailconversations;
+                    ProductActivityCaseLineId = value.ProductActivityCaseLineId > 0 ? value.ProductActivityCaseLineId : null,
+                    RoutineInfoIds = value.RoutineInfoIds.Count() > 0 ? value.RoutineInfoIds : new List<long?>(),
+                    LotNo = value.LotNo,
+                    ItemName = value.ItemName
+                };
+
+                var result = await _mediator.Send(request);
+                var emailconversations = new ProductionRoutine
+                {
+                    ProductionActivityRoutineAppId = (int)result,
+
+                };
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+                    response.Result = emailconversations;
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
             }
-            catch (Exception ex)
+            else
             {
+                message.Add("Please Enter Required Fields");
                 response.ResponseCode = Services.ResponseCode.Failure;
-                response.ErrorMessages.Add(ex.Message);
+                response.ErrorMessages = message;
             }
-
             return Ok(response);
         }
         [HttpGet("GetLocationScan")]
@@ -347,7 +356,8 @@ namespace SW.Portal.Solutions.Controllers
                     NameOfTemplate = topic.NameOfTemplate,
                     OthersOptions = topic.OthersOptions,
                     RoutineInfoIds =topic.RoutineInfoIds,
-                    RoutineStatus = topic.RoutineStatus
+                    RoutineStatus = topic.RoutineStatus,
+                    UniqueSessionId = topic.UniqueSessionId,
 
                 }).ToList();
                 try
@@ -745,50 +755,60 @@ namespace SW.Portal.Solutions.Controllers
         [HttpPost("InsertIpirApp")]
         public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> InsertIpirApp(IpirAppModel IpirAppModel)
         {
+           var message = new  List<string> ();
+        var response = new Services.ResponseModel<IpirAppModel>();
+            if (IpirAppModel.CompanyID > 0 && IpirAppModel.ProdOrderNo != null && IpirAppModel.ProfileId > 0 && IpirAppModel.MachineName != null)
+            {
 
-            var response = new Services.ResponseModel<IpirAppModel>();
-            IpirApp FilterData = new IpirApp();
-           {
-                FilterData.CompanyID= IpirAppModel.CompanyID;
-               // FilterData.CompanyID = IpirAppModel.CompanyID;
-                FilterData.IpirAppId = IpirAppModel.IpirAppId;
-                FilterData.LocationID = IpirAppModel.LocationID;
-                FilterData.ProfileId = IpirAppModel.ProfileId;
-                FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
-                FilterData.ProfileNo = IpirAppModel.ProfileNo;
-                FilterData.MachineName = IpirAppModel.MachineName;
-                FilterData.RefNo=IpirAppModel.RefNo;
-                FilterData.ActivityStatusId = IpirAppModel.ActivityStatusId;
-                FilterData.FixedAssetNo = IpirAppModel.FixedAssetNo;
-                FilterData.ProdOrderNo = IpirAppModel.ProdOrderNo;
-                FilterData.NavprodOrderLineID = IpirAppModel.NavprodOrderLineID;
-                FilterData.ReportingPersonal = IpirAppModel.ReportingPersonal;
-                FilterData.DetectedBy = IpirAppModel.DetectedBy;
-                FilterData.Comment = IpirAppModel.Comment;
-                FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
-                FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
-                FilterData.AddedDate = DateTime.Now;
-                FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
-                FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
-                FilterData.SessionID = Guid.NewGuid();
-                FilterData.DepartmentIds = IpirAppModel.DepartmentIds;
-                FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds;
-                var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
 
-                try
+                IpirApp FilterData = new IpirApp();
                 {
-                    response.ResponseCode = Services.ResponseCode.Success;
-                    var display = new IpirAppModel
+                    FilterData.CompanyID = IpirAppModel.CompanyID;
+                    // FilterData.CompanyID = IpirAppModel.CompanyID;
+                    FilterData.IpirAppId = IpirAppModel.IpirAppId;
+                    FilterData.LocationID = IpirAppModel.LocationID > 0 ? IpirAppModel.LocationID : null;
+                    FilterData.ProfileId = IpirAppModel.ProfileId > 0 ? IpirAppModel.ProfileId : null;
+                    FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
+                    FilterData.ProfileNo = IpirAppModel.ProfileNo;
+                    FilterData.MachineName = IpirAppModel.MachineName;
+                    FilterData.RefNo = IpirAppModel.RefNo;
+                    FilterData.ActivityStatusId = IpirAppModel.ActivityStatusId > 0 ? IpirAppModel.ActivityStatusId : null;
+                    FilterData.FixedAssetNo = IpirAppModel.FixedAssetNo;
+                    FilterData.ProdOrderNo = IpirAppModel.ProdOrderNo != null ? IpirAppModel.ProdOrderNo : null;
+                    FilterData.NavprodOrderLineID = IpirAppModel.NavprodOrderLineID;
+                    FilterData.ReportingPersonal = IpirAppModel.ReportingPersonal > 0 ? IpirAppModel.ReportingPersonal : null;
+                    FilterData.DetectedBy = IpirAppModel.DetectedBy > 0 ? IpirAppModel.DetectedBy : null;
+                    FilterData.Comment = IpirAppModel.Comment;
+                    FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
+                    FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
+                    FilterData.AddedDate = DateTime.Now;
+                    FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
+                    FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
+                    FilterData.SessionID = Guid.NewGuid();
+                    FilterData.DepartmentIds = IpirAppModel.DepartmentIds.Count() > 0 ? IpirAppModel.DepartmentIds : new List<long?>();
+                    FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds.Count() > 0 ? IpirAppModel.ActivityIssueRelateIds : new List<long?>();
+                    var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
+
+                    try
                     {
-                        IpirAppId = result.IpirAppId
-                    };
-                    response.Result = display;
+                        response.ResponseCode = Services.ResponseCode.Success;
+                        var display = new IpirAppModel
+                        {
+                            IpirAppId = result.IpirAppId
+                        };
+                        response.Result = display;
+                    }
+                    catch (Exception ex)
+                    {
+                        response.ResponseCode = Services.ResponseCode.Failure;
+                        response.ErrorMessages.Add(ex.Message);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    response.ResponseCode = Services.ResponseCode.Failure;
-                    response.ErrorMessages.Add(ex.Message);
-                }
+            }else
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                message.Add("Please Enter Required Fields");
+                response.ErrorMessages = message;
             }
             return Ok(response);
         }

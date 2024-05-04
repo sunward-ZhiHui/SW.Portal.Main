@@ -2844,7 +2844,8 @@
                      }
                      else
                      {
-                         if (s.DataSourceTable != "DynamicGrid")
+                         var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == s.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
+                         if (FilterExits != null && FilterExits > 0)
                          {
                              editor.OpenElement(i + 1, "i");
                              editor.AddAttribute(i + 1, "class", "fa fa-filter");
@@ -3339,7 +3340,7 @@
                          editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                      }
                      editor.AddAttribute(j + 1, "ValueExpression", lambda);
-                     editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, (str) => OnRadioChangedItem(str, property, attributeDetailss, a, s)));
+                     editor.AddAttribute(i++, "ValueChanged", EventCallback.Factory.Create<long?>(this, (str) => OnRadioChangedItem(str, property, attributeDetailss, a, s)));
                      if (s.IsDefaultReadOnly == false)
                      {
                          if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
@@ -3420,6 +3421,34 @@
                             layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                             layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
                             layoutItemBuilders.AddAttribute(2, "Caption", "Comapny");
+                            layoutItemBuilders.CloseComponent();
+                        }
+                        if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(3, "FieldName", "SiteName");
+                            layoutItemBuilders.AddAttribute(3, "Caption", "Site");
+                            layoutItemBuilders.CloseComponent();
+                        }
+                        if (s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(4, "FieldName", "ZoneName");
+                            layoutItemBuilders.AddAttribute(4, "Caption", "Zone");
+                            layoutItemBuilders.CloseComponent();
+                        }
+                        if (s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(5, "FieldName", "LocationName");
+                            layoutItemBuilders.AddAttribute(5, "Caption", "Location");
+                            layoutItemBuilders.CloseComponent();
+                        }
+                        if (s.DataSourceTable == "SpecificArea")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
+                            layoutItemBuilders.AddAttribute(6, "Caption", "Area");
                             layoutItemBuilders.CloseComponent();
                         }
                     }
@@ -3593,6 +3622,34 @@
                     layoutItemBuilders.AddAttribute(2, "Caption", "Company");
                     layoutItemBuilders.CloseComponent();
                 }
+                if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(3, "FieldName", "SiteName");
+                    layoutItemBuilders.AddAttribute(3, "Caption", "Site");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(4, "FieldName", "ZoneName");
+                    layoutItemBuilders.AddAttribute(4, "Caption", "Zone");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(5, "FieldName", "LocationName");
+                    layoutItemBuilders.AddAttribute(5, "Caption", "Location");
+                    layoutItemBuilders.CloseComponent();
+                }
+                if (s.DataSourceTable == "SpecificArea")
+                {
+                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                    layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
+                    layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                    layoutItemBuilders.CloseComponent();
+                }
             }
         }
     }));
@@ -3745,6 +3802,34 @@
             layoutItemBuilders.AddAttribute(2, "Caption", "Company");
             layoutItemBuilders.CloseComponent();
         }
+        if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+        {
+            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+            layoutItemBuilders.AddAttribute(3, "FieldName", "SiteName");
+            layoutItemBuilders.AddAttribute(3, "Caption", "Site");
+            layoutItemBuilders.CloseComponent();
+        }
+        if (s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+        {
+            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+            layoutItemBuilders.AddAttribute(4, "FieldName", "ZoneName");
+            layoutItemBuilders.AddAttribute(4, "Caption", "Zone");
+            layoutItemBuilders.CloseComponent();
+        }
+        if (s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
+        {
+            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+            layoutItemBuilders.AddAttribute(5, "FieldName", "LocationName");
+            layoutItemBuilders.AddAttribute(5, "Caption", "Location");
+            layoutItemBuilders.CloseComponent();
+        }
+        if (s.DataSourceTable == "SpecificArea")
+        {
+            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+            layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
+            layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+            layoutItemBuilders.CloseComponent();
+        }
 
     }));
                      editor.CloseComponent();
@@ -3827,13 +3912,17 @@
                 editor11.AddAttribute(i + 1, "aria-hidden", true);
                 editor11.CloseElement();
             }
-            editor11.OpenElement(i + 1, "i");
-            editor11.AddAttribute(i + 1, "class", "fa fa-filter");
-            editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-            editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(appendDependency, a, s, ff.DataSourceTable)));
-            editor11.AddAttribute(i + 1, "title", "Click Here Filter");
-            editor11.AddAttribute(i + 1, "aria-hidden", true);
-            editor11.CloseElement();
+            var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == ff.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
+            if (FilterExits != null && FilterExits > 0)
+            {
+                editor11.OpenElement(i + 1, "i");
+                editor11.AddAttribute(i + 1, "class", "fa fa-filter");
+                editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(appendDependency, a, s, ff.DataSourceTable)));
+                editor11.AddAttribute(i + 1, "title", "Click Here Filter");
+                editor11.AddAttribute(i + 1, "aria-hidden", true);
+                editor11.CloseElement();
+            }
             editor11.CloseElement();
             editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(i + 1);
             editor11.AddAttribute(i + 1, "Data", aatrDetails);
@@ -3870,6 +3959,34 @@
             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
             layoutItemBuilders1.AddAttribute(2, "FieldName", "CompanyName");
             layoutItemBuilders1.AddAttribute(2, "Caption", "Company");
+            layoutItemBuilders1.CloseComponent();
+        }
+        if (ff.DataSourceTable == "Zone" || ff.DataSourceTable == "Location" || ff.DataSourceTable == "Area" || ff.DataSourceTable == "SpecificArea")
+        {
+            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+            layoutItemBuilders1.AddAttribute(3, "FieldName", "SiteName");
+            layoutItemBuilders1.AddAttribute(3, "Caption", "Site");
+            layoutItemBuilders1.CloseComponent();
+        }
+        if (ff.DataSourceTable == "Location" || ff.DataSourceTable == "Area" || ff.DataSourceTable == "SpecificArea")
+        {
+            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+            layoutItemBuilders1.AddAttribute(4, "FieldName", "ZoneName");
+            layoutItemBuilders1.AddAttribute(4, "Caption", "Zone");
+            layoutItemBuilders1.CloseComponent();
+        }
+        if (ff.DataSourceTable == "Area" || ff.DataSourceTable == "SpecificArea")
+        {
+            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+            layoutItemBuilders1.AddAttribute(5, "FieldName", "LocationName");
+            layoutItemBuilders1.AddAttribute(5, "Caption", "Location");
+            layoutItemBuilders1.CloseComponent();
+        }
+        if (ff.DataSourceTable == "SpecificArea")
+        {
+            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+            layoutItemBuilders1.AddAttribute(6, "FieldName", "AreaName");
+            layoutItemBuilders1.AddAttribute(6, "Caption", "Area");
             layoutItemBuilders1.CloseComponent();
         }
     }));
@@ -3980,6 +4097,15 @@
         {
             int m = 0;
             var appendProSubNames = s.DynamicFormSectionAttributeId + "_" + q.SubDynamicAttributeName;
+            var subaatrDetails = q.SubAttributeDetails;
+            var exitsFilter = _attributeFilterDetailsList.Where(f => f.AttributeName == appendProSubNames && f.DataSourceName == q.DataSourceTable).FirstOrDefault();
+            if (exitsFilter == null)
+            {
+            }
+            else
+            {
+                subaatrDetails = exitsFilter.AttributeDetails.ToList();
+            }
             if (q.DataSourceTable == "ApplicationMaster")
             {
                 if (q.SubApplicationMaster != null && q.SubApplicationMaster.Count() > 0)
@@ -4008,6 +4134,17 @@
                     editor1.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendProSubNames}"));
                     editor1.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendProSubNames, q.AttrDescription)));
                     editor1.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
+                    editor1.AddAttribute(i + 1, "aria-hidden", true);
+                    editor1.CloseElement();
+                }
+                var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == q.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
+                if (FilterExits != null && FilterExits > 0)
+                {
+                    editor1.OpenElement(i + 1, "i");
+                    editor1.AddAttribute(i + 1, "class", "fa fa-filter");
+                    editor1.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                    editor1.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(appendProSubNames, a, s, q.DataSourceTable)));
+                    editor1.AddAttribute(i + 1, "title", "Click Here Filter");
                     editor1.AddAttribute(i + 1, "aria-hidden", true);
                     editor1.CloseElement();
                 }
@@ -4221,7 +4358,7 @@
                 else if (q.ControlType == "RadioGroup" || q.ControlType == "Radio")
                 {
                     editor1.OpenComponent<DxRadioGroup<AttributeDetails, long?>>(m + 1);
-                    editor1.AddAttribute(m + 1, "Items", q.SubAttributeDetails);
+                    editor1.AddAttribute(m + 1, "Items", subaatrDetails);
                     editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                     editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
                     editor1.AddAttribute(m + 1, "Value", valueDataSub);
@@ -4255,7 +4392,7 @@
                 else if (q.ControlType == "ComboBox")
                 {
                     editor1.OpenComponent<DxComboBox<AttributeDetails, long?>>(m + 1);
-                    editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
+                    editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                     editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
                     editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                     editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
@@ -4282,6 +4419,34 @@
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                         layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
                         layoutItemBuilders.AddAttribute(2, "Caption", "Company");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "SiteName");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "Site");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(4, "FieldName", "ZoneName");
+                        layoutItemBuilders.AddAttribute(4, "Caption", "Zone");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(5, "FieldName", "LocationName");
+                        layoutItemBuilders.AddAttribute(5, "Caption", "Location");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
+                        layoutItemBuilders.AddAttribute(6, "Caption", "Area");
                         layoutItemBuilders.CloseComponent();
                     }
                 }));
@@ -4311,7 +4476,7 @@
                 else if (q.ControlType == "TagBox")
                 {
                     editor1.OpenComponent<DxTagBox<AttributeDetails, long?>>(m + 1);
-                    editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
+                    editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                     editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
                     editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                     editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
@@ -4338,6 +4503,34 @@
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                         layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
                         layoutItemBuilders.AddAttribute(2, "Caption", "Company");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "SiteName");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "Site");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(4, "FieldName", "ZoneName");
+                        layoutItemBuilders.AddAttribute(4, "Caption", "Zone");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(5, "FieldName", "LocationName");
+                        layoutItemBuilders.AddAttribute(5, "Caption", "Location");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
+                        layoutItemBuilders.AddAttribute(6, "Caption", "Area");
                         layoutItemBuilders.CloseComponent();
                     }
                 }));
@@ -4398,7 +4591,7 @@
                 else if (q.ControlType == "ListBox")
                 {
                     editor1.OpenComponent<DxListBox<AttributeDetails, long?>>(m + 1);
-                    editor1.AddAttribute(m + 1, "Data", q.SubAttributeDetails);
+                    editor1.AddAttribute(m + 1, "Data", subaatrDetails);
                     editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                     editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
                     //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
@@ -4434,6 +4627,34 @@
                         layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
                         layoutItemBuilders.AddAttribute(2, "Caption", "Company");
 
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "SiteName");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "Site");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(4, "FieldName", "ZoneName");
+                        layoutItemBuilders.AddAttribute(4, "Caption", "Zone");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(5, "FieldName", "LocationName");
+                        layoutItemBuilders.AddAttribute(5, "Caption", "Location");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
+                        layoutItemBuilders.AddAttribute(6, "Caption", "Area");
                         layoutItemBuilders.CloseComponent();
                     }
                 }));

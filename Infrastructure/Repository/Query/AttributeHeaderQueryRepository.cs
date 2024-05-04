@@ -896,7 +896,7 @@ namespace Infrastructure.Repository.Query
                         "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nLEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterID=t6.FilterDataSocurceID\r\n" +
                         "Where (t9.IsDeleted=0 OR t9.IsDeleted IS NULL) AND (t6.IsDeleted=0 OR t6.IsDeleted IS NULL) AND (t6.AttributeIsVisible=1 OR t6.AttributeIsVisible IS NULL) AND (t10.IsDeleted=0 or t10.IsDeleted is null) AND (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t1.IsVisible= 1 OR t1.IsVisible is null) AND t5.DynamicFormID=" + dynamicForm.ID + " order by t1.SortOrderBy asc;";
                     query += "Select * from Plant;";
-                    query += "Select * from AttributeHeaderDataSource;";
+                    query += "Select t1.*,(Select COUNT(*) as IsDynamicFormFilterBy from DynamicFormFilterBy t2 where t2.AttributeHeaderDataSourceID=t1.AttributeHeaderDataSourceID)as IsDynamicFormFilterBy from AttributeHeaderDataSource t1;";
                     query += "Select * from DynamicFormSectionAttributeSecurity;";
                     query += "Select * from ApplicationMaster;";
                     query += "Select * from ApplicationMasterParent;";
@@ -1174,7 +1174,7 @@ namespace Infrastructure.Repository.Query
                       "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId WHERE (t5.IsDeleted=0 or t5.IsDeleted is null) AND t5.DynamicFormId IN (" + string.Join(',', dynamicFormIdss) + ") order by t1.DynamicFormApprovedId asc;\r\n";
                     query += "select  * from AttributeDetails WHERE (Disabled=0 OR Disabled IS NULL);";
                     query += "select  * from DynamicForm WHere (IsDeleted=0 or IsDeleted is null) AND ID IN (" + string.Join(',', dynamicFormIdss) + ");";
-                    query += "Select * from AttributeHeaderDataSource;";
+                    query += "Select t1.*,(Select COUNT(*) as IsDynamicFormFilterBy from DynamicFormFilterBy t2 where t2.AttributeHeaderDataSourceID=t1.AttributeHeaderDataSourceID)as IsDynamicFormFilterBy from AttributeHeaderDataSource t1;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
                     attributeHeaderListModel.DynamicFormData = results.Read<DynamicFormData>().ToList();

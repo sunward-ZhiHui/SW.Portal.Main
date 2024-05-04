@@ -36,7 +36,12 @@ using TextRenderInfo = iTextSharp.text.pdf.parser.TextRenderInfo;
 using ImageRenderInfo = iTextSharp.text.pdf.parser.ImageRenderInfo;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Microsoft.AspNetCore.Mvc;
-
+using PdfiumViewer;
+using PdfiumViewerlst = PdfiumViewer.PdfDocument;
+using ImageMagick;
+using Ghostscript.NET;
+using Ghostscript.NET.Rasterizer;
+using System.IO;
 
 namespace Infrastructure.Repository.Query
 {
@@ -1031,9 +1036,11 @@ namespace Infrastructure.Repository.Query
                     var Result = (await connection.QueryAsync<View_ProductionActivityReport>(query)).ToList();
                     if (Result.Count > 0)
                     {
+
+
                         foreach (var item in Result)
                         {
-
+                            bool isFirstImageSet = false;
                             var parametersDocs = new DynamicParameters();
                             parametersDocs.Add("ProductionActivityAppLineID", item.ProductionActivityAppLineID);
 
@@ -1055,13 +1062,35 @@ namespace Infrastructure.Repository.Query
                                     if (extension == ".pdf")
                                     {
                                         var documentPaths = await ReadPdfAndGetProfileImagesAsync(Docsitem);
-                                        filePaths.AddRange(documentPaths);
+                                        if (documentPaths.Count > 0)
+                                        {
+                                            filePaths.AddRange(documentPaths);
+                                            //if (!isFirstImageSet)
+                                            //{
+                                            //    if (documentPaths.Any(path => path.Contains("merged_image.jpg")))
+                                            //    {
+                                            //        item.FilePath = documentPaths.FirstOrDefault();
+                                            //        isFirstImageSet = true;
+                                            //    }
+                                            //    else
+                                            //    {
+                                            //        // Handle the case when "merged_image.jpg" does not exist
+                                            //        Console.WriteLine("The file 'merged_image.jpg' does not exist in the document paths.");
+                                            //    }
+                                            //}
+                                        }
+                                       
 
 
                                     }
                                     else if (IsImageFile(extension))
                                     {
                                         var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
+                                        if (!isFirstImageSet)
+                                        {
+                                            item.FilePath = DocumentViewUrl + Docsitem.FilePath;
+                                            isFirstImageSet = true;
+                                        }
                                         filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
                                     }
                                 }
@@ -1091,6 +1120,52 @@ namespace Infrastructure.Repository.Query
             var imageFilePaths = new List<string>();
             var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
 
+            //if (Directory.Exists(serverPaths))
+            //{
+            //    if (File.Exists(pdfFilePath))
+            //    {
+            //        using (GhostscriptRasterizer rasterizer = new GhostscriptRasterizer())
+            //        {
+            //            rasterizer.Open(pdfFilePath);
+
+            //            // Generate the output image path
+            //            string mergedImagePath = System.IO.Path.Combine(serverPaths, "merged_image.jpg");
+
+            //            using (MagickImageCollection images = new MagickImageCollection())
+            //            {
+            //                // Loop through all pages and add them to the image collection
+            //                for (int i = 1; i <= rasterizer.PageCount; i++)
+            //                {
+            //                    using (System.Drawing.Image pageImage = rasterizer.GetPage(300, i))
+            //                    {
+            //                        using (MemoryStream memoryStream = new MemoryStream())
+            //                        {
+            //                            pageImage.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+            //                            memoryStream.Seek(0, SeekOrigin.Begin);
+            //                            images.Add(new MagickImage(memoryStream));
+            //                        }
+            //                    }
+            //                }
+
+            //                // Append all images vertically (one below the other)
+            //                using (MagickImage mergedImage = (MagickImage)images.AppendVertically())
+            //                {
+            //                    // Write the merged image to file
+            //                    mergedImage.Write(mergedImagePath);
+            //                }
+            //            }
+            //        }
+            //    }
+            //    else
+            //    {
+            //        // pdfFilePath does not exist, handle accordingly
+            //    }
+            //}
+            //else
+            //{
+            //    // serverPaths directory does not exist, handle accordingly
+            //}
+
             if (Directory.Exists(serverPaths))
             {
                 string[] files = Directory.GetFiles(serverPaths);
@@ -1109,34 +1184,68 @@ namespace Infrastructure.Repository.Query
             }
 
 
-            // byte[] fileBytes = File.ReadAllBytes(pdfFilePath);
-            // string base64Strings = Convert.ToBase64String(fileBytes);
-            //using (MemoryStream memoryStream = new MemoryStream(fileBytes))
-            //{
-            //    iText.Kernel.Pdf.PdfDocument pdfDocument = new iText.Kernel.Pdf.PdfDocument(new iText.Kernel.Pdf.PdfReader(memoryStream));
-            //    //Document document = new Document(pdfDocument); 
-            //    pdfDocument.Close();
-            //}
 
-            //using (PdfReader reader = new PdfReader(pdfFilePath))
+            //using (GhostscriptRasterizer rasterizer = new GhostscriptRasterizer())
             //{
-            //    for (int pageNum = 1; pageNum <= reader.NumberOfPages; pageNum++)
+            //    rasterizer.Open(pdfFilePath);
+
+            //    // Generate the output image path
+            //    string mergedImagePath = System.IO.Path.Combine(serverPaths, "merged_image.jpg");
+
+            //    using (MagickImageCollection images = new MagickImageCollection())
             //    {
-            //        using (Bitmap pageImage = ExtractImageFromPdf(reader, pageNum))
+            //        // Loop through all pages and add them to the image collection
+            //        for (int i = 1; i <= rasterizer.PageCount; i++)
             //        {
-            //            if (pageImage != null)
+            //            using (System.Drawing.Image pageImage = rasterizer.GetPage(300, i))
             //            {
-            //                string base64Image = ImageToBase64(pageImage, ImageFormat.Jpeg);
-            //                var lsls = $"Page {pageNum} Base64 Image: {base64Image}";
-            //                Console.WriteLine($"Page {pageNum} Base64 Image: {base64Image}");
-            //            }
-            //            else
-            //            {
-            //                Console.WriteLine($"Failed to extract image from page {pageNum}");
+            //                using (MemoryStream memoryStream = new MemoryStream())
+            //                {
+            //                    pageImage.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+            //                    memoryStream.Seek(0, SeekOrigin.Begin);
+            //                    images.Add(new MagickImage(memoryStream));
+            //                }
             //            }
             //        }
+
+            //        // Append all images horizontally (side by side)
+            //        using (MagickImage mergedImage = (MagickImage)images.AppendHorizontally())
+            //        {
+            //            // Write the merged image to file
+            //            mergedImage.Write(mergedImagePath);
+            //        }
             //    }
-            //}            
+            //}
+
+
+            ////one by one image
+            //using (GhostscriptRasterizer rasterizer = new GhostscriptRasterizer())
+            //{
+            //    rasterizer.Open(pdfFilePath);
+
+            //    for (int i = 1; i <= rasterizer.PageCount; i++)
+            //    {
+            //        string imagePath = System.IO.Path.Combine(serverPaths, $"page_{i}.jpg");
+            //        using (MagickImage image = new MagickImage())
+            //        {
+            //            // Get the page as a System.Drawing.Image
+            //            using (System.Drawing.Image pageImage = rasterizer.GetPage(300, i))
+            //            {
+            //                // Convert the System.Drawing.Image to a byte array
+            //                using (MemoryStream memoryStream = new MemoryStream())
+            //                {
+            //                    pageImage.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+            //                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+            //                    // Read the byte array into MagickImage
+            //                    image.Read(memoryStream);
+            //                }
+            //            }
+            //            // Write the image to file
+            //            image.Write(imagePath);
+            //        }
+            //    }
+            //}
 
             return imageFilePaths;
         }
@@ -1261,7 +1370,7 @@ namespace Infrastructure.Repository.Query
                         }
                         else if (IsImageFile(extension))
                         {
-                            var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];                            
+                            var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
                             DocumentList.Add(new imgDocList { FilePath = DocumentViewUrl + Docsitem.FilePath });
                         }
                     }
@@ -1270,7 +1379,7 @@ namespace Infrastructure.Repository.Query
                 return DocumentList;
             }
             catch (Exception exp)
-            {                
+            {
                 Console.WriteLine(exp);
                 throw; // Rethrow the exception
             }

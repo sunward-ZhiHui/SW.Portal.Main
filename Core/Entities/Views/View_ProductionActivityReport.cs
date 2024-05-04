@@ -22,6 +22,7 @@ namespace Core.Entities.Views
         public string? ActivityMaster { get; set;}
         public string? ActivityStatus { get; set;}
         public Guid? SessionID {  get; set;}
+        public string? FilePath { get; set;}
         public List<string>? DocumentList { get; set; }
     }
     public class imgDocList

@@ -358,6 +358,7 @@ namespace SW.Portal.Solutions.Controllers
                     RoutineInfoIds =topic.RoutineInfoIds,
                     RoutineStatus = topic.RoutineStatus,
                     UniqueSessionId = topic.UniqueSessionId,
+                    FileName = topic.FileName
 
                 }).ToList();
                 try

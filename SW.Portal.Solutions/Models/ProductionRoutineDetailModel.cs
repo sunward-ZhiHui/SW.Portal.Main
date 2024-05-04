@@ -25,7 +25,7 @@ namespace SW.Portal.Solutions.Models
         [DisplayName("Modified By")]
         public string ModifiedByUser { get; set; }
         [DisplayName("Modified Date")]
-      
+        public string? FileName { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public long? ProductionActivityRoutineAppLineId { get; set; }
         public long ProductionActivityRoutineAppId { get; set; }

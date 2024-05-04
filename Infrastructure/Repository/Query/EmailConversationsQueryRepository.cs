@@ -172,7 +172,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId as UserID,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
+                var query = @"SELECT FT.UserId as UserID,CONCAT(E.FirstName,'-',E.NickName) as FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID
@@ -288,7 +288,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
+                var query = @"SELECT FT.UserId,CONCAT(E.FirstName,'-',E.NickName) as FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID
@@ -311,7 +311,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
+                var query = @"SELECT FT.UserId,CONCAT(E.FirstName,'-',E.NickName) as FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
                                
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID
@@ -334,7 +334,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName FROM EmailConversationAssignTo FT                               
+                var query = @"SELECT FT.UserId,CONCAT(E.FirstName,'-',E.NickName) as FirstName FROM EmailConversationAssignTo FT                               
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
                                 WHERE FT.TopicId = @TopicId";
                 var parameters = new DynamicParameters();
@@ -1298,7 +1298,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select FirstName from Employee where UserID in (select UserID from ApplicationUser where UserID in @userIds);";
+                var query = @"select CONCAT(FirstName,'-',NickName) as FirstName from Employee where UserID in (select UserID from ApplicationUser where UserID in @userIds);";
                 var parameters = new DynamicParameters();
                 parameters.Add("userIds", userIds);
                 using (var connection = CreateConnection())
@@ -1361,7 +1361,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var lists = string.Join(',', Ids.Select(i => $"'{i}'"));
-                var query = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignTo FCA
+                var query = @"select CONCAT(E.FirstName,'-',E.NickName) as FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignTo FCA
                               INNER JOIN Employee E on E.UserID = FCA.UserId
                               where FCA.ConversationId in (" + lists + ")";
                 var parameters = new DynamicParameters();
@@ -1384,7 +1384,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var lists = string.Join(',', Ids.Select(i => $"'{i}'"));
-                var query = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignCC FCA
+                var query = @"select CONCAT(E.FirstName,'-',E.NickName) as FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignCC FCA
                               INNER JOIN Employee E on E.UserID = FCA.UserId
                               where FCA.ConversationId in (" + lists + ")";
                 var parameters = new DynamicParameters();
@@ -1483,7 +1483,7 @@ namespace Infrastructure.Repository.Query
 
                             var subQueryReplyDocsResults = connection.Query<EmailDocumentModel>(subQueryReplyDocs, parametersReplyDocs).ToList();
 
-                            var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
+                            var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,CONCAT(E.FirstName,'-',E.NickName) as FirstName,E.LastName from EmailConversationAssignTo FCT
                                                   INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
                                                   INNER JOIN Employee E ON E.UserID = FCT.UserId
                                                   WHERE FCT.ConversationId = @ConversationId";
@@ -1493,7 +1493,7 @@ namespace Infrastructure.Repository.Query
 
 
 
-                            var replysubQueryassignCC = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                            var replysubQueryassignCC = @"SELECT FCT.ID,FCT.UserId,CONCAT(E.FirstName,'-',E.NickName) as FirstName,E.LastName from EmailConversationAssignCC FCT
                                                   INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
                                                   INNER JOIN Employee E ON E.UserID = FCT.UserId
                                                   WHERE FCT.ConversationId = @ConversationId";
@@ -1691,7 +1691,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY FCT.ID DESC), FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
+                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY FCT.ID DESC), FCT.ID,FCT.UserId,CONCAT(E.FirstName,'-',E.NickName) as FirstName,E.LastName from EmailConversationAssignTo FCT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
                                 INNER JOIN Employee E ON E.UserID = FCT.UserId
                                 WHERE FCT.ConversationId = @ConversationId";
@@ -1713,7 +1713,7 @@ namespace Infrastructure.Repository.Query
 		{
 			try
 			{
-				var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY FCT.ID DESC), FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+				var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY FCT.ID DESC), FCT.ID,FCT.UserId,CONCAT(E.FirstName,'-',E.NickName) as FirstName,E.LastName from EmailConversationAssignCC FCT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
                                 INNER JOIN Employee E ON E.UserID = FCT.UserId
                                 WHERE FCT.ConversationId = @ConversationId";

@@ -613,6 +613,8 @@ namespace SW.Portal.Solutions.Controllers
                 ReportingPersonalName = topic.ReportingPersonalName,
                 ActivityIssueRelateIds = topic.ActivityIssueRelateIds,
                 DepartmentIds = topic.DepartmentIds,
+                UniqueSessionId = topic.UniqueSessionId,
+                FileName = topic.FileName
                
             }).ToList();
             try

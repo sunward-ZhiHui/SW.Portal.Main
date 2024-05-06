@@ -358,6 +358,7 @@ namespace SW.Portal.Solutions.Controllers
                     RoutineInfoIds =topic.RoutineInfoIds,
                     RoutineStatus = topic.RoutineStatus,
                     UniqueSessionId = topic.UniqueSessionId,
+                    FileName = topic.FileName
 
                 }).ToList();
                 try
@@ -612,6 +613,8 @@ namespace SW.Portal.Solutions.Controllers
                 ReportingPersonalName = topic.ReportingPersonalName,
                 ActivityIssueRelateIds = topic.ActivityIssueRelateIds,
                 DepartmentIds = topic.DepartmentIds,
+                UniqueSessionId = topic.UniqueSessionId,
+                FileName = topic.FileName
                
             }).ToList();
             try

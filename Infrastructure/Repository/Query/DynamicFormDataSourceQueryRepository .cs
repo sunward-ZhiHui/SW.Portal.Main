@@ -67,6 +67,10 @@ namespace Infrastructure.Repository.Query
                 {
                     dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
                 }
+                if (dataSourceTableIds.Contains("ItemBatchInfo"))
+                {
+                    dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
+                }
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
@@ -123,6 +127,7 @@ namespace Infrastructure.Repository.Query
                 dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
                 dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
                 dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
+                dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
@@ -392,6 +397,37 @@ namespace Infrastructure.Repository.Query
                     else
                     {
                         query += "Where t3.CompanyID=" + CompanyId + "\r\n";
+                    }
+                }
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                }
+                return attributeDetails;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<AttributeDetails>> GetItemBatchInfoDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'ItemBatchInfo' as DropDownTypeId,t1.ItemBatchId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.BatchNo as AttributeDetailName,CONCAT(t3.No,'||',t3.Description) as Description from ItemBatchInfo t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID JOIN NavItems t3 ON t3.ItemId=t1.ItemId\r\n";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                    }
+                    else
+                    {
+                        query += "Where t1.CompanyID=" + CompanyId + "\r\n";
                     }
                 }
                 using (var connection = CreateConnection())
@@ -806,6 +842,11 @@ namespace Infrastructure.Repository.Query
                 else if (DataSource == "SubSection")
                 {
                     query += "select\r'SubSection' as DropDownTypeId,t1.SectionID as AttributeDetailID,t4.CompanyID as CompanyId,t4.PlantCode as CompanyName, t1.Name as AttributeDetailName,CONCAT(t2.Name,'||',t3.Name,'||',t1.Description) as Description from SubSection t1 JOIN Section t2 ON t2.SectionID=t1.SectionID  JOIN Department t3 ON t3.DepartmentID=t2.DepartmentID  JOIN Plant t4 ON t3.CompanyID=t4.PlantID\r";
+
+                }
+                else if (DataSource == "ItemBatchInfo")
+                {
+                    query += "select 'ItemBatchInfo' as DropDownTypeId,t1.ItemBatchId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.BatchNo as AttributeDetailName,CONCAT(t3.No,'||',t3.Description) as Description from ItemBatchInfo t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID JOIN NavItems t3 ON t3.ItemId=t1.ItemId\r";
 
                 }
                 else

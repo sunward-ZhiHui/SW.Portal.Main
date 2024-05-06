@@ -175,7 +175,7 @@
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var llssl = NavItemBatchCompanyName;
-        //var result = await Mediator.Send(new rawitemSalesOrderQuery(NavCompanyName, DataItemBatch.PlantID, Text));
+        var result = await Mediator.Send(new NavCompanyItemBatchInfoQuery(DataItemBatch.PlantID));
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
 }

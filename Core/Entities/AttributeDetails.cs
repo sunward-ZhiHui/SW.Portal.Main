@@ -40,9 +40,25 @@ namespace Core.Entities
         public long? ParentId { get; set; }
         public List<long?> ApplicationMasterParentSectionIds { get; set; } = new List<long?>();
         public string? ParentName { get; set; }
+        public string? SiteName { get; set; }
+        public string? ZoneName { get; set; }
+        public string? LocationName { get; set; }
+        public string? AreaName { get; set; }
     }
     public class DataSourceAttributeDetails
     {
         public List<AttributeDetails> AllAttributeDetails { get; set; } = new List<AttributeDetails>();
+    }
+    public class AttributeFilterDetailsList
+    {
+        public List<AttributeFilterDetails> AttributeFilterDetails { get; set; } = new List<AttributeFilterDetails>();
+    }
+    public class AttributeFilterDetails
+    {
+        public string? AttributeName { get; set; }
+        public string? DataSourceName { get; set; }
+        public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
+        public List<DynamicFormFilterBy> DynamicFormFilterBy { get; set; } = new List<DynamicFormFilterBy>();
+        public object Data { get; set; } = new object();
     }
 }

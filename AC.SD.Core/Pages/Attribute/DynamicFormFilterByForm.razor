@@ -1,0 +1,428 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using Newtonsoft.Json;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
+@inject NavigationManager Navigator
+@implements IDisposable
+@using global::Core.Helpers;
+@using System.Dynamic;
+@using System.Reflection;
+@using System.Linq.Expressions;
+<div class="card" style="margin-top: 5px;padding: 5px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@addrefresh" />
+                        <DxMenuItem Text="Filter" IconCssClass="fa fa-search" Click="@addsearch" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card cw-480">
+    <EditForm Model="@Data"
+              OnValidSubmit="@HandleValidSubmit"
+              OnInvalidSubmit="@HandleInvalidSubmit"
+              Context="EditFormContext">
+        <div class="card-body">
+            @CreateEditFormFields()
+        </div>
+    </EditForm>
+</div>
+@code {
+    [Parameter]
+    public DynamicFormSection _filterDynamicFormSection { get; set; }
+    [Parameter]
+    public DynamicForm _dynamicform { get; set; }
+    [Parameter]
+    public string? _dataSourceName { get; set; }
+    [Parameter]
+    public string? _filterAttrName { get; set; }
+    [Parameter]
+    public DynamicFormSectionAttribute _filterDynamicFormSectionAttribute { get; set; }
+    [Parameter]
+    public EventCallback<AttributeFilterDetails> OnItemSelected { get; set; }
+    [Parameter]
+    public long? _PlantLoadDependencyId { get; set; }
+    Object Data { get; set; } = new Object();
+    private List<DynamicFormFilterBy>? _DynamicFormFilterByItems;
+    private List<AttributeDetails>? _AttributeDetailsItems; private List<DropDownOptionsModel>? DataSourceItems { get; set; } = new List<DropDownOptionsModel>();
+    private List<DropDownOptionsModel>? _andOrSourceItems { get; set; } = new List<DropDownOptionsModel>();
+    public List<Type?> DataClassTypeList = new List<Type?>(); public List<string?> DataClassObjectNameList = new List<string?>();
+    protected override async Task OnInitializedAsync()
+    {
+        loadDataSourceItems();
+        List<string?> dataSourceTableIds = new List<string?>();
+        if (!string.IsNullOrEmpty(_dataSourceName))
+        {
+            dataSourceTableIds.Add(_dataSourceName);
+            _DynamicFormFilterByItems = await Mediator.Send(new GetDynamicFormFilterByDataSource(dataSourceTableIds));
+            var filterTableName = _DynamicFormFilterByItems.Where(w => w.FilterTableName != null && w.FilterDataType == "DropDown").ToList();
+            _AttributeDetailsItems = await Mediator.Send(new GetFilterDataSourceLists(filterTableName));
+            loadDataLists();
+        }
+    }
+    void loadDataLists()
+    {
+        Data = new object(); DataClassObjectNameList = new List<string?>(); DataClassTypeList = new List<Type?>();
+        if (_DynamicFormFilterByItems != null && _DynamicFormFilterByItems.Count() > 0)
+        {
+            _DynamicFormFilterByItems.ForEach(s =>
+            {
+                if (!string.IsNullOrEmpty(s.FromFilterFieldName))
+                {
+                    if (s.FilterDataType == "DateField")
+                    {
+                        DataClassObjectNameList.Add("From_" + s.DynamicFormFilterById);
+                        DataClassObjectNameList.Add("To_" + s.DynamicFormFilterById);
+
+                    }
+                    else
+                    {
+                        DataClassObjectNameList.Add(s.DynamicFormFilterById.ToString());
+                    }
+                    if (s.FilterDataType == "DropDown")
+                    {
+                        DataClassTypeList.Add(typeof(long?));
+                    }
+                    else if (s.FilterDataType == "DateField")
+                    {
+                        DataClassTypeList.Add(typeof(DateTime?));
+                        DataClassTypeList.Add(typeof(DateTime?));
+                    }
+                    else if (s.FilterDataType == "TimeField")
+                    {
+                        DataClassTypeList.Add(typeof(TimeSpan?));
+                    }
+                    else
+                    {
+                        DataClassTypeList.Add(typeof(string));
+                    }
+                    DataClassObjectNameList.Add("AndOr_" + s.DynamicFormFilterById);
+                    DataClassTypeList.Add(typeof(string));
+                    if (s.FilterDataType == "TextBox")
+                    {
+                        DataClassObjectNameList.Add("Like_" + s.DynamicFormFilterById);
+                        DataClassTypeList.Add(typeof(string));
+                    }
+                }
+            });
+            MyClassBuilder MCB = new MyClassBuilder(_dataSourceName);
+            Data = MCB.CreateObject(DataClassObjectNameList.ToArray(), DataClassTypeList.ToArray());
+            StateHasChanged();
+        }
+    }
+    void loadDataSourceItems()
+    {
+        _andOrSourceItems = new List<DropDownOptionsModel>();
+        _andOrSourceItems.Add(new DropDownOptionsModel() { Value = "AND", Text = "AND" });
+        _andOrSourceItems.Add(new DropDownOptionsModel() { Value = "OR", Text = "OR" });
+        DataSourceItems = new List<DropDownOptionsModel>();
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "Contains", Text = "Contains(%..%)" });
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "EndsWith", Text = "Ends With(..%)" });
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "StartsWith", Text = "Starts With(%..)" });
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "Equal", Text = "Equal(=)" });
+    }
+    void addrefresh()
+    {
+        loadDataLists();
+    }
+    async Task addsearch()
+    {
+        var result = await Mediator.Send(new GetFilterByDataSourceLists(_DynamicFormFilterByItems, Data, _dataSourceName));
+        AttributeFilterDetails attributeFilterDetails = new AttributeFilterDetails();
+        attributeFilterDetails.AttributeName = _filterAttrName;
+        attributeFilterDetails.DataSourceName = _dataSourceName;
+        attributeFilterDetails.AttributeDetails = result;
+        attributeFilterDetails.DynamicFormFilterBy = _DynamicFormFilterByItems;
+        attributeFilterDetails.Data = Data;
+        await OnItemSelected.InvokeAsync(attributeFilterDetails);
+    }
+    void HandleValidSubmit()
+    {
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+    public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
+    {
+        int i = 0;
+        var propertyList = Data.GetType().GetProperties();
+        formLayoutBuilder.OpenComponent<DxFormLayout>(i);
+
+        formLayoutBuilder.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
+        {
+            layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
+            layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.Start);
+            layoutItemBuilder.AddAttribute(i + 1, "Expanded", true);
+            layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.None);
+            layoutItemBuilder.AddAttribute(i + 1, "Visible", true);
+            layoutItemBuilder.AddAttribute(i + 1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
+            {
+                b.OpenElement(i + 1, "div");
+                b.AddContent(i + 1, "Filter By");
+                b.CloseElement();
+                b.OpenElement(i + 1, "div");
+                b.AddAttribute(i + 1, "style", "margin-left:auto;");
+                b.CloseElement();
+            }));
+            layoutItemBuilder.AddAttribute(i + 1, "Items", (RenderFragment)((itemBuilder) =>
+            {
+                if (_DynamicFormFilterByItems != null && _DynamicFormFilterByItems.Count() > 0)
+                {
+                    DynamicFormFilterBy first = _DynamicFormFilterByItems.ToList().First();
+                    _DynamicFormFilterByItems.ForEach(s =>
+                    {
+                        var proName = s.DynamicFormFilterById.ToString();
+                        if (s.FilterDataType == "DateField")
+                        {
+                            proName = "From_" + s.DynamicFormFilterById.ToString();
+                        }
+                        var property = Data.GetType().GetProperty(proName);
+                        if (property != null)
+                        {
+                            var valueData = property.GetValue(Data);
+                            var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 5);
+                            var access = Expression.Property(Expression.Constant(Data), proName);
+                            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(property.PropertyType), access);
+
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                {
+
+                    var j = 0;
+                    editor.OpenElement(i + 1, "div");
+                    editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                    if (s.FilterDataType == "DateField")
+                    {
+                        editor.AddContent(i + 1, "From " + s.FilterDisplayName);
+                    }
+                    else
+                    {
+                        editor.AddContent(i + 1, s.FilterDisplayName);
+                    }
+                    editor.CloseElement();
+                    if (s.FilterDataType == "TextBox")
+                    {
+                        editor.OpenComponent<DxTextBox>(j + 1);
+                        editor.AddAttribute(j + 1, "Text", valueData);
+                        editor.AddAttribute(j + 1, "TextExpression", lambda);
+                        editor.AddAttribute(j + 1, "Enabled", true);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                        editor.CloseComponent();
+                    }
+
+                    else if (s.FilterDataType == "DateField")
+                    {
+
+                        editor.OpenComponent<DxDateEdit<DateTime?>>(j + 1);
+                        editor.AddAttribute(j + 1, "Date", valueData);
+                        editor.AddAttribute(j + 1, "DateExpression", lambda);
+                        editor.AddAttribute(j + 1, "Enabled", true);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { property.SetValue(Data, str); }));
+                        editor.CloseComponent();
+                    }
+                    else if (s.FilterDataType == "TimeField")
+                    {
+                        editor.OpenComponent<DxTimeEdit<TimeSpan?>>(j + 1);
+                        editor.AddAttribute(j + 1, "Time", valueData);
+                        editor.AddAttribute(j + 1, "TimeExpression", lambda);
+                        editor.AddAttribute(j + 1, "Enabled", true);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { property.SetValue(Data, str); }));
+                        editor.CloseComponent();
+                    }
+                    else if (s.FilterDataType == "DropDown")
+                    {
+                        bool? isEnabled = true;
+                        if (s.FilterTableName == "Plant")
+                        {
+                            if (_PlantLoadDependencyId > 0)
+                            {
+                                property.SetValue(Data, _PlantLoadDependencyId);
+                                isEnabled = false;
+                            }
+                            else
+                            {
+                                if (_dynamicform.CompanyId > 0)
+                                {
+                                    property.SetValue(Data, _dynamicform.CompanyId);
+                                    isEnabled = false;
+                                }
+                            }
+                        }
+                        List<AttributeDetails> attributeDetails = _AttributeDetailsItems != null && _AttributeDetailsItems.Count() > 0 ? _AttributeDetailsItems.Where(w => w.DropDownTypeId == s.FilterTableName && w.ApplicationMasterName == s.ApplicationMasterCodeId).ToList() : new List<AttributeDetails>();
+                        editor.OpenComponent<DxComboBox<AttributeDetails, long?>>(j + 1);
+                        editor.AddAttribute(j + 1, "Data", attributeDetails);
+                        editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
+
+                        editor.AddAttribute(j + 1, "TextFieldName", "AttributeDetailName");
+                        editor.AddAttribute(j + 1, "ValueFieldName", "AttributeDetailID");
+                        editor.AddAttribute(j + 1, "NullText", "Select " + s.FilterDisplayName + "..");
+                        editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
+                        editor.AddAttribute(j + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "Value", valueData);
+                        editor.AddAttribute(j + 1, "Enabled", isEnabled);
+                        editor.AddAttribute(j + 1, "ValueExpression", lambda);
+                        editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
+                        editor.AddAttribute(j + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                   {
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
+                       layoutItemBuilders.AddAttribute(0, "FieldName", "AttributeDetailName");
+                       layoutItemBuilders.AddAttribute(0, "Caption", "Name");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
+                       layoutItemBuilders.AddAttribute(1, "Caption", "Description");
+                       layoutItemBuilders.CloseComponent();
+                   }));
+                        editor.CloseComponent();
+                    }
+                })));
+
+                            itemBuilder.CloseComponent();
+                            if (s.FilterDataType == "DateField")
+                            {
+                                var _toDate = "To_" + s.DynamicFormFilterById.ToString();
+                                var _toDateproperty = Data.GetType().GetProperty(_toDate);
+                                if (_toDateproperty != null)
+                                {
+                                    var _toDatevalue = _toDateproperty.GetValue(Data);
+                                    var _toDateaccess = Expression.Property(Expression.Constant(Data), _toDate);
+                                    var _toDatelambda = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(DateTime?)), _toDateaccess);
+                                    itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                                    itemBuilder.AddAttribute(i++, "ColSpanMd", 5);
+                                    itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
+                                    {
+                                        editor1.OpenElement(i + 1, "div");
+                                        editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                        editor1.AddContent(i + 1, "To " + s.FilterDisplayName);
+                                        editor1.CloseElement();
+                                        editor1.OpenComponent<DxDateEdit<DateTime?>>(i + 1);
+                                        editor1.AddAttribute(i + 1, "Date", _toDatevalue);
+                                        editor1.AddAttribute(i + 1, "DateExpression", _toDatelambda);
+                                        editor1.AddAttribute(i + 1, "Enabled", true);
+                                        editor1.AddAttribute(i + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                        editor1.AddAttribute(i + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { _toDateproperty.SetValue(Data, str); }));
+                                        editor1.CloseComponent();
+                                    })));
+                                    itemBuilder.CloseComponent();
+                                }
+                            }
+
+
+                            if (s.FilterDataType != "DateField")
+                            {
+                                if (s.FilterDataType == "TextBox")
+                                {
+                                    var _likeData = "Like_" + s.DynamicFormFilterById.ToString();
+                                    var _likeproperty = Data.GetType().GetProperty(_likeData);
+                                    if (_likeproperty != null)
+                                    {
+                                        var _likevalue = _likeproperty.GetValue(Data);
+                                        Data.GetType().GetProperty(_likeData).SetValue(Data, _likevalue == null ? "Equal" : _likevalue);
+                                        var _likeaccess = Expression.Property(Expression.Constant(Data), _likeData);
+                                        var _likelambda = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(string)), _likeaccess);
+                                        itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                                        itemBuilder.AddAttribute(i++, "ColSpanMd", 5);
+                                        itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
+                                    {
+                                        editor1.OpenElement(i + 1, "div");
+                                        editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                        editor1.AddContent(i + 1, "Like");
+                                        editor1.CloseElement();
+                                        editor1.OpenComponent<DxComboBox<DropDownOptionsModel, string?>>(i + 1);
+                                        editor1.AddAttribute(i + 1, "Data", DataSourceItems);
+                                        editor1.AddAttribute(i + 1, "TextFieldName", "Text");
+                                        editor1.AddAttribute(i + 1, "ValueFieldName", "Value");
+                                        editor1.AddAttribute(i + 1, "NullText", "Select Type");
+                                        editor1.AddAttribute(i + 1, "ListRenderMode", ListRenderMode.Virtual);
+                                        editor1.AddAttribute(i + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                                        editor1.AddAttribute(i + 1, "Value", _likevalue == null ? "Equal" : _likevalue);
+                                        editor1.AddAttribute(i + 1, "Enabled", true);
+                                        editor1.AddAttribute(i + 1, "ValueExpression", _likelambda);
+                                        editor1.AddAttribute(i + 1, "ValueChanged", EventCallback.Factory.Create<string?>(this, str => { _likeproperty.SetValue(Data, str); }));
+                                        editor1.CloseComponent();
+                                    })));
+                                        itemBuilder.CloseComponent();
+                                    }
+                                }
+                                else
+                                {
+                                    itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                                    itemBuilder.AddAttribute(i++, "ColSpanMd", 5);
+                                    itemBuilder.CloseComponent();
+                                }
+                            }
+                            var appendProNames = "AndOr_" + s.DynamicFormFilterById.ToString();
+                            var propertyAndOr = Data.GetType().GetProperty(appendProNames);
+                            if (propertyAndOr != null)
+                            {
+                                var valueDataAndOr = propertyAndOr.GetValue(Data);
+                                Data.GetType().GetProperty(appendProNames).SetValue(Data, valueDataAndOr == null ? "AND" : valueDataAndOr);
+                                var accessAndOr = Expression.Property(Expression.Constant(Data), appendProNames);
+                                var lambdaAndOr = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(string)), accessAndOr);
+                                itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                                itemBuilder.AddAttribute(i++, "ColSpanMd", 2);
+                                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
+                                {
+                                    if (!first.Equals(s))
+                                    {
+                                        editor1.OpenElement(i + 1, "div");
+                                        editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                        editor1.AddContent(i + 1, "Condition");
+                                        editor1.CloseElement();
+                                        editor1.OpenComponent<DxComboBox<DropDownOptionsModel, string?>>(i + 1);
+                                        editor1.AddAttribute(i + 1, "Data", _andOrSourceItems);
+                                        editor1.AddAttribute(i + 1, "TextFieldName", "Text");
+                                        editor1.AddAttribute(i + 1, "ValueFieldName", "Value");
+                                        editor1.AddAttribute(i + 1, "NullText", "Select Type");
+                                        editor1.AddAttribute(i + 1, "ListRenderMode", ListRenderMode.Virtual);
+                                        editor1.AddAttribute(i + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                                        editor1.AddAttribute(i + 1, "Value", valueDataAndOr == null ? "AND" : valueDataAndOr);
+                                        editor1.AddAttribute(i + 1, "Enabled", true);
+                                        editor1.AddAttribute(i + 1, "ValueExpression", lambdaAndOr);
+                                        editor1.AddAttribute(i + 1, "ValueChanged", EventCallback.Factory.Create<string?>(this, str => { propertyAndOr.SetValue(Data, str); }));
+                                        editor1.CloseComponent();
+                                    }
+                                })));
+                                itemBuilder.CloseComponent();
+                            }
+
+
+
+                        }
+                    });
+                }
+            }));
+            layoutItemBuilder.CloseComponent();
+        }));
+        formLayoutBuilder.CloseComponent();
+    };
+}

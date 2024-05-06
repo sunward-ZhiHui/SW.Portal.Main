@@ -120,6 +120,8 @@
                                         <DxListEditorColumn FieldName="@nameof(DynamicFormSection.SectionName)"
                                                             Caption="Section Name"
                                                             Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(DynamicFormSection.SectionFileProfileTypeName)"
+                                                            Caption="Section Library Name" />
                                         <DxListEditorColumn FieldName="@nameof(DynamicFormSection.IsFileExits)"
                                                             Caption="Section File Exits" />
                                         <DxListEditorColumn FieldName="@nameof(DynamicFormSection.FileProfileName)"
@@ -266,7 +268,7 @@
                                             TextFieldName="SectionName"
                                             ValueFieldName="SectionId"
                                             Enabled="isSection"
-                                            SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                                            SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionPlantChanged(plantSelect?.SectionId))"
                                 @bind-Value="@Data.SectionId" ShowValidationIcon="true">
                                     <Columns>
                                         <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
@@ -335,7 +337,7 @@
                         </div>
                     </div>
                     <div style="@fileUploadStyle2">
-                        <LinkFileprofileTypeLists @ref="refLinkFileprofileTypeLists" ParentSelectedFiles="@selectedFiles" RevokeBack="BalckloadDataList"></LinkFileprofileTypeLists>
+                        <LinkFileprofileTypeLists @ref="refLinkFileprofileTypeLists"  ParentSelectedFiles="@selectedFiles" RevokeBack="BalckloadDataList"></LinkFileprofileTypeLists>
                     </div>
                 </div>
             </div>
@@ -424,6 +426,7 @@
     public Action RevokeBack { get; set; }
     [Parameter]
     public IEnumerable DynamicFormDataUploadByPermissions { get; set; }
+    public long? OldFileProfileTypeId { get; set; }
     bool PanelVisible { get; set; }
     List<DynamicFormDataUploadByPermission> FolderPathListsItems = new List<DynamicFormDataUploadByPermission>();
     EditContext _editContext;
@@ -468,6 +471,7 @@
     {
         if (_applicationUser != null)
         {
+            OldFileProfileTypeId = FileProfileTypeId;
             await loadDataList();
         }
     }
@@ -485,6 +489,7 @@
     public async Task loadDataList()
     {
         ActiveTabIndex = 0;
+
         PanelVisible = true; fileEnabled = false;
         if (DynamicFormDataUploadByPermissions != null)
         {
@@ -501,6 +506,7 @@
         {
             if (FileProfileTypeId > 0)
             {
+
                 var childLists = GetChild(FileProfileTypeId).ToList();
                 _selectedTreeItems = childLists;
                 // var _selectedTreeItemss = GetCategoryTreeFromFlattenedCollection(childLists, FileProfileTypeId);
@@ -531,6 +537,7 @@
 
         PanelVisible = false;
         StateHasChanged();
+
     }
     public List<DocumentsModel> GetCategoryTreeFromFlattenedCollection(List<DocumentsModel> flattenedCats, long? parentId)
     {
@@ -549,14 +556,29 @@
 
         return cats;
     }
-    void OnTabClick(TabClickEventArgs e)
+    async Task OnTabClick(TabClickEventArgs e)
     {
         if (e.TabIndex == 1)
         {
             fileUploadStyle2 = ""; fileUploadStyle1 = "display:none;";
             isTemplateUploadOrReserveNoImages = true; isReserveNoVisibile = false;
-            Data.TemplateUploadOrReserveNo = "New Upload";
+            Data.TemplateUploadOrReserveNo = "New Upload"; Data.NumberSeriesId = 0;
             fileUploadStyle1 = ""; fileUploadStyle2 = "display:none;";
+            dynamicFormSection1 = new DynamicFormSection();
+            IsFileProfileTypeShow = false; Message = "Upload";
+            CurrentUplodCount = 0;
+            SelectedFilesCount = 0;
+            SelectedFiles = new List<UploadFileInfo>();
+            MyError = ""; MyMessage = ""; FileprofiletypeName = "";
+            isPlant = false;
+            isDivision = false; isDepartment = false;
+            isSection = false; isSubSection = false;
+            Data.PlantId = 0; Data.DepartmentId = 0;
+            Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
+            TempSetIds = new List<DocumentsUploadModel>(); Uploadloading = true;
+            isTemplateUploadOrReserveNoImages = false;
+            Data.DynamicFormSectionId = null;
+            _editContext = new EditContext(Data);
             StateHasChanged();
         }
     }
@@ -648,7 +670,7 @@
         await SelectedItemChanged(0);
         await SelectedItemDivisionChanged(0);
         await SelectedItemDepartementChanged(0);
-        await SelectedItemSectionChanged(0);
+        await SelectedItemSectionPlantChanged(0);
         StateHasChanged();
     }
     private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
@@ -868,7 +890,7 @@
     {
         // var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
     }
-    void SelectedItemSectionChanged(DynamicFormSection dynamicFormSection)
+    async Task SelectedItemSectionChanged(DynamicFormSection dynamicFormSection)
     {
         dynamicFormSection1 = new DynamicFormSection();
         if (dynamicFormSection != null)
@@ -878,6 +900,62 @@
                 dynamicFormSection1 = dynamicFormSection;
                 var MyMessage = "This Section File Already Exits.";
                 toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                if (dynamicFormSection.SectionFileProfileTypeId > 0)
+                {
+                    Data.FileProfileTypeId = null;
+                    FileprofiletypeName = string.Empty;
+                    var datas = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == dynamicFormSection.SectionFileProfileTypeId);
+                    if (datas != null)
+                    {
+
+                        FileProfileTypeId = dynamicFormSection.SectionFileProfileTypeId;
+                        var childLists = GetChild(dynamicFormSection.SectionFileProfileTypeId).ToList();
+                        _selectedTreeItems = childLists;
+                        await loadData(datas);
+                        await refLinkFileprofileTypeLists.loadTreeItems(datas, Data, _dynamicformData);
+                        _editContext = new EditContext(Data);
+                    }
+                }
+                else
+                {
+                    // if (dynamicFormSection.DynamicFormSectionId == -1)
+                    // {
+                    if (OldFileProfileTypeId > 0)
+                    {
+                        Data.FileProfileTypeId = null;
+                        FileprofiletypeName = string.Empty;
+                        var datas = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == OldFileProfileTypeId);
+                        if (datas != null)
+                        {
+                            FileProfileTypeId = OldFileProfileTypeId;
+                            var childLists = GetChild(OldFileProfileTypeId).ToList();
+                            _selectedTreeItems = childLists;
+                            await loadData(datas);
+                            await refLinkFileprofileTypeLists.loadTreeItems(datas, Data, _dynamicformData);
+                            _editContext = new EditContext(Data);
+                        }
+                    }
+                    else
+                    {
+                        isPlant = false;
+                        isDivision = false; isDepartment = false;
+                        isSection = false; isSubSection = false;
+                        Data.PlantId = 0; Data.DepartmentId = 0;
+                        Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
+                        Data.FileProfileTypeId = null; FileProfileTypeId = null;
+                        FileprofiletypeName = string.Empty;
+                        fileUploadStyle2 = ""; fileUploadStyle1 = "display:none;";
+                        isTemplateUploadOrReserveNoImages = true; isReserveNoVisibile = false;
+                        Data.TemplateUploadOrReserveNo = "New Upload";
+                        fileUploadStyle1 = ""; fileUploadStyle2 = "display:none;";
+                        _editContext = new EditContext(Data);
+                        _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+                    }
+                    // }
+                }
             }
         }
         StateHasChanged();
@@ -934,7 +1012,7 @@
             _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
         }
     }
-    async Task SelectedItemSectionChanged(long? sectionId)
+    async Task SelectedItemSectionPlantChanged(long? sectionId)
     {
         _subSectionItems = new List<ViewSubSection>();
         if (sectionId > 0)

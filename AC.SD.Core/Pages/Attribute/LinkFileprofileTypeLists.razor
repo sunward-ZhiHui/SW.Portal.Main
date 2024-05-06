@@ -352,6 +352,7 @@
                     DynamicFormSectionId = documentsUploadModel.DynamicFormSectionId > 0 ? documentsUploadModel.DynamicFormSectionId : null,
                     FileProfileTypeId = documentsUploadModel.FileProfileTypeId,
                     DocumentsModel = _selectedItemsList,
+                    UploadType=documentsUploadModel.TemplateUploadOrReserveNo,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
@@ -361,9 +362,15 @@
                     SessionId = sessionid,
                 };
             var request = await Mediator.Send(new InsertDmsDocumentDynamicFormData(insertDynamicFormDataUpload));
-            toastService.ShowToast("Document Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            RevokeBack?.Invoke();
+            if (request.DynamicFormDataId > 0)
+            {
+                Blukdeletepopup = false;;
+                toastService.ShowToast("Document Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                RevokeBack?.Invoke();
+            }
+
         }
+        StateHasChanged();
     }
     async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {

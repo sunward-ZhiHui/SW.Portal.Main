@@ -80,7 +80,7 @@
         <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-        <DxGridDataColumn FieldName="ModifiedDate" Width="180">
+        @* <DxGridDataColumn FieldName="ModifiedDate" Width="180">
             <CellDisplayTemplate>
                 @{
                     var item = (ViewLevel)context.DataItem;
@@ -88,7 +88,7 @@
                 @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
             </CellDisplayTemplate>
         </DxGridDataColumn>
-        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" /> *@
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{

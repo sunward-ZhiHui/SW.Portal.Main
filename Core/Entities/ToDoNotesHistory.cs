@@ -32,6 +32,7 @@ namespace Core.Entities
         public string? ColourCode {get;set;}
         public string? Users { get; set; }
         [NotMapped]
+        [Required]
         public IEnumerable<long> UserIds { get; set; }
         [NotMapped]
         public string SubjectName { get;set; }

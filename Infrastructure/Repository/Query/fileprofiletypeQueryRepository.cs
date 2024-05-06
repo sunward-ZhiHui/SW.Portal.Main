@@ -310,7 +310,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
-                var query = "select  LinkFileProfileTypeDocumentId,TransactionSessionId,DocumentId,FileProfileTypeId from LinkFileProfileTypeDocument where FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
+                var query = "select t1.LinkFileProfileTypeDocumentId,t1.TransactionSessionId,t1.DocumentId,t1.FileProfileTypeId,(Select t2.DocumentID from documents t2 where t2.SessionId=t1.TransactionsessionId AND islatest=1)as DocumentID from LinkFileProfileTypeDocument t1 where t1.FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<LinkFileProfileTypeDocument>(query)).ToList();
@@ -766,6 +766,7 @@ namespace Infrastructure.Repository.Query
                             documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
                             documentsModels.OriginalFileName = s.FileName;
                             documentsModels.ContentType = s.ContentType;
+                            documentsModels.OriginalFileSize = s.FileSize;
                             documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
                             documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
                             documentsModels.UploadDate = s.UploadDate;

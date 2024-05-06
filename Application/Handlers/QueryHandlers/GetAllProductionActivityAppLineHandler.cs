@@ -1,5 +1,6 @@
 ﻿using Application.Queries;
 using Core.Entities;
+using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
@@ -340,4 +341,32 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class ProductionActivityReportHandler : IRequestHandler<GetProductionActivityReportList, List<View_ProductionActivityReport>>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public ProductionActivityReportHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<View_ProductionActivityReport>> Handle(GetProductionActivityReportList request, CancellationToken cancellationToken)
+        {
+            return (List<View_ProductionActivityReport>)await _productionactivityQueryRepository.GetProductionActivityReportList();
+        }
+
+    }
+    public class ProductionActivityReportDocumentHandler : IRequestHandler<GetProductionActivityReportDocumentList, List<imgDocList>>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public ProductionActivityReportDocumentHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<imgDocList>> Handle(GetProductionActivityReportDocumentList request, CancellationToken cancellationToken)
+        {
+            return (List<imgDocList>)await _productionactivityQueryRepository.GetProductionActivityReportDocList(request.ProductionActivityAppLineID);
+        }
+
+    }
+    
+
 }

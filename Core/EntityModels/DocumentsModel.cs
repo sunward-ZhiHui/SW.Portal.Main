@@ -30,6 +30,7 @@ namespace Core.EntityModels
         public byte[] ImageData { get; set; }
         public int? FileIndex { get; set; }
         public long? FileSize { get; set; }
+        public long? OriginalFileSize { get; set; }
         public DateTime? UploadDate { get; set; }
         public Guid? SessionID { get; set; }
         public long? LinkID { get; set; }

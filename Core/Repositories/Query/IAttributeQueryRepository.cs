@@ -14,6 +14,7 @@ namespace Core.Repositories.Query
         Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm, long? UserId);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeName(bool? IsSubForm, string? type, long? subId);
         Task<IReadOnlyList<AttributeHeaderDataSource>> GetAttributeHeaderDataSource();
+        Task<IReadOnlyList<DynamicFormFilter>> GetFilterDataSource();
         Task<IReadOnlyList<DynamicForm>> GetComboBoxList();
         Task<long> Insert(AttributeHeader attributeHeader);
         Task<long> UpdateAsync(AttributeHeader attributeHeader);
@@ -24,6 +25,8 @@ namespace Core.Repositories.Query
         Task<AttributeHeader> UpdateAttributeHeaderSortOrder(AttributeHeader attributeHeader);
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByList(IDictionary<string, object> DynamicMasterParentIds,long? applicationMasterParentId);
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByMobileList(IDictionary<string, JsonElement> DynamicMasterParentIds, long? applicationMasterParentId);
-        
+        Task<DropDownOptionsGridListModel> GetDynamicGridNested(List<long?> DynamicFormDataId, long? userId);
+
+
     }
 }

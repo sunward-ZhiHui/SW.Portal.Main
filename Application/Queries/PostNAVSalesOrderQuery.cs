@@ -26,4 +26,5 @@ namespace Application.Queries
             this.Type = type;
         }
     }
+   
 }

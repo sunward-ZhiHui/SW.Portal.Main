@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
@@ -13,7 +14,8 @@ namespace Core.Repositories.Query
     {
       
         Task<IReadOnlyList<ProductionActivityRoutineAppLine>> GetAllAsync();
-
+        Task<IReadOnlyList<View_ProductionActivityReport>> GetProductionActivityReportList();
+        Task<IReadOnlyList<imgDocList>> GetProductionActivityReportDocList(long ProductionActivityAppLineID);
         Task<IReadOnlyList<ProductionActivityRoutineAppModel>> GetAllProductionActivityRoutineAsync(ProductionActivityRoutineAppModel value);
         Task<ProductionActivityRoutineAppModel> DeleteproductActivityRoutineAppLine(ProductionActivityRoutineAppModel productionActivityRoutineAppModel);
         Task<ProductionActivityRoutineAppModel> UpdateproductActivityRoutineAppLineCommentField(ProductionActivityRoutineAppModel value);

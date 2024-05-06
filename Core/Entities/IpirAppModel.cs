@@ -40,7 +40,8 @@ namespace Core.Entities
         public string? CompanyName { get; set; }
         public string? ProfileName { get; set; }
         public long? ActivityStatusId { get; set; }
-       
+        public string? FileName { get; set; }
+        public Guid? UniqueSessionId { get; set; }
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
 

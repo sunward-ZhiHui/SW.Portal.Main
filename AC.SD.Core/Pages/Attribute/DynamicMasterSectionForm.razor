@@ -4,12 +4,14 @@
 @using MediatR
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
+@using global::Core.EntityModels;
 @inject IMediator Mediator
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 @implements IDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -89,7 +91,7 @@
                     @item.SortOrderBy
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-
+            <DxGridDataColumn FieldName="SectionFileProfileTypeName" Caption="SW Library Name" MinWidth="40" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
 
@@ -98,36 +100,53 @@
         <EditFormTemplate Context="EditFormContext">
             @{
                 var types = (DynamicFormSection)EditFormContext.EditModel;
+                if (types.SectionFileProfileTypeId > 0)
+                {
+                    var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, types.SectionFileProfileTypeId);
+                    types.SectionFileProfileTypeName = lists.FirstOrDefault()?.FileProfilePath;
+                }
+                DynamicFormSectionOne = types;
             }
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Section Name" ColSpanMd="6">
                     <DxTextBox @bind-Text="@types.SectionName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.SectionName)" />
                 </DxFormLayoutItem>
-               @*  <DxFormLayoutItem Caption="Field Name" ColSpanMd="6">
-                    <DxTagBox Data="@_attributeHeaderData"
-                              NullText="Select Field..."
-                              FilteringMode="DataGridFilteringMode.Contains"
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              ListRenderMode="ListRenderMode.Virtual"
-                              TextFieldName="Description"
-                              ValueFieldName="AttributeID"
-                              EditFormat="{0}-{1}"
-                    @bind-Values="@types.AttributeIds">
-                          <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
-                                             Caption="Field Name"
-                                             Width="100px" /> 
-                        <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
-                                            Caption="Label Name"
-                                            Width="100px" />
-                        <DxListEditorColumn FieldName="@nameof(AttributeHeader.ControlType)"
-                                            Caption="Control Type" Width="100px" />
-                        <DxListEditorColumn FieldName="@nameof(AttributeHeader.DropDownTypeId)"
-                                            Caption="DropDown Type" Width="100px" />
-                        <DxListEditorColumn FieldName="@nameof(AttributeHeader.DataSourceDisplayName)"
-                                            Caption="Data Source" Width="100px" />
-                    </DxTagBox>
-                    <ValidationMessage For="@(() => types.AttributeIds)" />
+                <DxFormLayoutItem Caption="SW Library" ColSpanMd="6">
+                    <DxTextBox NullText="SW Library..." @bind-Text="@DynamicFormSectionOne.SectionFileProfileTypeName" CssClass="cw-480">
+                        <Buttons>
+                            <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpendata")
+                                            Tooltip="Select File ProfileType"
+                                            Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                        </Buttons>
+                    </DxTextBox>
+                    <DxSpinEdit @bind-Value="@DynamicFormSectionOne.SectionFileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                    <ValidationMessage For="@(() => DynamicFormSectionOne.SectionFileProfileTypeId)" />
+                </DxFormLayoutItem>
+                @*  <DxFormLayoutItem Caption="Field Name" ColSpanMd="6">
+                <DxTagBox Data="@_attributeHeaderData"
+                NullText="Select Field..."
+                FilteringMode="DataGridFilteringMode.Contains"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                ListRenderMode="ListRenderMode.Virtual"
+                TextFieldName="Description"
+                ValueFieldName="AttributeID"
+                EditFormat="{0}-{1}"
+                @bind-Values="@types.AttributeIds">
+                <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
+                Caption="Field Name"
+                Width="100px" />
+                <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
+                Caption="Label Name"
+                Width="100px" />
+                <DxListEditorColumn FieldName="@nameof(AttributeHeader.ControlType)"
+                Caption="Control Type" Width="100px" />
+                <DxListEditorColumn FieldName="@nameof(AttributeHeader.DropDownTypeId)"
+                Caption="DropDown Type" Width="100px" />
+                <DxListEditorColumn FieldName="@nameof(AttributeHeader.DataSourceDisplayName)"
+                Caption="Data Source" Width="100px" />
+                </DxTagBox>
+                <ValidationMessage For="@(() => types.AttributeIds)" />
 
                 </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="Instruction" ColSpanMd="12">
@@ -203,7 +222,46 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsFileProfileTypeFilterDocOpen
+          PositionTarget=@($"#flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpendata")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select SW Library"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="">
+                <DxTreeView @ref="_treeFilterDocView"
+                @bind-FilterString="FilterDocumentString"
+                            ShowFilterPanel="true"
+                            FilterMode="NavigationFilterMode.EntireBranch"
+                            AllowSelectNodes="true"
+                            SelectionChanged="@SelectionChanged"
+                            Data="@_selectedTreeItems"
+                            LoadChildNodesOnDemand="true">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Text="FileName"
+                                               HasChildren="HasChildren"
+                                               Children="Children" />
+                    </DataMappings>
+                </DxTreeView>
+            </DxFormLayoutItem>
 
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 
 @code {
     [Parameter]
@@ -231,14 +289,26 @@
     bool IsSortOrderByOpen { get; set; } = false;
     bool addPermissionEnabled { get; set; } = false;
     private DynamicFormSection _selectlst;
+    string? LinkFilterFileprofiletypeName { get; set; } = null;
     public ApplicationUser? applicationUser { get; private set; }
     private List<DynamicFormSectionSortOrder> sortOrderList { get; set; }
     DynamicFormSection _selectedDynamicFormSectionItems = new DynamicFormSection();
     [Parameter]
     public Action<bool?> RevokeBack { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
+    public bool IsFileProfileTypeFilterDocOpen { get; set; }
+    private DxTreeView _treeFilterDocView;
+    string? FilterDocumentString { get; set; }
+    public DynamicFormSection? DynamicFormSectionOne { get; set; } = new DynamicFormSection();
     protected override async Task OnInitializedAsync()
     {
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        if (fileProfileTypeDocumentsAll.Count() > 0)
+        {
+            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        }
         await UpdateDataAsync();
     }
     public async Task loadChildData(long? dynamicFormIds)
@@ -315,7 +385,8 @@
                     IsReadOnly = editModel.IsReadOnly == true ? true : false,
                     IsVisible = editModel.IsVisible == true ? true : false,
                     IsReadWrite = editModel.IsReadWrite == true ? true : false,
-                    Instruction=editModel.Instruction,
+                    Instruction = editModel.Instruction,
+                    SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
                 };
 
             try
@@ -352,7 +423,8 @@
                     IsReadOnly = editModel.IsReadOnly,
                     IsVisible = editModel.IsVisible,
                     IsReadWrite = editModel.IsReadWrite,
-                    Instruction = editModel.Instruction
+                    Instruction = editModel.Instruction,
+                    SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
 
                 };
             var result = await Mediator.Send(UpdateReq);
@@ -558,6 +630,60 @@
         RevokeBack?.Invoke(false);
         await UpdateDataAsync();
         addPermissionEnabled = false;
+    }
+    void OnButtonFileProfileTypeLinDocClick()
+    {
+        IsFileProfileTypeFilterDocOpen = true;
+    }
+    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            DynamicFormSectionOne.SectionFileProfileTypeName = lists.FirstOrDefault()?.FileProfilePath;
+            DynamicFormSectionOne.SectionFileProfileTypeId = nodeName.FileProfileTypeId;
+        }
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
+    }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel>
+        foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
     }
     public void Dispose()
     {

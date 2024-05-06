@@ -19,12 +19,13 @@ namespace SW.Portal.Solutions.Models
         public string? ProdActivityActionChild { get; set; }
         public string? LineComment { get; set; }
         public string? ProdActivityResult { get; set; }
-      
+        public string? FilePath { get; set; }
+        public Guid? UniqueSessionId { get; set; }
         public long? MasterProductionFileProfileTypeId { get; set; }
         [DisplayName("Modified By")]
         public string ModifiedByUser { get; set; }
         [DisplayName("Modified Date")]
-      
+        public string? FileName { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public long? ProductionActivityRoutineAppLineId { get; set; }
         public long ProductionActivityRoutineAppId { get; set; }

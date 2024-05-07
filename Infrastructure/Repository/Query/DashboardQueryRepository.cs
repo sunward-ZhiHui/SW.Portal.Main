@@ -131,13 +131,27 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", userId);
                 var query = @"SELECT *,0 as Accepted,NEWID() as SessionId,'Appointment' as StatusType from Appointment WHERE AddedByUserID  = @UserId
-                                UNION ALL
-                                    SELECT ID,0 as AppointmentType,DueDate as StartDate,DueDate + NoOfDays AS EndDate,Name AS Caption, 1 as Label, 
+                                UNION ALL                                    
+                                    SELECT ID,0 as AppointmentType,
+                                    --DueDate as StartDate,
+	                                    CASE 
+                                            WHEN CAST(DueDate AS TIME) = '00:00:00' THEN DATEADD(HOUR, 9, DueDate) -- Add 9 hours if time is 00:00:00
+                                            ELSE DueDate 
+                                        END AS StartDate,
+	                                      CASE 
+                                            WHEN CAST(DueDate AS TIME) = '00:00:00' THEN DATEADD(HOUR, 9, DATEADD(MINUTE, 15, DATEADD(DAY, NoOfDays, DueDate))) -- Add 9 hours to EndDate if time is 00:00:00, and add 15 minutes if same time as StartDate
+                                            WHEN CAST(DueDate AS TIME) = CAST(DueDate AS TIME) THEN DATEADD(MINUTE, 15, DATEADD(DAY, NoOfDays, DueDate)) -- Add 15 minutes to EndDate if StartDate and EndDate have the same time
+                                            ELSE DATEADD(DAY, NoOfDays, DueDate) 
+                                        END AS EndDate,
+                                    --DueDate + NoOfDays AS EndDate,
+                                    Name AS Caption, 1 as Label, 
                                     3 as Status, 0 as AllDay, null as  Recurrence, null as Location, null as Description,
                                     AddedByUserID,AddedDate,1 as Accepted,TS.SessionId,'EmailDueDate' as StatusType
                                     from EmailConversations TS where TS.DueDate IS NOT NULL AND TS.AddedByUserID  = @UserId
                                 UNION ALL
-                                    SELECT TNH.ID,0 as AppointmentType,TNH.DueDate as StartDate,TNH.DueDate as EndDate,CONCAT(EC.Name,'-',ET.TopicName) as Caption,4 as Label,
+                                    SELECT TNH.ID,0 as AppointmentType,TNH.DueDate as StartDate,
+                                    --TNH.DueDate as EndDate,
+                                    CASE WHEN TNH.DueDate = TNH.DueDate THEN DATEADD(minute, 15, TNH.DueDate) ELSE TNH.DueDate END AS EndDate,CONCAT(EC.Name,'-',ET.TopicName) as Caption,4 as Label,
                                     4 as Status, 0 as AllDay, null as  Recurrence, null as Location, CONCAT(TNH.Description,'-',TD.Notes) as Description,
                                     TNH.AddedByUserID,TNH.AddedDate,1 as Accepted,TNH.SessionId,'TodoDueDate' as StatusType FROM ToDoNotesHistory TNH
                                     INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
@@ -147,7 +161,8 @@ namespace Infrastructure.Repository.Query
                                     LEFT JOIN ApplicationUser AP ON AP.UserID = TNU.UserID
                                     WHERE TNH.AddedByUserID = @UserId
                                         AND TNH.TopicId IS NOT NULL
-                                        AND TNH.TopicId > 0                                    
+                                        AND TNH.TopicId > 0         
+                                        AND TNH.DueDate IS NOT NULL
                                         AND TNH.Status = 'Open'";
 
                 using (var connection = CreateConnection())

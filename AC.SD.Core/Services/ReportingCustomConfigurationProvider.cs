@@ -18,6 +18,7 @@ namespace Reporting.Core.Services
             {
 
                 [$"ConnectionStrings:Report_Connection"] = config.GetConnectionString(localConnectionName),
+                [$"ConnectionStrings:JsonConnection"] = config.GetConnectionString("JsonConnection"),
                 [$"ConnectionStrings:SunwardNAV01"] = config.GetConnectionString("SunwardNAV01"),
                 [$"ConnectionStrings:SWUAT"] = config.GetConnectionString("SWUAT"),
                 [$"ConnectionStrings:localhost_SW_Int_LIVE_Connection"] = config.GetConnectionString("localhost_SW_Int_LIVE_Connection"),

@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     {       
         Task PostSalesOrderAsync(PostSalesOrder postSalesOrder);
         Task<List<Core.Entities.ItemBatchInfo>> SyncBatchAsync(string company, string itemNo);
+        Task<List<Core.Entities.ItemBatchInfo>> NavItemBatchAsync(string company);
         Task<string> RawMatItemAsync(string companyname,long companyid, string type);
         Task<string> PackagingItemAsync(string companyname, long companyid, string type);
         Task<string> ProcessItemAsync(string companyname, long companyid, string type);

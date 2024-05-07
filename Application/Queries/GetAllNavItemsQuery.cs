@@ -88,4 +88,14 @@ namespace Application.Queries
             this.ItemId = ItemId;
         }
     }
+
+    public class NavCompanyItemBatchInfoQuery : PagedRequest, IRequest<ItemBatchInfo>
+    {
+        public long? CompanyId { get; set; }
+        public NavCompanyItemBatchInfoQuery(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
+
 }

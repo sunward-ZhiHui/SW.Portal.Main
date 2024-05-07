@@ -280,6 +280,37 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }       
+
+        public async Task<ItemBatchInfo> GetNavItemBatchInfo(long? CompanyId)
+        {
+            try
+            {
+                ItemBatchInfo itemBatchInfo = new ItemBatchInfo();
+                var Navlists = await GetByCompanyAsyncList(CompanyId);
+                var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                if (plantData != null)
+                {
+                    var lst = await _salesOrderService.NavItemBatchAsync(plantData.NavCompanyName);
+                    if (lst != null && lst.Count > 0)
+                    {
+                        foreach (var s in lst)
+                        {
+                            var Exits = Navlists.Where(w => w.No == s.BatchNo).Count();
+                            if (Exits == 0)
+                            {
+                                await InsertBatchInfo(s, plantData.CompanyID, s.ItemId);
+                            }
+                        }
+                    }
+                }
+                itemBatchInfo.ItemBatchId = 1;
+                return itemBatchInfo;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<ItemBatchInfo> GetSyncBatchInfo(string ItemNo, long? CompanyId, long? ItemId)
         {

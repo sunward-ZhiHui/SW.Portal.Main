@@ -121,4 +121,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.GetSyncBatchInfo(request.ItemNo,request.CompanyId,request.ItemId);
         }
     }
+    public class NavCompanyItemBatchInfoQueryHandler : IRequestHandler<NavCompanyItemBatchInfoQuery, ItemBatchInfo>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public NavCompanyItemBatchInfoQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<ItemBatchInfo> Handle(NavCompanyItemBatchInfoQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetNavItemBatchInfo(request.CompanyId);            
+            
+        }
+    }
 }

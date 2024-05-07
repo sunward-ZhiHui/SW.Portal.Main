@@ -70,5 +70,71 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ApplicationMaster> GetByApplicationMasterCodeAsync()
+        {
+            try
+            {
+                var query = "SELECT * FROM ApplicationMaster order by ApplicationMasterCodeId desc";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ApplicationMaster>(query));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ApplicationMaster> InsertApplicationMaster(ApplicationMaster value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ApplicationMasterId", value.ApplicationMasterId);
+                        parameters.Add("ApplicationMasterName", value.ApplicationMasterName, DbType.String);
+                        parameters.Add("ApplicationMasterDescription", value.ApplicationMasterDescription, DbType.String);
+                        if (value.ApplicationMasterId > 0)
+                        {
+                            var query = "UPDATE ApplicationMaster SET ApplicationMasterName=@ApplicationMasterName,ApplicationMasterDescription = @ApplicationMasterDescription " +
+                                "WHERE ApplicationMasterId = @ApplicationMasterId";
+                            await connection.ExecuteAsync(query, parameters);
+                        }
+                        else
+                        {
+                            var checkLink = await GetByApplicationMasterCodeAsync();
+                            long? ApplicationMasterCodeId = 100;
+                            if (checkLink != null && checkLink.ApplicationMasterCodeId > 0)
+                            {
+                                ApplicationMasterCodeId = (long)checkLink.ApplicationMasterCodeId + 1;
+                            }
+
+                            parameters.Add("ApplicationMasterCodeId", ApplicationMasterCodeId);
+                            var query = "INSERT INTO [ApplicationMaster](ApplicationMasterName,ApplicationMasterDescription,ApplicationMasterCodeId) OUTPUT INSERTED.ApplicationMasterId VALUES " +
+                                "(@ApplicationMasterName,@ApplicationMasterDescription,@ApplicationMasterCodeId)";
+
+                            value.ApplicationMasterId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

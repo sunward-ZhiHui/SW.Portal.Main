@@ -56,5 +56,8 @@ namespace Core.Entities
         public string? DesignationName { get; set; }
         [NotMapped]
         public string? FullName { get; set; }
+        public bool? IsAdd { get; set; } = false;
+        public bool? IsEdit { get; set; } = false;
+        public bool? IsDelete { get; set; } = false;
     }
 }

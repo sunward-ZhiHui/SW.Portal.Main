@@ -52,4 +52,18 @@ namespace CMS.Application.Handlers.QueryHandlers
 
 
     }
+    public class InsertApplicationMasterHandler : IRequestHandler<InsertApplicationMaster, ApplicationMaster>
+    {
+        private readonly IApplicationMasterDetailQueryRepository _productionactivityQueryRepository;
+        public InsertApplicationMasterHandler(IApplicationMasterDetailQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ApplicationMaster> Handle(InsertApplicationMaster request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.InsertApplicationMaster(request);
+        }
+
+
+    }
 }

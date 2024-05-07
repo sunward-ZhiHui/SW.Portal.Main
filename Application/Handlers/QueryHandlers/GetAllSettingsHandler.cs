@@ -86,4 +86,16 @@ namespace Application.Handlers.QueryHandlers
             return await _queryRepository.GetEmailAccessByUser(request.UserId);
         }
     }
+    public class GetDocumentAccessTypeEmptyHandler : IRequestHandler<GetDocumentAccessTypeQuery, List<OpenAccessUserLink>>
+    {
+        private readonly ISettingsQueryRepository _queryRepository;
+        public GetDocumentAccessTypeEmptyHandler(ISettingsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<OpenAccessUserLink>> Handle(GetDocumentAccessTypeQuery request, CancellationToken cancellationToken)
+        {
+            return (List<OpenAccessUserLink>)await _queryRepository.GetDocumentAccessTypeEmptyAsync(request.AccessType);
+        }
+    }
 }

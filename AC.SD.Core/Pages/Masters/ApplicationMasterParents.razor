@@ -23,6 +23,14 @@
                         <div class="mb-cc-text">
                             <div class="card w-100">
                                 <div class="card-body p-0">
+                                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                            DisplayMode="MenuDisplayMode.Desktop">
+                                        <Items>
+                                            <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addMasterNew" Enabled="@AddMasterEnabled" />
+                                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addMasterEdit" Enabled="@EditMasterEnabled" />
+                                        </Items>
+                                    </DxMenu>
                                     <DxLoadingPanel @bind-Visible="PanelVisible"
                                                     IsContentBlocked="true"
                                                     ApplyBackgroundShading="true"
@@ -46,6 +54,9 @@
                                                 CssClass="ch-360"
                                                 AllowSelectRowByClick="true"
                                                 CustomizeElement="Grid_CustomizeElement"
+                                                EditModelSaving="Grid_EditModelMasterSaving"
+                                                CustomizeEditModel="Grid_CustomizeMasterEditModel"
+                                                RowDoubleClick="OnRowMasterDoubleClick"
                                                 AutoExpandAllGroupRows="true"
                                                 SelectionMode="GridSelectionMode.Single"
                                                 SelectedDataItemsChanged="@SelectedDataItemsChanged"
@@ -57,6 +68,37 @@
                                                 <DxGridDataColumn FieldName="ApplicationMasterName" Caption="Master Name" />
                                                 <DxGridDataColumn FieldName="Description" Caption="Description" />
                                             </Columns>
+                                            <EditFormTemplate Context="EditFormContext">
+                                                @{
+                                                    var plant = (ApplicationMasterParent)EditFormContext.EditModel;
+                                                }
+                                                <DxFormLayout CssClass="w-100">
+                                                    <DxFormLayoutItem Caption="Parent Name" ColSpanMd="6">
+                                                        <DxTextBox @bind-Text="@plant.ApplicationMasterName" ShowValidationIcon="true" />
+                                                        <ValidationMessage For="@(() => plant.ApplicationMasterName)" />
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                                                        <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
+                                                        <ValidationMessage For="@(() => plant.Description)" />
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem Caption="Child Name" ColSpanMd="6">
+                                                        <DxTextBox @bind-Text="@plant.ApplicationMasterName2" ShowValidationIcon="true" />
+                                                        <ValidationMessage For="@(() => plant.ApplicationMasterName2)" />
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                                                        <DxMemo @bind-Text="@plant.Description2" Rows="5" ShowValidationIcon="true" />
+                                                        <ValidationMessage For="@(() => plant.Description2)" />
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem Caption="Sub Child Name" ColSpanMd="6">
+                                                        <DxTextBox @bind-Text="@plant.ApplicationMasterName3" ShowValidationIcon="true" />
+                                                        <ValidationMessage For="@(() => plant.ApplicationMasterName3)" />
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                                                        <DxMemo @bind-Text="@plant.Description3" Rows="5" ShowValidationIcon="true" />
+                                                        <ValidationMessage For="@(() => plant.Description3)" />
+                                                    </DxFormLayoutItem>
+                                                </DxFormLayout>
+                                            </EditFormTemplate>
                                             <TotalSummary>
                                                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ApplicationMasterName" />
                                             </TotalSummary>
@@ -446,13 +488,37 @@
     IReadOnlyList<object> SelectedMasterChildChildDataItems { get; set; }
     bool BlukDeleteChildChildPopup { get; set; } = false;
     DxPopup? ChildChildpopup;
+    bool AddMasterEnabled { get; set; } = false;
+    bool EditMasterEnabled { get; set; } = false;
+    private List<OpenAccessUserLink> _openAccessUserLink { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        PanelVisible = true;
+        await loadMAsterItems();
+    }
+    async Task loadMAsterItems()
+    {
         _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
+        DisplayParent = "";
+        ChildHeaderName = ""; ActiveTabIndex = 0;
+        EditChildEnabled = false;
+        DeleteChildEnabled = false;
+        EditChildChildEnabled = false;
+        DeleteChildEnabled = false;
+        childTabEnabled = false;
+        childChildTabEnabled = false;
+        _applicationChildItems = new List<ApplicationMasterChildModel>();
+        _applicationChildChildItems = new List<ApplicationMasterChildModel>();
+        PanelVisible = true; AddMasterEnabled = true; EditMasterEnabled = false; AddEnabled = false; EditEnabled = false;
+        DeleteEnabled = false;
         _applicationMasterAllItems = await Mediator.Send(new GetAllApplicationMasterParentAllQuery());
+        if (_applicationMasterAllItems != null && _applicationMasterAllItems.Count() > 0)
+        {
+            _selectItems = _applicationMasterAllItems.FirstOrDefault();
+            MasterGrid.ClearSelection();
+        }
         PanelVisible = false;
+        StateHasChanged();
     }
     async Task OnTabClick(TabClickEventArgs e)
     {
@@ -488,16 +554,19 @@
             {
                 if (item is ApplicationMasterParent masterData)
                 {
-                    AddEnabled = true;
+                    AddEnabled = true; EditMasterEnabled = true;
                     _selectItems = masterData;
                     var nameList = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == masterData.ApplicationMasterParentCodeId);
-                    var nameListChild = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == nameList.ApplicationMasterParentCodeId);
                     if (nameList != null)
                     {
-                        ParentChildId = nameList.ApplicationMasterParentCodeId;
-                        DisplayMainParent = _selectItems?.ApplicationMasterName;
-                        DisplayParent = nameList?.ApplicationMasterName;
-                        DisplayChild = nameListChild?.ApplicationMasterName;
+                        var nameListChild = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == nameList.ApplicationMasterParentCodeId);
+                        if (nameList != null)
+                        {
+                            ParentChildId = nameList.ApplicationMasterParentCodeId;
+                            DisplayMainParent = _selectItems?.ApplicationMasterName;
+                            DisplayParent = nameList?.ApplicationMasterName;
+                            DisplayChild = nameListChild?.ApplicationMasterName;
+                        }
                     }
                     await UpdateDataAsync();
                 }
@@ -519,14 +588,44 @@
         if (_applicationMasterDetails.Count > 0)
         {
             _selectedItems = _applicationMasterDetails.FirstOrDefault();
-            // addEditNewChild();
-            EditEnabled = true;
-            EditNewChildEnabled = true;
-            DeleteEnabled = true;
+            EditEnabled = true; EditNewChildEnabled = true; DeleteEnabled = true;
             Grid.SetFocusedRowIndex(0);
         }
         StateHasChanged();
 
+    }
+    void Grid_CustomizeMasterEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var newplant = (ApplicationMasterParent)e.EditModel;
+        if (e.IsNew)
+        {
+            newplant.ApplicationMasterName = "";
+            newplant.Description = "";
+            newplant.ApplicationMasterName2 = "";
+            newplant.Description2 = "";
+            newplant.ApplicationMasterName3 = "";
+            newplant.Description3 = "";
+        }
+        else
+        {
+            newplant.ApplicationMasterName = newplant.ApplicationMasterName;
+            newplant.Description = newplant.Description;
+            newplant.ApplicationMasterParentCodeId = newplant.ApplicationMasterParentCodeId;
+            var nameListChild = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == newplant.ApplicationMasterParentCodeId);
+            newplant.ApplicationMasterName2 = nameListChild?.ApplicationMasterName;
+            newplant.Description2 = nameListChild?.Description;
+            newplant.ApplicationMasterParentCodeId2 = nameListChild?.ApplicationMasterParentCodeId;
+            if (newplant.ApplicationMasterParentCodeId2 > 0)
+            {
+                var nameListChildChild = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == newplant.ApplicationMasterParentCodeId2);
+                if (nameListChildChild != null)
+                {
+                    newplant.ApplicationMasterName3 = nameListChildChild?.ApplicationMasterName;
+                    newplant.Description3 = nameListChildChild?.Description;
+                    newplant.ApplicationMasterParentCodeId3 = nameListChildChild?.ApplicationMasterParentCodeId;
+                }
+            }
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -634,8 +733,7 @@
         }
         else
         {
-            EditNewChildEnabled = true;
-            EditEnabled = true;
+            EditNewChildEnabled = true; EditEnabled = true;
         }
     }
     void addDelete()
@@ -644,7 +742,10 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (EditEnabled == true)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
     }
 
     async Task bulkDelete()
@@ -787,7 +888,6 @@
             _selectedChildItems = _applicationChildItems.FirstOrDefault();
             EditChildEnabled = true;
             DeleteChildEnabled = true;
-
         }
         else
         {
@@ -801,7 +901,10 @@
     }
     void addEditChild()
     {
-        GridChild.StartEditDataItemAsync(_selectedChildItems);
+        if (EditChildEnabled == true)
+        {
+            GridChild.StartEditDataItemAsync(_selectedChildItems);
+        }
     }
     void addDeleteChild()
     {
@@ -970,7 +1073,10 @@
     }
     void addEditChildChild()
     {
-        GridChildChild.StartEditDataItemAsync(_selectedChildChildItems);
+        if (EditChildChildEnabled == true)
+        {
+            GridChildChild.StartEditDataItemAsync(_selectedChildChildItems);
+        }
     }
     void addDeleteChildChild()
     {
@@ -1047,5 +1153,63 @@
     {
         OnRowChildChildClick(e);
         addEditChildChild();
+    }
+    void addMasterNew()
+    {
+        MasterGrid.StartEditNewRowAsync();
+    }
+    void addMasterEdit()
+    {
+        if (EditMasterEnabled == true)
+        {
+            MasterGrid.StartEditDataItemAsync(_selectItems);
+        }
+    }
+    void OnRowMasterDoubleClick()
+    {
+        addMasterEdit();
+    }
+    async Task Grid_EditModelMasterSaving(GridEditModelSavingEventArgs e)
+    {
+        var editablePlant = (ApplicationMasterParent)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new InsertApplicationMasterParent
+                {
+                    ApplicationMasterParentId = editablePlant.ApplicationMasterParentId,
+                    ApplicationMasterParentCodeId = editablePlant.ApplicationMasterParentCodeId,
+                    Description = editablePlant.Description,
+                    ApplicationMasterName = editablePlant.ApplicationMasterName,
+                    ApplicationMasterParentCodeId2 = editablePlant.ApplicationMasterParentCodeId2,
+                    Description2 = editablePlant.Description2,
+                    ApplicationMasterName2 = editablePlant.ApplicationMasterName2,
+                    ApplicationMasterParentCodeId3 = editablePlant.ApplicationMasterParentCodeId3,
+                    Description3 = editablePlant.Description3,
+                    ApplicationMasterName3 = editablePlant.ApplicationMasterName3,
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await loadMAsterItems();
+        }
+        else
+        {
+            var request = new InsertApplicationMasterParent
+                {
+                    ApplicationMasterParentId = editablePlant.ApplicationMasterParentId,
+                    ApplicationMasterParentCodeId = editablePlant.ApplicationMasterParentCodeId,
+                    Description = editablePlant.Description,
+                    ApplicationMasterName = editablePlant.ApplicationMasterName,
+                    ApplicationMasterParentCodeId2 = editablePlant.ApplicationMasterParentCodeId2,
+                    Description2 = editablePlant.Description2,
+                    ApplicationMasterName2 = editablePlant.ApplicationMasterName2,
+                    ApplicationMasterParentCodeId3 = editablePlant.ApplicationMasterParentCodeId3,
+                    Description3 = editablePlant.Description3,
+                    ApplicationMasterName3 = editablePlant.ApplicationMasterName3,
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await loadMAsterItems();
+        }
+
     }
 }

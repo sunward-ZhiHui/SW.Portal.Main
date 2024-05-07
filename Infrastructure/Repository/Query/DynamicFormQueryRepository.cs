@@ -245,8 +245,8 @@ namespace Infrastructure.Repository.Query
                 var query = "select t1.*,\r\n(Select tt2.FileName from Documents tt2 where tt2.SessionID=t1.SessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
                     "(Select t22.ProfileNo from Documents t22 where t22.SessionID=t1.SessionID ANd t22.IsLatest=1) as ProfileNo,\r\n" +
                     "(Select t2.DocumentID from Documents t2 where t2.SessionID=t1.SessionID ANd t2.IsLatest=1) as DocumentID,\r\n" +
-                    "(Select t4.SessionID from Documents t3 JOIN FileProfileType t4 ON t4.FileProfileTypeID=t3.FilterProfileTypeID where t3.SessionID=t1.SessionID ANd t3.IsLatest=1) as FileProfileSessionID,\r\n" +
-                    "(Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=t1.SessionID ANd tt3.IsLatest=1) as FileProfileName\r\n" +
+                    "(case when t1.LinkFileProfileTypeDocumentID>0 then  (SELECT f2.SessionID from LinkFileProfileTypeDocument f1 JOIN FileProfileType f2 ON  f1.FileProfileTypeID=f2.FileProfileTypeID where f1.LinkFileProfileTypeDocumentID=t1.LinkFileProfileTypeDocumentID) ELSE (Select t4.SessionID from Documents t3 JOIN FileProfileType t4 ON t4.FileProfileTypeID=t3.FilterProfileTypeID where t3.SessionID=t1.SessionID ANd t3.IsLatest=1) END) as FileProfileSessionID,\r\n" +
+                    "(case when t1.LinkFileProfileTypeDocumentID>0 then  (SELECT f2.Name from LinkFileProfileTypeDocument f1 JOIN FileProfileType f2 ON  f1.FileProfileTypeID=f2.FileProfileTypeID where f1.LinkFileProfileTypeDocumentID=t1.LinkFileProfileTypeDocumentID) ELSE (Select t4.Name from Documents t3 JOIN FileProfileType t4 ON t4.FileProfileTypeID=t3.FilterProfileTypeID where t3.SessionID=t1.SessionID ANd t3.IsLatest=1) END) as FileProfileName\r\n" +
                     "from DynamicFormDataUpload t1 WHERE t1.DynamicFormSectionID IS NULL AND t1.DynamicFormDataID=@ID";
 
                 using (var connection = CreateConnection())
@@ -289,18 +289,17 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormId", id);
                 parameters.Add("UserId", UserId);
                 parameters.Add("DynamicFormDataID", dynamicFormDataId);
-                query = "SELECT tt1.*,(case when tt1.DynamicFormDataUploadID is NULL then  'No' ELSE 'Yes' END) as IsFileExits,\n\r" +
-                     "(Select t22.ProfileNo from Documents t22 where t22.SessionID=tt1.UploadSessionID ANd t22.IsLatest=1) as ProfileNo,\r\n" +
-                    " (Select tt2.FileName from Documents tt2 where tt2.SessionID=tt1.UploadSessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
-                    "(Select ttt2.DocumentID from Documents ttt2 where ttt2.SessionID=tt1.UploadSessionID ANd ttt2.IsLatest=1) as DocumentID,\r\n(Select ttt4.SessionID from Documents ttt3 JOIN FileProfileType ttt4 ON ttt4.FileProfileTypeID=ttt3.FilterProfileTypeID where ttt3.SessionID=tt1.UploadSessionID ANd ttt3.IsLatest=1) as FileProfileSessionID,\r\n(Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=tt1.UploadSessionID ANd tt3.IsLatest=1) as FileProfileName\r\n from (select t1.*,\r\n" +
-                    "(select t4.DynamicFormDataUploadID from DynamicFormDataUpload t4 WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadID,\r\n" +
-                    "(select t2.SessionID from DynamicFormDataUpload t2 WHERE t2.DynamicFormSectionID=t1.DynamicFormSectionID AND t2.DynamicFormDataID=@dynamicFormDataId) as UploadSessionID,\r\n" +
-                    "(select t3.AddedByUserID from DynamicFormDataUpload t3 WHERE t3.DynamicFormSectionID=t1.DynamicFormSectionID AND t3.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadAddedUserID,\r\n" +
+                query = "SELECT tt1.*,(case when tt1.DynamicFormDataUploadID is NULL then  'No' ELSE 'Yes' END) as IsFileExits,\r\n" +
+                    "(Select t22.ProfileNo from Documents t22 where t22.SessionID=tt1.UploadSessionID ANd t22.IsLatest=1) as ProfileNo,\r\n " +
+                    "(Select tt2.FileName from Documents tt2 where tt2.SessionID=tt1.UploadSessionID ANd tt2.IsLatest=1) as FileName,\r\n" +
+                    "(Select ttt2.DocumentID from Documents ttt2 where ttt2.SessionID=tt1.UploadSessionID ANd ttt2.IsLatest=1) as DocumentID,\r\n" +
+                    "(case when tt1.LinkFileProfileTypeDocumentID>0 then  (SELECT f1.SessionID from FileProfileType f1 where f1.fileprofiletypeid=tt1.LinkFileProfileTypeId) ELSE (Select ttt4.SessionID from Documents ttt3 JOIN FileProfileType ttt4 ON ttt4.FileProfileTypeID=ttt3.FilterProfileTypeID where ttt3.SessionID=tt1.UploadSessionID ANd ttt3.IsLatest=1) END) as FileProfileSessionID,\r\n(case when tt1.LinkFileProfileTypeDocumentID>0 then  (SELECT f1.Name from FileProfileType f1 where f1.fileprofiletypeid=tt1.LinkFileProfileTypeId) ELSE (Select tt4.Name from Documents tt3 JOIN FileProfileType tt4 ON tt4.FileProfileTypeID=tt3.FilterProfileTypeID where tt3.SessionID=tt1.UploadSessionID ANd tt3.IsLatest=1) END) as FileProfileName\r\n from " +
+                    "(select t1.*,\r\n (select t4.LinkFileProfileTypeDocumentID from DynamicFormDataUpload t4 WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as LinkFileProfileTypeDocumentID,\r\n (select tt4.TransactionSessionID from DynamicFormDataUpload t4 JOIN LinkFileProfileTypeDocument tt4 ON tt4.LinkFileProfileTypeDocumentID=t4.LinkFileProfileTypeDocumentID WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as TransactionSessionID,\r\n  (select tt4.FileProfileTypeId from DynamicFormDataUpload t4 JOIN LinkFileProfileTypeDocument tt4 ON tt4.LinkFileProfileTypeDocumentID=t4.LinkFileProfileTypeDocumentID WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as LinkFileProfileTypeId,\r\n    " +
+                    "(select tt4.DocumentID from DynamicFormDataUpload t4 JOIN LinkFileProfileTypeDocument tt4 ON tt4.LinkFileProfileTypeDocumentID=t4.LinkFileProfileTypeDocumentID WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as LinkDocumentID,\r\n(select t4.DynamicFormDataUploadID from DynamicFormDataUpload t4 WHERE t4.DynamicFormSectionID=t1.DynamicFormSectionID AND t4.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadID,\r\n(select t2.SessionID from DynamicFormDataUpload t2 WHERE t2.DynamicFormSectionID=t1.DynamicFormSectionID AND t2.DynamicFormDataID=@dynamicFormDataId) as UploadSessionID,\r\n(select t3.AddedByUserID from DynamicFormDataUpload t3 WHERE t3.DynamicFormSectionID=t1.DynamicFormSectionID AND t3.DynamicFormDataID=@dynamicFormDataId) as DynamicFormDataUploadAddedUserID,\r\n" +
                     "(select t5.IsReadOnly from DynamicFormSectionSecurity t5 WHERE t5.UserID=" + UserId + " AND t1.DynamicFormSectionID=t5.DynamicFormSectionID) as UserIsReadOnly,\r\n" +
                     "(select t6.IsReadWrite from DynamicFormSectionSecurity t6 WHERE t6.UserID=" + UserId + " AND t1.DynamicFormSectionID=t6.DynamicFormSectionID) as UserIsReadWrite,\r\n" +
-                    "(select t7.IsVisible from DynamicFormSectionSecurity t7 WHERE t7.UserID=" + UserId + " AND t1.DynamicFormSectionID=t7.DynamicFormSectionID) as UserIsVisible,\r\n" +
-                    "(select Count(DynamicFormSectionSecurityID)  as userCounts from DynamicFormSectionSecurity t8 WHERE   t1.DynamicFormSectionID=t8.DynamicFormSectionID) as UserCount\r\n" +
-                    "from DynamicFormSection t1 WHERE t1.DynamicFormID = @DynamicFormId AND  (t1.IsDeleted=0 or t1.IsDeleted is null)) tt1 where tt1.UserCount=0 OR tt1.UserIsVisible=1";
+                    "(select t7.IsVisible from DynamicFormSectionSecurity t7 WHERE t7.UserID=" + UserId + " AND t1.DynamicFormSectionID=t7.DynamicFormSectionID) as UserIsVisible,\r\n(select Count(DynamicFormSectionSecurityID)  as userCounts from DynamicFormSectionSecurity t8 WHERE   t1.DynamicFormSectionID=t8.DynamicFormSectionID) as UserCount,f1.Name as SectionFileProfileTypeName\r\nfrom DynamicFormSection t1 " +
+                    "LEFT JOIN FileProfileType f1 ON t1.SectionFileProfileTypeID=f1.FileProfileTypeID WHERE t1.DynamicFormID = @DynamicFormId AND  (t1.IsDeleted=0 or t1.IsDeleted is null)) tt1 where tt1.UserCount=0 OR tt1.UserIsVisible=1\r\n";
                 var result = new List<DynamicFormSection>();
                 using (var connection = CreateConnection())
                 {
@@ -840,9 +839,10 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsReadOnly", dynamicFormSection.IsReadOnly);
                         parameters.Add("IsReadWrite", dynamicFormSection.IsReadWrite);
                         parameters.Add("Instruction", dynamicFormSection.Instruction, DbType.String);
+                        parameters.Add("SectionFileProfileTypeId", dynamicFormSection.SectionFileProfileTypeId);
                         if (dynamicFormSection.DynamicFormSectionId > 0)
                         {
-                            var query = " UPDATE DynamicFormSection SET SectionName = @SectionName,DynamicFormId =@DynamicFormId,SortOrderBy=@SortOrderBys," +
+                            var query = " UPDATE DynamicFormSection SET SectionFileProfileTypeId=@SectionFileProfileTypeId,SectionName = @SectionName,DynamicFormId =@DynamicFormId,SortOrderBy=@SortOrderBys," +
                                 "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsVisible=@IsVisible," +
                                 "IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite,Instruction=@Instruction " +
                                 "WHERE DynamicFormSectionId = @DynamicFormSectionId";
@@ -852,9 +852,9 @@ namespace Infrastructure.Repository.Query
                         else
                         {
                             parameters.Add("SortOrderBy", GeDynamicFormSectionSort(dynamicFormSection.DynamicFormId));
-                            var query = "INSERT INTO DynamicFormSection(SectionName,DynamicFormId,SessionId,SortOrderBy,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsVisible,IsReadOnly,IsReadWrite,Instruction)  " +
+                            var query = "INSERT INTO DynamicFormSection(SectionFileProfileTypeId,SectionName,DynamicFormId,SessionId,SortOrderBy,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsVisible,IsReadOnly,IsReadWrite,Instruction)  " +
                                 "OUTPUT INSERTED.DynamicFormSectionId VALUES " +
-                                "(@SectionName,@DynamicFormId,@SessionId,@SortOrderBy,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsVisible,@IsReadOnly,@IsReadWrite,@Instruction)";
+                                "(@SectionFileProfileTypeId,@SectionName,@DynamicFormId,@SessionId,@SortOrderBy,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsVisible,@IsReadOnly,@IsReadWrite,@Instruction)";
 
                             dynamicFormSection.DynamicFormSectionId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
@@ -993,12 +993,13 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", dynamicFormId);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,\r\n" +
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name as SectionFileProfileTypeName,\r\n" +
                     "(select SUM(t5.FormUsedCount) from DynamicFormSectionAttribute t5 where t5.DynamicFormSectionId=t1.DynamicFormSectionId) as  FormUsedCount\r\n" +
                     "from DynamicFormSection t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
+                     "LEFT JOIN FileProfileType t5 ON t5.FileProfileTypeID=t1.SectionFileProfileTypeID\r\n" +
                     "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId=@DynamicFormId";
 
                 using (var connection = CreateConnection())
@@ -2984,15 +2985,27 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("DynamicFormDataUploadId", dynamicFormSection.DynamicFormDataUploadId);
                         parameters.Add("DynamicFormDataId", dynamicFormSection.DynamicFormDataId);
                         parameters.Add("DynamicFormSectionId", dynamicFormSection.DynamicFormSectionId);
-                        parameters.Add("SessionId", dynamicFormSection.SessionId, DbType.Guid);
+                        parameters.Add("LinkFileProfileTypeDocumentId", dynamicFormSection.LinkFileProfileTypeDocumentId);
+                        
+                        if (dynamicFormSection.UploadType == "DMS")
+                        {
+                            parameters.Add("SessionId", dynamicFormSection.DocumentsModel?.SessionId, DbType.Guid);
+                            parameters.Add("IsDmsLink", 1);
+                        }
+                        else
+                        {
+                            parameters.Add("SessionId", dynamicFormSection.SessionId, DbType.Guid);
+                            parameters.Add("IsDmsLink", null);
+                        }
                         parameters.Add("AddedByUserID", dynamicFormSection.AddedByUserId);
                         parameters.Add("ModifiedByUserID", dynamicFormSection.ModifiedByUserId);
                         parameters.Add("AddedDate", dynamicFormSection.AddedDate, DbType.DateTime);
                         parameters.Add("ModifiedDate", dynamicFormSection.ModifiedDate, DbType.DateTime);
                         parameters.Add("StatusCodeID", dynamicFormSection.StatusCodeId);
-                        var query = "INSERT INTO DynamicFormDataUpload(DynamicFormDataId,DynamicFormSectionId,SessionId,AddedByUserID," +
+
+                        var query = "INSERT INTO DynamicFormDataUpload(LinkFileProfileTypeDocumentId,IsDmsLink,DynamicFormDataId,DynamicFormSectionId,SessionId,AddedByUserID," +
                      "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID) VALUES " +
-                     "(@DynamicFormDataId,@DynamicFormSectionId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
+                     "(@LinkFileProfileTypeDocumentId,@IsDmsLink,@DynamicFormDataId,@DynamicFormSectionId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
 
                         dynamicFormSection.DynamicFormDataUploadId = await connection.ExecuteAsync(query, parameters);
 
@@ -3985,6 +3998,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<LinkFileProfileTypeDocument>> GetLinkFileProfileTypeDocumentExits(DynamicFormDataUpload dynamicFormDataUpload)
+        {
+            try
+            {
+                var query = string.Empty;
+                var parameters = new DynamicParameters();
+                var value = dynamicFormDataUpload.DocumentsModel;
+                parameters.Add("FileProfileTypeId", dynamicFormDataUpload.FileProfileTypeId);
+                parameters.Add("TransactionSessionID", value.SessionID, DbType.Guid);
+                query = "SELECT * FROM LinkFileProfileTypeDocument Where FileProfileTypeId = @FileProfileTypeId AND TransactionSessionID=@TransactionSessionID";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<LinkFileProfileTypeDocument>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormDataUpload> InsertDmsDocumentDynamicFormData(DynamicFormDataUpload dynamicFormDataUpload)
         {
             try
@@ -3994,29 +4027,29 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
-                        var value = dynamicFormDataUpload.DocumentsModel;
-                        var parameters = new DynamicParameters();
-                        parameters.Add("FilterProfileTypeID", dynamicFormDataUpload.FileProfileTypeId);
-                        parameters.Add("FileName", value.FileName, DbType.String);
-                        parameters.Add("ContentType", value.ContentType, DbType.String);
-                        parameters.Add("FileSize", value.OriginalFileSize);
-                        parameters.Add("UploadDate", dynamicFormDataUpload.AddedDate, DbType.DateTime);
-                        parameters.Add("AddedByUserId", dynamicFormDataUpload.AddedByUserId);
-                        parameters.Add("AddedDate", dynamicFormDataUpload.AddedDate, DbType.DateTime);
-                        parameters.Add("ModifiedByUserID", dynamicFormDataUpload.ModifiedByUserId);
-                        parameters.Add("ModifiedDate", dynamicFormDataUpload.ModifiedDate, DbType.DateTime);
-                        parameters.Add("SessionId", dynamicFormDataUpload.FileProfileSessionID, DbType.Guid);
-                        parameters.Add("IsLatest", 1);
-                        parameters.Add("FilePath", value.FilePath, DbType.String);
-                        parameters.Add("IsNewPath", value.IsNewPath);
-                        parameters.Add("IsTemp", value.IsTemp);
-                        parameters.Add("ProfileNo", value.ProfileNo, DbType.String);
-                        parameters.Add("SourceFrom", value.SourceFrom, DbType.String);
-                        var query = "INSERT INTO [Documents](FilterProfileTypeID,FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,ModifiedByUserID,ModifiedDate,SessionId,IsLatest,FilePath,IsNewPath,IsTemp,SourceFrom,ProfileNo) " +
-                            "OUTPUT INSERTED.DocumentId VALUES " +
-                           "(@FilterProfileTypeID,@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@ModifiedByUserID,@ModifiedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath,@IsTemp,@SourceFrom,@ProfileNo)";
-                        value.DocumentID = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-                        await InsertDynamicFormDataUpload(dynamicFormDataUpload);
+                        var linkProfiiles = await GetLinkFileProfileTypeDocumentExits(dynamicFormDataUpload);
+                        if (linkProfiiles != null && linkProfiiles.Count > 0)
+                        {
+                            dynamicFormDataUpload.LinkFileProfileTypeDocumentId = linkProfiiles[0].LinkFileProfileTypeDocumentId;
+                            await InsertDynamicFormDataUpload(dynamicFormDataUpload);
+                        }
+                        else
+                        {
+                            var value = dynamicFormDataUpload.DocumentsModel;
+                            var parameters = new DynamicParameters();
+                            parameters.Add("FileProfileTypeId", dynamicFormDataUpload.FileProfileTypeId);
+                            parameters.Add("TransactionSessionID", value.SessionID);
+                            parameters.Add("DocumentId", value.DocumentID);
+                            parameters.Add("AddedDate", dynamicFormDataUpload.AddedDate, DbType.DateTime);
+                            parameters.Add("AddedByUserId", dynamicFormDataUpload.AddedByUserId);
+                            var query = "INSERT INTO [LinkFileProfileTypeDocument](FileProfileTypeId,DocumentId,TransactionSessionID,AddedByUserId,AddedDate) " +
+                                "OUTPUT INSERTED.LinkFileProfileTypeDocumentID VALUES " +
+                               "(@FileProfileTypeId,@DocumentId,@TransactionSessionID,@AddedByUserId,@AddedDate)";
+                            var LinkFileProfileTypeDocumentID = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                            dynamicFormDataUpload.LinkFileProfileTypeDocumentId = LinkFileProfileTypeDocumentID;
+                            await InsertDynamicFormDataUpload(dynamicFormDataUpload);
+                        }
+
                     }
                     catch (Exception exp)
                     {

@@ -19,6 +19,9 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-    
+    public class InsertApplicationMasterParent : ApplicationMasterParent, IRequest<ApplicationMasterParent>
+    {
+
+    }
 
 }

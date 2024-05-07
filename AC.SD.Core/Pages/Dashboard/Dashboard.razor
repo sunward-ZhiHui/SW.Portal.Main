@@ -33,7 +33,7 @@
              AppointmentRemoving="AppointmentRemoving"
              AppointmentUpdating="AppointmentUpdating">
     <Views>
-        <DxSchedulerDayView ShowWorkTimeOnly="false">
+        <DxSchedulerDayView ShowWorkTimeOnly="true">
             @* <HorizontalAppointmentTemplate>
                 @{
                     string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
@@ -62,7 +62,7 @@
                 </div>
             </VerticalAppointmentTemplate> *@
         </DxSchedulerDayView>
-        <DxSchedulerWeekView ShowWorkTimeOnly="false" />
+        <DxSchedulerWeekView ShowWorkTimeOnly="true" />
         <DxSchedulerMonthView />
     </Views>
     <AppointmentTooltipHeaderTemplate>

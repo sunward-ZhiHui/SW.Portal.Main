@@ -15,5 +15,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<View_ApplicationMasterDetail>> GetApplicationMasterByCode(long? Id);
         Task<View_ApplicationMasterDetail> GetByIdAsync(long? Id);
         Task<IReadOnlyList<ApplicationMasterDetail>> GetAllAsync();
+        Task<ApplicationMaster> InsertApplicationMaster(ApplicationMaster value);
     }
 }

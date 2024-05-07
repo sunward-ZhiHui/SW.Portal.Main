@@ -54,5 +54,12 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
-
+    public class GetDocumentAccessTypeQuery : PagedRequest, IRequest<List<OpenAccessUserLink>>
+    {
+        public string? AccessType { get; set; }
+        public GetDocumentAccessTypeQuery(string? accessType)
+        {
+            this.AccessType = accessType;
+        }
+    }
 }

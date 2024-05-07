@@ -2751,7 +2751,12 @@
             }
             if (_dynamicFormWorkFlowSection != null && _dynamicFormWorkFlowSection.Count > 0)
             {
-                isVisible = true; isReadonly = false; isVisibleButton = false;
+                if (isVisible != false)
+                {
+                    isVisible = true;
+                }
+                isReadonly = false;
+                isVisibleButton = false;
                 IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
                 isSaveEnabled = false;
             }
@@ -2775,23 +2780,45 @@
                             if (userExits != null)
                             {
 
-                                isVisible = true; isReadonly = true;
+                                if (isVisible != false)
+                                {
+                                    isVisible = true;
+                                }
+                                if (isReadonly != false)
+                                {
+                                    isReadonly = true;
+                                }
                             }
                             else
                             {
-                                isVisible = true; isReadonly = false;
+                                if (isVisible != false)
+                                {
+                                    isVisible = true;
+                                }
+                                isReadonly = false;
                             }
                         }
                         else
                         {
-                            isVisible = true; isReadonly = false;
+                            if (isVisible != false)
+                            {
+                                isVisible = true;
+                            }
+                            isReadonly = false;
                         }
                     }
                 }
             }
             else
             {
-                isVisible = true; isReadonly = true;
+                if (isVisible != false)
+                {
+                    isVisible = true;
+                }
+                if (isReadonly != false)
+                {
+                    isReadonly = true;
+                }
             }
 
             var exi = DynamicFormDataUploadByPermissions.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
@@ -3420,8 +3447,25 @@
                              }
                              if (gridlistss != null)
                              {
+
                                  editor.OpenComponent<DxComboBox<ExpandoObject, long?>>(j + 1);
                                  editor.AddAttribute(j + 1, "Data", _dynamicformObjectDataList);
+                                 var gridEditCount = gridlistss.Count();
+                                 var editFormat = "{0}";
+                                 for (int e = 0; e < gridEditCount; e++)
+                                 {
+                                     if(e==0)
+                                     {
+                                         editFormat=string.Empty;
+                                     }
+                                     editFormat += "{" + "" + e + "" + "}|";
+                                 }
+                                 editFormat = editFormat.Trim();
+                                 if (editFormat.EndsWith("|"))
+                                {
+                                    editFormat = editFormat.Remove(editFormat.Length-1);
+                                }
+                                 editor.AddAttribute(j + 1, "EditFormat", editFormat);
                              }
                          }
                          else
@@ -3634,6 +3678,22 @@
                              {
                                  editor.OpenComponent<DxTagBox<ExpandoObject, long?>>(j + 1);
                                  editor.AddAttribute(j + 1, "Data", _dynamicformObjectDataList);
+                                 var gridEditCount = gridlistss.Count();
+                                 var editFormat = "{0}";
+                                 for (int e = 0; e < gridEditCount; e++)
+                                 {
+                                     if (e == 0)
+                                     {
+                                         editFormat = string.Empty;
+                                     }
+                                     editFormat += "{" + "" + e + "" + "}|";
+                                 }
+                                 editFormat = editFormat.Trim();
+                                 if (editFormat.EndsWith("|"))
+                                 {
+                                     editFormat = editFormat.Remove(editFormat.Length-1);
+                                 }
+                                 editor.AddAttribute(j + 1, "EditFormat", editFormat);
                              }
                          }
                          else
@@ -4614,33 +4674,33 @@
                         layoutItemBuilders.CloseComponent();
                     }
                     if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
-                        {
-                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                            layoutItemBuilders.AddAttribute(3, "FieldName", "SiteName");
-                            layoutItemBuilders.AddAttribute(3, "Caption", "Site");
-                            layoutItemBuilders.CloseComponent();
-                        }
-                        if (q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
-                        {
-                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                            layoutItemBuilders.AddAttribute(4, "FieldName", "ZoneName");
-                            layoutItemBuilders.AddAttribute(4, "Caption", "Zone");
-                            layoutItemBuilders.CloseComponent();
-                        }
-                        if (q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
-                        {
-                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                            layoutItemBuilders.AddAttribute(5, "FieldName", "LocationName");
-                            layoutItemBuilders.AddAttribute(5, "Caption", "Location");
-                            layoutItemBuilders.CloseComponent();
-                        }
-                        if (q.DataSourceTable == "SpecificArea")
-                        {
-                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                            layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
-                            layoutItemBuilders.AddAttribute(6, "Caption", "Area");
-                            layoutItemBuilders.CloseComponent();
-                        }
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(3, "FieldName", "SiteName");
+                        layoutItemBuilders.AddAttribute(3, "Caption", "Site");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(4, "FieldName", "ZoneName");
+                        layoutItemBuilders.AddAttribute(4, "Caption", "Zone");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(5, "FieldName", "LocationName");
+                        layoutItemBuilders.AddAttribute(5, "Caption", "Location");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "SpecificArea")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
+                        layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                        layoutItemBuilders.CloseComponent();
+                    }
                 }));
                     if (q.IsRequired == true)
                     {
@@ -4969,6 +5029,25 @@
                             }
                             editor11.AddAttribute(p + 1, "ValueExpression", lambdapropertyDependency);
                             editor11.AddAttribute(p + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
+                            if (gridlistss != null)
+                                {
+                                    var gridEditCount = gridlistss.Count();
+                                    var editFormat = "{0}";
+                                     for (int e = 0; e < gridEditCount; e++)
+                                     {
+                                         if(e==0)
+                                         {
+                                             editFormat=string.Empty;
+                                         }
+                                         editFormat += "{" + "" + e + "" + "}|";
+                                     }
+                                        editFormat = editFormat.Trim();
+                                    if (editFormat.EndsWith("|"))
+                                    {
+                                        editFormat = editFormat.Remove(editFormat.Length-1);
+                                    }
+                                        editor11.AddAttribute(p + 1, "EditFormat", editFormat);
+                                 }
                             editor11.AddAttribute(p + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
                             {
                                 if (gridlistss != null)
@@ -5071,6 +5150,25 @@
                             }
                             editor11.AddAttribute(p + 1, "ValuesExpression", lambdapropertyDependency);
                             editor11.AddAttribute(p + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyDependency.SetValue(Data, str); }));
+                            if (gridlistss != null)
+                            {
+                                var gridEditCount = gridlistss.Count();
+                                var editFormat = "{0}";
+                                for (int e = 0; e < gridEditCount; e++)
+                                {
+                                    if (e == 0)
+                                    {
+                                        editFormat = string.Empty;
+                                    }
+                                    editFormat += "{" + "" + e + "" + "}|";
+                                }
+                                editFormat = editFormat.Trim();
+                                if (editFormat.EndsWith("|"))
+                                {
+                                    editFormat = editFormat.Remove(editFormat.Length-1);
+                                }
+                                editor11.AddAttribute(p + 1, "EditFormat", editFormat);
+                            }
                             editor11.AddAttribute(p + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
                             {
                                 if (gridlistss != null)

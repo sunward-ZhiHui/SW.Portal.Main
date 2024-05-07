@@ -1145,7 +1145,7 @@ namespace Infrastructure.Repository.Query
                     {
                         dynamicFormIdss.AddRange(resultData.Select(q => q.DynamicFormDataGridFormId).Distinct().ToList());
                     }
-                    var query = "select t1.*,(case when t1.IsDisplayDropDownHeader is NULL then  1 ELSE t1.IsDisplayDropDownHeader END) as IsDisplayDropDownHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t9.sessionId as DynamicFormSessionId,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.IsDynamicFormDropTagBox,t6.DataSourceId,(case when t6.IsFilterDataSource=1 then  tt4.DisplayName ELSE t8.DisplayName END) as DataSourceDisplayName,\r\n(case when t6.IsFilterDataSource=1 then  tt4.TableName ELSE t8.DataSourceTable END) as DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID,t6.DynamicFormID as DynamicFormGridDropDownID,t6.FilterDataSocurceID,tt4.DisplayName as FilterDataSourceDisplayName,tt4.TableName as FilterDataSourceTableName ,\r\n(case when t6.IsFilterDataSource=1 then  'Filter Data Source' ELSE t6.DropDownTypeID END) as DropDownTypeId from " +
+                    var query = "select t1.*,(case when t1.IsDisplayDropDownHeader is NULL then  0 ELSE t1.IsDisplayDropDownHeader END) as IsDisplayDropDownHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible,t5.SectionName,t9.sessionId as DynamicFormSessionId,t6.AttributeName,t6.ControlTypeId,t6.DropDownTypeId,t6.IsDynamicFormDropTagBox,t6.DataSourceId,(case when t6.IsFilterDataSource=1 then  tt4.DisplayName ELSE t8.DisplayName END) as DataSourceDisplayName,\r\n(case when t6.IsFilterDataSource=1 then  tt4.TableName ELSE t8.DataSourceTable END) as DataSourceTable,t7.CodeValue as ControlType,t5.DynamicFormID,t6.DynamicFormID as DynamicFormGridDropDownID,t6.FilterDataSocurceID,tt4.DisplayName as FilterDataSourceDisplayName,tt4.TableName as FilterDataSourceTableName ,\r\n(case when t6.IsFilterDataSource=1 then  'Filter Data Source' ELSE t6.DropDownTypeID END) as DropDownTypeId from " +
                         "DynamicFormSectionAttribute t1 " +
                         "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId " +
                         "JOIN DynamicForm t10 ON t10.ID=t5.DynamicFormID\r\n" +
@@ -1785,10 +1785,10 @@ namespace Infrastructure.Repository.Query
                     counts++;
                     if (_dynamicForm.IsApproval == true)
                     {
-                        dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "Current User" });
-                        counts++;
+                       /// dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "Current User" });
+                       // counts++;
                     }
-                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "ModifiedBy" });
+                   /* dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "ModifiedBy" });
                     counts++;
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "ModifiedDate" });
                     counts++;
@@ -1796,20 +1796,20 @@ namespace Infrastructure.Repository.Query
                     {
                         dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form", OrderBy = counts, AttributeDetailID = counts, AttributeDetailName = "Status" });
 
-                    }//counts++;
+                    }*///counts++;
                     //dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormId", Text = "DynamicFormId", Type = "Form", OrderBy = counts, AttributeDetailID = counts, DynamicFormId = DynamicFormId });
                 }
                 else
                 {
                     if (_dynamicForm.IsApproval == true)
                     {
-                        dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = 2, AttributeDetailID = 2, AttributeDetailName = "Current User" });
+                       // dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = 2, AttributeDetailID = 2, AttributeDetailName = "Current User" });
                     }
-                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form", OrderBy = 3, AttributeDetailID = 3, AttributeDetailName = "ModifiedBy" });
-                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form", OrderBy = 4, AttributeDetailID = 4, AttributeDetailName = "ModifiedDate" });
+                   // dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form", OrderBy = 3, AttributeDetailID = 3, AttributeDetailName = "ModifiedBy" });
+                   // dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form", OrderBy = 4, AttributeDetailID = 4, AttributeDetailName = "ModifiedDate" });
                     if (_dynamicForm.IsApproval == true)
                     {
-                        dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form", OrderBy = 5, AttributeDetailID = 5, AttributeDetailName = "Status" });
+                        //dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form", OrderBy = 5, AttributeDetailID = 5, AttributeDetailName = "Status" });
                     }
                     //dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormId", Text = "DynamicFormId", Type = "Form", OrderBy = 8, AttributeDetailID = 8, DynamicFormId = DynamicFormId });
                 }
@@ -1818,13 +1818,13 @@ namespace Infrastructure.Repository.Query
             {
                 if (_dynamicForm.IsApproval == true)
                 {
-                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = 2, AttributeDetailID = 2, AttributeDetailName = "Current User" });
+                    //dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form", OrderBy = 2, AttributeDetailID = 2, AttributeDetailName = "Current User" });
                 }
-                dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form", OrderBy = 3, AttributeDetailID = 3, AttributeDetailName = "ModifiedBy" });
-                dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form", OrderBy = 4, AttributeDetailID = 4, AttributeDetailName = "ModifiedDate" });
+               // dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form", OrderBy = 3, AttributeDetailID = 3, AttributeDetailName = "ModifiedBy" });
+               // dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form", OrderBy = 4, AttributeDetailID = 4, AttributeDetailName = "ModifiedDate" });
                 if (_dynamicForm.IsApproval == true)
                 {
-                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form", OrderBy = 5, AttributeDetailID = 5, AttributeDetailName = "Status" });
+                    //dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form", OrderBy = 5, AttributeDetailID = 5, AttributeDetailName = "Status" });
                 }
                 //dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormId", Text = "DynamicFormId", Type = "Form", OrderBy = 8, AttributeDetailID = 8, DynamicFormId = DynamicFormId });
             }

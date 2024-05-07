@@ -54,6 +54,12 @@
                 <DxGridDataColumn FieldName="IsDmsAccess" Caption="Dms Access" />
                 <DxGridDataColumn FieldName="IsDmsCreateMainFolder" Caption="Folder Open Access" />
             }
+            @if (AccessType == "GeneralAccess")
+            {
+                <DxGridDataColumn FieldName="IsAdd" Caption="Add" />
+                <DxGridDataColumn FieldName="IsEdit" Caption="Edit" />
+                <DxGridDataColumn FieldName="IsDelete" Caption="Delete" />
+            }
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <TotalSummary>

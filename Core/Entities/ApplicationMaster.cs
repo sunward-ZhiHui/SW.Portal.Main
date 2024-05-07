@@ -11,7 +11,9 @@ namespace Core.Entities
     {
         [Key]
         public long ApplicationMasterId { get; set; }
+        [Required(ErrorMessage = "Name is Required")]
         public string ApplicationMasterName { get; set; }
+        [Required(ErrorMessage = "Description is Required")]
         public string ApplicationMasterDescription { get; set; }
         public long? ApplicationMasterCodeId { get; set; }
         public bool? IsApplyProfile { get; set; }

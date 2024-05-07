@@ -30,4 +30,8 @@ namespace Application.Queries
         public string? SearchString { get; private set; }
 
     }
+    public class InsertApplicationMaster : ApplicationMaster, IRequest<ApplicationMaster>
+    {
+        
+    }
 }

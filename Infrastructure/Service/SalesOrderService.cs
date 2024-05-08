@@ -8,11 +8,14 @@ using Infrastructure.Service.Config;
 using Microsoft.Extensions.Configuration;
 using NAV;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Data;
 using System.Data.Services.Client;
 using System.Linq;
 using System.ServiceModel;
+using static iTextSharp.text.pdf.AcroFields;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Infrastructure.Service
 {
@@ -20,7 +23,6 @@ namespace Infrastructure.Service
     {
         private readonly IConfiguration _configuration;
         private readonly IPostSalesOrderQueryRepository _postSalesOrderQueryRepository;
-
         //public SalesOrderService(IConfiguration configuration)
         //{
         //    _configuration = configuration;
@@ -30,7 +32,7 @@ namespace Infrastructure.Service
             _configuration = configuration;
             _postSalesOrderQueryRepository = postSalesOrderQueryRepository;
         }
-        public async Task<string> RawMatItemAsync(string company,long companyid,string type)
+        public async Task<string> RawMatItemAsync(string company, long companyid, string type)
         {
             try
             {
@@ -114,7 +116,7 @@ namespace Infrastructure.Service
                         Description2 = b.Description_2,
                         Inventory = b.Inventory,
                         InternalRef = b.Internal_Ref,
-                        BaseUnitofMeasure = b.Base_Unit_of_Measure,                       
+                        BaseUnitofMeasure = b.Base_Unit_of_Measure,
                         ItemCategoryCode = b.Item_Category_Code,
                         CompanyId = companyid,
                         Type = type
@@ -231,39 +233,43 @@ namespace Infrastructure.Service
 
         public async Task<List<Core.Entities.ItemBatchInfo>> NavItemBatchAsync(string company)
         {
+            List<Core.Entities.ItemBatchInfo> ItemBatchInfo = new List<Core.Entities.ItemBatchInfo>();
             try
             {
-                //int pageSize = 1000;
-                //int page = 0;
-                //while (true)
-                //{
-                var context = new NAVService(_configuration, company);
-                var nquery = context.Context.ItemBatchInfo;
-                DataServiceQuery<NAV.ItemBatchInfo> query = (DataServiceQuery<NAV.ItemBatchInfo>)nquery;
 
-                TaskFactory<IEnumerable<NAV.ItemBatchInfo>> taskFactory = new TaskFactory<IEnumerable<NAV.ItemBatchInfo>>();
-                IEnumerable<NAV.ItemBatchInfo> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
-
-                var prodCodes = result.ToList();
-
-                var ItemBatchInfo = new List<Core.Entities.ItemBatchInfo>();
-
-                prodCodes.ForEach(b =>
+                int pageSize = 1000;
+                int page = 0;
+                while (true)
                 {
-                    ItemBatchInfo.Add(new Core.Entities.ItemBatchInfo
-                    {
-                        BatchNo = b.Batch_No,
-                        BalanceQuantity = b.Remaining_Quantity,
-                        ExpiryDate = b.Expiration_Date,
-                        LocationCode = b.Location_Code,
-                        ManufacturingDate = b.Manufacturing_Date,
-                        QuantityOnHand = b.Remaining_Quantity,
-                        NavQuantity = b.Remaining_Quantity,
+                    var context = new NAVService(_configuration, company);
+                    var nquery = context.Context.ItemBatchInfo.Skip(page * pageSize).Take(pageSize);
+                    DataServiceQuery<NAV.ItemBatchInfo> query = (DataServiceQuery<NAV.ItemBatchInfo>)nquery;
 
+                    TaskFactory<IEnumerable<NAV.ItemBatchInfo>> taskFactory = new TaskFactory<IEnumerable<NAV.ItemBatchInfo>>();
+                    IEnumerable<NAV.ItemBatchInfo> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                    var prodCodes = result.ToList();
+                    prodCodes.ForEach(b =>
+                    {
+                        ItemBatchInfo.Add(new Core.Entities.ItemBatchInfo
+                        {
+                            ItemNo = b.Item_No,
+                            ItemDescription = b.Description,
+                            BatchNo = b.Batch_No,
+                            BalanceQuantity = b.Remaining_Quantity,
+                            ExpiryDate = b.Expiration_Date,
+                            LocationCode = b.Location_Code,
+                            ManufacturingDate = b.Manufacturing_Date,
+                            QuantityOnHand = b.Remaining_Quantity,
+                            NavQuantity = b.Remaining_Quantity,
+
+                        });
                     });
-                });
+                    if (prodCodes.Count < 1000)
+                        break;
+                    page++;
+                }
                 return ItemBatchInfo;
-                //}
             }
             catch (Exception ex)
             {
@@ -347,6 +353,64 @@ namespace Infrastructure.Service
 
                 throw exp;
             }
+        }
+        public async Task<List<Navitems>> GetNavItemsAdd(ViewPlants company)
+        {
+            List<Navitems> navItems = new List<Navitems>();
+            if (company == null)
+                return null;
+            var context = new NAVService(_configuration, company.NavCompanyName);
+
+
+            int pageSize = 1000;
+            int page = 0;
+            while (true)
+            {
+                var nquery = context.Context.ItemList.Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<ItemList> query = (DataServiceQuery<ItemList>)nquery;
+
+                TaskFactory<IEnumerable<ItemList>> taskFactory = new TaskFactory<IEnumerable<ItemList>>();
+                IEnumerable<ItemList> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var itemList = result.ToList();
+                itemList.ForEach(item =>
+                {
+                    navItems.Add(new Navitems
+                    {
+                        No = item.No,
+                        RelatedItemNo = item.Related_Item_No,
+                        Description = item.Description,
+                        Description2 = item.Description_2,
+                        ItemType = item.Type,
+                        StatusCodeId = item.Blocked.GetValueOrDefault(false) ? 2 : 1,
+                        Inventory = item.Inventory,
+                        InternalRef = item.Internal_Ref,
+                        ItemRegistration = item.Item_Registration,
+                        ExpirationCalculation = item.Expiration_Calculation,
+                        BatchNos = item.Batch_Nos,
+                        ProductionRecipeNo = item.Production_Recipe_No,
+                        Qcenabled = item.QC_Enabled,
+                        //SafetyLeadTime = item.Safety_Lead_Time,
+                        ProductionBomno = item.Production_BOM_No,
+                        RoutingNo = item.Routing_No,
+                        BaseUnitofMeasure = item.Base_Unit_of_Measure,
+                        UnitCost = item.Unit_Cost,
+                        UnitPrice = item.Unit_Price,
+                        VendorNo = item.Replenishment_System,
+                        //VendorItemNo = item.Vendor_Item_No,
+                        ItemCategoryCode = item.Item_Category_Code,
+                        ItemTrackingCode = item.Item_Tracking_Code,
+                        Qclocation = item.QC_Location,
+                        //LastSyncDate = item.Last_Date_Modified,
+                        PurchaseUom = item.Purch_Unit_of_Measure,
+                        ShelfLife = item.Expiration_Calculation,
+                    });
+                });
+                if (itemList.Count < 1000)
+                    break;
+                page++;
+            }
+            return navItems;
         }
     }
 }

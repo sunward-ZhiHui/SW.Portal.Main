@@ -14,6 +14,48 @@
 @using System.ComponentModel.DataAnnotations
 @page "/RawItem"
 
+@* <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>                   
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitItemFormExternally" />                    
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<EditForm id="@MyItemID" @ref="myItemForm" EditContext="this._editItemContext"
+              OnValidSubmit="@HandleItemValidSubmit"
+            
+              Context="EditFormContext">
+        <DataAnnotationsValidator />
+        <div class="card-body">
+            <div class="row">
+                   <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="NavCompanyName"
+                                    ValueFieldName="PlantID"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    @bind-Value="@DataItem.PlantID"  ShowValidationIcon="true">
+                        </DxComboBox>
+                    <ValidationMessage For="@(() => DataItem.PlantID)" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </div>
+        </div>
+    </EditForm> *@
+
 
 
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
@@ -113,14 +155,16 @@
 
 
 @code{
-    internal string MyID = "myForm";
+    internal string MyID = "myForm"; internal string MyItemID = "MyItemID";
     internal string MyItemBatchID = "myForm";
     internal EditForm? myForm;
     internal EditForm? myItemBatchForm;
+    internal EditForm? myItemForm;
     private List<ViewPlants>? _plantItems;
     public ApplicationUser applicationUser { get; private set; }
     EditContext? _editContext;    
     EditContext? _editItemBatchContext;
+    EditContext? _editItemContext;
     IEnumerable<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
     string Text { get; set; } = "RawMatItem";
 
@@ -128,12 +172,17 @@
     ItemBatchModel? DataItemBatch { get; set; } = new ItemBatchModel();
     string? NavCompanyName { get; set; }
     string? NavItemBatchCompanyName { get; set; }
-
+    DataItemModel? DataItem = new DataItemModel();
     public class Model
     {  [Required] 
         public long? PlantID { get; set; }
         [Required]
-        public string Value { get; set; }
+        public string? Value { get; set; }
+    }
+    public class DataItemModel
+    {
+        [Required]
+        public long? PlantID { get; set; }
     }
     public class ItemBatchModel
     {
@@ -143,6 +192,7 @@
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
+        _editItemContext = new EditContext(DataItem);
         _editItemBatchContext = new EditContext(DataItemBatch);
         // applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
@@ -171,11 +221,26 @@
             await this.HandleItemBatchValidSubmit();
         }
     }
+
+    private async Task SubmitItemFormExternally()
+    {
+        if (_editItemContext.Validate())
+        {
+
+            await this.HandleItemValidSubmit();
+        }
+    }
     async Task HandleItemBatchValidSubmit()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var llssl = NavItemBatchCompanyName;
         var result = await Mediator.Send(new NavCompanyItemBatchInfoQuery(DataItemBatch.PlantID));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    async Task HandleItemValidSubmit()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        var result = await Mediator.Send(new NavCompanyItemQuery(DataItem.PlantID));
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
 }

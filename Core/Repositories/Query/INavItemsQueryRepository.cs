@@ -25,5 +25,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<View_NavCrossReference>> GetNavCrossReference(long? ItemId);
         Task<ItemBatchInfo> GetSyncBatchInfo(string ItemNo, long? CompanyId, long? ItemId);
         Task<ItemBatchInfo> GetNavItemBatchInfo(long? CompanyId);
+        Task<IReadOnlyList<Navitems>> GetNavItemItemNosAsync(long? CompanyId);
+        Task<Navitems> GetNavItemServicesList(long? CompanyId);
     }
 }

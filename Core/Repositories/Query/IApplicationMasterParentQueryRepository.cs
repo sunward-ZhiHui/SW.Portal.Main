@@ -15,5 +15,6 @@ namespace Core.Repositories.Query
         //Custom operation which is not generic
         Task<IReadOnlyList<ApplicationMasterParent>> GetAllAsync();
         Task<IReadOnlyList<ApplicationMasterParent>> GetAllByParentAsync();
+        Task<ApplicationMasterParent> InsertApplicationMasterParent(ApplicationMasterParent value);
     }
 }

@@ -52,4 +52,78 @@ namespace CMS.Application.Handlers.QueryHandlers
 
 
     }
+    public class InsertApplicationMasterHandler : IRequestHandler<InsertApplicationMaster, ApplicationMaster>
+    {
+        private readonly IApplicationMasterDetailQueryRepository _productionactivityQueryRepository;
+        public InsertApplicationMasterHandler(IApplicationMasterDetailQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ApplicationMaster> Handle(InsertApplicationMaster request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.InsertApplicationMaster(request);
+        }
+
+
+    }
+
+    public class GetApplicationMasterAccessSecurityListHandler : IRequestHandler<GetApplicationMasterAccessSecurityList, List<ApplicationMasterAccess>>
+    {
+        private readonly IApplicationMasterDetailQueryRepository _masterQueryRepository;
+        private readonly IQueryRepository<ApplicationMasterAccess> _queryRepository;
+        public GetApplicationMasterAccessSecurityListHandler(IApplicationMasterDetailQueryRepository roleQueryRepository, IQueryRepository<ApplicationMasterAccess> queryRepository)
+        {
+            _masterQueryRepository = roleQueryRepository;
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ApplicationMasterAccess>> Handle(GetApplicationMasterAccessSecurityList request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationMasterAccess>)await _masterQueryRepository.GetApplicationMasterAccessSecurityList(request.Id,request.AccessTypeFrom);
+
+        }
+    }
+    public class InsertApplicationMasterAccessSecurityHandler : IRequestHandler<InsertApplicationMasterAccessSecurity, ApplicationMasterAccess>
+    {
+        private readonly IApplicationMasterDetailQueryRepository _productionactivityQueryRepository;
+        public InsertApplicationMasterAccessSecurityHandler(IApplicationMasterDetailQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ApplicationMasterAccess> Handle(InsertApplicationMasterAccessSecurity request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.InsertApplicationMasterAccessSecurity(request.ApplicationMasterAccess);
+        }
+
+
+    }
+    public class DeleteApplicationMasterAccessHandler : IRequestHandler<DeleteApplicationMasterAccess, long?>
+    {
+        private readonly IApplicationMasterDetailQueryRepository _productionactivityQueryRepository;
+        public DeleteApplicationMasterAccessHandler(IApplicationMasterDetailQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<long?> Handle(DeleteApplicationMasterAccess request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.DeleteApplicationMasterAccess(request.Id, request.Ids);
+        }
+
+
+    }
+    public class GetApplicationMasterAccessSecurityByMasterHandler : IRequestHandler<GetApplicationMasterAccessSecurityByMaster, List<ApplicationMasterAccess>>
+    {
+        private readonly IApplicationMasterDetailQueryRepository _masterQueryRepository;
+        private readonly IQueryRepository<ApplicationMasterAccess> _queryRepository;
+        public GetApplicationMasterAccessSecurityByMasterHandler(IApplicationMasterDetailQueryRepository roleQueryRepository, IQueryRepository<ApplicationMasterAccess> queryRepository)
+        {
+            _masterQueryRepository = roleQueryRepository;
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ApplicationMasterAccess>> Handle(GetApplicationMasterAccessSecurityByMaster request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationMasterAccess>)await _masterQueryRepository.GetApplicationMasterAccessSecurityEmptyAsync(request.Id, request.AccessTypeFrom);
+
+        }
+    }
+
 }

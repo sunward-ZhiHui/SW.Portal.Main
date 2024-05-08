@@ -81,7 +81,7 @@ namespace Application.Queries
         public string ItemNo { get; set; }
         public long? ItemId { get; set; }
         public long? CompanyId { get; set; }
-        public GetSyncBatchQuery(string ItemNo, long? CompanyId,long? ItemId)
+        public GetSyncBatchQuery(string ItemNo, long? CompanyId, long? ItemId)
         {
             this.ItemNo = ItemNo;
             this.CompanyId = CompanyId;
@@ -97,5 +97,12 @@ namespace Application.Queries
             this.CompanyId = CompanyId;
         }
     }
-
+    public class NavCompanyItemQuery : PagedRequest, IRequest<Navitems>
+    {
+        public long? CompanyId { get; set; }
+        public NavCompanyItemQuery(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
 }

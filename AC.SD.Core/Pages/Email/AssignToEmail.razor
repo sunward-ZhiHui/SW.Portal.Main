@@ -175,12 +175,12 @@
     }
     async Task onPin(long Id)
     {           
-        var request = await Mediator.Send(new SetPinEmailTopicTo(Id));
+        var request = await Mediator.Send(new SetPinEmailTopicTo(Id,applicationUser.UserID));
         await onGridRefresh();
     }
     async Task onUnPin(long Id)
     {
-        var request = await Mediator.Send(new UnSetPinEmailTopicTo(Id));
+        var request = await Mediator.Send(new UnSetPinEmailTopicTo(Id, applicationUser.UserID));
         await onGridRefresh();
     }
     void OnEmailToRowClick(GridRowClickEventArgs e)

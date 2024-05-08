@@ -30,4 +30,49 @@ namespace Application.Queries
         public string? SearchString { get; private set; }
 
     }
+    public class InsertApplicationMaster : ApplicationMaster, IRequest<ApplicationMaster>
+    {
+        
+    }
+    public class GetApplicationMasterAccessSecurityList : IRequest<List<ApplicationMasterAccess>>
+    {
+        public long? Id { get; private set; }
+        public string? AccessTypeFrom { get; set; }
+        public GetApplicationMasterAccessSecurityList(long? Id, string? accessTypeFrom)
+        {
+            this.Id = Id;
+            this.AccessTypeFrom = accessTypeFrom;
+        }
+    }
+    public class InsertApplicationMasterAccessSecurity : ApplicationMasterAccess, IRequest<ApplicationMasterAccess>
+    {
+        public ApplicationMasterAccess ApplicationMasterAccess { get; private set; }
+
+        public InsertApplicationMasterAccessSecurity(ApplicationMasterAccess applicationMasterAccess)
+        {
+            this.ApplicationMasterAccess = applicationMasterAccess;
+        }
+    }
+    public class DeleteApplicationMasterAccess : ApplicationMasterAccess, IRequest<long?>
+    {
+        public long? Id { get; set; }
+        public List<long?> Ids { get; set; }
+
+        public DeleteApplicationMasterAccess(long? id, List<long?> ids)
+        {
+            this.Id = id;
+            this.Ids = ids;
+        }
+    }
+    public class GetApplicationMasterAccessSecurityByMaster : IRequest<List<ApplicationMasterAccess>>
+    {
+        public long? Id { get; private set; }
+        public string? AccessTypeFrom { get; set; }
+        public GetApplicationMasterAccessSecurityByMaster(long? Id, string? accessTypeFrom)
+        {
+            this.Id = Id;
+            this.AccessTypeFrom = accessTypeFrom;
+        }
+    }
+    
 }

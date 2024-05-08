@@ -17,5 +17,6 @@ namespace Core.Repositories.Query
         Task<string> RawMatItemAsync(string companyname,long companyid, string type);
         Task<string> PackagingItemAsync(string companyname, long companyid, string type);
         Task<string> ProcessItemAsync(string companyname, long companyid, string type);
+        Task<List<Navitems>> GetNavItemsAdd(ViewPlants company);
     }
 }

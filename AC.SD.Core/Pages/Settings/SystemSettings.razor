@@ -3,6 +3,9 @@
     <div class="cw-480 ch-220" style="margin-top:10px;">
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex" RenderMode="TabsRenderMode.AllTabs" TabClick="OnTabClick">
+                <DxFormLayoutTabPage Caption="General Access">
+                    <GeneralOpenAccess @ref="refGeneralOpenAccess" AccessType="GeneralAccess"></GeneralOpenAccess>
+                </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="DMS Access">
                     <DMSOpenAccess @ref="refDMSOpenAccess" AccessType="DMSAccess"></DMSOpenAccess>
                 </DxFormLayoutTabPage>
@@ -15,20 +18,22 @@
 </div>
 @code {
     private DMSOpenAccess? refDMSOpenAccess;
-    private DMSOpenAccess? refDMSOpenAccessEmailAccess;
+    private DMSOpenAccess? refDMSOpenAccessEmailAccess; private GeneralOpenAccess? refGeneralOpenAccess;
     int ActiveTabIndex { get; set; } = 0;
     async void OnTabClick(TabClickEventArgs e)
     {
         if (e.TabIndex == 0)
         {
-            await refDMSOpenAccess.loadMainData("DMSAccess");
+            await refGeneralOpenAccess.loadMainData("GeneralAccess");
         }
         if (e.TabIndex == 1)
         {
-            await refDMSOpenAccessEmailAccess.loadMainData("EmailAccess");
+            await refDMSOpenAccess.loadMainData("DMSAccess");
         }
         if (e.TabIndex == 2)
         {
+            await refDMSOpenAccessEmailAccess.loadMainData("EmailAccess");
         }
+        
     }
 }

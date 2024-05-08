@@ -22,6 +22,15 @@
                         <div class="mb-cc-text">
                             <div class="card w-100">
                                 <div class="card-body p-0">
+                                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                            DisplayMode="MenuDisplayMode.Desktop">
+                                        <Items>
+                                            <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addMasterNew" Enabled="@AddMasterEnabled" />
+                                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addMasterEdit" Enabled="@EditMasterEnabled" />
+                                            <DxMenuItem Text="Access Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditPermissionEnabled" />
+                                        </Items>
+                                    </DxMenu>
                                     <DxLoadingPanel @bind-Visible="PanelVisible"
                                                     IsContentBlocked="true"
                                                     ApplyBackgroundShading="true"
@@ -48,6 +57,9 @@
                                                 AutoExpandAllGroupRows="true"
                                                 SelectionMode="GridSelectionMode.Single"
                                                 SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                                                CustomizeEditModel="Grid_CustomizeMasterEditModel"
+                                                EditModelSaving="Grid_EditModelMasterSaving"
+                                                RowDoubleClick="OnRowMasterDoubleClick"
                                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
                                             <Columns>
                                                 <DxGridSelectionColumn AllowSelectAll="false" Width="60px" />
@@ -56,6 +68,22 @@
                                                 <DxGridDataColumn FieldName="ApplicationMasterName" Caption="Master Name" />
                                                 <DxGridDataColumn FieldName="ApplicationMasterDescription" Caption="Description" />
                                             </Columns>
+                                            <EditFormTemplate Context="EditFormContext">
+                                                @{
+                                                    var plant = (global::Core.Entities.ApplicationMaster)EditFormContext.EditModel;
+                                                }
+                                                <DxFormLayout CssClass="w-100">
+                                                    <DxFormLayoutItem Caption="Name" ColSpanMd="12">
+                                                        <DxTextBox @bind-Text="@plant.ApplicationMasterName" ShowValidationIcon="true" />
+                                                        <ValidationMessage For="@(() => plant.ApplicationMasterName)" />
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                                                        <DxMemo @bind-Text="@plant.ApplicationMasterDescription" Rows="5" ShowValidationIcon="true" />
+                                                        <ValidationMessage For="@(() => plant.ApplicationMasterDescription)" />
+                                                    </DxFormLayoutItem>
+
+                                                </DxFormLayout>
+                                            </EditFormTemplate>
                                             <TotalSummary>
                                                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ApplicationMasterName" />
                                             </TotalSummary>
@@ -189,6 +217,19 @@
 
 
 </DxPopup>
+<DxPopup @bind-Visible="@addPermissionEnabled"
+         ShowFooter="true"
+         HeaderText="Add Permission Control"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <ApplicationMasterPermissions SelectedItems="@_selectItems" AccessTypeFrom="AppMaster" applicationUser="@applicationUser"></ApplicationMasterPermissions>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     IGrid? MasterGrid { get; set; }
     IGrid? Grid { get; set; }
@@ -208,15 +249,46 @@
     public ApplicationUser applicationUser { get; private set; }
     bool PopupVisible { get; set; } = false;
     string? DeleteerrorMessage;
+    bool AddMasterEnabled { get; set; } = false;
+    bool EditMasterEnabled { get; set; } = false; bool EditPermissionEnabled { get; set; } = false;
+    bool addPermissionEnabled { get; set; } = false;
+    private List<OpenAccessUserLink> _openAccessUserLink { get; set; }
+    private List<ApplicationMasterAccess> _applicationMasterAccess { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        PanelVisible = true;
+        await loadMAsterItems();
+    }
+    async Task loadMAsterItems()
+    {
+        PanelVisible = true; AddMasterEnabled = true; EditMasterEnabled = false; AddEnabled = false; EditEnabled = false; EditPermissionEnabled = false;
+        DeleteEnabled = false; _applicationMasterAccess = new List<ApplicationMasterAccess>();
+        _openAccessUserLink = await Mediator.Send(new GetDocumentAccessTypeQuery("GeneralAccess"));
+        _applicationMasterDetails = new List<View_ApplicationMasterDetail>();
         _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
+        if (_applicationMasterItems != null && _applicationMasterItems.Count() > 0)
+        {
+            _selectItems = _applicationMasterItems.FirstOrDefault();
+            MasterGrid.ClearSelection();
+        }
+        // if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
+        // {
+        //     AddMasterEnabled = false;
+        //     var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+        //     if (userExits != null)
+        //     {
+        //         if (userExits.IsAdd == true)
+        //         {
+        //             AddMasterEnabled = true;
+        //         }
+        //     }
+        // }
         PanelVisible = false;
+        StateHasChanged();
     }
     async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
+        _applicationMasterAccess = new List<ApplicationMasterAccess>();
         SelectedDataItems = SelectedToItems;
         if (SelectedDataItems != null)
         {
@@ -224,8 +296,25 @@
             {
                 if (item is global::Core.Entities.ApplicationMaster masterData)
                 {
-                    AddEnabled = true;
+                    AddEnabled = true; EditMasterEnabled = true; EditPermissionEnabled = true;
                     _selectItems = masterData;
+                    // if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
+                    // {
+                    //     EditMasterEnabled = false; EditPermissionEnabled = false;
+                    //     var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+                    //     if (userExits != null)
+                    //     {
+                    //         if (userExits.IsEdit == true)
+                    //         {
+                    //             EditMasterEnabled = true;
+                    //         }
+                    //         if (userExits.IsPermission == true)
+                    //         {
+                    //             EditPermissionEnabled = true;
+                    //         }
+                    //     }
+                    // }
+                    _applicationMasterAccess = await Mediator.Send(new GetApplicationMasterAccessSecurityByMaster(masterData.ApplicationMasterId, "AppMaster"));
                     await UpdateDataAsync();
                 }
             }
@@ -248,7 +337,17 @@
             EditEnabled = true;
             DeleteEnabled = true;
             Grid.SetFocusedRowIndex(0);
-
+        }
+        if (_applicationMasterAccess != null && _applicationMasterAccess.Count() > 0)
+        {
+            EditEnabled = false;
+            DeleteEnabled = false;AddEnabled = false;
+            var userExits = _applicationMasterAccess.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+            if (userExits != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true; AddEnabled = true;
+            }
         }
         StateHasChanged();
 
@@ -263,6 +362,7 @@
             newplant.Value = "";
         }
     }
+
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editablePlant = (View_ApplicationMasterDetail)e.EditModel;
@@ -354,7 +454,10 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (EditEnabled == true)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
     }
     async Task bulkDelete()
     {
@@ -407,5 +510,68 @@
             e.CssClass = "alt-item";
         }
 
+    }
+    void addMasterNew()
+    {
+        MasterGrid.StartEditNewRowAsync();
+    }
+    void addMasterEdit()
+    {
+        if (EditMasterEnabled == true)
+        {
+            MasterGrid.StartEditDataItemAsync(_selectItems);
+        }
+    }
+    void OnRowMasterDoubleClick()
+    {
+        addMasterEdit();
+    }
+    void Grid_CustomizeMasterEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newplant = (global::Core.Entities.ApplicationMaster)e.EditModel;
+            newplant.ApplicationMasterName = "";
+            newplant.ApplicationMasterDescription = "";
+        }
+    }
+    async Task Grid_EditModelMasterSaving(GridEditModelSavingEventArgs e)
+    {
+        var editablePlant = (global::Core.Entities.ApplicationMaster)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new InsertApplicationMaster
+                {
+                    ApplicationMasterCodeId = editablePlant.ApplicationMasterCodeId,
+                    ApplicationMasterDescription = editablePlant.ApplicationMasterDescription,
+                    ApplicationMasterName = editablePlant.ApplicationMasterName,
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await loadMAsterItems();
+        }
+        else
+        {
+            var request = new InsertApplicationMaster
+                {
+                    ApplicationMasterId = editablePlant.ApplicationMasterId,
+                    ApplicationMasterCodeId = editablePlant.ApplicationMasterCodeId,
+                    ApplicationMasterDescription = editablePlant.ApplicationMasterDescription,
+                    ApplicationMasterName = editablePlant.ApplicationMasterName,
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await loadMAsterItems();
+        }
+
+    }
+    void addPermission()
+    {
+        addPermissionEnabled = true;
+    }
+    async Task CloseAddPermissionEnabled()
+    {
+        await loadMAsterItems();
+        addPermissionEnabled = false;
     }
 }

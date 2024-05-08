@@ -314,7 +314,7 @@
                         {
                             if (a.DataSourceTable == "ApplicationMaster")
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                                //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                                 if (a.IsDisplayTableHeader == true && a.ApplicationMaster.Count() > 0)
                                 {
                                     a.ApplicationMaster.ForEach(ab =>
@@ -326,7 +326,7 @@
                             }
                             else if (a.DataSourceTable == "ApplicationMasterParent")
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                                //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                                 if (a.IsDisplayTableHeader == true && a.ApplicationMasterParents.Count() > 0)
                                 {
                                     a.ApplicationMasterParents.ForEach(ab =>

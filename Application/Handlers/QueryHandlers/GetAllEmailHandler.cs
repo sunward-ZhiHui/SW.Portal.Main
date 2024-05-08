@@ -166,7 +166,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(SetPinEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.SetPinTopicToList(request.ID);
+            return await _emailTopicsQueryRepository.SetPinTopicToList(request.ID,request.UserId);
 
         }
     }
@@ -180,7 +180,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(UnSetPinEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.UnSetPinTopicToList(request.ID);
+            return await _emailTopicsQueryRepository.UnSetPinTopicToList(request.ID, request.UserId);
 
         }
     }

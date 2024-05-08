@@ -216,7 +216,7 @@ namespace SW.Portal.Solutions.Controllers
                     ProductionActivityRoutineAppLineId = value.ProductionActivityRoutineAppLineId,
                     CompanyId = value.CompanyID,
                     ProdOrderNo = value.ProdOrderNo,
-                    LocationId = value.LocationID > 0 ? value.NavprodOrderLineId : null,
+                    LocationId = value.LocationID > 0 ? value.LocationID : null,
                     AddedDate = DateTime.Now,
                     SessionId = Guid.NewGuid(),
                     LineSessionId = Guid.NewGuid(),

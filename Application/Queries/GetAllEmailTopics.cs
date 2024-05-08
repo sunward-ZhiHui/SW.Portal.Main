@@ -117,17 +117,21 @@ namespace Application.Queries
     public class SetPinEmailTopicTo : PagedRequest, IRequest<long>
     {
         public long ID { get; private set; }
-        public SetPinEmailTopicTo(long Id)
+        public long UserId { get;set; }
+        public SetPinEmailTopicTo(long Id, long UserId)
         {
             this.ID = Id;
+            this.UserId = UserId;
         }
     }
     public class UnSetPinEmailTopicTo : PagedRequest, IRequest<long>
     {
         public long ID { get; private set; }
-        public UnSetPinEmailTopicTo(long Id)
+        public long UserId { get; set; }
+        public UnSetPinEmailTopicTo(long Id, long UserId)
         {
             this.ID = Id;
+            this.UserId = UserId;
         }
     }
     public class UpdateMarkasRead : PagedRequest, IRequest<long>

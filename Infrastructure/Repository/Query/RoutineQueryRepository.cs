@@ -42,7 +42,7 @@ using ImageMagick;
 using Ghostscript.NET;
 using Ghostscript.NET.Rasterizer;
 using System.IO;
-
+using PdfiumViewer;
 namespace Infrastructure.Repository.Query
 {
     public class RoutineQueryRepository : QueryRepository<ProductionActivityRoutineAppLine>, IRoutineQueryRepository
@@ -1064,20 +1064,21 @@ namespace Infrastructure.Repository.Query
                                         var documentPaths = await ReadPdfAndGetProfileImagesAsync(Docsitem);
                                         if (documentPaths.Count > 0)
                                         {
-                                            filePaths.AddRange(documentPaths);
-                                            //if (!isFirstImageSet)
-                                            //{
-                                            //    if (documentPaths.Any(path => path.Contains("merged_image.jpg")))
-                                            //    {
-                                            //        item.FilePath = documentPaths.FirstOrDefault();
-                                            //        isFirstImageSet = true;
-                                            //    }
-                                            //    else
-                                            //    {
-                                            //        // Handle the case when "merged_image.jpg" does not exist
-                                            //        Console.WriteLine("The file 'merged_image.jpg' does not exist in the document paths.");
-                                            //    }
-                                            //}
+                                            // filePaths.AddRange(documentPaths);
+                                            if (!isFirstImageSet)
+                                            {
+                                                if (documentPaths.Any(path => path.Contains("merged_image.jpg")))
+                                                {
+                                                    var mergeimage = documentPaths.Find((path => path.Contains("merged_image.jpg")));
+                                                    item.FilePath = mergeimage;
+                                                    isFirstImageSet = true;
+                                                }
+                                                else
+                                                {
+                                                    // Handle the case when "merged_image.jpg" does not exist
+                                                    Console.WriteLine("The file 'merged_image.jpg' does not exist in the document paths.");
+                                                }
+                                            }
                                         }
                                        
 
@@ -1086,12 +1087,12 @@ namespace Infrastructure.Repository.Query
                                     else if (IsImageFile(extension))
                                     {
                                         var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
-                                        if (!isFirstImageSet)
-                                        {
-                                            item.FilePath = DocumentViewUrl + Docsitem.FilePath;
-                                            isFirstImageSet = true;
-                                        }
-                                        filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
+                                        //if (!isFirstImageSet)
+                                        //{
+                                        //    item.FilePath = DocumentViewUrl + Docsitem.FilePath;
+                                        //    isFirstImageSet = true;
+                                        //}
+                                        //filePaths.Add(DocumentViewUrl + Docsitem.FilePath);
                                     }
                                 }
 
@@ -1119,7 +1120,56 @@ namespace Infrastructure.Repository.Query
             var pdfFilePath = serverPaths + fileName;
             var imageFilePaths = new List<string>();
             var DocumentViewUrl = _configuration["DocumentsUrl:FileUrl"];
+            try
+            {
+                using (var documents = PdfiumViewer.PdfDocument.Load(pdfFilePath))
+                {
+                    var pageCount = documents.PageCount;
+                    var images = new MagickImageCollection(); // Move this line outside the using block
 
+                    try
+                    {
+                        for (int i = 0; i < pageCount; i++)
+                        {
+                            var dpi = 300;
+
+                            using (var image = documents.Render(i, dpi, dpi, PdfRenderFlags.CorrectFromDpi))
+                            {
+                                var encoder = ImageCodecInfo.GetImageEncoders().First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                                var encoderParams = new EncoderParameters(1);
+                                encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
+
+                                var imagePath = System.IO.Path.Combine(serverPaths, $"{i}.jpg");
+                                image.Save(imagePath, encoder, encoderParams);
+                                images.Add(new MagickImage(imagePath));
+                            }
+                        }
+
+                        string mergedImagePath = System.IO.Path.Combine(serverPaths, "merged_image.jpg");
+                        using (MagickImage mergedImage = (MagickImage)images.AppendVertically())
+                        {
+                            // Write the merged image to file
+                            mergedImage.Write(mergedImagePath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions appropriately
+                        Console.WriteLine($"An error occurred: {ex.Message}");
+                    }
+                    finally
+                    {
+                        // Dispose of resources
+                        documents.Dispose();
+                        images.Dispose();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             //if (Directory.Exists(serverPaths))
             //{
             //    if (File.Exists(pdfFilePath))

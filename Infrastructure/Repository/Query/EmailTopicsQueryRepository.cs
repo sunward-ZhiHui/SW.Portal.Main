@@ -592,7 +592,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<long> SetPinTopicToList(long id)
+        public async Task<long> SetPinTopicToList(long id,long UserId)
         {
             try
             {
@@ -602,8 +602,20 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
+                            parameters.Add("UserId", UserId);
 
-                            var query = "UPDATE EmailTopics SET PinStatus = 'Lock' WHERE ID = @id";
+                        //var query = "UPDATE EmailTopics SET PinStatus = 'Lock' WHERE ID = @id";
+                        var query = @"UPDATE EPCP
+                                        SET PinStatus = 'Lock'
+                                        FROM EmailConversationParticipant AS EPCP
+                                        INNER JOIN (
+                                            SELECT TOP 1 ID 
+                                            FROM EmailConversations 
+                                            WHERE TopicID = @id AND ReplyId = 0 
+                                            ORDER BY ID ASC
+                                        ) AS ECID ON EPCP.ConversationId = ECID.ID
+                                        WHERE EPCP.TopicId = @id 
+                                            AND EPCP.UserId = @UserId";
                             var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
                             return rowsAffected;
@@ -714,7 +726,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> UnSetPinTopicToList(long id)
+        public async Task<long> UnSetPinTopicToList(long id, long UserId)
         {
             try
             {
@@ -724,10 +736,24 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
+                            parameters.Add("UserId", UserId);
 
-                            var query = "UPDATE EmailTopics SET PinStatus = 0 WHERE ID = @id";
+                        //var query = "UPDATE EmailTopics SET PinStatus = 0 WHERE ID = @id";
+                        var query = @"UPDATE EPCP
+                                        SET EPCP.PinStatus = 0
+                                        FROM EmailConversationParticipant AS EPCP
+                                        CROSS APPLY (
+                                            SELECT TOP 1 ESSC.ID 
+                                            FROM EmailConversations AS ESSC 
+                                            WHERE ESSC.TopicID = @id AND ESSC.ReplyId = 0 
+                                            ORDER BY ESSC.ID ASC
+                                        ) AS ECID
+                                        WHERE EPCP.TopicId = @id 
+                                            AND EPCP.UserId = @UserId 
+                                            AND EPCP.ConversationId = ECID.ID
+                                        ";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
 
                             return rowsAffected;
                         }

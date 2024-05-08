@@ -59,5 +59,6 @@ namespace Core.Entities
         public bool? IsAdd { get; set; } = false;
         public bool? IsEdit { get; set; } = false;
         public bool? IsDelete { get; set; } = false;
+        public bool? IsPermission { get; set; } = false;
     }
 }

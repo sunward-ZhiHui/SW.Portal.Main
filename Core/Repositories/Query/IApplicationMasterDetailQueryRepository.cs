@@ -16,5 +16,9 @@ namespace Core.Repositories.Query
         Task<View_ApplicationMasterDetail> GetByIdAsync(long? Id);
         Task<IReadOnlyList<ApplicationMasterDetail>> GetAllAsync();
         Task<ApplicationMaster> InsertApplicationMaster(ApplicationMaster value);
+        Task<ApplicationMasterAccess> InsertApplicationMasterAccessSecurity(ApplicationMasterAccess value);
+        Task<IReadOnlyList<ApplicationMasterAccess>> GetApplicationMasterAccessSecurityList(long? Id,string? AccessTypeFrom);
+        Task<long> DeleteApplicationMasterAccess(long? Id, List<long?> Ids);
+        Task<IReadOnlyList<ApplicationMasterAccess>> GetApplicationMasterAccessSecurityEmptyAsync(long? ApplicationMasterId, string? AccessTypeFrom);
     }
 }

@@ -21,7 +21,7 @@
                                   Context="EditFormContext">
                             <DataAnnotationsValidator />
                             <DxFormLayout>
-                                <DxFormLayoutItem Caption="Users" ColSpanMd="6">
+                                <DxFormLayoutItem Caption="Users" ColSpanMd="5">
                                     <DxTagBox Data="_usersList"
                                     @bind-Values="Data.SelectUserIDs"
                                               NullText="Select To..."
@@ -47,6 +47,9 @@
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="" ColSpanMd="1">
                                     <DxCheckBox @bind-Checked="Data.IsDelete" LabelPosition="LabelPosition.Right">Is Delete</DxCheckBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="" ColSpanMd="2">
+                                    <DxCheckBox @bind-Checked="Data.IsPermission" LabelPosition="LabelPosition.Right">Is Permission</DxCheckBox>
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
                                     <DxButton SubmitFormOnClick="true"
@@ -76,7 +79,7 @@
                                   Context="EditFormContext">
                             <DataAnnotationsValidator />
                             <DxFormLayout>
-                                <DxFormLayoutItem Caption="User Group" ColSpanMd="6">
+                                <DxFormLayoutItem Caption="User Group" ColSpanMd="5">
                                     <DxTagBox Data="_userGroupsList"
                                     @bind-Values="Data.SelectUserGroupIDs"
                                               NullText="Select To..."
@@ -95,8 +98,12 @@
                                 <DxFormLayoutItem Caption="" ColSpanMd="1">
                                     <DxCheckBox @bind-Checked="Data.IsEdit" LabelPosition="LabelPosition.Right">Is Edit</DxCheckBox>
                                 </DxFormLayoutItem>
+                                
                                 <DxFormLayoutItem Caption="" ColSpanMd="1">
                                     <DxCheckBox @bind-Checked="Data.IsDelete" LabelPosition="LabelPosition.Right">Is Delete</DxCheckBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="" ColSpanMd="2">
+                                    <DxCheckBox @bind-Checked="Data.IsPermission" LabelPosition="LabelPosition.Right">Is Permission</DxCheckBox>
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
                                     <DxButton SubmitFormOnClick="true"
@@ -126,7 +133,7 @@
                                   Context="EditFormContext">
                             <DataAnnotationsValidator />
                             <DxFormLayout>
-                                <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
+                                <DxFormLayoutItem Caption="Level Master" ColSpanMd="5">
                                     <DxTagBox Data="_levelMasterLists"
                                     @bind-Values="Data.SelectLevelMasterIDs"
                                               NullText="Select To..."
@@ -145,8 +152,12 @@
                                 <DxFormLayoutItem Caption="" ColSpanMd="1">
                                     <DxCheckBox @bind-Checked="Data.IsEdit" LabelPosition="LabelPosition.Right">Is Edit</DxCheckBox>
                                 </DxFormLayoutItem>
+                                
                                 <DxFormLayoutItem Caption="" ColSpanMd="1">
                                     <DxCheckBox @bind-Checked="Data.IsDelete" LabelPosition="LabelPosition.Right">Is Delete</DxCheckBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="" ColSpanMd="2">
+                                    <DxCheckBox @bind-Checked="Data.IsPermission" LabelPosition="LabelPosition.Right">Is Permission</DxCheckBox>
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
                                     <DxButton SubmitFormOnClick="true"
@@ -266,7 +277,7 @@
         isSending = true;
         if (AccessType == "GeneralAccess")
         {
-            if (Data.IsAdd == false && Data.IsEdit == false && Data.IsDelete == false)
+            if (Data.IsAdd == false && Data.IsEdit == false && Data.IsDelete == false && Data.IsPermission == false)
             {
                 isSending = false;
                 toastService.ShowToast("Checkbox Select Anyone must.", AC.SD.Core.Services.ToastLevel.Error);

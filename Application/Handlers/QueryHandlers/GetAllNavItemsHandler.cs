@@ -136,4 +136,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             
         }
     }
+    public class NavCompanyItemQueryHandler : IRequestHandler<NavCompanyItemQuery, Navitems>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public NavCompanyItemQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<Navitems> Handle(NavCompanyItemQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetNavItemServicesList(request.CompanyId);
+
+        }
+    }
 }

@@ -28,5 +28,7 @@ namespace Core.Entities
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public decimal? StockOutBatchConfirm { get; set; }
+        public string? ItemNo { get; set; }
+        public string? ItemDescription { get; set; }
     }
 }

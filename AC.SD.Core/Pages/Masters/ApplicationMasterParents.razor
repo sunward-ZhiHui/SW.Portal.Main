@@ -511,11 +511,24 @@
         _applicationChildChildItems = new List<ApplicationMasterChildModel>();
         PanelVisible = true; AddMasterEnabled = true; EditMasterEnabled = false; AddEnabled = false; EditEnabled = false;
         DeleteEnabled = false;
+        _openAccessUserLink = await Mediator.Send(new GetDocumentAccessTypeQuery("GeneralAccess"));
         _applicationMasterAllItems = await Mediator.Send(new GetAllApplicationMasterParentAllQuery());
         if (_applicationMasterAllItems != null && _applicationMasterAllItems.Count() > 0)
         {
             _selectItems = _applicationMasterAllItems.FirstOrDefault();
             MasterGrid.ClearSelection();
+        }
+        if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
+        {
+            AddMasterEnabled = false;
+            var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+            if (userExits != null)
+            {
+                if (userExits.IsAdd == true)
+                {
+                    AddMasterEnabled = true;
+                }
+            }
         }
         PanelVisible = false;
         StateHasChanged();
@@ -555,6 +568,18 @@
                 if (item is ApplicationMasterParent masterData)
                 {
                     AddEnabled = true; EditMasterEnabled = true;
+                    if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
+                    {
+                        EditMasterEnabled = false;
+                        var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+                        if (userExits != null)
+                        {
+                            if (userExits.IsEdit == true)
+                            {
+                                EditMasterEnabled = true;
+                            }
+                        }
+                    }
                     _selectItems = masterData;
                     var nameList = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == masterData.ApplicationMasterParentCodeId);
                     if (nameList != null)

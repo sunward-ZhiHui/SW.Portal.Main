@@ -215,6 +215,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsAdd", value.IsAdd);
                         parameters.Add("IsDelete", value.IsDelete);
                         parameters.Add("IsEdit", value.IsEdit);
+                        parameters.Add("IsPermission", value.IsPermission);
                         var lists = await GetAllByAsync(value.AccessType);
                         if (lists != null)
                         {
@@ -238,8 +239,8 @@ namespace Infrastructure.Repository.Query
                                         var counts = userExitsRoles.FirstOrDefault(w => w.UserId == item);
                                         if (counts == null)
                                         {
-                                            query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,IsDmsAccess,IsDmsCreateMainFolder,IsAdd,IsEdit,IsDelete) OUTPUT INSERTED.OpenAccessUserLinkId " +
-                                               "VALUES (" + value.OpenAccessUserId + "," + item + ",@IsDmsAccess,@IsDmsCreateMainFolder,@IsAdd,@IsEdit,@IsDelete);\n";
+                                            query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,IsDmsAccess,IsDmsCreateMainFolder,IsAdd,IsEdit,IsDelete,IsPermission) OUTPUT INSERTED.OpenAccessUserLinkId " +
+                                               "VALUES (" + value.OpenAccessUserId + "," + item + ",@IsDmsAccess,@IsDmsCreateMainFolder,@IsAdd,@IsEdit,@IsDelete,@IsPermission);\n";
                                         }
                                         else
                                         {
@@ -249,7 +250,7 @@ namespace Infrastructure.Repository.Query
                                             }
                                             if (value.AccessType == "GeneralAccess")
                                             {
-                                                query += "update  OpenAccessUserLink set IsAdd=@IsAdd,IsEdit=@IsEdit,IsDelete=@IsDelete Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
+                                                query += "update  OpenAccessUserLink set IsAdd=@IsAdd,IsEdit=@IsEdit,IsDelete=@IsDelete,IsPermission=@IsPermission Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
                                             }
                                         }
                                     }
@@ -268,8 +269,8 @@ namespace Infrastructure.Repository.Query
                                             if (counts == null)
                                             {
 
-                                                query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,UserGroupId,IsDmsAccess,IsDmsCreateMainFolder,IsAdd,IsEdit,IsDelete) OUTPUT INSERTED.OpenAccessUserLinkId " +
-                                                    "VALUES (" + value.OpenAccessUserId + "," + s.UserId + "," + s.UserGroupId + ",@IsDmsAccess,@IsDmsCreateMainFolder,@IsAdd,@IsEdit,@IsDelete);\n";
+                                                query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,UserGroupId,IsDmsAccess,IsDmsCreateMainFolder,IsAdd,IsEdit,IsDelete,IsPermission) OUTPUT INSERTED.OpenAccessUserLinkId " +
+                                                    "VALUES (" + value.OpenAccessUserId + "," + s.UserId + "," + s.UserGroupId + ",@IsDmsAccess,@IsDmsCreateMainFolder,@IsAdd,@IsEdit,@IsDelete,@IsPermission);\n";
                                             }
                                             else
                                             {
@@ -279,7 +280,7 @@ namespace Infrastructure.Repository.Query
                                                 }
                                                 if (value.AccessType == "GeneralAccess")
                                                 {
-                                                    query += "update  OpenAccessUserLink set IsAdd=@IsAdd,IsEdit=@IsEdit,IsDelete=@IsDelete Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
+                                                    query += "update  OpenAccessUserLink set IsAdd=@IsAdd,IsEdit=@IsEdit,IsDelete=@IsDelete,IsPermission=@IsPermission Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
                                                 }
                                             }
                                         });
@@ -296,8 +297,8 @@ namespace Infrastructure.Repository.Query
                                         if (counts == null)
                                         {
 
-                                            query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,LevelId,IsDmsAccess,IsDmsCreateMainFolder,IsAdd,IsEdit,IsDelete) OUTPUT INSERTED.OpenAccessUserLinkId " +
-                                                "VALUES (" + value.OpenAccessUserId + "," + s.UserId + "," + s.LevelId + ",@IsDmsAccess,@IsDmsCreateMainFolder,@IsAdd,@IsEdit,@IsDelete);\n";
+                                            query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,LevelId,IsDmsAccess,IsDmsCreateMainFolder,IsAdd,IsEdit,IsDelete,IsPermission) OUTPUT INSERTED.OpenAccessUserLinkId " +
+                                                "VALUES (" + value.OpenAccessUserId + "," + s.UserId + "," + s.LevelId + ",@IsDmsAccess,@IsDmsCreateMainFolder,@IsAdd,@IsEdit,@IsDelete,@IsPermission);\n";
 
                                         }
                                         else
@@ -308,7 +309,7 @@ namespace Infrastructure.Repository.Query
                                             }
                                             if (value.AccessType == "GeneralAccess")
                                             {
-                                                query += "update  OpenAccessUserLink set IsAdd=@IsAdd,IsEdit=@IsEdit,IsDelete=@IsDelete Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
+                                                query += "update  OpenAccessUserLink set IsAdd=@IsAdd,IsEdit=@IsEdit,IsDelete=@IsDelete,IsPermission=@IsPermission Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
                                             }
                                         }
                                     });

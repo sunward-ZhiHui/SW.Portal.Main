@@ -17,30 +17,16 @@ namespace AC.SD.Core.Helpers
     public class AppRouteView : RouteView
     {
         [Inject]
-        public NavigationManager NavigationManager { get; set; }
-        //[Inject]
-        //protected Task<AuthenticationState> AuthStat { get; set; }
+        public required NavigationManager NavigationManager { get; set; }      
         [Inject]
-        public IApplicationUserQueryRepository ApplicationUserQueryRepository { get; set; }
+        public required IApplicationUserQueryRepository ApplicationUserQueryRepository { get; set; }
 
         protected override void Render(RenderTreeBuilder builder)
         {
-            var authorize = Attribute.GetCustomAttribute(RouteData.PageType, typeof(AuthorizeAttribute)) != null;
-          
-            //&& !AuthStat.Result.User.Identity.IsAuthenticated
-            //if (authorize)
-            //{
-            //    //var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);               
-            //    NavigationManager.NavigateTo($"Login");
-            //}
-            //else
-            //{
-            //    base.Render(builder);
-            //}
+            var authorize = Attribute.GetCustomAttribute(RouteData.PageType, typeof(AuthorizeAttribute)) != null;   
 
             if (authorize && ApplicationUserQueryRepository.User == null)
-            {
-                //var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);
+            {                
                 NavigationManager.NavigateTo($"Login");
             }
             else

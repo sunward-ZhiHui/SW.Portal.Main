@@ -1751,14 +1751,13 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormId", id);
                 parameters.Add("DynamicFormDataGridId", DynamicFormDataGridId);
                 parameters.Add("DynamicFormSectionGridAttributeId", DynamicFormSectionGridAttributeId);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
+                var query = "select t1.DynamicFormDataID,t1.DynamicFormID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,\r\nt1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.DynamicFormItem,t1.IsSendApproval,t1.FileProfileSessionID,t1.ProfileID,t1.ProfileNo,t1.DynamicFormDataGridID,t1.IsDeleted,t1.SortOrderByNo,t1.GridSortOrderByNo,t1.DynamicFormSectionGridAttributeID,t2.UserName as AddedBy,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
                     "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
                     "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid\r\n" +
                     "from DynamicFormData t1\r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID = t1.AddedByUserID\r\n" +
-                    "JOIN ApplicationUser t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId =@DynamicFormId\r\n";
+                    "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId =@DynamicFormId\r\n";
                 if (DynamicFormDataGridId == 0 || DynamicFormDataGridId > 0)
                 {
                     query += "AND t1.DynamicFormDataGridId=@DynamicFormDataGridId order by t1.GridSortOrderByNo asc;\r\n";

@@ -214,6 +214,7 @@
     }
     async Task UpdateDataAsync()
     {
+        PanelVisible = true;
         //var res = await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));
         _selectedItems = null;
         dataColumnNames = new List<DropDownOptionsModel>();
@@ -317,7 +318,7 @@
                 }
 
                 _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null,null));
-                PanelVisible = true; _dynamicformObjectDataList = new List<object>();
+                _dynamicformObjectDataList = new List<object>();
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
                     if (FormSessionId != null)

@@ -193,6 +193,7 @@
         ThemeName = Themes.ActiveTheme.Name;
         //NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await InvokeAsync(StateHasChanged);
     }
     internal async void ResetPassword()
     {

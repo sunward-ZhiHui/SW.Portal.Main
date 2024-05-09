@@ -272,6 +272,7 @@
     }
     async Task UpdateDataAsync()
     {
+        PanelVisible = true;
         _selectedItems = null; FileProfileTypeId = null;
         dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true; Items = new ObservableCollection<object>();
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false;
@@ -379,7 +380,7 @@
                     }
 
                     _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1,null));
-                    PanelVisible = true; _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
+                    _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {
                         if (FormSessionId != null)
@@ -707,13 +708,17 @@
             {
                 AddEnabled = false;
             }
-            PanelVisible = false;
             if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
             {
                 Items = new ObservableCollection<object>(_dynamicformObjectDataList);
             }
-            StateHasChanged();
         }
+        else
+        {
+           
+        }
+        PanelVisible = false;
+        StateHasChanged();
     }
     void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> objectData)
     {

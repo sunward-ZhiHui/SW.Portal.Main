@@ -275,6 +275,7 @@
     }
     async Task UpdateDataAsync()
     {
+        PanelVisible = true;
         _selectedItems = null; FileProfileTypeId = null;
         dataColumnNames = new List<DropDownOptionsModel>();
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
@@ -378,7 +379,7 @@
                 if (DynamicFormDataGridId > 0)
                 {
                     _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, DynamicFormDataGridId, DynamicFormSectionGridAttributeId));
-                    PanelVisible = true; _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
+                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {
                         _dynamicformDataList.ForEach(s =>
@@ -700,11 +701,12 @@
                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
             }
-            PanelVisible = false;
+            
             if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
             {
                 Items = new ObservableCollection<object>(_dynamicformObjectDataList);
             }
+            PanelVisible = false;
             StateHasChanged();
         }
     }

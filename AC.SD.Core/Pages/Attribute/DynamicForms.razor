@@ -567,9 +567,17 @@
         }
         base.OnParametersSet();
     }
-
+    async Task onshowLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");        
+    }
+    async Task onhideLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     async Task loadDynamicForm()
     {
+        await onshowLoading();
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
@@ -2700,6 +2708,7 @@
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
+        InvokeAsync(onshowLoading);
         //PanelVisible = true;
         isRequiredCount = 0;
         var _AttributeHeaders = _AttributeHeader;
@@ -4964,6 +4973,7 @@
 
         }
         //PanelVisible = false;
+        InvokeAsync(onhideLoading);
     };
     void loadDynamicGridDropDownForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {

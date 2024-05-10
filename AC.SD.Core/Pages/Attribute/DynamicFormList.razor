@@ -205,6 +205,7 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private IDisposable? DynamicFormPage5;
     Guid myKey { get; set; } = Guid.NewGuid();
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -243,6 +244,25 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
+
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage5?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
     protected override async Task OnParametersSetAsync()
     {
         if (applicationUser != null)
@@ -255,6 +275,7 @@
     {
         if (firstRender)
         {
+            DynamicFormPage5 = NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
             JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/Within.js");
 
             DotNetHelper = DotNetObjectReference.Create(this);
@@ -1020,11 +1041,6 @@
         await Mediator.Send(request);
         Blukdeletepopup = false;
         await UpdateDataAsync();
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
     [JSInvokable]
     public async Task ReorderGridRows(int draggableRowVisibleIndex, int prevRowVisibleIndex, int nextRowVisibleIndex)

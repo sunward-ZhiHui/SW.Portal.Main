@@ -181,7 +181,7 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
-    public class GetDynamicFormApi : PagedRequest, IRequest<DropDownOptionsGridListModel>
+    public class GetDynamicFormApi : PagedRequest, IRequest<List<object>>
     {
         public Guid? SessionId { get; set; }
         public GetDynamicFormApi(Guid? sessionId)

@@ -305,7 +305,7 @@ namespace Application.Handlers.QueryHandlers
             return await _attrubutequeryRepository.GetDynamicGridNested(request.DynamicFormDataId, request.UserId);
         }
     }
-    public class GetDynamicFormApiHandler : IRequestHandler<GetDynamicFormApi, DropDownOptionsGridListModel>
+    public class GetDynamicFormApiHandler : IRequestHandler<GetDynamicFormApi, List<object>>
     {
 
         private readonly IAttributeQueryRepository _attrubutequeryRepository;
@@ -313,9 +313,9 @@ namespace Application.Handlers.QueryHandlers
         {
             _attrubutequeryRepository = attrubutequeryRepository;
         }
-        public async Task<DropDownOptionsGridListModel> Handle(GetDynamicFormApi request, CancellationToken cancellationToken)
+        public async Task<List<object>> Handle(GetDynamicFormApi request, CancellationToken cancellationToken)
         {
-            return await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.SessionId);
+            return (List<object>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.SessionId);
         }
     }
 }

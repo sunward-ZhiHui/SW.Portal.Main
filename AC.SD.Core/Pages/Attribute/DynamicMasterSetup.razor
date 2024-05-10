@@ -89,7 +89,7 @@
 </DxPopup>
 
 @code {
-
+    private IDisposable? DynamicFormPage1;
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; } = true;
     private List<DynamicForm> _dynamicForm;
@@ -103,6 +103,32 @@
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DynamicFormPage1 =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage1?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     async Task UpdateDataAsync()
     {
@@ -186,10 +212,5 @@
             toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
         // await UpdateDataAsync();
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
 }

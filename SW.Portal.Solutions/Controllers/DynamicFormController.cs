@@ -30,14 +30,14 @@ namespace SW.Portal.Solutions.Controllers
 
         }
         [HttpGet("GetCompanyList")]
-        public async Task<ActionResult<Services.ResponseModel<DropDownOptionsGridListModel>>> GetCompanyList(Guid? sessionId)
+        public async Task<ActionResult<Services.ResponseModel<List<object>>>> GetCompanyList(Guid? sessionId)
         {
-            var response = new Services.ResponseModel<DropDownOptionsGridListModel>();
+            var response = new Services.ResponseModel<object>();
             var result = await _mediator.Send(new GetDynamicFormApi(sessionId));
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Result = result;
+                response.Results = result;
 
             }
             catch (Exception ex)

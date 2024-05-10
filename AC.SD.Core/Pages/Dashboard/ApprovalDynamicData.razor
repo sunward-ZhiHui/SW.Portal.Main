@@ -9,8 +9,9 @@
 
 
 <DxGrid Data="_dynamicdata"
-        VirtualScrollingEnabled="false"
-        AllowSort="false"
+        VirtualScrollingEnabled="false" ShowSearchBox="true"
+        AllowSort="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="DynamicFormDataId"
         CustomizeElement="Grid_CustomizeElement"
         ShowAllRows="true"
@@ -18,12 +19,18 @@
         AutoExpandAllGroupRows="true"
         CssClass="w-100" 
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        AllowSelectRowByClick="true">
+        AllowSelectRowByClick="true" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20" PagerNavigationMode="PagerNavigationMode.InputBox">
     <Columns>
         <DxGridDataColumn FieldName="Name" MinWidth="50" Caption="Profile Name" />
         <DxGridDataColumn FieldName="ProfileNo" Caption="ProfileNo" MinWidth="50" />
       
     </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+    </TotalSummary>
     <DetailRowTemplate>
         <ApprovalDynamicFormStatus DynamicApproval="(DynamicFormData)context.DataItem"></ApprovalDynamicFormStatus>
 
@@ -31,6 +38,7 @@
 </DxGrid>
 @code {
     private List<DynamicFormData>? _dynamicdata;
+  
     IGrid? refFormDynamicData { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
     [Parameter]
@@ -40,10 +48,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
-
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _dynamicdata = await Mediator.Send(new DynamicApprovalListtwo(Items.ID));
+
     }
 
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

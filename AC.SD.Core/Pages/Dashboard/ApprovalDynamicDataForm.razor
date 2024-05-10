@@ -13,22 +13,28 @@
 <DxGrid @ref="refDynamicData"
         Data="_dynamicFormdata"
         VirtualScrollingEnabled="false"
-        AllowSort="false"
+        AllowSort="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
         ShowAllRows="true"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 245px);"
-        
+        ShowSearchBox="true"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        AllowSelectRowByClick="true">
+        AllowSelectRowByClick="true" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20" PagerNavigationMode="PagerNavigationMode.InputBox">
         <Columns>
             <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
             <DxGridDataColumn FieldName="Name" Caption="Form Name" MinWidth="50" />
             
         </Columns>
-
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+    </TotalSummary>
     <DetailRowTemplate>
         <ApprovalDynamicData Items="(DynamicForm)context.DataItem"></ApprovalDynamicData>
      

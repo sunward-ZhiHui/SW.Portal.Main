@@ -354,8 +354,9 @@ namespace Infrastructure.Repository.Query
 
                 parameters.Add("id", dynamicID);
 
-                var query = @"select DPS.Name,DFD.ProfileNo,DFD.DynamicFormDataID from DynamicFormData DFD
+                var query = @"select Distinct  DFD.DynamicFormDataID ,DPS.Name,DFD.ProfileNo from DynamicFormData DFD
                             INNER JOIN DocumentProfileNoSeries DPS On DPS.ProfileID = DFD.ProfileID
+							inner Join DynamicFormApproved DFA on DFA.DynamicFormDataID =DFD.DynamicFormDataID
                             where DynamicFormID =@id";
 
                 using (var connection = CreateConnection())

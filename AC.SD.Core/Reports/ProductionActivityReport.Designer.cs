@@ -130,6 +130,7 @@
             // 
             // bottomMarginBand1
             // 
+            this.bottomMarginBand1.HeightF = 37.08324F;
             this.bottomMarginBand1.Name = "bottomMarginBand1";
             this.bottomMarginBand1.Padding = new DevExpress.XtraPrinting.PaddingInfo(0, 0, 0, 0, 100F);
             this.bottomMarginBand1.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopLeft;
@@ -147,7 +148,7 @@
             this.xrLabel3,
             this.xrLabel2,
             this.xrLabel1});
-            this.detailBand1.HeightF = 316.2501F;
+            this.detailBand1.HeightF = 852.9167F;
             this.detailBand1.Name = "detailBand1";
             this.detailBand1.Padding = new DevExpress.XtraPrinting.PaddingInfo(0, 0, 0, 0, 100F);
             this.detailBand1.PageBreak = DevExpress.XtraReports.UI.PageBreak.AfterBand;
@@ -157,10 +158,11 @@
             // 
             this.xrPictureBox1.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
             new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "ImageUrl", "[filePath]")});
-            this.xrPictureBox1.LocationFloat = new DevExpress.Utils.PointFloat(10.91669F, 166.0417F);
+            this.xrPictureBox1.ImageAlignment = DevExpress.XtraPrinting.ImageAlignment.MiddleCenter;
+            this.xrPictureBox1.LocationFloat = new DevExpress.Utils.PointFloat(75.29168F, 152.9167F);
             this.xrPictureBox1.Name = "xrPictureBox1";
-            this.xrPictureBox1.SizeF = new System.Drawing.SizeF(468.75F, 140.2084F);
-            this.xrPictureBox1.Sizing = DevExpress.XtraPrinting.ImageSizeMode.ZoomImage;
+            this.xrPictureBox1.SizeF = new System.Drawing.SizeF(700F, 700F);
+            this.xrPictureBox1.Sizing = DevExpress.XtraPrinting.ImageSizeMode.Cover;
             // 
             // xrLabel9
             // 
@@ -479,7 +481,7 @@
             this.DataSource = this.jsonDataSource1;
             this.FilterString = "[prodOrderNo] = ?ticketNo";
             this.Font = new DevExpress.Drawing.DXFont("Arial", 9.75F);
-            this.Margins = new DevExpress.Drawing.DXMargins(12F, 18F, 118.125F, 100F);
+            this.Margins = new DevExpress.Drawing.DXMargins(12F, 18F, 118.125F, 37.08324F);
             this.ParameterPanelLayoutItems.AddRange(new DevExpress.XtraReports.Parameters.ParameterPanelLayoutItem[] {
             new DevExpress.XtraReports.Parameters.ParameterLayoutItem(this.ticketNo, DevExpress.XtraReports.Parameters.Orientation.Horizontal)});
             this.Parameters.AddRange(new DevExpress.XtraReports.Parameters.Parameter[] {

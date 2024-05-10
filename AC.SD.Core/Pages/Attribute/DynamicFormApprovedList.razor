@@ -163,6 +163,7 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private IDisposable? DynamicFormPage3;
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
@@ -197,6 +198,32 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DynamicFormPage3 =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage3?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -838,11 +865,6 @@
     void backUrl()
     {
         NavigationManager.NavigateTo("DynamicFormApprovedMainList");
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
     private RenderFragment BuildDataColumns()
     {

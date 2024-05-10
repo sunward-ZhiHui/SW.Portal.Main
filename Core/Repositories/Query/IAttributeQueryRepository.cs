@@ -26,7 +26,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByList(IDictionary<string, object> DynamicMasterParentIds,long? applicationMasterParentId);
         Task<IReadOnlyList<DropDownOptionsListModel>> GetApplicationMasterParentByMobileList(IDictionary<string, JsonElement> DynamicMasterParentIds, long? applicationMasterParentId);
         Task<DropDownOptionsGridListModel> GetDynamicGridNested(List<long?> DynamicFormDataId, long? userId);
-        Task<DropDownOptionsGridListModel> GetAllDynamicFormApiAsync(Guid? SessionId);
+        Task<List<object>> GetAllDynamicFormApiAsync(Guid? SessionId);
 
 
     }

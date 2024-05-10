@@ -444,6 +444,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private IDisposable? DynamicFormPage6;
     bool DynamicFormFilterBypopup { get; set; } = false;
     string? _tooltipShowId { get; set; } = string.Empty; string? _filterAttrName { get; set; } = string.Empty; string? _dataSourceName { get; set; } = string.Empty;
     long? _PlantLoadDependencyId { get; set; } = null;
@@ -534,6 +535,32 @@
             _userEmployee = await Mediator.Send(new GetEmployeeFormByUserId(applicationUser.UserID));
         }
         AddMenuEnabled();
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DynamicFormPage6 = 
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose() 
+    {
+
+        DynamicFormPage6?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     void EulaPopupDynamicFormFilterByClosed()
     {
@@ -2238,11 +2265,7 @@
         StateHasChanged();
 
     }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
-    }
+
     void EulaPopupWorkFlowClosed()
     {
         isButtonClick = "";

@@ -27,6 +27,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
         }
     }
+    
     public class EmailDashobardHandler : IRequestHandler<GetEmailDasboard, List<EmailTopics>>
     {
 
@@ -153,6 +154,47 @@ namespace CMS.Application.Handlers.QueryHandlers
         {
             var newlist = await _dashboardQueryRepository.DeleteAppointmentAsync(request.Id);
             return newlist;
+        }
+    }
+    public class DynamicApprovalHandler : IRequestHandler<DynamicApprovalListOne, List<DynamicForm>>
+    {
+
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public DynamicApprovalHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<List<DynamicForm>> Handle(DynamicApprovalListOne request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicForm>)await _dashboardQueryRepository.GetApprovalListAsync();
+            //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
+        }
+    }
+    public class DynamicApprovaltwoHandler : IRequestHandler<DynamicApprovalListtwo, List<DynamicFormData>>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public DynamicApprovaltwoHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<List<DynamicFormData>> Handle(DynamicApprovalListtwo request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormData>)await _dashboardQueryRepository.GetDynamicDataAsync(request.DynamicId);
+            
+        }
+    }
+    
+    public class DynamicApprovalThiredHandler : IRequestHandler<DynamicApprovalListthired, List<DynamicFormApproved>>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public DynamicApprovalThiredHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<List<DynamicFormApproved>> Handle(DynamicApprovalListthired request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormApproved>)await _dashboardQueryRepository.GetDynamicApprovedStatusAsync(request.FormDataId);
+
         }
     }
 }

@@ -161,4 +161,21 @@ namespace Core.Entities
         public List<ViewEmployee> Employee { get; set; } = new List<ViewEmployee>();
         public List<View_NavItems> NavItems { get; set; } = new List<View_NavItems>();
     }
+    public class DynamicFormDataWiseModel
+    {
+        public DynamicFormData DynamicFormData { get; set; } = new DynamicFormData();
+        public List<DynamicFormSectionWiseModel> DynamicFormSectionWiseModel { get; set; } = new List<DynamicFormSectionWiseModel>();
+    }
+    public class DynamicFormSectionWiseModel
+    {
+        public string? DynamicFormSectionName { get; set; }
+        public List<object> ObjectData { get; set; } = new List<object>();
+        public List<DynamicFormSectionAttributeWiseModel> DynamicFormSectionModel { get; set; } = new List<DynamicFormSectionAttributeWiseModel>();
+    }
+    public class DynamicFormSectionAttributeWiseModel
+    {
+        public string? Key { get; set; }
+        public string? Value { get; set; }
+    }
+    
 }

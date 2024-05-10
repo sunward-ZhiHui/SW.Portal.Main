@@ -202,6 +202,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    private IDisposable? DynamicFormPage7;
     bool EditEnabled { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
@@ -239,6 +240,32 @@
         {
             _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
         }
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DynamicFormPage7 =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage7?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -493,10 +520,5 @@
             fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
         }
         return fileProfileTypeModel;
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
 }

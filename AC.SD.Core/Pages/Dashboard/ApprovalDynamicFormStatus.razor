@@ -1,0 +1,50 @@
+﻿@page "/ApprovalDynamiStatus"
+@using Application.Queries;
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IMediator Mediator;
+@using MediatR
+
+<DxGrid Data="_dynamicApproved"
+        VirtualScrollingEnabled="false"
+        AllowSort="false"
+        KeyFieldName="DynamicFormApprovedId"
+        CustomizeElement="Grid_CustomizeElement"
+        ShowAllRows="true"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="w-100"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        AllowSelectRowByClick="true">
+    <Columns>
+        <DxGridDataColumn FieldName="ApprovedByUser" MinWidth="50" Caption="Approved By User" />
+        <DxGridDataColumn FieldName="ApprovedDescription" Caption="Approved Description" MinWidth="50" />
+        <DxGridDataColumn FieldName="ApprovedStatus" Caption="Approved Status" MinWidth="50" />
+    </Columns>
+   
+</DxGrid>
+@code {
+   
+    private List<DynamicFormApproved>? _dynamicApproved;
+  
+    public ApplicationUser? applicationUser { get; private set; }
+    [Parameter]
+    public DynamicFormData? DynamicApproval { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _dynamicApproved = await Mediator.Send(new DynamicApprovalListthired(DynamicApproval.DynamicFormDataId));
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+}

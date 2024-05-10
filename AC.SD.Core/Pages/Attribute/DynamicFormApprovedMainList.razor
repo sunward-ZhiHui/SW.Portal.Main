@@ -65,7 +65,7 @@
 
 
 @code {
-
+    private IDisposable? DynamicFormPage4;
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
     private List<DynamicForm> _dynamicForm;
@@ -82,6 +82,32 @@
         {
             await UpdateDataAsync();
         }
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DynamicFormPage4 =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage4?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     async Task UpdateDataAsync()
     {
@@ -122,10 +148,5 @@
         {
             NavigationManager.NavigateTo("DynamicFormApprovedMainList/DynamicFormApprovedList/" + _selectedItems.SessionID);
         }
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
 }

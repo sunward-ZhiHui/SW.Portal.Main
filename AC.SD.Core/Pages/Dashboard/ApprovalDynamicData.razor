@@ -1,0 +1,65 @@
+﻿@page "/ApprovalDynamicData"
+@using Application.Queries;
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IMediator Mediator;
+@using MediatR
+
+
+
+<DxGrid Data="_dynamicdata"
+        VirtualScrollingEnabled="false" ShowSearchBox="true"
+        AllowSort="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        KeyFieldName="DynamicFormDataId"
+        CustomizeElement="Grid_CustomizeElement"
+        ShowAllRows="true"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="w-100" 
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        AllowSelectRowByClick="true" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20" PagerNavigationMode="PagerNavigationMode.InputBox">
+    <Columns>
+        <DxGridDataColumn FieldName="Name" MinWidth="50" Caption="Profile Name" />
+        <DxGridDataColumn FieldName="ProfileNo" Caption="ProfileNo" MinWidth="50" />
+      
+    </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+    </TotalSummary>
+    <DetailRowTemplate>
+        <ApprovalDynamicFormStatus DynamicApproval="(DynamicFormData)context.DataItem"></ApprovalDynamicFormStatus>
+
+    </DetailRowTemplate>
+</DxGrid>
+@code {
+    private List<DynamicFormData>? _dynamicdata;
+  
+    IGrid? refFormDynamicData { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    [Parameter]
+    public DynamicForm? Items { get; set; }
+    // [Parameter]
+    // public Action<string>? DynamicFormID { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _dynamicdata = await Mediator.Send(new DynamicApprovalListtwo(Items.ID));
+
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+
+}

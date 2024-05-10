@@ -84,43 +84,26 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("IsRequired", cCFDImplementation.IsRequired);
+                    parameters.Add("DoneBy", cCFDImplementation.DoneBy);
+                    parameters.Add("DoneByDate", cCFDImplementation.DoneByDate);
+                    parameters.Add("ResponsibiltyTo", cCFDImplementation.ResponsibiltyTo);
+                    parameters.Add("DoneByDate", cCFDImplementation.DoneByDate);
+                    parameters.Add("AddedDate", cCFDImplementation.AddedDate);
+                    parameters.Add("SessionId", cCFDImplementation.SessionId);
+                    parameters.Add("AddedByUserID", cCFDImplementation.AddedByUserID);
+                    parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    { 
-                          
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("IsRequired", cCFDImplementation.IsRequired);
-                            parameters.Add("DoneBy", cCFDImplementation.DoneBy);
-                            parameters.Add("DoneByDate", cCFDImplementation.DoneByDate);
-                            parameters.Add("ResponsibiltyTo", cCFDImplementation.ResponsibiltyTo);
-                            parameters.Add("DoneByDate", cCFDImplementation.DoneByDate);
-                            parameters.Add("AddedDate", cCFDImplementation.AddedDate);
-                            parameters.Add("SessionId", cCFDImplementation.SessionId);
-                            parameters.Add("AddedByUserID", cCFDImplementation.AddedByUserID);
-                            parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
-
-                            // var query = " Insert into  CCFDImplementationDetails (ClassOFDocumentID,IsRequired,DoneBy,DoneByDate,ResponsibiltyTo,AddedDate,SessionId,AddedByUserID,StatusCodeID)Values(@ClassOFDocumentID,@IsRequired,@DoneBy,@DoneByDate,@ResponsibiltyTo,@AddedDate,@SessionId,@AddedByUserID,@StatusCodeID)";
-                            var query = @"insert into CCFDImplementationDetails (ClassOFDocumentID,SessionId ,AddedByUserID,StatusCodeID) 
-                                        select ApplicationMasterDetailID ,@SessionId ,@AddedByUserID,@StatusCodeID from ApplicationMasterDetail
-                                        WHERE  ApplicationMasterID in (select ApplicationMasterID from ApplicationMaster WHERE ApplicationMasterCodeID = 350 )";
+                    // var query = " Insert into  CCFDImplementationDetails (ClassOFDocumentID,IsRequired,DoneBy,DoneByDate,ResponsibiltyTo,AddedDate,SessionId,AddedByUserID,StatusCodeID)Values(@ClassOFDocumentID,@IsRequired,@DoneBy,@DoneByDate,@ResponsibiltyTo,@AddedDate,@SessionId,@AddedByUserID,@StatusCodeID)";
+                    var query = @"insert into CCFDImplementationDetails (ClassOFDocumentID,SessionId ,AddedByUserID,StatusCodeID) 
+                                select ApplicationMasterDetailID ,@SessionId ,@AddedByUserID,@StatusCodeID from ApplicationMasterDetail
+                                WHERE  ApplicationMasterID in (select ApplicationMasterID from ApplicationMaster WHERE ApplicationMasterCodeID = 350 )";
 
                                         
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                       
                 }
 
             }
@@ -327,8 +310,6 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ModifiedDate", _CCFInformationModels.ModifiedDate);
                         parameterss.Add("SessionId", _CCFInformationModels.SessionId);
                        
-                        connection.Open();
-
                         var result = connection.QueryFirstOrDefault<long>("sp_CCF_SavePro", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
                     }
@@ -351,38 +332,22 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ClassOFDocumentID", cCFDImplementation.ClassOFDocumentID);
-                            parameters.Add("IsRequired", cCFDImplementation.IsRequired);
-                            parameters.Add("DoneBy", cCFDImplementation.DoneBy);
-                            parameters.Add("DoneByDate", cCFDImplementation.DoneByDate);
-                            parameters.Add("ResponsibiltyTo", cCFDImplementation.ResponsibiltyTo);
+                    var parameters = new DynamicParameters();
+                    parameters.Add("ClassOFDocumentID", cCFDImplementation.ClassOFDocumentID);
+                    parameters.Add("IsRequired", cCFDImplementation.IsRequired);
+                    parameters.Add("DoneBy", cCFDImplementation.DoneBy);
+                    parameters.Add("DoneByDate", cCFDImplementation.DoneByDate);
+                    parameters.Add("ResponsibiltyTo", cCFDImplementation.ResponsibiltyTo);
                           
-                            parameters.Add("ModifiedDate", cCFDImplementation.ModifiedDate);
-                           // parameters.Add("SessionId", cCFDImplementation.SessionId);
-                            parameters.Add("ModifiedByUserID", cCFDImplementation.ModifiedByUserID);
-                            parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
-                            var query = " UPDATE CCFDImplementationDetails SET IsRequired = @IsRequired,DoneBy =@DoneBy,DoneByDate =@DoneByDate,ResponsibiltyTo =@ResponsibiltyTo,ModifiedDate =@ModifiedDate,StatusCodeID =@StatusCodeID, ModifiedByUserID =@ModifiedByUserID WHERE ClassOFDocumentID = @ClassOFDocumentID";
+                    parameters.Add("ModifiedDate", cCFDImplementation.ModifiedDate);
+                    // parameters.Add("SessionId", cCFDImplementation.SessionId);
+                    parameters.Add("ModifiedByUserID", cCFDImplementation.ModifiedByUserID);
+                    parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
+                    var query = " UPDATE CCFDImplementationDetails SET IsRequired = @IsRequired,DoneBy =@DoneBy,DoneByDate =@DoneByDate,ResponsibiltyTo =@ResponsibiltyTo,ModifiedDate =@ModifiedDate,StatusCodeID =@StatusCodeID, ModifiedByUserID =@ModifiedByUserID WHERE ClassOFDocumentID = @ClassOFDocumentID";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                       
                 }
 
             }

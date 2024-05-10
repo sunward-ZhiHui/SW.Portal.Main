@@ -163,6 +163,7 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private IDisposable? DynamicFormPage3;
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
@@ -198,6 +199,32 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DynamicFormPage3 =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage3?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
     protected override async Task OnParametersSetAsync()
     {
         if (applicationUser != null)
@@ -214,6 +241,7 @@
     }
     async Task UpdateDataAsync()
     {
+        PanelVisible = true;
         //var res = await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));
         _selectedItems = null;
         dataColumnNames = new List<DropDownOptionsModel>();
@@ -252,7 +280,7 @@
                     {
                         if (a.DataSourceTable == "ApplicationMaster")
                         {
-                            dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                            //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
 
                             if (a.IsDisplayTableHeader == true && a.ApplicationMaster.Count() > 0)
                             {
@@ -265,7 +293,7 @@
                         }
                         else if (a.DataSourceTable == "ApplicationMasterParent")
                         {
-                            dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                           // dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                             if (a.IsDisplayTableHeader == true && a.ApplicationMasterParents.Count() > 0)
                             {
                                 a.ApplicationMasterParents.ForEach(ab =>
@@ -317,7 +345,7 @@
                 }
 
                 _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null,null));
-                PanelVisible = true; _dynamicformObjectDataList = new List<object>();
+                _dynamicformObjectDataList = new List<object>();
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
                     if (FormSessionId != null)
@@ -837,11 +865,6 @@
     void backUrl()
     {
         NavigationManager.NavigateTo("DynamicFormApprovedMainList");
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
     private RenderFragment BuildDataColumns()
     {

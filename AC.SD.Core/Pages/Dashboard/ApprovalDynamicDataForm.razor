@@ -1,0 +1,71 @@
+﻿@page "/DynamicDataFormStatus"
+@using Application.Queries;
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IMediator Mediator;
+@using MediatR
+
+
+
+
+
+<DxGrid @ref="refDynamicData"
+        Data="_dynamicFormdata"
+        VirtualScrollingEnabled="false"
+        AllowSort="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        KeyFieldName="ID"
+        CustomizeElement="Grid_CustomizeElement"
+        ShowAllRows="true"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="w-100" style="height: calc(100vh - 245px);"
+        ShowSearchBox="true"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        AllowSelectRowByClick="true" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20" PagerNavigationMode="PagerNavigationMode.InputBox">
+        <Columns>
+            <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
+            <DxGridDataColumn FieldName="Name" Caption="Form Name" MinWidth="50" />
+            <DxGridDataColumn FieldName="CompanyName" Caption="Company Name" MinWidth="50"/>
+        </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+    </TotalSummary>
+    <DetailRowTemplate>
+        <ApprovalDynamicData Items="(DynamicForm)context.DataItem"></ApprovalDynamicData>
+     
+    </DetailRowTemplate>
+
+</DxGrid> 
+@code {
+    private List<DynamicForm>? _dynamicFormdata;
+  
+    IGrid? refDynamicData { get; set; }
+    string SelectedReplyId = "none";
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _dynamicFormdata = await Mediator.Send(new DynamicApprovalListOne());
+    }
+  
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    private async void onSubViewEmailClick(string RId)
+    {
+        SelectedReplyId = RId;
+       
+        StateHasChanged();
+    }
+}

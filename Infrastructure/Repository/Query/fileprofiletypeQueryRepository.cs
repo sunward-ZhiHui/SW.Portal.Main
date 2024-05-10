@@ -713,12 +713,13 @@ namespace Infrastructure.Repository.Query
                     if (documents != null && documents.Count > 0)
                     {
                         List<long?> userIds = new List<long?>();
-                        userIds.AddRange(documents.Select(a => a.AddedByUserId).ToList());
+                        userIds.AddRange(documents.Where(a => a.AddedByUserId > 0).Select(a => a.AddedByUserId).ToList());
                         userIds.AddRange(documents.Where(a => a.ModifiedByUserId > 0).Select(a => a.ModifiedByUserId).ToList());
                         userIds.AddRange(documents.Where(a => a.LockedByUserId > 0).Select(a => a.LockedByUserId).ToList());
+
                         var sessionIds = documents.Where(a => a.SessionId != null).Select(a => a.SessionId).ToList();
                         var filterProfileTypeIds = documents.Where(w => w.FilterProfileTypeId > 0).Select(a => a.FilterProfileTypeId).ToList();
-                        var multipleData = await GetMultipleFileProfileTypeQueryAsync(sessionIds, filterProfileTypeIds, userIds);
+                        var multipleData = await GetMultipleFileProfileTypeQueryAsync(sessionIds, filterProfileTypeIds, userIds.Distinct().ToList());
                         var docShares = multipleData.DocumentDmsShare;
                         var dynamicFormData = multipleData.DynamicFormDataUpload;
                         var emailTopics = multipleData.ActivityEmailTopics;

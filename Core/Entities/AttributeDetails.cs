@@ -21,10 +21,10 @@ namespace Core.Entities
         public string? Description { get; set; }
 
         public bool Disabled { get; set; } = false;
-        [NotMapped]
-        public string? ModifiedBy { get; set; }
-        [NotMapped]
-        public string AddedBy { get; set; }
+        //[NotMapped]
+        //public string? ModifiedBy { get; set; }
+        //[NotMapped]
+        //public string AddedBy { get; set; }
         public int? FormUsedCount { get; set; }
         [NotMapped]
         public object? DataSourceDetails { get; set; }

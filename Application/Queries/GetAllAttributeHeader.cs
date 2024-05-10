@@ -136,7 +136,7 @@ namespace Application.Queries
     public class GetDynamicFormFilterByDataSource : PagedRequest, IRequest<List<DynamicFormFilterBy>>
     {
         public List<string?> DataSourceTableIds { get; set; }
-        public GetDynamicFormFilterByDataSource( List<string?> dataSourceTableIds)
+        public GetDynamicFormFilterByDataSource(List<string?> dataSourceTableIds)
         {
             this.DataSourceTableIds = dataSourceTableIds;
         }
@@ -181,4 +181,13 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class GetDynamicFormApi : PagedRequest, IRequest<List<object>>
+    {
+        public Guid? SessionId { get; set; }
+        public GetDynamicFormApi(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+
 }

@@ -17,6 +17,7 @@ using DevExpress.Data.Filtering.Helpers;
 using IdentityModel.Client;
 using System.Security.Cryptography;
 using static IdentityModel.OidcConstants;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace Infrastructure.Repository.Query
 {
@@ -319,6 +320,79 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<EmailScheduler>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public  async Task<IReadOnlyList<DynamicForm>> GetApprovalListAsync()
+        {
+            try
+            {
+                var query = @"	select ID,Name,ScreenID,t1.PlantCode as CompanyName from DynamicForm DF
+							INNER JOIN Plant t1 on t1.PlantID =DF.CompanyID
+							where IsApproval=1 AND (IsDeleted is null or IsDeleted=0)";
+
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicForm>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicDataAsync(long dynamicID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("id", dynamicID);
+
+                var query = @"select Distinct  DFD.DynamicFormDataID ,DPS.Name,DFD.ProfileNo from DynamicFormData DFD
+                            INNER JOIN DocumentProfileNoSeries DPS On DPS.ProfileID = DFD.ProfileID
+							inner Join DynamicFormApproved DFA on DFA.DynamicFormDataID =DFD.DynamicFormDataID
+                            where DynamicFormID =@id";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+            
+        }
+
+        public  async Task<IReadOnlyList<DynamicFormApproved>> GetDynamicApprovedStatusAsync(long DataFormID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("id", DataFormID);
+
+                var query = @"select(CASE
+                            WHEN DFA.IsApproved IS Null THEN 'Pending'
+                            WHEN DFA.IsApproved  = 1 THEN 'Approved'
+                            WHEN DFA.IsApproved  = 0 THEN 'Rejected'
+                            ELSE 'Completed'
+                        END) as ApprovedStatus, DFA.DynamicFormApprovedID,DFA.ApprovedDescription,AU.UserName as ApprovedByUser,DFA.IsApproved from DynamicFormApproved DFA
+                            Inner Join ApplicationUser AU on AU.UserID = DFA.UserID
+                            where DynamicFormDataID = @id";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

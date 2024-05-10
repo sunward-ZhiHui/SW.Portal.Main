@@ -57,7 +57,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
+                    
                     var res = connection.Query<ForumTopics>(query, parameters).ToList();
 
                     var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
@@ -111,7 +111,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();                    
+                                      
 
                     var res = connection.Query<ForumTopics>(query,parameters).ToList();
 
@@ -190,7 +190,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
+                   
                     var res = connection.Query<ForumTopics>(query, parameters).ToList();
                     return res;
                 }
@@ -214,7 +214,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
+                    
                     var res = connection.Query<ForumTopics>(query, parameters).ToList();
                     return res;
                 }
@@ -241,8 +241,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-
+                   
                     var res = connection.Query<ForumTopics>(query, parameters).ToList();
 
                     var result = res.AsEnumerable().GroupBy(x => new { x.TicketNo }).Select(y => new ForumTopics
@@ -292,7 +291,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
+                   
                     return (await connection.QueryAsync<TopicParticipant>(query,parameters)).ToList();
                    // var result = connection.QueryAsync<TopicParticipant>(query, parameters).ToList();
                     //return result;
@@ -398,8 +397,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("CC", forumTopics.CC);
                         parameterss.Add("Participants", forumTopics.Participants);
 
-                        connection.Open();
-
+                       
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_ForumTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
                     }
@@ -450,31 +448,28 @@ namespace Infrastructure.Repository.Query
             try
             {
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        string[] values = topicParticipant.PList.Split(',');
+                {  
+                    string[] values = topicParticipant.PList.Split(',');
                       
-                        foreach (var item in values)
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("UserId", item, DbType.Int64);
-                            parameters.Add("TopicId", topicParticipant.TopicId);
-                            parameters.Add("SessionId", topicParticipant.SessionId);
-                            parameters.Add("AddedDate", topicParticipant.AddedDate);
-                            parameters.Add("AddedByUserID", topicParticipant.AddedByUserID);
-                            parameters.Add("StatusCodeID", topicParticipant.StatusCodeID);
+                    foreach (var item in values)
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", item, DbType.Int64);
+                        parameters.Add("TopicId", topicParticipant.TopicId);
+                        parameters.Add("SessionId", topicParticipant.SessionId);
+                        parameters.Add("AddedDate", topicParticipant.AddedDate);
+                        parameters.Add("AddedByUserID", topicParticipant.AddedByUserID);
+                        parameters.Add("StatusCodeID", topicParticipant.StatusCodeID);
                             
 
-                            var query = "INSERT INTO ForumTopicParticipant(TopicID, UserId,StatusCodeID,AddedByUserID,AddedDate,SessionId) VALUES (@TopicID, @UserId,@StatusCodeID,@AddedByUserID,@AddedDate,@SessionId)";
-                            rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                        var query = "INSERT INTO ForumTopicParticipant(TopicID, UserId,StatusCodeID,AddedByUserID,AddedDate,SessionId) VALUES (@TopicID, @UserId,@StatusCodeID,@AddedByUserID,@AddedDate,@SessionId)";
+                        rowsAffected = await connection.ExecuteAsync(query, parameters);
                            
-                            //return rowsAffected;
-                        }
-                        transaction.Commit();
-                        return result;
+                        //return rowsAffected;
                     }
+                       
+                    return result;
+                    
                 }
 
             }
@@ -490,31 +485,12 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DueDate", forumTopics.DueDate);
-                            parameters.Add("ID", forumTopics.ID);                           
-
-                            var query = " UPDATE ForumTopics SET DueDate = @DueDate WHERE ID = @ID";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var parameters = new DynamicParameters();
+                    parameters.Add("DueDate", forumTopics.DueDate);
+                    parameters.Add("ID", forumTopics.ID);
+                    var query = " UPDATE ForumTopics SET DueDate = @DueDate WHERE ID = @ID";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;                       
                 }
 
             }
@@ -530,31 +506,13 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Remarks", forumTopics.Remarks);
-                            parameters.Add("ID", forumTopics.ID);
-
-                            var query = " UPDATE ForumTopics SET Remarks = @Remarks, Status ='closed' WHERE ID = @ID";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                   
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Remarks", forumTopics.Remarks);
+                    parameters.Add("ID", forumTopics.ID);
+                    var query = " UPDATE ForumTopics SET Remarks = @Remarks, Status ='closed' WHERE ID = @ID";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
                 }
 
             }

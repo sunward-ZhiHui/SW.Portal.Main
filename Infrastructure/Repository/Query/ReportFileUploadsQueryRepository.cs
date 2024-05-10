@@ -44,39 +44,17 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Name", reportDocuments.Name);
+                    parameters.Add("Description", reportDocuments.Description);
+                    parameters.Add("SessionId", reportDocuments.SessionId);
+                    parameters.Add("FileName", reportDocuments.FileName);
+                    
+                    var query = "INSERT INTO ReportDocuments(Name,Description,FileName,SessionId) VALUES (@Name,@Description,@FileName,@SessionId)";
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Name", reportDocuments.Name);
-                            parameters.Add("Description", reportDocuments.Description);
-                            parameters.Add("SessionId", reportDocuments.SessionId);
-                            parameters.Add("FileName", reportDocuments.FileName);
-                            //parameters.Add("AddedDate", reportDocuments.AddedDate);
-                            //parameters.Add("Iscompleted", reportDocuments.Iscompleted);
-                            //parameters.Add("StatusCodeID", todolist.StatusCodeID);
-
-                            var query = "INSERT INTO ReportDocuments(Name,Description,FileName,SessionId) VALUES (@Name,@Description,@FileName,@SessionId)";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
-                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                       
                 }
 
             }
@@ -93,34 +71,17 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Name", reportDocuments.Name);
+                    parameters.Add("Description", reportDocuments.Description);
+                    parameters.Add("SessionId", reportDocuments.SessionId);
+                    parameters.Add("FileName", reportDocuments.FileName);
+                    parameters.Add("ReportDocumentID", reportDocuments.ReportDocumentID);
+                    var query = " UPDATE ReportDocuments SET FileName = @FileName,Name=@Name,Description = @Description,SessionId =@SessionId WHERE ReportDocumentID = @ReportDocumentID";
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Name", reportDocuments.Name);
-                            parameters.Add("Description", reportDocuments.Description);
-                            parameters.Add("SessionId", reportDocuments.SessionId);
-                            parameters.Add("FileName", reportDocuments.FileName);
-                            parameters.Add("ReportDocumentID", reportDocuments.ReportDocumentID);
-
-                            var query = " UPDATE ReportDocuments SET FileName = @FileName,Name=@Name,Description = @Description,SessionId =@SessionId WHERE ReportDocumentID = @ReportDocumentID";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                        
                 }
 
             }
@@ -136,32 +97,11 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ReportDocumentID", ReportDocumentID);
-                           // parameters.Add("FileName", reportName);
-
-                            var query = "DELETE  FROM ReportDocuments WHERE ReportDocumentID = @ReportDocumentID";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var parameters = new DynamicParameters();
+                    parameters.Add("ReportDocumentID", ReportDocumentID);
+                    var query = "DELETE  FROM ReportDocuments WHERE ReportDocumentID = @ReportDocumentID";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;                        
                 }
 
             }
@@ -170,10 +110,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
-
-
-
         public async Task<Guid?> InsertNew(ReportDocuments reportDocuments)
         {
 
@@ -181,37 +117,17 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Name", reportDocuments.Name);
+                    parameters.Add("Description", reportDocuments.Description);
+                    parameters.Add("SessionId", reportDocuments.SessionId);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                    var query = "INSERT INTO ReportDocuments(Name,Description,SessionId)" + "OUTPUT INSERTED.SessionID VALUES" + "(@Name,@Description,@SessionId)";
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Name", reportDocuments.Name);
-                            parameters.Add("Description", reportDocuments.Description);
-                            parameters.Add("SessionId", reportDocuments.SessionId);
-
-                            //parameters.Add("AddedDate", reportDocuments.AddedDate);
-                            //parameters.Add("Iscompleted", reportDocuments.Iscompleted);
-                            //parameters.Add("StatusCodeID", todolist.StatusCodeID);
-
-                            var query = "INSERT INTO ReportDocuments(Name,Description,SessionId)" + "OUTPUT INSERTED.SessionID VALUES" + "(@Name,@Description,@SessionId)";
-
-                            reportDocuments.SessionId = await connection.QuerySingleOrDefaultAsync<Guid?>(query, parameters, transaction);
-                            transaction.Commit();
-                            return reportDocuments.SessionId;
-                        }
-
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
-                    }
+                    reportDocuments.SessionId = await connection.QuerySingleOrDefaultAsync<Guid?>(query, parameters);
+                           
+                    return reportDocuments.SessionId;
+                      
                 }
 
             }
@@ -229,33 +145,14 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Name", value.Name);
-                            parameters.Add("Description", value.Description);
-                            parameters.Add("SessionId", value.SessionId);
-                            parameters.Add("FileName", value.FileName);
-                            //var query = "INSERT INTO [ReportDocuments](Name,Description,SessionId,FileName) " +
-                            //    "OUTPUT INSERTED.ReportDocumentID VALUES " +
-                            //   "(@Name,@Description,@SessionId,@FileName)";
-
-
-                            var query = "Update [ReportDocuments]Set FileName = @FileName Where SessionID = @SessionID";
-
-                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            transaction.Commit();
-                            return value;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Name", value.Name);
+                    parameters.Add("Description", value.Description);
+                    parameters.Add("SessionId", value.SessionId);
+                    parameters.Add("FileName", value.FileName);                           
+                    var query = "Update [ReportDocuments]Set FileName = @FileName Where SessionID = @SessionID";
+                    await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    return value;                        
                 }
 
             }

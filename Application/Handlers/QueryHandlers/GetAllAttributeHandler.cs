@@ -305,4 +305,17 @@ namespace Application.Handlers.QueryHandlers
             return await _attrubutequeryRepository.GetDynamicGridNested(request.DynamicFormDataId, request.UserId);
         }
     }
+    public class GetDynamicFormApiHandler : IRequestHandler<GetDynamicFormApi, List<object>>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetDynamicFormApiHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<object>> Handle(GetDynamicFormApi request, CancellationToken cancellationToken)
+        {
+            return (List<object>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.SessionId);
+        }
+    }
 }

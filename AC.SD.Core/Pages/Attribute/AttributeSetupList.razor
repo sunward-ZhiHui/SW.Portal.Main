@@ -131,6 +131,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private IDisposable? DynamicFormPage2;
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     bool DeleteEnabled { get; set; } = false;
@@ -148,6 +149,32 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await loadData();
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DynamicFormPage2 =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage2?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -250,10 +277,5 @@
             Blukdeletepopup = false;
             toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
         }
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
 }

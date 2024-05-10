@@ -205,6 +205,7 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private IDisposable? DynamicFormPage5;
     Guid myKey { get; set; } = Guid.NewGuid();
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -243,6 +244,25 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
+
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage5?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
     protected override async Task OnParametersSetAsync()
     {
         if (applicationUser != null)
@@ -255,6 +275,7 @@
     {
         if (firstRender)
         {
+            DynamicFormPage5 = NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
             JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/Within.js");
 
             DotNetHelper = DotNetObjectReference.Create(this);
@@ -272,6 +293,7 @@
     }
     async Task UpdateDataAsync()
     {
+        PanelVisible = true;
         _selectedItems = null; FileProfileTypeId = null;
         dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true; Items = new ObservableCollection<object>();
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false;
@@ -314,7 +336,7 @@
                         {
                             if (a.DataSourceTable == "ApplicationMaster")
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                                //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                                 if (a.IsDisplayTableHeader == true && a.ApplicationMaster.Count() > 0)
                                 {
                                     a.ApplicationMaster.ForEach(ab =>
@@ -326,7 +348,7 @@
                             }
                             else if (a.DataSourceTable == "ApplicationMasterParent")
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                                //dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                                 if (a.IsDisplayTableHeader == true && a.ApplicationMasterParents.Count() > 0)
                                 {
                                     a.ApplicationMasterParents.ForEach(ab =>
@@ -379,7 +401,7 @@
                     }
 
                     _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1,null));
-                    PanelVisible = true; _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
+                    _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {
                         if (FormSessionId != null)
@@ -707,13 +729,17 @@
             {
                 AddEnabled = false;
             }
-            PanelVisible = false;
             if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
             {
                 Items = new ObservableCollection<object>(_dynamicformObjectDataList);
             }
-            StateHasChanged();
         }
+        else
+        {
+           
+        }
+        PanelVisible = false;
+        StateHasChanged();
     }
     void loadApplicationMasterParentData(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<string, object> objectData)
     {
@@ -1015,11 +1041,6 @@
         await Mediator.Send(request);
         Blukdeletepopup = false;
         await UpdateDataAsync();
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
     [JSInvokable]
     public async Task ReorderGridRows(int draggableRowVisibleIndex, int prevRowVisibleIndex, int nextRowVisibleIndex)

@@ -18,7 +18,6 @@
 <Toast />
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
 <link href="_content/AC.SD.Core/lib/font-awesome/css/all.css" rel="stylesheet" />
-@*<link href="_content/AC.SD.Core/toast/style.css" rel="stylesheet" />*@
 <link href="_content/DevExpress.Blazor.RichEdit/dx-blazor-richedit.bs5.css" rel="stylesheet" />
 <link href="_content/DevExpress.Blazor.RichEdit/dx-blazor-richedit.css" rel="stylesheet" />
 
@@ -28,67 +27,15 @@
         <div class="logo-image">
             <a href="https://www.crt-insights.com/" target="_blank" title="CRT Insights">
                 <span class="logo-img"></span>
-            </a>
-            @*<div class="logo-sep"></div>*@
-            @*<a href="" target="_blank" title="Shipping Document" >
-            <span class="logo-sec-img"></span>
-            </a>*@
+            </a>           
         </div>
         <div class="demo-btn-container d-flex">
-            @* <DxButton NavigateUrl="https://go.devexpress.com/DevexpressDownload_UniversalTrial.aspx"
-            CssClass="download-btn"
-            IconCssClass="demo-download-icon"
-            Text="Free Trial"></DxButton>*@
+           
 
             <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
                       RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="menu-icon-user-profile menu-icon"></DxButton>
 
-            @*  <div class="profile" id="profile">
-            <div class="profile-circle">VK</div>
-            </div>*@
-
-           @* <div class="card w-100">
-                <div class="card-body p-0">
-                    <DxMenu Orientation="Orientation.Horizontal"
-                            DropDownActionMode="MenuDropDownActionMode.Click"
-                            DisplayMode="MenuDisplayMode.Auto"
-                            CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
-
-                        <Items>
-                            <DxMenuItem CssClass="notoggle" Position="ItemPosition.End">
-                                <TextTemplate>
-                                    <div class="menu-icon-user-profile menu-icon" />
-                                </TextTemplate>
-                                <SubMenuTemplate>
-                                    <div class="w-100 user-profile">
-                                        <div class="flex-column align-items-center justify-content-center">
-                                            <div class="logo-container d-flex align-items-center justify-content-center">
-                                                <div class="menu-icon-user-profile menu-icon menu-icon-large" />
-                                            </div>
-                                            <div class="user-name-container bm-3 mb-2">
-                                                <div class="tm-8 text-center">@applicationUser?.UserName</div>
-                                                <div class="text-center">@applicationUser?.UserCode</div>
-                                            </div>
-                                            <div class="d-flex justify-content-center log-off-btn">
-                                                <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
-                                            </div>
-                                            @*<div class="d-flex justify-content-center log-off-btn">
-                                            <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@ResetPassword">Reset Password</NavLink>
-                                            </div>
-                                            <div class="d-flex justify-content-center log-off-btn">
-                                                <NavLink href="javascrtpit:void(0);" @onclick="@logout" RenderStyle="@ButtonRenderStyle.Secondary">Log Off</NavLink>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </SubMenuTemplate>
-                            </DxMenuItem>
-                        </Items>
-                    </DxMenu>
-                </div>
-            </div>
-
-*@
-
+          
 
         </div>
         <ThemeSwitcher @bind-Shown="@ThemeSwitcherShown" @bind-ThemeName="@ThemeName" />
@@ -103,18 +50,12 @@
 </div>
 <div class="@GetDemoContentContainerCss()" @ref="@contentContainerRef">
     <div class="demo-content @LayoutStateCssClass">
-        <div class="sidebar">
-           @*  <DemoSearchEditor @bind-SearchString="@SearchString" /> *@
-            <DxScrollView ScriptLoaded="@ScrollViewScriptLoaded">
-                @* <DemoSearchResultList SearchString="@SearchString" SearchResults="@SearchResults" />*@
+        <div class="sidebar">           
+            <DxScrollView ScriptLoaded="@ScrollViewScriptLoaded">                
                 <div style="margin-top:10px;"></div>
                 <NavMenu></NavMenu>
             </DxScrollView>
-            <div class="info-wrapper">
-                @*<div class="version">Version: @DemoVersion.Version</div>*@
-                @* <div class="copyright">
-                <span>Copyright &copy; Sunward Pharma </span>
-                </div>*@
+            <div class="info-wrapper">               
             </div>
         </div>
         <div class="main">
@@ -189,10 +130,7 @@
     <DxPopup @bind-Visible="@MessageVisible"
              HeaderText="@MessageHeader"
              BodyText="@MessageBody" />
-</div>@*
-<BlazoredToasts Position="Blazored.Toast.Configuration.ToastPosition.TopRight" Timeout="10" SuccessClass="success-toast-override" SuccessIcon=""/>
-*@
-
+</div>
 @functions {
 
     protected override async Task OnInitializedAsync()
@@ -221,10 +159,7 @@
     [Inject]
     NavigationManager NavigationManager { get; set; }
     [Inject]
-    IJSRuntime JSRuntime { get; set; }
-    /// <summary>
-    /// The content to be displayed when there is an error.
-    /// </summary>
+    IJSRuntime JSRuntime { get; set; }    
     [Parameter]
     public RenderFragment<Exception>? ErrorContent { get; set; }
     internal bool loading;
@@ -258,25 +193,7 @@
         ThemeName = Themes.ActiveTheme.Name;
         //NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
-        //hubConnection = hubConnection.TryInitialize(NavigationManager);
-
-        //await hubConnection.StartAsync();
-
-        //hubConnection.On<string>(ApplicationConstants.SignalR.ConnectUser, (senderUserId) =>
-        //{
-        //    //toastService.ShowToast("Login Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        //    //onShowPopupMessage("Notification", "Received Successfully");
-        //});
-
-        //hubConnection.On(ApplicationConstants.SignalR.ReceiveEmail, () =>
-        //{
-        //    //toastService.ShowToast("Received Successfully", AC.SD.Core.Services.ToastLevel.Success);            
-        //});
-
-        //await hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, applicationUser.SessionId);
-
-        //await hubConnection.SendAsync(ApplicationConstants.SignalR.SendEmail);
+        await InvokeAsync(StateHasChanged);
     }
     internal async void ResetPassword()
     {

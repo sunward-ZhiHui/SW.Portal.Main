@@ -181,12 +181,16 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
-    public class GetDynamicFormApi : PagedRequest, IRequest<List<object>>
+    public class GetDynamicFormApi : PagedRequest, IRequest<List<DynamicFormData>>
     {
-        public Guid? SessionId { get; set; }
-        public GetDynamicFormApi(Guid? sessionId)
+        public Guid? DynamicFormSessionId { get; set; }
+        public Guid? DynamicFormDataSessionId { get; set; }
+        public Guid? DynamicFormDataGridSessionId { get; set; }
+        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId)
         {
-            this.SessionId = sessionId;
+            this.DynamicFormSessionId = dynamicFormSessionId;
+            this.DynamicFormDataSessionId = dynamicFormDataSessionId;
+            this.DynamicFormDataGridSessionId = dynamicFormDataGridSessionId;
         }
     }
 

@@ -29,11 +29,11 @@ namespace SW.Portal.Solutions.Controllers
             _mediator = mediator;
 
         }
-        [HttpGet("GetCompanyList")]
-        public async Task<ActionResult<Services.ResponseModel<List<object>>>> GetCompanyList(Guid? sessionId)
+        [HttpGet("GetDynamicFormDataList")]
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId,Guid? DynamicFormDataSessionId,Guid? DynamicFormDataGridSessionId)
         {
-            var response = new Services.ResponseModel<object>();
-            var result = await _mediator.Send(new GetDynamicFormApi(sessionId));
+            var response = new Services.ResponseModel<DynamicFormData>();
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId));
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;

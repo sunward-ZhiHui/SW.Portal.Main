@@ -246,6 +246,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private IDisposable? DynamicFormPage;
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
@@ -313,6 +314,32 @@
         isSelectEnabled = true;
         loadPlantItems();
         await loadData();
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DynamicFormPage =
+                NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        if (context.TargetLocation == "/counter")
+        {
+            context.PreventNavigation();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+
+        DynamicFormPage?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -998,10 +1025,5 @@
             toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
         }
 
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
 }

@@ -303,31 +303,13 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("TokenID", TokenID);
-
-                            var query = "DELETE FROM UserNotifications where TokenID = @TokenID AND DeviceType='Web'";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    
+                    var parameters = new DynamicParameters();
+                    parameters.Add("TokenID", TokenID);
+                    var query = "DELETE FROM UserNotifications where TokenID = @TokenID AND DeviceType='Web'";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;                    
+                    
                 }
 
             }

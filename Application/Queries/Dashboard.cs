@@ -62,5 +62,24 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
-
+    public class DynamicApprovalListOne : IRequest<List<DynamicForm>>
+    {
+       
+    }
+    public class DynamicApprovalListtwo: IRequest<List<DynamicFormData>>
+    {
+        public long DynamicId { get; private set; }
+        public DynamicApprovalListtwo(long DynamicId)
+        {
+            this.DynamicId = DynamicId;
+        }
+    }
+    public class DynamicApprovalListthired : IRequest<List<DynamicFormApproved>>
+    {
+        public long FormDataId { get; private set; }
+        public DynamicApprovalListthired(long FormDataId)
+        {
+            this.FormDataId = FormDataId;
+        }
+    }
 }

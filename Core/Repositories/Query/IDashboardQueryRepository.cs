@@ -12,13 +12,15 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<EmailRatio>> GetEmailRatioAsync(long id);
         Task<IReadOnlyList<EmailTopics>> GetEailDashboard();
-      
-        Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerTodoAsync(long UserId);
+        Task<IReadOnlyList<DynamicForm>> GetApprovalListAsync();
+          Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerTodoAsync(long UserId);
         Task <IReadOnlyList<GeneralDashboard>> GetEmployeeCountAsync();
         Task<List<GenderRatio>> GetGenderRatioAsync();
         Task<List<Appointment>> GetAppointments(long id);
         Task<long> AddAppointmentAsync(Appointment appointment);
         Task<long> UpdateAppointmentAsync(Appointment appointment);
         Task<long> DeleteAppointmentAsync(long id);
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicDataAsync(long dynamicID);
+        Task<IReadOnlyList<DynamicFormApproved>> GetDynamicApprovedStatusAsync(long DataFormID);
     }
 }

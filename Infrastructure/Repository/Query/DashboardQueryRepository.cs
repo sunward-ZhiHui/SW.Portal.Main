@@ -332,7 +332,9 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select ID,Name,ScreenID from DynamicForm where IsApproval=1 AND (IsDeleted is null or IsDeleted=0)";
+                var query = @"	select ID,Name,ScreenID,t1.PlantCode as CompanyName from DynamicForm DF
+							INNER JOIN Plant t1 on t1.PlantID =DF.CompanyID
+							where IsApproval=1 AND (IsDeleted is null or IsDeleted=0)";
 
 
                 using (var connection = CreateConnection())

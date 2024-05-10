@@ -40,9 +40,7 @@ namespace Infrastructure.Repository.Command
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("Id", Id, DbType.Int64);         
-
-                        connection.Open();
+                        parameters.Add("Id", Id, DbType.Int64);   
                         var task = connection.ExecuteAsync("sp_Del_FMGlobal", parameters, commandType: CommandType.StoredProcedure);
                         task.Wait(); // Synchronously wait for the task to complete
                         var rowsAffected = "FM Global Line information has been deleted!"; // Retrieve the result

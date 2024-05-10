@@ -117,12 +117,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
+                  
                             var parameters = new DynamicParameters();
                             parameters.Add("ItemSerialNo", todolist.ItemSerialNo);
                             parameters.Add("ItemId", todolist.ItemId, DbType.Int64);
@@ -134,18 +129,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("CompanyId", todolist.CompanyId, DbType.Int64);
                             var query = " UPDATE Navitems SET ItemSerialNo = @ItemSerialNo,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,UomId=@UomId,SupplyToId=@SupplyToId,PackSizeId=@PackSizeId,CompanyId=@CompanyId WHERE ItemId = @ItemId";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
                             return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                       
                 }
 
             }
@@ -259,42 +245,28 @@ namespace Infrastructure.Repository.Query
             try
             {
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ItemId", ItemId);
-                            parameters.Add("CompanyId", CompanyId);
-                            parameters.Add("LocationCode", itemBatchInfo.LocationCode);
-                            parameters.Add("BatchNo", itemBatchInfo.BatchNo);
-                            parameters.Add("LotNo", itemBatchInfo.LotNo);
-                            parameters.Add("ExpiryDate", itemBatchInfo.ExpiryDate, DbType.Date);
-                            parameters.Add("ManufacturingDate", itemBatchInfo.ManufacturingDate, DbType.Date);
-                            parameters.Add("QuantityOnHand", itemBatchInfo.QuantityOnHand, DbType.Decimal);
-                            parameters.Add("NavQuantity", itemBatchInfo.NavQuantity, DbType.Decimal);
-                            parameters.Add("IssueQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
-                            parameters.Add("BalanceQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
-                            parameters.Add("StatusCodeId", 1);
-                            parameters.Add("AddedDate", DateTime.Now);
+                {  
+                    var parameters = new DynamicParameters();
+                    parameters.Add("ItemId", ItemId);
+                    parameters.Add("CompanyId", CompanyId);
+                    parameters.Add("LocationCode", itemBatchInfo.LocationCode);
+                    parameters.Add("BatchNo", itemBatchInfo.BatchNo);
+                    parameters.Add("LotNo", itemBatchInfo.LotNo);
+                    parameters.Add("ExpiryDate", itemBatchInfo.ExpiryDate, DbType.Date);
+                    parameters.Add("ManufacturingDate", itemBatchInfo.ManufacturingDate, DbType.Date);
+                    parameters.Add("QuantityOnHand", itemBatchInfo.QuantityOnHand, DbType.Decimal);
+                    parameters.Add("NavQuantity", itemBatchInfo.NavQuantity, DbType.Decimal);
+                    parameters.Add("IssueQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
+                    parameters.Add("BalanceQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
+                    parameters.Add("StatusCodeId", 1);
+                    parameters.Add("AddedDate", DateTime.Now);
 
-                            var query = "INSERT INTO [ItemBatchInfo](ItemId,CompanyId,LocationCode,BatchNo,LotNo,ExpiryDate,ManufacturingDate,QuantityOnHand,NavQuantity,IssueQuantity,BalanceQuantity,StatusCodeId,AddedDate) OUTPUT INSERTED.ItemBatchId VALUES " +
-                                "(@ItemId,@CompanyId,@LocationCode,@BatchNo,@LotNo,@ExpiryDate,@ManufacturingDate,@QuantityOnHand,@NavQuantity,@IssueQuantity,@BalanceQuantity,@StatusCodeId,@AddedDate)";
+                    var query = "INSERT INTO [ItemBatchInfo](ItemId,CompanyId,LocationCode,BatchNo,LotNo,ExpiryDate,ManufacturingDate,QuantityOnHand,NavQuantity,IssueQuantity,BalanceQuantity,StatusCodeId,AddedDate) OUTPUT INSERTED.ItemBatchId VALUES " +
+                        "(@ItemId,@CompanyId,@LocationCode,@BatchNo,@LotNo,@ExpiryDate,@ManufacturingDate,@QuantityOnHand,@NavQuantity,@IssueQuantity,@BalanceQuantity,@StatusCodeId,@AddedDate)";
 
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return lastInsertedRecordId;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    return lastInsertedRecordId;
+                        
                 }
 
             }

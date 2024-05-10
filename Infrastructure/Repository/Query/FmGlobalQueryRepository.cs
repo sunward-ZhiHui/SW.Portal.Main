@@ -96,34 +96,20 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Address1", address.Address1);
+                    parameters.Add("Address2", address.Address2);
+                    parameters.Add("PostCode", address.PostCode);
+                    parameters.Add("CountryID", address.CountryID);
+                    parameters.Add("StateID", address.StateID);
+                    parameters.Add("CityID", address.CityID);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Address1", address.Address1);
-                            parameters.Add("Address2", address.Address2);
-                            parameters.Add("PostCode", address.PostCode);
-                            parameters.Add("CountryID", address.CountryID);
-                            parameters.Add("StateID", address.StateID);
-                            parameters.Add("CityID", address.CityID);
+                    var query = "INSERT INTO [Address](Address1,Address2,PostCode,CountryID,StateID,CityID) OUTPUT INSERTED.AddressID VALUES (@Address1,@Address2,@PostCode,@CountryID,@StateID,@CityID)";
 
-                            var query = "INSERT INTO [Address](Address1,Address2,PostCode,CountryID,StateID,CityID) OUTPUT INSERTED.AddressID VALUES (@Address1,@Address2,@PostCode,@CountryID,@StateID,@CityID)";
+                    var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return lastInsertedRecordId;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    return lastInsertedRecordId;
+                       
                 }
 
             }
@@ -138,33 +124,17 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("AddressId", soCustomerAddress.AddressId);
+                    parameters.Add("FmglobalId", soCustomerAddress.FmglobalId);
+                    parameters.Add("AddressType", soCustomerAddress.AddressType);
+                    parameters.Add("IsBilling", soCustomerAddress.isBilling, (DbType?)SqlDbType.Bit);
+                    parameters.Add("IsShipping", soCustomerAddress.isShipping, (DbType?)SqlDbType.Bit);
+                    var query = "INSERT INTO FMGlobalAddess(AddressId,FmglobalId,AddressType,IsBilling,IsShipping) OUTPUT INSERTED.FMGlobalAddessId VALUES (@AddressId,@FmglobalId,@AddressType,@IsBilling,@IsShipping)";
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                           
-                            var parameters = new DynamicParameters();
-                            parameters.Add("AddressId", soCustomerAddress.AddressId);
-                            parameters.Add("FmglobalId", soCustomerAddress.FmglobalId);
-                            parameters.Add("AddressType", soCustomerAddress.AddressType);
-                            parameters.Add("IsBilling", soCustomerAddress.isBilling, (DbType?)SqlDbType.Bit);
-                            parameters.Add("IsShipping", soCustomerAddress.isShipping, (DbType?)SqlDbType.Bit);
-                            var query = "INSERT INTO FMGlobalAddess(AddressId,FmglobalId,AddressType,IsBilling,IsShipping) OUTPUT INSERTED.FMGlobalAddessId VALUES (@AddressId,@FmglobalId,@AddressType,@IsBilling,@IsShipping)";
+                    var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return lastInsertedRecordId;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    return lastInsertedRecordId;                       
                 }
 
             }
@@ -179,44 +149,27 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parametersAddress = new DynamicParameters();
+                    parametersAddress.Add("FMGlobalAddessId", address.FMGlobalAddessId);
+                    parametersAddress.Add("IsBilling", address.isBilling, (DbType?)SqlDbType.Bit);
+                    parametersAddress.Add("IsShipping", address.isShipping, (DbType?)SqlDbType.Bit);
+                    var querys = "UPDATE FMGlobalAddess SET IsBilling = @IsBilling,IsShipping = @IsShipping WHERE FMGlobalAddessId = @FMGlobalAddessId";
+                    await connection.QuerySingleOrDefaultAsync<long>(querys, parametersAddress);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            
-                            var parametersAddress = new DynamicParameters();
-                            parametersAddress.Add("FMGlobalAddessId", address.FMGlobalAddessId);
-                            parametersAddress.Add("IsBilling", address.isBilling, (DbType?)SqlDbType.Bit);
-                            parametersAddress.Add("IsShipping", address.isShipping, (DbType?)SqlDbType.Bit);
-                            var querys = "UPDATE FMGlobalAddess SET IsBilling = @IsBilling,IsShipping = @IsShipping WHERE FMGlobalAddessId = @FMGlobalAddessId";
-                            await connection.QuerySingleOrDefaultAsync<long>(querys, parametersAddress, transaction);
+                    var parameters = new DynamicParameters();
+                    parameters.Add("AddressID", address.AddressID);
+                    parameters.Add("Address1", address.Address1);
+                    parameters.Add("Address2", address.Address2);
+                    parameters.Add("PostCode", address.PostCode);
+                    parameters.Add("CountryID", address.CountryID);
+                    parameters.Add("StateID", address.StateID);
+                    parameters.Add("CityID", address.CityID);
 
-                            var parameters = new DynamicParameters();
-                            parameters.Add("AddressID", address.AddressID);
-                            parameters.Add("Address1", address.Address1);
-                            parameters.Add("Address2", address.Address2);
-                            parameters.Add("PostCode", address.PostCode);
-                            parameters.Add("CountryID", address.CountryID);
-                            parameters.Add("StateID", address.StateID);
-                            parameters.Add("CityID", address.CityID);
+                    var query = "UPDATE Address SET Address1 = @Address1,Address2 = @Address2,PostCode = @PostCode,CountryID=@CountryID,StateID= @StateID,CityID =@CityID WHERE AddressID = @AddressID";
 
-
-                            var query = "UPDATE Address SET Address1 = @Address1,Address2 = @Address2,PostCode = @PostCode,CountryID=@CountryID,StateID= @StateID,CityID =@CityID WHERE AddressID = @AddressID";
-
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return lastInsertedRecordId;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    return lastInsertedRecordId;
+                       
                 }
 
             }
@@ -230,33 +183,19 @@ namespace Infrastructure.Repository.Query
             try
             {
                 using (var connection = CreateConnection())
-                {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            var parameterss = new DynamicParameters();
-                            parameterss.Add("FMGlobalAddessId", FMGlobalID);
-                            var querys = "Delete from FMGlobalAddess where FMGlobalAddessId = @FMGlobalAddessId";
-                            await connection.QueryAsync<long>(querys, parameterss, transaction);
+                {                  
+                    var parameterss = new DynamicParameters();
+                    parameterss.Add("FMGlobalAddessId", FMGlobalID);
+                    var querys = "Delete from FMGlobalAddess where FMGlobalAddessId = @FMGlobalAddessId";
+                    await connection.QueryAsync<long>(querys, parameterss);
 
 
-                            var parameters = new DynamicParameters();
-                            parameters.Add("AddressID", AddressID);
-                            var Addquerys = "Delete from Address where AddressID = @AddressID";
-                            await connection.QueryAsync<long>(Addquerys, parameters, transaction);
-
-                            transaction.Commit();
-                            return 0;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var parameters = new DynamicParameters();
+                    parameters.Add("AddressID", AddressID);
+                    var Addquerys = "Delete from Address where AddressID = @AddressID";
+                    await connection.QueryAsync<long>(Addquerys, parameters);                           
+                    return 0;
+                       
                 }
 
             }

@@ -332,7 +332,9 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select ID,Name,ScreenID from DynamicForm where IsApproval=1 AND (IsDeleted is null or IsDeleted=0)";
+                var query = @"	select ID,Name,ScreenID,t1.PlantCode as CompanyName from DynamicForm DF
+							INNER JOIN Plant t1 on t1.PlantID =DF.CompanyID
+							where IsApproval=1 AND (IsDeleted is null or IsDeleted=0)";
 
 
                 using (var connection = CreateConnection())
@@ -354,8 +356,9 @@ namespace Infrastructure.Repository.Query
 
                 parameters.Add("id", dynamicID);
 
-                var query = @"select DPS.Name,DFD.ProfileNo,DFD.DynamicFormDataID from DynamicFormData DFD
+                var query = @"select Distinct  DFD.DynamicFormDataID ,DPS.Name,DFD.ProfileNo from DynamicFormData DFD
                             INNER JOIN DocumentProfileNoSeries DPS On DPS.ProfileID = DFD.ProfileID
+							inner Join DynamicFormApproved DFA on DFA.DynamicFormDataID =DFD.DynamicFormDataID
                             where DynamicFormID =@id";
 
                 using (var connection = CreateConnection())

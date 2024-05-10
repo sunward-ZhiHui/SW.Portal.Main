@@ -35,35 +35,17 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();                            
+                    parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
+                    parameters.Add("Message", forumConversations.Message, DbType.String);
+                    parameters.Add("ID", forumConversations.ID, DbType.Int64);
+                    parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
+                    parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();                            
-                            parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
-                            parameters.Add("Message", forumConversations.Message, DbType.String);
-                            parameters.Add("ID", forumConversations.ID, DbType.Int64);
-                            parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
-                            parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
-
-                            var query = "DELETE  FROM ForumConversations WHERE ID = @ID";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var query = "DELETE  FROM ForumConversations WHERE ID = @ID";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                        
                 }
 
             }
@@ -144,31 +126,13 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("ID", topicParticipant.ID, DbType.Int64);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ID", topicParticipant.ID, DbType.Int64);                           
-
-                            var query = "DELETE  FROM ForumTopicParticipant WHERE ID = @ID";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var query = "DELETE  FROM ForumTopicParticipant WHERE ID = @ID";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                       
                 }
 
             }
@@ -211,7 +175,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
+                    
                     var res = connection.Query<ForumConversations>(query,parameters).ToList();
 
                     foreach (var topic in res)
@@ -309,8 +273,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("TopicId", TopicId, DbType.Int64);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
+                {                    
                     var res = connection.Query<Documents>(query, parameters).ToList();
                     return res;
                 }
@@ -352,8 +315,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ConversationId", ConversationId);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
+                {                    
                     var res = connection.Query<ForumConversationAssignTo>(query, parameters).ToList();
                     return res;                   
                 }
@@ -369,78 +331,26 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                   
+                    var parameters = new DynamicParameters();                           
+                    parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
+                    parameters.Add("Message", forumConversations.Message, DbType.String);
+                    //  parameters.Add("ID", forumConversations.ID, DbType.Int64);
+                    parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
+                    parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
+                    parameters.Add("StatusCodeID", forumConversations.StatusCodeID);
+                    parameters.Add("AddedByUserID", forumConversations.AddedByUserID);
+                    parameters.Add("SessionId", forumConversations.SessionId);
+                    parameters.Add("AddedDate", forumConversations.AddedDate);
+                    parameters.Add("FileData", forumConversations.FileData);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();                           
-                            parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
-                            parameters.Add("Message", forumConversations.Message, DbType.String);
-                          //  parameters.Add("ID", forumConversations.ID, DbType.Int64);
-                            parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
-                            parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
-                            parameters.Add("StatusCodeID", forumConversations.StatusCodeID);
-                            parameters.Add("AddedByUserID", forumConversations.AddedByUserID);
-                            parameters.Add("SessionId", forumConversations.SessionId);
-                            parameters.Add("AddedDate", forumConversations.AddedDate);
-                            parameters.Add("FileData", forumConversations.FileData);
-
-                            var query = "INSERT INTO ForumConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData) OUTPUT INSERTED.ID VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData)";
+                    var query = "INSERT INTO ForumConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData) OUTPUT INSERTED.ID VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData)";
 
 
-                            //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                           
+                    //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                    var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
-                            //var listData = forumConversations.AssigntoIds.ToList();
-                            //if (listData.Count > 0)
-                            //{
-                            //    forumConversations.AssigntoIds.ToList().ForEach(a =>
-                            //    {
-                            //        var conversationAssignTo = new ForumConversationAssignTo();
-                            //        conversationAssignTo.ConversationId = lastInsertedRecordId;
-                            //        conversationAssignTo.TopicId = forumConversations.TopicID;
-                            //        conversationAssignTo.UserId =  a;
-
-
-                            //        var parameters1 = new DynamicParameters();
-                            //        parameters1.Add("UserID", conversationAssignTo.UserId);
-                            //        parameters1.Add("ConversationId", conversationAssignTo.ConversationId);
-                            //        parameters1.Add("TopicId", conversationAssignTo.TopicId);
-                            //        parameters1.Add("StatusCodeID", forumConversations.StatusCodeID);
-                            //        parameters1.Add("AddedByUserID", forumConversations.AddedByUserID);
-                            //        parameters1.Add("SessionId", forumConversations.SessionId);
-                            //        parameters1.Add("AddedDate", forumConversations.AddedDate);
-
-                            //        var Assigntoquery = "INSERT INTO ForumConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
-
-                            //         connection.ExecuteAsync(Assigntoquery, parameters1, transaction);
-
-
-                            //        //_employeeReportToCommandRepository.AddAsync(employeeReportTo);
-                            //    });
-                            //}
-
-
-
-
-                            // Retrieve the last inserted record ID
-                            //var lastInsertedRecordId = await connection.ExecuteScalarAsync<long>("SELECT SCOPE_IDENTITY();", transaction);
-
-
-                            transaction.Commit();
-
-                            return lastInsertedRecordId;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    return lastInsertedRecordId;                       
                 }
 
             }
@@ -454,37 +364,21 @@ namespace Infrastructure.Repository.Query
             try
             {
                 using (var connection = CreateConnection())
-                {
+                {                   
+                    var parameters = new DynamicParameters();                            
+                    parameters.Add("UserID", conversationAssignTo.UserId);
+                    parameters.Add("ConversationId", conversationAssignTo.ConversationId);
+                    parameters.Add("TopicId", conversationAssignTo.TopicId);
+                    parameters.Add("StatusCodeID", conversationAssignTo.StatusCodeID);
+                    parameters.Add("AddedByUserID", conversationAssignTo.AddedByUserID);
+                    parameters.Add("SessionId", conversationAssignTo.SessionId);
+                    parameters.Add("AddedDate", conversationAssignTo.AddedDate);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                    var query = "INSERT INTO ForumConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();                            
-                            parameters.Add("UserID", conversationAssignTo.UserId);
-                            parameters.Add("ConversationId", conversationAssignTo.ConversationId);
-                            parameters.Add("TopicId", conversationAssignTo.TopicId);
-                            parameters.Add("StatusCodeID", conversationAssignTo.StatusCodeID);
-                            parameters.Add("AddedByUserID", conversationAssignTo.AddedByUserID);
-                            parameters.Add("SessionId", conversationAssignTo.SessionId);
-                            parameters.Add("AddedDate", conversationAssignTo.AddedDate);
-
-                            var query = "INSERT INTO ForumConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                       
                 }
 
             }
@@ -501,35 +395,20 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                   
+                    var parameters = new DynamicParameters();
+                    parameters.Add("UserID", forumNotifications.UserId);
+                    parameters.Add("ConversationId", forumNotifications.ConversationId);
+                    parameters.Add("TopicId", forumNotifications.TopicId);                            
+                    parameters.Add("AddedByUserID", forumNotifications.AddedByUserID);                            
+                    parameters.Add("AddedDate", forumNotifications.AddedDate);
+                    parameters.Add("IsRead", forumNotifications.IsRead);                           
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                    var query = "INSERT INTO ForumNotifications(ConversationId,TopicId,UserID,AddedByUserID,AddedDate,IsRead) VALUES (@ConversationId,@TopicId,@UserID,@AddedByUserID,@AddedDate,@IsRead)";
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("UserID", forumNotifications.UserId);
-                            parameters.Add("ConversationId", forumNotifications.ConversationId);
-                            parameters.Add("TopicId", forumNotifications.TopicId);                            
-                            parameters.Add("AddedByUserID", forumNotifications.AddedByUserID);                            
-                            parameters.Add("AddedDate", forumNotifications.AddedDate);
-                            parameters.Add("IsRead", forumNotifications.IsRead);                           
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);                         
 
-                            var query = "INSERT INTO ForumNotifications(ConversationId,TopicId,UserID,AddedByUserID,AddedDate,IsRead) VALUES (@ConversationId,@TopicId,@UserID,@AddedByUserID,@AddedDate,@IsRead)";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    return rowsAffected;                        
                 }
 
             }
@@ -546,34 +425,19 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                  
+                    var parameters = new DynamicParameters();
+                    parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
+                    parameters.Add("Message", forumConversations.Message, DbType.String);
+                    parameters.Add("ID", forumConversations.ID, DbType.Int64);
+                    parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
+                    parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
-                            parameters.Add("Message", forumConversations.Message, DbType.String);
-                            parameters.Add("ID", forumConversations.ID, DbType.Int64);
-                            parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
-                            parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
+                    var query = " UPDATE ForumConversations SET Name = @Name ,TopicID = @TopicID ,Message=@Message,ParticipantId =@ParticipantId,ReplyId=@ReplyId WHERE ID = @ID";
 
-                            var query = " UPDATE ForumConversations SET Name = @Name ,TopicID = @TopicID ,Message=@Message,ParticipantId =@ParticipantId,ReplyId=@ReplyId WHERE ID = @ID";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                        
                 }
 
             }

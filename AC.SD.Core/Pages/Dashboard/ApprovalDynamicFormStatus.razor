@@ -8,26 +8,32 @@
 
 <DxGrid Data="_dynamicApproved"
         VirtualScrollingEnabled="false"
-        AllowSort="false"
+        AllowSort="true"
         KeyFieldName="DynamicFormApprovedId"
         CustomizeElement="Grid_CustomizeElement"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         ShowAllRows="true"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        AllowSelectRowByClick="true">
+        AllowSelectRowByClick="true" ShowSearchBox="true" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20" PagerNavigationMode="PagerNavigationMode.InputBox">
     <Columns>
         <DxGridDataColumn FieldName="ApprovedByUser" MinWidth="50" Caption="Approved By User" />
         <DxGridDataColumn FieldName="ApprovedDescription" Caption="Approved Description" MinWidth="50" />
         <DxGridDataColumn FieldName="ApprovedStatus" Caption="Approved Status" MinWidth="50" />
     </Columns>
-   
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ApprovedStatus" />
+    </TotalSummary>
 </DxGrid>
 @code {
-   
+
     private List<DynamicFormApproved>? _dynamicApproved;
-  
+
     public ApplicationUser? applicationUser { get; private set; }
     [Parameter]
     public DynamicFormData? DynamicApproval { get; set; }
@@ -37,6 +43,8 @@
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _dynamicApproved = await Mediator.Send(new DynamicApprovalListthired(DynamicApproval.DynamicFormDataId));
+        
+      
     }
 
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

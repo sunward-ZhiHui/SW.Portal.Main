@@ -106,8 +106,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SalesOrderMasterPricingId", items.SalesOrderMasterPricingId);
                         parameters.Add("CompanyId", items.CompanyId);
                         parameters.Add("AddedByUserId", items.AddedByUserId);
-                        parameters.Add("StatusCodeId", items.StatusCodeId);
-                        connection.Open();
+                        parameters.Add("StatusCodeId", items.StatusCodeId);                      
                         var result = await connection.ExecuteAsync("sp_Ins_SalesOrderMasterPricingline", parameters, commandType: CommandType.StoredProcedure);
                         return result;
                     }

@@ -28,32 +28,13 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("id", id);
-
-                            //var query = "DELETE  FROM AttributeDetails WHERE AttributeDetailID = @id";
-                            var query = "Update AttributeDetails SET Disabled=1 WHERE  AttributeDetailID = @id";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    
+                    var parameters = new DynamicParameters();
+                    parameters.Add("id", id);
+                    //var query = "DELETE  FROM AttributeDetails WHERE AttributeDetailID = @id";
+                    var query = "Update AttributeDetails SET Disabled=1 WHERE  AttributeDetailID = @id";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;                       
                 }
 
             }
@@ -171,36 +152,20 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Description", attributeDetails.Description);
+                    parameters.Add("Disabled", attributeDetails.Disabled);
+                    parameters.Add("ModifiedByUserID", attributeDetails.ModifiedByUserID);
+                    parameters.Add("ModifiedDate", attributeDetails.ModifiedDate);
+                    parameters.Add("AttributeDetailName", attributeDetails.AttributeDetailName);
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                    parameters.Add("AttributeDetailID", attributeDetails.AttributeDetailID, DbType.Int64);
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Description", attributeDetails.Description);
-                            parameters.Add("Disabled", attributeDetails.Disabled);
-                            parameters.Add("ModifiedByUserID", attributeDetails.ModifiedByUserID);
-                            parameters.Add("ModifiedDate", attributeDetails.ModifiedDate);
-                            parameters.Add("AttributeDetailName", attributeDetails.AttributeDetailName);
+                    var query = " UPDATE AttributeDetails SET Description=@Description,Disabled = @Disabled,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate,AttributeDetailName =@AttributeDetailName WHERE AttributeDetailID = @AttributeDetailID";
 
-                            parameters.Add("AttributeDetailID", attributeDetails.AttributeDetailID, DbType.Int64);
-
-                            var query = " UPDATE AttributeDetails SET Description=@Description,Disabled = @Disabled,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate,AttributeDetailName =@AttributeDetailName WHERE AttributeDetailID = @AttributeDetailID";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+                       
                 }
 
             }

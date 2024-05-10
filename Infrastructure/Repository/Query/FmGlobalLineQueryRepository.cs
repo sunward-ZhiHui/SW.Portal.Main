@@ -152,42 +152,32 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     long lastInsertedRecordId = 0;
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+                   
+                    var result = await FMGlobalMoveAynsc(Id);
+                    if (result != null)
                     {
-                        try
-                        {
-                            var result = await FMGlobalMoveAynsc(Id);
-                            if (result != null)
-                            {
-                                var querys = "UPDATE FmglobalMove SET TransactionQty=@TransactionQty,IsHandQty = @IsHandQty WHERE  FmglobalLineId = @FmglobalLinePreviousId";
-                                var parameterss = new DynamicParameters();
-                                parameterss.Add("IsHandQty", 0);
-                                parameterss.Add("TransactionQty", 0);
-                                parameterss.Add("FmglobalLinePreviousId", result.FmglobalLinePreviousId);
-                                await connection.QuerySingleOrDefaultAsync<long>(querys, parameterss, transaction);
+                        var querys = "UPDATE FmglobalMove SET TransactionQty=@TransactionQty,IsHandQty = @IsHandQty WHERE  FmglobalLineId = @FmglobalLinePreviousId";
+                        var parameterss = new DynamicParameters();
+                        parameterss.Add("IsHandQty", 0);
+                        parameterss.Add("TransactionQty", 0);
+                        parameterss.Add("FmglobalLinePreviousId", result.FmglobalLinePreviousId);
+                        await connection.QuerySingleOrDefaultAsync<long>(querys, parameterss);
 
 
-                                var parameters = new DynamicParameters();
-                                parameters.Add("FmglobalMoveId", result.FmglobalMoveId);
-                                parameters.Add("IsHandQty", 1);
-                                parameters.Add("TransactionQty", 0);
-                                parameters.Add("ModifiedByUserId", ModifiedByUserId);
-                                parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
-                                var query = "UPDATE FmglobalMove SET ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,TransactionQty=@TransactionQty,IsHandQty = @IsHandQty WHERE  FmglobalMoveId = @FmglobalMoveId";
-                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                                lastInsertedRecordId = 1;
-                                transaction.Commit();
-                            }
-                            return lastInsertedRecordId;
-
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        var parameters = new DynamicParameters();
+                        parameters.Add("FmglobalMoveId", result.FmglobalMoveId);
+                        parameters.Add("IsHandQty", 1);
+                        parameters.Add("TransactionQty", 0);
+                        parameters.Add("ModifiedByUserId", ModifiedByUserId);
+                        parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                        var query = "UPDATE FmglobalMove SET ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,TransactionQty=@TransactionQty,IsHandQty = @IsHandQty WHERE  FmglobalMoveId = @FmglobalMoveId";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        lastInsertedRecordId = 1;
+                               
                     }
+                    return lastInsertedRecordId;
+
+                      
                 }
 
             }

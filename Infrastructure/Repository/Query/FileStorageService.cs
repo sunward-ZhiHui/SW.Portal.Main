@@ -84,42 +84,24 @@ namespace Infrastructure.Repository.Query
 
 
                 using (var connection = CreateConnection())
-                    {
+                {                        
+                    var parameters = new DynamicParameters();
+                    parameters.Add("FileName", file.Name);
+                    parameters.Add("ContentType", file.ContentType);
+                    parameters.Add("FileSize", file.Length);
+                    parameters.Add("UploadDate", DateTime.Now);
+                    parameters.Add("AddedDate", DateTime.Now);
+                    parameters.Add("SessionId", SessionId);
+                    parameters.Add("IsLatest", true);
+                    parameters.Add("FilePath", filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", ""));
 
-                        connection.Open();
-                        using (var transaction = connection.BeginTransaction())
-                        {
+                    var query = "INSERT INTO Documents(FileName,ContentType,FileSize,UploadDate,AddedDate,SessionId,IsLatest,FilePath) VALUES (@FileName,@ContentType,@FileSize,@UploadDate,@AddedDate,@SessionId,@IsLatest,@FilePath)";
 
-                            try
-                            {
-                                var parameters = new DynamicParameters();
-                                parameters.Add("FileName", file.Name);
-                                parameters.Add("ContentType", file.ContentType);
-                                parameters.Add("FileSize", file.Length);
-                                parameters.Add("UploadDate", DateTime.Now);
-                                parameters.Add("AddedDate", DateTime.Now);
-                                parameters.Add("SessionId", SessionId);
-                                parameters.Add("IsLatest", true);
-                                parameters.Add("FilePath", filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", ""));
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                                var query = "INSERT INTO Documents(FileName,ContentType,FileSize,UploadDate,AddedDate,SessionId,IsLatest,FilePath) VALUES (@FileName,@ContentType,@FileSize,@UploadDate,@AddedDate,@SessionId,@IsLatest,@FilePath)";
-
-                                var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                                transaction.Commit();
-
-                                //return rowsAffected;
-                            }
-                            catch (Exception exp)
-                            {
-                                transaction.Rollback();
-                                throw new Exception(exp.Message, exp);
-                            }
-                        }
-                    }             
-
-
-
+                    //return rowsAffected;
+                           
+                }  
                 return true; // Return true if the file is saved successfully
             }
             catch (Exception)

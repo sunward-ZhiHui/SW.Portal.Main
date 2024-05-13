@@ -2490,12 +2490,14 @@ namespace Infrastructure.Repository.Query
                                 {
                                     if (s.ControlTypeId == 2712)
                                     {
+                                        var url = "?DynamicFormSessionId=" + (_dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId) + "&&DynamicFormDataSessionId=" + r.SessionId + "&&DynamicFormDataGridSessionId=" + s.DynamicFormSessionId;
                                         opts.Add("Label", s.DisplayName);
                                         opts.Add("Value", s.DynamicFormSessionId);
                                         opts.Add("IsGrid", true);
                                         opts.Add("DynamicFormSessionId", _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId);
                                         opts.Add("DynamicFormDataSessionId", r.SessionId);
                                         opts.Add("DynamicFormDataGridSessionId", s.DynamicFormSessionId);
+                                        opts.Add("Url", url);
                                         objectData[attrName] = opts;
                                     }
                                     else
@@ -2756,12 +2758,15 @@ namespace Infrastructure.Repository.Query
                                 {
                                     if (s.ControlTypeId == 2712)
                                     {
+                                        var url = "?DynamicFormSessionId=" + (_dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId) + "&&DynamicFormDataSessionId=" + r.SessionId + "&&DynamicFormDataGridSessionId=" + s.DynamicFormSessionId;
+
                                         opts.Add("Label", s.DisplayName);
                                         opts.Add("Value", s.DynamicFormSessionId);
                                         opts.Add("IsGrid", true);
                                         opts.Add("DynamicFormSessionId", _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId);
                                         opts.Add("DynamicFormDataSessionId", r.SessionId);
                                         opts.Add("DynamicFormDataGridSessionId", s.DynamicFormSessionId);
+                                        opts.Add("Url", url);
                                         objectData[attrName] = opts;
                                     }
                                     else

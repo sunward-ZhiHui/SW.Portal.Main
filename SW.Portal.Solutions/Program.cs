@@ -86,7 +86,7 @@ public class Program
             System.Diagnostics.Debug.WriteLine(keys.PublicKey);
 
             services.AddControllersWithViews();
-            
+             services.AddHttpClient();
 
             // Inject IConfiguration to access configuration settings
             var configuration = context.Configuration;

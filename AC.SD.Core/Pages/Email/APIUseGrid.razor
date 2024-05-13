@@ -1,0 +1,32 @@
+﻿@page "/APIGrid"
+@inject HttpClient HttpClient
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+
+<DxGrid Data="@Data" ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20">
+    <Columns>
+        <DxGridDataColumn FieldName="PlantCode" />
+        <DxGridDataColumn FieldName="Description" />
+        <DxGridDataColumn FieldName="CompanyID" />
+       
+    </Columns>
+</DxGrid>
+
+@code {
+    object Data { get; set; }
+    long companyID = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = new Uri("https://localhost:44300/api/ProductionRoutine/GetCompanyListTest");
+       // var uri = new Uri("https://localhost:44300/api/ProductionRoutine/GetLocation?CompanyID=" + companyID);
+        Data = new GridDevExtremeDataSource<ViewPlants>(HttpClient, uri);
+    }
+}

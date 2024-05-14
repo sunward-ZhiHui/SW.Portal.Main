@@ -16,6 +16,10 @@ using Newtonsoft.Json;
 using DevExpress.Xpo;
 using Application.Queries.Base;
 using Infrastructure.Repository.Query;
+using DevExtreme.AspNet.Data;
+using System.Text.Json;
+using AC.SD.Core.AspNetCoreHost;
+using DevExtreme.AspNet.Data.ResponseModel;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -338,7 +342,7 @@ namespace SW.Portal.Solutions.Controllers
                     ModifiedByUser = topic.ModifiedByUser,
                     ModifiedDate = topic.ModifiedDate,
                     ProdActivityResult = topic.ProdActivityResult,
-                    MasterProductionFileProfileTypeId =topic.MasterProductionFileProfileTypeId,
+                    MasterProductionFileProfileTypeId = topic.MasterProductionFileProfileTypeId,
                     ProductionActivityRoutineAppLineId = topic.ProductionActivityRoutineAppLineId,
                     ProductionActivityRoutineAppId = topic.ProductionActivityRoutineAppId,
                     ManufacturingProcessChildId = topic.ManufacturingProcessChildId,
@@ -351,11 +355,11 @@ namespace SW.Portal.Solutions.Controllers
                     ProdActivityResultId = topic.ProdActivityResultId,
                     RoutineStatusId = topic.RoutineStatusId,
                     LocationName = topic.LocationName,
-                    RoutineInfoStatus =topic.RoutineInfoStatus,
+                    RoutineInfoStatus = topic.RoutineInfoStatus,
                     IsTemplateUploadFlag = topic.IsTemplateUploadFlag,
                     NameOfTemplate = topic.NameOfTemplate,
                     OthersOptions = topic.OthersOptions,
-                    RoutineInfoIds =topic.RoutineInfoIds,
+                    RoutineInfoIds = topic.RoutineInfoIds,
                     RoutineStatus = topic.RoutineStatus,
                     UniqueSessionId = topic.UniqueSessionId,
                     FileName = topic.FileName
@@ -532,28 +536,28 @@ namespace SW.Portal.Solutions.Controllers
                         if (itemsId == 1)
                         {
                             Data.isPlant = true;
-                            
+
                         }
                         if (itemsId == 2)
                         {
                             Data.isDepartment = true;
                             Data.isDivision = true;
-                           
+
                         }
                         if (itemsId == 3)
                         {
-                            Data. isSection = true;
-                           
+                            Data.isSection = true;
+
                         }
                         if (itemsId == 4)
                         {
                             Data.isSubSection = true;
-                            
+
                         }
                     }
 
 
-                
+
                 }
             }
 
@@ -605,7 +609,7 @@ namespace SW.Portal.Solutions.Controllers
                 DetectedBy = topic.DetectedBy,
                 MachineName = topic.MachineName,
                 ActivityStatusId = topic.ActivityStatusId,
-                AddedBy =topic.AddedBy,
+                AddedBy = topic.AddedBy,
                 LocationName = topic.LocationName,
                 CompanyName = topic.CompanyName,
                 DetectedByName = topic.DetectedByName,
@@ -615,7 +619,7 @@ namespace SW.Portal.Solutions.Controllers
                 DepartmentIds = topic.DepartmentIds,
                 UniqueSessionId = topic.UniqueSessionId,
                 FileName = topic.FileName
-               
+
             }).ToList();
             try
             {
@@ -754,12 +758,12 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
 
-        
+
         [HttpPost("InsertIpirApp")]
         public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> InsertIpirApp(IpirAppModel IpirAppModel)
         {
-           var message = new  List<string> ();
-        var response = new Services.ResponseModel<IpirAppModel>();
+            var message = new List<string>();
+            var response = new Services.ResponseModel<IpirAppModel>();
             if (IpirAppModel.CompanyID > 0 && IpirAppModel.ProdOrderNo != null && IpirAppModel.ProfileId > 0 && IpirAppModel.MachineName != null)
             {
 
@@ -807,7 +811,8 @@ namespace SW.Portal.Solutions.Controllers
                         response.ErrorMessages.Add(ex.Message);
                     }
                 }
-            }else
+            }
+            else
             {
                 response.ResponseCode = Services.ResponseCode.Failure;
                 message.Add("Please Enter Required Fields");
@@ -818,10 +823,10 @@ namespace SW.Portal.Solutions.Controllers
         [HttpPost("DeleteIPIRApp")]
         public async Task<ActionResult<Services.ResponseModel<IEnumerable<DeleteIPIRAppModel>>>> DeleteIPIRApp(DeleteIPIRAppModel value)
         {
-              var response = new Services.ResponseModel<DeleteIPIRAppModel>();
-              IpirApp Data = new IpirApp();
-              Data.IpirAppId = (long)value.IpirAppId;
-              var result = await _mediator.Send(new DeleteIpirApp(Data));
+            var response = new Services.ResponseModel<DeleteIPIRAppModel>();
+            IpirApp Data = new IpirApp();
+            Data.IpirAppId = (long)value.IpirAppId;
+            var result = await _mediator.Send(new DeleteIpirApp(Data));
 
             try
             {
@@ -854,7 +859,7 @@ namespace SW.Portal.Solutions.Controllers
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
-                response.Results= (List<ApplicationMasterChildModel>)(result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() });
+                response.Results = (List<ApplicationMasterChildModel>)(result.Count > 0 ? result : new List<ApplicationMasterChildModel> { new ApplicationMasterChildModel() });
             }
             catch (Exception ex)
             {
@@ -873,7 +878,7 @@ namespace SW.Portal.Solutions.Controllers
 
             var result = await _mediator.Send(new GetAllfileprofiletypeDrodownQuery());
 
-          
+
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
@@ -886,6 +891,25 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
+        }
+
+        [HttpGet("GetCompanyListTest")]
+        public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyListTest(DataSourceLoadOptions loadOptions)
+        {
+            var response = new Services.ResponseModel<ViewPlants>();
+
+            var result = await _PlantQueryRepository.GetAllAsync();
+            try
+            {
+                var loadResult = DataSourceLoader.Load<ViewPlants>((IQueryable<ViewPlants>)result.AsQueryable(), loadOptions);
+                return Json(loadResult, new JsonSerializerOptions());
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+           
         }
     }
 }

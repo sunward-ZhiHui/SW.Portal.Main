@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<ServerGarbageCollection>false</ServerGarbageCollection>
 	<Platforms>AnyCPU;x64</Platforms>
+	<LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

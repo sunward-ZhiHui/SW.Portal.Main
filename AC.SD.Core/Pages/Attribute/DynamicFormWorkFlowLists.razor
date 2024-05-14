@@ -38,10 +38,7 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
+            
             style="height: calc(100vh - 220px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
@@ -52,6 +49,7 @@
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
@@ -145,7 +143,7 @@
         PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
-            EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
+            //EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
             if (SessionId != null)
             {
                 var items = _dynamicForm.Where(f => f.SessionID == SessionId).ToList();

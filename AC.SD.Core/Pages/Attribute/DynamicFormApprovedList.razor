@@ -52,10 +52,7 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
+            
             style="height: calc(100vh - 220px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
@@ -65,6 +62,7 @@
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
@@ -610,7 +608,7 @@
                         _dynamicformObjectDataList.Add(objectData);
 
                     });
-                    EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
+                   // EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
                     FileProfileTypeId = _selectedItems.FileProfileTypeId;
                     //await DynamicFormOnDms();

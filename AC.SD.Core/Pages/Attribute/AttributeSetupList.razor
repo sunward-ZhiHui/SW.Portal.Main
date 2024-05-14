@@ -37,10 +37,7 @@
                     KeyFieldName="AttributeID"
                     ColumnResizeMode="GridColumnResizeMode.NextColumn"
                     PagerNavigationMode="PagerNavigationMode.InputBox"
-                    PageSizeSelectorVisible="true"
-                    PageSizeSelectorAllRowsItemVisible="true"
-                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                    PageSize="20"
+                    
                     style="height: calc(100vh - 220px);"
                     CssClass="ch-360"
                     FocusedRowEnabled="true"
@@ -50,6 +47,7 @@
                     AutoExpandAllGroupRows="true"
                     SelectionMode="GridSelectionMode.Single"
                     SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    VirtualScrollingEnabled="true"
                     RowDoubleClick="OnRowDoubleClick">
 
                 <Columns>
@@ -233,7 +231,7 @@
         {
             _selectedItems = _attributes.FirstOrDefault();
             Grid.SetFocusedRowIndex(0);
-            loadSelectedItems();
+           // loadSelectedItems();
             PanelVisible = false;
         }
         else

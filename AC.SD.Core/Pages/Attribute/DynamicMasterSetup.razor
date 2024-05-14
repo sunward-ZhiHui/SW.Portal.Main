@@ -24,7 +24,9 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
+                <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -38,10 +40,7 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
+            
             style="height: calc(100vh - 220px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
@@ -52,6 +51,7 @@
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
@@ -135,11 +135,11 @@
         PanelVisible = true;
         EditEnabled = false; DeleteEnabled = false;
         _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
-       
+
         if (_dynamicForm != null && _dynamicForm.Count>0)
         {
-            EditEnabled = true; DeleteEnabled = true;
-            _selectedItems = _dynamicForm.FirstOrDefault();
+            // EditEnabled = true; DeleteEnabled = true;
+            // _selectedItems = _dynamicForm.FirstOrDefault();
             Grid.SetFocusedRowIndex(0);
         }
         PanelVisible = false;
@@ -164,6 +164,21 @@
         if (_selectedItems != null)
         {
             NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+        }
+    }
+    async Task OpenOdataUrl()
+    {
+        if (_selectedItems != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    void AddNewForm()
+    {
+        if (_selectedItems != null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + _selectedItems.SessionID);
         }
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)

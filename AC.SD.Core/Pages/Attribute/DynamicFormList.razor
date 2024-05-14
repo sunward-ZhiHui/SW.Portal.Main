@@ -48,6 +48,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
+                <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -74,10 +75,6 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
             style="height: calc(100vh - 220px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
@@ -88,6 +85,7 @@
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
@@ -103,7 +101,7 @@
                                     dynamic item = (ExpandoObject)context.DataItem;
                                 }
                                 <i class="fa fa-wpforms" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" onclick="@(() => openFormGridList(s,(ExpandoObject)context.DataItem))"></i>
-                                
+
                             </CellDisplayTemplate>
                         </DxGridDataColumn>
                     }
@@ -362,7 +360,7 @@
                             }
                             else
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { IsDynamicGrid = a.ControlTypeId ==2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                                dataColumnNames.Add(new DropDownOptionsModel() { IsDynamicGrid = a.ControlTypeId == 2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
 
                             }
                             if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0 && a.IsDisplayTableHeader == true)
@@ -400,7 +398,7 @@
                         }
                     }
 
-                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1,null));
+                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null));
                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {
@@ -655,7 +653,7 @@
                                     {
                                         if (s.ControlTypeId == 2712)
                                         {
-                                            objectData[attrName] = s.DynamicFormSessionId;                                            
+                                            objectData[attrName] = s.DynamicFormSessionId;
                                         }
                                         else
                                         {
@@ -713,7 +711,7 @@
                             }
                             _dynamicformObjectDataList.Add(objectData);
                         });
-                        EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
+                        //EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
                         _selectedItems = _dynamicformDataList.FirstOrDefault();
                         FileProfileTypeId = _selectedItems.FileProfileTypeId;
                         Grid.SetFocusedRowIndex(0);
@@ -736,7 +734,7 @@
         }
         else
         {
-           
+
         }
         PanelVisible = false;
         StateHasChanged();
@@ -863,6 +861,14 @@
         //await DynamicFormOnDms();
         EditEnabled = true;
         DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
+    }
+    async Task OpenOdataUrl()
+    {
+        if (_dynamicForm != null && _dynamicForm.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _dynamicForm.SessionID;
+            await JS.InvokeVoidAsync("window.open", url, "_blank");
+        }
     }
     async Task DynamicFormOnDms()
     {
@@ -1011,7 +1017,7 @@
         createEmailpopup = false;
         // await UpdateDataAsync();
     }
-    void openFormGridList(DropDownOptionsModel dropDownOptionsModel,object datas)
+    void openFormGridList(DropDownOptionsModel dropDownOptionsModel, object datas)
     {
         var values = dropDownOptionsModel.Value;
         if (!string.IsNullOrEmpty(values))

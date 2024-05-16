@@ -36,7 +36,7 @@
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             @bind-SelectedDataItems="@SelectedDataItems"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            Data="_salesOrderItems"
+            Data="_salesOrderItems" VirtualScrollingEnabled="true"
             KeyFieldName="SoSalesOrderId"
             EditModelSaving="Grid_EditModelSaving"
             DataItemDeleting="Grid_DataItemDeleting"

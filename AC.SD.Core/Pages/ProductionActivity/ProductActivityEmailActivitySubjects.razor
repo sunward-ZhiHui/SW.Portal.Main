@@ -14,7 +14,7 @@
                 Text="Fetching Data...">
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            Data="_ActivityEmailSubjectsList"
+            Data="_ActivityEmailSubjectsList" VirtualScrollingEnabled="true"
             KeyFieldName="TopicId"
             ShowGroupPanel="true" ShowGroupedColumns="true"
             CustomizeElement="Grid_CustomizeElement"

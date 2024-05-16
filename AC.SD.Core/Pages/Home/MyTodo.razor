@@ -31,7 +31,7 @@
 
 <DxGrid Data="_MyToDoList" @ref = "Grid"        
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-        VirtualScrollingEnabled="true"
+       
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -48,7 +48,7 @@
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         LayoutAutoLoading="Grid_LayoutAutoLoading"
         LayoutAutoSaving="Grid_LayoutAutoSaving"
-        AllowSelectRowByClick="true">
+        AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
     <Columns>
         @*  <DxGridCommandColumn Width="160px" NewButtonVisible="false"  DeleteButtonVisible="false"/>  <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>*@
         <DxGridDataColumn FieldName="NoteName" Caption="Note Name" ReadOnly="true" Width="180" />

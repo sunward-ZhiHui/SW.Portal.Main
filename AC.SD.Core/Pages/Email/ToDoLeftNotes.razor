@@ -61,7 +61,7 @@
   
 
     <DxGrid @ref="Grid" Data="@_toDoNotes"  EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" 
-            VirtualScrollingEnabled="true"
+          
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             KeyFieldName="ID"
             CustomizeElement="Grid_CustomizeElement"
@@ -75,7 +75,7 @@
             CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+            AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged" VirtualScrollingEnabled="true">
         <Columns>
             <DxGridDataColumn FieldName="Notes" Caption="">
                 <CellDisplayTemplate>

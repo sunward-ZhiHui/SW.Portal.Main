@@ -38,12 +38,9 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
             style="height: calc(100vh - 220px);"
-            CssClass="ch-360"
+            CssClass="w-100"
             FocusedRowEnabled="true"
             KeyFieldName="DynamicFormDataId"
             AllowSelectRowByClick="true"
@@ -52,6 +49,7 @@
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
@@ -119,7 +117,7 @@
     public Guid? SessionId { get; set; }
     bool createEmailpopup { get; set; } = false;
     bool emailEnabled { get; set; } = false;
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     private List<DynamicFormDataWrokFlow> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
@@ -145,7 +143,7 @@
         PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
-            EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
+            //EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
             if (SessionId != null)
             {
                 var items = _dynamicForm.Where(f => f.SessionID == SessionId).ToList();
@@ -156,7 +154,7 @@
                     dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
                     FileProfileTypeId = _selectedItems.FileProfileTypeId;
                     dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
-                    Grid.SetFocusedRowIndex(0);
+                   // Grid.SetFocusedRowIndex(0);
                 }
                 else
                 {
@@ -164,7 +162,7 @@
                     dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
                     dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
                     FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                    Grid.SetFocusedRowIndex(0);
+                   // Grid.SetFocusedRowIndex(0);
                 }
             }
             else
@@ -172,7 +170,7 @@
                 _selectedItems = _dynamicForm.FirstOrDefault();
                 dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
                 dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
-                Grid.SetFocusedRowIndex(0);
+               //Grid.SetFocusedRowIndex(0);
             }
 
         }

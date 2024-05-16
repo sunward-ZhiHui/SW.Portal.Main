@@ -21,10 +21,11 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                @*  <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
+                @*<DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" /> *@
-                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" />
+                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
+                <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -35,23 +36,22 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
     <DxGrid @ref="Grid" Data="@_dynamicForm" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            KeyFieldName="ID"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
             style="height: calc(100vh - 220px);"
-            CssClass="ch-360"
+            CssClass="w-100"
             FocusedRowEnabled="true"
-            KeyFieldName="ID"
+            
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
@@ -87,7 +87,7 @@
 
 @code {
 
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
@@ -108,12 +108,27 @@
         PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
-            EditEnabled = true; DeleteEnabled = true;
+            //EditEnabled = true; DeleteEnabled = true;
             _selectedItems = _dynamicForm.FirstOrDefault();
-            Grid.SetFocusedRowIndex(0);
+            //Grid.SetFocusedRowIndex(0);
         }
         PanelVisible = false;
         StateHasChanged();
+    }
+    async Task OpenOdataUrl()
+    {
+        if (_selectedItems != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    void AddNewForm()
+    {
+        if (_selectedItems != null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + _selectedItems.SessionID);
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

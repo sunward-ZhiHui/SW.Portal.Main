@@ -52,12 +52,9 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
             style="height: calc(100vh - 220px);"
-            CssClass="ch-360"
+            CssClass="w-100"
             FocusedRowEnabled="true"
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
@@ -65,6 +62,7 @@
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true"
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
@@ -169,7 +167,7 @@
     [Parameter]
     public Guid? FormSessionId { get; set; }
     bool emailEnabled { get; set; } = false;
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     private DynamicForm _dynamicForm;
     private DocumentsModel _documentsDmsData;
@@ -258,7 +256,7 @@
             if (_dynamicForm != null)
             {
                 _dynamicformObjectDataList = new List<object>();
-                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
+                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID,false));
                 if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
                     List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
@@ -610,11 +608,11 @@
                         _dynamicformObjectDataList.Add(objectData);
 
                     });
-                    EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
+                   // EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
                     FileProfileTypeId = _selectedItems.FileProfileTypeId;
                     //await DynamicFormOnDms();
-                    Grid.SetFocusedRowIndex(0);
+                   // Grid.SetFocusedRowIndex(0);
                 }
             }
             else

@@ -72,13 +72,15 @@
     <DxGrid @ref="Grid"
             Data="Items" @key="@myKey"
             EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            KeyFieldName="DynamicFormDataId"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             style="height: calc(100vh - 220px);"
-            CssClass="ch-360"
+            CssClass="w-100"
+            PageSize="20"
             FocusedRowEnabled="true"
-            KeyFieldName="DynamicFormDataId"
+            
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -209,7 +211,7 @@
     public Guid? SessionId { get; set; }
     [Parameter]
     public Guid? FormSessionId { get; set; }
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     bool createEmailpopup { get; set; } = false; bool PopupDynamicFormGridLists { get; set; } = false;
     private DynamicForm _dynamicForm; public long? FileProfileTypeId { get; set; }
@@ -311,7 +313,7 @@
                 if (_dynamicForm != null)
                 {
                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
+                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID,false));
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                     {
                         List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
@@ -327,6 +329,7 @@
                         {
                             dataSourceTableIds.Add("ApplicationMasterParent");
                         }
+
                         PlantDependencySubAttributeDetails = await Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>()));
 
                         _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute;
@@ -714,7 +717,7 @@
                         //EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
                         _selectedItems = _dynamicformDataList.FirstOrDefault();
                         FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                        Grid.SetFocusedRowIndex(0);
+                        //Grid.SetFocusedRowIndex(0);
                     }
                 }
                 else
@@ -730,6 +733,7 @@
             if (_dynamicformObjectDataList != null && _dynamicformObjectDataList.Count() > 0)
             {
                 Items = new ObservableCollection<object>(_dynamicformObjectDataList);
+                //Grid.SetFocusedRowIndex(0);
             }
         }
         else

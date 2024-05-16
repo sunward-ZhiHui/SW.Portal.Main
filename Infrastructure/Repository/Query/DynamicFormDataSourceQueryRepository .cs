@@ -29,6 +29,8 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IReadOnlyList<AttributeDetails>> GetDataSourceDropDownList(long? CompanyId, List<string?> dataSourceTableIds, string? plantCode, List<long?> applicationMasterIds, List<long?> applicationMasterParentIds)
         {
+            var query = string.Empty;
+            int i = 0;
             var dataSourceDropDownList = new List<AttributeDetails>(); List<long> plantIds = new List<long>();
             var plantsData = await GetPlantDataSource();
             if (dataSourceTableIds != null && dataSourceTableIds.Count() > 0)
@@ -41,132 +43,173 @@ namespace Infrastructure.Repository.Query
                 }
                 if (dataSourceTableIds.Contains("Plant"))
                 {
-                    dataSourceDropDownList.AddRange(plantsData);
+                    if (plantsData != null && plantsData.Count > 0)
+                    {
+                        dataSourceDropDownList.AddRange(plantsData);
+                    }
                 }
                 if (dataSourceTableIds.Contains("NavItems"))
                 {
-                    dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetNavItemsDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Employee"))
                 {
-                    dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetEmployeeDataSource(CompanyId, plantCode, plantIds);
+                    // dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Division"))
                 {
-                    dataSourceDropDownList.AddRange(await GetDivisionDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetDivisionDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetDivisionDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Department"))
                 {
-                    dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetDepartmentDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Section"))
                 {
-                    dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetSectionDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("SubSection"))
                 {
-                    dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetSubSectionDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("ItemBatchInfo"))
                 {
-                    dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
                 }
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
                 {
-                    dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
+                    i++;
+                    query += GetSoCustomerDataSource(soCustomerList);
+                    //dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
                 }
                 var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
                 var rawMatItemList = rawMatItemType.Intersect(dataSourceTableIds).ToList();
                 if (rawMatItemList.Count() > 0)
                 {
-                    dataSourceDropDownList.AddRange(await GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds));
                 }
 
                 if (dataSourceTableIds.Contains("ApplicationMaster") && applicationMasterIds.Count > 0)
                 {
-                    dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
+                    i++;
+                    query += GetApplicationMasterDataSource(applicationMasterIds);
+                    //dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
                 }
                 if (dataSourceTableIds.Contains("ApplicationMasterParent") && applicationMasterParentIds.Count > 0)
                 {
-                    dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
+                    i++;
+                    query += GetApplicationMasterParentDataSource(applicationMasterParentIds);
+                    //dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
                 }
                 if (dataSourceTableIds.Contains("Site"))
                 {
-                    dataSourceDropDownList.AddRange(await GetSiteDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetSiteDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetSiteDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Zone"))
                 {
-                    dataSourceDropDownList.AddRange(await GetZoneDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetZoneDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetZoneDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Location"))
                 {
-                    dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetLocationDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("Area"))
                 {
-                    dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetAreaDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
                 }
                 if (dataSourceTableIds.Contains("SpecificArea"))
                 {
-                    dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
+                    i++;
+                    query += GetSpecificAreaDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
+                }
+                if (!string.IsNullOrEmpty(query))
+                {
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        dataSourceDropDownList.AddRange(await GetAllDataSource(query, i));
+                    }
                 }
             }
             else
             {
                 dataSourceDropDownList.AddRange(plantsData);
-                dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetDivisionDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetSiteDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetZoneDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
-                dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
-                var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
-                var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
-                if (soCustomerList.Count() > 0)
-                {
-                    dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
-                }
-                var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
-                var rawMatItemList = rawMatItemType.Intersect(dataSourceTableIds).ToList();
-                if (rawMatItemList.Count() > 0)
-                {
-                    dataSourceDropDownList.AddRange(await GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds));
-                }
-                if (applicationMasterIds.Count > 0)
-                {
-                    dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
-                }
-                if (dataSourceTableIds.Contains("ApplicationMasterParent") && applicationMasterParentIds.Count > 0)
-                {
-                    dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
-                }
+                //dataSourceDropDownList.AddRange(await GetNavItemsDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetEmployeeDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetDivisionDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetDepartmentDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetSectionDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetSubSectionDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetSiteDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetZoneDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetLocationDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetAreaDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetSpecificAreaDataSource(CompanyId, plantCode, plantIds));
+                //dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
+                //var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
+                //var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
+                //if (soCustomerList.Count() > 0)
+                //{
+                //    dataSourceDropDownList.AddRange(await GetSoCustomerDataSource(soCustomerList));
+                //}
+                //var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
+                //var rawMatItemList = rawMatItemType.Intersect(dataSourceTableIds).ToList();
+                //if (rawMatItemList.Count() > 0)
+                //{
+                //    dataSourceDropDownList.AddRange(await GetRawMatItemListDataSource(rawMatItemList, CompanyId, plantCode, plantIds));
+                //}
+                //if (applicationMasterIds.Count > 0)
+                //{
+                //    dataSourceDropDownList.AddRange(await GetApplicationMasterDataSource(applicationMasterIds));
+                //}
+                //if (dataSourceTableIds.Contains("ApplicationMasterParent") && applicationMasterParentIds.Count > 0)
+                //{
+                //    dataSourceDropDownList.AddRange(await GetApplicationMasterParentDataSource(applicationMasterParentIds));
+                //}
             }
             return dataSourceDropDownList;
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetApplicationMasterDataSource(List<long?> applicationMasterIds)
+        private async Task<IReadOnlyList<AttributeDetails>> GetAllDataSource(string query, int i)
         {
             var attributeDetails = new List<AttributeDetails>();
             try
             {
-                var query = string.Empty;
-                query += "select 'ApplicationMaster' as DropDownTypeId,t1.ApplicationMasterId, t1.ApplicationMasterDetailID as AttributeDetailID,Value as AttributeDetailName,t1.Description,t2.ApplicationMasterName,t2.ApplicationMasterCodeID as ApplicationMasterCodeID from ApplicationMasterDetail t1 JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID\r\n";
-                if (applicationMasterIds != null && applicationMasterIds.Count > 0)
-                {
-                    applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };
-                    query += "where t1.ApplicationMasterId in(" + string.Join(',', applicationMasterIds) + ")";
-                }
                 using (var connection = CreateConnection())
                 {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                    var result = (await connection.QueryMultipleAsync(query));
+                    for (int j = 0; j <i; j++)
+                    {
+                        var results = result.Read<AttributeDetails>().ToList();
+                        var attributeDetailss = results != null && results.Count() > 0 ? results : new List<AttributeDetails>();
+                        attributeDetails.AddRange(attributeDetailss);
+                    }
+                    //attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
                 }
                 return attributeDetails;
             }
@@ -175,9 +218,34 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetApplicationMasterParentDataSource(List<long?> applicationMasterIds)
+        private string GetApplicationMasterDataSource(List<long?> applicationMasterIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            // var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select 'ApplicationMaster' as DropDownTypeId,t1.ApplicationMasterId, t1.ApplicationMasterDetailID as AttributeDetailID,Value as AttributeDetailName,t1.Description,t2.ApplicationMasterName,t2.ApplicationMasterCodeID as ApplicationMasterCodeID from ApplicationMasterDetail t1 JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID\r\n";
+                if (applicationMasterIds != null && applicationMasterIds.Count > 0)
+                {
+                    applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };
+                    query += "where t1.ApplicationMasterId in(" + string.Join(',', applicationMasterIds) + ");";
+                }
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private string GetApplicationMasterParentDataSource(List<long?> applicationMasterIds)
+        {
+            // var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -188,14 +256,15 @@ namespace Infrastructure.Repository.Query
                 }
                 else
                 {
-                    query += "select 'ApplicationMasterParent' as DropDownTypeId,t1.ApplicationMasterChildID as AttributeDetailID,t1.Value as AttributeDetailName,t1.Description,t1.ApplicationMasterParentID as ApplicationMasterParentCodeId,t2.ApplicationMasterName as ApplicationMasterName,t1.ParentId,t3.Value as ParentName from ApplicationMasterChild  t1 JOIN ApplicationMasterParent t2 ON t1.ApplicationMasterParentID=t2.ApplicationMasterParentCodeID LEFT JOIN ApplicationMasterChild t3 ON t1.ParentID=t3.ApplicationMasterChildID";
+                    query += "select 'ApplicationMasterParent' as DropDownTypeId,t1.ApplicationMasterChildID as AttributeDetailID,t1.Value as AttributeDetailName,t1.Description,t1.ApplicationMasterParentID as ApplicationMasterParentCodeId,t2.ApplicationMasterName as ApplicationMasterName,t1.ParentId,t3.Value as ParentName from ApplicationMasterChild  t1 JOIN ApplicationMasterParent t2 ON t1.ApplicationMasterParentID=t2.ApplicationMasterParentCodeID LEFT JOIN ApplicationMasterChild t3 ON t1.ParentID=t3.ApplicationMasterChildID;";
                 }
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
@@ -208,7 +277,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select 'Plant' as DropDownTypeId, PlantID as AttributeDetailID,PlantCode as AttributeDetailName,Description as Description from Plant\r\n";
+                query += "select 'Plant' as DropDownTypeId, PlantID as AttributeDetailID,PlantCode as AttributeDetailName,Description as Description from Plant;\r\n";
                 using (var connection = CreateConnection())
                 {
                     var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
@@ -221,9 +290,9 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetNavItemsDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetNavItemsDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -233,32 +302,33 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.no like 'FP%' AND t1.CompanyId in(" + string.Join(',', plantIds) + ")";
+                        query += "where t1.no like 'FP%' AND t1.CompanyId in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.no like 'FP%' AND t1.CompanyId=" + CompanyId + "\r\n";
+                        query += "Where t1.no like 'FP%' AND t1.CompanyId=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
                     query += "Where t1.no like 'FP%';\r\n";
                 }
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                }
-                return attributeDetails;
+                return query;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetEmployeeDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetEmployeeDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -268,59 +338,69 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.PlantId in(" + string.Join(',', plantIds) + ")";
+                        query += "where t1.PlantId in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.PlantId=" + CompanyId + "\r\n";
+                        query += "Where t1.PlantId=" + CompanyId + ";\r\n";
                     }
                 }
-                using (var connection = CreateConnection())
+                else
                 {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                    query += ";\r\n";
                 }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetDivisionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetDivisionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
-                query += "select 'Division' as DropDownTypeId,t1.DivisionID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description from Division t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n \r\n";
+                query += "select 'Division' as DropDownTypeId,t1.DivisionID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description from Division t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
-                using (var connection = CreateConnection())
+                else
                 {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                    query += ";\r\n";
                 }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetDepartmentDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetDepartmentDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            // var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -330,28 +410,33 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
-                using (var connection = CreateConnection())
+                else
                 {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                    query += ";\r\n";
                 }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetSectionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetSectionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -361,28 +446,33 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t2.CompanyID in(" + string.Join(',', plantIds) + ")";
+                        query += "where t2.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t2.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t2.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
-                using (var connection = CreateConnection())
+                else
                 {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                    query += ";\r\n";
                 }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetSubSectionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetSubSectionDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            // var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -392,28 +482,33 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t3.CompanyID in(" + string.Join(',', plantIds) + ")";
+                        query += "where t3.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t3.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t3.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
-                using (var connection = CreateConnection())
+                else
                 {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                    query += ";\r\n";
                 }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetItemBatchInfoDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetItemBatchInfoDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -423,49 +518,55 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
-                using (var connection = CreateConnection())
+                else
                 {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                    query += ";\r\n";
                 }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetSoCustomerDataSource(List<string?> dataSourceTableIds)
+        private string GetSoCustomerDataSource(List<string?> dataSourceTableIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
                 dataSourceTableIds = dataSourceTableIds != null && dataSourceTableIds.Count > 0 ? dataSourceTableIds : new List<string?>() { "a" };
                 query += "select Type as DropDownTypeId, SoCustomerID as AttributeDetailID,CustomerName as AttributeDetailName,Address1 as Description from SoCustomer Where type  in(" + string.Join(",", dataSourceTableIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ");";
 
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetRawMatItemListDataSource(List<string?> dataSourceTableIds, long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetRawMatItemListDataSource(List<string?> dataSourceTableIds, long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -476,28 +577,33 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "AND t1.CompanyID in(" + string.Join(',', plantIds) + ")";
+                        query += "AND t1.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "AND t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
-                using (var connection = CreateConnection())
+                else
                 {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                    query += ";\r\n";
                 }
-                return attributeDetails;
+                return query;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetSiteDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetSiteDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -507,32 +613,33 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=570";
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=570;";
                     }
                     else
                     {
-                        query += "Where t1.MasterType=570 AND t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t1.MasterType=570 AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += "Where t1.MasterType=570";
+                    query += "Where t1.MasterType=570;";
                 }
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetZoneDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetZoneDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -542,30 +649,31 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=571";
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=571;";
                     }
                     else
                     {
-                        query += "Where t1.MasterType=571 AND t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t1.MasterType=571 AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += "Where t1.MasterType=571";
+                    query += "Where t1.MasterType=571;";
                 }
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetLocationDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetLocationDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
             var attributeDetails = new List<AttributeDetails>();
             try
@@ -577,30 +685,31 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=572";
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=572;";
                     }
                     else
                     {
-                        query += "Where t1.MasterType=572 AND t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t1.MasterType=572 AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += "Where t1.MasterType=572";
+                    query += "Where t1.MasterType=572;";
                 }
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetAreaDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetAreaDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
             var attributeDetails = new List<AttributeDetails>();
             try
@@ -612,32 +721,33 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=573";
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=573;";
                     }
                     else
                     {
-                        query += "Where t1.MasterType=573 AND t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t1.MasterType=573 AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += "Where t1.MasterType=573";
+                    query += "Where t1.MasterType=573;";
                 }
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<AttributeDetails>> GetSpecificAreaDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        private string GetSpecificAreaDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
-            var attributeDetails = new List<AttributeDetails>();
+            //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
@@ -647,23 +757,24 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=574";
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ") AND t1.MasterType=574;";
                     }
                     else
                     {
-                        query += "Where t1.MasterType=574 AND t1.CompanyID=" + CompanyId + "\r\n";
+                        query += "Where t1.MasterType=574 AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += "Where t1.MasterType=574";
+                    query += "Where t1.MasterType=574;";
                 }
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                }
-                return attributeDetails;
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
             }
             catch (Exception exp)
             {

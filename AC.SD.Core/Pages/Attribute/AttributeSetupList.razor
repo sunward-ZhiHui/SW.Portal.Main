@@ -37,9 +37,9 @@
                     KeyFieldName="AttributeID"
                     ColumnResizeMode="GridColumnResizeMode.NextColumn"
                     PagerNavigationMode="PagerNavigationMode.InputBox"
-                    
+                    PageSize="20"
                     style="height: calc(100vh - 220px);"
-                    CssClass="ch-360"
+                    CssClass="w-100"
                     FocusedRowEnabled="true"
                     AllowSelectRowByClick="true"
                     RowClick="OnRowclick"
@@ -211,6 +211,7 @@
         EditEnabled = false; DeleteEnabled = false; IsCheckBoxEnabled = false;
         if (_selectedItems != null)
         {
+
             EditEnabled = true; DeleteEnabled = true;
             if (_selectedItems.ControlTypeId == 2710)
             {
@@ -220,6 +221,7 @@
             {
                 //  DeleteEnabled = false;
             }
+            
         }
         StateHasChanged();
     }
@@ -230,8 +232,8 @@
         if (_attributes != null && _attributes.Count > 0)
         {
             _selectedItems = _attributes.FirstOrDefault();
-            Grid.SetFocusedRowIndex(0);
-           // loadSelectedItems();
+            //loadSelectedItems();
+            //Grid.SetFocusedRowIndex(0);
             PanelVisible = false;
         }
         else

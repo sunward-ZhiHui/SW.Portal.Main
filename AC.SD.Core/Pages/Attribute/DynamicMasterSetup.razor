@@ -37,14 +37,15 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
     <DxGrid @ref="Grid" Data="@_dynamicForm" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            KeyFieldName="ID"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            
+            PageSize="20"
             style="height: calc(100vh - 220px);"
-            CssClass="ch-360"
+            CssClass="w-100"
             FocusedRowEnabled="true"
-            KeyFieldName="ID"
+            
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -90,7 +91,7 @@
 
 @code {
     private IDisposable? DynamicFormPage1;
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = true;
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
@@ -139,8 +140,8 @@
         if (_dynamicForm != null && _dynamicForm.Count>0)
         {
             // EditEnabled = true; DeleteEnabled = true;
-            // _selectedItems = _dynamicForm.FirstOrDefault();
-            Grid.SetFocusedRowIndex(0);
+             _selectedItems = _dynamicForm.FirstOrDefault();
+           // Grid.SetFocusedRowIndex(0);
         }
         PanelVisible = false;
         StateHasChanged();

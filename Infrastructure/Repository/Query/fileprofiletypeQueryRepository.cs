@@ -92,9 +92,12 @@ namespace Infrastructure.Repository.Query
             List<DocumentsModel> DocumentsModel = new List<DocumentsModel>();
             try
             {
-                var query = "select  *,SessionId as FileProfileTypeSessionId,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\nFileProfileTypeID as DocumentID,\r\nProfile as ProfileNo,\r\n--CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n--CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\nCONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','Folders') as FileSizes\r\n" +
-                    //",CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID AND IsLatest=1 AND  (isDelete is null or isDelete=0) AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
-                    "from view_FileProfileTypeDocument t2 ";
+                var query = "select  *,SessionId as FileProfileTypeSessionId,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\nFileProfileTypeID as DocumentID,\r\nProfile as ProfileNo,\r\n--CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n--CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\nCONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','Folders') as FileSizes\r\n";
+                if (selectedFileProfileTypeID == null)
+                {
+                    query += ",CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID AND IsLatest=1 AND  (isDelete is null or isDelete=0) AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n";
+                }
+                query += "from view_FileProfileTypeDocument t2 ";
                 if (selectedFileProfileTypeID == null)
                 {
                     query += "\r\nWhere parentid is null AND IsDelete is null or IsDelete=0";
@@ -108,15 +111,18 @@ namespace Infrastructure.Repository.Query
 
                     DocumentsModel = (await connection.QueryAsync<DocumentsModel>(query)).ToList();
                 }
-                if (DocumentsModel != null && DocumentsModel.Count() > 0)
+                if (selectedFileProfileTypeID > 0)
                 {
-                    using (var connection = CreateConnection())
+                    if (DocumentsModel != null && DocumentsModel.Count() > 0)
                     {
-                        DocumentsModel.ForEach(s =>
+                        using (var connection = CreateConnection())
                         {
-                            var query1 = "Select CONCAT(COUNT(d1.DocumentID),' ','files') as FileCounts from Documents d1 where d1.FilterProfileTypeId=" + s.DocumentID + " AND d1.IsLatest=1 AND  (d1.isDelete is null or d1.isDelete=0) AND (d1.ArchiveStatusId != 2562 OR d1.ArchiveStatusId  IS NULL) OR (d1.DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=" + s.DocumentID + " ) AND IsLatest=1)\r\n";
-                            s.FileCounts = (connection.Query<DocumentsModel>(query1)).ToList().FirstOrDefault()?.FileCounts;
-                        });
+                            DocumentsModel.ForEach(s =>
+                            {
+                                var query1 = "Select CONCAT(COUNT(d1.DocumentID),' ','files') as FileCounts from Documents d1 where d1.FilterProfileTypeId=" + s.DocumentID + " AND d1.IsLatest=1 AND  (d1.isDelete is null or d1.isDelete=0) AND (d1.ArchiveStatusId != 2562 OR d1.ArchiveStatusId  IS NULL) OR (d1.DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=" + s.DocumentID + " ) AND IsLatest=1)\r\n";
+                                s.FileCounts = (connection.Query<DocumentsModel>(query1)).ToList().FirstOrDefault()?.FileCounts;
+                            });
+                        }
                     }
                 }
                 return DocumentsModel;

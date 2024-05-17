@@ -34,7 +34,7 @@
                 Text="Fetching Data...">
 
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn" VirtualScrollingEnabled="true"
             Data="_employeeItems"
             KeyFieldName="FinishProductGeneralInfoLineID"
             EditModelSaving="Grid_EditModelSaving"

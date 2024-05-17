@@ -37,7 +37,7 @@
                     Text="Fetching Data...">
         <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                Data="_navItems"
+                Data="_navItems" VirtualScrollingEnabled="true"
                 ShowGroupPanel="true" ShowGroupedColumns="true"
                 KeyFieldName="ItemId"
                 EditModelSaving="Grid_EditModelSaving"

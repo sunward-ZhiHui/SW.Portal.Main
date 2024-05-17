@@ -35,7 +35,7 @@
                 Text="Fetching Data...">
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            Data="_fmglobalDatas"
+            Data="_fmglobalDatas" VirtualScrollingEnabled="true"
             KeyFieldName="FmglobalId"
             EditModelSaving="Grid_EditModelSaving"
             DataItemDeleting="Grid_DataItemDeleting"

@@ -12,12 +12,12 @@
 
 <DxGrid @ref="refDynamicData"
         Data="_dynamicFormdata"
-        VirtualScrollingEnabled="false"
+       
         AllowSort="true"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        KeyFieldName="ID"
+        KeyFieldName="ID" VirtualScrollingEnabled="true"
         CustomizeElement="Grid_CustomizeElement"
-        ShowAllRows="true"
+       
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 245px);"

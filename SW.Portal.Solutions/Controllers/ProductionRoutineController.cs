@@ -32,13 +32,14 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IProductionActivityAppQueryRepository _ProductionActivityAppQueryRepository;
         private readonly IRoutineQueryRepository _RoutineQueryRepository;
         private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
-        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository)
+        private readonly ISoCustomerQueryRepository _SoCustomerQueryRepository;
+        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository)
         {
             _mediator = mediator;
             _PlantQueryRepository = PlantQueryRepository;
             _ProductionActivityAppQueryRepository = productionActivityAppQueryRepository;
             _RoutineQueryRepository = routineQueryRepository;
-
+            _SoCustomerQueryRepository = soCustomerQueryRepository;
         }
         [HttpGet("GetCompanyList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyList()
@@ -893,23 +894,17 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetCompanyListTest")]
-        public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyListTest(DataSourceLoadOptions loadOptions)
-        {
-            var response = new Services.ResponseModel<ViewPlants>();
+        //[HttpGet("GetCompanyListTest")]
+        //public async Task<ActionResult<Services.ResponseModel<List<SoCustomer>>>> GetCompanyListTest(DataSourceLoadOptions loadOptions)
+        //{
 
-            var result = await _PlantQueryRepository.GetAllAsync();
-            try
-            {
-                var loadResult = DataSourceLoader.Load<ViewPlants>((IQueryable<ViewPlants>)result.AsQueryable(), loadOptions);
-                return Json(loadResult, new JsonSerializerOptions());
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
 
+        //    var result = await _SoCustomerQueryRepository.GetListAsync();
            
-        }
+        //        var loadResult = DataSourceLoader.Load<SoCustomer>((IQueryable<SoCustomer>)result.AsQueryable(), loadOptions);
+        //        return Json(loadResult, new JsonSerializerOptions());
+           
+           
+        //}
     }
 }

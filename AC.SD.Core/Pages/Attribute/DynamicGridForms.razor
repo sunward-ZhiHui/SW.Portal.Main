@@ -607,7 +607,7 @@
                             }
                         }
                         var screenId = _dynamicform.ScreenID.Replace(" ", "_");
-                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID));
+                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID,true));
                         if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
 

@@ -286,7 +286,7 @@
                 Text="Fetching Data...">
 
     <DxGrid @ref="Grid" Data="@_ToDoNotesHistory" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="false" ShowGroupedColumns="false" ShowSearchBox="false"
-            VirtualScrollingEnabled="true"
+            
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             KeyFieldName="ID"
             CustomizeElement="Grid_CustomizeElement"
@@ -299,7 +299,7 @@
             AutoExpandAllGroupRows="true"
             CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
-            
+            VirtualScrollingEnabled="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn" CustomizeEditModel="Grid_CustomizeEditModel"
             AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
         <Columns>

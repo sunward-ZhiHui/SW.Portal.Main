@@ -30,7 +30,7 @@
 
 <DxGrid @ref="Grid" Data="@_viewFmglobalLineItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
-            @bind-SelectedDataItems="@SelectedDataItems"
+    @bind-SelectedDataItems="@SelectedDataItems" VirtualScrollingEnabled="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSizeSelectorAllRowsItemVisible="true"

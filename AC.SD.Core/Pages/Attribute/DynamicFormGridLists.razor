@@ -290,7 +290,7 @@
             if (_dynamicForm != null && applicationUser != null)
             {
                 _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
+                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID,false));
                 if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
                     List<string?> dataSourceTableIds = new List<string?>() { "Plant" };

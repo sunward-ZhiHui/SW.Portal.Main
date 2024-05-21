@@ -95,7 +95,7 @@
         if (selectedFiles.DocumentID > 0)
         {
             SearchModel searchModel = new SearchModel();
-            searchModel.Id = selectedFiles.DocumentID;
+            searchModel.Id = (long)selectedFiles.DocumentID;
             searchModel.MasterTypeID = selectedFiles.FilterProfileTypeId;
             searchModel.SearchString = selectedFiles.Type;
             searchModel.SessionID = selectedFiles.SessionID;

@@ -76,10 +76,12 @@ namespace Application.Queries
 
         public DynamicForm DynamicForm { get; set; }
         public long? UserId { get; set; }
-        public GetAllAttributeNameList(DynamicForm dynamicForm, long? userId)
+        public bool? IsSubFormLoad { get; set; }
+        public GetAllAttributeNameList(DynamicForm dynamicForm, long? userId, bool? isSubFormLoad)
         {
             this.DynamicForm = dynamicForm;
             this.UserId = userId;
+            this.IsSubFormLoad = isSubFormLoad;
         }
     }
     public class GetAllBySessionAttributeName : PagedRequest, IRequest<AttributeHeader>

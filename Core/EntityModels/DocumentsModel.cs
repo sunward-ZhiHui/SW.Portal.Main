@@ -12,7 +12,7 @@ namespace Core.EntityModels
     {
         public string Name { get; set; }
         public long UniqueNo { get; set; }
-        public long DocumentID { get; set; }
+        //public long DocumentID { get; set; }
         public long? DepartmentID { get; set; }
         public long? ParentId { get; set; }
         public long? FileProfileTypeId { get; set; }

@@ -121,7 +121,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<AttributeHeaderListModel> Handle(GetAllAttributeNameList request, CancellationToken cancellationToken)
         {
-            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm, request.UserId);
+            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm, request.UserId,request.IsSubFormLoad);
         }
     }
     public class GetAttributeHeaderDataSourceHandler : IRequestHandler<GetAttributeHeaderDataSource, List<AttributeHeaderDataSource>>

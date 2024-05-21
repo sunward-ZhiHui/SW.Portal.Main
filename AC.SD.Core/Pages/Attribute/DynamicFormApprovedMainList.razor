@@ -35,9 +35,9 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-           
+            PageSize="20"
             style="height: calc(100vh - 220px);"
-            CssClass="ch-360"
+            CssClass="w-100"
             FocusedRowEnabled="true"
             KeyFieldName="ID"
             AllowSelectRowByClick="true"
@@ -64,7 +64,7 @@
 
 @code {
     private IDisposable? DynamicFormPage4;
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
@@ -114,9 +114,9 @@
         PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count>0)
         {
-           // EditEnabled = true; DeleteEnabled = true;
+            //EditEnabled = true; DeleteEnabled = true;
             _selectedItems = _dynamicForm.FirstOrDefault();
-            Grid.SetFocusedRowIndex(0);
+           // Grid.SetFocusedRowIndex(0);
         }
         PanelVisible = false;
         StateHasChanged();

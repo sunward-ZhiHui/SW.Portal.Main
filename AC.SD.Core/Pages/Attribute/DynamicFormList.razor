@@ -212,7 +212,7 @@
     [Parameter]
     public Guid? FormSessionId { get; set; }
     IGrid? Grid { get; set; }
-    bool PanelVisible { get; set; }
+    bool PanelVisible { get; set; } = true;
     bool createEmailpopup { get; set; } = false; bool PopupDynamicFormGridLists { get; set; } = false;
     private DynamicForm _dynamicForm; public long? FileProfileTypeId { get; set; }
     private DocumentsModel _documentsDmsData;
@@ -242,7 +242,7 @@
     public long? DynamicFormDataGridId { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        
     }
 
 
@@ -263,18 +263,23 @@
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }
-    protected override async Task OnParametersSetAsync()
-    {
-        if (applicationUser != null)
-        {
-            await UpdateDataAsync();
-        }
-        base.OnParametersSet();
-    }
+    // protected override async Task OnParametersSetAsync()
+    // {
+    //     if (applicationUser != null)
+    //     {
+    //         await UpdateDataAsync();
+    //     }
+    //     base.OnParametersSet();
+    // }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            if (applicationUser != null)
+            {
+                await UpdateDataAsync();
+            }
             DynamicFormPage5 = NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
             JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/Within.js");
 
@@ -594,9 +599,25 @@
                                                                 if (itemDepExits == true)
                                                                 {
                                                                     var itemDepValue = jsonObj[nameData];
-                                                                    long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
-                                                                    var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
-                                                                    objectData[nameData] = listss;
+                                                                    if (s.IsDependencyMultiple == true)
+                                                                    {
+                                                                        if (itemDepValue is JArray)
+                                                                        {
+                                                                            List<long?> listData = itemDepValue.ToObject<List<long?>>();
+                                                                            var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                                            objectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            objectData[nameData] = string.Empty;
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
+                                                                        var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
+                                                                        objectData[nameData] = listss;
+                                                                    }
                                                                 }
 
                                                             });

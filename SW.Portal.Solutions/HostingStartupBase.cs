@@ -77,7 +77,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 provider.Mappings[".cshtml"] = "text/plain";
                 provider.Mappings[".cs"] = "text/plain";
                 app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });
-                
+                app.UseWebSockets();
                 app.UseAuthorization();
 
                 app.UseEndpoints(endpoints => {

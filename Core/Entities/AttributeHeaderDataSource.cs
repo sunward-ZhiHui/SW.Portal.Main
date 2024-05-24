@@ -42,5 +42,7 @@ namespace Core.Entities
         public long? AttributeHeaderDataSourceId { get; set; }
         public string? DisplayName { get; set; }
         public string? DataSourceTable { get; set; }
+        public long? DynamicFormFilterParentId { get; set; }
+        public int? SortBy { get; set; }
     }
 }

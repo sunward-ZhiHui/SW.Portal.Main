@@ -808,14 +808,15 @@
                                 if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
                                 {
                                     List<string?> DataSourceTableIdsNew = new List<string?>();
+                                    Type dataTypes = a.IsDependencyMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
                                     a.AttributeHeaderDataSource.ForEach(dd =>
                                     {
                                         DataSourceTableIdsNew.Add(dd.DataSourceTable);
                                         var nameData = a.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
-                                        typesLists.Add(typeof(long?));
+                                        typesLists.Add(dataTypes);
                                         objectNameLists.Add(nameData);
                                         AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
-                                        addTempSectionAttributess.DataType = typeof(long?);
+                                        addTempSectionAttributess.DataType = dataTypes;
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                     });
@@ -1029,8 +1030,20 @@
                                                                 var itemDepValue = jsonObjs[nameData];
                                                                 if (Data.GetType().GetProperty(nameData) != null)
                                                                 {
-                                                                    long? valuesDep = itemDepValue == null ? null : (long)itemDepValue;
-                                                                    Data.GetType().GetProperty(nameData).SetValue(Data, valuesDep);
+                                                                    if (a.IsDependencyMultiple == true)
+                                                                    {
+                                                                        if (itemDepValue is JArray)
+                                                                        {
+                                                                            var values = (JArray)itemDepValue;
+                                                                            List<long?> listData = values.ToObject<List<long?>>();
+                                                                            Data.GetType().GetProperty(nameData).SetValue(Data, listData);
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        long? valuesDep = itemDepValue == null ? null : (long)itemDepValue;
+                                                                        Data.GetType().GetProperty(nameData).SetValue(Data, valuesDep);
+                                                                    }
                                                                 }
                                                             }
                                                         });
@@ -4047,6 +4060,7 @@
                     {
                         s.AttributeHeaderDataSource.ForEach(ff =>
                 {
+                    int d = 0;
                     var appendDependency = s.DynamicFormSectionAttributeId + "_" + ff.AttributeHeaderDataSourceId + "_" + ff.DataSourceTable + "_Dependency";
                     var propertyDependency = Data.GetType().GetProperty(appendDependency);
                     if (propertyDependency != null)
@@ -4060,11 +4074,11 @@
                         {
                             aatrDetails = exitsFilter.AttributeDetails.ToList();
                         }
-
+                        Type dataTypes = s.IsDependencyMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
                         var valueDataDependency = propertyDependency.GetValue(Data);
                         var accesspropertyDependency = Expression.Property(Expression.Constant(Data), appendDependency);
-                        var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(long?)), accesspropertyDependency);
-                        itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                        var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(dataTypes), accesspropertyDependency);
+                        itemBuilder.OpenComponent<DxFormLayoutItem>(5);
                         // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
                         itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
                         itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
@@ -4095,27 +4109,47 @@
                 editor11.CloseElement();
             }
             editor11.CloseElement();
-            editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(i + 1);
-            editor11.AddAttribute(i + 1, "Data", aatrDetails);
-            editor11.AddAttribute(i + 1, "EditFormat", "{0}|{1}");
-            editor11.AddAttribute(i + 1, "TextFieldName", "AttributeDetailName");
-            editor11.AddAttribute(i + 1, "ValueFieldName", "AttributeDetailID");
-            editor11.AddAttribute(i + 1, "NullText", "Select " + s.PlantDropDownWithOtherDataSourceTable + "..");
-            editor11.AddAttribute(i + 1, "ListRenderMode", ListRenderMode.Virtual);
-            editor11.AddAttribute(i + 1, "FilteringMode", DataGridFilteringMode.Contains);
-            editor11.AddAttribute(i + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-            editor11.AddAttribute(i + 1, "Value", valueDataDependency);
-            if (isAccessOnly == true)
+            if (s.IsDependencyMultiple == true)
             {
-                editor11.AddAttribute(i + 1, "Enabled", isReadonly);
+                editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(d + 1);
             }
             else
             {
-                editor11.AddAttribute(i + 1, "Enabled", isAccessOnly);
+                editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(d + 1);
             }
-            editor11.AddAttribute(i + 1, "ValueExpression", lambdapropertyDependency);
-            editor11.AddAttribute(i + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
-            editor11.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+            editor11.AddAttribute(d + 1, "Data", aatrDetails);
+            editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
+            editor11.AddAttribute(d + 1, "TextFieldName", "AttributeDetailName");
+            editor11.AddAttribute(d + 1, "ValueFieldName", "AttributeDetailID");
+            editor11.AddAttribute(d + 1, "NullText", "Select " + s.PlantDropDownWithOtherDataSourceTable + "..");
+            editor11.AddAttribute(d + 1, "ListRenderMode", ListRenderMode.Virtual);
+            editor11.AddAttribute(d + 1, "FilteringMode", DataGridFilteringMode.Contains);
+            editor11.AddAttribute(d + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+            if (isAccessOnly == true)
+            {
+                editor11.AddAttribute(d + 1, "Enabled", isReadonly);
+            }
+            else
+            {
+                editor11.AddAttribute(d + 1, "Enabled", isAccessOnly);
+            }
+            if (s.IsDependencyMultiple == true)
+            {
+                editor11.AddAttribute(d + 1, "Values", valueDataDependency);
+                editor11.AddAttribute(d + 1, "ValuesExpression", lambdapropertyDependency);
+                editor11.AddAttribute(d + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyDependency.SetValue(Data, str); }));
+            }
+            else
+            {
+                editor11.AddAttribute(d + 1, "Value", valueDataDependency);
+                editor11.AddAttribute(d + 1, "ValueExpression", lambdapropertyDependency);
+                editor11.AddAttribute(d + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
+            }
+
+
+
+
+            editor11.AddAttribute(d + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
     {
         layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
         layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
@@ -4171,16 +4205,66 @@
                         //editor11.AddAttribute(i + 1, "style", "border-color:red;");
                     }
                 }
+                else
+                {
+                    if (s.IsDependencyMultiple == true)
+                    {
+                        IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                        if (valueDatas != null)
+                        {
+                            List<long?> listData = valueDatas.ToList();
+                            if (listData.Count() == 0)
+                            {
+                                isRequiredCount += 1;
+                                if (isSubmit == true)
+                                {
+                                    //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                                }
+                            }
+                        }
+                    }
+                }
             }
             editor11.CloseComponent();
             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
             {
-                if (valueDataDependency == null && isSubmit == true)
+                if (s.IsDependencyMultiple == true)
                 {
-                    editor11.OpenElement(i + 1, "span");
-                    editor11.AddAttribute(i + 1, "class", "text-danger");
-                    editor11.AddContent(i + 1, "This field is Required");
-                    editor11.CloseElement();
+                    if (valueDataDependency == null && isSubmit == true)
+                    {
+                        editor11.OpenElement(d + 1, "span");
+                        editor11.AddAttribute(d + 1, "class", "text-danger");
+                        editor11.AddContent(d + 1, "This field is Required");
+                        editor11.CloseElement();
+                    }
+                    else
+                    {
+                        if (s.IsMultiple == true)
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0 && isSubmit == true)
+                                {
+                                    editor11.OpenElement(d + 1, "span");
+                                    editor11.AddAttribute(d + 1, "class", "text-danger");
+                                    editor11.AddContent(d + 1, "This field is Required");
+                                    editor11.CloseElement();
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (valueDataDependency == null && isSubmit == true)
+                    {
+                        editor11.OpenElement(d + 1, "span");
+                        editor11.AddAttribute(d + 1, "class", "text-danger");
+                        editor11.AddContent(d + 1, "This field is Required");
+                        editor11.CloseElement();
+                    }
                 }
             }
         })));

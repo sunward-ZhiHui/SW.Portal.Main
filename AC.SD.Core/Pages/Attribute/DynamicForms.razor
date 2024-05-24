@@ -180,7 +180,7 @@
                                                 ValueFieldName="PlantID"
                                                 SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
                                                 Enabled="isPlant"
-                                    @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
+                                                @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
                                         <Columns>
                                             <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                                 Caption="Plant Code"
@@ -202,7 +202,7 @@
                                                 ValueFieldName="DivisionID"
                                                 Enabled="isDivision"
                                                 SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
-                                    @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
+                                                @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
                                         <Columns>
                                             <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
                                                                 Caption="Name"
@@ -224,7 +224,7 @@
                                                 ValueFieldName="DepartmentId"
                                                 Enabled="isDepartment"
                                                 SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
-                                    @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
+                                                @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
                                         <Columns>
                                             <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
                                                                 Caption="Name"
@@ -246,7 +246,7 @@
                                                 ValueFieldName="SectionId"
                                                 Enabled="isSection"
                                                 SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
-                                    @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
+                                                @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
                                         <Columns>
                                             <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
                                                                 Caption="Name"
@@ -267,7 +267,7 @@
                                                 TextFieldName="SubSectionName"
                                                 ValueFieldName="SubSectionId"
                                                 Enabled="isSubSection"
-                                    @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
+                                                @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
                                         <Columns>
                                             <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
                                                                 Caption="Name"
@@ -540,7 +540,7 @@
     {
         if (firstRender)
         {
-            DynamicFormPage6 = 
+            DynamicFormPage6 =
                 NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
     }
@@ -555,7 +555,7 @@
         return ValueTask.CompletedTask;
     }
 
-    public void Dispose() 
+    public void Dispose()
     {
 
         DynamicFormPage6?.Dispose();
@@ -596,7 +596,7 @@
     }
     async Task onshowLoading()
     {
-        await JSRuntime.InvokeAsync<string>("showLoading");        
+        await JSRuntime.InvokeAsync<string>("showLoading");
     }
     async Task onhideLoading()
     {
@@ -700,7 +700,7 @@
                             }
                         }
                         var screenId = _dynamicform.ScreenID.Replace(" ", "_");
-                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID,true));
+                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true));
                         if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
 
@@ -793,14 +793,15 @@
                                 if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
                                 {
                                     List<string?> DataSourceTableIdsNew = new List<string?>();
+                                    Type dataTypes = a.IsDependencyMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
                                     a.AttributeHeaderDataSource.ForEach(dd =>
                                     {
                                         DataSourceTableIdsNew.Add(dd.DataSourceTable);
                                         var nameData = a.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
-                                        typesLists.Add(typeof(long?));
+                                        typesLists.Add(dataTypes);
                                         objectNameLists.Add(nameData);
                                         AddTempSectionAttribute addTempSectionAttributess = new AddTempSectionAttribute();
-                                        addTempSectionAttributess.DataType = typeof(long?);
+                                        addTempSectionAttributess.DataType = dataTypes;
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                     });
@@ -1014,8 +1015,20 @@
                                                                 var itemDepValue = jsonObjs[nameData];
                                                                 if (Data.GetType().GetProperty(nameData) != null)
                                                                 {
-                                                                    long? valuesDep = itemDepValue == null ? null : (long)itemDepValue;
-                                                                    Data.GetType().GetProperty(nameData).SetValue(Data, valuesDep);
+                                                                    if (a.IsDependencyMultiple == true)
+                                                                    {
+                                                                        if (itemDepValue is JArray)
+                                                                        {
+                                                                            var values = (JArray)itemDepValue;
+                                                                            List<long?> listData = values.ToObject<List<long?>>();
+                                                                            Data.GetType().GetProperty(nameData).SetValue(Data, listData);
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        long? valuesDep = itemDepValue == null ? null : (long)itemDepValue;
+                                                                        Data.GetType().GetProperty(nameData).SetValue(Data, valuesDep);
+                                                                    }
                                                                 }
                                                             }
                                                         });
@@ -2496,7 +2509,7 @@
                     if (addexits == null)
                     {
                         AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
-                        addTempSectionAttribute.DataType = typeof(long?);
+                        addTempSectionAttribute.DataType = dynamicFormSectionAttribute.IsDependencyMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
                         addTempSectionAttribute.DynamicAttributeName = nameData;
                         addTempSectionAttributes.Add(addTempSectionAttribute);
                     }
@@ -3486,17 +3499,17 @@
                                  var editFormat = "{0}";
                                  for (int e = 0; e < gridEditCount; e++)
                                  {
-                                     if(e==0)
+                                     if (e == 0)
                                      {
-                                         editFormat=string.Empty;
+                                         editFormat = string.Empty;
                                      }
                                      editFormat += "{" + "" + e + "" + "}|";
                                  }
                                  editFormat = editFormat.Trim();
                                  if (editFormat.EndsWith("|"))
-                                {
-                                    editFormat = editFormat.Remove(editFormat.Length-1);
-                                }
+                                 {
+                                     editFormat = editFormat.Remove(editFormat.Length - 1);
+                                 }
                                  editor.AddAttribute(j + 1, "EditFormat", editFormat);
                              }
                          }
@@ -3723,7 +3736,7 @@
                                  editFormat = editFormat.Trim();
                                  if (editFormat.EndsWith("|"))
                                  {
-                                     editFormat = editFormat.Remove(editFormat.Length-1);
+                                     editFormat = editFormat.Remove(editFormat.Length - 1);
                                  }
                                  editor.AddAttribute(j + 1, "EditFormat", editFormat);
                              }
@@ -4076,6 +4089,7 @@
                     {
                         s.AttributeHeaderDataSource.ForEach(ff =>
                 {
+                    int d = 0;
                     var appendDependency = s.DynamicFormSectionAttributeId + "_" + ff.AttributeHeaderDataSourceId + "_" + ff.DataSourceTable + "_Dependency";
                     var propertyDependency = Data.GetType().GetProperty(appendDependency);
                     if (propertyDependency != null)
@@ -4089,11 +4103,11 @@
                         {
                             aatrDetails = exitsFilter.AttributeDetails.ToList();
                         }
-
+                        Type dataTypes = s.IsDependencyMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
                         var valueDataDependency = propertyDependency.GetValue(Data);
                         var accesspropertyDependency = Expression.Property(Expression.Constant(Data), appendDependency);
-                        var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(long?)), accesspropertyDependency);
-                        itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                        var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(dataTypes), accesspropertyDependency);
+                        itemBuilder.OpenComponent<DxFormLayoutItem>(5);
                         // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
                         itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
                         itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
@@ -4124,27 +4138,47 @@
                 editor11.CloseElement();
             }
             editor11.CloseElement();
-            editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(i + 1);
-            editor11.AddAttribute(i + 1, "Data", aatrDetails);
-            editor11.AddAttribute(i + 1, "EditFormat", "{0}|{1}");
-            editor11.AddAttribute(i + 1, "TextFieldName", "AttributeDetailName");
-            editor11.AddAttribute(i + 1, "ValueFieldName", "AttributeDetailID");
-            editor11.AddAttribute(i + 1, "NullText", "Select " + s.PlantDropDownWithOtherDataSourceTable + "..");
-            editor11.AddAttribute(i + 1, "ListRenderMode", ListRenderMode.Virtual);
-            editor11.AddAttribute(i + 1, "FilteringMode", DataGridFilteringMode.Contains);
-            editor11.AddAttribute(i + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-            editor11.AddAttribute(i + 1, "Value", valueDataDependency);
-            if (isAccessOnly == true)
+            if(s.IsDependencyMultiple == true)
             {
-                editor11.AddAttribute(i + 1, "Enabled", isReadonly);
+                editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(d + 1);                
             }
             else
             {
-                editor11.AddAttribute(i + 1, "Enabled", isAccessOnly);
+                editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(d + 1);
             }
-            editor11.AddAttribute(i + 1, "ValueExpression", lambdapropertyDependency);
-            editor11.AddAttribute(i + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
-            editor11.AddAttribute(i + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+            editor11.AddAttribute(d + 1, "Data", aatrDetails);
+            editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
+            editor11.AddAttribute(d + 1, "TextFieldName", "AttributeDetailName");
+            editor11.AddAttribute(d + 1, "ValueFieldName", "AttributeDetailID");
+            editor11.AddAttribute(d + 1, "NullText", "Select " + s.PlantDropDownWithOtherDataSourceTable + "..");
+            editor11.AddAttribute(d + 1, "ListRenderMode", ListRenderMode.Virtual);
+            editor11.AddAttribute(d + 1, "FilteringMode", DataGridFilteringMode.Contains);
+            editor11.AddAttribute(d + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+            if (isAccessOnly == true)
+            {
+                editor11.AddAttribute(d + 1, "Enabled", isReadonly);
+            }
+            else
+            {
+                editor11.AddAttribute(d + 1, "Enabled", isAccessOnly);
+            }
+            if(s.IsDependencyMultiple == true)
+            {
+                editor11.AddAttribute(d+ 1, "Values", valueDataDependency);
+                editor11.AddAttribute(d + 1, "ValuesExpression", lambdapropertyDependency);
+                editor11.AddAttribute(d + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyDependency.SetValue(Data, str); }));
+            }
+            else
+            {
+                editor11.AddAttribute(d + 1, "Value", valueDataDependency);
+                editor11.AddAttribute(d + 1, "ValueExpression", lambdapropertyDependency);
+                editor11.AddAttribute(d + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
+            }
+
+
+
+
+            editor11.AddAttribute(d+ 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
     {
         layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
         layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
@@ -4200,17 +4234,67 @@
                         //editor11.AddAttribute(i + 1, "style", "border-color:red;");
                     }
                 }
+                else
+                {
+                    if (s.IsDependencyMultiple == true)
+                    {
+                        IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                        if (valueDatas != null)
+                        {
+                            List<long?> listData = valueDatas.ToList();
+                            if (listData.Count() == 0)
+                            {
+                                isRequiredCount += 1;
+                                if (isSubmit == true)
+                                {
+                                    //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                                }
+                            }
+                        }
+                    }
+                }
             }
             editor11.CloseComponent();
             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
             {
-                if (valueDataDependency == null && isSubmit == true)
-                {
-                    editor11.OpenElement(i + 1, "span");
-                    editor11.AddAttribute(i + 1, "class", "text-danger");
-                    editor11.AddContent(i + 1, "This field is Required");
-                    editor11.CloseElement();
-                }
+                if (s.IsDependencyMultiple == true)
+                    {
+                    if (valueDataDependency == null && isSubmit == true)
+                    {
+                        editor11.OpenElement(d + 1, "span");
+                        editor11.AddAttribute(d + 1, "class", "text-danger");
+                        editor11.AddContent(d + 1, "This field is Required");
+                        editor11.CloseElement();
+                    }
+                    else
+                    {
+                        if (s.IsMultiple == true)
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0 && isSubmit == true)
+                                {
+                                    editor11.OpenElement(d + 1, "span");
+                                    editor11.AddAttribute(d + 1, "class", "text-danger");
+                                    editor11.AddContent(d + 1, "This field is Required");
+                                    editor11.CloseElement();
+                                }
+                            }
+                        }
+                    }
+                    }
+                    else
+                    {
+                        if (valueDataDependency == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(d + 1, "span");
+                            editor11.AddAttribute(d + 1, "class", "text-danger");
+                            editor11.AddContent(d + 1, "This field is Required");
+                            editor11.CloseElement();
+                        }
+                    }
             }
         })));
                         itemBuilder.CloseComponent();
@@ -5063,24 +5147,24 @@
                             editor11.AddAttribute(p + 1, "ValueExpression", lambdapropertyDependency);
                             editor11.AddAttribute(p + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
                             if (gridlistss != null)
+                            {
+                                var gridEditCount = gridlistss.Count();
+                                var editFormat = "{0}";
+                                for (int e = 0; e < gridEditCount; e++)
                                 {
-                                    var gridEditCount = gridlistss.Count();
-                                    var editFormat = "{0}";
-                                     for (int e = 0; e < gridEditCount; e++)
-                                     {
-                                         if(e==0)
-                                         {
-                                             editFormat=string.Empty;
-                                         }
-                                         editFormat += "{" + "" + e + "" + "}|";
-                                     }
-                                        editFormat = editFormat.Trim();
-                                    if (editFormat.EndsWith("|"))
+                                    if (e == 0)
                                     {
-                                        editFormat = editFormat.Remove(editFormat.Length-1);
+                                        editFormat = string.Empty;
                                     }
-                                        editor11.AddAttribute(p + 1, "EditFormat", editFormat);
-                                 }
+                                    editFormat += "{" + "" + e + "" + "}|";
+                                }
+                                editFormat = editFormat.Trim();
+                                if (editFormat.EndsWith("|"))
+                                {
+                                    editFormat = editFormat.Remove(editFormat.Length - 1);
+                                }
+                                editor11.AddAttribute(p + 1, "EditFormat", editFormat);
+                            }
                             editor11.AddAttribute(p + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
                             {
                                 if (gridlistss != null)
@@ -5198,7 +5282,7 @@
                                 editFormat = editFormat.Trim();
                                 if (editFormat.EndsWith("|"))
                                 {
-                                    editFormat = editFormat.Remove(editFormat.Length-1);
+                                    editFormat = editFormat.Remove(editFormat.Length - 1);
                                 }
                                 editor11.AddAttribute(p + 1, "EditFormat", editFormat);
                             }

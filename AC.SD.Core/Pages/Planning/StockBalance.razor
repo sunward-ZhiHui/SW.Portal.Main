@@ -1,0 +1,65 @@
+﻿@page "/StockBalance"
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@inject AC.SD.Core.Services.ToastService toastService
+@using BlazorBarcodeScanner.ZXing.JS
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime jsRuntime
+@inject ClipboardService ClipboardService
+
+
+<div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4; padding-bottom:10px;height:calc(100vh - 150px)">
+        <div class="cw-480" style="margin-top:10px;">
+       
+
+
+            <div class="mini-menu-bar-top">
+                <div class="mini-menu-bar-heading">
+                </div>
+
+                <DxTabs ScrollMode="TabsScrollMode.NavButtons" @bind-ActiveTabIndex="@ActiveTabIndex">
+                    <DxTabPage Text="Dist Monthly Stock Balance" CssClass="@((isLeftMenuvisible == "Dist Monthly Stock Balance" ? "tActive": "tall"))" Click="@(() => OnLeftMenuItemClick("Dist Monthly Stock Balance"))">
+                           <DistMonthlyStockBalance></DistMonthlyStockBalance>        
+                    </DxTabPage>
+                    <DxTabPage Text="Nav Monthly Stock Balance" CssClass="@((isLeftMenuvisible == "Nav Monthly Stock Balance" ? "tActive": "tassignto"))" Click="@(() => OnLeftMenuItemClick("Nav Monthly Stock Balance"))">
+                            <NavMonthlyStockBalance></NavMonthlyStockBalance>      
+                    </DxTabPage>
+                              
+                </DxTabs>                          
+              
+             </div>
+
+                   
+                     <div class="views-accordion">
+                        @if (isLeftMenuvisible == "Dist Monthly Stock Balance")
+                        {                                
+                           
+                        }
+                        else if (isLeftMenuvisible == "Nav Monthly Stock Balance")
+                        {
+                           
+                        }
+                       
+                     </div>
+                      
+   </div>
+</div>
+  
+             
+@code {
+    string isLeftMenuvisible = "Dist Monthly Stock Balance";
+    public int ActiveTabIndex { get; set; } = 0;
+    void OnLeftMenuItemClick(string text)
+    {
+        isLeftMenuvisible = text;
+        StateHasChanged();
+    }
+}

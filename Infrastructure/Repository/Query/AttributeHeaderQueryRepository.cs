@@ -2469,7 +2469,7 @@ namespace Infrastructure.Repository.Query
                             jsonObj = JsonConvert.DeserializeObject(r.DynamicFormItem);
                         }
 
-
+                        IDictionary<string, object> objectDataList = new ExpandoObject();
                         IDictionary<string, object> objectData = new ExpandoObject();
                         List<object> list = new List<object>();
                         dynamicFormData.SortOrderByNo = r.SortOrderByNo;
@@ -2508,6 +2508,7 @@ namespace Infrastructure.Repository.Query
                                         opts.Add("DynamicFormDataGridSessionId", s.DynamicFormSessionId);
                                         opts.Add("Url", url);
                                         objectData[attrName] = opts;
+                                        objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = s.DynamicFormSessionId;
                                     }
                                     else
                                     {
@@ -2516,6 +2517,7 @@ namespace Infrastructure.Repository.Query
                                             opts.Add("Label", s.DisplayName);
                                             opts.Add("Value", string.Empty);
                                             objectData[attrName] = opts;
+                                            objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
                                             if (s.ApplicationMaster != null && s.ApplicationMaster.Count() > 0)
                                             {
                                                 s.ApplicationMaster.ForEach(ab =>
@@ -2533,14 +2535,16 @@ namespace Infrastructure.Repository.Query
                                                             if (s.IsMultiple == true || s.ControlType == "TagBox")
                                                             {
                                                                 var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.ApplicationMasterId == ab.ApplicationMasterId && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
-
-                                                                opts1.Add("Value", listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty);
+                                                                var lists = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                opts1.Add("Value", lists);
                                                                 objectData[nameData] = opts1;
+                                                                objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = lists;
                                                             }
                                                             else
                                                             {
                                                                 opts1.Add("Value", string.Empty);
                                                                 objectData[nameData] = opts1;
+                                                                objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = string.Empty;
                                                             }
                                                         }
                                                         else
@@ -2551,6 +2555,7 @@ namespace Infrastructure.Repository.Query
                                                                 var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                                                                 opts1.Add("Value", listss);
                                                                 objectData[nameData] = opts1;
+                                                                objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = listss;
                                                             }
                                                             else
                                                             {
@@ -2560,11 +2565,13 @@ namespace Infrastructure.Repository.Query
                                                                     var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                                                                     opts1.Add("Value", listss);
                                                                     objectData[nameData] = opts1;
+                                                                    objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = listss;
                                                                 }
                                                                 else
                                                                 {
                                                                     opts1.Add("Value", string.Empty);
                                                                     objectData[nameData] = opts1;
+                                                                    objectDataList[nameData + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = string.Empty;
                                                                 }
                                                             }
                                                         }
@@ -2579,6 +2586,7 @@ namespace Infrastructure.Repository.Query
                                             opts.Add("Label", s.DisplayName);
                                             opts.Add("Value", string.Empty);
                                             objectData[attrName] = opts;
+                                            objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
                                             List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
                                             s.ApplicationMasterParents.ForEach(ab =>
                                             {
@@ -2593,7 +2601,7 @@ namespace Infrastructure.Repository.Query
                                                     var opts1 = new Dictionary<object, object>();
                                                     opts1.Add("Label", n.ApplicationMasterName);
                                                     var nameDataPar = s.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                                    loadApplicationMasterParentDataApi(jsonObj, s, nameDataPar, opts1, PlantDependencySubAttributeDetails);
+                                                    loadApplicationMasterParentDataApi(jsonObj, s, nameDataPar, opts1, PlantDependencySubAttributeDetails, objectDataList, n.ApplicationMasterName);
                                                     objectData[nameDataPar] = opts1;
                                                 });
                                             }
@@ -2641,12 +2649,14 @@ namespace Infrastructure.Repository.Query
                                                 opts.Add("Label", s.DisplayName);
                                                 opts.Add("Value", ValueSet);
                                                 objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = ValueSet;
                                             }
                                             else
                                             {
                                                 if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
                                                 {
-                                                    opts.Add("Label", s.DisplayName); var ValueSets = string.Empty;
+                                                    opts.Add("Label", s.DisplayName); 
+                                                    var ValueSets = string.Empty;
                                                     long? Svalues = itemValue == null ? null : (long)itemValue;
                                                     if (Svalues != null)
                                                     {
@@ -2678,6 +2688,7 @@ namespace Infrastructure.Repository.Query
                                                     }
                                                     opts.Add("Value", ValueSets);
                                                     objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = ValueSets;
                                                     if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0)
                                                     {
                                                         s.AttributeHeaderDataSource.ForEach(dd =>
@@ -2693,6 +2704,7 @@ namespace Infrastructure.Repository.Query
                                                                 var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
                                                                 opts1.Add("Value", listss);
                                                                 objectData[nameData] = opts1;
+                                                                objectDataList[nameData + "$" +dd.DisplayName.Replace(" ", "_")] = listss;
                                                             }
 
                                                         });
@@ -2700,7 +2712,8 @@ namespace Infrastructure.Repository.Query
                                                 }
                                                 else if (s.ControlType == "ListBox" && s.IsMultiple == false)
                                                 {
-                                                    opts.Add("Label", s.DisplayName); var ValueSets = string.Empty;
+                                                    opts.Add("Label", s.DisplayName); 
+                                                    var ValueSets = string.Empty;
                                                     long? Svalues = itemValue == null ? null : (long)itemValue;
                                                     if (Svalues != null)
                                                     {
@@ -2713,6 +2726,7 @@ namespace Infrastructure.Repository.Query
                                                     }
                                                     opts.Add("Value", ValueSets);
                                                     objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = ValueSets;
                                                 }
                                                 else if (s.ControlType == "DateEdit")
                                                 {
@@ -2720,6 +2734,7 @@ namespace Infrastructure.Repository.Query
                                                     opts.Add("Label", s.DisplayName);
                                                     opts.Add("Value", values);
                                                     objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
                                                 }
                                                 else if (s.ControlType == "TimeEdit")
                                                 {
@@ -2727,6 +2742,7 @@ namespace Infrastructure.Repository.Query
                                                     opts.Add("Label", s.DisplayName);
                                                     opts.Add("Value", values);
                                                     objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
                                                 }
                                                 else if (s.ControlType == "SpinEdit")
                                                 {
@@ -2736,6 +2752,7 @@ namespace Infrastructure.Repository.Query
                                                         opts.Add("Label", s.DisplayName);
                                                         opts.Add("Value", values);
                                                         objectData[attrName] = opts;
+                                                        objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
                                                     }
                                                     else
                                                     {
@@ -2743,6 +2760,7 @@ namespace Infrastructure.Repository.Query
                                                         opts.Add("Label", s.DisplayName);
                                                         opts.Add("Value", values);
                                                         objectData[attrName] = opts;
+                                                        objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
                                                     }
                                                 }
                                                 else if (s.ControlType == "CheckBox")
@@ -2751,12 +2769,14 @@ namespace Infrastructure.Repository.Query
                                                     opts.Add("Label", s.DisplayName);
                                                     opts.Add("Value", values);
                                                     objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = values;
                                                 }
                                                 else
                                                 {
                                                     opts.Add("Label", s.DisplayName);
                                                     opts.Add("Value", (string)itemValue);
                                                     objectData[attrName] = opts;
+                                                    objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = (string)itemValue;
                                                 }
                                             }
 
@@ -2777,6 +2797,7 @@ namespace Infrastructure.Repository.Query
                                         opts.Add("DynamicFormDataGridSessionId", s.DynamicFormSessionId);
                                         opts.Add("Url", url);
                                         objectData[attrName] = opts;
+                                        objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = s.DynamicFormSessionId;
                                     }
                                     else
                                     {
@@ -2785,6 +2806,7 @@ namespace Infrastructure.Repository.Query
                                             opts.Add("Label", s.DisplayName);
                                             opts.Add("Value", string.Empty);
                                             objectData[attrName] = opts;
+                                            objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
                                             s.AttributeHeaderDataSource.ForEach(dd =>
                                             {
                                                 var opts1 = new Dictionary<object, object>();
@@ -2792,6 +2814,7 @@ namespace Infrastructure.Repository.Query
                                                 var nameData = s.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
                                                 opts1.Add("Value", string.Empty);
                                                 objectData[nameData] = opts1;
+                                                objectDataList[nameData + "$" + dd.DisplayName.Replace(" ", "_")] = string.Empty;
                                             });
 
                                         }
@@ -2802,6 +2825,7 @@ namespace Infrastructure.Repository.Query
                                                 opts.Add("Label", s.DisplayName);
                                                 opts.Add("Value", string.Empty);
                                                 objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
                                                 List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
                                                 s.ApplicationMasterParents.ForEach(ab =>
                                                 {
@@ -2817,6 +2841,8 @@ namespace Infrastructure.Repository.Query
                                                         var nameData = s.DynamicFormSectionAttributeId + "_" + n.ApplicationMasterParentCodeId + "_AppMasterPar";
                                                         opts1.Add("Value", string.Empty);
                                                         objectData[nameData] = opts1;
+                                                        objectDataList[nameData + "$" + n.ApplicationMasterName.Replace(" ", "_")] = string.Empty;
+
                                                     });
                                                 }
 
@@ -2826,6 +2852,7 @@ namespace Infrastructure.Repository.Query
                                                 opts.Add("Label", s.DisplayName);
                                                 opts.Add("Value", string.Empty);
                                                 objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
                                                 if (s.ApplicationMaster.Count() > 0)
                                                 {
                                                     s.ApplicationMaster.ForEach(ab =>
@@ -2834,7 +2861,8 @@ namespace Infrastructure.Repository.Query
                                                         opts1.Add("Label", ab.ApplicationMasterName);
                                                         var nameData = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
                                                         opts1.Add("Value", string.Empty);
-                                                        objectData[attrName] = opts1;
+                                                        objectData[nameData] = opts1;
+                                                        objectDataList[attrName + "$" + ab.ApplicationMasterName.Replace(" ", "_")] = string.Empty;
                                                     });
                                                 }
 
@@ -2844,6 +2872,7 @@ namespace Infrastructure.Repository.Query
                                                 opts.Add("Label", s.DisplayName);
                                                 opts.Add("Value", string.Empty);
                                                 objectData[attrName] = opts;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
                                             }
                                         }
                                     }
@@ -2854,13 +2883,14 @@ namespace Infrastructure.Repository.Query
                         }
                         list.Add(objectData);
                         dynamicFormData.ObjectDataList = list;
+                        dynamicFormData.ObjectDataItems = objectDataList;
                         _dynamicformObjectDataList.Add(dynamicFormData);
                     });
                 }
             }
             return _dynamicformObjectDataList;
         }
-        void loadApplicationMasterParentDataApi(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<object, object> opts1, IReadOnlyList<AttributeDetails> PlantDependencySubAttributeDetails)
+        void loadApplicationMasterParentDataApi(dynamic jsonObj, DynamicFormSectionAttribute s, string nameData, IDictionary<object, object> opts1, IReadOnlyList<AttributeDetails> PlantDependencySubAttributeDetails, IDictionary<string, object> objectDataList,string? DisName)
         {
 
             var SubNamess = jsonObj.ContainsKey(nameData);
@@ -2875,10 +2905,12 @@ namespace Infrastructure.Repository.Query
                         var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
                         var listsss = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                         opts1.Add("Value", listsss);
+                        objectDataList[nameData + "$" + DisName.Replace(" ", "_")] = listsss;
                     }
                     else
                     {
                         opts1.Add("Value", string.Empty);
+                        objectDataList[nameData + "$" + DisName.Replace(" ", "_")] = string.Empty;
                     }
                 }
                 else
@@ -2888,6 +2920,7 @@ namespace Infrastructure.Repository.Query
                         long? values = itemValue == null ? -1 : (long)itemValue;
                         var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                         opts1.Add("Value", listss);
+                        objectDataList[nameData + "$" + DisName.Replace(" ", "_")] = listss;
                     }
                     else
                     {
@@ -2896,10 +2929,12 @@ namespace Infrastructure.Repository.Query
                             long? values = itemValue == null ? -1 : (long)itemValue;
                             var listss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(v => v.DropDownTypeId == s.DataSourceTable && v.AttributeDetailID == values).FirstOrDefault()?.AttributeDetailName : string.Empty;
                             opts1.Add("Value", listss);
+                            objectDataList[nameData + "$" + DisName.Replace(" ", "_")] = listss;
                         }
                         else
                         {
                             opts1.Add("Value", string.Empty);
+                            objectDataList[nameData + "$" + DisName.Replace(" ", "_")] = string.Empty;
                         }
                     }
                 }
@@ -2907,6 +2942,7 @@ namespace Infrastructure.Repository.Query
             else
             {
                 opts1.Add("Value", string.Empty);
+                objectDataList[nameData + "$" + DisName.Replace(" ", "_")] = string.Empty;
             }
 
 

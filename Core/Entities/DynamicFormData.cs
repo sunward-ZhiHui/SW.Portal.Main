@@ -90,6 +90,8 @@ namespace Core.Entities
         public long? DynamicFormSectionGridAttributeId { get; set; }
         [NotMapped]
         public List<object> ObjectDataList { get; set; } = new List<object>();
+        [NotMapped]
+        public object ObjectDataItems { get; set; } = new object();
     }
     public class DynamicFormProfile
     {

@@ -166,6 +166,7 @@ namespace Infrastructure
             services.AddScoped<IUserGroupQueryRepository, UserGroupQueryRepository>();
             services.AddScoped<IIpirAppQueryRepostitory, IpirAppQueryRepostitory>();
             services.AddScoped<IFbOutputCartonsQueryRepository, FbOutputCartonsQueryRepository>();
+            services.AddScoped<IDistStockBalanceQueryRepository, DistStockBalanceQueryRepository>();
             return services;
         }
     }

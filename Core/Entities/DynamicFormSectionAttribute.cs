@@ -86,6 +86,7 @@ namespace Core.Entities
         public List<ApplicationMaster> ApplicationMaster { get; set; } = new List<ApplicationMaster>();
         public List<ApplicationMasterParent> ApplicationMasterParents { get; set; } = new List<ApplicationMasterParent>();
         public List<DynamicFormData> DynamicGridDynamicFormData { get; set; } = new List<DynamicFormData>();
+        public bool? IsDependencyMultiple { get; set; } = false;
     }
     public class DynamicFormSectionSpinEdit
     {

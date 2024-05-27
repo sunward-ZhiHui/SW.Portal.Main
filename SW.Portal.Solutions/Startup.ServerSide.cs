@@ -135,6 +135,7 @@ namespace SW.Portal.Solutions.ServerSide {
             //app.UseStaticFiles(new StaticFileOptions {
             //    ServeUnknownFileTypes = true
             //});
+            app.UseWebSockets();
             app.UseEndpoints(endpoints => {
                 endpoints.MapBlazorHub();
                 endpoints.MapHub<NotificationHub>(ApplicationConstants.SignalR.HubUrl);

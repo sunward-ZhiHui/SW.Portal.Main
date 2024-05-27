@@ -1,0 +1,303 @@
+﻿@page "/ProductionSimulationListPage"
+@using Application.Command.SoSalesOrderLine;
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+               
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit"/>
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete"/>
+              
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_productionsimulationgridLst" EditModelSaving="@OnEditModelSaving"  EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="ProductionSimulationId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" VirtualScrollingEnabled="true"
+            style="height: calc(100vh - 200px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick"
+            >
+
+
+        <Columns>
+           @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
+            <DxGridDataColumn FieldName="IsOutput" Visible="false" />
+            <DxGridDataColumn FieldName="ProdOrderNo" />
+            <DxGridDataColumn FieldName="ItemNo" />
+            <DxGridDataColumn FieldName="ItemId" Caption="Item Name" />
+            <DxGridDataColumn FieldName="Description" />
+            <DxGridDataColumn FieldName="PackSize" />
+            <DxGridDataColumn FieldName="PlannedQty" />
+            <DxGridDataColumn FieldName="Quantity" />
+            <DxGridDataColumn FieldName="Uom" />
+            <DxGridDataColumn FieldName="PerQuantity" />
+            <DxGridDataColumn FieldName="PerQtyUom" />
+            <DxGridDataColumn FieldName="BatchNo" />
+               
+            <DxGridDataColumn FieldName="StartingDate" />
+
+           @* <DxGridCommandColumn Width="160px" Visible="false" />*@
+        </Columns>
+      
+        <EditFormTemplate Context="EditFormContext">
+
+          @{
+               var types = (ProductionSimulation)EditFormContext.EditModel;
+           
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="ProductOderNo:" ColSpanMd="4">
+                    <DxTextBox @bind-Text="@types.ProdOrderNo" ReadOnly="true"  />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="4">
+                    <DxTextBox @bind-Text="@types.Description" ReadOnly="true" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="ItemNo:" ColSpanMd="4">
+                    <DxTextBox @bind-Text="@types.ItemNo" ReadOnly="true" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="ItemName:" ColSpanMd="4">
+                    <DxSpinEdit @bind-Value="@types.ItemId" ReadOnly="true" />
+                </DxFormLayoutItem>
+                
+                <DxFormLayoutItem Caption="PackSize:" ColSpanMd="4">
+                    <DxTextBox @bind-Text="@types.PackSize" ReadOnly="true" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="UOM:" ColSpanMd="4">
+                    <DxTextBox @bind-Text="@types.Uom" ReadOnly="true" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="PerQuantityUom:" ColSpanMd="4">
+                    <DxTextBox @bind-Text="@types.PerQtyUom" ReadOnly="true" />
+                </DxFormLayoutItem>
+
+                 <DxFormLayoutItem Caption="Quantity:" ColSpanMd="4">
+                    <DxSpinEdit @bind-Value="@types.Quantity"   />
+                </DxFormLayoutItem>
+
+        <DxFormLayoutItem Caption="EstimateSubmissionDate:" ColSpanMd="4">
+                    <DxDateEdit @bind-Date="@types.StartingDate"  />
+                </DxFormLayoutItem>
+        
+                <DxFormLayoutItem Caption="PerQuantity:" ColSpanMd="4">
+                    <DxSpinEdit @bind-Value="@types.PerQuantity"   />
+                </DxFormLayoutItem>
+
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProdOrderNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    private ProductionSimulation _selectedItems;
+    IGrid? Grid { get; set; }
+    private List<ProductionSimulation>? _productionsimulationgridLst;
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool PanelVisible { get; set; }
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+
+    void addEdit()
+    {
+
+        Grid.StartEditDataItemAsync(_selectedItems);
+
+    }
+
+
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    //async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    //{
+
+    //    var editModel = (ProductionSimulation)e.DataItem;
+    //    var request = new DeleteProductionSimulation(editModel.ProductionSimulationId);
+    //    await Mediator.Send(request);
+    //    await UpdateDataAsync();
+    //    Grid.SetFocusedRowIndex(0);
+
+    //}
+    async Task bulkDelete()
+    {
+        if (_selectedItems != null)
+        {
+
+
+            var request = new DeleteProductionSimulation(_selectedItems.ProductionSimulationId);
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+            Grid.SetFocusedRowIndex(0);
+            Blukdeletepopup = false;
+        }
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        _productionsimulationgridLst = await Mediator.Send(new GetProductionSimulationQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _productionsimulationgridLst = await Mediator.Send(new GetProductionSimulationQuery());
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionSimulationId");
+        _selectedItems = _productionsimulationgridLst.FirstOrDefault(f => f.ProductionSimulationId == (long?)UniqueId);
+
+        StateHasChanged();
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+
+    }
+
+    async void ClosePopup()
+    {
+        //SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+       // SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+    }
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (ProductionSimulation)e.EditModel;
+
+        if (_selectedItems != null)
+        {
+            
+        
+                var createReq = new EditProductionSimulation
+                {
+                    ProductionSimulationId = _selectedItems.ProductionSimulationId,
+                    Quantity = editModel.Quantity,
+                    PerQuantity = editModel.PerQuantity,
+                    StartingDate = editModel.StartingDate,
+                    StatusCodeId = 1,
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedByUserId = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+                errorMessage = eq.Message;
+                PopupVisible = true;
+
+            }
+
+            await UpdateDataAsync();
+
+
+        }
+
+    }
+
+  }

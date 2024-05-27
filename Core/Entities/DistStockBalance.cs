@@ -47,7 +47,12 @@ namespace Core.Entities
         public string UOM { get; set;}
         [NotMapped]
         public string NavCompany { get; set; }
+        [NotMapped]
         public int WeekNumberOfMonth { get; set; }
+        [NotMapped]
+        public int Month { get; set; }
+        [NotMapped]
+        public int Year { get; set; }
 
     }
 }

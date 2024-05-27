@@ -18,5 +18,14 @@ namespace Application.Queries
             this.distStockBalance = distStockBalance;
         }
     }
-  
+    public class NavItemStockBalanceQuery : PagedRequest, IRequest<List<NavitemStockBalance>>
+    {
+        public NavitemStockBalance? navitemStockBalance { get; set; }
+
+        public NavItemStockBalanceQuery(NavitemStockBalance navitemStockBalance)
+        {
+            this.navitemStockBalance = navitemStockBalance;
+        }
+    }
+    
 }

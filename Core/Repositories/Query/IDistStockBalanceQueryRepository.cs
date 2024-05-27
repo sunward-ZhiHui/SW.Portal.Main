@@ -12,6 +12,7 @@ namespace Core.Repositories.Query
     public interface IDistStockBalanceQueryRepository 
     {
         Task<IReadOnlyList<DistStockBalance>> GetAllDistStockBalanceAsync(DistStockBalance value);
-    
+        Task<IReadOnlyList<NavitemStockBalance>> GetAllNavItemStockBalanceAsync(NavitemStockBalance value);
+      
     }
 }

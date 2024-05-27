@@ -147,7 +147,7 @@
                                 EditFormat="{0}-{1}"
                                 Enabled="isFormCountUsed"
                                 SelectedItemChanged="@((AttributeHeader selectName) => SelectedItemChanged(selectName,types))"
-                    @bind-Value="@types.AttributeId">
+                                @bind-Value="@types.AttributeId">
                         <Columns>
                             @*  <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
                             Caption="Field Name"
@@ -180,7 +180,7 @@
                               FilteringMode="DataGridFilteringMode.Contains"
                               TextFieldName="ApplicationMasterName"
                               ValueFieldName="ApplicationMasterId"
-                    @bind-Values="@types.ApplicationMasterIdsListIds">
+                              @bind-Values="@types.ApplicationMasterIdsListIds">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMaster.ApplicationMasterName)"
                                             Caption="Name" Width="100px" />
                         <DxListEditorColumn FieldName="@nameof(ApplicationMaster.ApplicationMasterDescription)"
@@ -195,7 +195,7 @@
                               FilteringMode="DataGridFilteringMode.Contains"
                               TextFieldName="ApplicationMasterName"
                               ValueFieldName="ApplicationMasterParentCodeId"
-                    @bind-Values="@types.ApplicationMasterIdsListIds">
+                              @bind-Values="@types.ApplicationMasterIdsListIds">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMasterParent.ApplicationMasterName)"
                                             Caption="Name" Width="100px" />
                         <DxListEditorColumn FieldName="@nameof(ApplicationMasterParent.Description)"
@@ -214,14 +214,14 @@
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               TextFieldName="DisplayName"
                               ValueFieldName="AttributeHeaderDataSourceId"
-                    @bind-Values="@types.PlantDropDownWithOtherDataSourceListIds">
+                              @bind-Values="@types.PlantDropDownWithOtherDataSourceListIds">
 
                     </DxTagBox>
                     <ValidationMessage For="@(() => types.PlantDropDownWithOtherDataSourceListIds)" />
                 </DxFormLayoutItem>
-                @*  <DxFormLayoutItem Caption="Dropdown Label Name" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
-                <DxTextBox @bind-Text="@types.PlantDropDownWithOtherDataSourceLabelName" />
-                </DxFormLayoutItem> *@
+                <DxFormLayoutItem Caption="Is Dropdown Multiple" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
+                    <DxCheckBox @bind-Checked="types.IsDependencyMultiple" Enabled="isFormCountUsed"></DxCheckBox>
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Radio Layout" ColSpanMd="6" Visible="IsRadioLayoutEnabled">
                     <DxRadioGroup Items="@TemplateUploadOptions"
                                   Value="@types.RadioLayout"
@@ -248,7 +248,7 @@
                 </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="IsSpinEditTypeEnabled">
                     <DxComboBox Data="@dynamicFormSectionSpinEdit"
-                    @bind-Value="@types.IsSpinEditType"
+                                @bind-Value="@types.IsSpinEditType"
                                 Enabled="@IsSpinEditTypeEnabled"
                                 TextFieldName="Text"
                                 ValueFieldName="Value" ShowValidationIcon="true" />
@@ -269,7 +269,7 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Col Span" ColSpanMd="6">
                     <DxComboBox Data="@colSpanLists"
-                    @bind-Value="@types.ColSpan"
+                                @bind-Value="@types.ColSpan"
                                 TextFieldName="Text"
                                 ValueFieldName="Value" ShowValidationIcon="true" />
                 </DxFormLayoutItem>
@@ -324,7 +324,7 @@
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
                 <DxComboBox Data="@sortOrderAttributeSectionList"
-                @bind-Value="@_selectedDynamicFormAttributeSectionItems.SortOrderBy"
+                            @bind-Value="@_selectedDynamicFormAttributeSectionItems.SortOrderBy"
                             TextFieldName="Text"
                             ValueFieldName="Value" ShowValidationIcon="true" />
             </DxFormLayoutItem>
@@ -704,7 +704,8 @@
                     IsDefaultReadOnly = _isDefaultReadOnly,
                     ApplicationMasterId = applicationMasterId,
                     ApplicationMasterIdsListIds = applicationMasterIdsListIds,
-                    IsDisplayDropDownHeader=editModel.IsDisplayDropDownHeader,
+                    IsDisplayDropDownHeader = editModel.IsDisplayDropDownHeader,
+                    IsDependencyMultiple = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.IsDependencyMultiple : false,
                 };
 
             try
@@ -758,6 +759,7 @@
                     ApplicationMasterId = applicationMasterId,
                     ApplicationMasterIdsListIds = applicationMasterIdsListIds,
                     IsDisplayDropDownHeader = editModel.IsDisplayDropDownHeader,
+                    IsDependencyMultiple = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.IsDependencyMultiple : false,
 
                 };
             var ans = await Mediator.Send(UpdateReq);

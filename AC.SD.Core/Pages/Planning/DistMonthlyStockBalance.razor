@@ -1,0 +1,171 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@inject AC.SD.Core.Services.ToastService toastService
+@using BlazorBarcodeScanner.ZXing.JS
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime jsRuntime
+@inject ClipboardService ClipboardService
+<div  style="padding:10px;">
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                    <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
+                    <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" />
+               
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+           <EditForm EditContext="this._editContext" Context="EditFormContext" >
+                        <DataAnnotationsValidator />
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="Company" ColSpanMd="4">
+
+                                <DxComboBox Data="@_plantItems"
+                                            NullText="Select Company..."
+                                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            TextFieldName="Description"
+                                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                                            ValueFieldName="PlantID"
+                                           @bind-Value="data.CompanyID"
+                                            ShowValidationIcon="true">
+
+                                </DxComboBox>
+                               
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Stock Balance Month" ColSpanMd="4">
+                            <DxDateEdit @bind-Date="data.FilterDate" ></DxDateEdit>
+                            </DxFormLayoutItem>
+                           
+                        </DxFormLayout>
+
+                    </EditForm>
+
+</div>
+                          <div  style="padding:10px;">                
+
+                            <DxLoadingPanel @bind-Visible="PanelVisible"
+                                            IsContentBlocked="true"
+                                            ApplyBackgroundShading="true"
+                                            IndicatorAreaVisible="false"
+                                            Text="Fetching Data...">
+                                <DxGrid @ref="Grid"
+                                  Data="distStockBalances" VirtualScrollingEnabled="true"
+                                  KeyFieldName="DistStockBalanceId"
+                                        EditMode="GridEditMode.EditForm"
+                                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                                        PageSizeSelectorVisible="true"
+                                        PageSizeSelectorAllRowsItemVisible="true"
+                                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                        PageSize="20" CustomizeElement="Grid_CustomizeElement"
+                                        RowClick="OnRowClick"
+                                        FocusedRowEnabled="true"
+                                        AllowSelectRowByClick="true"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        CssClass="ch-360"
+                                        style="height: calc(100vh - 340px);">
+                                    <Columns>
+
+                <DxGridDataColumn Caption="Dist" FieldName="Dist" MinWidth="180" />
+
+                <DxGridDataColumn Caption="Dist Description" FieldName="DistDescription" MinWidth="180" />
+                <DxGridDataColumn Caption="Nav Item" FieldName="NavItem" MinWidth="180" />
+                <DxGridDataColumn Caption="Nav Description" FieldName="NavDescription" MinWidth="180" />
+                <DxGridDataColumn Caption="Nav Description2" FieldName="NavDescription2" MinWidth="180" />
+                <DxGridDataColumn Caption="Internal Ref" FieldName="InternalRef" MinWidth="180" />
+                <DxGridDataColumn Caption="Category" FieldName="Category" MinWidth="180" />
+                <DxGridDataColumn Caption="Pack UOM" FieldName="PackUOM" MinWidth="180" />
+                <DxGridDataColumn Caption="Pack Size" FieldName="PackSize" MinWidth="180" />
+                <DxGridDataColumn Caption="Nav ItemNo" FieldName="NavItemNo" MinWidth="180" />
+                <DxGridDataColumn Caption="UOM" FieldName="UOM" MinWidth="180" />
+                <DxGridDataColumn Caption="Stock Balance Month" FieldName="StockBalMonth" MinWidth="180" DisplayFormat="dd-MMM-yy"/>
+                <DxGridDataColumn Caption="Remaining Quantity" FieldName="Quantity" MinWidth="180" />
+                                       
+                                    </Columns>
+                                    <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DistDescription" />
+                                    </TotalSummary>
+
+                                </DxGrid>
+                            </DxLoadingPanel>
+                       </div>
+@code {
+    IGrid? Grid { get; set; }
+    bool  PanelVisible { get; set; } = false;
+    private List<DistStockBalance> distStockBalances;
+    private DistStockBalance? _selectedItems;
+    private List<ViewPlants> _plantItems;
+    DistStockBalance data = new DistStockBalance();
+    EditContext _editContext;
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(data);
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DistStockBalanceId");
+        _selectedItems = distStockBalances.FirstOrDefault(f => f.DistStockBalanceId == (long?)UniqueId);
+
+
+        StateHasChanged();
+    }
+    async Task SelectedItemPlantChanged(ViewPlants PlantsData)
+    {
+        data.CompanyID = PlantsData.CompanyID;
+    }
+    private int GetWeekNumberOfMonth(DateTime date)
+    {
+        DateTime firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+        int firstDay = (int)firstDayOfMonth.DayOfWeek;
+        if (firstDay == 0)
+        {
+            firstDay = 7;
+        }
+        double d = (firstDay + date.Day - 1) / 7.0;
+        return d > 5 ? (int)Math.Floor(d) : (int)Math.Ceiling(d);
+    }
+    async void OnSearch()
+    {
+        if((data.CompanyID >0 )&& (data.FilterDate != null))
+        {
+            data.Month = data.FilterDate.Value.Month;
+            data.Year = data.FilterDate.Value.Year;
+            var weekcount = GetWeekNumberOfMonth((DateTime)data.FilterDate);
+            data.WeekNumberOfMonth = weekcount;
+            PanelVisible = true;
+            distStockBalances = await Mediator.Send(new DistStockBalanceQuery(data));
+            PanelVisible = false;
+            StateHasChanged();
+        }
+    }
+}
+

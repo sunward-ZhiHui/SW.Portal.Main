@@ -90,13 +90,13 @@
                 {
                     if (s.FilterDataType == "DateField")
                     {
-                        DataClassObjectNameList.Add("From_" + s.DynamicFormFilterById);
-                        DataClassObjectNameList.Add("To_" + s.DynamicFormFilterById);
+                        DataClassObjectNameList.Add("From_" + s.DynamicFormFilterId);
+                        DataClassObjectNameList.Add("To_" + s.DynamicFormFilterId);
 
                     }
                     else
                     {
-                        DataClassObjectNameList.Add(s.DynamicFormFilterById.ToString());
+                        DataClassObjectNameList.Add(s.DynamicFormFilterId.ToString());
                     }
                     if (s.FilterDataType == "DropDown")
                     {
@@ -115,11 +115,11 @@
                     {
                         DataClassTypeList.Add(typeof(string));
                     }
-                    DataClassObjectNameList.Add("AndOr_" + s.DynamicFormFilterById);
+                    DataClassObjectNameList.Add("AndOr_" + s.DynamicFormFilterId);
                     DataClassTypeList.Add(typeof(string));
                     if (s.FilterDataType == "TextBox")
                     {
-                        DataClassObjectNameList.Add("Like_" + s.DynamicFormFilterById);
+                        DataClassObjectNameList.Add("Like_" + s.DynamicFormFilterId);
                         DataClassTypeList.Add(typeof(string));
                     }
                 }
@@ -166,6 +166,10 @@
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }
+    void OnRadioChangedItem(long? str, PropertyInfo property, DynamicFormFilterBy dynamicFormSectionAttribute)
+    {
+        property.SetValue(Data, str);
+    }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
         int i = 0;
@@ -195,10 +199,10 @@
                     DynamicFormFilterBy first = _DynamicFormFilterByItems.ToList().First();
                     _DynamicFormFilterByItems.ForEach(s =>
                     {
-                        var proName = s.DynamicFormFilterById.ToString();
+                        var proName = s.DynamicFormFilterId.ToString();
                         if (s.FilterDataType == "DateField")
                         {
-                            proName = "From_" + s.DynamicFormFilterById.ToString();
+                            proName = "From_" + s.DynamicFormFilterId.ToString();
                         }
                         var property = Data.GetType().GetProperty(proName);
                         if (property != null)
@@ -276,7 +280,27 @@
                                 }
                             }
                         }
-                        List<AttributeDetails> attributeDetails = _AttributeDetailsItems != null && _AttributeDetailsItems.Count() > 0 ? _AttributeDetailsItems.Where(w => w.DropDownTypeId == s.FilterTableName && w.ApplicationMasterName == s.ApplicationMasterCodeId).ToList() : new List<AttributeDetails>();
+                        List<AttributeDetails> attributeDetails = new List<AttributeDetails>();
+                        if (s.DynamicFormFilterParentId > 0)
+                        {
+                            var parentItems = _DynamicFormFilterByItems.FirstOrDefault(f => f.DynamicFormFilterId == s.DynamicFormFilterParentId);
+                            if (parentItems != null)
+                            {
+                                var Parproperty = Data.GetType().GetProperty(parentItems.DynamicFormFilterId.ToString());
+                                if (Parproperty != null)
+                                {
+                                    var parValueData = (long?)Parproperty.GetValue(Data);
+                                    if (parValueData!=null)
+                                    {
+                                        attributeDetails = _AttributeDetailsItems != null && _AttributeDetailsItems.Count() > 0 ? _AttributeDetailsItems.Where(w => w.DropDownTypeId == s.FilterTableName && w.ApplicationMasterName == s.ApplicationMasterCodeId && w.ParentId == parValueData).ToList() : new List<AttributeDetails>();
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            attributeDetails = _AttributeDetailsItems != null && _AttributeDetailsItems.Count() > 0 ? _AttributeDetailsItems.Where(w => w.DropDownTypeId == s.FilterTableName && w.ApplicationMasterName == s.ApplicationMasterCodeId).ToList() : new List<AttributeDetails>();
+                        }
                         editor.OpenComponent<DxComboBox<AttributeDetails, long?>>(j + 1);
                         editor.AddAttribute(j + 1, "Data", attributeDetails);
                         editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -290,7 +314,8 @@
                         editor.AddAttribute(j + 1, "Value", valueData);
                         editor.AddAttribute(j + 1, "Enabled", isEnabled);
                         editor.AddAttribute(j + 1, "ValueExpression", lambda);
-                        editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
+                        editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, (str) => OnRadioChangedItem(str, property, s)));
+                        // editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
                         editor.AddAttribute(j + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
                    {
                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(0);
@@ -301,6 +326,10 @@
                        layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
                        layoutItemBuilders.AddAttribute(1, "Caption", "Description");
                        layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(1, "FieldName", "CompanyName");
+                       layoutItemBuilders.AddAttribute(1, "Caption", "Company");
+                       layoutItemBuilders.CloseComponent();
                    }));
                         editor.CloseComponent();
                     }
@@ -309,7 +338,7 @@
                             itemBuilder.CloseComponent();
                             if (s.FilterDataType == "DateField")
                             {
-                                var _toDate = "To_" + s.DynamicFormFilterById.ToString();
+                                var _toDate = "To_" + s.DynamicFormFilterId.ToString();
                                 var _toDateproperty = Data.GetType().GetProperty(_toDate);
                                 if (_toDateproperty != null)
                                 {
@@ -341,7 +370,7 @@
                             {
                                 if (s.FilterDataType == "TextBox")
                                 {
-                                    var _likeData = "Like_" + s.DynamicFormFilterById.ToString();
+                                    var _likeData = "Like_" + s.DynamicFormFilterId.ToString();
                                     var _likeproperty = Data.GetType().GetProperty(_likeData);
                                     if (_likeproperty != null)
                                     {
@@ -380,7 +409,7 @@
                                     itemBuilder.CloseComponent();
                                 }
                             }
-                            var appendProNames = "AndOr_" + s.DynamicFormFilterById.ToString();
+                            var appendProNames = "AndOr_" + s.DynamicFormFilterId.ToString();
                             var propertyAndOr = Data.GetType().GetProperty(appendProNames);
                             if (propertyAndOr != null)
                             {

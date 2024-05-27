@@ -256,7 +256,7 @@
             if (_dynamicForm != null)
             {
                 _dynamicformObjectDataList = new List<object>();
-                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID,false));
+                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false));
                 if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
                     List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
@@ -291,7 +291,7 @@
                         }
                         else if (a.DataSourceTable == "ApplicationMasterParent")
                         {
-                           // dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                            // dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
                             if (a.IsDisplayTableHeader == true && a.ApplicationMasterParents.Count() > 0)
                             {
                                 a.ApplicationMasterParents.ForEach(ab =>
@@ -342,7 +342,7 @@
                     }
                 }
 
-                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null,null));
+                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID, null, null));
                 _dynamicformObjectDataList = new List<object>();
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
@@ -488,9 +488,25 @@
                                                         if (itemDepExits == true)
                                                         {
                                                             var itemDepValue = jsonObj[nameData];
-                                                            long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
-                                                            var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
-                                                            objectData[nameData] = listss;
+                                                            if (s.IsDependencyMultiple == true)
+                                                            {
+                                                                if (itemDepValue is JArray)
+                                                                {
+                                                                    List<long?> listData = itemDepValue.ToObject<List<long?>>();
+                                                                    var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                                    objectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                                }
+                                                                else
+                                                                {
+                                                                    objectData[nameData] = string.Empty;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
+                                                                var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
+                                                                objectData[nameData] = listss;
+                                                            }
                                                         }
 
                                                     });
@@ -608,11 +624,11 @@
                         _dynamicformObjectDataList.Add(objectData);
 
                     });
-                   // EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
+                    // EditEnabled = true; DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
                     FileProfileTypeId = _selectedItems.FileProfileTypeId;
                     //await DynamicFormOnDms();
-                   // Grid.SetFocusedRowIndex(0);
+                    // Grid.SetFocusedRowIndex(0);
                 }
             }
             else

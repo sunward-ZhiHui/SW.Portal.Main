@@ -58,7 +58,7 @@ namespace AC.ShippingDocument.Reporting
             {
                 app.UseSession();
                 //app.UseDevExpressBlazorReporting();
-                app.UseDevExpressServerSideBlazorReportViewer();
+                //app.UseDevExpressServerSideBlazorReportViewer();
                 //app.UseReporting(configurator =>
                 //{
                 //    configurator.DesignAnalyzerOptions.EnableErrorCodeLinks = true;

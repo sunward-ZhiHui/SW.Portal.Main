@@ -6,19 +6,22 @@
     <OutputType>Library</OutputType>
     <AssemblyName>AC.SD.Core</AssemblyName>
     <RootNamespace>AC.SD.Core</RootNamespace>
+	<ServerGarbageCollection>false</ServerGarbageCollection>
+	<Platforms>AnyCPU;x64</Platforms>
+	<BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
   </PropertyGroup>
-  <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ServerSide|AnyCPU'">
+		<DefineConstants>$(DefineConstants);ServerSide</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
     <Compile Remove="DataProviders\**" />
-    <Compile Remove="Pages\NewFolder\**" />
     <Compile Remove="wwwroot1\**" />
     <Content Remove="DataProviders\**" />
-    <Content Remove="Pages\NewFolder\**" />
     <Content Remove="wwwroot1\**" />
     <EmbeddedResource Remove="DataProviders\**" />
-    <EmbeddedResource Remove="Pages\NewFolder\**" />
     <EmbeddedResource Remove="wwwroot1\**" />
     <None Remove="DataProviders\**" />
-    <None Remove="Pages\NewFolder\**" />
     <None Remove="wwwroot1\**" />
   </ItemGroup>
   <ItemGroup>
@@ -45,7 +48,6 @@
     <Compile Remove="Services\RentInfoDataService.AreaRentInfo.cs" />
     <Compile Remove="Services\RentInfoDataService.cs" />
     <Compile Remove="Services\ReportFactory.cs" />
-    <Compile Remove="Services\ReportingCustomConfigurationProvider.cs" />
     <Compile Remove="Services\StockQuoteService.cs" />
     <Compile Remove="Services\WeatherForecastService.cs" />
     <Compile Remove="Services\WeatherForecastService.Editable.cs" />
@@ -54,55 +56,120 @@
     <Compile Remove="Services\WorldcitiesDataService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
+    <Content Remove="Pages\QuotationHistorys\AddQuotationAwardLines.razor" />
+    <Content Remove="Pages\Reports\ProductionActivitysReport.razor" />
     <Content Remove="wwwroot\images\icons\align-left.svg" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataProviders\IDataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Blazored.SessionStorage" Version="2.3.0" />
-    <PackageReference Include="Blazored.TextEditor" Version="1.0.8" />
-    <PackageReference Include="Blazored.Toast" Version="4.1.0" />
-    <PackageReference Include="BlazorStateManager" Version="1.0.7" />
-    <PackageReference Include="DevExpress.AspNetCore.Spreadsheet" Version="22.2.6" />
-    <PackageReference Include="DevExpress.Blazor" Version="22.2.6" />
-     <PackageReference Include="BlazorStateManager" Version="1.0.7" />
-   
-    <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="22.2.3" />
-    <PackageReference Include="DevExpress.Blazor.Server.WebAssembly" Version="22.2.6" />
-    <PackageReference Include="DevExpress.Blazor.RichEdit" Version="22.2.6" />
-    <PackageReference Include="DevExpress.Data" Version="22.2.6" />
-    <PackageReference Include="DevExpress.Document.Processor" Version="22.2.6" />
-    <PackageReference Include="DevExpress.Drawing" Version="22.2.6" />
-    <PackageReference Include="DevExpress.Office.Core" Version="22.2.6" />
-    <PackageReference Include="FontAwesome" Version="4.7.0" />    
-  
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="OneSignal.RestAPIv3.Client" Version="1.2.0" />
-    <PackageReference Include="RtfPipe" Version="2.0.7677.4303" />
-    <PackageReference Include="Solutaris.InfoWARE.ProtectedBrowserStorage" Version="1.0.0" />
-    
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
-    
-    <PackageReference Include="Toast.Blazor" Version="1.0.2" />
-    
-    <PackageReference Include="ViewerJsBlazor" Version="1.0.0" />
-	<Reference Include="Devexpress.blazor.v22.2, Version=22.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+	  <PackageReference Include="BlazorBarcodeScanner.ZXing.JS" Version="1.0.4" />
+	  <PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
+	  <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
+	  <PackageReference Include="Blazored.TextEditor" Version="1.1.0" />
+	  <PackageReference Include="Blazored.Toast" Version="4.1.0" />
+	  <PackageReference Include="BlazorStateManager" Version="1.0.7" />
+	  <PackageReference Include="ChartJs.Blazor" Version="1.1.0" />
+	  <PackageReference Include="Chronos.Blazor.Cropper" Version="1.2.16" />
+	  <PackageReference Include="CorePush" Version="4.1.0" />
+	  <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.AspNetCore.Spreadsheet" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Blazor" Version="23.1.3" />
+	  <PackageReference Include="BlazorStateManager" Version="1.1.2" />
+	  <PackageReference Include="DevExpress.Blazor.Dashboard" Version="23.1.3" />
 
+	  <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="23.1.3" />
+
+	  <PackageReference Include="DevExpress.Blazor.Reporting.Viewer" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Blazor.Server.WebAssembly" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Blazor.RichEdit" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Dashboard.Core" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Data" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Document.Processor" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Drawing" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Office.Core" Version="23.1.3" />
+	  <PackageReference Include="DevExpress.Reporting.Core" Version="23.1.3" />
+	  <PackageReference Include="FCM.Net" Version="1.0.5" />
+	  <PackageReference Include="FCMessaging" Version="0.1.1" />
+	  <PackageReference Include="Firebase-Cloud-Messaging-Net" Version="1.0.0.4" />
+	  <PackageReference Include="Firebase.Database" Version="1.0.0" />
+	  <PackageReference Include="Firebase.Messages.Core" Version="1.0.0" />
+	  <PackageReference Include="FirebaseAdmin" Version="2.4.0" />
+	  <PackageReference Include="FirebaseNet" Version="1.0.1" />
+	  <PackageReference Include="FontAwesome" Version="4.7.0" />
+	  <PackageReference Include="Google.Apis.Auth" Version="1.62.0" />
+	  <PackageReference Include="Google.Cloud.Firestore" Version="3.4.0" />
+	  <PackageReference Include="iTextSharp" Version="5.5.13.3" />
+	  <PackageReference Include="Markdig" Version="0.33.0" />
+	  <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.14" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.14" />
+
+	  <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+
+	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+	  <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.9" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	  <PackageReference Include="Plugin.Firebase" Version="2.0.9" />
+	  <PackageReference Include="Plugin.Firebase.CloudMessaging" Version="2.0.4" />
+	  <PackageReference Include="QRCoderNetCore" Version="1.0.0" />
+	  <PackageReference Include="Quick.AspNetCore.Components.Web.Extensions" Version="6.0.2" />
+	  <PackageReference Include="RtfPipe" Version="2.0.7677.4303" />
+	  <PackageReference Include="Solutaris.InfoWARE.ProtectedBrowserStorage" Version="1.0.0" />
+
+	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
+
+	  <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
+
+	  <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
+
+	  <PackageReference Include="Toast.Blazor" Version="1.0.2" />
+
+	  <PackageReference Include="ViewerJsBlazor" Version="1.0.0" />
+
+	  <PackageReference Include="WebPush" Version="1.0.12" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AC.SD.Model\AC.SD.Model.csproj" />
+  <ItemGroup>    
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <UpToDateCheckInput Remove="Pages\HR\Employee.razor" />
   </ItemGroup>
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <_ContentIncludedByDefault Remove="Pages\HR\Employee.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Reports\ProductionActivitysReport.razor" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <None Include="Pages\HR\Employee.razor" />
+    <None Include="Pages\Reports\ProductionActivitysReport.razor" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.Blazor.Reporting.v23.1.JSBasedControls.BlazorServer">
+      <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.Reporting.v23.1.JSBasedControls.BlazorServer.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Blazor.Reporting.v23.1.JSBasedControls.Common">
+      <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.Reporting.v23.1.JSBasedControls.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Blazor.Reporting.v23.1.Viewer">
+      <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.Reporting.v23.1.Viewer.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Blazor.v23.1">
+      <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.v23.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraReports.v23.1.Extensions">
+      <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.XtraReports.v23.1.Extensions.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\Reports\ProductionActivitysReport.razor" />
+  </ItemGroup>
+
 </Project>

@@ -133,7 +133,7 @@
         }
     </script>
     <environment include="ServerSide">
-        <component type="typeof(DemoStylesheetContainer)" render-mode="Server" param-InitialThemeName="@InitialThemeName" />
+        <component type="typeof(DemoStylesheetContainer)" render-mode="ServerPrerendered" param-InitialThemeName="@InitialThemeName" />
         <script src="_framework/blazor.server.js"></script>
         <script src="_content/AC.SD.Core/common.js"></script>     
         <script src="_content/AC.SD.Core/js/scrollEvents.js"></script>
@@ -158,7 +158,7 @@
         </script>
         <div id="app">
             <environment include="ServerSide">
-                    <component type="typeof(AC.SD.Core.App)" render-mode="Server" />
+                    <component type="typeof(AC.SD.Core.App)" render-mode="ServerPrerendered" />
             </environment>
             <environment include="Wasm.AspNetCoreHosted">
                 <div id="applicationLoadingPanel" class="loading-items-center loading-font" style="height: 100vh; width: 100vw; background-color: #fff;">

@@ -14,6 +14,10 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4; padding-bottom:10px;height:calc(100vh - 150px)">
+        <div class="cw-480" style="margin-top:10px;">
+       
+<div style="padding:10px;">  
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -23,14 +27,42 @@
                
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit"/>
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete"/>
+                <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
+                <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" />
               
             </Items>
         </DxMenu>
     </div>
 </div>
+</div>
+       
+<EditForm EditContext="this._editContext" Context="EditFormContext">
+    <DataAnnotationsValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Company" ColSpanMd="4">
+
+            <DxComboBox Data="@_plantItems"
+                        NullText="Select Company..."
+                        SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        ListRenderMode="ListRenderMode.Virtual"
+                        TextFieldName="Description"
+                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                        ValueFieldName="PlantID"
+            @bind-Value="data.CompanyId"
+                        ShowValidationIcon="true">
+
+            </DxComboBox>
+
+        </DxFormLayoutItem>
+       
+
+    </DxFormLayout>
+
+</EditForm>
 
 
-
+<div style="padding:10px;">
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -46,7 +78,7 @@
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20" VirtualScrollingEnabled="true"
-            style="height: calc(100vh - 200px);"
+            style="height: calc(100vh - 300px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
             RowClick="OnRowClick"
@@ -150,10 +182,16 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+</div>
+</div>
+</div>
 
 @code {
+
+    EditContext _editContext;
     private ProductionSimulation _selectedItems;
     IGrid? Grid { get; set; }
+    ProductionSimulation data = new ProductionSimulation();
     private List<ProductionSimulation>? _productionsimulationgridLst;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
@@ -163,6 +201,7 @@
     string? errorMessage;
     string? DeleteerrorMessage;
     bool MessageVisible { get; set; }
+    private List<ViewPlants> _plantItems;
     public ApplicationUser? applicationUser { get; private set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
 
@@ -178,16 +217,10 @@
     {
         Blukdeletepopup = true;
     }
-    //async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
-    //{
-
-    //    var editModel = (ProductionSimulation)e.DataItem;
-    //    var request = new DeleteProductionSimulation(editModel.ProductionSimulationId);
-    //    await Mediator.Send(request);
-    //    await UpdateDataAsync();
-    //    Grid.SetFocusedRowIndex(0);
-
-    //}
+    async void OnSearch()
+    {
+        
+    }
     async Task bulkDelete()
     {
         if (_selectedItems != null)
@@ -204,9 +237,11 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(data);
         PanelVisible = true;
         _productionsimulationgridLst = await Mediator.Send(new GetProductionSimulationQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
         PanelVisible = false;
         StateHasChanged();
     }
@@ -242,6 +277,10 @@
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
 
+    }
+    async Task SelectedItemPlantChanged(ViewPlants PlantsData)
+    {
+        data.CompanyId = PlantsData.CompanyID;
     }
 
     async void ClosePopup()

@@ -103,7 +103,7 @@
                                        
                                     </Columns>
                                     <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Quantity" />
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DistDescription" />
                                     </TotalSummary>
 
                                 </DxGrid>
@@ -157,9 +157,14 @@
     {
         if((data.CompanyID >0 )&& (data.FilterDate != null))
         {
+            data.Month = data.FilterDate.Value.Month;
+            data.Year = data.FilterDate.Value.Year;
             var weekcount = GetWeekNumberOfMonth((DateTime)data.FilterDate);
             data.WeekNumberOfMonth = weekcount;
+            PanelVisible = true;
             distStockBalances = await Mediator.Send(new DistStockBalanceQuery(data));
+            PanelVisible = false;
+            StateHasChanged();
         }
     }
 }

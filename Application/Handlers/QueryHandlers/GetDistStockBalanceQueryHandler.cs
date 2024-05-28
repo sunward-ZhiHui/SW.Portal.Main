@@ -25,4 +25,20 @@ namespace Application.Handlers.QueryHandlers
 
         
     }
+    public class GetNavStockBalanceQueryHandler : IRequestHandler<NavItemStockBalanceQuery, List<NavitemStockBalance>>
+    {
+
+        private readonly IDistStockBalanceQueryRepository _distStockBalanceQueryRepository;
+        public GetNavStockBalanceQueryHandler(IDistStockBalanceQueryRepository distStockBalanceQueryRepository)
+        {
+            _distStockBalanceQueryRepository = distStockBalanceQueryRepository;
+        }
+        public async Task<List<NavitemStockBalance>> Handle(NavItemStockBalanceQuery request, CancellationToken cancellationToken)
+        {
+            return (List<NavitemStockBalance>)await _distStockBalanceQueryRepository.GetAllNavItemStockBalanceAsync(request.navitemStockBalance);
+        }
+
+
+    }
+   
 }

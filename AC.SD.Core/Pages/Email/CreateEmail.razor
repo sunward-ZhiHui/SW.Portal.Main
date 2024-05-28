@@ -27,9 +27,14 @@
 @page "/CreateEmail"
 @page "/CreateEmail/{ActiveSessionId}"
 @implements IDisposable;
+@inject PersistentComponentState ApplicationState;
 
 @using global::Core.EntityModels;
 <style>
+    .zero-width-label label {
+        width: 0px !important
+    }
+
     .supportDoc {
         text-align: center;
         font-size: 14px;
@@ -179,7 +184,7 @@ else
                                     <ValidationMessage For="@(() => Data.ToIds)" />
                                 </DxFormLayoutItem>
 
-                                <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label">
                                     <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
                                               Click="@(_ => OnButtonUserGroupToClick())">
                                     </DxButton>
@@ -247,7 +252,7 @@ else
 
                                     </DxTagBox>
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label">
                                     <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
                                               Click="@(_ => OnButtonUserGroupCCClick())">
                                     </DxButton>
@@ -636,6 +641,8 @@ else
 </DxFlyout>
 
 @code {
+    private PersistingComponentStateSubscription _subscription;
+    private string _myData;
     private int submitCount = 0;
     bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;
@@ -1634,8 +1641,20 @@ else
             properties.FontSize = 12;
         });
     }
+    private Task Persist()
+    {
+        // storing the data
+        ApplicationState.PersistAsJson("myData", _myData);
+        return Task.CompletedTask;
+    }
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        //Logger.LogInformation("URL of new location: {Location}", e.Location);
+    }
     protected override async Task OnInitializedAsync()
     {
+        _subscription = ApplicationState.RegisterOnPersisting(Persist);
+        NavigationManager.LocationChanged += HandleLocationChanged;
         _editContext = new EditContext(Data);
 
         //var tasks = new List<Task>();
@@ -2289,9 +2308,9 @@ else
     }
     public void Dispose()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
-
+        //System.GC.Collect();
+        //GC.SuppressFinalize(this);
+        _subscription.Dispose();        
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 

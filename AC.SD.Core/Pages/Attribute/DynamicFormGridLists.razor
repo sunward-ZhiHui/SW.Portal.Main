@@ -986,10 +986,13 @@
         dynamicFormData.IsDynamicFormDataGrid = true;
         dynamicFormData.GridSortOrderByNo = newItemIndex + 1;
         dynamicFormData.DynamicFormSectionGridAttributeId = DynamicFormSectionGridAttributeId;
-        var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
-        await Mediator.Send(request);
-        await UpdateDataAsync();
-        toastService.ShowToast("Record Moved successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        if (dynamicFormData.GridSortOrderByNo > 0)
+        {
+            var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+            toastService.ShowToast("Record Moved successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        }
         StateHasChanged();
     }
     private RenderFragment BuildDataColumns()

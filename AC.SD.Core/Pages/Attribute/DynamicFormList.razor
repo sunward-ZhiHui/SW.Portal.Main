@@ -80,7 +80,6 @@
             CssClass="w-100"
             PageSize="20"
             FocusedRowEnabled="true"
-            
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -242,7 +241,7 @@
     public long? DynamicFormDataGridId { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
 
 
@@ -263,23 +262,19 @@
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }
-    // protected override async Task OnParametersSetAsync()
-    // {
-    //     if (applicationUser != null)
-    //     {
-    //         await UpdateDataAsync();
-    //     }
-    //     base.OnParametersSet();
-    // }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (applicationUser != null)
+        {
+            await UpdateDataAsync();
+        }
+        base.OnParametersSet();
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-            if (applicationUser != null)
-            {
-                await UpdateDataAsync();
-            }
+
             DynamicFormPage5 = NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
             JsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/AC.SD.Core/js/Within.js");
 
@@ -312,13 +307,17 @@
         if (SessionId != null)
         {
             _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-            _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
+            var dynamicForms = Task.Factory.StartNew(() => Mediator.Send(new GetAllDynamicFormList(SessionId, -1)));
+            await Task.WhenAll(dynamicForms);
+            _dynamicForm = await dynamicForms.Result;
             if (_dynamicForm != null)
             {
                 if (_dynamicForm != null)
                 {
                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
-                    _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID,false));
+                    var _AttributeHeaders = Task.Factory.StartNew(() => Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID, false)));
+                    await Task.WhenAll(_AttributeHeaders);
+                    _AttributeHeader = await _AttributeHeaders.Result;
                     if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                     {
                         List<string?> dataSourceTableIds = new List<string?>() { "Plant" };
@@ -334,9 +333,9 @@
                         {
                             dataSourceTableIds.Add("ApplicationMasterParent");
                         }
-
-                        PlantDependencySubAttributeDetails = await Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>()));
-
+                        var PlantDependencySubAttributeDetailss = Task.Factory.StartNew(() => Mediator.Send(new GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>())));
+                        await Task.WhenAll(PlantDependencySubAttributeDetailss);
+                        PlantDependencySubAttributeDetails = await PlantDependencySubAttributeDetailss.Result;
                         _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute;
                         _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
                         {
@@ -405,8 +404,9 @@
                             dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                         }
                     }
-
-                    _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null));
+                    var _dynamicformDataLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, 0, -1, null)));
+                    await Task.WhenAll(_dynamicformDataLists);
+                    _dynamicformDataList = await _dynamicformDataLists.Result;
                     _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
                     if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                     {
@@ -1100,10 +1100,13 @@
         dynamicFormData.DynamicFormId = (long?)sourceItem.DynamicFormId;
         dynamicFormData.SortOrderAnotherBy = sourceItemIndex + 1;
         dynamicFormData.SortOrderByNo = newItemIndex + 1;
-        var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
-        await Mediator.Send(request);
-        await UpdateDataAsync();
-        toastService.ShowToast("Record Moved successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        if (dynamicFormData.SortOrderByNo > 0)
+        {
+            var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+            toastService.ShowToast("Record Moved successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        }
         StateHasChanged();
     }
     private RenderFragment BuildDataColumns()

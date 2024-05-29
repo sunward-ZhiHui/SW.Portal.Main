@@ -606,7 +606,7 @@
     {
         await onshowLoading();
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>();
-        _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
+         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
         _longInUser = applicationUser.UserName; _longInAddedBy = applicationUser.UserName; _longInDateTime = DateTime.Now;
         if (_userEmployee != null)
@@ -642,10 +642,15 @@
                         if (_dynamicformData != null)
                         {
                             _longInAddedBy = _dynamicformData.AddedBy; _longInDateTime = _dynamicformData.AddedDate;
-                            _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicformData.DynamicFormId, _dynamicformData.DynamicFormDataId));
-                            _dynamicFormApprovedList = await Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId));
-                            _dynamicFormWorkFlowSection = await Mediator.Send(new GetDynamicFormWorkFlowExits(_dynamicform.ID, applicationUser.UserID, _dynamicformData?.DynamicFormDataId));
-                            _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, applicationUser.UserID, _dynamicformData.DynamicFormDataId));
+                            var _dynamicFormWorkFlowFormListss = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicformData.DynamicFormId, _dynamicformData.DynamicFormDataId)));
+                            var _dynamicFormApprovedLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId)));
+                            var _dynamicFormWorkFlowSections = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowExits(_dynamicform.ID, applicationUser.UserID, _dynamicformData?.DynamicFormDataId)));
+                            var _dynamicFormSectionLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, applicationUser.UserID, _dynamicformData.DynamicFormDataId)));
+                            await Task.WhenAll(_dynamicFormWorkFlowFormListss, _dynamicFormApprovedLists, _dynamicFormWorkFlowSections, _dynamicFormSectionLists);
+                            _dynamicFormWorkFlowFormList = await _dynamicFormWorkFlowFormListss.Result;
+                            _dynamicFormApprovedList = await _dynamicFormApprovedLists.Result;
+                            _dynamicFormWorkFlowSection = await _dynamicFormWorkFlowSections.Result;
+                            _dynamicFormSectionList = await _dynamicFormSectionLists.Result;
 
                             Datas.ProfileNo = _dynamicformData.ProfileNo;
                             IsUploadEnabled = true;
@@ -4138,9 +4143,9 @@
                 editor11.CloseElement();
             }
             editor11.CloseElement();
-            if(s.IsDependencyMultiple == true)
+            if (s.IsDependencyMultiple == true)
             {
-                editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(d + 1);                
+                editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(d + 1);
             }
             else
             {
@@ -4162,9 +4167,9 @@
             {
                 editor11.AddAttribute(d + 1, "Enabled", isAccessOnly);
             }
-            if(s.IsDependencyMultiple == true)
+            if (s.IsDependencyMultiple == true)
             {
-                editor11.AddAttribute(d+ 1, "Values", valueDataDependency);
+                editor11.AddAttribute(d + 1, "Values", valueDataDependency);
                 editor11.AddAttribute(d + 1, "ValuesExpression", lambdapropertyDependency);
                 editor11.AddAttribute(d + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyDependency.SetValue(Data, str); }));
             }
@@ -4178,7 +4183,7 @@
 
 
 
-            editor11.AddAttribute(d+ 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+            editor11.AddAttribute(d + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
     {
         layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
         layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
@@ -4258,7 +4263,7 @@
             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
             {
                 if (s.IsDependencyMultiple == true)
-                    {
+                {
                     if (valueDataDependency == null && isSubmit == true)
                     {
                         editor11.OpenElement(d + 1, "span");
@@ -4284,17 +4289,17 @@
                             }
                         }
                     }
-                    }
-                    else
+                }
+                else
+                {
+                    if (valueDataDependency == null && isSubmit == true)
                     {
-                        if (valueDataDependency == null && isSubmit == true)
-                        {
-                            editor11.OpenElement(d + 1, "span");
-                            editor11.AddAttribute(d + 1, "class", "text-danger");
-                            editor11.AddContent(d + 1, "This field is Required");
-                            editor11.CloseElement();
-                        }
+                        editor11.OpenElement(d + 1, "span");
+                        editor11.AddAttribute(d + 1, "class", "text-danger");
+                        editor11.AddContent(d + 1, "This field is Required");
+                        editor11.CloseElement();
                     }
+                }
             }
         })));
                         itemBuilder.CloseComponent();

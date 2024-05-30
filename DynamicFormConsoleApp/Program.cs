@@ -85,7 +85,7 @@ void loadDynamicFomJobs(string? Url)
     IctMaster ictMaster = new IctMaster();
     if (deserial.results.Count > 0)
     {
-        var counts = 1;
+        var counts =deserial.results.Count;
         for (int i = 0; i < counts; i++)
         {
             ictMaster.ProfileNo = deserial.results[i].profileNo;

@@ -126,8 +126,9 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         @if (Page == "AssignTo")
         {
-            var _assigntoEmail = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
-            _forumTopicTo.AddRange(_assigntoEmail); 
+            var getassigntoEmailTask = Task.Factory.StartNew(() => Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize)));
+            await Task.WhenAll(getassigntoEmailTask);            
+            _forumTopicTo.AddRange(await getassigntoEmailTask.Result);
             TOGrid.Reload();
         }
         //var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));

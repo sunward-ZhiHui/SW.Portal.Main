@@ -549,10 +549,15 @@
                         if (_dynamicformData != null)
                         {
                             _longInAddedBy = _dynamicformData.AddedBy; _longInDateTime = _dynamicformData.AddedDate;
-                            _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicformData.DynamicFormId, _dynamicformData.DynamicFormDataId));
-                            _dynamicFormApprovedList = await Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId));
-                            _dynamicFormWorkFlowSection = await Mediator.Send(new GetDynamicFormWorkFlowExits(_dynamicform.ID, applicationUser.UserID, _dynamicformData?.DynamicFormDataId));
-                            _dynamicFormSectionList = await Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, applicationUser.UserID, _dynamicformData.DynamicFormDataId));
+                            var _dynamicFormWorkFlowFormListss = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicformData.DynamicFormId, _dynamicformData.DynamicFormDataId)));
+                            var _dynamicFormApprovedLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId)));
+                            var _dynamicFormWorkFlowSections = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowExits(_dynamicform.ID, applicationUser.UserID, _dynamicformData?.DynamicFormDataId)));
+                            var _dynamicFormSectionLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, applicationUser.UserID, _dynamicformData.DynamicFormDataId)));
+                            await Task.WhenAll(_dynamicFormWorkFlowFormListss, _dynamicFormApprovedLists, _dynamicFormWorkFlowSections, _dynamicFormSectionLists);
+                            _dynamicFormWorkFlowFormList = await _dynamicFormWorkFlowFormListss.Result;
+                            _dynamicFormApprovedList = await _dynamicFormApprovedLists.Result;
+                            _dynamicFormWorkFlowSection = await _dynamicFormWorkFlowSections.Result;
+                            _dynamicFormSectionList = await _dynamicFormSectionLists.Result;
 
                             Datas.ProfileNo = _dynamicformData.ProfileNo;
                             IsUploadEnabled = true;
@@ -607,7 +612,7 @@
                             }
                         }
                         var screenId = _dynamicform.ScreenID.Replace(" ", "_");
-                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID,true));
+                        _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID, true));
                         if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
 

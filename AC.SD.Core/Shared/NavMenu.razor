@@ -37,6 +37,14 @@
     int count = 0;
     int scount = 0;
     string segmentcurrentUri = "";
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        //Logger.LogInformation("URL of new location: {Location}", e.Location);
+    }
     protected override async Task OnParametersSetAsync()
     {
         previousUri = NavigationManager.Uri;

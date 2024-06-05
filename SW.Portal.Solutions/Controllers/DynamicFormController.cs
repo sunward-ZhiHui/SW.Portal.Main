@@ -16,7 +16,9 @@ using Newtonsoft.Json;
 using DevExpress.Xpo;
 using Application.Queries.Base;
 using Infrastructure.Repository.Query;
-
+using Org.BouncyCastle.Asn1.Crmf;
+using RestSharp;
+using DevExpress.XtraSpreadsheet.TileLayout;
 namespace SW.Portal.Solutions.Controllers
 {
     [Route("api/[controller]")]
@@ -30,10 +32,33 @@ namespace SW.Portal.Solutions.Controllers
 
         }
         [HttpGet("GetDynamicFormDataList")]
-        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId,Guid? DynamicFormDataSessionId,Guid? DynamicFormDataGridSessionId)
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId)
         {
+            var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
+            //var baseUrl =  HttpContext.Request.Host + HttpContext.Request.Path;
             var response = new Services.ResponseModel<DynamicFormData>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, baseUrl));
+            if (result.Count > 0)
+            {
+                result.ForEach(s =>
+                {
+                    if (s.DynamicFormReportItems.Count > 0)
+                    {
+                        s.DynamicFormReportItems.ForEach(a =>
+                        {
+                            if (a.IsGrid == true)
+                            {
+                                var res = restApi(a.Url);
+                                if (res.results.Count > 0)
+                                {
+                                    List<DynamicFormData> listData = res.results.ToObject<List<DynamicFormData>>();
+                                    a.GridItems = listData;
+                                }
+                            }
+                        });
+                    }
+                });
+            }
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
@@ -47,6 +72,17 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
+        }
+        private dynamic restApi(string? Url)
+        {
+            var options = new RestClientOptions
+            {
+                //MaxTimeout = 5 * 1000,
+            };
+            var client = new RestClient(options);
+            var request = new RestRequest(Url, Method.Get);
+            RestResponse response = client.Get(request);
+            return JsonConvert.DeserializeObject<dynamic>(response.Content);
         }
     }
 }

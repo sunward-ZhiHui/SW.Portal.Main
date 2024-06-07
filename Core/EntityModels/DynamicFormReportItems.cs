@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,5 +19,6 @@ namespace Core.EntityModels
         public Guid? DynamicFormDataGridSessionId { get; set; }
         public string? Url { get; set; } = string.Empty;
         public List<DynamicFormData>? GridItems { get; set; } =new List<DynamicFormData>();
+        public bool? IsSubForm { get; set; } = false;
     }
 }

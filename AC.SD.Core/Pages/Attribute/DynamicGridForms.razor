@@ -511,7 +511,7 @@
     }
     async Task loadDynamicForm()
     {
-        await onshowLoading();
+        await onshowLoading(); _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
@@ -527,7 +527,7 @@
             ActiveTabIndex = 0; isApproval = false; isApproved = true; IsSendApproval = false; IsSendApprovalVisible = false; ApproveRejectName = "Approve"; isButtonClick = "";
             IsApprovalApproved = false; IsApprovalRejected = false; IsApprovalSave = false; IsDescriptionOpen = false; isSubmit = false; isWorkflowEnabled = false; isSaveEnabled = true;
             dynamicFormApproval = new DynamicFormApproved(); dynamicFormData = new DynamicFormData(); isApprovalEnabled = false;
-            _dynamicformData = null; isVisibleButton = true; IsSave = true; IsUploadEnabled = false; _dynamicFormWorkFlowFormList = new List<DynamicFormWorkFlowForm>();
+            _dynamicformData = null; isVisibleButton = true; IsSave = true; IsUploadEnabled = false; //_dynamicFormWorkFlowFormList = new List<DynamicFormWorkFlowForm>();
             if (SessionId != null)
             {
 
@@ -594,19 +594,49 @@
                 {
                     if (_dynamicform != null)
                     {
-                        if (_dynamicFormWorkFlowSection != null && _dynamicFormWorkFlowSection.Count() > 0)
+                        if (_dynamicformData != null)
                         {
-                            _sequenceNoList = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
-                            var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
-                            if (_sequenceNoList.Count() > 0)
+                            if (_dynamicFormWorkFlowSection != null && _dynamicFormWorkFlowSection.Count() > 0)
                             {
-                                foreach (var itemss in _sequenceNoList)
+                                _sequenceNoList = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
+                                var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
+                                if (_sequenceNoList.Count() > 0)
                                 {
-                                    var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
-                                    if (notdata != null && notdata.Count > 0)
+                                    foreach (var itemss in _sequenceNoList)
                                     {
-                                        _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
-                                        break;
+                                        var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
+                                        if (notdata != null && notdata.Count > 0)
+                                        {
+                                            _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (_dynamicFormWorkFlowFormList != null && _dynamicFormWorkFlowFormList.Count() > 0)
+                            {
+                                _sequenceNoList = _dynamicFormWorkFlowFormList.Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
+                                if (_sequenceNoList.Count() > 0)
+                                {
+                                    _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
+                                    foreach (var itemss in _sequenceNoList)
+                                    {
+                                        var notdata = _dynamicFormWorkFlowFormList.Where(w => w.SequenceNo == itemss).ToList();
+                                        if (notdata != null && notdata.Count > 0)
+                                        {
+                                            notdata.ForEach(n =>
+                                            {
+                                                DynamicFormWorkFlowSection dynamicFormWorkFlowSectionDatas = new DynamicFormWorkFlowSection();
+                                                dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
+                                                dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
+                                                dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
+                                                _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
+                                            });
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -1739,7 +1769,7 @@
     }
     async void addNew()
     {
-        SessionIds = null;
+        SessionIds = null; _dynamicformData = null;
         await loadDynamicForm();
     }
     private async Task SubmitApproveFormExternally()
@@ -2675,7 +2705,8 @@
                 {
                     isVisible = true;
                 }
-                isReadonly = false; isVisibleButton = false;
+                isReadonly = false;
+                isVisibleButton = false;
                 IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
                 isSaveEnabled = false;
             }
@@ -2713,7 +2744,7 @@
                                 if (isVisible != false)
                                 {
                                     isVisible = true;
-                                } 
+                                }
                                 isReadonly = false;
                             }
                         }
@@ -2722,21 +2753,77 @@
                             if (isVisible != false)
                             {
                                 isVisible = true;
-                            } 
+                            }
                             isReadonly = false;
                         }
+                    }
+                }
+                else
+                {
+                    if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count > 0)
+                    {
+                        var exitsUserDatas = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(q => q.DynamicFormSectionId == a.DynamicFormSectionId && q.UserId == applicationUser.UserID);
+                        if (exitsUserDatas != null)
+                        {
+
+                            if (isVisible != false)
+                            {
+                                isVisible = true;
+                            }
+                            if (isReadonly != false)
+                            {
+                                isReadonly = true;
+                            }
+                        }
+                        else
+                        {
+                            if (isVisible != false)
+                            {
+                                isVisible = true;
+                            }
+                            isReadonly = false;
+                        }
+                    }
+                    else
+                    {
+                        if (isVisible != false)
+                        {
+                            isVisible = true;
+                        }
+                        isReadonly = false;
                     }
                 }
             }
             else
             {
-                if (isVisible != false)
+                if (_dynamicformData != null)
                 {
-                    isVisible = true;
-                } 
-                if (isReadonly != false)
-                {
-                    isReadonly = true;
+                    if (_dynamicFormWorkFlowFormList != null && _dynamicFormWorkFlowFormList.Count > 0)
+                    {
+                        var notExits = _dynamicFormWorkFlowFormList.FirstOrDefault(e => e.DynamicFormSectionId == a.DynamicFormSectionId);
+                        if (notExits == null)
+                        {
+                            if (isVisible != false)
+                            {
+                                isVisible = true;
+                            }
+                            //if (isReadonly != false)
+                            // {
+                            isReadonly = true;
+                            //}
+                        }
+                    }
+                    else
+                    {
+                        if (isVisible != false)
+                        {
+                            isVisible = true;
+                        }
+                        // if (isReadonly != false)
+                        // {
+                        isReadonly = true;
+                        // }
+                    }
                 }
             }
 
@@ -3366,23 +3453,24 @@
                              }
                              if (gridlistss != null)
                              {
+
                                  editor.OpenComponent<DxComboBox<ExpandoObject, long?>>(j + 1);
                                  editor.AddAttribute(j + 1, "Data", _dynamicformObjectDataList);
                                  var gridEditCount = gridlistss.Count();
                                  var editFormat = "{0}";
                                  for (int e = 0; e < gridEditCount; e++)
                                  {
-                                     if(e==0)
+                                     if (e == 0)
                                      {
-                                         editFormat=string.Empty;
+                                         editFormat = string.Empty;
                                      }
                                      editFormat += "{" + "" + e + "" + "}|";
                                  }
                                  editFormat = editFormat.Trim();
                                  if (editFormat.EndsWith("|"))
-                                {
-                                    editFormat = editFormat.Remove(editFormat.Length-1);
-                                }
+                                 {
+                                     editFormat = editFormat.Remove(editFormat.Length - 1);
+                                 }
                                  editor.AddAttribute(j + 1, "EditFormat", editFormat);
                              }
                          }
@@ -4011,9 +4099,9 @@
                 editor11.CloseElement();
             }
             editor11.CloseElement();
-            if(s.IsDependencyMultiple == true)
+            if (s.IsDependencyMultiple == true)
             {
-                editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(d + 1);                
+                editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(d + 1);
             }
             else
             {
@@ -4035,9 +4123,9 @@
             {
                 editor11.AddAttribute(d + 1, "Enabled", isAccessOnly);
             }
-            if(s.IsDependencyMultiple == true)
+            if (s.IsDependencyMultiple == true)
             {
-                editor11.AddAttribute(d+ 1, "Values", valueDataDependency);
+                editor11.AddAttribute(d + 1, "Values", valueDataDependency);
                 editor11.AddAttribute(d + 1, "ValuesExpression", lambdapropertyDependency);
                 editor11.AddAttribute(d + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyDependency.SetValue(Data, str); }));
             }
@@ -4051,7 +4139,7 @@
 
 
 
-            editor11.AddAttribute(d+ 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+            editor11.AddAttribute(d + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
     {
         layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
         layoutItemBuilders1.AddAttribute(0, "FieldName", "AttributeDetailName");
@@ -4131,7 +4219,7 @@
             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
             {
                 if (s.IsDependencyMultiple == true)
-                    {
+                {
                     if (valueDataDependency == null && isSubmit == true)
                     {
                         editor11.OpenElement(d + 1, "span");
@@ -4157,17 +4245,17 @@
                             }
                         }
                     }
-                    }
-                    else
+                }
+                else
+                {
+                    if (valueDataDependency == null && isSubmit == true)
                     {
-                        if (valueDataDependency == null && isSubmit == true)
-                        {
-                            editor11.OpenElement(d + 1, "span");
-                            editor11.AddAttribute(d + 1, "class", "text-danger");
-                            editor11.AddContent(d + 1, "This field is Required");
-                            editor11.CloseElement();
-                        }
+                        editor11.OpenElement(d + 1, "span");
+                        editor11.AddAttribute(d + 1, "class", "text-danger");
+                        editor11.AddContent(d + 1, "This field is Required");
+                        editor11.CloseElement();
                     }
+                }
             }
         })));
                         itemBuilder.CloseComponent();
@@ -4900,47 +4988,40 @@
                 });
 
         }
-
-        if (_dynamicFormWorkFlowSectionNoWorkFlow != null)
+        if (dynamicFormData != null)
         {
-            var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
-            if (_dynamicform.IsApproval == true)
+            if (_dynamicFormWorkFlowSectionNoWorkFlow != null)
             {
-                isApprovalEnabled = true;
-                isVisibleButton = true;
-                if (_dynamicformData != null)
+                var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                if (_dynamicform.IsApproval == true)
                 {
-                    CheckedApprovalData();
-                }
-            }
-            if (_dynamicformData == null)
-            {
-                isSaveEnabled = true;
-            }
-            if (exitss != null)
-            {
-                isWorkflowEnabled = true; isSaveEnabled = true;
-                if (_dynamicformData != null)
-                {
-                    if (isApproval == true)
+                    isApprovalEnabled = true;
+                    isVisibleButton = true;
+                    if (_dynamicformData != null)
                     {
-                        IsUploadEnabled = true;
+                        CheckedApprovalData();
                     }
                 }
-                //         itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
-                //         itemBuilder.AddAttribute(i++, "ColSpanMd", 12);
-                //         itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editors) =>
-                //     {
-                //         editors.OpenElement(i++, "button");
-                //         editors.AddAttribute(i++, "style", "cursor: not-allowed;pointer - events: none;");
-                //         editors.AddAttribute(i++, "class", "btn btn-success");
-                //         editors.AddAttribute(i++, "onclick", EventCallback.Factory.Create(this, () => OnToastClick(a.DynamicFormSectionId)));
-                //         editors.AddContent(i++, "Next");
-                //         editors.CloseElement();
-                //     })));
-
-                //         itemBuilder.CloseComponent();
+                if (_dynamicformData == null)
+                {
+                    isSaveEnabled = true;
+                }
+                if (exitss != null)
+                {
+                    isWorkflowEnabled = true; isSaveEnabled = true;
+                    if (_dynamicformData != null)
+                    {
+                        if (isApproval == true)
+                        {
+                            IsUploadEnabled = true;
+                        }
+                    }
+                }
             }
+        }
+        else
+        {
+
         }
     }));
 

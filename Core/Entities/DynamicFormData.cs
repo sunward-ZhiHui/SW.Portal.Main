@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Dynamic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -93,6 +95,7 @@ namespace Core.Entities
         public List<dynamic> ObjectDataList { get; set; } = new List<dynamic>();
         [NotMapped]
         public dynamic? ObjectDataItems { get; set; }
+        
         [NotMapped]
         public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();
     }

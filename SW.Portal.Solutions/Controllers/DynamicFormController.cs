@@ -62,9 +62,8 @@ namespace SW.Portal.Solutions.Controllers
                                 if (res.results.Count > 0)
                                 {
                                     var counts = res.results.Count;
-                                    IDictionary<string, object> objectData = new ExpandoObject();
-                                    IDictionary<string, object> objectDataItems = new ExpandoObject();
-                                    List<object> lists = new List<object>();
+                                   
+                                    
                                     for (int i = 0; i < counts; i++)
                                     {
                                         DynamicFormData dynamicFormData = res.results[i].ToObject<DynamicFormData>();
@@ -79,19 +78,23 @@ namespace SW.Portal.Solutions.Controllers
                                                     var list = listData.FirstOrDefault().ToList();
                                                     if (list != null)
                                                     {
+                                                        IDictionary<string, object> objectData = new ExpandoObject();
+                                                        IDictionary<string, object> objectDataItems = new ExpandoObject();
+                                                        List<object> lists = new List<object>();
                                                         list.ForEach(k =>
                                                         {
                                                             dynamic val = k.Value;
                                                             objectData[k.Key] = k.Value;
                                                             objectDataItems[k.Key + "$" + val.Label.Replace(" ", "_")] = val.Value;
                                                         });
+                                                        lists.Add(objectData);
+                                                        dynamicFormData.ObjectDataItems = objectDataItems;
+                                                        dynamicFormData.ObjectDataList = lists;
                                                     }
                                                 }
                                             }
                                         }
-                                        lists.Add(objectData);
-                                        dynamicFormData.ObjectDataItems = objectDataItems;
-                                        dynamicFormData.ObjectDataList = lists;
+                                        
                                         dynamicFormDatas.Add(dynamicFormData);
                                     }
                                     a.GridItems = dynamicFormDatas;

@@ -30,6 +30,7 @@
     <PackageReference Include="PdfiumViewer" Version="2.13.0" />
     <PackageReference Include="Plugin.Firebase" Version="2.0.9" />
     <PackageReference Include="Quick.AspNetCore.Components.Web.Extensions" Version="6.0.2" />
+    <PackageReference Include="RestSharp" Version="111.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
     <PackageReference Include="WebGrease" Version="1.6.0" />

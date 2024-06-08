@@ -122,7 +122,7 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
         SelectedGroup = UniqueId.ToString();
         var lst = _dynamicFormDataApproval.Where(x => x.DynamicFormDataId == long.Parse(SelectedGroup)).FirstOrDefault();
-        NavigationManager.NavigateTo($"DynamicMasterSetup/dynamicForms/{lst.DynamicFormSessionID}/{lst.SessionId}");
+        NavigationManager.NavigateTo($"DynamicFormApprovedMainList/dynamicFormsApproved/{lst.DynamicFormSessionID}/{lst.SessionId}");
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

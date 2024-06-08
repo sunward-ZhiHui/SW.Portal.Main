@@ -1,9 +1,12 @@
 ﻿using Core.Entities.Base;
+using Core.EntityModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Dynamic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -89,9 +92,12 @@ namespace Core.Entities
         public string? DynamicFormDataGridProfileNo { get; set; }
         public long? DynamicFormSectionGridAttributeId { get; set; }
         [NotMapped]
-        public List<object> ObjectDataList { get; set; } = new List<object>();
+        public List<dynamic> ObjectDataList { get; set; } = new List<dynamic>();
         [NotMapped]
-        public object ObjectDataItems { get; set; } = new object();
+        public dynamic? ObjectDataItems { get; set; }
+        
+        [NotMapped]
+        public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();
     }
     public class DynamicFormProfile
     {

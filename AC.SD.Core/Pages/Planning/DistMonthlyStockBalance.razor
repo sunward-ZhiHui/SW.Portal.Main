@@ -22,7 +22,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                     <DxMenuItem Text="Search" IconCssClass="fa fa-search" Click="OnSearch" />
-                    <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" />
+                    <DxMenuItem Text="Sync" IconCssClass="fa fa-refresh" Click="OnSync" />
                
             </Items>
         </DxMenu>
@@ -166,6 +166,10 @@
             PanelVisible = false;
             StateHasChanged();
         }
+    }
+    async void OnSync()
+    {
+        
     }
 }
 

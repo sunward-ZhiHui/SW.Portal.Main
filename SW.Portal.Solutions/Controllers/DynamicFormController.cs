@@ -16,7 +16,16 @@ using Newtonsoft.Json;
 using DevExpress.Xpo;
 using Application.Queries.Base;
 using Infrastructure.Repository.Query;
-
+using Org.BouncyCastle.Asn1.Crmf;
+using RestSharp;
+using DevExpress.XtraSpreadsheet.TileLayout;
+using System.Dynamic;
+using Microsoft.Data.Edm.Values;
+using System.Data;
+using Newtonsoft.Json.Converters;
+using DevExpress.CodeParser;
+using Newtonsoft.Json.Linq;
+using Method = RestSharp.Method;
 namespace SW.Portal.Solutions.Controllers
 {
     [Route("api/[controller]")]
@@ -30,10 +39,68 @@ namespace SW.Portal.Solutions.Controllers
 
         }
         [HttpGet("GetDynamicFormDataList")]
-        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId,Guid? DynamicFormDataSessionId,Guid? DynamicFormDataGridSessionId)
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId)
         {
+            var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var response = new Services.ResponseModel<DynamicFormData>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, baseUrl));
+
+            response.ResponseCode = Services.ResponseCode.Success;
+            response.Results = result;
+            if (result.Count > 0)
+            {
+                result.ForEach(s =>
+                {
+                    if (s.DynamicFormReportItems.Count > 0)
+                    {
+                        s.DynamicFormReportItems.ForEach(a =>
+                        {
+                            if (a.IsGrid == true)
+                            {
+                                List<DynamicFormData> dynamicFormDatas = new List<DynamicFormData>();
+                                var res = restApi(a.Url);
+                                if (res.results.Count > 0)
+                                {
+                                    var counts = res.results.Count;
+                                    IDictionary<string, object> objectData = new ExpandoObject();
+                                    IDictionary<string, object> objectDataItems = new ExpandoObject();
+                                    List<object> lists = new List<object>();
+                                    for (int i = 0; i < counts; i++)
+                                    {
+                                        DynamicFormData dynamicFormData = res.results[i].ToObject<DynamicFormData>();
+                                        if (res.results[i].objectDataList != null)
+                                        {
+                                            var itemValue = res.results[i].objectDataList;
+                                            if (itemValue is JArray)
+                                            {
+                                                List<ExpandoObject> listData = itemValue.ToObject<List<ExpandoObject>>();
+                                                if (listData != null && listData.Count > 0)
+                                                {
+                                                    var list = listData.FirstOrDefault().ToList();
+                                                    if (list != null)
+                                                    {
+                                                        list.ForEach(k =>
+                                                        {
+                                                            dynamic val = k.Value;
+                                                            objectData[k.Key] = k.Value;
+                                                            objectDataItems[k.Key + "$" + val.Label.Replace(" ", "_")] = val.Value;
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        lists.Add(objectData);
+                                        dynamicFormData.ObjectDataItems = objectDataItems;
+                                        dynamicFormData.ObjectDataList = lists;
+                                        dynamicFormDatas.Add(dynamicFormData);
+                                    }
+                                    a.GridItems = dynamicFormDatas;
+                                }
+                            }
+                        });
+                    }
+                });
+            }
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
@@ -47,6 +114,17 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
+        }
+        private dynamic restApi(string? Url)
+        {
+            var options = new RestClientOptions
+            {
+                //MaxTimeout = 5 * 1000,
+            };
+            var client = new RestClient(options);
+            var request = new RestRequest(Url, Method.Get);
+            RestResponse response = client.Get(request);
+            return JsonConvert.DeserializeObject<dynamic>(response.Content);
         }
     }
 }

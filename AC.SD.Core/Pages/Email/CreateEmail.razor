@@ -2343,6 +2343,34 @@ else
     }
     public void Dispose()
     {
+        // Dispose of each list and clear the references
+        _AllCategory?.Clear();
+        _AllCategory = null;
+
+        _groupTagItems?.Clear();
+        _groupTagItems = null;
+
+        _UserTagList?.Clear();
+        _UserTagList = null;
+
+        _participant?.Clear();
+        _participant = null;
+
+        _Allparticipant?.Clear();
+        _Allparticipant = null;
+
+        _Toparticipant?.Clear();
+        _Toparticipant = null;
+
+        _CCparticipant?.Clear();
+        _CCparticipant = null;
+
+        _OnBehalfparticipant?.Clear();
+        _OnBehalfparticipant = null;
+
+        Console.WriteLine("Component Disposed");
+        
+        GC.SuppressFinalize(this);
         //System.GC.Collect();
         //GC.SuppressFinalize(this);
         _subscription.Dispose();        

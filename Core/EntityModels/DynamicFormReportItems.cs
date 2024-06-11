@@ -20,5 +20,6 @@ namespace Core.EntityModels
         public string? Url { get; set; } = string.Empty;
         public List<DynamicFormData>? GridItems { get; set; } =new List<DynamicFormData>();
         public bool? IsSubForm { get; set; } = false;
+        public List<dynamic>? GridSingleItems { get; set; } = new List<dynamic>();
     }
 }

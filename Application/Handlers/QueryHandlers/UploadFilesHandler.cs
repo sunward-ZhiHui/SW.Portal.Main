@@ -13,7 +13,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         private readonly IWebHostEnvironment _hostingEnvironment;
 
         public UploadFilesHandler(IFileStorageService fileStorageService, IWebHostEnvironment hostingEnvironment)
-        {           
+        {
             _fileStorageService = fileStorageService;
             _hostingEnvironment = hostingEnvironment;
         }
@@ -23,7 +23,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             foreach (var file in request.Files)
             {
                 // Save each file using the fileStorageService
-                var saved = await _fileStorageService.SaveFileAsync(file,request.SessionId);
+                var saved = await _fileStorageService.SaveFileAsync(file, request.SessionId);
                 if (!saved)
                 {
                     return false; // Return false if any file fails to save
@@ -117,7 +117,7 @@ namespace CMS.Application.Handlers.QueryHandlers
                 //FileData = fileContent,
                 ContentType = request.ContentType,
                 FilePath = BaseUrl,
-                ServerFilePath= serverFilePath
+                ServerFilePath = serverFilePath
                 //FilePath = serverFilePath,
 
             };
@@ -140,22 +140,53 @@ namespace CMS.Application.Handlers.QueryHandlers
             string BaseDirectory = System.AppContext.BaseDirectory;
             var reportFolder = System.IO.Path.Combine(BaseDirectory, "Reports");
             var filePath = reportFolder + request.FileName;
-          
+
             //   if (Directory.EnumerateFiles(reportFolder).
             //Select(Path.GetFileNameWithoutExtension).Contains(request.FileName))
             //   {
-             byte[] reportBytes = File.ReadAllBytes(Path.Combine(reportFolder, request.FileName + ".repx"));
-           // byte[] reportBytes = File.ReadAllBytes(Path.Combine(reportFolder, request.FileName ));
+            byte[] reportBytes = File.ReadAllBytes(Path.Combine(reportFolder, request.FileName + ".repx"));
+            // byte[] reportBytes = File.ReadAllBytes(Path.Combine(reportFolder, request.FileName ));
 
 
             // }
-           
+
             // Create and populate the DownloadFileResponse
             var response = new ReportDocuments
             {
                 FileName = request.FileName,
                 FileData = reportBytes,
-              
+
+            };
+
+            return Task.FromResult(response);
+        }
+    }
+    public class DownloadDynamicFormReportFileHandler : IRequestHandler<DownloadDynamicFormReportFileRequest, DynamicFormReport>
+    {
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IConfiguration _configuration;
+        public DownloadDynamicFormReportFileHandler(IWebHostEnvironment host, IConfiguration configuration)
+        {
+            _hostingEnvironment = host;
+            _configuration = configuration;
+        }
+        public Task<DynamicFormReport> Handle(DownloadDynamicFormReportFileRequest request, CancellationToken cancellationToken)
+        {
+
+            string BaseDirectory = System.AppContext.BaseDirectory;
+            var reportFolder = System.IO.Path.Combine(BaseDirectory, "Reports");
+            var filePath = reportFolder + request.SessionId;
+
+            byte[] reportBytes = File.ReadAllBytes(Path.Combine(reportFolder, request.SessionId + ".repx"));
+
+
+            // Create and populate the DownloadFileResponse
+            var response = new DynamicFormReport
+            {
+                FileName = request.FileName,
+                SessionId = request.SessionId,
+                FileData = reportBytes,
+
             };
 
             return Task.FromResult(response);
@@ -165,12 +196,12 @@ namespace CMS.Application.Handlers.QueryHandlers
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly INewEmailUploadQueryRepository _ReportFileQueryRepository;
-      
+
         public CreateFileHandler(INewEmailUploadQueryRepository ReportFileQueryRepository, IWebHostEnvironment host)
         {
             _ReportFileQueryRepository = ReportFileQueryRepository;
             _hostingEnvironment = host;
-           
+
         }
 
         public async Task<long> Handle(CreateFileQuery request, CancellationToken cancellationToken)
@@ -202,12 +233,12 @@ namespace CMS.Application.Handlers.QueryHandlers
 
                 return fileName;
             }
-          
+
             var filePath = getNextFileName(serverPaths);
             var documents = new Documents
             {
                 FileName = request.FileName,
-                ContentType =request.ContentType,
+                ContentType = request.ContentType,
 
                 FileSize = request.FileSize,
                 UploadDate = DateTime.Now,
@@ -221,7 +252,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             var newlist = await _ReportFileQueryRepository.Insert(documents);
             return newlist;
 
-           
+
         }
     }
 }

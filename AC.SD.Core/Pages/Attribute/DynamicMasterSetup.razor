@@ -27,6 +27,7 @@
                 <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+                 @* <DxMenuItem Text="Reports" IconCssClass="fa fa-file" Click="@OpenReports" Enabled="@EditEnabled" /> *@
             </Items>
         </DxMenu>
     </div>
@@ -88,6 +89,21 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_selectedItems.ID))" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@DynamicFormReportsBypopup"
+         ShowFooter="false"
+         ShowCloseButton="true"
+         HeaderText="Filter"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Closed="EulaPopupClosed"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormReports _dynamicform="@_selectedItems"></DynamicFormReports>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+       
+    </FooterContentTemplate>
+</DxPopup>
 
 @code {
     private IDisposable? DynamicFormPage1;
@@ -96,7 +112,7 @@
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicForm _selectedItems;
-    bool EditEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool DynamicFormReportsBypopup { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
@@ -140,8 +156,8 @@
         if (_dynamicForm != null && _dynamicForm.Count>0)
         {
             // EditEnabled = true; DeleteEnabled = true;
-             _selectedItems = _dynamicForm.FirstOrDefault();
-           // Grid.SetFocusedRowIndex(0);
+            _selectedItems = _dynamicForm.FirstOrDefault();
+            // Grid.SetFocusedRowIndex(0);
         }
         PanelVisible = false;
         StateHasChanged();
@@ -208,7 +224,7 @@
     async Task EulaPopupClosed(PopupClosedEventArgs args)
     {
         Blukdeletepopup = false;
-
+        DynamicFormReportsBypopup = false;
         await UpdateDataAsync();
     }
     async Task bulkDelete(long id)
@@ -228,5 +244,9 @@
             toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
         // await UpdateDataAsync();
+    }
+    void OpenReports()
+    {
+        DynamicFormReportsBypopup = true;
     }
 }

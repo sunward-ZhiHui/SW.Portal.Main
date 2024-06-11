@@ -483,7 +483,25 @@ namespace Application.Queries
             this.DynamicFormDataUpload = dynamicFormDataUpload;
         }
     }
-    
+    public class InsertDynamicFormReport : DynamicFormReport, IRequest<DynamicFormReport>
+    {
 
+    }
+    public class GetDynamicFormReportList : PagedRequest, IRequest<List<DynamicFormReport>>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormReportList(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
+    public class DeleteDynamicFormReport : DynamicFormReport, IRequest<DynamicFormReport>
+    {
+        public DynamicFormReport DynamicFormReport { get; set; }
+        public DeleteDynamicFormReport(DynamicFormReport dynamicFormReport)
+        {
+            this.DynamicFormReport = dynamicFormReport;
+        }
+    }
 }
 

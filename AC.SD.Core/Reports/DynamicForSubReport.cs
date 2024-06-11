@@ -6,9 +6,9 @@ using System.Drawing;
 
 namespace AC.SD.Core.Reports
 {
-    public partial class WorkOrderICTReport : DevExpress.XtraReports.UI.XtraReport
+    public partial class DynamicForSubReport : DevExpress.XtraReports.UI.XtraReport
     {
-        public WorkOrderICTReport()
+        public DynamicForSubReport()
         {
             InitializeComponent();
         }

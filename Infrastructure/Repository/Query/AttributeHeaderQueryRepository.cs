@@ -2502,6 +2502,7 @@ namespace Infrastructure.Repository.Query
                         dynamicFormData.ModifiedDate = r.ModifiedDate;
                         dynamicFormData.CurrentUserName = r.CurrentUserName;
                         dynamicFormData.StatusName = r.StatusName;
+                        dynamicFormData.DynamicFormDataGridId = r.DynamicFormDataGridId;
                         dynamicFormData.IsDynamicFormDataGrid = r.IsDynamicFormDataGrid;
                         dynamicFormData.IsFileprofileTypeDocument = r.IsFileprofileTypeDocument;
                         dynamicFormData.IsDraft = r.IsDraft;
@@ -2525,6 +2526,9 @@ namespace Infrastructure.Repository.Query
                                         opts.Add("DynamicFormSessionId", _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId);
                                         opts.Add("DynamicFormDataSessionId", r.SessionId);
                                         opts.Add("DynamicFormDataGridSessionId", s.DynamicFormSessionId);
+                                        opts.Add("DynamicGridFormId", _dynamicForm.ID);
+                                        opts.Add("DynamicGridFormDataId", r.DynamicFormDataId);
+                                        opts.Add("DynamicGridFormDataGridId", s.DynamicFormGridDropDownId);
                                         opts.Add("Url", url);
                                         objectData[attrName] = opts;
                                         objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = s.DynamicFormSessionId;
@@ -2536,6 +2540,9 @@ namespace Infrastructure.Repository.Query
                                         dynamicFormReportItems1.DynamicFormDataSessionId = r.SessionId;
                                         dynamicFormReportItems1.DynamicFormDataGridSessionId = s.DynamicFormSessionId;
                                         dynamicFormReportItems1.Url = BasUrl + url;
+                                        dynamicFormReportItems1.DynamicGridFormId = _dynamicForm.ID;
+                                        dynamicFormReportItems1.DynamicGridFormDataId = r.DynamicFormDataId;
+                                        dynamicFormReportItems1.DynamicGridFormDataGridId = s.DynamicFormGridDropDownId;
                                         dynamicFormReportItems.Add(dynamicFormReportItems1);
                                     }
                                     else
@@ -2970,6 +2977,9 @@ namespace Infrastructure.Repository.Query
                                         opts.Add("DynamicFormSessionId", _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId);
                                         opts.Add("DynamicFormDataSessionId", r.SessionId);
                                         opts.Add("DynamicFormDataGridSessionId", s.DynamicFormSessionId);
+                                        opts.Add("DynamicGridFormId", _dynamicForm.ID);
+                                        opts.Add("DynamicGridFormDataId", r.DynamicFormDataId);
+                                        opts.Add("DynamicGridFormDataGridId", s.DynamicFormGridDropDownId);
                                         opts.Add("Url", url);
                                         objectData[attrName] = opts;
                                         objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = s.DynamicFormSessionId;
@@ -2980,6 +2990,9 @@ namespace Infrastructure.Repository.Query
                                         dynamicFormReportItems1.DynamicFormSessionId = _dynamicForm.SessionId == null ? _dynamicForm.SessionID : _dynamicForm.SessionId;
                                         dynamicFormReportItems1.DynamicFormDataSessionId = r.SessionId;
                                         dynamicFormReportItems1.DynamicFormDataGridSessionId = s.DynamicFormSessionId;
+                                        dynamicFormReportItems1.DynamicGridFormId = _dynamicForm.ID;
+                                        dynamicFormReportItems1.DynamicGridFormDataId = r.DynamicFormDataId;
+                                        dynamicFormReportItems1.DynamicGridFormDataGridId = s.DynamicFormGridDropDownId;
                                         dynamicFormReportItems1.Url = BasUrl + url;
                                         dynamicFormReportItems.Add(dynamicFormReportItems1);
                                     }

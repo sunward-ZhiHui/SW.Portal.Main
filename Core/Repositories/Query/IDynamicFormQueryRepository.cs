@@ -73,7 +73,10 @@ namespace Core.Repositories.Query
 
         Task<DynamicFormData> UpdateDynamicFormDataSortOrder(DynamicFormData dynamicFormData);
         Task<DynamicFormDataUpload> InsertDmsDocumentDynamicFormData(DynamicFormDataUpload dynamicFormDataUpload);
-        
+
+        Task<DynamicFormReport> InsertDynamicFormReport(DynamicFormReport reportDocuments);
+        Task<IReadOnlyList<DynamicFormReport>> GetDynamicFormReportList(long? DynamicFormId);
+        Task<DynamicFormReport> DeleteDynamicFormReport(DynamicFormReport dynamicFormReport);
     }
 
 }

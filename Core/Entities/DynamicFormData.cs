@@ -95,7 +95,8 @@ namespace Core.Entities
         public List<dynamic> ObjectDataList { get; set; } = new List<dynamic>();
         [NotMapped]
         public dynamic? ObjectDataItems { get; set; }
-        
+        public List<dynamic>? GridSingleItems { get; set; } = new List<dynamic>();
+
         [NotMapped]
         public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();
     }

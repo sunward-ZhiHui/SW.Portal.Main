@@ -17,8 +17,12 @@ namespace Core.EntityModels
         public Guid? DynamicFormSessionId { get; set; }
         public Guid? DynamicFormDataSessionId { get; set; }
         public Guid? DynamicFormDataGridSessionId { get; set; }
+        public long? DynamicGridFormId { get; set; }
+        public long? DynamicGridFormDataId { get; set; }
+        public long? DynamicGridFormDataGridId { get; set; }
         public string? Url { get; set; } = string.Empty;
         public List<DynamicFormData>? GridItems { get; set; } =new List<DynamicFormData>();
         public bool? IsSubForm { get; set; } = false;
+        public List<dynamic>? GridSingleItems { get; set; } = new List<dynamic>();
     }
 }

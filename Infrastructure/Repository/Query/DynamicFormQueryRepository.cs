@@ -2987,7 +2987,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("DynamicFormDataId", dynamicFormSection.DynamicFormDataId);
                         parameters.Add("DynamicFormSectionId", dynamicFormSection.DynamicFormSectionId);
                         parameters.Add("LinkFileProfileTypeDocumentId", dynamicFormSection.LinkFileProfileTypeDocumentId);
-                        
+
                         if (dynamicFormSection.UploadType == "DMS")
                         {
                             parameters.Add("SessionId", dynamicFormSection.DocumentsModel?.SessionId, DbType.Guid);
@@ -4065,6 +4065,99 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-    }
 
+        public async Task<DynamicFormReport> InsertDynamicFormReport(DynamicFormReport reportDocuments)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Name", reportDocuments.Name, DbType.String);
+                    parameters.Add("Description", reportDocuments.Description, DbType.String);
+                    parameters.Add("SessionId", reportDocuments.SessionId, DbType.Guid);
+                    parameters.Add("FileName", reportDocuments.FileName, DbType.String);
+                    parameters.Add("FilePath", reportDocuments.FilePath, DbType.String);
+                    parameters.Add("AddedDate", reportDocuments.AddedDate, DbType.DateTime);
+                    parameters.Add("AddedByUserId", reportDocuments.AddedByUserId);
+                    parameters.Add("ModifiedDate", reportDocuments.ModifiedDate, DbType.DateTime);
+                    parameters.Add("ModifiedByUserId", reportDocuments.ModifiedByUserId);
+                    parameters.Add("DynamicFormId", reportDocuments.DynamicFormId);
+                    parameters.Add("StatusCodeId", reportDocuments.StatusCodeId);
+                    parameters.Add("DynamicFormReportId", reportDocuments.DynamicFormReportId);
+                    if (reportDocuments.DynamicFormReportId > 0)
+                    {
+                        var query = "UPDATE DynamicFormReport SET Name=@Name,Description = @Description,FileName =@FileName,SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID," +
+                            "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,FilePath=@FilePath WHERE DynamicFormReportId = @DynamicFormReportId";
+
+                        await connection.ExecuteAsync(query, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO DynamicFormReport(Name,Description,FileName,SessionId,AddedByUserId,AddedDate,ModifiedByUserId,ModifiedDate,DynamicFormId,StatusCodeId,FilePath) OUTPUT INSERTED.DynamicFormReportId VALUES " +
+                            "(@Name,@Description,@FileName,@SessionId,@AddedByUserId,@AddedDate,@ModifiedByUserId,@ModifiedDate,@DynamicFormId,@StatusCodeId,@FilePath)";
+
+                        var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        reportDocuments.DynamicFormReportId = rowsAffected;
+                    }
+                    return reportDocuments;
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<DynamicFormReport> DeleteDynamicFormReport(DynamicFormReport dynamicFormReport)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormReportId", dynamicFormReport.DynamicFormReportId);
+                        var query = "Update  DynamicFormReport SET IsDeleted=1 WHERE DynamicFormReportId = @DynamicFormReportId";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return dynamicFormReport;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormReport>> GetDynamicFormReportList(long? DynamicFormId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", DynamicFormId);
+                var query = "select t1.* from DynamicFormReport t1 \r\n" +
+                    "JOIN DynamicForm t2 ON t1.DynamicFormID=t2.ID\r\n" +
+                    "WHERE (t1.IsDeleted IS NULL OR t1.IsDeleted=0) AND t1.DynamicFormId=@DynamicFormId";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormReport>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+    }
 }

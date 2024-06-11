@@ -26,6 +26,7 @@ using Newtonsoft.Json.Converters;
 using DevExpress.CodeParser;
 using Newtonsoft.Json.Linq;
 using Method = RestSharp.Method;
+using Microsoft.Ajax.Utilities;
 namespace SW.Portal.Solutions.Controllers
 {
     [Route("api/[controller]")]
@@ -62,11 +63,12 @@ namespace SW.Portal.Solutions.Controllers
                                 if (res.results.Count > 0)
                                 {
                                     var counts = res.results.Count;
-                                   
-                                    
+
+                                    List<object> Singlelists = new List<object>();
                                     for (int i = 0; i < counts; i++)
                                     {
                                         DynamicFormData dynamicFormData = res.results[i].ToObject<DynamicFormData>();
+                                        
                                         if (res.results[i].objectDataList != null)
                                         {
                                             var itemValue = res.results[i].objectDataList;
@@ -80,16 +82,24 @@ namespace SW.Portal.Solutions.Controllers
                                                     {
                                                         IDictionary<string, object> objectData = new ExpandoObject();
                                                         IDictionary<string, object> objectDataItems = new ExpandoObject();
+                                                        IDictionary<string, object> objectDataSingleItems = new ExpandoObject();
+                                                        objectDataSingleItems["dynamicFormDataId"] = dynamicFormData.DynamicFormDataId;
+                                                        objectDataSingleItems["profileNo"] = dynamicFormData.ProfileNo;
+                                                        objectDataSingleItems["name"] = dynamicFormData.Name;
+                                                        objectDataSingleItems["SessionId"] = dynamicFormData.SessionId;
                                                         List<object> lists = new List<object>();
                                                         list.ForEach(k =>
                                                         {
                                                             dynamic val = k.Value;
                                                             objectData[k.Key] = k.Value;
                                                             objectDataItems[k.Key + "$" + val.Label.Replace(" ", "_")] = val.Value;
+                                                            objectDataSingleItems[k.Key + "$" + val.Label.Replace(" ", "_")] = val.Value;
                                                         });
                                                         lists.Add(objectData);
+                                                        Singlelists.Add(objectDataSingleItems);
                                                         dynamicFormData.ObjectDataItems = objectDataItems;
                                                         dynamicFormData.ObjectDataList = lists;
+                                                       // dynamicFormData.GridSingleItems = Singlelists;
                                                     }
                                                 }
                                             }
@@ -97,6 +107,7 @@ namespace SW.Portal.Solutions.Controllers
                                         
                                         dynamicFormDatas.Add(dynamicFormData);
                                     }
+                                    a.GridSingleItems = Singlelists;
                                     a.GridItems = dynamicFormDatas;
                                 }
                             }

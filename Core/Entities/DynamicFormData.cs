@@ -91,11 +91,13 @@ namespace Core.Entities
         public long? DynamicFormDataGridFormId { get; set; }
         public string? DynamicFormDataGridProfileNo { get; set; }
         public long? DynamicFormSectionGridAttributeId { get; set; }
+        public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
         [NotMapped]
         public List<dynamic> ObjectDataList { get; set; } = new List<dynamic>();
         [NotMapped]
         public dynamic? ObjectDataItems { get; set; }
         public List<dynamic>? GridSingleItems { get; set; } = new List<dynamic>();
+       
 
         [NotMapped]
         public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();

@@ -571,6 +571,7 @@
     }
     async Task SelectedItemChanged(AttributeHeader attributeHeader, DynamicFormSectionAttribute data)
     {
+        data.SelectDynamicFormId = Items.DynamicFormId;
         data.DisplayName = attributeHeader.Description;
         data.DataSourceTable = attributeHeader.DataSourceTable;
         data.FormToolTips = attributeHeader.AttrDescription;

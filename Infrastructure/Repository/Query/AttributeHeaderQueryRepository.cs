@@ -1142,6 +1142,40 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(long? DynamicFormId, long? userId)
+        {
+            try
+            {
+                DropDownOptionsGridListModel dropDownOptionsGridListModel = new DropDownOptionsGridListModel();
+                List<DynamicForm> dynamicFormDatas = new List<DynamicForm>(); List<ApplicationMaster> applicationMasters = new List<ApplicationMaster>();
+                List<ApplicationMasterParent> applicationMasterParents = new List<ApplicationMasterParent>();
+                DynamicForm dynamicFormData = new DynamicForm();
+                var parameters = new DynamicParameters();
+                List<long?> dynamicFormIds = new List<long?>();
+                var query = "select t1.*,t3.PlantCode as CompanyName from DynamicForm t1  \r\nJOIN Plant t3 ON t1.CompanyID=t3.PlantID \r\nWHERE  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.ID =" + DynamicFormId + ";";
+                query += "Select * from ApplicationMaster;";
+                query += "Select * from ApplicationMasterParent;";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query);
+                    dynamicFormDatas = results.Read<DynamicForm>().ToList();
+                    applicationMasters = results.Read<ApplicationMaster>().ToList();
+                    applicationMasterParents = results.Read<ApplicationMasterParent>().ToList();
+                    dynamicFormData = dynamicFormDatas != null ? dynamicFormDatas.FirstOrDefault() : new DynamicForm();
+                }
+                if (dynamicFormDatas != null && dynamicFormDatas.Count() > 0)
+                {
+                    dynamicFormIds.Add(DynamicFormId);
+                    dropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(dynamicFormIds, userId, dynamicFormData?.CompanyId, dynamicFormData?.CompanyName, applicationMasters, applicationMasterParents, null, false);
+                    //dropDownOptionsGridListModel.DynamicFormData = dynamicFormDatas;
+                }
+                return dropDownOptionsGridListModel;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DropDownOptionsGridListModel> GetDynamicFormGridModelAsync(List<long?> dynamicFormIds, long? userId, long? companyId, string plantCode, List<ApplicationMaster> applicationMasters, List<ApplicationMasterParent> applicationMasterParent, List<long?> DynamicFormDataId, bool? isTableHeader)
         {
             try

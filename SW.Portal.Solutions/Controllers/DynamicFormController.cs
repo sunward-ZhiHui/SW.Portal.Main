@@ -40,11 +40,11 @@ namespace SW.Portal.Solutions.Controllers
 
         }
         [HttpGet("GetDynamicFormDataList")]
-        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId)
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var response = new Services.ResponseModel<DynamicFormData>();
-            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, baseUrl));
+            var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl));
 
             response.ResponseCode = Services.ResponseCode.Success;
             response.Results = result;
@@ -68,7 +68,7 @@ namespace SW.Portal.Solutions.Controllers
                                     for (int i = 0; i < counts; i++)
                                     {
                                         DynamicFormData dynamicFormData = res.results[i].ToObject<DynamicFormData>();
-                                        
+
                                         if (res.results[i].objectDataList != null)
                                         {
                                             var itemValue = res.results[i].objectDataList;
@@ -99,12 +99,12 @@ namespace SW.Portal.Solutions.Controllers
                                                         Singlelists.Add(objectDataSingleItems);
                                                         dynamicFormData.ObjectDataItems = objectDataItems;
                                                         dynamicFormData.ObjectDataList = lists;
-                                                       // dynamicFormData.GridSingleItems = Singlelists;
+                                                        // dynamicFormData.GridSingleItems = Singlelists;
                                                     }
                                                 }
                                             }
                                         }
-                                        
+
                                         dynamicFormDatas.Add(dynamicFormData);
                                     }
                                     a.GridSingleItems = Singlelists;

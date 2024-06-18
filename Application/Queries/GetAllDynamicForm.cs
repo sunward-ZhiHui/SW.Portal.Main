@@ -503,5 +503,13 @@ namespace Application.Queries
             this.DynamicFormReport = dynamicFormReport;
         }
     }
+    public class GetDynamicFormReportOneData : PagedRequest, IRequest<DynamicFormReport>
+    {
+        public Guid? SessionId { get; set; }
+        public GetDynamicFormReportOneData(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
 }
 

@@ -832,4 +832,18 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetDynamicFormReportOneDataHandler : IRequestHandler<GetDynamicFormReportOneData, DynamicFormReport>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormReportOneDataHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormReport> Handle(GetDynamicFormReportOneData request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormReportOneData(request.SessionId);
+        }
+
+
+    }
 }

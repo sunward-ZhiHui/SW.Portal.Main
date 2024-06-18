@@ -77,6 +77,8 @@ namespace Core.Repositories.Query
         Task<DynamicFormReport> InsertDynamicFormReport(DynamicFormReport reportDocuments);
         Task<IReadOnlyList<DynamicFormReport>> GetDynamicFormReportList(long? DynamicFormId);
         Task<DynamicFormReport> DeleteDynamicFormReport(DynamicFormReport dynamicFormReport);
+        Task<DynamicFormReport> GetDynamicFormReportOneData(Guid? SessionId);
+        DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId,long? attributeId);
     }
 
 }

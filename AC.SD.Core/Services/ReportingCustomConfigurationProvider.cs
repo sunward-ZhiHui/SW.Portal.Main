@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
@@ -7,6 +8,7 @@ namespace Reporting.Core.Services
 {
     public class ReportingCustomConfigurationProvider
     {
+
         readonly IWebHostEnvironment hostingEnvironment;
         Dictionary<string, string> connectionStrings;
         string localConnectionName = "Report_Connection";

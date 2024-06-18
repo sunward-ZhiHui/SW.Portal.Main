@@ -200,7 +200,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists DynamicFormDataGridId="@DynamicFormDataGridId" IsShow="false" MainSessionId="@MainSessionId" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
+        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridId" IsShow="false" MainSessionId="@MainSessionId" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
     </BodyContentTemplate>
 </DxPopup>
 @code {
@@ -239,6 +239,7 @@
     public Guid? DynamicFormSessionId { get; set; }
     public Guid? MainSessionId { get; set; }
     public long? DynamicFormDataGridId { get; set; }
+    public long? DynamicFormSectionGridAttributeIds { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -435,6 +436,7 @@
                             objectData["StatusName"] = s.StatusName;
                             objectData["IsDynamicFormDataGrid"] = s.IsDynamicFormDataGrid;
                             objectData["IsFileprofileTypeDocument"] = s.IsFileprofileTypeDocument;
+                            objectData["DynamicFormSectionGridAttributeId"] = s.DynamicFormSectionGridAttributeId;
                             objectData["IsDraft"] = s.IsDraft;
                             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                             {
@@ -1054,6 +1056,7 @@
                 DynamicFormSessionId = DynamicFormSessionIds;
                 MainSessionId = (Guid?)item.SessionId;
                 DynamicFormDataGridId = (long?)item.DynamicFormDataId;
+                DynamicFormSectionGridAttributeIds = dropDownOptionsModel.Id;
                 PopupDynamicFormGridLists = true;
             }
         }

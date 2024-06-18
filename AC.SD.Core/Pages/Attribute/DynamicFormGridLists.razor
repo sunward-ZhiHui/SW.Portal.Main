@@ -15,26 +15,26 @@
 @using Newtonsoft.Json;
 @implements IDisposable
 @using System.Collections.ObjectModel
-<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script type="text/javascript" src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-<style scoped>
-    .ui-state-highlight {
-        background-color: rgba(var(--bs-primary-rgb), .3);
-    }
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  <style scoped>
+      .ui-state-highlight {
+          background-color: rgba(var(--bs-primary-rgb), .3);
+      }
 
-    .ui-state-hover {
-        background: rgba(var(--bs-primary-rgb), .3);
-    }
+      .ui-state-hover {
+          background: rgba(var(--bs-primary-rgb), .3);
+      }
 
-    .ui-draggable-dragging {
-        box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
-    }
+      .ui-draggable-dragging {
+          box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
+      }
 
-    .dxbl-grid .dxbl-grid-table > tbody > tr[data-visible-index] {
-        cursor: pointer;
-    }
+      .dxbl-grid .dxbl-grid-table > tbody > tr[data-visible-index] {
+          cursor: pointer;
+      }
 
-</style>
+  </style>
 @if (IsShow == true)
 {
     <div class="card w-100" style="margin-bottom:10px;">
@@ -195,7 +195,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists DynamicFormDataGridId="@DynamicFormDataGridIds" IsShow="false" MainSessionId="@MainSessionIds" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
+        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridIds" IsShow="false" MainSessionId="@MainSessionIds" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
     </BodyContentTemplate>
 </DxPopup>
 @code {
@@ -242,6 +242,7 @@
     bool ReInitializeDragging { get; set; }
     DotNetObjectReference<DynamicFormGridLists> DotNetHelper { get; set; }
     IJSObjectReference JsModule { get; set; }
+    public long? DynamicFormSectionGridAttributeIds { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -401,6 +402,7 @@
                             objectData["ModifiedDate"] = s.ModifiedDate;
                             objectData["CurrentUserName"] = s.CurrentUserName;
                             objectData["StatusName"] = s.StatusName;
+                            objectData["DynamicFormSectionGridAttributeId"] = s.DynamicFormSectionGridAttributeId;
                             objectData["IsFileprofileTypeDocument"] = s.IsFileprofileTypeDocument;
                             objectData["IsDraft"] = s.IsDraft;
                             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -913,6 +915,7 @@
                 DynamicFormSessionId = DynamicFormSessionIds;
                 MainSessionIds = (Guid?)item.SessionId;
                 DynamicFormDataGridIds = (long?)item.DynamicFormDataId;
+                DynamicFormSectionGridAttributeIds = dropDownOptionsModel.Id;
                 PopupDynamicFormGridLists = true;
             }
         }
@@ -974,7 +977,6 @@
 
         var sourceItemIndex = Items.IndexOf(sourceItem);
         var newItemIndex = Items.IndexOf((object)Grid.GetDataItem(newVisibleIndex));
-        // Items.Move(sourceItemIndex, newItemIndex);
 
         myKey = Guid.NewGuid();
         ReInitializeDragging = true;
@@ -985,7 +987,7 @@
         dynamicFormData.GridSortOrderAnotherByNo = sourceItemIndex + 1;
         dynamicFormData.IsDynamicFormDataGrid = true;
         dynamicFormData.GridSortOrderByNo = newItemIndex + 1;
-        dynamicFormData.DynamicFormSectionGridAttributeId = DynamicFormSectionGridAttributeId;
+        dynamicFormData.DynamicFormSectionGridAttributeId = (long?)sourceItem.DynamicFormSectionGridAttributeId;
         if (dynamicFormData.GridSortOrderByNo > 0)
         {
             var request = new UpdateDynamicFormDataSortOrder(dynamicFormData);
@@ -995,29 +997,5 @@
         }
         StateHasChanged();
     }
-    private RenderFragment BuildDataColumns()
-    {
-        RenderFragment columns = b =>
-        {
-            int counter = 0;
-            if (dataColumnNames != null && dataColumnNames.Count() > 0)
-            {
-                dataColumnNames.ForEach(s =>
-                {
-                    int count = 0;
-                    b.OpenComponent(counter, typeof(DxGridDataColumn));
-                    b.AddAttribute(count + 1, "FieldName", s.Value);
-                    b.AddAttribute(count + 1, "AllowSort", true);
-                    b.AddAttribute(count + 1, "SortMode", DevExpress.Blazor.GridColumnSortMode.Custom);
-                    // b.AddAttribute(count + 1, "TextAlignment", DevExpress.Blazor.GridTextAlignment.Right);
-                    // b.AddAttribute(count + 1, "Width", colDataWidth);
-                    b.AddAttribute(count + 1, "Caption", s.Text);
-                    b.AddAttribute(count + 1, "Visible", s.IsVisible);
-                    b.CloseComponent();
-                });
-            }
-        };
 
-        return columns;
-    }
 }

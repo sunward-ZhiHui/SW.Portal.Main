@@ -28,5 +28,7 @@ namespace Core.Entities
         public string? ContentType { get; set; }
         public long? FileSize { get; set; }
         public byte[]? FileData { get; set; }
+        [NotMapped]
+        public Guid? DynamicFormSessionId { get; set; }
     }
 }

@@ -69,4 +69,17 @@ namespace Application.Queries
             this.DynamicFormItemID = DynamicFormItemID;
         }
     }
+
+    public class GetDynamicFormItemLineDropdoenList : PagedRequest, IRequest<DropDownOptionsGridListModel>
+    {
+     
+       public long? DynamicFormId { get;set; }
+
+        public long? Userid { get; set; }
+        public GetDynamicFormItemLineDropdoenList(long DynamicFormId, long? userid)
+        {
+            this.DynamicFormId = DynamicFormId;
+            this.Userid = userid;
+        }
+    }
 }

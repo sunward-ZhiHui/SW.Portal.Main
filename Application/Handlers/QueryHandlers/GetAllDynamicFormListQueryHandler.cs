@@ -161,5 +161,19 @@ namespace Application.Handlers.QueryHandlers
             return (List<DynamicFormItem>)await _QueryRepository.GetAllDynamicAsync(request.DynamicFormItemID);
         }
     }
+    public class GetDynamicFormItemLineHandler : IRequestHandler<GetDynamicFormItemLineDropdoenList, DropDownOptionsGridListModel>
+    {
+        private readonly IAttributeQueryRepository _QueryRepository;
 
+        public GetDynamicFormItemLineHandler(IAttributeQueryRepository QueryRepository)
+        {
+            _QueryRepository = QueryRepository;
+        }
+
+        public async Task<DropDownOptionsGridListModel> Handle(GetDynamicFormItemLineDropdoenList request, CancellationToken cancellationToken)
+        {
+           var dynamiclist =await _QueryRepository.GetDynamicGridDropDownById(request.DynamicFormId,request.Userid);
+            return dynamiclist;
+        }
+    }
 }

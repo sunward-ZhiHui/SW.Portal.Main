@@ -1,5 +1,7 @@
 ﻿@using Application.Queries;
 @using Microsoft.Extensions.Configuration;
+@using System.Dynamic;
+@using System.Collections;
 @using global::Core.Entities;
 @using MediatR;
 @inject IMediator Mediator
@@ -85,8 +87,8 @@
                                 TextFieldName="Name"
                                 ValueFieldName="ID"
                     @bind-Value="@Line.ItemDynamicFormTypeID" 
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto">
-                               
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                SelectedItemChanged="@((DynamicForm dynamicForm) => SelecteddynamicFormItemChanged(dynamicForm))">
                     </DxComboBox>
                 </DxFormLayoutItem>
 
@@ -94,8 +96,8 @@
                     <DxComboBox Data="@_dynamicFormData"
                                 NullText="Select ItemDynamicForm Data..."
                                 FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="DynamicFormItem"
-                                ValueFieldName="DynamicFormDataId"
+                                TextFieldName="AttributeDetailName"
+                                ValueFieldName="AttributeDetailID"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                     @bind-Value="@Line.ItemDynamicFormDataID" >
                               
@@ -135,7 +137,8 @@
     [Parameter]
     public long DynamicFormItemids { get; set; }
     private List<DynamicForm> _dynamicForm;
-    private List<DynamicFormData> _dynamicFormData;
+
+    List<ExpandoObject>? _dynamicFormData = new List<ExpandoObject>();
     public DynamicFormItemLine dataitem = new DynamicFormItemLine();
     string Text { get; set; } = "";
     IGrid? FormItemGrid { get; set; }
@@ -153,7 +156,7 @@
     protected override async Task OnInitializedAsync()
     {
         _dynamicForm = await Mediator.Send(new GetAllDynamicFormDropdownListQuery());
-      //  var _controlTypeData = await Mediator.Send(new GetDynamicGridDropDownById(18, 1));
+
         await UpdateDataAsync();
 
     }
@@ -166,9 +169,9 @@
         if (DynamicFormItemids > 0)
         {
             _dynamicFormItemLine = await Mediator.Send(new GetAllDynamicItemFormLineList(DynamicFormItemids));
-            
+
         }
-       
+
 
         PanelVisible = false;
         StateHasChanged();
@@ -217,10 +220,10 @@
             }
 
         }
-       
-    else
-    {
-  
+
+        else
+        {
+
 
             var UpdateReq = new EditDynamicFormItemLine
                 {
@@ -244,12 +247,12 @@
         }
 
     }
-    
+
     async Task bulkDelete(DynamicFormItemLine DynamicFormItemLine)
     {
         try
         {
-         //    var editablePlant = (ViewPlants)e.DataItem;
+            //    var editablePlant = (ViewPlants)e.DataItem;
             var request = new DeleteDynamicFormItemLine(DynamicFormItemLine.DynamicFormItemLineID);
             await Mediator.Send(request);
             Blukdeletepopup = false;
@@ -267,7 +270,7 @@
         }
 
     }
-    
+
     public async Task AddDisable()
     {
         AddEnabled = false;
@@ -285,12 +288,12 @@
     {
         Blukdeletepopup = true;
     }
-   
+
     public void addNew()
     {
 
         FormItemGrid.StartEditNewRowAsync();
-       
+
         // dataitem.RegistrationLineID = 0;
         _selectedItems = null;
         StateHasChanged();
@@ -299,16 +302,16 @@
     async void addEdit()
     {
         FormItemGrid.StartEditDataItemAsync(_selectedItems);
-      
+
         //  dataitem.RegistrationLineID = 0;
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
-       if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-         {
-           e.CssClass = "alt-item";
-      }
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
 
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
@@ -317,6 +320,16 @@
         Blukdeletepopup = false;
 
     }
-   
-   
+
+    async void SelecteddynamicFormItemChanged(DynamicForm dynamicForm)
+    {
+        if (dynamicForm != null)
+        {
+            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicForm.ID, applicationUser.UserID));
+            //_dynamicFormData = ((List<ExpandoObject>)list.ObjectData).Cast<object>().ToList();
+            //IList collection = (IList)list.ObjectData;
+            //_dynamicFormData = collection;
+        }
+       
+    }
 }

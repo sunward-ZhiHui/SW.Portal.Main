@@ -1,7 +1,6 @@
 ﻿@using Application.Queries;
 @using Microsoft.Extensions.Configuration;
 @using System.Dynamic;
-@using System.Collections;
 @using global::Core.Entities;
 @using MediatR;
 @inject IMediator Mediator
@@ -63,8 +62,8 @@
           
             <DxGridDataColumn FieldName="Qty" />
             @* <DxGridDataColumn FieldName="EmailID"/> *@
-            <DxGridDataColumn FieldName="ItemDynamicFormTypeID" Caption="ItemDynamicForm Type" />
-            <DxGridDataColumn FieldName="ItemDynamicFormDataID" Caption="ItemDynamicForm Data" />
+            <DxGridDataColumn FieldName="ItemDynamicFormType" Caption="ItemDynamicForm Type" />
+            <DxGridDataColumn FieldName="ItemDynamicFormData" Caption="ItemDynamicForm Data" />
             <DxGridDataColumn FieldName="Description" />           
         </Columns>
 
@@ -95,9 +94,8 @@
                 <DxFormLayoutItem Caption="ItemDynamicForm Data:" ColSpanMd="6">
                     <DxComboBox Data="@_dynamicFormData"
                                 NullText="Select ItemDynamicForm Data..."
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="AttributeDetailName"
-                                ValueFieldName="AttributeDetailID"
+                                TextFieldName="ProfileNo"
+                                ValueFieldName="DynamicFormDataId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                     @bind-Value="@Line.ItemDynamicFormDataID" >
                               
@@ -138,7 +136,7 @@
     public long DynamicFormItemids { get; set; }
     private List<DynamicForm> _dynamicForm;
 
-    List<ExpandoObject>? _dynamicFormData = new List<ExpandoObject>();
+    List<DynamicFormData> _dynamicFormData { get; set; } = new List<DynamicFormData>();
     public DynamicFormItemLine dataitem = new DynamicFormItemLine();
     string Text { get; set; } = "";
     IGrid? FormItemGrid { get; set; }
@@ -155,6 +153,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _dynamicForm = await Mediator.Send(new GetAllDynamicFormDropdownListQuery());
 
         await UpdateDataAsync();
@@ -323,13 +322,32 @@
 
     async void SelecteddynamicFormItemChanged(DynamicForm dynamicForm)
     {
+        List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
+        _dynamicFormData = new List<DynamicFormData>();
         if (dynamicForm != null)
         {
             var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicForm.ID, applicationUser.UserID));
-            //_dynamicFormData = ((List<ExpandoObject>)list.ObjectData).Cast<object>().ToList();
-            //IList collection = (IList)list.ObjectData;
-            //_dynamicFormData = collection;
+            _dynamicFormData = list.DynamicFormListData;
+            // var collection = list.ObjectData;
+            // int j = 0;
+            // if (collection != null)
+            // {
+            //     foreach (var v in (collection as IEnumerable<ExpandoObject>))
+            //     {
+            //        dynamic obj1 = new ExpandoObject();
+            //         obj1.AttributeDetailID = j;
+            //         obj1.AttributeDetailName = $"Statuss_{j}";
+            //        _dynamicFormData.Add(v);
+            //     }
+            // }  
         }
-       
+        // for (int i = 0; i < 20; i++)
+        // {
+        //     dynamic obj = new ExpandoObject();
+        //     obj.AttributeDetailID = i;
+        //     obj.AttributeDetailName = $"Status_{i}";
+        //     _dynamicFormData.Add(obj);
+        // }
+        StateHasChanged();
     }
 }

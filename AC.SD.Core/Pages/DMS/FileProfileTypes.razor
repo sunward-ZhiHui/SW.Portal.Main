@@ -132,7 +132,7 @@
                 PageSizeSelectorAllRowsItemVisible="true"
                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                 CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
-                PageSize="20" 
+                PageSize="20"
                 CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false"
                 RowClick="OnRowClick"
                 RowDoubleClick="OnRowDoubleClick"
@@ -289,7 +289,7 @@
 </div>
 <DxPopup @bind-Visible="@PopupVisible"
          ShowFooter="false"
-    ShowCloseButton="true"
+         ShowCloseButton="true"
          HeaderText="Document History"
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
@@ -301,8 +301,8 @@
     </FooterContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisibleLinkDocument"
-          ShowFooter="false"
-    ShowCloseButton="true"
+         ShowFooter="false"
+         ShowCloseButton="true"
          HeaderText="Link Documents"
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
@@ -314,7 +314,7 @@
     </FooterContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisibleLinkParentDocument"
-          ShowFooter="false"
+         ShowFooter="false"
          HeaderText="Parent Documents"
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
@@ -405,8 +405,8 @@
     </FooterContentTemplate>
 </DxFlyout>
 <DxPopup @bind-Visible="@PopupVisibleSecurityAccess"
-          ShowFooter="false"
-    ShowCloseButton="true"
+         ShowFooter="false"
+         ShowCloseButton="true"
          HeaderText=@($"Security Access-{Name}")
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
@@ -423,8 +423,8 @@
 <DxPopup @bind-Visible="@PopupNewUpload"
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
-          ShowFooter="false"
-    ShowCloseButton="true"
+         ShowFooter="false"
+         ShowCloseButton="true"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <UploadDoumentFiles @ref="refUploadDoumentFiles" FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" UploadDocFormID="UploadDocFormID" RevokeBack="BackUpload"></UploadDoumentFiles>
@@ -434,15 +434,15 @@
 <DxPopup @bind-Visible="@PopupUpload"
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
-          ShowFooter="false"
-    ShowCloseButton="true"
+         ShowFooter="false"
+         ShowCloseButton="true"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles" FolderPathLists="@FolderPathLists" selectedItems="@_selectedItems" applicationUser="@applicationUser" FileProfileSessionId="@MainSessionId" RevokeBack="BackUpload"></UploadDocumentUpdateFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@Blukdeletepopup"
-    ShowCloseButton="true"
+         ShowCloseButton="true"
          ShowFooter="true"
          HeaderText="Delete"
          Closed="EulaPopupClosed"
@@ -513,11 +513,12 @@
                 <DxComboBox Data="@_fileContentList"
                             NullText="Select File Ext..."
                             ListRenderMode="ListRenderMode.Virtual"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.Default"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Extension"
                             ValueFieldName="Extension"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                @bind-Value="@LinkFilterFileprofiletypeExtension" ShowValidationIcon="true">
+                            @bind-Value="@LinkFilterFileprofiletypeExtension" ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="From" ColSpanMd="12">
@@ -551,7 +552,7 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeFilterDocView"
-                @bind-FilterString="FilterDocumentString"
+                            @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
                             AllowSelectNodes="true"
@@ -634,7 +635,7 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeFilterMoveDocView"
-                @bind-FilterString="FilterMoveDocumentString"
+                            @bind-FilterString="FilterMoveDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
                             AllowSelectNodes="true"
@@ -660,7 +661,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 <DxPopup @bind-Visible="@MoveDocumentPopup"
-ShowCloseButton="true"
+         ShowCloseButton="true"
          ShowFooter="true"
          HeaderText="Move Document"
          Closed="EulaPopupMoveDocumentClosed"

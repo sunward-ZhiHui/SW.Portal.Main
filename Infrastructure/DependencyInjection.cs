@@ -169,7 +169,7 @@ namespace Infrastructure
             services.AddScoped<IDistStockBalanceQueryRepository, DistStockBalanceQueryRepository>();
             services.AddScoped<IProductionSimulationQueryRepository,ProductionSimulationCommandRepository>();
             services.AddScoped<IDynamicFormItemQueryRepository,DynamicFormItemListQueryRepository>();
-
+            services.AddScoped<ISimulationQueryRepository, SimulationQueryRepository>();
             return services;
         }
     }

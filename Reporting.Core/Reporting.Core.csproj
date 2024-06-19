@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DevExpress.Blazor.Reporting.Viewer" Version="23.2.6" />
+    <PackageReference Include="DevExpress.Blazor.Reporting.Viewer" Version="24.1.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="DevExpress.Blazor.Reporting.v23.2.Viewer">
+    <Reference Include="DevExpress.Blazor.Reporting.v24.1.Viewer">
       
     </Reference>
-    <Reference Include="DevExpress.XtraReports.v23.2.Extensions">
+    <Reference Include="DevExpress.XtraReports.v24.1.Extensions">
       
     </Reference>
   </ItemGroup>

@@ -199,5 +199,14 @@ namespace Application.Queries
             this.BaseUrl = baseUrl;
         }
     }
-
+    public class GetDynamicGridDropDownById : PagedRequest, IRequest<DropDownOptionsGridListModel>
+    {
+        public long? DynamicFormId { get; set; }
+        public long? UserId { get; set; }
+        public GetDynamicGridDropDownById(long? dynamicFormId, long? userId)
+        {
+            this.DynamicFormId = dynamicFormId;
+            this.UserId = userId;
+        }
+    }
 }

@@ -74,23 +74,23 @@
 	  <PackageReference Include="ChartJs.Blazor" Version="1.1.0" />
 	  <PackageReference Include="Chronos.Blazor.Cropper" Version="1.2.16" />
 	  <PackageReference Include="CorePush" Version="4.1.0" />
-	  <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="23.2.6" />
-	  <PackageReference Include="DevExpress.AspNetCore.Spreadsheet" Version="23.2.6" />
-	  <PackageReference Include="DevExpress.Blazor" Version="23.2.6" />
+	  <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="24.1.3" />
+	  <PackageReference Include="DevExpress.AspNetCore.Spreadsheet" Version="24.1.3" />
+	  <PackageReference Include="DevExpress.Blazor" Version="24.1.3" />
 	  <PackageReference Include="BlazorStateManager" Version="1.1.2" />
-	  <PackageReference Include="DevExpress.Blazor.Dashboard" Version="23.2.6" />
+	  <PackageReference Include="DevExpress.Blazor.Dashboard" Version="24.1.3" />
 
 	  <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="23.2.4" />
 
-	  <PackageReference Include="DevExpress.Blazor.Reporting.Viewer" Version="23.2.6" />
+	  <PackageReference Include="DevExpress.Blazor.Reporting.Viewer" Version="24.1.3" />
 	  
-	  <PackageReference Include="DevExpress.Blazor.RichEdit" Version="23.2.6" />
-	  <PackageReference Include="DevExpress.Dashboard.Core" Version="23.2.6" />
-	  <PackageReference Include="DevExpress.Data" Version="23.2.6" />
-	  <PackageReference Include="DevExpress.Document.Processor" Version="23.2.6" />
-	  <PackageReference Include="DevExpress.Drawing" Version="23.2.6" />
-	  <PackageReference Include="DevExpress.Office.Core" Version="23.2.6" />
-	  <PackageReference Include="DevExpress.Reporting.Core" Version="23.2.6" />
+	  <PackageReference Include="DevExpress.Blazor.RichEdit" Version="24.1.3" />
+	  <PackageReference Include="DevExpress.Dashboard.Core" Version="24.1.3" />
+	  <PackageReference Include="DevExpress.Data" Version="24.1.3" />
+	  <PackageReference Include="DevExpress.Document.Processor" Version="24.1.3" />
+	  <PackageReference Include="DevExpress.Drawing" Version="24.1.3" />
+	  <PackageReference Include="DevExpress.Office.Core" Version="24.1.3" />
+	  <PackageReference Include="DevExpress.Reporting.Core" Version="24.1.3" />
 	  <PackageReference Include="FCM.Net" Version="1.0.5" />
 	  <PackageReference Include="FCMessaging" Version="0.1.1" />
 	  <PackageReference Include="Firebase-Cloud-Messaging-Net" Version="1.0.0.4" />
@@ -149,19 +149,19 @@
     <None Include="Pages\Reports\ProductionActivitysReport.razor" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="DevExpress.Blazor.Reporting.v23.2.JSBasedControls">
+    <Reference Include="DevExpress.Blazor.Reporting.v24.1.JSBasedControls">
       
     </Reference>
-    <Reference Include="DevExpress.Blazor.Reporting.v23.2.JSBasedControls.Common">
+    <Reference Include="DevExpress.Blazor.Reporting.v24.1.JSBasedControls.Common">
       
     </Reference>
-    <Reference Include="DevExpress.Blazor.Reporting.v23.2.Viewer">
+    <Reference Include="DevExpress.Blazor.Reporting.v24.1.Viewer">
       
     </Reference>
-    <Reference Include="DevExpress.Blazor.v23.2">
+    <Reference Include="DevExpress.Blazor.v24.1">
       
     </Reference>
-    <Reference Include="DevExpress.XtraReports.v23.2.Extensions">
+    <Reference Include="DevExpress.XtraReports.v24.1.Extensions">
       
     </Reference>
   </ItemGroup>

@@ -1166,7 +1166,7 @@ namespace Infrastructure.Repository.Query
                 if (dynamicFormDatas != null && dynamicFormDatas.Count() > 0)
                 {
                     dynamicFormIds.Add(DynamicFormId);
-                    dropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(dynamicFormIds, userId, dynamicFormData?.CompanyId, dynamicFormData?.CompanyName, applicationMasters, applicationMasterParents, null, false);
+                    dropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(dynamicFormIds, userId, dynamicFormData?.CompanyId, dynamicFormData?.CompanyName, applicationMasters, applicationMasterParents, null, true);
                     //dropDownOptionsGridListModel.DynamicFormData = dynamicFormDatas;
                 }
                 return dropDownOptionsGridListModel;
@@ -1247,6 +1247,7 @@ namespace Infrastructure.Repository.Query
                     attributeHeaderListModel.DynamicForm = results.Read<DynamicForm>().ToList();
                     attributeHeaderListModel.AttributeHeaderDataSource = results.Read<AttributeHeaderDataSource>().ToList();
                 }
+                dropDownOptionsGridListModel.DynamicFormListData = attributeHeaderListModel.DynamicFormData;
                 if (attributeHeaderListModel.DynamicFormSectionAttribute != null && attributeHeaderListModel.DynamicFormSectionAttribute.Count > 0)
                 {
                     List<long?> ApplicationMasterIds = new List<long?>(); List<long?> ApplicationMasterParentIds = new List<long?>();

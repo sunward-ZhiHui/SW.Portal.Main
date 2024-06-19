@@ -304,7 +304,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormItemID", DynamicFormItemID);
 
-                var query = "select  * from DynamicFormItemLine Where DynamicFormItemID = @DynamicFormItemID";
+                var query = "select t1.*,t2.Name as ItemDynamicFormType,t3.ProfileNo as ItemDynamicFormData from DynamicFormItemLine t1 LEFT JOIN \r\nDynamicForm t2 ON t1.ItemDynamicFormTypeID=t2.ID LEFT JOIN \r\nDynamicFormData t3 ON t3.DynamicFormDataID=t1.ItemDynamicFormDataID Where t1.DynamicFormItemID = @DynamicFormItemID";
 
                 using (var connection = CreateConnection())
                 {

@@ -318,4 +318,17 @@ namespace Application.Handlers.QueryHandlers
             return (List<DynamicFormData>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId,request.DynamicFormDataSessionId,request.DynamicFormDataGridSessionId,request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl);
         }
     }
+    public class GetDynamicGridDropDownByIdHandler : IRequestHandler<GetDynamicGridDropDownById, DropDownOptionsGridListModel>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetDynamicGridDropDownByIdHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<DropDownOptionsGridListModel> Handle(GetDynamicGridDropDownById request, CancellationToken cancellationToken)
+        {
+            return await _attrubutequeryRepository.GetDynamicGridDropDownById(request.DynamicFormId, request.UserId);
+        }
+    }
 }

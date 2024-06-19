@@ -13,17 +13,20 @@ namespace Core.Entities
     {
         [Key]
         public long NavStockBalanceId { get; set; }
-        public long ItemId { get; set; }
-        public DateTime StockBalMonth { get; set; }
-        public int StockBalWeek { get; set; }
-        public decimal Quantity { get; set; }
-        public decimal RejectQuantity { get; set;}
-        public decimal ReworkQty { get; set;}
-        public decimal WIPQty { get; set; }
-        public decimal GlobalQty { get; set;}
-        public decimal KIVQty { get; set;}
-        public decimal SupplyWIPQty { get; set; }
-        public decimal Supply1ProcessQty { get;set;}
+        public long? ItemId { get; set; }
+        public DateTime? StockBalMonth { get; set; }
+        public int? StockBalWeek { get; set; }
+        public decimal? Quantity { get; set; }
+        public decimal? RejectQuantity { get; set; }
+        public int? StatusCodeId { get; set; }
+        public long? AddedByUserId { get; set; }
+        public long? ModifiedByUserId { get; set; }
+        public decimal? ReworkQty { get; set; }
+        public decimal? Wipqty { get; set; }
+        public decimal? GlobalQty { get; set; }
+        public decimal? Kivqty { get; set; }
+        public decimal? SupplyWipqty { get; set; }
+        public decimal? Supply1ProcessQty { get; set; }
         [NotMapped]
         public long CompanyID { get; set; }
         [NotMapped]
@@ -52,5 +55,6 @@ namespace Core.Entities
         public int Month { get; set; }
         [NotMapped]
         public int Year { get; set; }
+        public decimal? PackQty { get; set; }
     }
 }

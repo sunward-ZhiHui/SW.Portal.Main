@@ -22,6 +22,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormItemLine>> GetAllDynamicLineAsync(long DynamicFormItemID);
         Task<IReadOnlyList<DynamicForm>> GetAllDynamicFormDropdownAsync();
         Task<IReadOnlyList<DynamicFormItem>> GetAllDynamicAsync(long DynamicFormItemID);
+        Task<DynamicFormItem> GetDynamicFormItemBySessionIdAsync(Guid? SessionId);
 
     }
     

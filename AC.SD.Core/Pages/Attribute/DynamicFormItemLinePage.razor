@@ -213,7 +213,7 @@
                 var result = await Mediator.Send(createReq);
                 toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
-
+              
                 await UpdateDataAsync();
 
             }
@@ -236,7 +236,7 @@
                     AddedByUserID = applicationUser.UserID,
                     ModifiedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid(),
+                    SessionId =editModel.SessionId,
 
                 };
 
@@ -272,7 +272,7 @@
 
     public async Task AddDisable()
     {
-        AddEnabled = false;
+      //  AddEnabled = false;
         EditEnabled = false;
         DeleteEnabled = false;
         CancelEnabled = true;
@@ -294,7 +294,7 @@
         FormItemGrid.StartEditNewRowAsync();
 
         // dataitem.RegistrationLineID = 0;
-        _selectedItems = null;
+       _selectedItems = null;
         StateHasChanged();
 
     }

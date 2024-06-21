@@ -82,4 +82,15 @@ namespace Application.Queries
             this.Userid = userid;
         }
     }
+
+
+    public class GetDynamicFormItemBySession : PagedRequest, IRequest<DynamicFormItem>
+    {
+        public string? SearchString { get; set; }
+        public Guid? SesionId { get; set; }
+        public GetDynamicFormItemBySession(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
+    }
 }

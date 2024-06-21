@@ -27,7 +27,10 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select DFI.AutoNumber,DFI.DynamicFormItemID,DFI.TransactionDate,CM.CodeValue as TransactionTypeName,Pt.Description as CompanyName,DFI.Description FROM DynamicFormItem DFI \r\nLeft Join CodeMaster CM on CM.CodeID = DFI.TransactionTypeID Left join Plant Pt on Pt.PlantID = DFI.CompanyId";
+                var query = "select DFI.AutoNumber,DFI.DynamicFormItemID,DFI.TransactionDate,DFI.SessionId," +
+                    "CM.CodeValue as TransactionTypeName,Pt.Description as CompanyName,DFI.Description FROM DynamicFormItem DFI " +
+                    "Left Join CodeMaster CM on CM.CodeID = DFI.TransactionTypeID" +
+                    " Left join Plant Pt on Pt.PlantID = DFI.CompanyId";
 
                 using (var connection = CreateConnection())
                 {
@@ -343,13 +346,35 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormItemID", DynamicFormItemID);
 
                 var query = @"
-							select DFI.AutoNumber,DFI.DynamicFormItemID,DFI.TransactionDate,CM.CodeValue as TransactionTypeName,Pt.Description as CompanyName,DFI.Description
+							select DFI.AutoNumber,DFI.DynamicFormItemID,DFI.SessionId,TransactionDate,CM.CodeValue as TransactionTypeName,Pt.Description as CompanyName,DFI.Description
                             FROM DynamicFormItem DFI 
                 Left Join CodeMaster CM on CM.CodeID = DFI.TransactionTypeID Left join Plant Pt on Pt.PlantID = DFI.CompanyId";
 
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormItem>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<DynamicFormItem> GetDynamicFormItemBySessionIdAsync(Guid? SessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = @"select t1.*,Pt.Description as CompanyName , CM.CodeValue as TransactionTypeName from DynamicFormItem t1  
+                     Left join Plant Pt on Pt.PlantID = t1.CompanyId
+					  Left Join CodeMaster CM on CM.CodeID = t1.TransactionTypeID  
+                    WHERE  t1.SessionId=@SessionId";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicFormItem>(query, parameters);
                 }
             }
             catch (Exception exp)

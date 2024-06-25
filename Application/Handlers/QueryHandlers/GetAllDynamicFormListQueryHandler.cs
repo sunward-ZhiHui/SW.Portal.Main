@@ -176,4 +176,18 @@ namespace Application.Handlers.QueryHandlers
             return dynamiclist;
         }
     }
+
+
+    public class GetDynamicFormItemBySessionHandler : IRequestHandler<GetDynamicFormItemBySession, DynamicFormItem>
+    {
+        private readonly IDynamicFormItemQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormItemBySessionHandler(IDynamicFormItemQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormItem> Handle(GetDynamicFormItemBySession request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormItemBySessionIdAsync(request.SesionId);
+        }
+    }
 }

@@ -29,6 +29,5 @@ namespace Core.Repositories.Query
         Task<DropDownOptionsGridListModel> GetDynamicGridNested(List<long?> DynamicFormDataId, long? userId);
         Task<List<DynamicFormData>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId,Guid? DynamicFormDataGridSessionId,Guid? DynamicFormSectionGridAttributeSessionId, string? BaseUrl);
         Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(long? DynamicFormId, long? userId);
-
     }
 }

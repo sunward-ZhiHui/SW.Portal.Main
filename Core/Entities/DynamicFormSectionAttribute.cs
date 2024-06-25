@@ -91,6 +91,9 @@ namespace Core.Entities
         public bool? IsDependencyMultiple { get; set; } = false;
         [NotMapped]
         public long? SelectDynamicFormId { get; set; }
+        public bool IsDynamicFormGridDropdown { get; set; } = false;
+        public long? GridDropDownDynamicFormID { get; set; }
+        public string? GridDropDownDynamicFormName { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {

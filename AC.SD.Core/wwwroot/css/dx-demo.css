@@ -2099,3 +2099,10 @@ img {
         font-size: 11px
     }
 }
+.dxbl-upload-upload-btn {
+    display: none; /* or any other style to disable or hide the icon */
+}
+
+.dxbl-upload-panel {
+    display: none; /* or any other style to disable or hide the icon */
+}

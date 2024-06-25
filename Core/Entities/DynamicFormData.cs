@@ -101,6 +101,7 @@ namespace Core.Entities
 
         [NotMapped]
         public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();
+        public long? DynamicFormGridId { get; set; }
     }
     public class DynamicFormProfile
     {

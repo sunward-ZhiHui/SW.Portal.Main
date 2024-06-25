@@ -730,6 +730,16 @@
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                         loadApplicationMasterParentDataList(a, ab, typesLists, objectNameLists);
+                                        if (a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0)
+                                        {
+                                            var nameDataGrid = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                            typesLists.Add(a.DataType);
+                                            objectNameLists.Add(nameDataGrid);
+                                            AddTempSectionAttribute addTempSectionAttributesss = new AddTempSectionAttribute();
+                                            addTempSectionAttributesss.DataType = a.DataType;
+                                            addTempSectionAttributesss.DynamicAttributeName = nameDataGrid;
+                                            addTempSectionAttributes.Add(addTempSectionAttributesss);
+                                        }
                                     });
                                 }
                                 if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
@@ -1132,7 +1142,21 @@
                 dynamicFormSectionAttributes.ApplicationMasterParents.ForEach(ab =>
                 {
                     loadApplicationMasterParentSetDataList(dynamicFormSectionAttributes, ab);
+                    if (dynamicFormSectionAttributes.IsDynamicFormGridDropdown == true && dynamicFormSectionAttributes.GridDropDownDynamicFormID > 0)
+                    {
+                        var nameDataGrid = dynamicFormSectionAttributes.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + dynamicFormSectionAttributes.GridDropDownDynamicFormID + "_GridAppMaster";
 
+                        if (Data.GetType().GetProperty(nameDataGrid) != null)
+                        {
+                            var SubNamess = jsonObjs.ContainsKey(nameDataGrid);
+                            if (SubNamess == true)
+                            {
+                                var itemValues = jsonObjs[nameDataGrid];
+                                long? values = itemValues == null ? null : (long)itemValues;
+                                Data.GetType().GetProperty(nameDataGrid).SetValue(Data, values);
+                            }
+                        }
+                    }
                 });
             }
         }
@@ -2414,7 +2438,7 @@
                     if (addexits == null)
                     {
                         AddTempSectionAttribute addTempSectionAttribute = new AddTempSectionAttribute();
-                        addTempSectionAttribute.DataType = typeof(long?);
+                        addTempSectionAttribute.DataType = dynamicFormSectionAttribute.IsDependencyMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
                         addTempSectionAttribute.DynamicAttributeName = nameData;
                         addTempSectionAttributes.Add(addTempSectionAttribute);
                     }
@@ -5316,25 +5340,232 @@
             }
         }
     }
-
     void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
         s.ApplicationMasterParents.ForEach(ab =>
         {
+            List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
             loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true);
             if (ab.ApplicationMasterParentCodeId > 0)
             {
-                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly);
+                nameDatas.Add(ab);
+                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas);
+                if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
+                {
+                    loadDynamicGridDropDownNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas);
+                }
             }
         });
     }
-    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames)
     {
         var dataList = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == ab.ApplicationMasterParentCodeId);
         if (dataList != null)
         {
+            var nameData = s.DynamicFormSectionAttributeId + "_" + dataList.ApplicationMasterParentCodeId + "_AppMasterPar";
+            dataColumnNames.Add(dataList);
             loadApplicationMasterParentRecursiveForm(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, false);
-            loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly);
+
+            loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, dataColumnNames);
+        }
+    }
+    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems)
+    {
+        var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+        var propertyDependency = Data.GetType().GetProperty(appendDependency);
+        if (propertyDependency != null)
+        {
+            var proGridValue = (long?)propertyDependency.GetValue(Data);
+            int p = 0;
+            var valueDataDependency = propertyDependency.GetValue(Data);
+            var accesspropertyDependency = Expression.Property(Expression.Constant(Data), appendDependency);
+            var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), accesspropertyDependency);
+            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+            var dynamicFormDatass = _AttributeHeader.DropDownOptionsGridListModel.DynamicFormData.Where(f => f.DynamicFormId == s.GridDropDownDynamicFormID).ToList();
+            var dynamicFormDataIds = dynamicFormDatass.FirstOrDefault()?.DynamicFormDataGridFormId;
+            gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == (dynamicFormDataIds > 0 ? dynamicFormDataIds : 0)).FirstOrDefault()?.DropDownOptionsModels;
+            var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+            List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
+
+            if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
+            {
+                List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
+                List<ApplicationMasterParent> nameDataLists = new List<ApplicationMasterParent>();
+                nameDatas.Add(ab);
+                if (ab.ParentId > 0)
+                {
+                    GetApplicationMasterParentListId(ab.ParentId, nameDatas);
+                }
+                var applicationMasterCodeId = nameDatas.Last()?.ApplicationMasterParentCodeId;
+                if (applicationMasterCodeId > 0 && _AttributeHeader.ApplicationMasterParent != null && _AttributeHeader.ApplicationMasterParent.Count() > 0)
+                {
+                    var appName = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ApplicationMasterParentCodeId == applicationMasterCodeId);
+                    if (appName != null)
+                    {
+                        nameDataLists.Add(appName);
+                        GetApplicationMasterParentAllListId(applicationMasterCodeId, nameDataLists);
+                    }
+                }
+                IDictionary<string, object> objectDataList = new ExpandoObject();
+                if (nameDataLists != null && nameDataLists.Count() > 0)
+                {
+                    nameDataLists.ForEach(a =>
+                    {
+                        var namesetData = s.DynamicFormSectionAttributeId + "_" + a.ApplicationMasterParentCodeId + "_AppMasterPar";
+                        var propertyAppMastersData = Data.GetType().GetProperty(namesetData);
+                        long? valueDataAppMaster = 0;
+                        if (propertyAppMastersData != null)
+                        {
+                            valueDataAppMaster = (long?)propertyAppMastersData.GetValue(Data);
+                        }
+                        if (valueDataAppMaster != null)
+                        {
+                            objectDataList[a.ApplicationMasterParentCodeId + "_AppMasterPar"] = valueDataAppMaster == null ? 0 : valueDataAppMaster;
+                        }
+                    });
+                }
+                List<long?> _dynamicformObjectDataIds = new List<long?>();
+                if (collection != null)
+                {
+                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                    {
+                        dynamic eod = v;
+                        var IsDynamicFormDataGrids = (bool?)eod.IsDynamicFormDataGrid;
+                        var vc = (long?)eod.DynamicFormId; var vcIds = (long?)eod.DynamicFormDataId;
+                        if ((long?)vc == s.GridDropDownDynamicFormID && IsDynamicFormDataGrids == false)
+                        {
+                            IDictionary<string, object> CheckobjectDataList = new ExpandoObject();
+                            if (nameDataLists != null && nameDataLists.Count() > 0)
+                            {
+                                nameDataLists.ForEach(a =>
+                                {
+                                    var attrData = a.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                    foreach (var item in v)
+                                    {
+                                        var v1 = item.Key;
+                                        var v2 = item.Value;
+                                        if (v1 == attrData)
+                                        {
+                                            long? values = (long?)v2;
+                                            if (values > 0)
+                                            {
+                                                CheckobjectDataList[attrData] = v2;
+                                            }
+                                        }
+                                    }
+                                });
+                                var objectDataListCount = objectDataList.Count();
+                                var CheckobjectDataListCount = CheckobjectDataList.Count();
+                                if (objectDataListCount > 0 && CheckobjectDataListCount > 0 && objectDataListCount == CheckobjectDataListCount)
+                                {
+                                    if (objectDataList.SequenceEqual(CheckobjectDataList))
+                                    {
+                                        _dynamicformObjectDataIds.Add(vcIds);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                    {
+                        dynamic eod = v;
+                        var IsDynamicFormDataGrids = (bool?)eod.IsDynamicFormDataGrid;
+                        var vc = (long?)eod.DynamicFormDataGridId;
+                        if (_dynamicformObjectDataIds.Contains(vc) && IsDynamicFormDataGrids == true)
+                        {
+                            _dynamicformObjectDataList.Add(v);
+                        }
+                    }
+                }
+            }
+
+
+            itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+            // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
+            {
+                editor11.OpenElement(p + 1, "div");
+                editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                editor11.AddContent(p + 1, s.GridDropDownDynamicFormName);
+                editor11.CloseElement();
+                editor11.OpenComponent<DxComboBox<ExpandoObject, long?>>(p + 1);
+                editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
+                editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
+                editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
+                editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
+                editor11.AddAttribute(p + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                editor11.AddAttribute(p + 1, "Value", valueDataDependency);
+                if (isAccessOnly == true)
+                {
+                    editor11.AddAttribute(p + 1, "Enabled", isReadonly);
+                }
+                else
+                {
+                    editor11.AddAttribute(i + 1, "Enabled", isAccessOnly);
+                }
+                editor11.AddAttribute(p + 1, "ValueExpression", lambdapropertyDependency);
+                editor11.AddAttribute(p + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
+                if (gridlistss != null)
+                {
+                    var gridEditCount = gridlistss.Count();
+                    var editFormat = "{0}";
+                    for (int e = 0; e < gridEditCount; e++)
+                    {
+                        if (e == 0)
+                        {
+                            editFormat = string.Empty;
+                        }
+                        editFormat += "{" + "" + e + "" + "}|";
+                    }
+                    editFormat = editFormat.Trim();
+                    if (editFormat.EndsWith("|"))
+                    {
+                        editFormat = editFormat.Remove(editFormat.Length - 1);
+                    }
+                    editor11.AddAttribute(p + 1, "EditFormat", editFormat);
+                }
+                editor11.AddAttribute(p + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                {
+                    if (gridlistss != null)
+                    {
+                        var qCount = 0;
+                        gridlistss.ForEach(q =>
+                        {
+                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(qCount);
+                            layoutItemBuilders1.AddAttribute(qCount, "FieldName", q.Value);
+                            layoutItemBuilders1.AddAttribute(qCount, "Caption", q.Text);
+                            layoutItemBuilders1.CloseComponent();
+                            qCount++;
+                        });
+                    }
+                }));
+                if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                {
+                    if (valueDataDependency == null)
+                    {
+                        isRequiredCount += 1;
+                        if (isSubmit == true)
+                        {
+                            //editor11.AddAttribute(i + 1, "style", "border-color:red;");
+                        }
+                    }
+                }
+                editor11.CloseComponent();
+                if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                {
+                    if (valueDataDependency == null && isSubmit == true)
+                    {
+                        editor11.OpenElement(p + 1, "span");
+                        editor11.AddAttribute(p + 1, "class", "text-danger");
+                        editor11.AddContent(p + 1, "This field is Required");
+                        editor11.CloseElement();
+                    }
+                }
+            })));
+            itemBuilder.CloseComponent();
         }
     }
     void OnApplicationMasterParentChangedMultipleItem(IEnumerable<long?> str, PropertyInfo propertyAppMaster, ApplicationMasterParent ab, DynamicFormSectionAttribute s)
@@ -5583,6 +5814,28 @@
             }
         }
     }
+    void GetApplicationMasterParentListId(long? parentId, List<ApplicationMasterParent> applicationMasterParents)
+    {
+        var listss = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ApplicationMasterParentCodeId == parentId);
+        if (listss != null)
+        {
+            applicationMasterParents.Add(listss);
+            if (listss.ParentId > 0)
+            {
+                GetApplicationMasterParentListId(listss.ParentId, applicationMasterParents);
+            }
+        }
+    }
+    void GetApplicationMasterParentAllListId(long? applicationMasterParentCodeId, List<ApplicationMasterParent> applicationMasterParents)
+    {
+        var listss = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == applicationMasterParentCodeId);
+        if (listss != null)
+        {
+            applicationMasterParents.Add(listss);
+            GetApplicationMasterParentAllListId(listss.ApplicationMasterParentCodeId, applicationMasterParents);
+
+        }
+    }
     void OnApplicationMasterParentChangedSingleItem(long? str, PropertyInfo propertyAppMaster, ApplicationMasterParent ab, DynamicFormSectionAttribute s)
     {
         var pervValue = (long?)propertyAppMaster.GetValue(Data);
@@ -5707,10 +5960,25 @@
                 listDataSub = ApplicationMasterParentDetails != null ? ApplicationMasterParentDetails.Where(e => e.ApplicationMasterParentSectionIds.Contains(s.DynamicFormSectionAttributeId) && e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterParentCodeId == ab.ApplicationMasterParentCodeId).ToList() : new List<AttributeDetails>();
             }
             itemBuilder.OpenComponent<DxFormLayoutItem>(3);
-            itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
+            //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
             itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
             itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
         {
+            editor11.OpenElement(i + 1, "div");
+            editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+            editor11.AddContent(i + 1, ab.ApplicationMasterName);
+            if (!string.IsNullOrEmpty(s.FormToolTips))
+            {
+                editor11.OpenElement(i + 1, "i");
+                editor11.AddAttribute(i + 1, "class", "fa fa-info");
+                editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                editor11.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendAppMaster}"));
+                editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendAppMaster, s.FormToolTips)));
+                editor11.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
+                editor11.AddAttribute(i + 1, "aria-hidden", true);
+                editor11.CloseElement();
+            }
+            editor11.CloseElement();
             if (s.ControlType == "ComboBox")
             {
                 editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(l + 1);
@@ -5980,10 +6248,25 @@
                 var listDataSub = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(e => e.DropDownTypeId == s.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>();
 
                 itemBuilder.OpenComponent<DxFormLayoutItem>(3);
-                itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
+                //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
                 itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
             {
+                editor11.OpenElement(i + 1, "div");
+                editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                if (!string.IsNullOrEmpty(s.FormToolTips))
+                {
+                    editor11.OpenElement(i + 1, "i");
+                    editor11.AddAttribute(i + 1, "class", "fa fa-info");
+                    editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                    editor11.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendAppMaster}"));
+                    editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendAppMaster, s.FormToolTips)));
+                    editor11.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
+                    editor11.AddAttribute(i + 1, "aria-hidden", true);
+                    editor11.CloseElement();
+                }
+                editor11.CloseElement();
                 if (s.ControlType == "ComboBox")
                 {
                     editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(l + 1);
@@ -6261,10 +6544,14 @@
                 var lambdapropertyAppMaster = Expression.Lambda(typeof(Func<>).MakeGenericType(q.SubDataType), accesspropertyAppMaster);
                 var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>();
                 itemBuilder.OpenComponent<DxFormLayoutItem>(4);
-                itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
+                // itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
                 itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
             {
+                editor11.OpenElement(i + 1, "div");
+                editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                editor11.CloseElement();
                 if (q.ControlType == "ComboBox")
                 {
                     editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(l + 1);
@@ -6299,6 +6586,7 @@
                         layoutItemBuilders1.CloseComponent();
                         if (q.DropDownTypeId == "Data Source")
                         {
+
                             layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
                             layoutItemBuilders1.AddAttribute(2, "FieldName", "CompanyName");
                             layoutItemBuilders1.AddAttribute(2, "Caption", "Company");

@@ -79,8 +79,9 @@ public class Program
             services.AddDevExpressServerSideBlazorReportViewer();
             services.AddScoped<ClipboardService>();
             services.AddScoped<FirebaseMessagingService>();
-            services.AddScoped<EmailAutoRefresh>();            
-
+            services.AddScoped<EmailAutoRefresh>();
+            DevExpress.Blazor.CompatibilitySettings.ComboBoxCompatibilityMode = true;
+            DevExpress.Blazor.CompatibilitySettings.TagBoxCompatibilityMode = true;
             var keys = WebPush.VapidHelper.GenerateVapidKeys();
             System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
             System.Diagnostics.Debug.WriteLine(keys.PublicKey);

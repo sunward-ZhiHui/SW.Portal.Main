@@ -3,228 +3,182 @@
 @using System.Linq.Expressions
 @using System.ComponentModel.DataAnnotations
 @using global::Core.AttributeDynamicData;
-@implements IDisposable
-<h2>Edit Form</h2>
-
-<div class="card cw-480">
-    <EditForm Model="@Data"
-              OnValidSubmit="@HandleValidSubmit"
-              OnInvalidSubmit="@HandleInvalidSubmit"
-              Context="EditFormContext">
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using Application.Queries;
+@using MediatR
+<DxFormLayout CssClass="w-100">
+    <EditForm EditContext="this._editContexts" Context="EditFormContext">
         <DataAnnotationsValidator />
-        <div class="card-header text-center py-3">
-            <h4>Register with DevExpress</h4>
-            <p class="tm-8 mb-0 fw-normal fs-825">
-                Create a new account to see it in action
-            </p>
-        </div>
-        <div class="card-body">
-            @CreateEditFormFields()
-        </div>
+        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="true" AnimationType="LayoutAnimationType.Slide">
+            <Items>
+                <DxFormLayoutItem Caption="Profile No" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.Default"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="PlantCode"
+                                ValueFieldName="PlantID"
+                                SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                Caption="Plant Code"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                Caption="Description" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                Caption="Nav Company" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Datas.PlantId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                    <DxComboBox Data="@_divisionItems"
+                                NullText="Select Division..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.Default"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="DivisionID"
+                                SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
+                                @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                                Caption="Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                                Caption="Code" />
+                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                                Caption="Description" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Datas.DivisionId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                    <DxComboBox Data="@_departmentItems"
+                                NullText="Select Department..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.Default"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="DepartmentName"
+                                ValueFieldName="DepartmentId"
+                                SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
+                                @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                Caption="Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                Caption="Code" />
+                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                Caption="Description" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Datas.DepartmentId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                    <DxComboBox Data="@_sectionItems"
+                                NullText="Select Section..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.Default"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="SectionName"
+                                ValueFieldName="SectionId"
+                                SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                                @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                                Caption="Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                                Caption="Code" />
+                            <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                                Caption="Description" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Datas.SectionId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                    <DxComboBox Data="@_subSectionItems"
+                                NullText="Select SubSection..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.Default"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="SubSectionName"
+                                ValueFieldName="SubSectionId"
+                                @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                                Caption="Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                                Caption="Code" />
+                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                                Caption="Description" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Datas.SubSectionId)" />
+                </DxFormLayoutItem>
+            </Items>
+        </DxFormLayoutGroup>
     </EditForm>
-</div>
-<p class="tm-8 cw-480 mt-2">
-    @FormSubmitResult
-</p>
+</DxFormLayout>
 
 @code {
-    string FormSubmitResult = "";
-    UserData Data { get; set; } = new UserData() { List = "Deutsch", Language = "Deutsch" };
-
-    string PhoneMask { get; set; } = "(999)000-0000";
-
-    void HandleValidSubmit()
+    EditContext _editContexts;
+    private List<ViewPlants>? _plantItems;
+    private List<ViewDivision>? _divisionItems;
+    private List<ViewDepartment>? _departmentItems;
+    private List<ViewSection>? _sectionItems;
+    private List<ViewSubSection>? _subSectionItems;
+    DynamicFormProfile Datas = new DynamicFormProfile();
+    protected override async Task OnInitializedAsync()
     {
-        FormSubmitResult = "You have been registred successully.";
+        _editContexts = new EditContext(Datas);
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
     }
-    void HandleInvalidSubmit()
+    async Task SelectedItemChanged(long? plantID)
     {
-        FormSubmitResult = "Please correct all errors";
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
-    }
-    public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
-    {
-        var propertyList = typeof(UserData).GetProperties();
-        formLayoutBuilder.OpenComponent<DxFormLayout>(0);
-        formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
+        _divisionItems = new List<ViewDivision>();
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (plantID > 0)
         {
-            layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(1);
-            //         layoutItemBuilder.AddAttribute(1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
-            // {
-            //     b.OpenElement(0, "span");
-            //     b.AddContent(0, "Work Information");
-            //     b.CloseElement();
-            // }));
-
-            layoutItemBuilder.AddAttribute(1, "Caption", "Personal Information");
-            //  layoutItemBuilder.OpenComponent<DxFormLayoutItem>(i++);
-            layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
-            {
-
-                int i = 0;
-                foreach (var property in propertyList)
-                {
-                    var attrList = (FieldTypeAttribute)property.GetCustomAttributes(typeof(FieldTypeAttribute), false).First();
-                    DisplayAttribute displayLabel = (DisplayAttribute)property.GetCustomAttributes(typeof(DisplayAttribute), false).First();
-                    itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
-
-                    itemBuilder.AddAttribute(i++, "Caption", displayLabel.Description);
-                    itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
-
-                    var access = Expression.Property(Expression.Constant(Data), property.Name);
-                    var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(property.PropertyType), access);
-                    itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                    {
-                        var j = 0;
-                        switch (attrList.Type)
-                        {
-                            case FieldType.Text:
-                                {
-                                    editor.OpenComponent<DxTextBox>(j++);
-                                    editor.AddAttribute(j++, "Text", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "TextExpression", lambda);
-                                    editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-                                }
-                            case FieldType.Password:
-                                {
-
-                                    editor.OpenComponent<DxTextBox>(j++);
-                                    editor.AddAttribute(j++, "Password", true);
-                                    editor.AddAttribute(j++, "NullText", "Password");
-                                    editor.AddAttribute(j++, "Text", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "TextExpression", lambda);
-                                    editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-                                }
-                            case FieldType.PhoneNumber:
-                                {
-                                    editor.OpenComponent<DxMaskedInput<String>>(j++);
-                                    editor.AddAttribute(j++, "Value", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "Mask", PhoneMask);
-                                    editor.AddAttribute(j++, "ValueExpression", lambda);
-                                    editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-                                }
-                            case FieldType.Date:
-                                {
-                                    editor.OpenComponent<DxDateEdit<DateTime>>(j);
-                                    editor.AddAttribute(j++, "Date", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "DateExpression", lambda);
-                                    editor.AddAttribute(j++, "DateChanged", EventCallback.Factory.Create<System.DateTime>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-
-                                }
-                            case FieldType.ComboBox:
-                                {
-                                    editor.OpenComponent<DxComboBox<String, String>>(j);
-                                    editor.AddAttribute(j++, "Data", AdditionalData.Occupations);
-                                    editor.AddAttribute(j++, "Value", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "ValueExpression", lambda);
-                                    editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-                                }
-                            case FieldType.MultilineText:
-                                {
-                                    editor.OpenComponent<DxMemo>(j);
-                                    editor.AddAttribute(j++, "Text", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "TextExpression", lambda);
-                                    editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-                                }
-                            case FieldType.CheckBox:
-                                {
-                                    editor.OpenComponent<DxCheckBox<bool>>(j);
-                                    editor.AddAttribute(j++, "Checked", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "CheckedExpression", lambda);
-                                    editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<System.Boolean>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-
-                                }
-
-                            case FieldType.RadioGroup:
-                                {
-                                    IEnumerable<string> Languages = new[] { "English", "简体中文", "Español", "Français", "Deutsch" };
-                                    editor.OpenComponent<DxRadioGroup<string, string>>(j);
-                                    editor.AddAttribute(j++, "Items", Languages);
-                                    editor.AddAttribute(j++, "Value", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "ValueExpression", lambda);
-                                    editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-
-                                }
-
-                            case FieldType.List:
-                                {
-                                    IEnumerable<string> Languages = new[] { "English", "简体中文", "Español", "Français", "Deutsch" };
-                                    List<string> ValueItems = new List<string>();
-                                    editor.OpenComponent<DxListBox<string, string>>(j);
-                                    editor.AddAttribute(j++, "Data", Languages);
-                                    // editor.AddAttribute(j++, "TextFieldName", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "SelectionMode", ListBoxSelectionMode.Single);
-                                    // editor.AddAttribute(j++, "ShowCheckboxes", true);
-                                    editor.AddAttribute(j++, "Value", property.GetValue(Data));
-                                    editor.AddAttribute(j++, "ValueExpression", lambda);
-                                    editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
-                                    editor.CloseComponent();
-                                    break;
-
-                                }
-
-                            // case FieldType.Grid:
-                            //     {
-                            //         // IEnumerable<string> Languages = new[] { "English", "简体中文", "Español", "Français", "Deutsch" };
-                            //         editor.OpenComponent<DxDataGrid<UserData>>(j);
-                            //         editor.AddAttribute(j++, "Data", UserEntry.UserDatas);
-                            //         editor.AddAttribute(j++, "Value", property.GetValue(Data));
-                            //         editor.AddAttribute(j++, "ValueExpression", lambda);
-                            //         editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<UserData>(this, str => { property.SetValue(Data, str); }));
-                            //         editor.CloseComponent();
-
-                            //         break;
-
-                            //     }
-                            default:
-                                break;
-                        }
-                    })));
-                    itemBuilder.CloseComponent();
-                    itemBuilder.OpenElement(i++, "div");
-                    itemBuilder.AddAttribute(i++, "class", "text-danger");
-                    itemBuilder.OpenComponent(i++, typeof(ValidationMessage<>).MakeGenericType(property.PropertyType));
-                    itemBuilder.AddAttribute(i++, "For", lambda);
-                    itemBuilder.CloseComponent();
-                    itemBuilder.CloseElement();
-                }
-                itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
-                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                {
-
-                    editor.OpenComponent<DxButton>(i++);
-                    editor.AddAttribute(i++, "SubmitFormOnClick", true);
-                    editor.AddAttribute(i++, "Text", "Register");
-                    editor.CloseComponent();
-                })));
-
-                itemBuilder.CloseComponent();
-            }));
-
-            layoutItemBuilder.CloseComponent();
-        }));
-        formLayoutBuilder.CloseComponent();
-    };
-
+            _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
+        }
+    }
+    async Task SelectedItemDivisionChanged(long? divisionId)
+    {
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (divisionId > 0)
+        {
+            _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
+        }
+    }
+    async Task SelectedItemDepartementChanged(long? departmentId)
+    {
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (departmentId > 0)
+        {
+            _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
+        }
+    }
+    async Task SelectedItemSectionChanged(long? sectionId)
+    {
+        _subSectionItems = new List<ViewSubSection>();
+        if (sectionId > 0)
+        {
+            _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
+        }
+    }
 }
-

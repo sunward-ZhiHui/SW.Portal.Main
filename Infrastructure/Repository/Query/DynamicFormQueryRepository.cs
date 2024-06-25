@@ -945,12 +945,14 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsSetDefaultValue", dynamicFormSection.IsSetDefaultValue == true ? true : null);
                         parameters.Add("IsDependencyMultiple", dynamicFormSection.IsDependencyMultiple == true ? true : null);
                         parameters.Add("IsDisplayDropDownHeader", dynamicFormSection.IsDisplayDropDownHeader);
+                        parameters.Add("IsDynamicFormGridDropdown", dynamicFormSection.IsDynamicFormGridDropdown == true ? true : null);
+                        parameters.Add("GridDropDownDynamicFormID", dynamicFormSection.GridDropDownDynamicFormID);
                         parameters.Add("ApplicationMasterIds", dynamicFormSection.ApplicationMasterIdsListIds != null && dynamicFormSection.ApplicationMasterIdsListIds.Count() > 0 ? string.Join(",", dynamicFormSection.ApplicationMasterIdsListIds) : null, DbType.String);
                         parameters.Add("PlantDropDownWithOtherDataSourceIds", dynamicFormSection.PlantDropDownWithOtherDataSourceListIds != null && dynamicFormSection.PlantDropDownWithOtherDataSourceListIds.Count() > 0 ? string.Join(",", dynamicFormSection.PlantDropDownWithOtherDataSourceListIds) : null, DbType.String);
                         if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
                         {
 
-                            var query = "UPDATE DynamicFormSectionAttribute SET IsDependencyMultiple=@IsDependencyMultiple,IsDisplayDropDownHeader=@IsDisplayDropDownHeader,ApplicationMasterIds=@ApplicationMasterIds,IsSetDefaultValue=@IsSetDefaultValue,IsDefaultReadOnly=@IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds=@PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency=@IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName=@PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId=@PlantDropDownWithOtherDataSourceId,RemarksLabelName=@RemarksLabelName,IsRadioCheckRemarks=@IsRadioCheckRemarks,RadioLayout=@RadioLayout,DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
+                            var query = "UPDATE DynamicFormSectionAttribute SET IsDynamicFormGridDropdown=@IsDynamicFormGridDropdown,GridDropDownDynamicFormID=@GridDropDownDynamicFormID,IsDependencyMultiple=@IsDependencyMultiple,IsDisplayDropDownHeader=@IsDisplayDropDownHeader,ApplicationMasterIds=@ApplicationMasterIds,IsSetDefaultValue=@IsSetDefaultValue,IsDefaultReadOnly=@IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds=@PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency=@IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName=@PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId=@PlantDropDownWithOtherDataSourceId,RemarksLabelName=@RemarksLabelName,IsRadioCheckRemarks=@IsRadioCheckRemarks,RadioLayout=@RadioLayout,DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
                                 "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsSpinEditType=@IsSpinEditType," +
                                 "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,FormToolTips=@FormToolTips,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader,IsVisible=@IsVisible " +
                                 "WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
@@ -960,9 +962,9 @@ namespace Infrastructure.Repository.Query
                         else
                         {
                             parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
-                            var query = "INSERT INTO DynamicFormSectionAttribute(IsDependencyMultiple,IsDisplayDropDownHeader,ApplicationMasterIds,IsSetDefaultValue,IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId,RemarksLabelName,IsRadioCheckRemarks,RadioLayout,FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
+                            var query = "INSERT INTO DynamicFormSectionAttribute(IsDynamicFormGridDropdown,GridDropDownDynamicFormID,IsDependencyMultiple,IsDisplayDropDownHeader,ApplicationMasterIds,IsSetDefaultValue,IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId,RemarksLabelName,IsRadioCheckRemarks,RadioLayout,FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
                                 "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader,IsVisible) VALUES " +
-                                "(@IsDependencyMultiple,@IsDisplayDropDownHeader,@ApplicationMasterIds,@IsSetDefaultValue,@IsDefaultReadOnly,@PlantDropDownWithOtherDataSourceIds,@IsPlantLoadDependency,@PlantDropDownWithOtherDataSourceLabelName,@PlantDropDownWithOtherDataSourceId,@RemarksLabelName,@IsRadioCheckRemarks,@RadioLayout,@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
+                                "(@IsDynamicFormGridDropdown,@GridDropDownDynamicFormID,@IsDependencyMultiple,@IsDisplayDropDownHeader,@ApplicationMasterIds,@IsSetDefaultValue,@IsDefaultReadOnly,@PlantDropDownWithOtherDataSourceIds,@IsPlantLoadDependency,@PlantDropDownWithOtherDataSourceLabelName,@PlantDropDownWithOtherDataSourceId,@RemarksLabelName,@IsRadioCheckRemarks,@RadioLayout,@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
                                 "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader,@IsVisible)";
 
                             dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters);
@@ -2320,6 +2322,50 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ApplicationMasterParent>> GetDynamicFormApplicationMasterParentAsync(long? dynamicFormId)
+        {
+
+            try
+            {
+                List<ApplicationMasterParent> selectedapplicationMasterParent = new List<ApplicationMasterParent>();
+                List<ApplicationMasterParent> applicationMasterParent = new List<ApplicationMasterParent>();
+                List<DynamicFormSectionAttribute> dynamicFormSectionAttribute = new List<DynamicFormSectionAttribute>();
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", dynamicFormId);
+                var query = "select t1.ApplicationMasterIds from DynamicFormSectionAttribute t1  \r\nJOIN DynamicFormSection t2 ON t1.DynamicFormSectionID=t2.DynamicFormSectionID\r\n" +
+                    "JOIN DynamicForm t3 ON t3.ID=t2.DynamicFormID \r\n" +
+                    "JOIN AttributeHeader t4 ON t4.AttributeID=t1.AttributeID\r\nWHERE t3.ID=@DynamicFormId AND t1.IsVisible=1 AND (t1.IsDeleted is null OR t1.IsDeleted=0) AND t4.ControlTypeID=2702 AND \r\n(t3.IsDeleted is null OR t3.IsDeleted=0) AND (t2.IsDeleted is null OR t2.IsDeleted=0) AND (t3.IsDeleted is null OR t3.IsDeleted=0);";
+                query += "Select * from ApplicationMasterParent where ParentID is null;\r\n";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query,parameters);
+                    dynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
+                    applicationMasterParent = results.Read<ApplicationMasterParent>().ToList();
+                }
+                List<long?> ids = new List<long?>();
+                if (dynamicFormSectionAttribute != null && dynamicFormSectionAttribute.Count() > 0)
+                {
+                    dynamicFormSectionAttribute.ForEach(s =>
+                    {
+                        if (!string.IsNullOrEmpty(s.ApplicationMasterIds))
+                        {
+                            var applicationMasterIds = s.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                            if (applicationMasterIds.Count > 0)
+                            {
+                                ids.AddRange(applicationMasterIds);
+                            }
+                        }
+                    });
+                    ids = ids.Where(w => w > 0).Distinct().ToList();
+                    selectedapplicationMasterParent = applicationMasterParent != null && applicationMasterParent.Count > 0 ? applicationMasterParent.Where(a => ids.Contains(a.ApplicationMasterParentCodeId)).ToList() : new List<ApplicationMasterParent>();
+                }
+                return selectedapplicationMasterParent;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormApproval> InsertOrUpdateDynamicFormApproval(DynamicFormApproval dynamicFormApproval)
         {
             try
@@ -2489,7 +2535,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId,long? attributeId)
+        public DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId, long? attributeId)
         {
             try
             {
@@ -2503,7 +2549,7 @@ namespace Infrastructure.Repository.Query
                 {
 
 
-                    query += "\n\rAND t1.DynamicFormSectionAttributeID=@DynamicFormSectionAttributeID";
+                    query += "\n\rAND t1.DynamicFormSectionAttributeID!=@DynamicFormSectionAttributeID";
                 }
                 else
                 {

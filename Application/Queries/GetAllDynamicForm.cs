@@ -511,5 +511,13 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
+    public class GetDynamicFormApplicationMasterParent : PagedRequest, IRequest<List<ApplicationMasterParent>>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormApplicationMasterParent(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
 }
 

@@ -903,101 +903,104 @@
     }
     void SelectedControlChanged(int? controlTypeId, string type)
     {
-        isMultipleEnabled = false;
-        MaskEnabled = false;
-        RegEnabled = false; isDropDownType = false; IsDynamicFormDropTagBoxEnabled = false; IsSpinEditTypeEnabled = false;
-        isDataSource = false; isGridForm = false; IsRadioLayoutEnabled = false;
-        _dynamicForms = new List<DynamicForm>();
-        _dynamicForms = _dynamicForm.ToList();
-        if (type == "Add")
-        {
-            Data.DataSourceId = 0; Data.DynamicFormId = 0; isListMultiple = false; Data.IsFilterDataSource = false;
-            Data.IsDataSource = false; Data.FilterDataSocurceId = 0; Data.IsDynamicFormDropTagBox = false;
-            Data.AttributeRadioLayout = null;
-            if (controlTypeId == 2704)
-            {
-                Data.IsAttributeSpinEditType = "int";
-                IsSpinEditTypeEnabled = true;
-            }
-            if (controlTypeId == 2705 || controlTypeId == 2711)
-            {
-                if (string.IsNullOrEmpty(Data.AttributeRadioLayout))
-                {
-                    Data.AttributeRadioLayout = "Vertical";
-                }
-                IsRadioLayoutEnabled = true;
-            }
-        }
-        if (type == "Edit")
-        {
-            if (controlTypeId != 2712)
-            {
-                Data.DynamicFormId = 0;
-            }
-            if (controlTypeId == 2706)
-            {
-                isListMultiple = true;
-            }
-            if (controlTypeId == 2704)
-            {
-                IsSpinEditTypeEnabled = true;
-            }
-            if (controlTypeId == 2705 || controlTypeId == 2711)
-            {
-                if (string.IsNullOrEmpty(Data.AttributeRadioLayout))
-                {
-                    Data.AttributeRadioLayout = "Vertical";
-                }
-                IsRadioLayoutEnabled = true;
-            }
-        }
         if (controlTypeId > 0)
         {
-            var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == controlTypeId)?.CodeValue;
-            if (!string.IsNullOrEmpty(controlType))
+            isMultipleEnabled = false;
+            MaskEnabled = false;
+            RegEnabled = false; isDropDownType = false; IsDynamicFormDropTagBoxEnabled = false; IsSpinEditTypeEnabled = false;
+            isDataSource = false; isGridForm = false; IsRadioLayoutEnabled = false;
+            _dynamicForms = new List<DynamicForm>();
+            _dynamicForms = _dynamicForm.ToList();
+            if (type == "Add")
             {
-                Data.ControlType = controlType;
-                var isChildData = ControlTypeChildData.FirstOrDefault(f => controlType.ToLower().Contains(f.ToLower()));
-                if (isChildData != null)
+                Data.DataSourceId = 0; Data.DynamicFormId = 0; isListMultiple = false; Data.IsFilterDataSource = false;
+                Data.IsDataSource = false; Data.FilterDataSocurceId = 0; Data.IsDynamicFormDropTagBox = false;
+                Data.AttributeRadioLayout = null;
+                if (controlTypeId == 2704)
                 {
-                    isMultipleEnabled = true;
+                    Data.IsAttributeSpinEditType = "int";
+                    IsSpinEditTypeEnabled = true;
                 }
-                if (controlType == "TextBox")
+                if (controlTypeId == 2705 || controlTypeId == 2711)
                 {
-                    MaskEnabled = true;
-                    RegEnabled = true;
+                    if (string.IsNullOrEmpty(Data.AttributeRadioLayout))
+                    {
+                        Data.AttributeRadioLayout = "Vertical";
+                    }
+                    IsRadioLayoutEnabled = true;
                 }
             }
-            if (controlTypeId == 2702 || controlTypeId == 2708 || controlTypeId == 2706)
+            if (type == "Edit")
             {
-                if (Data.AttributeID == 0)
+                if (controlTypeId != 2712)
                 {
-                    Data.IsDataSource = false;
-                    Data.DataSourceId = 0;
+                    Data.DynamicFormId = 0;
                 }
-                isDropDownType = true;
-            }
-            if (controlTypeId == 2706)
-            {
-                isListMultiple = true;
-            }
-            if (controlTypeId == 2702 || controlTypeId == 2708)
-            {
-                if (Data.AttributeID == 0)
+                if (controlTypeId == 2706)
                 {
-                    Data.IsDynamicFormDropTagBox = false;
+                    isListMultiple = true;
                 }
-                IsDynamicFormDropTagBoxEnabled = true;
-            }
-            if (controlTypeId == 2712)
-            {
-                _dynamicForms = new List<DynamicForm>();
-                _dynamicForms = _dynamicForm.Where(w => w.IsGridForm == true).ToList();
-                if (type != "Edit")
+                if (controlTypeId == 2704)
                 {
-                    Data.DynamicFormId = null;
+                    IsSpinEditTypeEnabled = true;
                 }
-                isGridForm = true;
+                if (controlTypeId == 2705 || controlTypeId == 2711)
+                {
+                    if (string.IsNullOrEmpty(Data.AttributeRadioLayout))
+                    {
+                        Data.AttributeRadioLayout = "Vertical";
+                    }
+                    IsRadioLayoutEnabled = true;
+                }
+            }
+            if (controlTypeId > 0)
+            {
+                var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == controlTypeId)?.CodeValue;
+                if (!string.IsNullOrEmpty(controlType))
+                {
+                    Data.ControlType = controlType;
+                    var isChildData = ControlTypeChildData.FirstOrDefault(f => controlType.ToLower().Contains(f.ToLower()));
+                    if (isChildData != null)
+                    {
+                        isMultipleEnabled = true;
+                    }
+                    if (controlType == "TextBox")
+                    {
+                        MaskEnabled = true;
+                        RegEnabled = true;
+                    }
+                }
+                if (controlTypeId == 2702 || controlTypeId == 2708 || controlTypeId == 2706)
+                {
+                    if (Data.AttributeID == 0)
+                    {
+                        Data.IsDataSource = false;
+                        Data.DataSourceId = 0;
+                    }
+                    isDropDownType = true;
+                }
+                if (controlTypeId == 2706)
+                {
+                    isListMultiple = true;
+                }
+                if (controlTypeId == 2702 || controlTypeId == 2708)
+                {
+                    if (Data.AttributeID == 0)
+                    {
+                        Data.IsDynamicFormDropTagBox = false;
+                    }
+                    IsDynamicFormDropTagBoxEnabled = true;
+                }
+                if (controlTypeId == 2712)
+                {
+                    _dynamicForms = new List<DynamicForm>();
+                    _dynamicForms = _dynamicForm.Where(w => w.IsGridForm == true).ToList();
+                    if (type != "Edit")
+                    {
+                        Data.DynamicFormId = null;
+                    }
+                    isGridForm = true;
+                }
             }
         }
     }

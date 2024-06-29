@@ -92,8 +92,10 @@ namespace Core.Entities
         [NotMapped]
         public long? SelectDynamicFormId { get; set; }
         public bool IsDynamicFormGridDropdown { get; set; } = false;
+        [Required(ErrorMessage = "Dynamic Form Name is Required")]
         public long? GridDropDownDynamicFormID { get; set; }
         public string? GridDropDownDynamicFormName { get; set; }
+        public bool IsDynamicFormGridDropdownMultiple { get; set; } = false;
     }
     public class DynamicFormSectionSpinEdit
     {

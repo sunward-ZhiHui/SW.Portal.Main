@@ -70,30 +70,40 @@
             <DxFormLayoutItem Caption="Asset Catalog" ColSpanMd="6">
                 <DxComboBox Data="@_applicationMasterChildAssetCatalogItems"
                             NullText="Select Catalog..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
-                            @bind-Value="@plant.AssetCatalogId"
-                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemCatalogChanged(plantSelect.ApplicationMasterChildId))"
+                            Value="@CurrentCatalog"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            ValueExpression="@(() => CurrentCatalog )"
+                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemCatalogChanged(plantSelect?.ApplicationMasterChildId,plant))"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <DxSpinEdit @bind-Value="@plant.AssetCatalogId" ShowValidationIcon="true" style="display:none;" />
                 <ValidationMessage For="@(() => plant.AssetCatalogId)" />
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="Asset Section" ColSpanMd="6">
                 <DxComboBox Data="@_applicationMasterChildSectionItems"
                             NullText="Select Section..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            Value="@CurrentSection"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            ValueExpression="@(() => CurrentSection )"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
-                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemSectionChanged(plantSelect.ApplicationMasterChildId))"
-                            @bind-Value="@plant.SectionId" />
+                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemSectionChanged(plantSelect?.ApplicationMasterChildId,plant))" />
+                <DxSpinEdit @bind-Value="@plant.SectionId" ShowValidationIcon="true" style="display:none;" />
+                <ValidationMessage For="@(() => plant.SectionId)" />
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
                 <DxComboBox Data="@_applicationMasterChildSubSectionItems"
                             NullText="Select Sub Section..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
                             @bind-Value="@plant.SubSectionId" />
@@ -141,6 +151,8 @@
     </BodyTemplate>
 </DxPopup>
 @code {
+    ApplicationMasterChildModel CurrentCatalog { get; set; }
+    ApplicationMasterChildModel CurrentSection { get; set; }
     [Parameter]
     public View_AssetCatalogMaster _selectItems { get; set; }
     private List<ApplicationMasterChildModel> _applicationMasterChildAssetCatalogItems;
@@ -181,14 +193,31 @@
             StateHasChanged();
         }
     }
-    async Task SelectedItemCatalogChanged(long? values)
+    async Task SelectedItemCatalogChanged(long? values, View_AssetPartsMaintenaceMaster view_AssetPartsMaintenaceMaster)
     {
+        CurrentCatalog = null;
+        CurrentSection = null;
+        view_AssetPartsMaintenaceMaster.AssetCatalogId = null;
         _applicationMasterChildSubSectionItems = new List<ApplicationMasterChildModel>();
-        _applicationMasterChildSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
+        view_AssetPartsMaintenaceMaster.AssetCatalogId = null;
+        if (values > 0)
+        {
+            CurrentCatalog = _applicationMasterChildAssetCatalogItems != null ? _applicationMasterChildAssetCatalogItems.FirstOrDefault(f => f.ApplicationMasterChildId == values) : null;
+            view_AssetPartsMaintenaceMaster.AssetCatalogId = values;
+            
+            _applicationMasterChildSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
+        }
     }
-    async Task SelectedItemSectionChanged(long? values)
+    async Task SelectedItemSectionChanged(long? values, View_AssetPartsMaintenaceMaster view_AssetPartsMaintenaceMaster)
     {
-        _applicationMasterChildSubSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
+        CurrentSection = null;
+        view_AssetPartsMaintenaceMaster.AssetCatalogId = null;
+        if (values > 0)
+        {
+            CurrentSection = _applicationMasterChildSectionItems != null ? _applicationMasterChildAssetCatalogItems.FirstOrDefault(f => f.ApplicationMasterChildId == values) : null; ;
+            view_AssetPartsMaintenaceMaster.SectionId = values;
+            _applicationMasterChildSubSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
+        }
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -199,8 +228,8 @@
         else
         {
             var newmaster = (View_AssetPartsMaintenaceMaster)e.EditModel;
-            await SelectedItemCatalogChanged(newmaster.AssetCatalogId);
-            await SelectedItemSectionChanged(newmaster.SectionId);
+            await SelectedItemCatalogChanged(newmaster.AssetCatalogId, newmaster);
+            await SelectedItemSectionChanged(newmaster.SectionId, newmaster);
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -373,7 +402,7 @@
     }
     void addMastersEdit()
     {
-        PopupForwardToVisible=true;
+        PopupForwardToVisible = true;
         StateHasChanged();
     }
 }

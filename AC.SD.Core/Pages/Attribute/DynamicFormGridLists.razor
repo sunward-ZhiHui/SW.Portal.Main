@@ -15,26 +15,26 @@
 @using Newtonsoft.Json;
 @implements IDisposable
 @using System.Collections.ObjectModel
-  <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script type="text/javascript" src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-  <style scoped>
-      .ui-state-highlight {
-          background-color: rgba(var(--bs-primary-rgb), .3);
-      }
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<style scoped>
+    .ui-state-highlight {
+        background-color: rgba(var(--bs-primary-rgb), .3);
+    }
 
-      .ui-state-hover {
-          background: rgba(var(--bs-primary-rgb), .3);
-      }
+    .ui-state-hover {
+        background: rgba(var(--bs-primary-rgb), .3);
+    }
 
-      .ui-draggable-dragging {
-          box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
-      }
+    .ui-draggable-dragging {
+        box-shadow: 0 2px 6px 0 rgb(0 0 0 / 12%);
+    }
 
-      .dxbl-grid .dxbl-grid-table > tbody > tr[data-visible-index] {
-          cursor: pointer;
-      }
+    .dxbl-grid .dxbl-grid-table > tbody > tr[data-visible-index] {
+        cursor: pointer;
+    }
 
-  </style>
+</style>
 @if (IsShow == true)
 {
     <div class="card w-100" style="margin-bottom:10px;">
@@ -321,6 +321,11 @@
                                 {
                                     var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
                                     dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
+                                    if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
+                                    {
+                                        var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                        dataColumnNames.Add(new DropDownOptionsModel() { Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
+                                    }
                                 });
                             }
                         }
@@ -470,8 +475,62 @@
                                                             }
                                                         }
                                                     }
-                                                }
+                                                
+                                                if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMaster" && s.IsDynamicFormGridDropdown == true)
+                                                {
+                                                    var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+                                                    var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                    var displayNames = string.Empty;
+                                                    if (collection != null)
+                                                    {
+                                                        var itemDepExits = jsonObj.ContainsKey(appendDependency);
+                                                        if (itemDepExits == true)
+                                                        {
+                                                            var itemDepValue = jsonObj[appendDependency];
+                                                            if (s.IsDynamicFormGridDropdownMultiple == true)
+                                                            {
+                                                                if (itemDepValue is JArray)
+                                                                {
+                                                                    List<long?> listData = itemDepValue.ToObject<List<long?>>();
 
+                                                                    if (listData != null && listData.Count > 0)
+                                                                    {
+                                                                        listData.ForEach(l =>
+                                                                    {
+                                                                        if (collection != null)
+                                                                        {
+                                                                            foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                            {
+                                                                                dynamic eod = v;
+                                                                                if ((long?)eod.AttributeDetailID == l)
+                                                                                {
+                                                                                    displayNames += eod.AttributeDetailName + ",";
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                    }
+                                                                    displayNames = displayNames.TrimEnd(',');
+
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
+                                                                foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                {
+                                                                    dynamic eod = v;
+                                                                    if ((long?)eod.AttributeDetailID == valuesDep)
+                                                                    {
+                                                                        displayNames += eod.AttributeDetailName;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    objectData[appendDependency] = displayNames;
+                                                }
+                                                }
                                             });
                                                 }
                                             }
@@ -494,13 +553,43 @@
                                                             if (itemDepExits == true)
                                                             {
                                                                 var itemDepValue = jsonObj[appendDependency];
-                                                                long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
-                                                                foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                if (s.IsDynamicFormGridDropdownMultiple == true)
                                                                 {
-                                                                    dynamic eod = v;
-                                                                    if ((long?)eod.AttributeDetailID == valuesDep)
+                                                                    if (itemDepValue is JArray)
                                                                     {
-                                                                        displayNames += eod.AttributeDetailName;
+                                                                        List<long?> listData = itemDepValue.ToObject<List<long?>>();
+
+                                                                        if (listData != null && listData.Count > 0)
+                                                                        {
+                                                                            listData.ForEach(l =>
+                                                                            {
+                                                                                if (collection != null)
+                                                                                {
+                                                                                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                                    {
+                                                                                        dynamic eod = v;
+                                                                                        if ((long?)eod.AttributeDetailID == l)
+                                                                                        {
+                                                                                            displayNames += eod.AttributeDetailName + ",";
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                        displayNames = displayNames.TrimEnd(',');
+
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
+                                                                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                                                    {
+                                                                        dynamic eod = v;
+                                                                        if ((long?)eod.AttributeDetailID == valuesDep)
+                                                                        {
+                                                                            displayNames += eod.AttributeDetailName;
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -718,6 +807,11 @@
                                                         {
                                                             var nameData = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
                                                             objectData[nameData] = string.Empty;
+                                                            if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMaster" && s.IsDynamicFormGridDropdown == true)
+                                                            {
+                                                                var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+                                                                objectData[appendDependency] = string.Empty;
+                                                            }
                                                         });
                                                     }
                                                 }

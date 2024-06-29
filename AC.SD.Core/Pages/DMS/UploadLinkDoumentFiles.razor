@@ -64,113 +64,158 @@
                         <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                        <DxComboBox Data="@_plantItems"
-                                    NullText="Select Company..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="PlantCode"
-                                    ValueFieldName="PlantID"
-                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemLinkDocChanged(plantSelect?.PlantID))"
-                                    Enabled="isPlantLinkDoc"
-                        @bind-Value="@Data.PlantId" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                                    Caption="Plant Code"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                                    Caption="Description" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-                                                    Caption="Nav Company" />
-                            </Columns>
-                        </DxComboBox>
+                       
+                        <DxDropDownBox @bind-Value="PlantValue"
+                                       QueryDisplayText="QueryPlantText"
+                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                       NullText="Select a Company..."
+                                       Enabled="isPlantLinkDoc"
+                                       ShowValidationIcon="true">
+                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                <DxGrid Data="@_plantItems"
+                                        KeyFieldName="@nameof(ViewPlants.PlantID)" ShowSearchBox="true"
+                                        HighlightRowOnHover="true"
+                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        TextWrapEnabled="false"
+                                        CssClass="templateGrid"
+                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewPlants)"
+                                        SelectedDataItemChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="PlantCode" />
+                                        <DxGridDataColumn FieldName="Description" />
+                                        <DxGridDataColumn FieldName="NavCompanyName" />
+                                    </Columns>
+                                </DxGrid>
+                            </DropDownBodyTemplate>
+                        </DxDropDownBox>
+                        <DxSpinEdit @bind-Value="@Data.PlantId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.PlantId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                        <DxComboBox Data="@_divisionItems"
-                                    NullText="Select Division..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="Name"
-                                    ValueFieldName="DivisionID"
-                                    Enabled="isDivisionLinkDoc"
-                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionLinkDocChanged(plantSelect?.DivisionID))"
-                        @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
-                                                    Caption="Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
-                                                    Caption="Code" />
-                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
-                                                    Caption="Description" />
-                            </Columns>
-                        </DxComboBox>
+                       
+                        <DxDropDownBox @bind-Value="DivisionValue"
+                                       QueryDisplayText="QueryDivisionText"
+                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                       NullText="Select a Division..."
+                                       Enabled="isDivisionLinkDoc"
+                                       ShowValidationIcon="true">
+                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                <DxGrid Data="@_divisionItems"
+                                        KeyFieldName="@nameof(ViewDivision.DivisionID)" ShowSearchBox="true"
+                                        HighlightRowOnHover="true"
+                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        TextWrapEnabled="false"
+                                        CssClass="templateGrid"
+                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDivision)"
+                                        SelectedDataItemChanged="item => GridDivisionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Name)" Caption="Name" />
+                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Code)" Caption="Code" />
+                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Description)" Caption="Description" />
+                                    </Columns>
+                                </DxGrid>
+                            </DropDownBodyTemplate>
+                        </DxDropDownBox>
+                        <DxSpinEdit @bind-Value="@Data.DivisionId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.DivisionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                        <DxComboBox Data="@_departmentItems"
-                                    NullText="Select Department..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="DepartmentName"
-                                    ValueFieldName="DepartmentId"
-                                    Enabled="isDepartmentLinkDoc"
-                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementLinkDocChanged(plantSelect?.DepartmentId))"
-                        @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
-                                                    Caption="Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
-                                                    Caption="Code" />
-                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
-                                                    Caption="Description" />
-                            </Columns>
-                        </DxComboBox>
+                       
+                        <DxDropDownBox @bind-Value="DepartmentValue"
+                                       QueryDisplayText="QueryDepartmentText"
+                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                       NullText="Select a Department..."
+                                       Enabled="isDepartmentLinkDoc"
+                                       ShowValidationIcon="true">
+                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                <DxGrid Data="@_departmentItems"
+                                        KeyFieldName="@nameof(ViewDepartment.DepartmentId)" ShowSearchBox="true"
+                                        HighlightRowOnHover="true"
+                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        TextWrapEnabled="false"
+                                        CssClass="templateGrid"
+                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDepartment)"
+                                        SelectedDataItemChanged="item => GridDepartmentSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentName)" Caption="Name" />
+                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentCode)" Caption="Code" />
+                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.Description)" Caption="Description" />
+                                    </Columns>
+                                </DxGrid>
+                            </DropDownBodyTemplate>
+                        </DxDropDownBox>
+                        <DxSpinEdit @bind-Value="@Data.DepartmentId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.DepartmentId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                        <DxComboBox Data="@_sectionItems"
-                                    NullText="Select Section..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="SectionName"
-                                    ValueFieldName="SectionId"
-                                    Enabled="isSectionLinkDoc"
-                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionLinkDocChanged(plantSelect?.SectionId))"
-                        @bind-Value="@Data.SectionId" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
-                                                    Caption="Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
-                                                    Caption="Code" />
-                                <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
-                                                    Caption="Description" />
-                            </Columns>
-                        </DxComboBox>
+                       
+                        <DxDropDownBox @bind-Value="SectionValue"
+                                       QueryDisplayText="QuerySectionText"
+                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                       NullText="Select a Section..."
+                                       Enabled="isSectionLinkDoc"
+                                       ShowValidationIcon="true">
+                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                <DxGrid Data="@_sectionItems"
+                                        KeyFieldName="@nameof(ViewSection.SectionId)" ShowSearchBox="true"
+                                        HighlightRowOnHover="true"
+                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        TextWrapEnabled="false"
+                                        CssClass="templateGrid"
+                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSection)"
+                                        SelectedDataItemChanged="item => GridSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(ViewSection.SectionName)" Caption="Name" />
+                                        <DxGridDataColumn FieldName="@nameof(ViewSection.SectionCode)" Caption="Code" />
+                                        <DxGridDataColumn FieldName="@nameof(ViewSection.Description)" Caption="Description" />
+                                    </Columns>
+                                </DxGrid>
+                            </DropDownBodyTemplate>
+                        </DxDropDownBox>
+                        <DxSpinEdit @bind-Value="@Data.SectionId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.SectionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-                        <DxComboBox Data="@_subSectionItems"
-                                    NullText="Select SubSection..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="SubSectionName"
-                                    ValueFieldName="SubSectionId"
-                                    Enabled="isSubSectionLinkDoc"
-                        @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
-                                                    Caption="Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
-                                                    Caption="Code" />
-                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
-                                                    Caption="Description" />
-                            </Columns>
-                        </DxComboBox>
-                        <ValidationMessage For="@(() => Data.SubSectionId)" />
+                       
+                        <DxDropDownBox @bind-Value="SubSectionValue"
+                                       QueryDisplayText="QuerySubSectionText"
+                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                       NullText="Select a Sub Section..."
+                                       Enabled="isSubSectionLinkDoc"
+                                       ShowValidationIcon="true">
+                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                <DxGrid Data="@_subSectionItems"
+                                        KeyFieldName="@nameof(ViewSubSection.SubSectionId)" ShowSearchBox="true"
+                                        HighlightRowOnHover="true"
+                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                        SelectionMode="GridSelectionMode.Single"
+                                        AllowSelectRowByClick="true"
+                                        FocusedRowEnabled="true"
+                                        TextWrapEnabled="false"
+                                        CssClass="templateGrid"
+                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSubSection)"
+                                        SelectedDataItemChanged="item => GridSubSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionName)" Caption="Name" />
+                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionCode)" Caption="Code" />
+                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.Description)" Caption="Description" />
+                                    </Columns>
+                                </DxGrid>
+                            </DropDownBodyTemplate>
+                        </DxDropDownBox>
+                        <DxSpinEdit @bind-Value="@Data.SubSectionId" ShowValidationIcon="true" style="display:none;" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Visible="@linkDocisExpiryDate">
                         <DxDateEdit NullText="Select a Expiry Date..." MinDate="DateTime.Now" @bind-Date="@Data.ExpiryDate" CssClass="cw-320" />
@@ -245,6 +290,11 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    object PlantValue { get; set; }
+    object DivisionValue { get; set; }
+    object DepartmentValue { get; set; }
+    object SectionValue { get; set; }
+    object SubSectionValue { get; set; }
     EditContext _editContext;
     [Parameter]
     public DocumentsModel selectedFiles { get; set; }
@@ -295,7 +345,7 @@
     }
     public async Task loadLinkDocData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser, string uploadClear)
     {
-        IsFileProfileTypeLinkDocShow = true;
+        IsFileProfileTypeLinkDocShow = true; PlantValue = null;
         if (uploadClear == "Yes")
         {
             fileProfileTypeLinkDocDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
@@ -538,6 +588,38 @@
     {
         // var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
     }
+    string? QueryPlantText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        Data.PlantId = isPlantLinkDoc == false ? 0 : null;
+        Data.DivisionId = isDivisionLinkDoc == false ? 0 : null;
+        Data.DepartmentId = isDepartmentLinkDoc == false ? 0 : null;
+        Data.SectionId = isSectionLinkDoc == false ? 0 : null;
+        Data.SubSectionId = isSubSectionLinkDoc == false ? 0 : null;
+        DivisionValue = null; DepartmentValue = null; SectionValue = null; SubSectionValue = null;
+        string? returnData = string.Empty;
+        if (arg.Value is ViewPlants value)
+        {
+            if (value != null)
+            {
+                Data.PlantId = value.PlantID;
+                returnData = value?.PlantCode;
+            }
+        }
+        InvokeAsync(SelectedItemPlantChanged);
+        return returnData;
+    }
+    async Task SelectedItemPlantChanged()
+    {
+        await SelectedItemLinkDocChanged(Data.PlantId);
+    }
+    void GridSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            PlantValue = item as ViewPlants;
+        }
+        dropDownBox.HideDropDown();
+    }
     async Task SelectedItemLinkDocChanged(long? plantID)
     {
         _divisionItems = new List<ViewDivision>();
@@ -549,6 +631,36 @@
             _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
         }
     }
+    void GridDivisionSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            DivisionValue = item as ViewDivision;
+        }
+        dropDownBox.HideDropDown();
+    }
+    string? QueryDivisionText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        Data.DivisionId = isDivisionLinkDoc == false ? 0 : null;
+        Data.DepartmentId = isDepartmentLinkDoc == false ? 0 : null;
+        Data.SectionId = isSectionLinkDoc == false ? 0 : null;
+        Data.SubSectionId = isSubSectionLinkDoc == false ? 0 : null;
+        string? returnData = string.Empty; DepartmentValue = null; SectionValue = null; SubSectionValue = null;
+        if (arg.Value is ViewDivision value)
+        {
+            if (value != null)
+            {
+                Data.DivisionId = value.DivisionID;
+                returnData = value?.Name;
+            }
+        }
+        InvokeAsync(SelectedItemDivisionChangeds);
+        return returnData;
+    }
+    async Task SelectedItemDivisionChangeds()
+    {
+        await SelectedItemDivisionLinkDocChanged(Data.DivisionId);
+    }
     async Task SelectedItemDivisionLinkDocChanged(long? divisionId)
     {
         _departmentItems = new List<ViewDepartment>();
@@ -559,6 +671,36 @@
             _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
         }
     }
+    void GridDepartmentSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            DepartmentValue = item as ViewDepartment;
+        }
+        dropDownBox.HideDropDown();
+    }
+    string? QueryDepartmentText(DropDownBoxQueryDisplayTextContext arg)
+    {
+
+        Data.DepartmentId = isDepartmentLinkDoc == false ? 0 : null;
+        Data.SectionId = isSectionLinkDoc == false ? 0 : null;
+        Data.SubSectionId = isSubSectionLinkDoc == false ? 0 : null;
+        string? returnData = string.Empty; SectionValue = null; SubSectionValue = null;
+        if (arg.Value is ViewDepartment value)
+        {
+            if (value != null)
+            {
+                Data.DepartmentId = value.DepartmentId;
+                returnData = value?.DepartmentName;
+            }
+        }
+        InvokeAsync(SelectedItemDepartementChangeds);
+        return returnData;
+    }
+    async Task SelectedItemDepartementChangeds()
+    {
+        await SelectedItemDepartementLinkDocChanged(Data.DepartmentId);
+    }
     async Task SelectedItemDepartementLinkDocChanged(long? departmentId)
     {
         _sectionItems = new List<ViewSection>();
@@ -568,6 +710,35 @@
             _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
         }
     }
+    void GridSectionSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            SectionValue = item as ViewSection;
+        }
+        dropDownBox.HideDropDown();
+    }
+    string? QuerySectionText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        Data.SectionId = isSectionLinkDoc == false ? 0 : null;
+        Data.SubSectionId = isSubSectionLinkDoc == false ? 0 : null;
+        SubSectionValue = null;
+        string? returnData = string.Empty;
+        if (arg.Value is ViewSection value)
+        {
+            if (value != null)
+            {
+                Data.SectionId = value.SectionId;
+                returnData = value?.SectionName;
+            }
+        }
+        InvokeAsync(SelectedItemSectionChangeds);
+        return returnData;
+    }
+    async Task SelectedItemSectionChangeds()
+    {
+        await SelectedItemSectionLinkDocChanged(Data.SectionId);
+    }
     async Task SelectedItemSectionLinkDocChanged(long? sectionId)
     {
         _subSectionItems = new List<ViewSubSection>();
@@ -575,6 +746,28 @@
         {
             _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
         }
+    }
+    string? QuerySubSectionText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        Data.SubSectionId = isSubSectionLinkDoc == false ? 0 : null;
+        string? returnData = string.Empty;
+        if (arg.Value is ViewSubSection value)
+        {
+            if (value != null)
+            {
+                Data.SubSectionId = value.SubSectionId;
+                returnData = value?.SubSectionName;
+            }
+        }
+        return returnData;
+    }
+    void GridSubSectionSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            SubSectionValue = item as ViewSubSection;
+        }
+        dropDownBox.HideDropDown();
     }
     void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {

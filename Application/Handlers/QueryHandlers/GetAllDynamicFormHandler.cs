@@ -860,4 +860,18 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormApplicationMasterHandler : IRequestHandler<GetDynamicFormApplicationMaster, List<ApplicationMaster>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormApplicationMasterHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<ApplicationMaster>> Handle(GetDynamicFormApplicationMaster request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationMaster>)await _dynamicFormQueryRepository.GetDynamicFormApplicationMasterAsync(request.DynamicFormId);
+        }
+
+
+    }
 }

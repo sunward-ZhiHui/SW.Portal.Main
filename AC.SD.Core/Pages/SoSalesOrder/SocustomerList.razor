@@ -95,7 +95,8 @@
                     <DxTextBox @bind-Text="@customers.PostCode" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Type :">
-                    <DxComboBox Data="@TypeList" @bind-Value="@customers.Type" ShowValidationIcon="true" />
+                    <DxComboBox Data="@TypeList" SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains" @bind-Value="@customers.Type" ShowValidationIcon="true" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Channel :">
                     <DxTextBox @bind-Text="@customers.Channel" />

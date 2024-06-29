@@ -60,7 +60,8 @@
             <DxFormLayoutItem Caption="Email Guide" ColSpanMd="6">
                 <DxComboBox Data="@_view_ApplicationMasterDetailsEmailGuide"
                             NullText="Select Duty TYpe..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             @bind-Value="@responseOtherData.EmailGuideID" ShowValidationIcon="true" />
@@ -69,7 +70,8 @@
             <DxFormLayoutItem Caption="Subscription" ColSpanMd="6">
                 <DxComboBox Data="@_view_ApplicationMasterDetailsSubscription"
                             NullText="Select Duty TYpe..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             @bind-Value="@responseOtherData.SubscriptionID" ShowValidationIcon="true" />

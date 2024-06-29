@@ -15,12 +15,15 @@
                     <DxComboBox Data="@_usersFromList"
                                 NullText="Select From User..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 ValueFieldName="UserID"
                                 TextFieldName="FirstName"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                SelectedItemChanged="@((ViewEmployee soCustomer) => onSelectedUserItemsChanged(soCustomer))"
-                    @bind-Value="@Data.FromUserId" ShowValidationIcon="true">
+                                Value="@CurrentFromUser"
+                                ValueExpression="@(() => CurrentFromUser )"
+                                ValueChanged="@((ViewEmployee soCustomer) => onSelectedUserItemsChanged(soCustomer))"
+                                ShowValidationIcon="true">
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
@@ -33,12 +36,15 @@
                     <DxComboBox Data="@_usersToList"
                                 NullText="Select To User..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 ValueFieldName="UserID"
                                 TextFieldName="FirstName"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                SelectedItemChanged="@((ViewEmployee soCustomer) => onSelectedUserToItemsChanged(soCustomer))"
-                    @bind-Value="@Data.ToUserId" ShowValidationIcon="true">
+                                Value="@CurrentToUser"
+                                ValueExpression="@(() => CurrentToUser )"
+                                ValueChanged="@((ViewEmployee soCustomer) => onSelectedUserToItemsChanged(soCustomer))"
+                                ShowValidationIcon="true">
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
@@ -71,6 +77,8 @@
     </div>
 </div>
 @code {
+    ViewEmployee CurrentFromUser { get; set; }
+    ViewEmployee CurrentToUser { get; set; }
     private TransferUserGroups refResetUserGroups;
     private TransferPermissionDocumentUserRole refTransferPermissionDocumentUserRole;
     private TransferPermissionsEmailConversationParticipant refTransferPermissionsEmailConversationParticipant;
@@ -94,7 +102,8 @@
     }
     async Task onSelectedUserItemsChanged(ViewEmployee viewEmployee)
     {
-
+        Data.FromUserId = null;
+        CurrentFromUser = viewEmployee;
         UserIds = -1;
         if (viewEmployee != null && viewEmployee.UserID > 0)
         {
@@ -105,12 +114,14 @@
         {
             _usersToList = _usersList;
         }
-        Data.FromUserId = UserIds;
+        Data.FromUserId = viewEmployee != null ? UserIds : null;
         StateHasChanged();
         await loadTabDatas();
     }
     async Task onSelectedUserToItemsChanged(ViewEmployee viewEmployees)
     {
+        Data.ToUserId = null;
+        CurrentFromUser = viewEmployees;
         ActiveSubTabIndex = 0;
         long? toUserIds = -1;
         if (viewEmployees != null && viewEmployees.UserID > 0)
@@ -122,7 +133,7 @@
         {
             _usersFromList = _usersList;
         }
-        Data.ToUserId = toUserIds;
+        Data.ToUserId = viewEmployees != null ? toUserIds : null;
         StateHasChanged();
         await loadTabDatas();
     }
@@ -147,6 +158,6 @@
     void OnTabClick(TabClickEventArgs e)
     {
         tabIndex = e.TabIndex;
-       
+
     }
 }

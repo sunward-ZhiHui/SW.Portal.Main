@@ -23,13 +23,16 @@
                     <DxComboBox Data="@_soAllShippingCusterAddress"
                                 NullText="Select Shipping Address..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Address1"
                                 Enabled="@ShippingEnabled"
                                 ValueFieldName="SoCustomerAddressId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                Value="@CurrentAddress"
+                                ValueExpression="@(() => CurrentAddress )"
                                 SelectedItemChanged="@((view_SoCustomerAddress shipaddress) => SelectedItemShipChanged(shipaddress))"
-                                @bind-Value="@_salesOrderItems.SoCustomerShipingAddressId" ShowValidationIcon="true">
+                                 ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.Address1)"
                                                 Caption="Address1"
@@ -84,6 +87,7 @@
 </div>
 
 @code {
+    view_SoCustomerAddress CurrentAddress{ get; set; }
     [Parameter]
     public ViewFmglobal _salesOrderItems { get; set; }
     bool ShippingChecked { get; set; } = false;
@@ -119,6 +123,7 @@
                     var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerShipingAddressId).FirstOrDefault();
                     if (_soShippingCusterAddresss != null)
                     {
+                        CurrentAddress = _soShippingCusterAddresss;
                         _soShippingCusterAddress = _soShippingCusterAddresss;
                         _soShippingCusterAddress.PostCodeNumber = _soShippingCusterAddresss.PostCode.ToString();
                     }
@@ -132,6 +137,7 @@
                     var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isShipping == true).FirstOrDefault();
                     if (_soShippingCusterAddresss != null)
                     {
+                        CurrentAddress = _soShippingCusterAddresss;
                         _soShippingCusterAddress = _soShippingCusterAddresss;
                         _soShippingCusterAddress.PostCodeNumber = _soShippingCusterAddresss.PostCode.ToString();
                     }
@@ -163,8 +169,11 @@
     }
     async Task SelectedItemShipChanged(view_SoCustomerAddress address1)
     {
+        CurrentAddress = null;
+        _salesOrderItems.SoCustomerShipingAddressId = null;
         if (address1 != null)
         {
+            CurrentAddress = address1;
             _soShippingCusterAddress.Address1 = address1.Address1;
             _soShippingCusterAddress.Address2 = address1.Address2;
             _soShippingCusterAddress.CountryName = address1.CountryName;
@@ -176,7 +185,7 @@
         }
         else
         {
-            _soShippingCusterAddress = new view_SoCustomerAddress();
+           // _soShippingCusterAddress = new view_SoCustomerAddress();
         }
         await updateAddress();
     }

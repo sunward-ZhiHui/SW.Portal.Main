@@ -80,6 +80,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormReport> GetDynamicFormReportOneData(Guid? SessionId);
         DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId,long? attributeId);
         Task<IReadOnlyList<ApplicationMasterParent>> GetDynamicFormApplicationMasterParentAsync(long? dynamicFormId);
+        Task<IReadOnlyList<ApplicationMaster>> GetDynamicFormApplicationMasterAsync(long? dynamicFormId);
     }
 
 }

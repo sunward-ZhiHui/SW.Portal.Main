@@ -101,13 +101,16 @@
                     <DxComboBox Data="@_AllNavitems"
                                 NullText="Select Item..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.StartsWith"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Description"
                                 ValueFieldName="ItemId"
                                 EditFormat="{0}-{1}-{2}"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
-                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                                ShowValidationIcon="true"
+                                Value="@CurrentItem"
+                                ValueExpression="@(() => CurrentItem )"
+                                ValueChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems,types))">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                 Caption="Item No"
@@ -121,6 +124,7 @@
                         </Columns>
 
                     </DxComboBox>
+                    <DxSpinEdit @bind-Value="@types.ItemId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.ItemId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
@@ -129,7 +133,8 @@
                 <DxFormLayoutItem Caption="Batch Info" ColSpanMd="6">
                     <DxComboBox Data="@navItemBatchNoItems"
                                 NullText="Select Batch Info..."
-                                FilteringMode="DataGridFilteringMode.StartsWith"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="BatchNo"
                                 ValueFieldName="ItemBatchId"
                                 @bind-Value="@types.ItemBatchInfoId"
@@ -161,7 +166,8 @@
                 <DxFormLayoutItem Caption="Carton Packing" ColSpanMd="6">
                     <DxComboBox Data="@_viewCartonPackingItems"
                                 NullText="Select Carton Packing..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
                                 @bind-Value="@types.CartonPackingId"
@@ -201,6 +207,7 @@
 </DxPopup>
 
 @code {
+    View_NavItems CurrentItem{ get; set; }
     [Parameter]
     public long? FmglobalLineId { get; set; }
     bool IsOpen { get; set; } = false;
@@ -242,10 +249,13 @@
     long? NavItemId { get; set; }
     string? NavItemNo { get; set; }
     bool IsRelease { get; set; } = true;
-    async Task SelectedItemChanged(View_NavItems navitems)
+    async Task SelectedItemChanged(View_NavItems navitems,ViewFmglobalLineItem viewFmglobalLineItem)
     {
+        CurrentItem = null;
         if (navitems != null)
         {
+            CurrentItem = navitems;
+            viewFmglobalLineItem.ItemId = navitems.ItemId;
             NavItemNo = navitems.No;
             NavItemId = navitems.ItemId;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
@@ -253,6 +263,8 @@
         }
         else
         {
+
+            viewFmglobalLineItem.ItemId = null;
             NavItemId = 0;
             NavItemNo = "";
             BaseUnitofMeasure = "";

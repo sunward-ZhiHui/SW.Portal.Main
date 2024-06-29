@@ -79,7 +79,8 @@
             <DxFormLayoutItem Caption="Preventive Maintenace" ColSpanMd="6" >
                 <DxComboBox Data="@_applicationPreventiveMaintenaceIdItems"
                             NullText="Select Preventive Maintenace..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             @bind-Value="@plant.PreventiveMaintenaceId"
@@ -92,6 +93,8 @@
                 <DxTagBox NullText="Select Asset Documentation..."
                           Data="@_applicationAssetDocumentationItems"
                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
                           ValueFieldName="ApplicationMasterDetailID"
                           TextFieldName="Value"
                           @bind-Values="@plant.AssetDocumentationIds"

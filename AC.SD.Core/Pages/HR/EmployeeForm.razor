@@ -48,211 +48,227 @@
 <DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <div>
-        <DxFormLayoutTabPage Caption="Personal Information">
-            <EditForm Model="@employee" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+            <DxFormLayoutTabPage Caption="Personal Information">
+                <EditForm Model="@employee" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
 
-                <div style="height: calc(100vh - 285px);overflow: auto; border: 1px solid #d5d4d4; border-top: none;">
-                    <DataAnnotationsValidator />
-                    <DxFormLayoutGroup Caption="Personal Information" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="First Name" ColSpanMd="6">
-                            <DxTextBox @bind-Text="@employee.FirstName" ShowValidationIcon="true" />
-                            <ValidationMessage For="@(() => employee.FirstName)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Last Name" ColSpanMd="6">
-                            <DxTextBox @bind-Text="@employee.LastName" ShowValidationIcon="true" />
-                            <ValidationMessage For="@(() => employee.LastName)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Nick Name:" ColSpanMd="6">
-                            <DxTextBox @bind-Text="@employee.NickName" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Gender" ColSpanMd="6">
-                            <DxComboBox Data="@GenderList" @bind-Value="@employee.Gender" ShowValidationIcon="true" />
-                            <ValidationMessage For="@(() => employee.Gender)" />
-                        </DxFormLayoutItem>
-                    </DxFormLayoutGroup>
-                    <DxFormLayoutGroup Caption="Login Credentials" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="Login ID" ColSpanMd="4">
+                    <div style="height: calc(100vh - 285px);overflow: auto; border: 1px solid #d5d4d4; border-top: none;">
+                        <DataAnnotationsValidator />
+                        <DxFormLayoutGroup Caption="Personal Information" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="First Name" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@employee.FirstName" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => employee.FirstName)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Last Name" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@employee.LastName" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => employee.LastName)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Nick Name:" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@employee.NickName" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Gender" ColSpanMd="6">
+                                <DxComboBox Data="@GenderList" @bind-Value="@employee.Gender" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => employee.Gender)" />
+                            </DxFormLayoutItem>
+                        </DxFormLayoutGroup>
+                        <DxFormLayoutGroup Caption="Login Credentials" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="Login ID" ColSpanMd="4">
                                 <DxTextBox @bind-Text="@employee.LoginID" ShowValidationIcon="true" autocomplete="none" />
-                            <ValidationMessage For="@(() => employee.LoginID)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Password" ColSpanMd="4">
+                                <ValidationMessage For="@(() => employee.LoginID)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Password" ColSpanMd="4">
                                 <DxTextBox Password="true" @bind-Text="@employee.LoginPassword" ShowValidationIcon="true" autocomplete="none" />
-                            <ValidationMessage For="@(() => employee.LoginPassword)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
-                            <DxComboBox Data="@_roles"
-                                        NullText="Select Role..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="RoleName"
-                                        ValueFieldName="RoleID"
-                                        @bind-Value="@employee.RoleID" ShowValidationIcon="true" />
-                            <ValidationMessage For="@(() => employee.RoleID)" />
-                        </DxFormLayoutItem>
-                    </DxFormLayoutGroup>
-                    <DxFormLayoutGroup Caption="Main Employment Information" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="Designation" ColSpanMd="6">
-                            <DxComboBox Data="@_designationItems"
-                                        NullText="Select Designation..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="Name"
-                                        ValueFieldName="DesignationID"
-                                        @bind-Value="@employee.DesignationID"
-                                        ShowValidationIcon="true"
-                                        SelectedItemChanged="@((ViewDesignation depSelect) => SelectedItemChanged(depSelect))" />
-                            <ValidationMessage For="@(() => employee.DesignationID)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                            <DxComboBox Data="@_departmentItems"
-                                        NullText="Select Department..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="DepartmentName"
-                                        ValueFieldName="DepartmentId"
-                                        @bind-Value="@employee.DepartmentID" ReadOnly="true" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
-                            <DxComboBox Data="@_subSectionItems"
-                                        NullText="Select SubSection..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="SubSectionName"
-                                        ValueFieldName="SubSectionId"
-                                        @bind-Value="@employee.SubSectionID" ReadOnly="true" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                            <DxComboBox Data="@_plantItems"
-                                        NullText="Select Company..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="Description"
-                                        ValueFieldName="PlantID"
-                                        @bind-Value="@employee.PlantID" ReadOnly="true" />
+                                <ValidationMessage For="@(() => employee.LoginPassword)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
+                                <DxComboBox Data="@_roles"
+                                            NullText="Select Role..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="RoleName"
+                                            ValueFieldName="RoleID"
+                                            @bind-Value="@employee.RoleID" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => employee.RoleID)" />
+                            </DxFormLayoutItem>
+                        </DxFormLayoutGroup>
+                        <DxFormLayoutGroup Caption="Main Employment Information" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="Designation" ColSpanMd="6">
+                                <DxComboBox Data="@_designationItems"
+                                            NullText="Select Designation..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="DesignationID"
+                                            ShowValidationIcon="true"
+                                            Value="@CurrentDesignation"
+                                            ValueExpression="@(() => CurrentDesignation )"
+                                            ValueChanged="@((ViewDesignation depSelect) => SelectedItemChanged(depSelect))" />
+                                <DxSpinEdit @bind-Value="@employee.DesignationID" ShowValidationIcon="true" style="display:none;" />
+                                <ValidationMessage For="@(() => employee.DesignationID)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                                <DxComboBox Data="@_departmentItems"
+                                            NullText="Select Department..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="DepartmentName"
+                                            ValueFieldName="DepartmentId"
+                                            @bind-Value="@employee.DepartmentID" ReadOnly="true" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
+                                <DxComboBox Data="@_subSectionItems"
+                                            NullText="Select SubSection..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="SubSectionName"
+                                            ValueFieldName="SubSectionId"
+                                            @bind-Value="@employee.SubSectionID" ReadOnly="true" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                                <DxComboBox Data="@_plantItems"
+                                            NullText="Select Company..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Description"
+                                            ValueFieldName="PlantID"
+                                            @bind-Value="@employee.PlantID" ReadOnly="true" />
 
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                            <DxComboBox Data="@_sectionItems"
-                                        NullText="Select Section..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="SectionName"
-                                        ValueFieldName="SectionId"
-                                        @bind-Value="@employee.SectionID" ReadOnly="true" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                                <DxComboBox Data="@_sectionItems"
+                                            NullText="Select Section..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="SectionName"
+                                            ValueFieldName="SectionId"
+                                            @bind-Value="@employee.SectionID" ReadOnly="true" />
 
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                            <DxComboBox Data="@_divisionsItems"
-                                        NullText="Select Division..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="Name"
-                                        ValueFieldName="DivisionID"
-                                        @bind-Value="@employee.DivisionID" ReadOnly="true" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                                <DxComboBox Data="@_divisionsItems"
+                                            NullText="Select Division..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="DivisionID"
+                                            @bind-Value="@employee.DivisionID" ReadOnly="true" />
 
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Level" ColSpanMd="6">
-                            <DxComboBox Data="@_leveMasterItems"
-                                        NullText="Select Level..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="Name"
-                                        ValueFieldName="LevelID"
-                                        @bind-Value="@employee.LevelID" ReadOnly="true" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Level" ColSpanMd="6">
+                                <DxComboBox Data="@_leveMasterItems"
+                                            NullText="Select Level..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="LevelID"
+                                            @bind-Value="@employee.LevelID" ReadOnly="true" />
 
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Employment Type" ColSpanMd="6">
-                            <DxComboBox Data="@_employmentTypeItems"
-                                        NullText="Select Employment Type..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="CodeValue"
-                                        ValueFieldName="CodeId"
-                                        ShowValidationIcon="true"
-                                        @bind-Value="@employee.TypeOfEmployeement" />
-                            <ValidationMessage For="@(() => employee.TypeOfEmployeement)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Designation Head Count" ColSpanMd="6">
-                            <DxComboBox Data="@_designationCountItems"
-                                        NullText="Select Designation Count..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        @bind-Value="@employee.HeadCount" />
-                        </DxFormLayoutItem>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Employment Type" ColSpanMd="6">
+                                <DxComboBox Data="@_employmentTypeItems"
+                                            NullText="Select Employment Type..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="CodeValue"
+                                            ValueFieldName="CodeId"
+                                            ShowValidationIcon="true"
+                                            @bind-Value="@employee.TypeOfEmployeement" />
+                                <ValidationMessage For="@(() => employee.TypeOfEmployeement)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Designation Head Count" ColSpanMd="6">
+                                <DxComboBox Data="@_designationCountItems"
+                                            NullText="Select Designation Count..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            @bind-Value="@employee.HeadCount" />
+                            </DxFormLayoutItem>
 
 
-                        <DxFormLayoutItem Caption="Report To" ColSpanMd="6">
-                            <DxTagBox NullText="Select Report To..."
-                                      Data="@_employeeItems"
-                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                      ValueFieldName="UserID"
-                                      TextFieldName="FirstName"
-                                      @bind-Values="@employee.ReportToIds"
-                                      CssClass="cw-480" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="SageID" ColSpanMd="6">
-                            <DxTextBox @bind-Text="@employee.SageID" ShowValidationIcon="true" />
-                            <ValidationMessage For="@(() => employee.SageID)" />
-                        </DxFormLayoutItem>
-                    </DxFormLayoutGroup>
-                    <DxFormLayoutGroup Caption="Employment Information" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="Main Employment Status" ColSpanMd="6">
-                            <DxComboBox Data="@_view_mainEmployeeStatusItems"
-                                        NullText="Select Status..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="Value"
-                                        ValueFieldName="ApplicationMasterDetailID"
-                                        @bind-Value="@employee.AcceptanceStatus" />
-                            <ValidationMessage For="@(() => employee.AcceptanceStatus)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Employment Date" ColSpanMd="6">
-                            <DxDateEdit NullText="Select a Employment Date..." @bind-Date="@employee.ExpectedJoiningDate" CssClass="cw-320" />
-                        </DxFormLayoutItem>
-                    </DxFormLayoutGroup>
-                    <DxFormLayoutGroup Caption="Communication Infromation" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="Language" ColSpanMd="4">
-                            <DxComboBox Data="@_languageMasterItems"
-                                        NullText="Select Language..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="Name"
-                                        ValueFieldName="LanguageId"
-                                        ShowValidationIcon="true"
-                                        @bind-Value="@employee.LanguageID" />
-                            <ValidationMessage For="@(() => employee.LanguageID)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Extension" ColSpanMd="4">
-                            <DxTextBox @bind-Text="@employee.Extension" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Speed Dial" ColSpanMd="4">
-                            <DxTextBox @bind-Text="@employee.SpeedDial" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Email" ColSpanMd="4">
-                            <DxTextBox @bind-Text="@employee.Email" ShowValidationIcon="true" />
-                            <ValidationMessage For="@(() => employee.Email)" />
-                        </DxFormLayoutItem>
-                    </DxFormLayoutGroup>
+                            <DxFormLayoutItem Caption="Report To" ColSpanMd="6">
+                                <DxTagBox NullText="Select Report To..."
+                                          Data="@_employeeItems"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="UserID"
+                                          TextFieldName="FirstName"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          @bind-Values="@employee.ReportToIds"
+                                          CssClass="cw-480" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="SageID" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@employee.SageID" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => employee.SageID)" />
+                            </DxFormLayoutItem>
+                        </DxFormLayoutGroup>
+                        <DxFormLayoutGroup Caption="Employment Information" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="Main Employment Status" ColSpanMd="6">
+                                <DxComboBox Data="@_view_mainEmployeeStatusItems"
+                                            NullText="Select Status..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Value"
+                                            ValueFieldName="ApplicationMasterDetailID"
+                                            @bind-Value="@employee.AcceptanceStatus" />
+                                <ValidationMessage For="@(() => employee.AcceptanceStatus)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Employment Date" ColSpanMd="6">
+                                <DxDateEdit NullText="Select a Employment Date..." @bind-Date="@employee.ExpectedJoiningDate" CssClass="cw-320" />
+                            </DxFormLayoutItem>
+                        </DxFormLayoutGroup>
+                        <DxFormLayoutGroup Caption="Communication Infromation" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="Language" ColSpanMd="4">
+                                <DxComboBox Data="@_languageMasterItems"
+                                            NullText="Select Language..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="LanguageId"
+                                            ShowValidationIcon="true"
+                                            @bind-Value="@employee.LanguageID" />
+                                <ValidationMessage For="@(() => employee.LanguageID)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Extension" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@employee.Extension" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Speed Dial" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@employee.SpeedDial" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Email" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@employee.Email" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => employee.Email)" />
+                            </DxFormLayoutItem>
+                        </DxFormLayoutGroup>
+                    </div>
+
+                </EditForm>
+
+            </DxFormLayoutTabPage>
+
+            <DxFormLayoutTabPage Caption="Other Duty Information">
+                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeOtherDutyInformations EmployeeIds="@EmployeeIds"></EmployeeOtherDutyInformations></div>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="ICT">
+                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none">
+                    <DxFormLayout CssClass="w-100" style="margin-top:10px;">
+                        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex">
+                            <DxFormLayoutTabPage Caption="Email Information">
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmailInfo EmployeeIds="@EmployeeIds"></EmailInfo></div>
+                            </DxFormLayoutTabPage>
+                            <DxFormLayoutTabPage Caption="Hardware Listing">
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeICTHardInformation EmployeeIds="@EmployeeIds"></EmployeeICTHardInformation></div>
+                            </DxFormLayoutTabPage>
+                            <DxFormLayoutTabPage Caption="Software Listing">
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeICTInformation EmployeeIds="@EmployeeIds"></EmployeeICTInformation></div>
+                            </DxFormLayoutTabPage>
+                        </DxFormLayoutTabPages>
+                    </DxFormLayout>
                 </div>
-
-            </EditForm>
-
-        </DxFormLayoutTabPage>
-
-        <DxFormLayoutTabPage Caption="Other Duty Information">
-            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeOtherDutyInformations EmployeeIds="@EmployeeIds"></EmployeeOtherDutyInformations></div>
-        </DxFormLayoutTabPage>
-        <DxFormLayoutTabPage Caption="ICT">
-            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none">
-                <DxFormLayout CssClass="w-100" style="margin-top:10px;">
-                    <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex">
-                        <DxFormLayoutTabPage Caption="Email Information">
-                            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmailInfo EmployeeIds="@EmployeeIds"></EmailInfo></div>
-                        </DxFormLayoutTabPage>
-                        <DxFormLayoutTabPage Caption="Hardware Listing">
-                            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeICTHardInformation EmployeeIds="@EmployeeIds"></EmployeeICTHardInformation></div>
-                        </DxFormLayoutTabPage>
-                        <DxFormLayoutTabPage Caption="Software Listing">
-                            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeICTInformation EmployeeIds="@EmployeeIds"></EmployeeICTInformation></div>
-                        </DxFormLayoutTabPage>
-                    </DxFormLayoutTabPages>
-                </DxFormLayout>
-            </div>
-        </DxFormLayoutTabPage>
-        <DxFormLayoutTabPage Caption="Upload">
-            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%;height: calc(100vh - 285px);"><EmployeePhoto _employeeDatas="@_employeeData" _applicationUser="@applicationUser"></EmployeePhoto></div>
-        </DxFormLayoutTabPage>
-        <DxFormLayoutTabPage Caption="Signature">
-             <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%;height: calc(100vh - 285px);"></div>
-        </DxFormLayoutTabPage>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Upload">
+                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%;height: calc(100vh - 285px);"><EmployeePhoto _employeeDatas="@_employeeData" _applicationUser="@applicationUser"></EmployeePhoto></div>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Signature">
+                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%;height: calc(100vh - 285px);"></div>
+            </DxFormLayoutTabPage>
         </div>
     </DxFormLayoutTabPages>
 </DxFormLayout>
@@ -263,6 +279,7 @@
 
 
 @code {
+    ViewDesignation CurrentDesignation { get; set; }
     [Parameter]
     public Guid? SessionIds { get; set; }
     private bool loading;
@@ -296,6 +313,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        CurrentDesignation = null;
+        _designationItems = await Mediator.Send(new GetAllDesignationQuery());
         _employeeData = new ViewEmployee();
         if (SessionIds != null)
         {
@@ -303,6 +322,7 @@
             EmployeeIds = _employeeData.EmployeeID;
             EditEnabledTab = EmployeeIds > 0 ? true : false;
             await loadEmployeeData(_employeeData);
+
         }
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -314,7 +334,7 @@
         _divisionsItems = await Mediator.Send(new GetAllDivisionQuery());
         _sectionItems = await Mediator.Send(new GetAllSectionQuery());
         _subSectionItems = await Mediator.Send(new GetAllSubSectionQuery());
-        _designationItems = await Mediator.Send(new GetAllDesignationQuery());
+
         _leveMasterItems = await Mediator.Send(new GetAllLevelMasterQuery());
         _languageMasterItems = await Mediator.Send(new GetAllLanguageQuery());
         _view_mainEmployeeStatusItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(226));
@@ -344,6 +364,7 @@
         {
             employee.ReportToIds = employeeReportToItems.Select(s => s.ReportToId).ToList();
         }
+        CurrentDesignation = _designationItems != null && _employeeData.DesignationID > 0 ? _designationItems.FirstOrDefault(f => f.DesignationID == _employeeData.DesignationID):null;
         employee.EmployeeID = _employeeData.EmployeeID;
         employee.UserID = _employeeData.UserID;
         employee.FirstName = _employeeData.FirstName;
@@ -373,20 +394,27 @@
     }
     void SelectedItemChanged(ViewDesignation viewDesignation)
     {
-        employee.DepartmentID = viewDesignation.DepartmentID;
-        employee.PlantID = viewDesignation.CompanyID;
-        employee.DivisionID = viewDesignation.DivisionID;
-        employee.LevelID = viewDesignation.LevelID;
-
-        employee.SectionID = viewDesignation.SectionID;
-        employee.SubSectionID = viewDesignation.SubSectionID;
-        employee.DesignationID = viewDesignation.DesignationID;
-        _designationCountItems = new List<int>();
-        if (viewDesignation.HeadCount > 0)
+        CurrentDesignation = null;
+        employee.DesignationID = null;
+        if (viewDesignation != null)
         {
-            for (int i = 1; i <= viewDesignation.HeadCount; i++)
+            CurrentDesignation = viewDesignation;
+            employee.DesignationID = viewDesignation.DesignationID;
+            employee.DepartmentID = viewDesignation.DepartmentID;
+            employee.PlantID = viewDesignation.CompanyID;
+            employee.DivisionID = viewDesignation.DivisionID;
+            employee.LevelID = viewDesignation.LevelID;
+
+            employee.SectionID = viewDesignation.SectionID;
+            employee.SubSectionID = viewDesignation.SubSectionID;
+            employee.DesignationID = viewDesignation.DesignationID;
+            _designationCountItems = new List<int>();
+            if (viewDesignation.HeadCount > 0)
             {
-                _designationCountItems.Add(i);
+                for (int i = 1; i <= viewDesignation.HeadCount; i++)
+                {
+                    _designationCountItems.Add(i);
+                }
             }
         }
     }
@@ -397,7 +425,7 @@
     }
     async Task HandleValidSubmit()
     {
-       
+
         loading = true;
         var editableData = employee;
         if (editableData.EmployeeID > 0)

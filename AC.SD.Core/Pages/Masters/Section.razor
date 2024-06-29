@@ -33,122 +33,125 @@
 </div>
 
 
-   
-    @if (Type == "Department")
-    {
+
+@if (Type == "Department")
+{
     <div style="" class="breadcrumb card-body bradcrumb-txt">
         <div class="items"> @companyName <span class="separator-txt fa fa-caret-right"></span>@divisionName  <span class="separator-txt fa fa-caret-right"></span>@Name</div>
-        </div>
-    }
+    </div>
+}
 
-    <DxLoadingPanel @bind-Visible="PanelVisible"
+<DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
+                Text="Fetching Data...">
 
-<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        Data="_sectionItems"
+            Data="_sectionItems"
             ShowGroupPanel="true" ShowGroupedColumns="true"
             KeyFieldName="SectionId"
-        EditModelSaving="Grid_EditModelSaving"
-        DataItemDeleting="Grid_DataItemDeleting"
-        CustomizeEditModel="Grid_CustomizeEditModel"
-        CustomizeElement="Grid_CustomizeElement"
-        ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        AutoExpandAllGroupRows="true"
-        CssClass="ch-360"
-        style="height: calc(100vh - 270px);"
-        FocusedRowEnabled="true"
-        RowClick="OnRowClick"
-        RowDoubleClick="OnRowDoubleClick"
-        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
             AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
-    <Columns>
-        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-        <DxGridDataColumn FieldName="SectionId" MinWidth="80" Visible="false" />
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="SectionId" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="Index" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>
-        <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
-        <DxGridDataColumn FieldName="Division" MinWidth="80" />
-        <DxGridDataColumn FieldName="SectionName" Caption="Name" MinWidth="80" />
-        <DxGridDataColumn FieldName="SectionCode" Caption="Code" MinWidth="80" />
-        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-       @*  <DxGridDataColumn FieldName="ModifiedDate" Width="180" >
+            <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
+            <DxGridDataColumn FieldName="Division" MinWidth="80" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="SectionCode" Caption="Code" MinWidth="80" />
+            <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+            @*  <DxGridDataColumn FieldName="ModifiedDate" Width="180" >
             <CellDisplayTemplate>
-                @{
-                    var item = (ViewSection)context.DataItem;
-                }
-                @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+            @{
+            var item = (ViewSection)context.DataItem;
+            }
+            @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
             </CellDisplayTemplate>
-        </DxGridDataColumn>
-        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" /> *@
-    </Columns>
-    <EditFormTemplate Context="EditFormContext">
-        @{
-            var sections = (ViewSection)EditFormContext.EditModel;
-        }
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                <DxComboBox Data="@_departmentItems"
-                            NullText="Select Department..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="DepartmentDrop"
-                            ValueFieldName="DepartmentId"
-                            Enabled="@isEnabled"
-                            SelectedItemChanged="@((ViewDepartment depSelect) => SelectedItemChanged(depSelect))"
-                            @bind-Value="@sections.DepartmentId"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => sections.DepartmentId)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                <DxTextBox @bind-Text="@companyName" Enabled="@isEnabled" ReadOnly="true" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                <DxTextBox @bind-Text="@divisionName" Enabled="@isEnabled" ReadOnly="true" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Section Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@sections.SectionName" ShowValidationIcon="true" />
-                <ValidationMessage For="@(() => sections.SectionName)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Section Code" ColSpanMd="6">
-                <DxTextBox @bind-Text="@sections.SectionCode" ShowValidationIcon="true" />
-                <ValidationMessage For="@(() => sections.SectionCode)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@sections.Description" Rows="5" ShowValidationIcon="true" />
-                <ValidationMessage For="@(() => sections.Description)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Profile Code" ColSpanMd="6">
-                <DxTextBox @bind-Text="@sections.ProfileCode" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
-                <DxComboBox Data="@_stausItems"
-                            NullText="Select Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="CodeValue"
-                            ValueFieldName="CodeId"
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedBy" Width="10%" /> *@
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var sections = (ViewSection)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                    <DxComboBox Data="@_departmentItems"
+                                NullText="Select Department..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="DepartmentDrop"
+                                ValueFieldName="DepartmentId"
+                                Enabled="@isEnabled"
+                                Value="@CurrentDepartment"
+                                ValueExpression="@(() => CurrentDepartment )"
+                                ValueChanged="@((ViewDepartment depSelect) => SelectedItemChanged(depSelect,sections))"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <DxSpinEdit @bind-Value="@sections.DepartmentId" ShowValidationIcon="true" style="display:none;" />
+                    <ValidationMessage For="@(() => sections.DepartmentId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@companyName" Enabled="@isEnabled" ReadOnly="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@divisionName" Enabled="@isEnabled" ReadOnly="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Section Name" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@sections.SectionName" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => sections.SectionName)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Section Code" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@sections.SectionCode" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => sections.SectionCode)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                    <DxMemo @bind-Text="@sections.Description" Rows="5" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => sections.Description)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Profile Code" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@sections.ProfileCode" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxComboBox Data="@_stausItems"
+                                NullText="Select Status..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
                                 @bind-Text="@Text"
-                            @bind-Value="@sections.StatusCodeId"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => sections.StatusCodeId)" />
-            </DxFormLayoutItem>
-        </DxFormLayout>
-    </EditFormTemplate>
-    <TotalSummary>
+                                @bind-Value="@sections.StatusCodeId"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => sections.StatusCodeId)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
-    </TotalSummary>
-</DxGrid>
+        </TotalSummary>
+    </DxGrid>
 </DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
@@ -158,7 +161,7 @@
           DepartmentDrop
         </p>
     </Content>
-       
+
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
@@ -191,6 +194,7 @@
 </DxPopup>
 
 @code {
+    ViewDepartment CurrentDepartment { get; set; }
     string Name = "";
     string Text { get; set; } = "Active";
     bool PanelVisible { get; set; }
@@ -223,6 +227,7 @@
     private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
+        CurrentDepartment = null;
         PanelVisible = true;
         // await jsRuntime.InvokeAsync<string>("showLoading");
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
@@ -239,11 +244,13 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        CurrentDepartment = null;
         if (e.IsNew)
         {
             var newmaster = (ViewSection)e.EditModel;
             companyName = "";
             divisionName = "";
+            newmaster.DepartmentId = null;
             newmaster.SectionName = "";
             newmaster.SectionCode = "";
             newmaster.Description = "";
@@ -257,7 +264,7 @@
                     newmaster.DepartmentId = _masters.DepartmentId;
                     companyName = _masters.Company;
                     divisionName = _masters.Division;
-
+                    CurrentDepartment = _departmentItems != null && _masters.DepartmentId > 0 ? _departmentItems.FirstOrDefault(f => f.DepartmentId == _masters.DepartmentId) : null;
                     // SelectedItemChanged(_ictmasters);
                 }
             }
@@ -265,14 +272,18 @@
         else
         {
             var dep = (ViewSection)e.DataItem;
+            CurrentDepartment = _departmentItems != null && dep.DepartmentId > 0 ? _departmentItems.FirstOrDefault(f => f.DepartmentId == dep.DepartmentId) : null;
             companyName = dep.Company;
             divisionName = dep.Division;
         }
     }
-    void SelectedItemChanged(ViewDepartment dep)
+    void SelectedItemChanged(ViewDepartment dep, ViewSection viewSection)
     {
-        if (dep.DepartmentId > 0)
+        CurrentDepartment = null;
+        if (dep!=null && dep.DepartmentId > 0)
         {
+            CurrentDepartment = dep;
+            viewSection.DepartmentId = dep.DepartmentId;
             companyName = dep.Company;
             divisionName = dep.Division;
         }
@@ -302,14 +313,14 @@
         if (_sectionItems.Count > 0)
         {
             _selectedItems = _sectionItems.FirstOrDefault();
-          
-                EditEnabled = true;
-                DeleteEnabled = true;
-                StateHasChanged();
-            
-           
+
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+
+
         }
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -373,7 +384,7 @@
         {
             e.CssClass = "alt-item";
         }
-       
+
     }
     async Task ExportToExcel()
     {
@@ -440,15 +451,15 @@
         //}
         //else
         //{
-            Grid.StartEditDataItemAsync(_selectedItems);
-      // }
+        Grid.StartEditDataItemAsync(_selectedItems);
+        // }
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-      //  UpdateDataAsync();
+        //  UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -489,7 +500,7 @@
             Blukdeletepopup = false;
             toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
-   // await UpdateDataAsync();
+        // await UpdateDataAsync();
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -502,7 +513,7 @@
         {
             EditEnabled = true;
         }
-      
+
     }
     void ResetDepartment()
     {

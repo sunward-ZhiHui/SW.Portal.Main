@@ -100,7 +100,8 @@
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_stausItems"
                                     NullText="Select Status..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="CodeValue"
                                     ValueFieldName="CodeId"
                         @bind-Value="@plant.StatusCodeId"

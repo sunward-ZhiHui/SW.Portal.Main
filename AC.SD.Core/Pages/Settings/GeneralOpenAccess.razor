@@ -28,7 +28,8 @@
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserID"
                                               TextFieldName="FirstName"
-                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               EditFormat="{0}-{1}"
                                               SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
@@ -86,6 +87,8 @@
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserGroupId"
                                               TextFieldName="Name"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedUserGroupItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
@@ -140,6 +143,8 @@
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="LevelID"
                                               TextFieldName="Name"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               SelectedItemsChanged="@((IEnumerable<ViewLevel> values) => onSelectedLevelItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />

@@ -23,13 +23,16 @@
                     <DxComboBox Data="@_soAllShippingCusterAddress"
                                 NullText="Select Shipping Address..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="Address1" 
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Address1"
                                 Enabled="@ShippingEnabled"
                                 ValueFieldName="SoCustomerAddressId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                Value="@CurrentShipping"
+                                ValueExpression="@(() => CurrentShipping )"
                                 SelectedItemChanged="@((view_SoCustomerAddress shipaddress) => SelectedItemShipChanged(shipaddress))"
-                                @bind-Value="@_salesOrderItems.SoCustomerShipingAddressId" ShowValidationIcon="true">
+                                ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.Address1)"
                                                 Caption="Address1"
@@ -94,13 +97,16 @@
                     <DxComboBox Data="@_soAllBillingCusterAddress"
                                 NullText="Select Billing Address..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Address1"
                                 ValueFieldName="SoCustomerAddressId"
                                 Enabled="@BillingEnabled"
+                                Value="@CurrentBilling"
+                                ValueExpression="@(() => CurrentBilling )"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 SelectedItemChanged="@((view_SoCustomerAddress billaddress) => SelectedBillingItemChanged(billaddress))"
-                                @bind-Value="@_salesOrderItems.SoCustomerBillingAddressId" ShowValidationIcon="true">
+                                ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.Address1)"
                                                 Caption="Address1"
@@ -158,6 +164,8 @@
 </div>
 
 @code {
+    view_SoCustomerAddress CurrentShipping { get; set; }
+    view_SoCustomerAddress CurrentBilling { get; set; }
     [Parameter]
     public View_SoSalesOrder _salesOrderItems { get; set; }
     bool ShippingChecked { get; set; } = false;
@@ -179,6 +187,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        CurrentBilling = null; CurrentShipping = null;
         if (_salesOrderItems.SoCustomerId > 0)
         {
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -192,6 +201,7 @@
                 if (_soBillingCusterAddresss != null)
                 {
                     _soBillingCusterAddress = _soBillingCusterAddresss;
+                    CurrentBilling = _soBillingCusterAddresss;
                 }
             }
             else
@@ -200,6 +210,7 @@
                 if (_soBillingCusterAddresss != null)
                 {
                     _soBillingCusterAddress = _soBillingCusterAddresss;
+                    CurrentBilling = _soBillingCusterAddresss;
                 }
 
             }
@@ -210,6 +221,7 @@
                 var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerShipingAddressId).FirstOrDefault();
                 if (_soShippingCusterAddresss != null)
                 {
+                    CurrentShipping = _soShippingCusterAddresss;
                     _soShippingCusterAddress = _soShippingCusterAddresss;
                 }
             }
@@ -218,6 +230,7 @@
                 var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isShipping == true).FirstOrDefault();
                 if (_soShippingCusterAddresss != null)
                 {
+                    CurrentShipping = _soShippingCusterAddresss;
                     _soShippingCusterAddress = _soShippingCusterAddresss;
                 }
             }
@@ -232,8 +245,11 @@
     }
     async Task SelectedItemShipChanged(view_SoCustomerAddress address1)
     {
+        CurrentShipping = null;
+        _salesOrderItems.SoCustomerShipingAddressId = null;
         if (address1 != null)
         {
+            CurrentShipping = address1;
             _soShippingCusterAddress.Address1 = address1.Address1;
             _soShippingCusterAddress.Address2 = address1.Address2;
             _soShippingCusterAddress.CountryName = address1.CountryName;
@@ -244,14 +260,17 @@
         }
         else
         {
-            _soShippingCusterAddress = new view_SoCustomerAddress();
+           // _soShippingCusterAddress = new view_SoCustomerAddress();
         }
         await updateAddress();
     }
     async Task SelectedBillingItemChanged(view_SoCustomerAddress address2)
     {
+        CurrentBilling = null;
+        _salesOrderItems.SoCustomerBillingAddressId = null;
         if (address2 != null)
         {
+            CurrentBilling = address2;
             _soBillingCusterAddress.Address1 = address2.Address1;
             _soBillingCusterAddress.Address2 = address2.Address2;
             _soBillingCusterAddress.CountryName = address2.CountryName;
@@ -262,7 +281,7 @@
         }
         else
         {
-            _soBillingCusterAddress = new view_SoCustomerAddress();
+            //_soBillingCusterAddress = new view_SoCustomerAddress();
         }
         await updateAddress();
     }

@@ -63,11 +63,15 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="NavCompany"
                                     ValueFieldName="PlantID"
+                                    Value="@CurrentPlant"
+                                    ValueExpression="@(() => CurrentPlant )"
+                                    ValueChanged="@((ViewPlants plantData) => SelectedPlantChanged(plantData))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Company Code"
@@ -78,17 +82,22 @@
                                                     Caption="Nav Company" />
                             </Columns>
                         </DxComboBox>
+                        <DxSpinEdit @bind-Value="@Data.CompanyId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.CompanyId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Profile" ColSpanMd="6">
                         <DxComboBox Data="@_documentProfileNoList"
                                     NullText="Select Profile..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Name"
                                     ValueFieldName="ProfileID"
+                                    Value="@CurrentProfile"
+                                    ValueExpression="@(() => CurrentProfile )"
+                                    ValueChanged="@((DocumentProfileNoSeriesModel plantData) => SelectedProfileChanged(plantData))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.ProfileId" ShowValidationIcon="true">
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Name)"
                                                     Caption="Name"
@@ -101,6 +110,7 @@
                                                     Caption="Sample Document No" />
                             </Columns>
                         </DxComboBox>
+                        <DxSpinEdit @bind-Value="@Data.ProfileId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.ProfileId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Screen Name" ColSpanMd="6">
@@ -118,17 +128,17 @@
                     <DxFormLayoutItem Caption="Is Grid Form" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsGridForm"></DxCheckBox>
                     </DxFormLayoutItem>
-                      <DxFormLayoutItem Caption="SW Library" ColSpanMd="6" Visible="@Data.IsUpload">
-                          <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
-                              <Buttons>
-                                  <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
-                                                  Tooltip="Select File ProfileType"
-                                                  Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
-                              </Buttons>
-                          </DxTextBox>
-                          <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
-                          <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
-                      </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SW Library" ColSpanMd="6" Visible="@Data.IsUpload">
+                        <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                        <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
 
                     @*  <DxFormLayoutItem Caption="Is Generate ProfileNo" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsProfileNoGenerate"></DxCheckBox>
@@ -176,7 +186,7 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeFilterDocView"
-                @bind-FilterString="FilterDocumentString"
+                            @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
                             AllowSelectNodes="true"
@@ -202,6 +212,8 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    ViewPlants CurrentPlant { get; set; }
+    DocumentProfileNoSeriesModel CurrentProfile { get; set; }
     private IDisposable? DynamicFormPage7;
     bool EditEnabled { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
@@ -260,6 +272,26 @@
         return ValueTask.CompletedTask;
     }
 
+    void SelectedPlantChanged(ViewPlants country)
+    {
+        CurrentPlant = null;
+        Data.CompanyId = null;
+        if (country != null)
+        {
+            CurrentPlant = country;
+            Data.CompanyId = country.PlantID;
+        }
+    }
+    void SelectedProfileChanged(DocumentProfileNoSeriesModel country)
+    {
+        CurrentProfile = null;
+        Data.ProfileId = null;
+        if (country != null)
+        {
+            CurrentProfile = country;
+            Data.ProfileId = country.ProfileID;
+        }
+    }
     public void Dispose()
     {
 
@@ -302,7 +334,7 @@
         Data.IsGridForm = false;
         Data.StatusCodeID = null; Data.CompanyId = null; Data.ProfileId = null;
         Data.IsApproval = false;
-        Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
+        Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null; CurrentProfile = null; CurrentPlant = null;
         if (SessionIds != null)
         {
             var dynamicFormData = await Mediator.Send(new GetDynamicFormBySession(SessionIds));
@@ -327,6 +359,8 @@
                 Data.CompanyId = dynamicFormData.CompanyId;
                 Data.ProfileId = dynamicFormData.ProfileId;
                 Data.IsGridForm = dynamicFormData.IsGridForm;
+                CurrentProfile = _documentProfileNoList != null ? _documentProfileNoList.FirstOrDefault(f => f.ProfileID == dynamicFormData.ProfileId) : null;
+                CurrentPlant = _plantItems != null ? _plantItems.FirstOrDefault(f => f.PlantID == dynamicFormData.CompanyId) : null;
                 if (Data.IsUpload == true && dynamicFormData.FileProfileTypeId > 0)
                 {
                     var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, dynamicFormData.FileProfileTypeId);

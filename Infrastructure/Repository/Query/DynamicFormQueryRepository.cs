@@ -947,12 +947,13 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsDisplayDropDownHeader", dynamicFormSection.IsDisplayDropDownHeader);
                         parameters.Add("IsDynamicFormGridDropdown", dynamicFormSection.IsDynamicFormGridDropdown == true ? true : null);
                         parameters.Add("GridDropDownDynamicFormID", dynamicFormSection.GridDropDownDynamicFormID);
+                        parameters.Add("IsDynamicFormGridDropdownMultiple", dynamicFormSection.IsDynamicFormGridDropdownMultiple==true?true:null);
                         parameters.Add("ApplicationMasterIds", dynamicFormSection.ApplicationMasterIdsListIds != null && dynamicFormSection.ApplicationMasterIdsListIds.Count() > 0 ? string.Join(",", dynamicFormSection.ApplicationMasterIdsListIds) : null, DbType.String);
                         parameters.Add("PlantDropDownWithOtherDataSourceIds", dynamicFormSection.PlantDropDownWithOtherDataSourceListIds != null && dynamicFormSection.PlantDropDownWithOtherDataSourceListIds.Count() > 0 ? string.Join(",", dynamicFormSection.PlantDropDownWithOtherDataSourceListIds) : null, DbType.String);
                         if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
                         {
 
-                            var query = "UPDATE DynamicFormSectionAttribute SET IsDynamicFormGridDropdown=@IsDynamicFormGridDropdown,GridDropDownDynamicFormID=@GridDropDownDynamicFormID,IsDependencyMultiple=@IsDependencyMultiple,IsDisplayDropDownHeader=@IsDisplayDropDownHeader,ApplicationMasterIds=@ApplicationMasterIds,IsSetDefaultValue=@IsSetDefaultValue,IsDefaultReadOnly=@IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds=@PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency=@IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName=@PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId=@PlantDropDownWithOtherDataSourceId,RemarksLabelName=@RemarksLabelName,IsRadioCheckRemarks=@IsRadioCheckRemarks,RadioLayout=@RadioLayout,DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
+                            var query = "UPDATE DynamicFormSectionAttribute SET IsDynamicFormGridDropdownMultiple=@IsDynamicFormGridDropdownMultiple,IsDynamicFormGridDropdown=@IsDynamicFormGridDropdown,GridDropDownDynamicFormID=@GridDropDownDynamicFormID,IsDependencyMultiple=@IsDependencyMultiple,IsDisplayDropDownHeader=@IsDisplayDropDownHeader,ApplicationMasterIds=@ApplicationMasterIds,IsSetDefaultValue=@IsSetDefaultValue,IsDefaultReadOnly=@IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds=@PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency=@IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName=@PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId=@PlantDropDownWithOtherDataSourceId,RemarksLabelName=@RemarksLabelName,IsRadioCheckRemarks=@IsRadioCheckRemarks,RadioLayout=@RadioLayout,DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
                                 "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsSpinEditType=@IsSpinEditType," +
                                 "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,FormToolTips=@FormToolTips,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader,IsVisible=@IsVisible " +
                                 "WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
@@ -962,9 +963,9 @@ namespace Infrastructure.Repository.Query
                         else
                         {
                             parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
-                            var query = "INSERT INTO DynamicFormSectionAttribute(IsDynamicFormGridDropdown,GridDropDownDynamicFormID,IsDependencyMultiple,IsDisplayDropDownHeader,ApplicationMasterIds,IsSetDefaultValue,IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId,RemarksLabelName,IsRadioCheckRemarks,RadioLayout,FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
+                            var query = "INSERT INTO DynamicFormSectionAttribute(IsDynamicFormGridDropdownMultiple,IsDynamicFormGridDropdown,GridDropDownDynamicFormID,IsDependencyMultiple,IsDisplayDropDownHeader,ApplicationMasterIds,IsSetDefaultValue,IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId,RemarksLabelName,IsRadioCheckRemarks,RadioLayout,FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
                                 "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader,IsVisible) VALUES " +
-                                "(@IsDynamicFormGridDropdown,@GridDropDownDynamicFormID,@IsDependencyMultiple,@IsDisplayDropDownHeader,@ApplicationMasterIds,@IsSetDefaultValue,@IsDefaultReadOnly,@PlantDropDownWithOtherDataSourceIds,@IsPlantLoadDependency,@PlantDropDownWithOtherDataSourceLabelName,@PlantDropDownWithOtherDataSourceId,@RemarksLabelName,@IsRadioCheckRemarks,@RadioLayout,@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
+                                "(@IsDynamicFormGridDropdownMultiple,@IsDynamicFormGridDropdown,@GridDropDownDynamicFormID,@IsDependencyMultiple,@IsDisplayDropDownHeader,@ApplicationMasterIds,@IsSetDefaultValue,@IsDefaultReadOnly,@PlantDropDownWithOtherDataSourceIds,@IsPlantLoadDependency,@PlantDropDownWithOtherDataSourceLabelName,@PlantDropDownWithOtherDataSourceId,@RemarksLabelName,@IsRadioCheckRemarks,@RadioLayout,@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
                                 "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader,@IsVisible)";
 
                             dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters);
@@ -1022,7 +1023,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
                 var query = "select t1.*,t9.Name DynamicGridName,t10.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t6.IsFilterDataSource,t6.FilterDataSocurceID,tt4.DisplayName as FilterDataSourceDisplayName,tt4.TableName as FilterDataSourceTableName," +
-                    "(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader,(case when t1.IsDisplayDropDownHeader is NULL then  0 ELSE t1.IsDisplayDropDownHeader END) as IsDisplayDropDownHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible," +
+                    "(case when t1.IsDynamicFormGridDropdownMultiple is NULL then  0 ELSE t1.IsDynamicFormGridDropdownMultiple END) as IsDynamicFormGridDropdownMultiple,(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader,(case when t1.IsDisplayDropDownHeader is NULL then  0 ELSE t1.IsDisplayDropDownHeader END) as IsDisplayDropDownHeader,(case when t1.IsVisible is NULL then  1 ELSE t1.IsVisible END) as IsVisible," +
                     "t2.UserName as AddedBy,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.IsDynamicFormDropTagBox,t6.DropDownTypeId,t6.DataSourceId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
@@ -2334,7 +2335,8 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormId", dynamicFormId);
                 var query = "select t1.ApplicationMasterIds from DynamicFormSectionAttribute t1  \r\nJOIN DynamicFormSection t2 ON t1.DynamicFormSectionID=t2.DynamicFormSectionID\r\n" +
                     "JOIN DynamicForm t3 ON t3.ID=t2.DynamicFormID \r\n" +
-                    "JOIN AttributeHeader t4 ON t4.AttributeID=t1.AttributeID\r\nWHERE t3.ID=@DynamicFormId AND t1.IsVisible=1 AND (t1.IsDeleted is null OR t1.IsDeleted=0) AND t4.ControlTypeID=2702 AND \r\n(t3.IsDeleted is null OR t3.IsDeleted=0) AND (t2.IsDeleted is null OR t2.IsDeleted=0) AND (t3.IsDeleted is null OR t3.IsDeleted=0);";
+                    "JOIN AttributeHeader t4 ON t4.AttributeID=t1.AttributeID\r\nJOIN AttributeHeaderDataSource t5 ON t5.AttributeHeaderDataSourceID=t4.DataSourceID\n\rWHERE t3.ID=@DynamicFormId AND t1.IsVisible=1 AND (t1.IsDeleted is null OR t1.IsDeleted=0) AND t4.ControlTypeID=2702 AND \r\n" +
+                    "(t3.IsDeleted is null OR t3.IsDeleted=0) AND t5.DataSourceTable='ApplicationMasterParent' AND (t2.IsDeleted is null OR t2.IsDeleted=0) AND (t3.IsDeleted is null OR t3.IsDeleted=0);";
                 query += "Select * from ApplicationMasterParent where ParentID is null;\r\n";
                 using (var connection = CreateConnection())
                 {
@@ -2358,6 +2360,51 @@ namespace Infrastructure.Repository.Query
                     });
                     ids = ids.Where(w => w > 0).Distinct().ToList();
                     selectedapplicationMasterParent = applicationMasterParent != null && applicationMasterParent.Count > 0 ? applicationMasterParent.Where(a => ids.Contains(a.ApplicationMasterParentCodeId)).ToList() : new List<ApplicationMasterParent>();
+                }
+                return selectedapplicationMasterParent;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ApplicationMaster>> GetDynamicFormApplicationMasterAsync(long? dynamicFormId)
+        {
+
+            try
+            {
+                List<ApplicationMaster> selectedapplicationMasterParent = new List<ApplicationMaster>();
+                List<ApplicationMaster> applicationMasterParent = new List<ApplicationMaster>();
+                List<DynamicFormSectionAttribute> dynamicFormSectionAttribute = new List<DynamicFormSectionAttribute>();
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", dynamicFormId);
+                var query = "select t1.ApplicationMasterIds from DynamicFormSectionAttribute t1  \r\nJOIN DynamicFormSection t2 ON t1.DynamicFormSectionID=t2.DynamicFormSectionID\r\n" +
+                    "JOIN DynamicForm t3 ON t3.ID=t2.DynamicFormID \r\n" +
+                    "JOIN AttributeHeader t4 ON t4.AttributeID=t1.AttributeID\r\nJOIN AttributeHeaderDataSource t5 ON t5.AttributeHeaderDataSourceID=t4.DataSourceID\n\rWHERE t3.ID=@DynamicFormId AND t1.IsVisible=1 AND (t1.IsDeleted is null OR t1.IsDeleted=0) AND t4.ControlTypeID=2702 AND \r\n" +
+                    "(t3.IsDeleted is null OR t3.IsDeleted=0) AND t5.DataSourceTable='ApplicationMaster' AND (t2.IsDeleted is null OR t2.IsDeleted=0) AND (t3.IsDeleted is null OR t3.IsDeleted=0);";
+                query += "Select * from ApplicationMaster;\r\n";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    dynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
+                    applicationMasterParent = results.Read<ApplicationMaster>().ToList();
+                }
+                List<long?> ids = new List<long?>();
+                if (dynamicFormSectionAttribute != null && dynamicFormSectionAttribute.Count() > 0)
+                {
+                    dynamicFormSectionAttribute.ForEach(s =>
+                    {
+                        if (!string.IsNullOrEmpty(s.ApplicationMasterIds))
+                        {
+                            var applicationMasterIds = s.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                            if (applicationMasterIds.Count > 0)
+                            {
+                                ids.AddRange(applicationMasterIds);
+                            }
+                        }
+                    });
+                    ids = ids.Where(w => w > 0).Distinct().ToList();
+                    selectedapplicationMasterParent = applicationMasterParent != null && applicationMasterParent.Count > 0 ? applicationMasterParent.Where(a => ids.Contains(a.ApplicationMasterId)).ToList() : new List<ApplicationMaster>();
                 }
                 return selectedapplicationMasterParent;
             }

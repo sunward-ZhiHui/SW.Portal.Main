@@ -519,5 +519,13 @@ namespace Application.Queries
             this.DynamicFormId = dynamicFormId;
         }
     }
+    public class GetDynamicFormApplicationMaster : PagedRequest, IRequest<List<ApplicationMaster>>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormApplicationMaster(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
 }
 

@@ -130,6 +130,8 @@ else
                                           EditFormat="{0}-{1}"
                                           TagsChanged="@onToChanged"
                                           ListRenderMode="ListRenderMode.Virtual"
+                                           SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 @bind-Values="Data.ToIds"
                                           CssClass="cw-480">
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
@@ -144,6 +146,8 @@ else
                                           Data="_participant"
                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                           ListRenderMode="ListRenderMode.Virtual"
+                                           SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                           ValueFieldName="UserID"
                                           TextFieldName="Name"
                                           TagsChanged="@onCcChanged"
@@ -169,6 +173,9 @@ else
                                             NullText="Select OnBehalf..."
                                             FilteringMode="DataGridFilteringMode.Contains"
                                             ListRenderMode="ListRenderMode.Virtual"
+                                            AllowUserInput = "true"
+                                             SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="Name"
                                             ValueFieldName="UserID"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"

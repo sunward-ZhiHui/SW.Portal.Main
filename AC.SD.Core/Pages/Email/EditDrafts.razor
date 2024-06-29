@@ -130,15 +130,20 @@ else
                             <DxFormLayoutItem Caption="Group" ColSpanMd="4">
                                 <DxComboBox Data="@_groupTagItems"
                                             NullText="Select Group..."
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            AllowUserInput ="true"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="Value"
                                             ValueFieldName="ApplicationMasterChildId"
                                             Enabled="@isEnabled"
-                                @bind-Value="@CategoryData.GroupTag"
+                                            Value="@selectgrouptagItems"
+                                            ValueExpression="@(() => selectgrouptagItems )"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
+                                            ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
                                             ShowValidationIcon="true">
                                 </DxComboBox>
+                                <DxSpinEdit  @bind-Value="@CategoryData.GroupTag" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => CategoryData.GroupTag)" />
                             </DxFormLayoutItem>
                             @* <DxFormLayoutItem Caption="Type" ColSpanMd="12">
@@ -170,6 +175,8 @@ else
                                       TextFieldName="Name"
                                       TagsChanged="@onToChanged"
                                       ListRenderMode="ListRenderMode.Virtual"
+                                       SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                       @bind-Values="Data.ToIds"
                                         EditFormat="{0}-{1}"
                                       CssClass="cw-480">
@@ -198,7 +205,8 @@ else
                                 <DxFormLayoutItem Caption="To Group" ColSpanMd="8">
                                     <DxTagBox Data="_ToUserGroup"
                                               @bind-Values="Data.ToUserGroupIds"
-                                              FilteringMode="DataGridFilteringMode.Contains"
+                                             SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               NullText="Select To Group..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserGroupId"
@@ -219,13 +227,18 @@ else
                                 <DxComboBox Data="@_categoryTagItems"
                                             NullText="Select Category..."
                                             Enabled="@isEnabled"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                     ListRenderMode="ListRenderMode.Virtual"
+                                     Value="@selectCategory"
+                                            ValueExpression="@(() => selectCategory )"
                                             TextFieldName="Value"
                                             ValueFieldName="ApplicationMasterChildId"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@CategoryData.CategoryTag"
-                                            SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
+                                            AllowUserInput ="true"
+                                            ValueChanged ="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
                                 </DxComboBox>
+                                 <DxSpinEdit  @bind-Value="@CategoryData.CategoryTag" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
                             </DxFormLayoutItem>
                              @if (string.IsNullOrEmpty(Data.UserType) || Data.UserType == "Users")
@@ -235,6 +248,8 @@ else
                                       Data="_participant"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ListRenderMode="ListRenderMode.Virtual"
+                                       SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                       ValueFieldName="UserID"
                                       TextFieldName="Name"
                                       TagsChanged="@onCcChanged"
@@ -270,7 +285,8 @@ else
                                               ValueFieldName="UserGroupId"
                                               TextFieldName="Name"
                                               SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItemsChanged(values))"
-                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               CssClass="cw-480">
 
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
@@ -287,7 +303,10 @@ else
                                 <DxComboBox Data="@_actionTagItems"
                                             NullText="Select Action..."
                                             Enabled="@isEnabled"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                AllowUserInput = "true"
+                                             ListRenderMode="ListRenderMode.Virtual"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="Value"
                                             ValueFieldName="ApplicationMasterChildId"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -301,7 +320,9 @@ else
                             <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
                                 <DxComboBox Data="@_Allparticipant"
                                         NullText="Select OnBehalf..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        AllowUserInput = "true"
+                                         SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                         ListRenderMode="ListRenderMode.Virtual"
                                         TextFieldName="Name"
                                         ValueFieldName="UserID"
@@ -324,10 +345,12 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="4">
                                 <DxComboBox Data="@_AllCategory"
-                                            AllowUserInput="true"
+                                            
                                             NullText="Select Others Tag..."
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                           ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    AllowUserInput = "true"
                                             TextFieldName="Name"
                                             ValueFieldName="Name"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -384,10 +407,12 @@ else
 
                             <DxFormLayoutItem Caption="User Tag:" ColSpanMd="4">
                                 <DxComboBox Data="@_UserTagList"
-                                            AllowUserInput="true"
+                                          
                                             NullText="Select User Tag..."
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                           AllowUserInput = "true"
+                                           ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="UserTag"
                                             ValueFieldName="UserTag"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -494,7 +519,8 @@ else
                 <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
                     <DxTagBox Data="_ToUserGroup"
                               @bind-Values="Data.ToUserGroupIds"
-                              FilteringMode="DataGridFilteringMode.Contains"
+                               SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                               NullText="Select To Group..."
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserGroupId"
@@ -537,7 +563,8 @@ else
                 <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
                     <DxTagBox Data="_CCUserGroup"
                               @bind-Values="@Data.CCUserGroupIds"
-                              FilteringMode="DataGridFilteringMode.Contains"
+                               SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                               NullText="Select To Group..."
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserGroupId"
@@ -565,7 +592,8 @@ else
 </DxFlyout>
 
 @code {
-
+    ApplicationMasterChildModel selectgrouptagItems {get; set;}
+     ApplicationMasterChildModel selectCategory {get; set;}
     bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;
     async Task OnButtonUserGroupToClick()
@@ -1606,13 +1634,13 @@ else
                     {
                         if(draftId == 0)
                         {
-                           NavigationManager.NavigateTo($"CreateEmail");
+                            NavigationManager.NavigateTo($"CreateEmail");
                         }
                         else
                         {
                             NavigationManager.NavigateTo($"EmailDrafts");
                         }
-                       
+
                     }
                     else
                     {
@@ -1625,8 +1653,8 @@ else
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
 
-               
-                
+
+
             }
             else
             {
@@ -1706,8 +1734,8 @@ else
         //var url = DocumentViewUrl +"?url="+ FileUrl+_documents.FilePath;
         var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
-         
-        
+
+
     }
     private async Task OpenDocumentPreview(string url)
     {
@@ -1715,6 +1743,7 @@ else
     }
     async void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
+        selectgrouptagItems =applicationMasterChildModel;
         if (applicationMasterChildModel != null)
         {
             GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
@@ -1728,6 +1757,7 @@ else
     }
     async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
+        selectCategory = applicationMasterChildModel;
         if (applicationMasterChildModel != null)
         {
             // _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));

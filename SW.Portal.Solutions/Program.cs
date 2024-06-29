@@ -80,8 +80,8 @@ public class Program
             services.AddScoped<ClipboardService>();
             services.AddScoped<FirebaseMessagingService>();
             services.AddScoped<EmailAutoRefresh>();
-            DevExpress.Blazor.CompatibilitySettings.ComboBoxCompatibilityMode = true;
-            DevExpress.Blazor.CompatibilitySettings.TagBoxCompatibilityMode = true;
+            //DevExpress.Blazor.CompatibilitySettings.ComboBoxCompatibilityMode = true;
+           // DevExpress.Blazor.CompatibilitySettings.TagBoxCompatibilityMode = true;
             var keys = WebPush.VapidHelper.GenerateVapidKeys();
             System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
             System.Diagnostics.Debug.WriteLine(keys.PublicKey);

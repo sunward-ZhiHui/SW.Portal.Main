@@ -487,6 +487,8 @@
                                                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                                                       ValueFieldName="UserID"
                                                                                       TextFieldName="FirstName"
+                                                                                       SearchMode="ListSearchMode.AutoSearch"
+                                                                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
                                                                                       ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssigntoIds"
                                                                                       CssClass="cw-480">
@@ -509,6 +511,8 @@
                                                                                       ValueFieldName="UserID"
                                                                                       TextFieldName="FirstName"
                                                                                        ListRenderMode="ListRenderMode.Virtual"
+                                                                                        SearchMode="ListSearchMode.AutoSearch"
+                                                                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                                                                       @bind-Values="@Data.AssignccIds"
                                                                                       CssClass="cw-480">
                                                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"

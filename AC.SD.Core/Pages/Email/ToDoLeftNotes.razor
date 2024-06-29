@@ -118,10 +118,12 @@
                 <DxFormLayoutItem Caption="Notes:" ColSpanMd="12">
                @*      <DxTextBox @bind-Text="@types.Notes" /> *@
                     <DxComboBox Data="@_NotesLst"
-                                AllowUserInput="true"
+                                
                                 NullText="Select Notes..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                AllowUserInput = "true"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Notes"
                                 ValueFieldName="Notes"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"

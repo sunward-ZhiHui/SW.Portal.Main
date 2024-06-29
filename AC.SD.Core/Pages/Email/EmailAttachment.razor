@@ -165,12 +165,16 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                     SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
-                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                     Value="@CurrentPlant"
+                                     AllowUserInput ="true"
+                                    ValueExpression="@(() => CurrentPlant )"
+                                    ValueChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
                                     Enabled="isPlant"
-                                    @bind-Value="@_dataFileProfileType.PlantId" ShowValidationIcon="true">
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Plant Code"
@@ -181,18 +185,23 @@
                                                     Caption="Nav Company" />
                             </Columns>
                         </DxComboBox>
+                         <DxSpinEdit  @bind-Value="@_dataFileProfileType.PlantId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => _dataFileProfileType.PlantId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Division" ColSpanMd="12">
                         <DxComboBox Data="@_divisionItems"
                                     NullText="Select Division..."
+                                    AllowUserInput = "true"
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Name"
                                     ValueFieldName="DivisionID"
                                     Enabled="isDivision"
-                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
-                                    @bind-Value="@_dataFileProfileType.DivisionId" ShowValidationIcon="true">
+                                     Value="@selectdivision"
+                                    ValueExpression="@(() => selectdivision )"
+                                    ValueChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
                                                     Caption="Name"
@@ -203,18 +212,23 @@
                                                     Caption="Description" />
                             </Columns>
                         </DxComboBox>
+                          <DxSpinEdit  @bind-Value="@_dataFileProfileType.DivisionId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => _dataFileProfileType.DivisionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Department" ColSpanMd="12">
                         <DxComboBox Data="@_departmentItems"
                                     NullText="Select Department..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                  AllowUserInput = "true"
                                     TextFieldName="DepartmentName"
                                     ValueFieldName="DepartmentId"
                                     Enabled="isDepartment"
-                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
-                                    @bind-Value="@_dataFileProfileType.DepartmentId" ShowValidationIcon="true">
+                                      SearchMode="ListSearchMode.AutoSearch"
+                                       Value="@selectDepartment"
+                                    ValueExpression="@(() => selectDepartment )"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    ValueChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
                                                     Caption="Name"
@@ -225,18 +239,23 @@
                                                     Caption="Description" />
                             </Columns>
                         </DxComboBox>
+                          <DxSpinEdit  @bind-Value="@_dataFileProfileType.DepartmentId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => _dataFileProfileType.DepartmentId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Section" ColSpanMd="12">
                         <DxComboBox Data="@_sectionItems"
                                     NullText="Select Section..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    AllowUserInput ="true"
+                                     SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="SectionName"
                                     ValueFieldName="SectionId"
+                                     Value="@selectsection"
+                                    ValueExpression="@(() => selectsection )"
                                     Enabled="isSection"
-                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
-                                    @bind-Value="@_dataFileProfileType.SectionId" ShowValidationIcon="true">
+                                    ValueChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
                                                     Caption="Name"
@@ -247,13 +266,16 @@
                                                     Caption="Description" />
                             </Columns>
                         </DxComboBox>
+                          <DxSpinEdit  @bind-Value="@_dataFileProfileType.SectionId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => _dataFileProfileType.SectionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="SubSection" ColSpanMd="12">
                         <DxComboBox Data="@_subSectionItems"
                                     NullText="Select SubSection..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    AllowUserInput ="true"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="SubSectionName"
                                     ValueFieldName="SubSectionId"
                                     Enabled="isSubSection"
@@ -284,19 +306,23 @@
                     <DxFormLayoutItem Caption="File Replace (Check-In)" ColSpanMd="12">
                         <DxComboBox Data="@_OnFileReplaceList"
                                     NullText="Select File Replace (Check-In)..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     ListRenderMode="ListRenderMode.Virtual"
                                     TextFieldName="FileName"
                                     ValueFieldName="ReplaceDocumentId"
+                                     Value="@selectfilereplaceList"
+                                    ValueExpression="@(() => selectfilereplaceList )"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    SelectedItemChanged="@((Documents documents) => onSelectedFileReplaceChanged(documents))"
-                                    @bind-Value="@_dataFileProfileType.ReplaceDocumentId" ShowValidationIcon="true">
+                                    ValueChanged="@((Documents documents) => onSelectedFileReplaceChanged(documents))"
+                                   ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(Documents.SubjectName)" Caption="Subject Name" />
                                 <DxListEditorColumn FieldName="@nameof(Documents.FileName)" Caption="FileName" />
                                 @*<DxListEditorColumn FieldName="@nameof(Documents.AddedBy)" Caption="AddedBy"/>  *@
                             </Columns>
                         </DxComboBox>
+                          <DxSpinEdit   @bind-Value="@_dataFileProfileType.ReplaceDocumentId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => _dataFileProfileType.ReplaceDocumentId)" />
                     </DxFormLayoutItem>
 
@@ -373,6 +399,11 @@
 </DxPopup>
 
 @code{
+    Documents selectfilereplaceList { get; set; }
+    ViewSection selectsection {get; set;}
+    ViewDepartment selectDepartment { get; set; }
+    ViewDivision selectdivision { get; set; }
+    ViewPlants CurrentPlant { get; set; }
     private TimeLine? RefTimeLineList { get; set; }
     private List<Documents>? _timeline;
     bool StatusPopupVisible { get; set; } = false;
@@ -1020,6 +1051,7 @@
     }
     void onSelectedFileReplaceChanged(Documents documents)
     {
+        selectfilereplaceList = documents;
         if (documents != null)
         {
             SeletedExtensions = Path.GetExtension(documents.FileName);
@@ -1166,7 +1198,7 @@
                         onProgressEnabled = false;
                     }
                 }
-                
+
                 StateHasChanged();
             }
             else
@@ -1259,7 +1291,7 @@
             onProgressEnabled = false;
         }
 
-        
+
     }
 
     async Task onBackToDMS(Documents item)
@@ -1284,9 +1316,9 @@
         {
             _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
         }  
-        
+
         StatusPopupVisible = true;
-        
+
     }   
 
     public async Task onPreview(long Id)
@@ -1301,7 +1333,7 @@
             var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
             await OpenDocumentPreview(url);
         }
-       
+
     }
     internal async Task OpenDocumentPreview(string url)
     {
@@ -1344,6 +1376,7 @@
     }
     async Task SelectedItemChanged(long? plantID)
     {
+        CurrentPlant.PlantID = plantID.Value;
         _divisionItems = new List<ViewDivision>();
         _departmentItems = new List<ViewDepartment>();
         _sectionItems = new List<ViewSection>();
@@ -1359,6 +1392,7 @@
     }
     async Task SelectedItemDivisionChanged(long? divisionId)
     {
+        selectdivision.DivisionID = divisionId.Value;
         _departmentItems = new List<ViewDepartment>();
         _sectionItems = new List<ViewSection>();
         _subSectionItems = new List<ViewSubSection>();
@@ -1373,6 +1407,7 @@
     }
     async Task SelectedItemDepartementChanged(long? departmentId)
     {
+        selectDepartment.DepartmentId = departmentId.Value;
         _sectionItems = new List<ViewSection>();
         _subSectionItems = new List<ViewSubSection>();
         if (departmentId > 0)
@@ -1385,6 +1420,7 @@
     }
     async Task SelectedItemSectionChanged(long? sectionId)
     {
+        selectsection.SectionId = sectionId.Value;
         _subSectionItems = new List<ViewSubSection>();
         if (sectionId > 0)
         {

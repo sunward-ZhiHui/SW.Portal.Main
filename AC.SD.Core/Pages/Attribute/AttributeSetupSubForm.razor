@@ -42,10 +42,14 @@
                             <DxComboBox Data="@_plantItems"
                                         NullText="Select Company..."
                                         ListRenderMode="ListRenderMode.Virtual"
-                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                                         TextFieldName="NavCompany"
-                                        ValueFieldName="PlantID"
-                            @bind-Value="@Data.AttributeCompanyId" ShowValidationIcon="true">
+                                        Value="@CurrentPlant"
+                                        ValueExpression="@(() => CurrentPlant )"
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        ValueChanged="@((ViewPlants plantData) => SelectedPlantChanged(plantData))"
+                                        ShowValidationIcon="true">
                                 <Columns>
                                     <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                         Caption="Company Code"
@@ -56,16 +60,17 @@
                                                         Caption="Nav Company" />
                                 </Columns>
                             </DxComboBox>
+                            <DxSpinEdit @bind-Value="@Data.AttributeCompanyId" ShowValidationIcon="true" style="display:none;" />
                             <ValidationMessage For="@(() => Data.AttributeCompanyId)" />
                         </DxFormLayoutItem>
                         @* <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isSelectEnabled">
-                            <DxTextBox @bind-Text="@Data.AttributeName"></DxTextBox>
-                            <ValidationMessage For="@(() => Data.AttributeName)" />
+                        <DxTextBox @bind-Text="@Data.AttributeName"></DxTextBox>
+                        <ValidationMessage For="@(() => Data.AttributeName)" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isAddAttributeEnabled">
-                            <DxTextBox @bind-Text="Data.AttributeName">
-                            </DxTextBox>
-                            <ValidationMessage For="@(() => Data.AttributeName)" />
+                        <DxTextBox @bind-Text="Data.AttributeName">
+                        </DxTextBox>
+                        <ValidationMessage For="@(() => Data.AttributeName)" />
                         </DxFormLayoutItem> *@
 
                         <DxFormLayoutItem Caption="Label Name" ColSpanMd="6">
@@ -75,13 +80,17 @@
                         <DxFormLayoutItem Caption="Control Type" ColSpanMd="6">
                             <DxComboBox Data="@_controlTypeData"
                                         NullText="Select ControlType..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                                         TextFieldName="CodeValue"
                                         ValueFieldName="CodeId"
                                         Enabled="isEdit"
                                         EditFormat="{0}-{1}"
-                                        SelectedItemChanged="@((CodeMaster plant) =>SelectedControlChanged(plant?.CodeId,"Add"))"
-                            @bind-Value="@Data.ControlTypeId">
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        Value="@CurrentControlType"
+                                        ValueExpression="@(() => CurrentControlType )"
+                                        ValueChanged="@((CodeMaster plantData) => SelectedControlChanged(plantData?.CodeId,"Add"))">
                                 <Columns>
                                     <DxListEditorColumn FieldName="@nameof(CodeMaster.CodeValue)"
                                                         Caption="Control Type"
@@ -91,12 +100,13 @@
 
                                 </Columns>
                             </DxComboBox>
+                            <DxSpinEdit @bind-Value="@Data.ControlTypeId" ShowValidationIcon="true" style="display:none;" />
                             <ValidationMessage For="@(() => Data.ControlTypeId)" />
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="IsSpinEditTypeEnabled">
                             <DxComboBox Data="@dynamicFormSectionSpinEdit"
-                            @bind-Value="@Data.IsAttributeSpinEditType"
+                                        @bind-Value="@Data.IsAttributeSpinEditType"
                                         Enabled="@IsSpinEditTypeEnabled"
                                         TextFieldName="Text"
                                         ValueFieldName="Value" ShowValidationIcon="true" />
@@ -119,42 +129,49 @@
                         <DxFormLayoutItem Caption="Data Source" ColSpanMd="6" Visible="@isDataSource">
                             <DxComboBox Data="@_attributeHeaderDataSource"
                                         NullText="Select Data Source..."
-                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                         TextFieldName="DisplayName"
                                         ValueFieldName="AttributeHeaderDataSourceId"
                                         Enabled="isEdit"
-                                        SelectedItemChanged="@((AttributeHeaderDataSource plant) => SelectedItemDataSourceChanged(plant))"
-                            @bind-Value="@Data.DataSourceId">
-
+                                        Value="@CurrentDataSource"
+                                        ValueExpression="@(() => CurrentDataSource )"
+                                        ValueChanged="@((AttributeHeaderDataSource plantData) => SelectedItemDataSourceChanged(plantData))">
                             </DxComboBox>
+                            <DxSpinEdit @bind-Value="@Data.DataSourceId" ShowValidationIcon="true" style="display:none;" />
                             <ValidationMessage For="@(() => Data.DataSourceId)" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Application Master" ColSpanMd="6" Visible="@isApplicationMasterEnabled">
                             <DxTagBox Data="@_applicationMasterItems"
                                       NullText="Select Application Master..."
-                                      FilteringMode="DataGridFilteringMode.Contains"
+                                      SearchMode="ListSearchMode.AutoSearch"
+                                      SearchFilterCondition="ListSearchFilterCondition.Contains"
                                       TextFieldName="ApplicationMasterName"
+                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ValueFieldName="ApplicationMasterId"
                                       Enabled="isEdit"
-                            @bind-Values="@Data.SubApplicationMasterIdsListIds">
+                                      @bind-Values="@Data.SubApplicationMasterIdsListIds">
                             </DxTagBox>
                             <ValidationMessage For="@(() => Data.SubApplicationMasterIdsListIds)" />
 
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Dynamic Grid Form" ColSpanMd="6" Visible="isGridForm">
                             <DxComboBox Data="@_dynamicForm"
-                                        NullText="Select Dynamic Grid Form..."
+                                        NullText="Select Dynamic Form..."
                                         ListRenderMode="ListRenderMode.Virtual"
-                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                                         TextFieldName="Name"
                                         ValueFieldName="ID"
+                                        Enabled="isEdit"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            @bind-Value="@Data.DynamicFormId" ShowValidationIcon="true">
+                                        Value="@CurrentDynamicForm"
+                                        ValueExpression="@(() => CurrentDynamicForm )"
+                                        ValueChanged="@((DynamicForm plantData) => SelectedItemDynamicFormChanged(plantData))"
+                                        ShowValidationIcon="true">
                                 <Columns>
-                                     @* <DxListEditorColumn FieldName="@nameof(DynamicForm.IsGridForm)"
-                                                         Caption="Grid Form"
-                                                         Width="100px" /> *@
                                     <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
                                                         Caption="Name"
                                                         Width="180px" />
@@ -164,12 +181,13 @@
                                                         Caption="Profile" />
                                     <DxListEditorColumn FieldName="@nameof(DynamicForm.ScreenID)"
                                                         Caption="Screen Name" />
-                                    <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedBy)"
+                                    <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedBy)" SearchEnabled="false"
                                                         Caption="Modified By" />
-                                    <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedDate)"
+                                    <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedDate)" SearchEnabled="false"
                                                         Caption="Modified Date" />
                                 </Columns>
                             </DxComboBox>
+                            <DxSpinEdit @bind-Value="@Data.DynamicFormId" ShowValidationIcon="true" style="display:none;" />
                             <ValidationMessage For="@(() => Data.DynamicFormId)" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6" Visible="@isListMultiple">
@@ -222,6 +240,10 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    ViewPlants CurrentPlant { get; set; }
+    CodeMaster CurrentControlType { get; set; }
+    AttributeHeaderDataSource CurrentDataSource { get; set; }
+    DynamicForm CurrentDynamicForm { get; set; }
     [Parameter]
     public AttributeHeader? _selectedItems { get; set; }
     [Parameter]
@@ -278,7 +300,7 @@
         Data.SubAttributeDetailId = SubAttributeDetailId;
         Data.SubAttributeId = SubAttributeId;
         Data.IsSubForm = true;
-        Data.SubFormType = Type;Data.FilterDataSocurceId = 0;
+        Data.SubFormType = Type; Data.FilterDataSocurceId = 0;
         DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "InBuild", Text = "InBuild" });
         DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "DataSource", Text = "Data Source" });
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -305,9 +327,12 @@
     }
     void loadPlantItems()
     {
+        CurrentPlant = null;
         if (_plantItems != null && _plantItems.Count > 0)
         {
             Data.AttributeCompanyId = _plantItems.OrderBy(o => o.PlantID).FirstOrDefault()?.PlantID;
+            CurrentPlant = _plantItems.OrderBy(o => o.PlantID).FirstOrDefault();
+
         }
     }
     void onBack()
@@ -358,7 +383,16 @@
         DataSourceItems.Add(new DropDownOptionsModel() { Value = "Plant", Text = "Company" });
         DataSourceItems.Add(new DropDownOptionsModel() { Value = "Department", Text = "Department" });
     }
-
+    void SelectedPlantChanged(ViewPlants country)
+    {
+        CurrentPlant = null;
+        Data.AttributeCompanyId = null;
+        if (country != null)
+        {
+            CurrentPlant = country;
+            Data.AttributeCompanyId = country.PlantID;
+        }
+    }
     void addNew()
     {
         _editContext = new EditContext(Data);
@@ -367,7 +401,7 @@
         Data.RegExp = null;
         Data.IsInternal = false;
         Data.ControlTypeId = null; Data.ControlType = null;
-        Data.AttributeCompanyId = null;Data.AttrDescription = null;
+        Data.AttributeCompanyId = null; Data.AttrDescription = null;
         Data.IsMultiple = false;
         Data.IsRequired = false;
         Data.RequiredMessage = null;
@@ -395,6 +429,7 @@
         Data.SubAttributeId = SubAttributeId;
         Data.IsSubForm = true;
         Data.SubFormType = Type;
+        CurrentControlType = null; CurrentPlant = null; CurrentDataSource = null; CurrentDynamicForm = null;
         loadPlantItems();
         StateHasChanged();
     }
@@ -489,8 +524,8 @@
                 AttributeIsVisible = Data.AttributeIsVisible,
                 IsAttributeSpinEditType = IsSpinEditType,
                 AttributeRadioLayout = IsRadioLayout,
-                SubApplicationMasterIdsListIds=applicationMasterIdsListIds,
-                AttrDescription=Data.AttrDescription,
+                SubApplicationMasterIdsListIds = applicationMasterIdsListIds,
+                AttrDescription = Data.AttrDescription,
             };
         var result = await Mediator.Send(createReq);
         if (result > 0)
@@ -531,9 +566,13 @@
     }
     void SelectedItemDataSourceChanged(AttributeHeaderDataSource value)
     {
+        Data.DataSourceId = null;
+        CurrentDataSource = null;
         Data.DynamicFormId = 0; isGridForm = false; isApplicationMasterEnabled = false;
         if (Data.IsDataSource == true && value != null)
         {
+            Data.DataSourceId = value.AttributeHeaderDataSourceId;
+            CurrentDataSource = value;
             if (value.DataSourceTable == "DynamicGrid")
             {
                 Data.DynamicFormId = null; isGridForm = true;
@@ -542,6 +581,16 @@
             {
                 Data.SubApplicationMasterIdsListIds = new List<long?>(); isApplicationMasterEnabled = true;
             }
+        }
+    }
+    void SelectedItemDynamicFormChanged(DynamicForm dynamicForm)
+    {
+        Data.DynamicFormId = null;
+        CurrentDynamicForm = null;
+        if (dynamicForm != null)
+        {
+            Data.DynamicFormId = dynamicForm.ID;
+            CurrentDynamicForm = dynamicForm;
         }
     }
     void loadDropDownList()
@@ -573,14 +622,16 @@
             Data.SubAttributeDetailId = _selectedItems.SubAttributeDetailId;
             Data.SubAttributeId = _selectedItems.SubAttributeId;
             Data.AttributeIsVisible = _selectedItems.AttributeIsVisible;
-            Data.AttributeRadioLayout = _selectedItems.AttributeRadioLayout; 
-            Data.AttrDescription =  _selectedItems.AttrDescription; 
+            Data.AttributeRadioLayout = _selectedItems.AttributeRadioLayout;
+            Data.AttrDescription = _selectedItems.AttrDescription;
             Data.AttributeSortBy = _selectedItems.AttributeSortBy;
-            Data.FilterDataSocurceId =0;
+            Data.FilterDataSocurceId = 0;
             Data.IsAttributeSpinEditType = string.IsNullOrEmpty(_selectedItems.IsAttributeSpinEditType) ? "int" : _selectedItems.IsAttributeSpinEditType;
             SelectedControlChanged(Data.ControlTypeId, "Edit");
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _selectedItems.ControlType.ToLower().Contains(f.ToLower()));
             DeleteEnabled = true; AttributeDetailsEnabled = false; IsSpinEditTypeEnabled = false;
+            CurrentDataSource = _attributeHeaderDataSource != null ? _attributeHeaderDataSource.FirstOrDefault(f => f.AttributeHeaderDataSourceId == _selectedItems.DataSourceId) : null;
+            CurrentDynamicForm = _dynamicForm != null ? _dynamicForm.FirstOrDefault(f => f.ID == _selectedItems.DynamicFormId) : null;
             if (_selectedItems.FormUsedCount > 0)
             {
                 isEdit = false;
@@ -708,13 +759,15 @@
     }
     void SelectedControlChanged(int? controlTypeId, string type)
     {
+        CurrentControlType = null;
+        Data.ControlTypeId = null;
         isMultipleEnabled = false;
         MaskEnabled = false; isApplicationMasterEnabled = false;
         RegEnabled = false; isDropDownType = false; IsDynamicFormDropTagBoxEnabled = false; IsSpinEditTypeEnabled = false;
         isDataSource = false; isGridForm = false; IsRadioLayoutEnabled = false;
         if (type == "Add")
         {
-            Data.DataSourceId = 0; Data.DynamicFormId = 0; isListMultiple = false; Data.SubApplicationMasterIdsListIds=new List<long?>();
+            Data.DataSourceId = 0; Data.DynamicFormId = 0; isListMultiple = false; Data.SubApplicationMasterIdsListIds = new List<long?>();
             Data.IsDataSource = false; Data.DynamicFormId = 0; Data.IsDynamicFormDropTagBox = false;
             Data.AttributeRadioLayout = null;
             if (controlTypeId == 2704)
@@ -756,6 +809,8 @@
         }
         if (controlTypeId > 0)
         {
+            CurrentControlType = _controlTypeData.FirstOrDefault(f => f.CodeId == controlTypeId);
+            Data.ControlTypeId = controlTypeId;
             var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == controlTypeId)?.CodeValue;
             if (!string.IsNullOrEmpty(controlType))
             {

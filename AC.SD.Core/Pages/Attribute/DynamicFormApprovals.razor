@@ -131,7 +131,8 @@
                                 ListRenderMode="ListRenderMode.Virtual"
                                 ValueFieldName="UserID"
                                 TextFieldName="FirstName"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 Enabled="@isApprovedEnabled"
                                 EditFormat="{0}-{1}"
                     @bind-Value="@types.ApprovalUserId">

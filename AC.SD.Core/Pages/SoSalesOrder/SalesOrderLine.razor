@@ -17,7 +17,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                    border-collapse: collapse;*/
+                                                                border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -130,24 +130,31 @@
                 <DxFormLayoutItem Caption="Selling Method" ColSpanMd="6">
                     <DxComboBox Data="@_viewSellingMethodItems"
                                 NullText="Select Selling Method..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
-                                SelectedItemChanged="@((View_ApplicationMasterDetail navitems) => SelectedItemMethodChangesChanged(navitems))"
-                                @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
+                                Value="@CurrentSellingMethod"
+                                ValueExpression="@(() => CurrentSellingMethod )"
+                                ValueChanged="@((View_ApplicationMasterDetail navitems) => SelectedItemMethodChangesChanged(navitems,types))"
+                                ShowValidationIcon="true" />
+                    <DxSpinEdit @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.SellingMethodId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Item SerialNo" ColSpanMd="6">
                     <DxComboBox Data="@_AllNavitems"
                                 NullText="Select Item SerialNo..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.StartsWith"
                                 TextFieldName="ItemSerialNo"
                                 ValueFieldName="ItemId"
                                 EditFormat="{0}-{1}-{2}"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
-                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                                Value="@CurrentSerialNo"
+                                ValueExpression="@(() => CurrentSerialNo )"
+                                ShowValidationIcon="true"
+                                ValueChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems,types))">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
                                                 Caption="Item Serial No"
@@ -163,6 +170,7 @@
                                             Click="@(_ => OnButtonClick())" />
                         </Buttons>
                     </DxComboBox>
+                    <DxSpinEdit @bind-Value="@types.ItemId" ShowValidationIcon="true" style="display:none;" />
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Item No:" ColSpanMd="6">
@@ -293,7 +301,7 @@
                     <th>Master Type</th>
                     @{
                         var masterTypeDis = "";
-                        if (salesOrderMasterPricingFromSalesModel!=null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineId > 0)
+                        if (salesOrderMasterPricingFromSalesModel != null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineId > 0)
                         {
                             masterTypeDis = (salesOrderMasterPricingFromSalesModel.MasterType == "MasterPrice") ? "Master Price" : "Specific Item Price";
                         }
@@ -305,7 +313,7 @@
                     <td>
                         @{
                             var durationYear = "";
-                            if (salesOrderMasterPricingFromSalesModel!=null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineId > 0)
+                            if (salesOrderMasterPricingFromSalesModel != null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineId > 0)
                             {
                                 durationYear = Application.Common.Helper.Helper.FormatMonthYear(salesOrderMasterPricingFromSalesModel.PriceValidaityFrom) + " To " + Application.Common.Helper.Helper.FormatMonthYear(salesOrderMasterPricingFromSalesModel.PriceValidaityTo);
                             }
@@ -318,15 +326,17 @@
                     <td>@salesOrderMasterPricingFromSalesModel?.SellingPrice</td>
                 </tr>
                 @{
-                    if (salesOrderMasterPricingFromSalesModel!=null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineSellingMethodId > 0)
+                    if (salesOrderMasterPricingFromSalesModel != null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineSellingMethodId > 0)
                     {
                         if (salesOrderMasterPricingFromSalesModel.SellingMethod == "Tier")
                         {
                             <tr>
                                 <th>Tier Duration Qty</th>
-                                <td>@(
+                                <td>
+                                    @(
                                     salesOrderMasterPricingFromSalesModel.TierNewFromQty + (salesOrderMasterPricingFromSalesModel.TierNewToQty > 0 ? ("-" + salesOrderMasterPricingFromSalesModel.TierNewToQty) : " - No Limit Qty")
-                                    )</td>
+                                        )
+                                </td>
                             </tr>
                             <tr>
                                 <th>Tier Price</th>
@@ -369,6 +379,8 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    View_ApplicationMasterDetail CurrentSellingMethod { get; set; }
+    View_NavItems CurrentSerialNo { get; set; }
     [Parameter]
     public long? SoSalesOrderId { get; set; }
     decimal SalesQty;
@@ -418,10 +430,13 @@
     string SellingMethod { get; set; }
     long? ItemId { get; set; }
     decimal? BounsFocQty { get; set; }
-    async Task SelectedItemChanged(View_NavItems navitems)
+    async Task SelectedItemChanged(View_NavItems navitems, View_SoSalesOrderLine view_SoSalesOrderLine)
     {
+        CurrentSerialNo = null;
         if (navitems != null)
         {
+            CurrentSerialNo = navitems;
+            view_SoSalesOrderLine.ItemId = navitems.ItemId;
             No = navitems.No;
             Description = navitems.Description;
             Description2 = navitems.Description2;
@@ -489,11 +504,18 @@
             }
         }
     }
-    async Task SelectedItemMethodChangesChanged(View_ApplicationMasterDetail masterDetail)
+    async Task SelectedItemMethodChangesChanged(View_ApplicationMasterDetail masterDetail, View_SoSalesOrderLine view_SoSalesOrderLine)
     {
-        SellingMethodId = masterDetail.ApplicationMasterDetailID;
-        SellingMethod = masterDetail.Value;
-        await loadNavItemsChangedData("");
+        CurrentSellingMethod = masterDetail;
+        view_SoSalesOrderLine.SellingMethodId = null;
+        if (masterDetail != null)
+        {
+            CurrentSellingMethod = masterDetail;
+            view_SoSalesOrderLine.SellingMethodId = masterDetail.ApplicationMasterDetailID;
+            SellingMethodId = masterDetail.ApplicationMasterDetailID;
+            SellingMethod = masterDetail.Value;
+            await loadNavItemsChangedData("");
+        }
     }
     async Task loadNavItemsChangedData(string type)
     {
@@ -560,9 +582,13 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        CurrentSellingMethod = null;
+        CurrentSerialNo = null;
         var navitems = (View_SoSalesOrderLine)e.EditModel;
         if (e.IsNew)
         {
+            navitems.ItemId = null;
+            navitems.SellingMethodId = null;
             No = "";
             Description = "";
             Description2 = "";
@@ -589,6 +615,8 @@
             SalesQty = navitems.Qty > 0 ? navitems.Qty.Value : 0;
             OrderQty = SalesQty;
             IsManualPriceEnabled = navitems.IsManual == null ? false : navitems.IsManual;
+            CurrentSellingMethod = _viewSellingMethodItems != null && navitems.SellingMethodId > 0 ? _viewSellingMethodItems.FirstOrDefault(f => f.ApplicationMasterDetailID == navitems.SellingMethodId) : null;
+            CurrentSerialNo = _AllNavitems != null && navitems.ItemId > 0 ? _AllNavitems.FirstOrDefault(f => f.ItemId == navitems.ItemId) : null;
             await loadNavItemsChangedData("edit");
             await PricingItemList(OrderQty);
         }
@@ -656,7 +684,7 @@
                     ModifiedDate = DateTime.Now,
                     IsManual = editModel.IsManual,
                     ManualPrice = editModel.ManualPrice,
-                    PricingType = string.IsNullOrEmpty(PricingType)?editModel.PricingType:PricingType,
+                    PricingType = string.IsNullOrEmpty(PricingType) ? editModel.PricingType : PricingType,
                     OrderBounsQty = BounsFocQty,
                 };
 

@@ -51,7 +51,8 @@
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserID"
                                               TextFieldName="FirstName"
-                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               EditFormat="{0}-{1}"
                                               SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
@@ -99,6 +100,8 @@
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserGroupId"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               TextFieldName="Name"
                                               SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedUserGroupItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
@@ -143,6 +146,8 @@
                                     @bind-Values="Data.SelectLevelMasterIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               ValueFieldName="LevelID"
                                               TextFieldName="Name"
                                               SelectedItemsChanged="@((IEnumerable<ViewLevel> values) => onSelectedLevelItemsChanged(values))"

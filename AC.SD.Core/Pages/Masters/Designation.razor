@@ -107,20 +107,24 @@
             <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
                 <DxComboBox Data="@_subsectionListItems"
                             NullText="Select SubSection..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="SubSectionDrop"
                             ValueFieldName="SubSectionId"                               
                             Enabled="@isEnabled"
-                            @bind-Value="@plant.SubSectionID"
-                            SelectedItemChanged="@((ViewSubSection plantSelect) => SelectedItemChanged(plantSelect))"
+                                Value="@CurrentSubSection"
+                                ValueExpression="@(() => CurrentSubSection )"
+                                SelectedItemChanged="@((ViewSubSection plantSelect) => SelectedItemChanged(plantSelect,plant))"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                    <DxSpinEdit @bind-Value="@plant.SubSectionID" ShowValidationIcon="true" style="display:none;" />
                 <ValidationMessage For="@(() => plant.SubSectionID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                              
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
@@ -130,7 +134,8 @@
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
                 <DxComboBox Data="@_divisions"
                             NullText="Select Division..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                               
                             TextFieldName="Name"
                             ValueFieldName="DivisionID"
@@ -142,8 +147,9 @@
             <DxFormLayoutItem Caption="Department" ColSpanMd="6">
                 <DxComboBox Data="@_departments"
                             NullText="Select Department..."
-                            FilteringMode="DataGridFilteringMode.Contains"                            
-                            TextFieldName="DepartmentName"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="DepartmentName"
                             ValueFieldName="DepartmentId"
                             Enabled="@isEnabled"
                             ReadOnly="true"
@@ -153,8 +159,9 @@
             <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                 <DxComboBox Data="@_sections"
                             NullText="Select Section..."
-                            FilteringMode="DataGridFilteringMode.Contains"                              
-                            TextFieldName="SectionName"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="SectionName"
                             ValueFieldName="SectionId"
                             ReadOnly="true"
                             Enabled="@isEnabled"
@@ -165,8 +172,9 @@
             <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
                 <DxComboBox Data="@levelItems"
                             NullText="Select Level Master..."
-                            FilteringMode="DataGridFilteringMode.Contains"                               
-                            TextFieldName="Name"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
                             ValueFieldName="LevelID"
                             @bind-Value="@plant.LevelID"
                             ShowValidationIcon="true">
@@ -192,7 +200,8 @@
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
                                 @bind-Text="@Text"
@@ -249,6 +258,7 @@
 </DxPopup>
 
 @code {
+    ViewSubSection CurrentSubSection{ get; set; }
     string secName = "";
     string companyName = "";
     string divisionName = "";
@@ -294,6 +304,7 @@
     private ViewSection _selectsec;
     protected override async Task OnInitializedAsync()
     {
+        CurrentSubSection = null;
         // await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
         _sections = await Mediator.Send(new GetAllSectionQuery());
@@ -306,7 +317,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         PanelVisible = false;
         // await jsRuntime.InvokeAsync<string>("hideLoading");
-      
+
         await UpdateDataAsync();
         if (Type == "subsection")
         {
@@ -315,7 +326,7 @@
     }
     async Task UpdateDataAsync()
     {
-       // await jsRuntime.InvokeAsync<string>("showLoading");
+        // await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
         var  model = await Mediator.Send(new GetAllDesignationQuery());
         for (int i = 0; i < model.Count; i++)
@@ -341,22 +352,23 @@
         if (_designationItems.Count > 0)
         {
             _selectedItems = _designationItems.FirstOrDefault();
-            
-                EditEnabled = true;
-                DeleteEnabled = true;
-                StateHasChanged();
-           
+
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+
         }
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        CurrentSubSection = null;
         var dep = (ViewDesignation)e.DataItem;
         if (e.IsNew)
         {
             var newmaster = (ViewDesignation)e.EditModel;
-           
+
             CompanyID = null;
             DivisionID = null;
             SectionID = null;
@@ -372,6 +384,7 @@
                     DivisionID = _masters.DivisionID;
                     DepartmentID = _masters.DepartmentID;
                     SectionID = _masters.SectionID;
+                    CurrentSubSection = _subsectionListItems != null && _masters.SubSectionID > 0 ? _subsectionListItems.FirstOrDefault(f => f.SubSectionId == _masters.SubSectionID) : null;
                     // SelectedItemChanged(_ictmasters);
                 }
             }
@@ -382,14 +395,21 @@
             DivisionID = dep.DivisionID;
             SectionID = dep.SectionID;
             DepartmentID = dep.DepartmentID;
+            CurrentSubSection = _subsectionListItems != null && dep.SubSectionID > 0 ? _subsectionListItems.FirstOrDefault(f => f.SubSectionId == dep.SubSectionID) : null;
         }
     }
-    void SelectedItemChanged(ViewSubSection plantID)
+    void SelectedItemChanged(ViewSubSection plantID,ViewDesignation viewDesignation)
     {
-        CompanyID = plantID.CompanyId;
-        DivisionID = plantID.DivisionId;
-        SectionID = plantID.SectionId;
-        DepartmentID = plantID.DepartmentId;
+        CurrentSubSection = null;
+        if (plantID != null)
+        {
+            viewDesignation.SubSectionID = plantID.SubSectionId;
+            CurrentSubSection = plantID;
+            CompanyID = plantID.CompanyId;
+            DivisionID = plantID.DivisionId;
+            SectionID = plantID.SectionId;
+            DepartmentID = plantID.DepartmentId;
+        }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {

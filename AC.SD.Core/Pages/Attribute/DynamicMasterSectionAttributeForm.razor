@@ -146,9 +146,11 @@
                                 TextFieldName="Description"
                                 ValueFieldName="AttributeID"
                                 EditFormat="{0}-{1}"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 Enabled="isFormCountUsed"
-                                SelectedItemChanged="@((AttributeHeader selectName) => SelectedItemChanged(selectName,types))"
-                                @bind-Value="@types.AttributeId">
+                                Value="@CurrentHeaderData"
+                                ValueExpression="@(() => CurrentHeaderData )"
+                                ValueChanged="@((AttributeHeader selectName) => SelectedItemChanged(selectName,types))">
                         <Columns>
                             @*  <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
                             Caption="Field Name"
@@ -164,6 +166,7 @@
                                                 Caption="Data Source" Width="100px" />
                         </Columns>
                     </DxComboBox>
+                    <DxSpinEdit @bind-Value="@types.AttributeId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.AttributeId)" />
 
                 </DxFormLayoutItem>
@@ -177,17 +180,23 @@
                 <DxFormLayoutItem Caption="Is Dynamic Form GridDropdown" ColSpanMd="6" Visible="@IsDynamicFormGridDropdownEnabled">
                     <DxCheckBox Checked="@types.IsDynamicFormGridDropdown" CheckedExpression="@(() => types.IsDynamicFormGridDropdown)" CheckedChanged="@((bool value) => OnTemplateDataSourceGroupValueChanged(value,types))" Enabled="isFormCountUsed"></DxCheckBox>
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is DropDown Multiple" ColSpanMd="6" Visible="@types.IsDynamicFormGridDropdown">
+                    <DxCheckBox @bind-Checked="types.IsDynamicFormGridDropdownMultiple" Enabled="isFormCountUsed"></DxCheckBox>
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Grid DropDown DynamicForm" ColSpanMd="6" Visible="@types.IsDynamicFormGridDropdown">
                     <DxComboBox Data="@_dynamicForm"
                                 NullText="Select Dynamic Form..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Name"
                                 ValueFieldName="ID"
                                 Enabled="isFormCountUsed"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                SelectedItemChanged="@((DynamicForm plant) => onChangedDynamicForm(plant?.ID))"
-                                @bind-Value="@types.GridDropDownDynamicFormID" ShowValidationIcon="true">
+                                Value="@CurrentDynamicForm"
+                                ValueExpression="@(() => CurrentDynamicForm )"
+                                ValueChanged="@((DynamicForm plant) => onChangedDynamicForm(plant?.ID,types))"
+                                ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
                                                 Caption="Name"
@@ -200,15 +209,18 @@
                                                 Caption="Screen Name" />
                         </Columns>
                     </DxComboBox>
+                    <DxSpinEdit @bind-Value="@types.GridDropDownDynamicFormID" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.GridDropDownDynamicFormID)" />
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Application Master" ColSpanMd="6" Visible="@isApplicationMasterEnabled">
                     <DxTagBox Data="@_applicationMasterItems"
                               NullText="Select Application Master..."
-                              FilteringMode="DataGridFilteringMode.Contains"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               TextFieldName="ApplicationMasterName"
                               ValueFieldName="ApplicationMasterId"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               Enabled="isFormCountUsed"
                               @bind-Values="@types.ApplicationMasterIdsListIds">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMaster.ApplicationMasterName)"
@@ -222,9 +234,11 @@
                 <DxFormLayoutItem Caption="Application Master Parent" ColSpanMd="6" Visible="@isApplicationMasterParentEnabled">
                     <DxTagBox Data="@_applicationMasterParentItems"
                               NullText="Select Application Master..."
-                              FilteringMode="DataGridFilteringMode.Contains"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               TextFieldName="ApplicationMasterName"
                               ValueFieldName="ApplicationMasterParentCodeId"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               @bind-Values="@types.ApplicationMasterIdsListIds">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMasterParent.ApplicationMasterName)"
                                             Caption="Name" Width="100px" />
@@ -240,7 +254,8 @@
                 <DxFormLayoutItem Caption="Dropdown Data Source" ColSpanMd="6" Visible="@types.IsPlantLoadDependency">
                     <DxTagBox Data="@_attributeHeaderDataSource"
                               NullText="Select Data Source..."
-                              FilteringMode="DataGridFilteringMode.Contains"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               TextFieldName="DisplayName"
                               ValueFieldName="AttributeHeaderDataSourceId"
@@ -381,6 +396,8 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    AttributeHeader CurrentHeaderData { get; set; }
+    DynamicForm CurrentDynamicForm { get; set; }
     [Parameter]
     public Action? RevokeBack { get; set; }
     [Parameter]
@@ -439,7 +456,7 @@
         _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
         _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
         _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
-        if(_dynamicForm!=null && _dynamicForm.Count>0)
+        if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
             _dynamicForm = _dynamicForm.Where(w => w.ID != Items.DynamicFormId).ToList();
         }
@@ -479,10 +496,13 @@
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
         navitems.IsSingleTextBoxRemarks = false; navitems.IsSingleTextBoxRemarks = false; IsSetDefaultValueEnabled = false; IsDynamicFormGridDropdownEnabled = false;
+        CurrentHeaderData = _attributeHeaderData != null && navitems.AttributeId > 0 ? _attributeHeaderData.FirstOrDefault(a => a.AttributeID == navitems.AttributeId) : null;
+        CurrentDynamicForm = _dynamicForm != null && navitems.GridDropDownDynamicFormID > 0 ? _dynamicForm.FirstOrDefault(f => f.ID == navitems.GridDropDownDynamicFormID) : null;
         if (e.IsNew)
         {
             navitems.IsSpinEditType = "int";
             navitems.ColSpan = 6;
+            navitems.GridDropDownDynamicFormID = 0;
         }
         else
         {
@@ -567,12 +587,16 @@
                     IsSetDefaultValueEnabled = true;
                 }
             }
-            if (navitems.ControlTypeId == 2702 && navitems.DropDownTypeId == "Data Source" && navitems.DataSourceTable == "ApplicationMasterParent")
+            navitems.GridDropDownDynamicFormID = navitems.GridDropDownDynamicFormID == null ? 0 : navitems.GridDropDownDynamicFormID;
+            if (navitems.ControlTypeId == 2702 && navitems.DropDownTypeId == "Data Source")
             {
-                IsDynamicFormGridDropdownEnabled = true;
-                if (navitems.GridDropDownDynamicFormID > 0)
+                if (navitems.DataSourceTable == "ApplicationMasterParent" || navitems.DataSourceTable == "ApplicationMaster")
                 {
-                    await onChangedDynamicForm(navitems.GridDropDownDynamicFormID);
+                    IsDynamicFormGridDropdownEnabled = true;
+                    if (navitems.GridDropDownDynamicFormID > 0)
+                    {
+                        await onChangedDynamicForm(navitems.GridDropDownDynamicFormID, navitems);
+                    }
                 }
             }
 
@@ -585,44 +609,70 @@
         types.GridDropDownDynamicFormID = null;
         types.ApplicationMasterIdsListIds = new List<long?>();
         _applicationMasterParentItems = new List<ApplicationMasterParent>();
+        _applicationMasterItems = new List<ApplicationMaster>();
         if (radioValue == false)
         {
-            _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
-            if (_selectedAttributeItems != null && _selectedAttributeItems.DynamicFormSectionAttributeId > 0 && _selectedAttributeItems.IsDynamicFormGridDropdown == false)
+            types.GridDropDownDynamicFormID = 0;
+            if (types.DataSourceTable == "ApplicationMasterParent")
             {
-                if (types.DynamicFormSectionAttributeId > 0)
-                {
-                    if (!string.IsNullOrEmpty(_selectedAttributeItems.ApplicationMasterIds))
-                    {
-                        types.ApplicationMasterIdsListIds = _selectedAttributeItems.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
-                    }
-                }
+                _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
+            }
+            if (types.DataSourceTable == "ApplicationMaster")
+            {
+                _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
             }
         }
-        if (radioValue == true)
-        {
-            _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
-            if (_selectedAttributeItems != null && _selectedAttributeItems.DynamicFormSectionAttributeId > 0 && _selectedAttributeItems.IsDynamicFormGridDropdown == true)
-            {
-                if (types.DynamicFormSectionAttributeId > 0)
-                {
-                    types.GridDropDownDynamicFormID = _selectedAttributeItems.GridDropDownDynamicFormID;
-                    await onChangedDynamicForm(_selectedAttributeItems.GridDropDownDynamicFormID);
-                    if (!string.IsNullOrEmpty(_selectedAttributeItems.ApplicationMasterIds))
-                    {
-                        types.ApplicationMasterIdsListIds = _selectedAttributeItems.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
-                    }
-                }
-            }
-        }
+        // if (radioValue == false)
+        // {
+        //     _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
+        //     if (_selectedAttributeItems != null && _selectedAttributeItems.DynamicFormSectionAttributeId > 0 && _selectedAttributeItems.IsDynamicFormGridDropdown == false)
+        //     {
+        //         if (types.DynamicFormSectionAttributeId > 0)
+        //         {
+        //             if (!string.IsNullOrEmpty(_selectedAttributeItems.ApplicationMasterIds))
+        //             {
+        //                 types.ApplicationMasterIdsListIds = _selectedAttributeItems.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+        //             }
+        //         }
+        //     }
+        // }
+        // if (radioValue == true)
+        // {
+        //     _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
+        //     if (_selectedAttributeItems != null && _selectedAttributeItems.DynamicFormSectionAttributeId > 0 && _selectedAttributeItems.IsDynamicFormGridDropdown == true)
+        //     {
+        //         if (types.DynamicFormSectionAttributeId > 0)
+        //         {
+        //             types.GridDropDownDynamicFormID = _selectedAttributeItems.GridDropDownDynamicFormID;
+        //             await onChangedDynamicForm(_selectedAttributeItems.GridDropDownDynamicFormID);
+        //             if (!string.IsNullOrEmpty(_selectedAttributeItems.ApplicationMasterIds))
+        //             {
+        //                 types.ApplicationMasterIdsListIds = _selectedAttributeItems.ApplicationMasterIds.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+        //             }
+        //         }
+        //     }
+        // }
         StateHasChanged();
     }
-    async Task onChangedDynamicForm(long? dynamicFormId)
+    async Task onChangedDynamicForm(long? dynamicFormId, DynamicFormSectionAttribute types)
     {
+        CurrentDynamicForm = null;
+        types.GridDropDownDynamicFormID = null;
         _applicationMasterParentItems = new List<ApplicationMasterParent>();
-        if (dynamicFormId > 0)
+        _applicationMasterItems = new List<ApplicationMaster>();
+        string? dataSourceTable = types?.DataSourceTable;
+        if (dynamicFormId > 0 && !string.IsNullOrEmpty(dataSourceTable))
         {
-            _applicationMasterParentItems = await Mediator.Send(new GetDynamicFormApplicationMasterParent(dynamicFormId));
+            CurrentDynamicForm = _dynamicForm != null ? _dynamicForm.FirstOrDefault(f => f.ID == dynamicFormId) : null;
+            types.GridDropDownDynamicFormID = dynamicFormId;
+            if (dataSourceTable == "ApplicationMasterParent")
+            {
+                _applicationMasterParentItems = await Mediator.Send(new GetDynamicFormApplicationMasterParent(dynamicFormId));
+            }
+            if (dataSourceTable == "ApplicationMaster")
+            {
+                _applicationMasterItems = await Mediator.Send(new GetDynamicFormApplicationMaster(dynamicFormId));
+            }
         }
         StateHasChanged();
     }
@@ -661,79 +711,95 @@
     }
     async Task SelectedItemChanged(AttributeHeader attributeHeader, DynamicFormSectionAttribute data)
     {
+        CurrentHeaderData = null;
+        data.AttributeId = null;
+        _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
+        _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
+        data.IsDynamicFormGridDropdown = false;
+        data.IsDynamicFormGridDropdownMultiple = false;
+        data.SelectDynamicFormId = Items.DynamicFormId;
+        data.DisplayName = string.Empty;
+        data.DataSourceTable = string.Empty;
+        data.DropDownTypeId = null;
+        data.FormToolTips = string.Empty;
+        data.ControlTypeId = null;
+        data.GridDropDownDynamicFormID = 0;
+        isDataSource = false; IsSetDefaultValueEnabled = false; isApplicationMasterEnabled = false;
+        isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false; isApplicationMasterParentEnabled = false; IsDynamicFormGridDropdownEnabled = false;
         if (attributeHeader != null)
         {
-            _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
+            CurrentHeaderData = attributeHeader;
+            data.AttributeId = attributeHeader.AttributeID;
             data.SelectDynamicFormId = Items.DynamicFormId;
             data.DisplayName = attributeHeader.Description;
             data.DataSourceTable = attributeHeader.DataSourceTable;
             data.DropDownTypeId = attributeHeader.DropDownTypeId;
             data.FormToolTips = attributeHeader.AttrDescription;
-            data.IsDynamicFormGridDropdown = false;
-            data.ControlTypeId = attributeHeader.ControlTypeId; isDataSource = false; IsSetDefaultValueEnabled = false; isApplicationMasterEnabled = false;
-            isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false; isApplicationMasterParentEnabled = false; IsDynamicFormGridDropdownEnabled = false;
-            if (attributeHeader != null)
+            data.ControlTypeId = attributeHeader.ControlTypeId;
+            if (attributeHeader.ControlTypeId == 2706)
             {
-                if (attributeHeader.ControlTypeId == 2706)
+                isListMultiple = true;
+            }
+            if (attributeHeader.ControlTypeId == 2704)
+            {
+                IsSpinEditTypeEnabled = true;
+            }
+            if (attributeHeader.ControlTypeId == 2705 || attributeHeader.ControlTypeId == 2711)
+            {
+                if (string.IsNullOrEmpty(data.RadioLayout))
                 {
-                    isListMultiple = true;
+                    data.RadioLayout = "Vertical";
                 }
-                if (attributeHeader.ControlTypeId == 2704)
+                IsRadioCheckBoxLayoutEnabled = true;
+                IsRadioLayoutEnabled = true;
+            }
+            if (attributeHeader.ControlTypeId == 2710)
+            {
+                IsRadioCheckBoxLayoutEnabled = true;
+            }
+            if (attributeHeader.ControlTypeId == 2712)
+            {
+                data.ColSpan = 12;
+            }
+            if (attributeHeader.DataSourceTable == "Plant" && attributeHeader.ControlTypeId == 2702)
+            {
+                isDataSource = true;
+                _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
+                if (_attributeHeaderDataSource != null && _attributeHeaderDataSource.Count > 0)
                 {
-                    IsSpinEditTypeEnabled = true;
+                    List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid", "ApplicationMaster", "ApplicationMasterParent" };
+                    _attributeHeaderDataSource = _attributeHeaderDataSource.Where(w => !dataSourceNotIn.Contains(w.DataSourceTable)).ToList();
                 }
-                if (attributeHeader.ControlTypeId == 2705 || attributeHeader.ControlTypeId == 2711)
+            }
+            else
+            {
+                data.IsPlantLoadDependency = false;
+            }
+            if (attributeHeader.DataSourceTable == "ApplicationMaster")
+            {
+                isApplicationMasterEnabled = true;
+            }
+            if (attributeHeader.DataSourceTable == "ApplicationMasterParent")
+            {
+                isApplicationMasterParentEnabled = true;
+            }
+            if (attributeHeader.ControlTypeId == 2702 || attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2706 || attributeHeader.ControlTypeId == 2708 || attributeHeader.ControlTypeId == 2709)
+            {
+                if (attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2709 || attributeHeader.DataSourceTable == "Employee" || attributeHeader.DataSourceTable == "Plant")
                 {
-                    if (string.IsNullOrEmpty(data.RadioLayout))
-                    {
-                        data.RadioLayout = "Vertical";
-                    }
-                    IsRadioCheckBoxLayoutEnabled = true;
-                    IsRadioLayoutEnabled = true;
+                    IsSetDefaultValueEnabled = true;
                 }
-                if (attributeHeader.ControlTypeId == 2710)
+            }
+            if (attributeHeader.ControlTypeId == 2702 && attributeHeader.DropDownTypeId == "Data Source")
+            {
+                if (attributeHeader.DataSourceTable == "ApplicationMasterParent" || attributeHeader.DataSourceTable == "ApplicationMaster")
                 {
-                    IsRadioCheckBoxLayoutEnabled = true;
-                }
-                if (attributeHeader.ControlTypeId == 2712)
-                {
-                    data.ColSpan = 12;
-                }
-                if (attributeHeader.DataSourceTable == "Plant" && attributeHeader.ControlTypeId == 2702)
-                {
-                    isDataSource = true;
-                    _attributeHeaderDataSource = await Mediator.Send(new GetAttributeHeaderDataSource());
-                    if (_attributeHeaderDataSource != null && _attributeHeaderDataSource.Count > 0)
-                    {
-                        List<string?> dataSourceNotIn = new List<string?>() { "Plant", "DynamicGrid", "ApplicationMaster", "ApplicationMasterParent" };
-                        _attributeHeaderDataSource = _attributeHeaderDataSource.Where(w => !dataSourceNotIn.Contains(w.DataSourceTable)).ToList();
-                    }
-                }
-                else
-                {
-                    data.IsPlantLoadDependency = false;
-                }
-                if (attributeHeader.DataSourceTable == "ApplicationMaster")
-                {
-                    isApplicationMasterEnabled = true;
-                }
-                if (attributeHeader.DataSourceTable == "ApplicationMasterParent")
-                {
-                    isApplicationMasterParentEnabled = true;
-                }
-                if (attributeHeader.ControlTypeId == 2702 || attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2706 || attributeHeader.ControlTypeId == 2708 || attributeHeader.ControlTypeId == 2709)
-                {
-                    if (attributeHeader.ControlTypeId == 2703 || attributeHeader.ControlTypeId == 2709 || attributeHeader.DataSourceTable == "Employee" || attributeHeader.DataSourceTable == "Plant")
-                    {
-                        IsSetDefaultValueEnabled = true;
-                    }
-                }
-                if (attributeHeader.ControlTypeId == 2702 && attributeHeader.DropDownTypeId == "Data Source" && attributeHeader.DataSourceTable == "ApplicationMasterParent")
-                {
+                    //data.GridDropDownDynamicFormID = null;
                     IsDynamicFormGridDropdownEnabled = true;
                 }
             }
         }
+
         StateHasChanged();
     }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
@@ -744,7 +810,7 @@
         var IsRadioLayout = editModel.ControlTypeId == 2705 || editModel.ControlTypeId == 2711 ? (string.IsNullOrEmpty(editModel.RadioLayout) ? null : editModel.RadioLayout) : null;
         var IsColSpan = editModel.ControlTypeId == 2712 ? 12 : editModel.ColSpan;
         string? IsRadioCheckRemarks = null; string? RemarksLabelName = null;
-        bool _isSetDefaultValue = false; bool _isDefaultReadOnly = false; bool IsDynamicFormGridDropdownEnabledd = false; long? GridDropDownDynamicFormIDs = null;
+        bool _isSetDefaultValue = false; bool _isDefaultReadOnly = false; bool IsDynamicFormGridDropdownEnabledd = false; long? GridDropDownDynamicFormIDs = null; bool isDynamicFormGridDropdownMultiple = false;
         if (editModel.ControlTypeId == 2705 || editModel.ControlTypeId == 2711 || editModel.ControlTypeId == 2710)
         {
             RemarksLabelName = editModel.RemarksLabelName;
@@ -773,10 +839,14 @@
             applicationMasterId = editModel.ApplicationMasterId;
             applicationMasterIdsListIds = editModel.ApplicationMasterIdsListIds;
         }
-        if (editModel.ControlTypeId == 2702 && editModel.DropDownTypeId == "Data Source" && editModel.DataSourceTable == "ApplicationMasterParent" && editModel.IsDynamicFormGridDropdown == true)
+        if (editModel.ControlTypeId == 2702 && editModel.DropDownTypeId == "Data Source" && editModel.IsDynamicFormGridDropdown == true && editModel.GridDropDownDynamicFormID > 0)
         {
-            IsDynamicFormGridDropdownEnabledd = editModel.IsDynamicFormGridDropdown == true ? true : false;
-            GridDropDownDynamicFormIDs = IsDynamicFormGridDropdownEnabledd == true ? editModel.GridDropDownDynamicFormID : null;
+            if (editModel.DataSourceTable == "ApplicationMaster" || editModel.DataSourceTable == "ApplicationMasterParent")
+            {
+                IsDynamicFormGridDropdownEnabledd = editModel.IsDynamicFormGridDropdown == true ? true : false;
+                GridDropDownDynamicFormIDs = IsDynamicFormGridDropdownEnabledd == true ? editModel.GridDropDownDynamicFormID : null;
+                isDynamicFormGridDropdownMultiple = editModel.IsDynamicFormGridDropdownMultiple == true ? true : false;
+            }
         }
         if (e.IsNew)
         {
@@ -814,6 +884,7 @@
                     IsDependencyMultiple = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.IsDependencyMultiple : false,
                     GridDropDownDynamicFormID = GridDropDownDynamicFormIDs,
                     IsDynamicFormGridDropdown = IsDynamicFormGridDropdownEnabledd,
+                    IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
                 };
 
             try
@@ -870,6 +941,7 @@
                     IsDependencyMultiple = editModel.ControlTypeId == 2702 && editModel.DataSourceTable == "Plant" && editModel.IsPlantLoadDependency == true ? editModel.IsDependencyMultiple : false,
                     GridDropDownDynamicFormID = GridDropDownDynamicFormIDs,
                     IsDynamicFormGridDropdown = IsDynamicFormGridDropdownEnabledd,
+                    IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
 
                 };
             var ans = await Mediator.Send(UpdateReq);

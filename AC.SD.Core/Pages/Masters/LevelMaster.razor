@@ -98,21 +98,25 @@
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"                             
-                            TextFieldName="PlantCode"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="PlantCode"
                             ValueFieldName="PlantID"
                             Enabled = "@isEnabled"
-                            @bind-Value="@plant.CompanyID"
-                            SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
+                            Value="@CurrentPlant"
+                                ValueExpression="@(() => CurrentPlant )"
+                                ValueChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect,plant))"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                    <DxSpinEdit @bind-Value="@plant.CompanyID" ShowValidationIcon="true" style="display:none;" />
                 <ValidationMessage For="@(() => plant.CompanyID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
                 <DxComboBox Data="@_divisionsItems"
                             NullText="Select Division..."
                             Enabled="@isEnabled"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="DivisionDrop"
                             ValueFieldName="DivisionID"
                             @bind-Value="@plant.DivisionID">
@@ -126,7 +130,8 @@
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
                            @bind-Text="@Text"
@@ -172,6 +177,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    ViewPlants CurrentPlant { get; set; }
     string companyName = "";
     string divisionName ="";
     string  departmentName ="";
@@ -207,6 +213,7 @@
     private ViewPlants _selectplant;
     protected override async Task OnInitializedAsync()
     {
+        CurrentPlant = null;
         //await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
         _divisions = await Mediator.Send(new GetAllDivisionQuery());
@@ -250,25 +257,29 @@
         if (_levelItems.Count > 0)
         {
             _selectedItems = _levelItems.FirstOrDefault();
-           
-                EditEnabled = true;
-                DeleteEnabled = true;
-                StateHasChanged();
-            
+
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+
 
         }
         // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
     }
-    void SelectedItemChanged(long? plantID)
+    void SelectedItemChanged(ViewPlants plantID,ViewLevel viewLevel)
     {
+        CurrentPlant = null; viewLevel.CompanyID = null;
         if (plantID != null)
         {
-            _divisionsItems = _divisions.Where(w => w.CompanyId == plantID).ToList();
+            CurrentPlant = plantID;
+            viewLevel.CompanyID = plantID.PlantID;
+            _divisionsItems = _divisions.Where(w => w.CompanyId == plantID.PlantID).ToList();
         }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        CurrentPlant = null;
         _divisionsItems = new List<ViewDivision>();
         if (e.IsNew)
         {
@@ -286,7 +297,8 @@
                     newData.CompanyID = _masters.CompanyID;
                     newData.DivisionID =_masters.DivisionID;
                     // newData.DivisionID = _masters.DivisionID;
-                    SelectedItemChanged(_masters.CompanyID);
+                    CurrentPlant = _plantItems != null && newData.CompanyID > 0 ? _plantItems.FirstOrDefault(f => f.PlantID == _masters.CompanyID) : null;
+                    SelectedItemChanged(CurrentPlant, _masters);
                 }
             }
 
@@ -294,7 +306,8 @@
         else
         {
             var newData = (ViewLevel)e.EditModel;
-            SelectedItemChanged(newData.CompanyID);
+            CurrentPlant = _plantItems != null && newData.CompanyID > 0 ? _plantItems.FirstOrDefault(f => f.PlantID == newData.CompanyID) : null;
+            SelectedItemChanged(CurrentPlant, newData);
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)

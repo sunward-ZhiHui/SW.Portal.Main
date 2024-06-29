@@ -61,7 +61,8 @@
                     <DxFormLayoutItem Caption="Company:" ColSpanMd="4">
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."                                
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     ListRenderMode="ListRenderMode.Virtual"
                                     TextFieldName="Description"
                                     ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
@@ -76,7 +77,8 @@
                     <DxFormLayoutItem Caption="Transaction Type:" ColSpanMd="4">
                         <DxComboBox Data="@_TransactionType"
                                     NullText="Select TransactionType..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     ListRenderMode="ListRenderMode.Virtual"
                                     TextFieldName="CodeValue"
                                     ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto

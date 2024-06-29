@@ -56,13 +56,13 @@
                             <div>
                                 <div class="views-accordion">
                                     <DxTreeView Data="@_applicationMasterChildSectionItems"
-                                            @bind-FilterString="SectionFilterString"
-                                            FilterMinLength="2"
-                                            ShowFilterPanel="true"
-                                            FilterMode="SectionFilterMode"
-                                            AllowSelectNodes="@allowSelectNode"
-                                            LoadChildNodesOnDemand=false
-                                            SelectionChanged="@SectionSelectionChanged" AnimationType="LayoutAnimationType.Slide">
+                                                @bind-FilterString="SectionFilterString"
+                                                FilterMinLength="2"
+                                                ShowFilterPanel="true"
+                                                FilterMode="SectionFilterMode"
+                                                AllowSelectNodes="@allowSelectNode"
+                                                LoadChildNodesOnDemand=false
+                                                SelectionChanged="@SectionSelectionChanged" AnimationType="LayoutAnimationType.Slide">
                                         <DataMappings>
                                             <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
                                         </DataMappings>
@@ -84,8 +84,8 @@
                                     <div class="card w-100" style="margin-bottom:10px;">
                                         <div class="card-body p-0">
                                             <DxMenu CollapseItemsToHamburgerMenu="true"
-                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                                DisplayMode="MenuDisplayMode.Desktop">
+                                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                                    DisplayMode="MenuDisplayMode.Desktop">
                                                 <Items>
                                                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                                                     <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
@@ -98,29 +98,29 @@
                                     </div>
 
                                     <DxGrid @ref="Grid"
-                                        Data="_assetCatalogMasters"
-                                        KeyFieldName="AssetCatalogMasterId"
-                                        EditModelSaving="Grid_EditModelSaving"
-                                        DataItemDeleting="Grid_DataItemDeleting"
-                                        CustomizeEditModel="Grid_CustomizeEditModel"
-                                        CustomizeElement="Grid_CustomizeElement"
-                                        ShowSearchBox="true"
-                                        PagerNavigationMode="PagerNavigationMode.InputBox"
-                                        PageSizeSelectorVisible="true"
-                                        PageSizeSelectorAllRowsItemVisible="true"
-                                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                        PageSize="20"
-                                        SelectionMode="GridSelectionMode.Multiple"
-                                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                                        AutoExpandAllGroupRows="true"
-                                        CssClass="ch-360"
+                                            Data="_assetCatalogMasters"
+                                            KeyFieldName="AssetCatalogMasterId"
+                                            EditModelSaving="Grid_EditModelSaving"
+                                            DataItemDeleting="Grid_DataItemDeleting"
+                                            CustomizeEditModel="Grid_CustomizeEditModel"
+                                            CustomizeElement="Grid_CustomizeElement"
+                                            ShowSearchBox="true"
+                                            PagerNavigationMode="PagerNavigationMode.InputBox"
+                                            PageSizeSelectorVisible="true"
+                                            PageSizeSelectorAllRowsItemVisible="true"
+                                            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                            PageSize="20"
+                                            SelectionMode="GridSelectionMode.Multiple"
+                                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                            AutoExpandAllGroupRows="true"
+                                            CssClass="ch-360"
                                             VirtualScrollingEnabled="true"
-                                        FocusedRowEnabled="true"
-                                        RowDoubleClick="OnRowDoubleClick"
-                                        SelectedDataItemsChanged="@SelectedDataItemsChanged"
-                                        RowClick="OnRowClick"
+                                            FocusedRowEnabled="true"
+                                            RowDoubleClick="OnRowDoubleClick"
+                                            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                                            RowClick="OnRowClick"
                                             style="height: calc(100vh - 220px);"
-                                        AllowSelectRowByClick="true">
+                                            AllowSelectRowByClick="true">
                                         <Columns>
                                             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
                                             <DxGridDataColumn FieldName="AssetCatalogMasterId" MinWidth="80" Visible="false" />
@@ -148,12 +148,13 @@
                                             <DxFormLayout CssClass="w-100">
                                                 <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                                                     <DxComboBox Data="@_plantItems"
-                                                            NullText="Select Company..."
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="PlantCode"
-                                                            ValueFieldName="PlantID"
-                                                            @bind-Value="@plant.CompanyId"
-                                                            ShowValidationIcon="true">
+                                                                NullText="Select Company..."
+                                                                SearchMode="ListSearchMode.AutoSearch"
+                                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                TextFieldName="PlantCode"
+                                                                ValueFieldName="PlantID"
+                                                                @bind-Value="@plant.CompanyId"
+                                                                ShowValidationIcon="true">
                                                     </DxComboBox>
                                                     <ValidationMessage For="@(() => plant.CompanyId)" />
                                                 </DxFormLayoutItem>
@@ -162,22 +163,24 @@
                                                 </DxFormLayoutItem>
                                                 <DxFormLayoutItem Caption="Asset Model" ColSpanMd="6">
                                                     <DxComboBox Data="@_assetModelItems"
-                                                            NullText="Select Model..."
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="Value"
-                                                            ValueFieldName="ApplicationMasterDetailID"
-                                                            @bind-Value="@plant.AssetModelId" />
+                                                                NullText="Select Model..."
+                                                                SearchMode="ListSearchMode.AutoSearch"
+                                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                TextFieldName="Value"
+                                                                ValueFieldName="ApplicationMasterDetailID"
+                                                                @bind-Value="@plant.AssetModelId" />
                                                 </DxFormLayoutItem>
                                                 <DxFormLayoutItem Caption="Model No" ColSpanMd="6">
                                                     <DxTextBox @bind-Text="@plant.ModelNo" />
                                                 </DxFormLayoutItem>
                                                 <DxFormLayoutItem Caption="Asset Uom" ColSpanMd="6">
                                                     <DxComboBox Data="@_assetUomItems"
-                                                            NullText="Select Uom..."
-                                                            FilteringMode="DataGridFilteringMode.Contains"
-                                                            TextFieldName="Value"
-                                                            ValueFieldName="ApplicationMasterDetailID"
-                                                            @bind-Value="@plant.AssetUomid" />
+                                                                NullText="Select Uom..."
+                                                                SearchMode="ListSearchMode.AutoSearch"
+                                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                TextFieldName="Value"
+                                                                ValueFieldName="ApplicationMasterDetailID"
+                                                                @bind-Value="@plant.AssetUomid" />
                                                 </DxFormLayoutItem>
                                                 <DxFormLayoutItem Caption="Finanace Fix AssetNo" ColSpanMd="6">
                                                     <DxTextBox @bind-Text="@plant.FinanaceFixAssetNo" />
@@ -201,15 +204,15 @@
             </div>
         </div>
         @*<div class="row">
-            <div class="menu-bar-content-container first-border col-md-2" style="height: calc(100vh - 136px);">
-              
-            </div>
-            <div class="menu-bar-content-container sec-border col-md-2">
-               
-            </div>
-            <div class="menu-bar-content-container col-md-8">
-               
-            </div>
+        <div class="menu-bar-content-container first-border col-md-2" style="height: calc(100vh - 136px);">
+
+        </div>
+        <div class="menu-bar-content-container sec-border col-md-2">
+
+        </div>
+        <div class="menu-bar-content-container col-md-8">
+
+        </div>
         </div>*@
     </div>
 </div>
@@ -372,13 +375,13 @@
     private async Task SectionSelectionChanged(TreeViewNodeEventArgs e)
     {
         disabledSectionState = false;
-        if(e.NodeInfo == null)
+        if (e.NodeInfo == null)
         {
             disabledSectionState = true;
             _applicationMasterChildChildSelectItems = new ApplicationMasterChildModel();
-            await UpdateDataAsync();            
+            await UpdateDataAsync();
         }
-        else 
+        else
         {
             var list = (ApplicationMasterChildModel)e.NodeInfo.DataItem;
             if (list.ApplicationMasterParentId == 115)
@@ -387,7 +390,7 @@
                 _applicationMasterChildChildSelectItems = list;
                 await UpdateDataAsync();
             }
-           
+
         }
     }
     async Task UpdateDataAsync()
@@ -438,7 +441,7 @@
                     AssetGroupingId = _applicationMasterChildListItems.FirstOrDefault(f => f.ApplicationMasterChildId == _applicationMasterChildSelectItems.ParentId)?.ParentId,
                     AssetTypeId = _applicationMasterChildSelectItems.ParentId,
                     AssetCategoryId = _applicationMasterChildSelectItems.ApplicationMasterChildId,
-                    AssetCatalogNo= editablePlant.AssetCatalogNo,
+                    AssetCatalogNo = editablePlant.AssetCatalogNo,
                 };
             await Mediator.Send(request);
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);

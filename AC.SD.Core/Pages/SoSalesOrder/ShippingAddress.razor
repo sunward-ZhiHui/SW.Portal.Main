@@ -110,15 +110,18 @@
                 <DxFormLayoutItem Caption="Country" ColSpanMd="6">
                     <DxComboBox Data="@_countryListItems"
                                 NullText="Select Country..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterChildId"
                                 Enabled="@isEnabled"
-                                @bind-Value="@dataItems.CountryID"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedCountryItemChanged(applicationMasterChildModel))"
+                                Value="@CurrentCountry"
+                                ValueExpression="@(() => CurrentCountry )"
+                                ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedCountryItemChanged(applicationMasterChildModel,dataItems))"
                                 ShowValidationIcon="true">
                     </DxComboBox>
+                    <DxSpinEdit @bind-Value="@dataItems.CountryID" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => dataItems.CountryID)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Address2:" ColSpanMd="6">
@@ -128,13 +131,16 @@
                     <DxComboBox Data="@_stateListItems"
                                 NullText="Select State..."
                                 Enabled="@isEnabled"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterChildId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@dataItems.StateID"
-                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedStateItemChanged(applicationMasterChildModel))">
+                                Value="@CurrentState"
+                                ValueExpression="@(() => CurrentState )"
+                                ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedStateItemChanged(applicationMasterChildModel,dataItems))">
                     </DxComboBox>
+                    <DxSpinEdit @bind-Value="@dataItems.StateID" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => dataItems.StateID)" />
                 </DxFormLayoutItem>
 
@@ -155,7 +161,8 @@
                     <DxComboBox Data="@_cityListItems"
                                 NullText="Select City..."
                                 Enabled="@isEnabled"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterChildId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -190,6 +197,8 @@
 </DxPopup>
 
 @code {
+    ApplicationMasterChildModel CurrentCountry { get; set; }
+    ApplicationMasterChildModel CurrentState { get; set; }
     [Parameter]
     public long? SoCustomerId { get; set; }
     bool PanelVisible { get; set; }
@@ -225,39 +234,47 @@
     private List<ApplicationMasterChildModel> _stateListItems;
     private List<ApplicationMasterChildModel> _cityListItems;
 
-    async void SelectedCountryItemChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    async Task SelectedCountryItemChanged(ApplicationMasterChildModel applicationMasterChildModel, view_SoCustomerAddress view_SoCustomerAddress)
     {
+
+        CurrentCountry = null;
+        view_SoCustomerAddress.CountryID = null; CurrentState = null; view_SoCustomerAddress.StateID = null; view_SoCustomerAddress.CityID = null;
+        _cityListItems = new List<ApplicationMasterChildModel>(); _stateListItems = new List<ApplicationMasterChildModel>();
+
         if (applicationMasterChildModel != null)
         {
-            CountryChanged(applicationMasterChildModel.ApplicationMasterChildId);
-            //_stateListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
+            CurrentCountry = applicationMasterChildModel;
+            view_SoCustomerAddress.CountryID = applicationMasterChildModel.ApplicationMasterChildId;
+            await CountryChanged(applicationMasterChildModel.ApplicationMasterChildId,null);
         }
-        else
-        {
-            CountryChanged(-1);
-            StateChange(-1);
-        }
+
     }
-    async void CountryChanged(long? ApplicationMasterChildId)
+    async Task CountryChanged(long? ApplicationMasterChildId,long? StateId)
     {
         if (ApplicationMasterChildId != null)
         {
             _stateListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+            if (StateId > 0)
+            {
+                CurrentState = _stateListItems != null && StateId > 0 ? _stateListItems.FirstOrDefault(f => f.ApplicationMasterChildId == StateId) : null;
+            }
         }
     }
-    async void SelectedStateItemChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    async Task SelectedStateItemChanged(ApplicationMasterChildModel applicationMasterChildModel, view_SoCustomerAddress view_SoCustomerAddress)
     {
+
+        CurrentState = null; _cityListItems = new List<ApplicationMasterChildModel>();
+        view_SoCustomerAddress.StateID = null; view_SoCustomerAddress.CityID = null;
+
         if (applicationMasterChildModel != null)
         {
-            // _cityListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
-            StateChange(applicationMasterChildModel.ApplicationMasterChildId);
+            CurrentState = applicationMasterChildModel;
+            view_SoCustomerAddress.StateID = applicationMasterChildModel.ApplicationMasterChildId;
+           await StateChange(applicationMasterChildModel.ApplicationMasterChildId);
         }
-        else
-        {
-            StateChange(-1);
-        }
+
     }
-    async void StateChange(long? ApplicationMasterChildID)
+    async Task StateChange(long? ApplicationMasterChildID)
     {
         if (ApplicationMasterChildID != null)
         {
@@ -265,9 +282,6 @@
         }
 
     }
-
-
-
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
@@ -292,19 +306,23 @@
         }
         PanelVisible = false;
     }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        CurrentCountry = null; CurrentState = null;
+        _stateListItems = new List<ApplicationMasterChildModel>(); _cityListItems = new List<ApplicationMasterChildModel>();
         if (e.IsNew)
         {
-
+            var editModel = (view_SoCustomerAddress)e.EditModel;
+            editModel.StateID = null; editModel.CountryID = null;
+            editModel.CityID = null;
         }
         else
         {
             var editModel = (view_SoCustomerAddress)e.EditModel;
-            // SelectedCountryItemChanged(editModel.CountryID);
-            CountryChanged(editModel.CountryID);
-            //SelectedStateItemChanged(editModel.StateID);
-            StateChange(editModel.StateID);
+            CurrentCountry = _countryListItems != null && editModel.CountryID > 0 ? _countryListItems.FirstOrDefault(f => f.ApplicationMasterChildId == editModel.CountryID) : null;
+            await CountryChanged(editModel.CountryID, editModel.StateID);
+            await StateChange(editModel.StateID);
+            StateHasChanged();
         }
     }
     async Task UpdateDataAsync()

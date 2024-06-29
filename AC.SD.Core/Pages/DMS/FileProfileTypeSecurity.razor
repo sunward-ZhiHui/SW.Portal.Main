@@ -26,11 +26,13 @@
                                 <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
                                     <DxComboBox Data="@_documentRoleList"
                                                 NullText="Select User Role..."
-                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                                 TextFieldName="DocumentRoleName"
                                                 ValueFieldName="DocumentRoleId"
-                                    @bind-Value="@Data.RoleID"
-                                                SelectedItemChanged="@((DocumentRole depSelect) => SelectedItemRoleChanged(depSelect))"
+                                                Value="@CurrentUserRole"
+                                                ValueExpression="@(() => CurrentUserRole )"
+                                                ValueChanged="@((DocumentRole depSelect) => SelectedItemRoleChanged(depSelect))"
                                                 ShowValidationIcon="true">
                                         <Buttons>
                                             <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-User")
@@ -38,16 +40,18 @@
                                                             Click="@(_ => OnButtonClick())" />
                                         </Buttons>
                                     </DxComboBox>
+                                    <DxSpinEdit @bind-Value="@Data.RoleID" ShowValidationIcon="true" style="display:none;" />
                                     <ValidationMessage For="@(() => Data.RoleID)" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Users" ColSpanMd="7">
                                     <DxTagBox Data="_usersList"
-                                    @bind-Values="Data.SelectUserIDs"
+                                              @bind-Values="Data.SelectUserIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserID"
                                               TextFieldName="FirstName"
-                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               EditFormat="{0}-{1}-{3}"
                                               SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
@@ -80,11 +84,13 @@
                                 <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
                                     <DxComboBox Data="@_documentRoleList"
                                                 NullText="Select User Role..."
-                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                                 TextFieldName="DocumentRoleName"
                                                 ValueFieldName="DocumentRoleId"
-                                    @bind-Value="@Data.UserGroupRoleID"
-                                                SelectedItemChanged="@((DocumentRole depSelect) => SelectedItemRoleChanged(depSelect))"
+                                                Value="@CurrentUserGroupRole"
+                                                ValueExpression="@(() => CurrentUserGroupRole )"
+                                                SelectedItemChanged="@((DocumentRole depSelect) => SelectedItemUserGroupRoleChanged(depSelect))"
                                                 ShowValidationIcon="true">
                                         <Buttons>
                                             <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-UserGroup")
@@ -92,15 +98,18 @@
                                                             Click="@(_ => OnUserGroupButtonClick())"></DxEditorButton>
                                         </Buttons>
                                     </DxComboBox>
+                                    <DxSpinEdit @bind-Value="@Data.UserGroupRoleID" ShowValidationIcon="true" style="display:none;" />
                                     <ValidationMessage For="@(() => Data.UserGroupRoleID)" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="User Group" ColSpanMd="7">
                                     <DxTagBox Data="_userGroupsList"
-                                    @bind-Values="Data.SelectUserGroupIDs"
+                                              @bind-Values="Data.SelectUserGroupIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserGroupId"
                                               TextFieldName="Name"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedUserGroupItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
@@ -146,11 +155,13 @@
                                 <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
                                     <DxComboBox Data="@_documentRoleList"
                                                 NullText="Select User Role..."
-                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                                 TextFieldName="DocumentRoleName"
                                                 ValueFieldName="DocumentRoleId"
-                                    @bind-Value="@Data.LevelRoleID"
-                                                SelectedItemChanged="@((DocumentRole depSelect) => SelectedItemRoleChanged(depSelect))"
+                                                Value="@CurrentUserLevelRole"
+                                                ValueExpression="@(() => CurrentUserLevelRole )"
+                                                SelectedItemChanged="@((DocumentRole depSelect) => SelectedItemLevelRoleChanged(depSelect))"
                                                 ShowValidationIcon="true">
                                         <Buttons>
                                             <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-Level")
@@ -158,11 +169,12 @@
                                                             Click="@(_ => OnLevelButtonClick())" />
                                         </Buttons>
                                     </DxComboBox>
+                                    <DxSpinEdit @bind-Value="@Data.LevelRoleID" ShowValidationIcon="true" style="display:none;" />
                                     <ValidationMessage For="@(() => Data.LevelRoleID)" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
                                     <DxTagBox Data="_levelMasterLists"
-                                    @bind-Values="Data.SelectLevelMasterIDs"
+                                              @bind-Values="Data.SelectLevelMasterIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="LevelID"
@@ -326,7 +338,7 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeFilterDocView"
-                @bind-FilterString="FilterDocumentString"
+                            @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
                             Data="@fileProfileTypeDocuments"
@@ -341,7 +353,6 @@
                                                Key="DocumentID"
                                                ParentKey="ParentId"
                                                IconCssClass="IconCssClass"
-                                               
                                                Checked="Checked" />
                     </DataMappings>
                 </DxTreeView>
@@ -351,6 +362,9 @@
     </BodyContentTemplate>
 </DxFlyout>
 @code {
+    DocumentRole CurrentUserRole { get; set; }
+    DocumentRole CurrentUserGroupRole { get; set; }
+    DocumentRole CurrentUserLevelRole { get; set; }
     EditContext _editContext;
     string? LinkFilterFileprofiletypeName { get; set; } = string.Empty;
     private DocumentUserRoleLists? refDocumentUserRoleListsUser;
@@ -388,8 +402,11 @@
         _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
         Data.Type = "User";
-        Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
-        Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+        //Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+        //Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+        CurrentUserRole = null;
+        CurrentUserGroupRole = null;
+        CurrentUserLevelRole = null;
         fileProfileTypeDocuments = GetChild(FileProfileTypeId).ToList();
     }
     protected void SelectionChanged(TreeViewNodeEventArgs e)
@@ -535,8 +552,34 @@
     }
     async Task SelectedItemRoleChanged(DocumentRole documentRole)
     {
+        CurrentUserRole = null;
+        Data.RoleID = null;
         if (documentRole != null && documentRole.DocumentRoleId > 0)
         {
+            CurrentUserRole = documentRole;
+            Data.RoleID = documentRole.DocumentRoleId;
+            await OnSelectRoleItems(documentRole.DocumentRoleId, "Yes");
+        }
+    }
+    async Task SelectedItemUserGroupRoleChanged(DocumentRole documentRole)
+    {
+        CurrentUserGroupRole = null;
+        Data.UserGroupRoleID = null;
+        if (documentRole != null && documentRole.DocumentRoleId > 0)
+        {
+            CurrentUserGroupRole = documentRole;
+            Data.UserGroupRoleID = documentRole.DocumentRoleId;
+            await OnSelectRoleItems(documentRole.DocumentRoleId, "Yes");
+        }
+    }
+    async Task SelectedItemLevelRoleChanged(DocumentRole documentRole)
+    {
+        CurrentUserLevelRole = null;
+        Data.LevelRoleID = null;
+        if (documentRole != null && documentRole.DocumentRoleId > 0)
+        {
+            CurrentUserGroupRole = documentRole;
+            Data.LevelRoleID = documentRole.DocumentRoleId;
             await OnSelectRoleItems(documentRole.DocumentRoleId, "Yes");
         }
     }

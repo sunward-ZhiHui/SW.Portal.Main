@@ -144,7 +144,6 @@
                                     ValueFieldName="SoCustomerId"
                                     EditFormat="{0}-{1}"
                                     Value="@CurrentCustomer"
-                                    AllowUserInput ="true"
                                     ValueExpression="@(() => CurrentCustomer )"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true"
@@ -325,10 +324,11 @@
 
     void SelectedItemChanged(SoCustomer soCustomer)
     {
-        CurrentCustomer = soCustomer;
+        CurrentCustomer = null;
 
         if (soCustomer != null)
         {
+            CurrentCustomer = soCustomer;
             Data.SoCustomerId = soCustomer.SoCustomerId;
             Data.ShipCode = soCustomer.ShipCode;
             Data.AssignToRep = soCustomer.AssignToRep;

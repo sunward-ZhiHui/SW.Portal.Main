@@ -108,13 +108,16 @@
                         <DxComboBox Data="@_AllNavitems"
                                     NullText="Select Item No..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.StartsWith"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="No"
                                     ValueFieldName="ItemId"
                                     EditFormat="{0}-{1}-{2}"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@types.ItemId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                                    ShowValidationIcon="true"
+                                    Value="@CurrentItem"
+                                    ValueExpression="@(() => CurrentItem )"
+                                    ValueChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems,types))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                     Caption="Item No"
@@ -137,13 +140,16 @@
                         <DxComboBox Data="@_AllNavitems"
                                     NullText="Select Item No..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.StartsWith"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="No"
                                     ValueFieldName="ItemId"
                                     EditFormat="{0}-{1}-{2}"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@types.ItemId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                                    ShowValidationIcon="true"
+                                    Value="@CurrentItem"
+                                    ValueExpression="@(() => CurrentItem )"
+                                    ValueChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems,types))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                     Caption="Item No"
@@ -157,6 +163,7 @@
 
                         </DxComboBox>
                     }
+                    <DxSpinEdit @bind-Value="@types.ItemId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.ItemId)" />
                 </DxFormLayoutItem>
 
@@ -173,20 +180,25 @@
                 <DxFormLayoutItem Caption="Selling Method" ColSpanMd="3">
                     <DxComboBox Data="@_viewSellingMethodItems"
                                 NullText="Select Selling Method..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
-                    @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
+                                @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.SellingMethodId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="SM Allow Price" ColSpanMd="3" Visible="@SMAddEnabled">
                     <DxComboBox Data="@_viewSalesPricingAllowItems"
                                 NullText="Select Sales Pricing For..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
-                    @bind-Value="@types.SmAllowPriceId" ShowValidationIcon="true"
-                                SelectedItemChanged="@((View_ApplicationMasterDetail applicationMasterDetail) => SelectedAllowPriceChanged(applicationMasterDetail))" />
+                                ShowValidationIcon="true"
+                                Value="@CurrentSmAllowPrice"
+                                ValueExpression="@(() => CurrentSmAllowPrice )"
+                                ValueChanged="@((View_ApplicationMasterDetail applicationMasterDetail) => SelectedAllowPriceChanged(applicationMasterDetail,types))" />
+                    <DxSpinEdit @bind-Value="@types.SmAllowPriceId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.SmAllowPriceId)" />
                 </DxFormLayoutItem>
                 @if (isAllowNewPrice)
@@ -276,6 +288,8 @@
 </DxPopup>
 
 @code {
+    View_NavItems CurrentItem { get; set; }
+    View_ApplicationMasterDetail CurrentSmAllowPrice { get; set; }
     // [Parameter]
     public long? SalesOrderMasterPricingId { get; set; }
     // [Parameter]
@@ -324,17 +338,23 @@
     private View_SalesOrderMasterPricingLine _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
 
-    void SelectedAllowPriceChanged(View_ApplicationMasterDetail applicationMasterDetail)
+    void SelectedAllowPriceChanged(View_ApplicationMasterDetail applicationMasterDetail, View_SalesOrderMasterPricingLine view_SalesOrderMasterPricingLine)
     {
-        if (applicationMasterDetail.Value == "New")
+        CurrentSmAllowPrice = null;
+        view_SalesOrderMasterPricingLine.SmAllowPriceId = null;
+        if (applicationMasterDetail != null)
         {
-            isAllowNewPrice = true;
+            CurrentSmAllowPrice = applicationMasterDetail;
+            view_SalesOrderMasterPricingLine.SmAllowPriceId = applicationMasterDetail.ApplicationMasterDetailID;
+            if (applicationMasterDetail.Value == "New")
+            {
+                isAllowNewPrice = true;
+            }
+            else
+            {
+                isAllowNewPrice = false;
+            }
         }
-        else
-        {
-            isAllowNewPrice = false;
-        }
-
     }
     void OnButtonClick()
     {
@@ -352,10 +372,14 @@
             StateHasChanged();
         }
     }
-    async Task SelectedItemChanged(View_NavItems navitems)
+    async Task SelectedItemChanged(View_NavItems navitems, View_SalesOrderMasterPricingLine view_SalesOrderMasterPricingLine)
     {
+        CurrentItem = null;
+        view_SalesOrderMasterPricingLine.ItemId = null;
         if (navitems != null)
         {
+            CurrentItem = navitems;
+            view_SalesOrderMasterPricingLine.ItemId = navitems.ItemId;
             //No = navitems.No;
             Description = navitems.Description;
             //Description2 = navitems.Description2;
@@ -413,6 +437,7 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        CurrentItem = null; CurrentSmAllowPrice = null;
         var navitems = (View_SalesOrderMasterPricingLine)e.EditModel;
         if (e.IsNew)
         {
@@ -427,6 +452,8 @@
             Description = navitems.Description;
             //Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
+            CurrentItem = _AllNavitems != null && navitems.ItemId > 0 ? _AllNavitems.FirstOrDefault(f => f.ItemId == navitems.ItemId) : null;
+            CurrentSmAllowPrice = _viewSalesPricingAllowItems != null && navitems.SmAllowPriceId > 0 ? _viewSalesPricingAllowItems.FirstOrDefault(f => f.ApplicationMasterDetailID == navitems.SmAllowPriceId) : null;
             await loadDropDownData(navitems.ItemId);
         }
     }

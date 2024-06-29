@@ -99,7 +99,8 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
                                     Enabled="false"
@@ -130,13 +131,18 @@
                         <DxComboBox Data="@_AllSoCustomer"
                                     NullText="Select Customer..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.StartsWith"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="CustomerName"
                                     ValueFieldName="SoCustomerId"
                                     Enabled="true"
                                     EditFormat="{0}-{1}"
-                        @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
+                                    Value="@CurrentCustomer"
+                                    ValueExpression="@(() => CurrentCustomer )"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ShowValidationIcon="true"
                                     SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">
+                            
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
                                                     Caption="Customer Name"
@@ -288,7 +294,7 @@
     bool IsCustomerOpen { get; set; } = false;
     SoCustomer soCustomer1 = new SoCustomer();
     SoSalesOrder Data = new SoSalesOrder();
-
+    SoCustomer CurrentCustomer { get; set; }
     //  ViewSoSalesOrder Data = new ViewSoSalesOrder();
     View_SoSalesOrder _salesOrderItem = new View_SoSalesOrder();
 
@@ -335,6 +341,7 @@
                     if (soCustomers != null)
                     {
                         soCustomer1 = soCustomers;
+                        CurrentCustomer = soCustomers;
                     }
                 }
                 await RefSalesOrderLine.loadData(_salesOrderItem);
@@ -348,8 +355,11 @@
     }
     void SelectedItemChanged(SoCustomer soCustomer)
     {
+        CurrentCustomer = null;
         if (soCustomer != null)
         {
+            CurrentCustomer = soCustomer;
+            Data.SoCustomerId = soCustomer.SoCustomerId;
             Data.ShipCode = soCustomer.ShipCode;
             Data.AssignToRep = soCustomer.AssignToRep;
             Data.Address1 = soCustomer.Address1;
@@ -358,6 +368,7 @@
         else
         {
             soCustomer1 = new SoCustomer();
+            Data.SoCustomerId = null;
             Data.ShipCode = "";
             Data.AssignToRep = "";
             Data.Address1 = "";

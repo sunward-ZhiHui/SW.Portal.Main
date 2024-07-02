@@ -67,9 +67,9 @@
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="NavCompany"
                                     ValueFieldName="PlantID"
-                                    Value="@CurrentPlant"
-                                    ValueExpression="@(() => CurrentPlant )"
-                                    ValueChanged="@((ViewPlants plantData) => SelectedPlantChanged(plantData))"
+                                    Value="@Data.CompanyId"
+                                    ValueExpression="@(() => Data.CompanyId )"
+                                    ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true">
                             <Columns>
@@ -82,7 +82,6 @@
                                                     Caption="Nav Company" />
                             </Columns>
                         </DxComboBox>
-                        <DxSpinEdit @bind-Value="@Data.CompanyId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.CompanyId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Profile" ColSpanMd="6">
@@ -93,9 +92,9 @@
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Name"
                                     ValueFieldName="ProfileID"
-                                    Value="@CurrentProfile"
-                                    ValueExpression="@(() => CurrentProfile )"
-                                    ValueChanged="@((DocumentProfileNoSeriesModel plantData) => SelectedProfileChanged(plantData))"
+                                    Value="@Data.ProfileId"
+                                    ValueExpression="@(() => Data.ProfileId )"
+                                    ValueChanged="@((long? plantData) => SelectedProfileChanged(plantData))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true">
                             <Columns>
@@ -110,16 +109,15 @@
                                                     Caption="Sample Document No" />
                             </Columns>
                         </DxComboBox>
-                        <DxSpinEdit @bind-Value="@Data.ProfileId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.ProfileId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Screen Name" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@Data.ScreenID"></DxTextBox>
+                        <DxTextBox @bind-Text="@Data.ScreenID" ShowValidationIcon="true"></DxTextBox>
 
                         <ValidationMessage For="@(() => Data.ScreenID)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Form Name" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@Data.Name"></DxTextBox>
+                        <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true"></DxTextBox>
                         <ValidationMessage For="@(() => Data.Name)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Approval Level" ColSpanMd="6">
@@ -212,8 +210,6 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
-    ViewPlants CurrentPlant { get; set; }
-    DocumentProfileNoSeriesModel CurrentProfile { get; set; }
     private IDisposable? DynamicFormPage7;
     bool EditEnabled { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
@@ -272,24 +268,20 @@
         return ValueTask.CompletedTask;
     }
 
-    void SelectedPlantChanged(ViewPlants country)
+    void SelectedPlantChanged(long? country)
     {
-        CurrentPlant = null;
         Data.CompanyId = null;
-        if (country != null)
+        if (country>0)
         {
-            CurrentPlant = country;
-            Data.CompanyId = country.PlantID;
+            Data.CompanyId = country;
         }
     }
-    void SelectedProfileChanged(DocumentProfileNoSeriesModel country)
+    void SelectedProfileChanged(long? country)
     {
-        CurrentProfile = null;
         Data.ProfileId = null;
-        if (country != null)
+        if (country>0)
         {
-            CurrentProfile = country;
-            Data.ProfileId = country.ProfileID;
+            Data.ProfileId = country;
         }
     }
     public void Dispose()
@@ -334,7 +326,7 @@
         Data.IsGridForm = false;
         Data.StatusCodeID = null; Data.CompanyId = null; Data.ProfileId = null;
         Data.IsApproval = false;
-        Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null; CurrentProfile = null; CurrentPlant = null;
+        Data.IsUpload = true; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
         if (SessionIds != null)
         {
             var dynamicFormData = await Mediator.Send(new GetDynamicFormBySession(SessionIds));
@@ -359,8 +351,6 @@
                 Data.CompanyId = dynamicFormData.CompanyId;
                 Data.ProfileId = dynamicFormData.ProfileId;
                 Data.IsGridForm = dynamicFormData.IsGridForm;
-                CurrentProfile = _documentProfileNoList != null ? _documentProfileNoList.FirstOrDefault(f => f.ProfileID == dynamicFormData.ProfileId) : null;
-                CurrentPlant = _plantItems != null ? _plantItems.FirstOrDefault(f => f.PlantID == dynamicFormData.CompanyId) : null;
                 if (Data.IsUpload == true && dynamicFormData.FileProfileTypeId > 0)
                 {
                     var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, dynamicFormData.FileProfileTypeId);

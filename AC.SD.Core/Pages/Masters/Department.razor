@@ -107,12 +107,11 @@
                                 TextFieldName="DivisionDrop"
                                 ValueFieldName="DivisionID"
                                 Enabled="@isEnabled"
-                                Value="@CurrentDivision"
-                                ValueExpression="@(() => CurrentDivision )"
-                                ValueChanged="@((ViewDivision plantSelect) => SelectedItemChanged(plantSelect,department))"
+                                Value="@department.DivisionId"
+                                ValueExpression="@(() => department.DivisionId )"
+                                ValueChanged="@((long? plantSelect) => SelectedItemChanged(plantSelect,department))"
                                 ShowValidationIcon="true">
                     </DxComboBox>
-                    <DxSpinEdit @bind-Value="@department.DivisionId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => department.DivisionId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Company" ColSpanMd="6">
@@ -195,7 +194,6 @@
 </DxPopup>
 
 @code {
-    ViewDivision CurrentDivision { get; set; }
     string plantcode = "";
     string Name = "";
     string Text { get; set; } = "Active";
@@ -231,7 +229,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        CurrentDivision = null;
         PanelVisible = true;
         // await jsRuntime.InvokeAsync<string>("showLoading");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
@@ -251,7 +248,6 @@
 
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        CurrentDivision = null;
         if (e.IsNew)
         {
             var newmaster = (ViewDepartment)e.EditModel;
@@ -273,7 +269,6 @@
                     isEnabled = false;
                     newmaster.DivisionId = _ictmasters.DivisionId;
                     companyName = _ictmasters.Company;
-                    CurrentDivision = _divisionsItems != null && _ictmasters.DivisionId > 0 ? _divisionsItems.FirstOrDefault(f => f.DivisionID == _ictmasters.DivisionId) : null;
                     // newmaster.Division = _selectdivision.DivisionDrop;
                     // SelectedItemChanged(_ictmasters.DivisionId);
                 }
@@ -282,7 +277,6 @@
         else
         {
             var dep = (ViewDepartment)e.DataItem;
-            CurrentDivision = _divisionsItems != null && dep.DivisionId > 0 ? _divisionsItems.FirstOrDefault(f => f.DivisionID == dep.DivisionId) : null;
             companyName = dep.Company;
             companyId = dep.CompanyId;
         }
@@ -321,15 +315,17 @@
         }
         //  await jsRuntime.InvokeAsync<string>("hideLoading");
     }
-    void SelectedItemChanged(ViewDivision plantID, ViewDepartment viewDepartment)
+    void SelectedItemChanged(long? divisionId, ViewDepartment viewDepartment)
     {
-        CurrentDivision = null;
-        if (plantID != null)
+        viewDepartment.DivisionId = divisionId;
+        var data = _divisionsItems != null && divisionId > 0 ? _divisionsItems.FirstOrDefault(f => f.DivisionID == divisionId) : null;
+        companyName = string.Empty;
+        companyId = null;
+        if (data != null)
         {
-            CurrentDivision = plantID;
-            viewDepartment.DivisionId = plantID.DivisionID;
-            companyName = plantID.PlantDescription;
-            companyId = plantID.CompanyId;
+            viewDepartment.DivisionId = data.DivisionID;
+            companyName = data.PlantDescription;
+            companyId = data.CompanyId;
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)

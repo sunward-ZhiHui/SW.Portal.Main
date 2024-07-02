@@ -148,9 +148,10 @@
                                 EditFormat="{0}-{1}"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 Enabled="isFormCountUsed"
-                                Value="@CurrentHeaderData"
-                                ValueExpression="@(() => CurrentHeaderData )"
-                                ValueChanged="@((AttributeHeader selectName) => SelectedItemChanged(selectName,types))">
+                                ShowValidationIcon="true"
+                                Value="@types.AttributeId"
+                                ValueExpression="@(() => types.AttributeId )"
+                                ValueChanged="@((long? selectName) => SelectedItemChanged(selectName,types))">
                         <Columns>
                             @*  <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
                             Caption="Field Name"
@@ -166,7 +167,6 @@
                                                 Caption="Data Source" Width="100px" />
                         </Columns>
                     </DxComboBox>
-                    <DxSpinEdit @bind-Value="@types.AttributeId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.AttributeId)" />
 
                 </DxFormLayoutItem>
@@ -193,9 +193,9 @@
                                 ValueFieldName="ID"
                                 Enabled="isFormCountUsed"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                Value="@CurrentDynamicForm"
-                                ValueExpression="@(() => CurrentDynamicForm )"
-                                ValueChanged="@((DynamicForm plant) => onChangedDynamicForm(plant?.ID,types))"
+                                Value="@types.GridDropDownDynamicFormID"
+                                ValueExpression="@(() => types.GridDropDownDynamicFormID )"
+                                ValueChanged="@((long? plant) => onChangedDynamicForm(plant,types))"
                                 ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
@@ -209,7 +209,6 @@
                                                 Caption="Screen Name" />
                         </Columns>
                     </DxComboBox>
-                    <DxSpinEdit @bind-Value="@types.GridDropDownDynamicFormID" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.GridDropDownDynamicFormID)" />
                 </DxFormLayoutItem>
 
@@ -396,8 +395,6 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    AttributeHeader CurrentHeaderData { get; set; }
-    DynamicForm CurrentDynamicForm { get; set; }
     [Parameter]
     public Action? RevokeBack { get; set; }
     [Parameter]
@@ -496,8 +493,6 @@
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
         navitems.IsSingleTextBoxRemarks = false; navitems.IsSingleTextBoxRemarks = false; IsSetDefaultValueEnabled = false; IsDynamicFormGridDropdownEnabled = false;
-        CurrentHeaderData = _attributeHeaderData != null && navitems.AttributeId > 0 ? _attributeHeaderData.FirstOrDefault(a => a.AttributeID == navitems.AttributeId) : null;
-        CurrentDynamicForm = _dynamicForm != null && navitems.GridDropDownDynamicFormID > 0 ? _dynamicForm.FirstOrDefault(f => f.ID == navitems.GridDropDownDynamicFormID) : null;
         if (e.IsNew)
         {
             navitems.IsSpinEditType = "int";
@@ -656,15 +651,13 @@
     }
     async Task onChangedDynamicForm(long? dynamicFormId, DynamicFormSectionAttribute types)
     {
-        CurrentDynamicForm = null;
-        types.GridDropDownDynamicFormID = null;
+        types.GridDropDownDynamicFormID = dynamicFormId;
         _applicationMasterParentItems = new List<ApplicationMasterParent>();
         _applicationMasterItems = new List<ApplicationMaster>();
         string? dataSourceTable = types?.DataSourceTable;
         if (dynamicFormId > 0 && !string.IsNullOrEmpty(dataSourceTable))
         {
-            CurrentDynamicForm = _dynamicForm != null ? _dynamicForm.FirstOrDefault(f => f.ID == dynamicFormId) : null;
-            types.GridDropDownDynamicFormID = dynamicFormId;
+          //  types.GridDropDownDynamicFormID = dynamicFormId;
             if (dataSourceTable == "ApplicationMasterParent")
             {
                 _applicationMasterParentItems = await Mediator.Send(new GetDynamicFormApplicationMasterParent(dynamicFormId));
@@ -709,10 +702,9 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
-    async Task SelectedItemChanged(AttributeHeader attributeHeader, DynamicFormSectionAttribute data)
+    async Task SelectedItemChanged(long? attributeHeaders, DynamicFormSectionAttribute data)
     {
-        CurrentHeaderData = null;
-        data.AttributeId = null;
+        data.AttributeId = attributeHeaders;
         _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
         _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
         data.IsDynamicFormGridDropdown = false;
@@ -726,10 +718,10 @@
         data.GridDropDownDynamicFormID = 0;
         isDataSource = false; IsSetDefaultValueEnabled = false; isApplicationMasterEnabled = false;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false; isApplicationMasterParentEnabled = false; IsDynamicFormGridDropdownEnabled = false;
+        var attributeHeader = _attributeHeaderData.FirstOrDefault(a => a.AttributeID == attributeHeaders);
         if (attributeHeader != null)
         {
-            CurrentHeaderData = attributeHeader;
-            data.AttributeId = attributeHeader.AttributeID;
+            //data.AttributeId = attributeHeader.AttributeID;
             data.SelectDynamicFormId = Items.DynamicFormId;
             data.DisplayName = attributeHeader.Description;
             data.DataSourceTable = attributeHeader.DataSourceTable;

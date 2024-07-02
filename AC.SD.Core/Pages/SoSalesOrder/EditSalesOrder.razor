@@ -137,11 +137,11 @@
                                     ValueFieldName="SoCustomerId"
                                     Enabled="true"
                                     EditFormat="{0}-{1}"
-                                    Value="@CurrentCustomer"
-                                    ValueExpression="@(() => CurrentCustomer )"
+                                    Value="@Data.SoCustomerId"
+                                    ValueExpression="@(() => Data.SoCustomerId )"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true"
-                                    SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">
+                                    ValueChanged="@((long? soCustomer) => SelectedItemChanged(soCustomer))">
                             
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
@@ -353,12 +353,12 @@
         Data.Date = DateTime.Now;
         Data.UserName = applicationUser.UserName;
     }
-    void SelectedItemChanged(SoCustomer soCustomer)
+    void SelectedItemChanged(long? soCustomerid)
     {
-        CurrentCustomer = null;
+        Data.SoCustomerId = soCustomerid;
+        var soCustomer = _AllSoCustomer != null && soCustomerid > 0 ? _AllSoCustomer.FirstOrDefault(f => f.SoCustomerId == soCustomerid) : null;
         if (soCustomer != null)
         {
-            CurrentCustomer = soCustomer;
             Data.SoCustomerId = soCustomer.SoCustomerId;
             Data.ShipCode = soCustomer.ShipCode;
             Data.AssignToRep = soCustomer.AssignToRep;

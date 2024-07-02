@@ -36,28 +36,33 @@
 
                                 <DxComboBox Data="@_plantItems"
                                             NullText="Select Company..."
-                                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ValueChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             ListRenderMode="ListRenderMode.Virtual"
                                             TextFieldName="Description"
                                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                                             ValueFieldName="PlantID"
-                                @bind-Value="Data.CompanyID"
+                                            Value="@CurrentPlant"
+                                            ValueExpression="@(() => CurrentPlant )"
                                             ShowValidationIcon="true">
 
                                 </DxComboBox>
+                                <DxSpinEdit @bind-Value="@Data.CompanyID" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => Data.CompanyID)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Location" ColSpanMd="4">
                                 <DxComboBox Data="@_productionActivities"
                                             NullText="Select Loctaion..."
-                                            SelectedItemChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            Value="@CurrentActivity"
+                                            ValueExpression="@(() => CurrentActivity )"
+                                            ValueChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="DeropdownName"
                                             ValueFieldName="ICTMasterID"
                                             ListRenderMode="ListRenderMode.Virtual"
                                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                                @bind-Value="Data.LocationID"
                                             ShowValidationIcon="true">
                                     <Buttons>
                                         <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -69,13 +74,15 @@
                             <DxFormLayoutItem Caption="Ticket No" ColSpanMd="4">
                                 <DxComboBox Data="@_ponumberActivities"
                                             NullText="Select Ticket No..."
-                                            SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod?.ProdOrderNo))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            Value="@CurrentTicket"
+                                            ValueExpression="@(() => CurrentTicket )"
+                                            ValueChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod))"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="Name"
                                             ValueFieldName="ProdOrderNo"
                                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                                             ListRenderMode="ListRenderMode.Virtual"
-                                @bind-Value="Data.ProdOrderNo"
                                             ShowValidationIcon="true">
                                     <Buttons>
                                         <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -83,6 +90,7 @@
                                                         Click="@(_ => OnButtonTicketNoClick())" />
                                     </Buttons>
                                 </DxComboBox>
+                                <DxTextBox @bind-Text="@Data.ProdOrderNo" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => Data.ProdOrderNo)" />
                             </DxFormLayoutItem>
 
@@ -259,21 +267,21 @@
     </div>
 </div>
 
- <DxPopup @bind-Visible="@AddPopup"
-          ShowFooter="true"
-          HeaderText="Add Activity"
-          Closed="EulaPopupClosed"
-          CloseOnOutsideClick="false"
-          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
-          CloseOnEscape="false" ShowCloseButton="false">
-     <BodyContentTemplate>
-         <AddRoutinePopupApp ParentData="@Data" @ref="RefToDoLeftNotes" RevokeBack="ClosePopup" _selectedEditItems="@_selectedEditItems" _poOrderDetails="@_poOrderDetails"></AddRoutinePopupApp>
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="true"
+         HeaderText="Add Activity"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
+    <BodyContentTemplate>
+        <AddRoutinePopupApp ParentData="@Data" @ref="RefToDoLeftNotes" RevokeBack="ClosePopup" _selectedEditItems="@_selectedEditItems" _poOrderDetails="@_poOrderDetails"></AddRoutinePopupApp>
 
-     </BodyContentTemplate>
-     <FooterContentTemplate Context="Context">
-         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
-     </FooterContentTemplate>
- </DxPopup>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 <DxPopup @bind-Visible="@PopupLocationScanVisible"
          CssClass="popup-demo-events"
          ShowFooter="true" HeaderText="Scan Location" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
@@ -413,6 +421,9 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    ViewPlants CurrentPlant { get; set; }
+    ProductionActivityApp CurrentActivity { get; set; }
+    NavprodOrderLineModel CurrentTicket { get; set; }
     bool ActivityEmailPopup { get; set; } = false;
     bool OperatorsPopup { get; set; } = false;
     bool BlukdeleteDocument { get; set; } = false;
@@ -439,7 +450,7 @@
     IGrid? AppLine { get; set; }
     IGrid? _PoAppLine { get; set; }
     private List<ProductionActivityRoutineAppModel> _AppLines;
-    bool AddPopup { get; set; }= false; bool PanelVisible { get; set; } = false;
+    bool AddPopup { get; set; } = false; bool PanelVisible { get; set; } = false;
     bool PopupLocationScanVisible { get; set; } = false;
     bool PopupProductionNoScanVisible { get; set; } = false;
     private AddRoutinePopupApp? RefToDoLeftNotes { get; set; }
@@ -485,9 +496,13 @@
     }
     async Task SelectedItemloc(ProductionActivityApp loc)
     {
+        CurrentActivity = null;
+        Data.LocationID = null;
         LocationID = 0; _editContext = new EditContext(Data);
         if (loc != null && loc.ICTMasterID > 0)
         {
+            Data.LocationID = loc.ICTMasterID;
+            CurrentActivity = loc;
             LocationID = loc.ICTMasterID;
         }
         await onLoadDataList();
@@ -652,12 +667,14 @@
     }
     async Task SelectedItemPlantChanged(ViewPlants PlantsData)
     {
+        CurrentPlant = null; Data.CompanyID = null;
         _productionActivities = new List<ProductionActivityApp>();
         _ponumberActivities = new List<NavprodOrderLineModel>();
         _AppLines = new List<ProductionActivityRoutineAppModel>(); ActiveTabIndex = 0; _poOrderDetails = new List<NavprodOrderLineModel>();
         NAVProdOrderno = string.Empty; CompanyID = 0; Data.CompanyID = null; Data.LocationID = null; Data.ProdOrderNo = null; LocationID = 0;
         if (PlantsData != null && PlantsData.PlantID > 0)
         {
+            CurrentPlant = PlantsData;
             CompanyID = PlantsData.PlantID;
             Data.CompanyID = CompanyID;
             _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(CompanyID));
@@ -684,18 +701,24 @@
         StateHasChanged();
     }
 
-    async void SelectedItemprod(string? NAVProdOrder)
+    async void SelectedItemprod(NavprodOrderLineModel NAVProdOrder)
     {
-
+        CurrentTicket = null;
+        Data.ProdOrderNo = null;
         NAVProdOrderno = string.Empty;
-        if (!string.IsNullOrEmpty(NAVProdOrder))
+        if (NAVProdOrder != null)
         {
-            NAVProdOrderno = NAVProdOrder;
-            await onLoadDataList();
-        }
-        else
-        {
-            _AppLines = new List<ProductionActivityRoutineAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+            CurrentTicket = NAVProdOrder;
+            Data.ProdOrderNo = NAVProdOrder.ProdOrderNo;
+            if (!string.IsNullOrEmpty(NAVProdOrder.ProdOrderNo))
+            {
+                NAVProdOrderno = NAVProdOrder.ProdOrderNo;
+                await onLoadDataList();
+            }
+            else
+            {
+                _AppLines = new List<ProductionActivityRoutineAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+            }
         }
         StateHasChanged();
     }

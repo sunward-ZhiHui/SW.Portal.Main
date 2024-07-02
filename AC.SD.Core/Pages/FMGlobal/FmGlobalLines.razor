@@ -146,13 +146,12 @@
                 <DxFormLayoutItem Caption="Pallet Entry" ColSpanMd="6">
                     <DxComboBox Data="@_viewPalletNoEntryItems"
                                 NullText="Select Pallet Entry..."
-                                Value="@CurrentPalletNo"
-                                ValueExpression="@(() => CurrentPalletNo )"
+                                Value="@types.PalletEntryNoId"
+                                ValueExpression="@(() => types.PalletEntryNoId )"
                                 TextFieldName="PalletNo"
                                 ValueFieldName="FmglobalLineId"
-                                ValueChanged="@((ViewFmglobalLine navitems) => SelectedItemMethodChangesChanged(navitems,types))"
+                                ValueChanged="@((long? navitems) => SelectedItemMethodChangesChanged(navitems,types))"
                                 ShowValidationIcon="true" />
-                    <DxSpinEdit @bind-Value="@types.PalletEntryNoId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.PalletEntryNoId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Pallet No:" ColSpanMd="6">
@@ -191,7 +190,6 @@
 </DxPopup>
 
 @code {
-    ViewFmglobalLine CurrentPalletNo { get; set; }
     bool PrintPopupVisible { get; set; }
     public Guid printSessionId { get; set; }
     [Parameter]
@@ -274,15 +272,12 @@
         }
 
     }
-    void SelectedItemMethodChangesChanged(ViewFmglobalLine ItemsId, ViewFmglobalLine viewFmglobalLine)
+    void SelectedItemMethodChangesChanged(long? ItemsId, ViewFmglobalLine viewFmglobalLine)
     {
-        CurrentPalletNo = null;
-        viewFmglobalLine.PalletEntryNoId = null;
-        if (ItemsId != null && ItemsId.FmglobalLineId > 0)
+        viewFmglobalLine.PalletEntryNoId = ItemsId;
+        if (ItemsId > 0)
         {
-            CurrentPalletNo = ItemsId;
-            viewFmglobalLine.PalletEntryNoId = ItemsId.FmglobalLineId;
-            var masterDetail = _viewPalletNoEntryItems.FirstOrDefault(f => f.FmglobalLineId == ItemsId.FmglobalLineId);
+            var masterDetail = _viewPalletNoEntryItems.FirstOrDefault(f => f.FmglobalLineId == ItemsId);
             if (masterDetail != null)
             {
                 palletNo = masterDetail.PalletNo + "|" + fmGlobalItems.LocationFrom;
@@ -373,7 +368,6 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        CurrentPalletNo = null;
         var navitems = (ViewFmglobalLine)e.EditModel;
         if (e.IsNew)
         {
@@ -384,8 +378,7 @@
             palletNo = navitems.PalletNo;
             if (navitems.PalletEntryNoId > 0)
             {
-                var items = _viewPalletNoEntryItems.FirstOrDefault(f => f.FmglobalLineId == navitems.PalletEntryNoId);
-                SelectedItemMethodChangesChanged(items, navitems);
+                SelectedItemMethodChangesChanged(navitems.PalletEntryNoId, navitems);
             }
         }
     }

@@ -102,12 +102,11 @@
                                 TextFieldName="SectionDrop"
                                 ValueFieldName="SectionId"
                                 Enabled="@isEnabled"
-                                Value="@CurrentSection"
-                                ValueExpression="@(() => CurrentSection )"
-                                SelectedItemChanged="@((ViewSection depSelect) => SelectedItemChanged(depSelect,sections))"
+                                Value="@sections.SectionId"
+                                ValueExpression="@(() => sections.SectionId )"
+                                ValueChanged="@((long? depSelect) => SelectedItemChanged(depSelect,sections))"
                                 ShowValidationIcon="true">
                     </DxComboBox>
-                    <DxSpinEdit @bind-Value="@sections.SectionId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => sections.SectionId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Company" ColSpanMd="6">
@@ -197,7 +196,6 @@
 
 </DxPopup>
 @code {
-    ViewSection CurrentSection { get; set; }
     bool PanelVisible { get; set; }
     string Depdrops = "";
     string Text { get; set; } = "Active";
@@ -230,7 +228,6 @@
     private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
-        CurrentSection = null;
         PanelVisible = true;
         //await jsRuntime.InvokeAsync<string>("showLoading");
         // Application.Common.Helper.Helper.FormatDate();
@@ -249,7 +246,6 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        CurrentSection = null;
         if (e.IsNew)
         {
             var newmaster = (ViewSubSection)e.EditModel;
@@ -263,10 +259,9 @@
                 {
                     isEnabled = false;
                     newmaster.SectionId = _masters.SectionId;
-                    //  companyName = _masters.Company;
+                    companyName = _masters.Company;
                     divisionName = _masters.Division;
                     sectionName = _masters.SectionName;
-                    CurrentSection = _sectionItems != null && _masters.SectionId > 0 ? _sectionItems.FirstOrDefault(f => f.SectionId == _masters.SectionId) : null;
                     // SelectedItemChanged(_ictmasters);
                 }
             }
@@ -274,19 +269,20 @@
         else
         {
             var dep = (ViewSubSection)e.DataItem;
-            CurrentSection = _sectionItems != null && dep.SectionId > 0 ? _sectionItems.FirstOrDefault(f => f.SectionId == dep.SectionId) : null;
             companyName = dep.Company;
             divisionName = dep.Division;
             sectionName = dep.SectionName;
         }
     }
-    void SelectedItemChanged(ViewSection dep, ViewSubSection viewSubSection)
+    void SelectedItemChanged(long? depId, ViewSubSection viewSubSection)
     {
-        CurrentSection = null; viewSubSection.SectionId = null;
-        if (dep != null && dep.SectionId > 0)
+        viewSubSection.SectionId = depId;
+        var dep = _sectionItems != null && depId > 0 ? _sectionItems.FirstOrDefault(f => f.SectionId == depId) : null;
+        companyName = null;
+        divisionName = null;
+        sectionName = null;
+        if (dep != null)
         {
-            CurrentSection = dep;
-            viewSubSection.SectionId = dep.SectionId;
             companyName = dep.Company;
             divisionName = dep.Division;
             sectionName = dep.SectionName;

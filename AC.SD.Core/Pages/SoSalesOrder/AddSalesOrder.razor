@@ -105,9 +105,9 @@
                                     ValueFieldName="PlantID"
                                     AllowUserInput="true"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    Value="@CurrentPlant"
-                                    ValueExpression="@(() => CurrentPlant )"
-                                    ValueChanged="@((ViewPlants plantData) => SelectedPlantChanged(plantData))"
+                                    Value="@Data.CompanyId"
+                                    ValueExpression="@(() => Data.CompanyId )"
+                                    ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
                                     ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
@@ -119,7 +119,6 @@
                                                     Caption="Nav Company" />
                             </Columns>
                         </DxComboBox>
-                        <DxSpinEdit @bind-Value="@Data.CompanyId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.CompanyId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Document Date" ColSpanMd="6">
@@ -143,11 +142,11 @@
                                     TextFieldName="CustomerName"
                                     ValueFieldName="SoCustomerId"
                                     EditFormat="{0}-{1}"
-                                    Value="@CurrentCustomer"
-                                    ValueExpression="@(() => CurrentCustomer )"
+                                    Value="@Data.SoCustomerId"
+                                    ValueExpression="@(() => Data.SoCustomerId )"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true"
-                                    ValueChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">
+                                    ValueChanged="@((long? soCustomer) => SelectedItemChanged(soCustomer))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
                                                     Caption="Customer Name"
@@ -165,7 +164,6 @@
                                                 Click="@(_ => OnButtonCustomerClick())" />
                             </Buttons>
                         </DxComboBox>
-                        <DxSpinEdit @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.SoCustomerId)" />
                     </DxFormLayoutItem>
 
@@ -293,8 +291,6 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
-    ViewPlants CurrentPlant { get; set; }
-    SoCustomer CurrentCustomer { get; set; }
     public long? SoSalesOrderId { get; set; }
     SalesOrderLine? RefSalesOrderLine { get; set; }
     [Parameter]
@@ -322,13 +318,12 @@
     string MessageHeader = "";
     string MessageBody = "";
 
-    void SelectedItemChanged(SoCustomer soCustomer)
+    void SelectedItemChanged(long? soCustomerid)
     {
-        CurrentCustomer = null;
-
+        Data.SoCustomerId = soCustomerid;
+        var soCustomer = _AllSoCustomer != null && soCustomerid > 0 ? _AllSoCustomer.FirstOrDefault(f => f.SoCustomerId == soCustomerid) : null;
         if (soCustomer != null)
         {
-            CurrentCustomer = soCustomer;
             Data.SoCustomerId = soCustomer.SoCustomerId;
             Data.ShipCode = soCustomer.ShipCode;
             Data.AssignToRep = soCustomer.AssignToRep;
@@ -344,10 +339,9 @@
             Data.Address1 = "";
         }
     }
-    void SelectedPlantChanged(ViewPlants country)
+    void SelectedPlantChanged(long? country)
     {
-        CurrentPlant = country;
-        Data.CompanyId = country.PlantID;
+        Data.CompanyId = country;
     }
     void OnButtonCustomerClick()
     {

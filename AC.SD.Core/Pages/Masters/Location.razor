@@ -86,17 +86,16 @@
                 <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                     <DxComboBox Data="@_plantItems"
                                 NullText="Select Company..."
-                                SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant,ict))"
+                                ValueChanged="@((long plant) => SelectedItemChanged(plant,ict))"
                                 SearchMode="ListSearchMode.AutoSearch"
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Description"
                                 ValueFieldName="PlantID"
-                                Value="@CurrentPlant"
-                                ValueExpression="@(() => CurrentPlant )"
+                                Value="@ict.CompanyId"
+                                ValueExpression="@(() => ict.CompanyId )"
                                 Enabled="@isEnabled"
                                 ShowValidationIcon="true">
                     </DxComboBox>
-                    <DxSpinEdit @bind-Value="@ict.CompanyId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => ict.CompanyId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Site" ColSpanMd="6">
@@ -180,7 +179,6 @@
 @* SelectedItemChanged="@((ViewIctmaster plant) => SelecteItemChanged(plant.IctmasterId))",SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"*@
 
 @code {
-    ViewPlants CurrentPlant { get; set; }
     bool PanelVisible { get; set; }
     string comapnyName = "";
     string site = "";
@@ -278,7 +276,6 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        CurrentPlant = null;
         if (e.IsNew)
         {
             var newmaster = (ViewIctmaster)e.EditModel;
@@ -297,17 +294,14 @@
                     newmaster.CompanyId = _ictmasters.CompanyId;
                     newmaster.SiteId = _ictmasters.ParentIctid;
                     newmaster.ParentIctid = _ictmasters.IctmasterId;
-                    var item = _plantItems.FirstOrDefault(c => c.PlantID == _ictmasters.CompanyId);
-                    SelectedItemChanged(item, newmaster);
+                    SelectedItemChanged(_ictmasters.CompanyId, newmaster);
                 }
             }
         }
         else
         {
             var newmaster = (ViewIctmaster)e.EditModel;
-            var item = _plantItems.FirstOrDefault(c => c.PlantID == newmaster.CompanyId);
-            CurrentPlant = item;
-            SelectedItemChanged(item, newmaster);
+            SelectedItemChanged(newmaster.CompanyId, newmaster);
 
         }
     }
@@ -374,20 +368,18 @@
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await UpdateDataAsync();
     }
-    void SelectedItemChanged(ViewPlants companyId, ViewIctmaster viewIctmaster)
+    void SelectedItemChanged(long companyId, ViewIctmaster viewIctmaster)
     {
-        CurrentPlant = null;
-        viewIctmaster.CompanyId = 0;
+        viewIctmaster.CompanyId = companyId;
         _masterCompany = new List<ViewIctmaster>();
         if (companyId == null)
         {
             viewIctmaster.ParentIctid = null;
         }
-        if (companyId != null && companyId.PlantID > 0)
+        if (companyId > 0)
         {
-            CurrentPlant = companyId;
-            viewIctmaster.CompanyId = companyId.PlantID;
-            _masterCompany = _ictmaster.Where(c => c.CompanyId == companyId.PlantID && c.MasterType == 570).ToList();
+            viewIctmaster.CompanyId = companyId;
+            _masterCompany = _ictmaster.Where(c => c.CompanyId == companyId && c.MasterType == 570).ToList();
         }
     }
     async void SelecteChanged(long? siteId)

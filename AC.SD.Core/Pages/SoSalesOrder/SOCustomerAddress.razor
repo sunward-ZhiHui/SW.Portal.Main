@@ -31,7 +31,7 @@
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 Value="@CurrentShipping"
                                 ValueExpression="@(() => CurrentShipping )"
-                                SelectedItemChanged="@((view_SoCustomerAddress shipaddress) => SelectedItemShipChanged(shipaddress))"
+                                ValueChanged="@((view_SoCustomerAddress shipaddress) => SelectedItemShipChanged(shipaddress))"
                                 ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.Address1)"
@@ -105,7 +105,7 @@
                                 Value="@CurrentBilling"
                                 ValueExpression="@(() => CurrentBilling )"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                SelectedItemChanged="@((view_SoCustomerAddress billaddress) => SelectedBillingItemChanged(billaddress))"
+                                ValueChanged="@((view_SoCustomerAddress billaddress) => SelectedBillingItemChanged(billaddress))"
                                 ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.Address1)"
@@ -260,7 +260,7 @@
         }
         else
         {
-           // _soShippingCusterAddress = new view_SoCustomerAddress();
+            // _soShippingCusterAddress = new view_SoCustomerAddress();
         }
         await updateAddress();
     }

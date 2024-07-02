@@ -115,9 +115,9 @@
                                     EditFormat="{0}-{1}-{2}"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true"
-                                    Value="@CurrentItem"
-                                    ValueExpression="@(() => CurrentItem )"
-                                    ValueChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems,types))">
+                                    Value="@types.ItemId"
+                                    ValueExpression="@(() => types.ItemId )"
+                                    ValueChanged="@((long? navitems) => SelectedItemChanged(navitems,types))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                     Caption="Item No"
@@ -147,9 +147,9 @@
                                     EditFormat="{0}-{1}-{2}"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true"
-                                    Value="@CurrentItem"
-                                    ValueExpression="@(() => CurrentItem )"
-                                    ValueChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems,types))">
+                                    Value="@types.ItemId"
+                                    ValueExpression="@(() => types.ItemId )"
+                                    ValueChanged="@((long? navitems) => SelectedItemChanged(navitems,types))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                     Caption="Item No"
@@ -163,7 +163,6 @@
 
                         </DxComboBox>
                     }
-                    <DxSpinEdit @bind-Value="@types.ItemId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.ItemId)" />
                 </DxFormLayoutItem>
 
@@ -195,10 +194,9 @@
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
                                 ShowValidationIcon="true"
-                                Value="@CurrentSmAllowPrice"
-                                ValueExpression="@(() => CurrentSmAllowPrice )"
-                                ValueChanged="@((View_ApplicationMasterDetail applicationMasterDetail) => SelectedAllowPriceChanged(applicationMasterDetail,types))" />
-                    <DxSpinEdit @bind-Value="@types.SmAllowPriceId" ShowValidationIcon="true" style="display:none;" />
+                                Value="@types.SmAllowPriceId"
+                                ValueExpression="@(() => types.SmAllowPriceId )"
+                                ValueChanged="@((long? applicationMasterDetail) => SelectedAllowPriceChanged(applicationMasterDetail,types))" />
                     <ValidationMessage For="@(() => types.SmAllowPriceId)" />
                 </DxFormLayoutItem>
                 @if (isAllowNewPrice)
@@ -288,8 +286,6 @@
 </DxPopup>
 
 @code {
-    View_NavItems CurrentItem { get; set; }
-    View_ApplicationMasterDetail CurrentSmAllowPrice { get; set; }
     // [Parameter]
     public long? SalesOrderMasterPricingId { get; set; }
     // [Parameter]
@@ -338,14 +334,12 @@
     private View_SalesOrderMasterPricingLine _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
 
-    void SelectedAllowPriceChanged(View_ApplicationMasterDetail applicationMasterDetail, View_SalesOrderMasterPricingLine view_SalesOrderMasterPricingLine)
+    void SelectedAllowPriceChanged(long? applicationMasterDetailid, View_SalesOrderMasterPricingLine view_SalesOrderMasterPricingLine)
     {
-        CurrentSmAllowPrice = null;
-        view_SalesOrderMasterPricingLine.SmAllowPriceId = null;
+        view_SalesOrderMasterPricingLine.SmAllowPriceId = applicationMasterDetailid;
+        var applicationMasterDetail = _viewSalesPricingAllowItems != null && applicationMasterDetailid > 0 ? _viewSalesPricingAllowItems.FirstOrDefault(f => f.ApplicationMasterDetailID == applicationMasterDetailid) : null;
         if (applicationMasterDetail != null)
         {
-            CurrentSmAllowPrice = applicationMasterDetail;
-            view_SalesOrderMasterPricingLine.SmAllowPriceId = applicationMasterDetail.ApplicationMasterDetailID;
             if (applicationMasterDetail.Value == "New")
             {
                 isAllowNewPrice = true;
@@ -372,19 +366,18 @@
             StateHasChanged();
         }
     }
-    async Task SelectedItemChanged(View_NavItems navitems, View_SalesOrderMasterPricingLine view_SalesOrderMasterPricingLine)
+    async Task SelectedItemChanged(long? navitemsId, View_SalesOrderMasterPricingLine view_SalesOrderMasterPricingLine)
     {
-        CurrentItem = null;
-        view_SalesOrderMasterPricingLine.ItemId = null;
+        view_SalesOrderMasterPricingLine.ItemId = navitemsId;
+        var navitems = _AllNavitems != null && navitemsId > 0 ? _AllNavitems.FirstOrDefault(f => f.ItemId == navitemsId) : null;
         if (navitems != null)
         {
-            CurrentItem = navitems;
-            view_SalesOrderMasterPricingLine.ItemId = navitems.ItemId;
+            view_SalesOrderMasterPricingLine.ItemId = navitemsId;
             //No = navitems.No;
             Description = navitems.Description;
             //Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
-            loadDropDownData(navitems.ItemId);
+            await loadDropDownData(navitems.ItemId);
         }
         else
         {
@@ -437,7 +430,6 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        CurrentItem = null; CurrentSmAllowPrice = null;
         var navitems = (View_SalesOrderMasterPricingLine)e.EditModel;
         if (e.IsNew)
         {
@@ -452,8 +444,6 @@
             Description = navitems.Description;
             //Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
-            CurrentItem = _AllNavitems != null && navitems.ItemId > 0 ? _AllNavitems.FirstOrDefault(f => f.ItemId == navitems.ItemId) : null;
-            CurrentSmAllowPrice = _viewSalesPricingAllowItems != null && navitems.SmAllowPriceId > 0 ? _viewSalesPricingAllowItems.FirstOrDefault(f => f.ApplicationMasterDetailID == navitems.SmAllowPriceId) : null;
             await loadDropDownData(navitems.ItemId);
         }
     }

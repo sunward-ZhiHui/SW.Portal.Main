@@ -132,10 +132,11 @@
                 <DxFormLayoutItem Caption="Control Type:" ColSpanMd="6">
                     <DxComboBox Data="@_stausItems"
                                 NullText="Select ControlType..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="CodeValue"
                                 ValueFieldName="CodeId"
-                    @bind-Value="@types.ControlType"
+                                @bind-Value="@types.ControlType"
                                 ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.ControlType)" />
@@ -226,7 +227,7 @@
         //    models[i].Index = i + 1;
         //}
 
-      //  _attributes = models;
+        //  _attributes = models;
         PanelVisible = false;
         // await jsRuntime.InvokeAsync<string>("hideLoading");
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
@@ -243,7 +244,7 @@
         //    models[i].Index = i + 1;
         //}
 
-      //  _attributes = models;
+        //  _attributes = models;
         PanelVisible = false;
         if (_attributes.Count > 0)
         {
@@ -319,7 +320,7 @@
 
         var editModel = (AttributeHeader)e.EditModel;
 
-       
+
 
         if (e.IsNew)
         {

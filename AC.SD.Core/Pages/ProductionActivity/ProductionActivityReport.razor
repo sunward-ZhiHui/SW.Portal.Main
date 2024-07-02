@@ -296,10 +296,11 @@
                 <DxFormLayoutItem Caption="Activity Status" ColSpanMd="12">
                     <DxComboBox Data="@_ActivityStatusItem"
                                 NullText="Select Activity Status..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
-                    @bind-Value="_selectedDescriptionItems.ActivityStatusId"
+                                @bind-Value="_selectedDescriptionItems.ActivityStatusId"
                                 ShowValidationIcon="true">
                     </DxComboBox>
                 </DxFormLayoutItem>
@@ -309,10 +310,12 @@
                 <DxFormLayoutItem Caption="Activity Master" ColSpanMd="12">
                     <DxTagBox NullText="Select Activity Master..."
                               Data="@_ActivityMaster"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               TextFieldName="Value"
                               ValueFieldName="ApplicationMasterDetailID"
-                    @bind-Values="@_selectedDescriptionItems.ActivityMasterIds"
+                              @bind-Values="@_selectedDescriptionItems.ActivityMasterIds"
                               CssClass="cw-480" />
                 </DxFormLayoutItem>
             }
@@ -339,59 +342,67 @@
             <DxFormLayoutItem Caption="Company" ColSpanMd="12">
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
-                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant))"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             ListRenderMode="ListRenderMode.Virtual"
                             TextFieldName="Description"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ValueFieldName="PlantID"
-                @bind-Value="FilterData.CompanyId">
+                            Value="FilterData.CompanyId"
+                            ValueExpression="@(() => FilterData.CompanyId )">
 
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Location" ColSpanMd="12">
                 <DxComboBox Data="@_productionActivities"
                             NullText="Select Loctaion..."
-                            SelectedItemChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            ValueChanged="@((long? loc) => SelectedItemloc(loc))"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="DeropdownName"
                             ValueFieldName="ICTMasterID"
                             ListRenderMode="ListRenderMode.Virtual"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.LocationId">
+                            Value="FilterData.LocationId"
+                            ValueExpression="@(() => FilterData.LocationId )">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Ticket No" ColSpanMd="12">
                 <DxComboBox Data="@_ponumberActivities"
                             NullText="Select Ticket No..."
-                            SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod))"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            ValueChanged="@((string? prod) => SelectedItemprod(prod))"
+                            Value="FilterData.ProdOrderNo"
+                            ValueExpression="@(() => FilterData.ProdOrderNo )"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Name"
                             ValueFieldName="ProdOrderNo"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                            ListRenderMode="ListRenderMode.Virtual"
-                @bind-Value="FilterData.ProdOrderNo">
+                            ListRenderMode="ListRenderMode.Virtual">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="12">
                 <DxComboBox Data="@_poOrderDetails"
                             NullText="Select ProdOrderNo..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Name"
                             ValueFieldName="NavprodOrderLineId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.NavprodOrderLineId">
+                            @bind-Value="FilterData.NavprodOrderLineId">
                 </DxComboBox>
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="12">
                 <DxComboBox Data="@_ManuFactureProcessLines"
                             NullText="Select Manufacturing Process..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.ManufacturingProcessChildId"
+                            @bind-Value="FilterData.ManufacturingProcessChildId"
                             ShowValidationIcon="true">
 
                 </DxComboBox>
@@ -399,10 +410,11 @@
             <DxFormLayoutItem Caption="Category:" ColSpanMd="12">
                 <DxComboBox Data="@_categoryItems"
                             NullText="Select Category ..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
-                @bind-Value="FilterData.ProdActivityCategoryChildId"
+                            @bind-Value="FilterData.ProdActivityCategoryChildId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -411,10 +423,11 @@
             <DxFormLayoutItem Caption="Action:" ColSpanMd="12">
                 <DxComboBox Data="@_actionItems"
                             NullText="Select ActionDropdown..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
-                @bind-Value="FilterData.ProdActivityActionChildD"
+                            @bind-Value="FilterData.ProdActivityActionChildD"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -422,10 +435,11 @@
             <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="12">
                 <DxComboBox Data="@_ActivityResult"
                             NullText="Select Activity Result..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
-                @bind-Value="FilterData.ProdActivityResultId"
+                            @bind-Value="FilterData.ProdActivityResultId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -433,22 +447,24 @@
             <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="12">
                 <DxComboBox Data="@_ActivityStatusItem"
                             NullText="Select Activity Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.ActivityStatusId"
+                            @bind-Value="FilterData.ActivityStatusId"
                             ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Activity Master:" ColSpanMd="12">
                 <DxComboBox Data="@_ActivityMaster"
                             NullText="Select Activity Master..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.ActivityMasterId"
+                            @bind-Value="FilterData.ActivityMasterId"
                             ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
@@ -579,8 +595,9 @@
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         await onLoadDataList();
     }
-    void SelectedItemloc(ProductionActivityApp loc)
+    void SelectedItemloc(long? loc)
     {
+        FilterData.LocationId = loc;
         StateHasChanged();
     }
     protected override async Task OnParametersSetAsync()
@@ -704,7 +721,7 @@
                             CheckInEnabled = true;
                             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                             HistoryEnabled = false;
-                            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
+                            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false;
                             NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; IsChecker = false;
                         }
                         else
@@ -893,7 +910,7 @@
         isVisibleMore = "";
         EditEnabled = true; DeleteEnabled = true;
         NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true; IsChecker = true;
-        if(_selectedItems.IsEmailCreated==true)
+        if (_selectedItems.IsEmailCreated == true)
         {
             EmailActivityEnabled = true;
         }
@@ -903,8 +920,8 @@
             CheckOutEnabled = false;
             CheckInEnabled = true;
             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
-            HistoryEnabled = false;EmailActivityEnabled = false;
-            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker=false;
+            HistoryEnabled = false; EmailActivityEnabled = false;
+            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; IsChecker = false;
             NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         }
         else
@@ -921,26 +938,28 @@
             }
         }
     }
-    async Task SelectedItemPlantChanged(ViewPlants PlantsData)
+    async Task SelectedItemPlantChanged(long? PlantsData)
     {
+        FilterData.CompanyId = PlantsData;
         _productionActivities = new List<ProductionActivityApp>();
         _ponumberActivities = new List<NavprodOrderLineModel>();
         ActiveTabIndex = 0;
-        FilterData.ProdOrderNo = null; FilterData.LocationId = 0; FilterData.CompanyId = null;
-        if (PlantsData != null && PlantsData.PlantID > 0)
+        FilterData.ProdOrderNo = null; FilterData.LocationId =null; 
+        if (PlantsData > 0)
         {
-            FilterData.CompanyId = PlantsData.PlantID;
-            _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(PlantsData.PlantID));
-            _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(PlantsData.PlantID));
+            FilterData.CompanyId = PlantsData;
+            _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(PlantsData));
+            _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(PlantsData));
         }
         StateHasChanged();
     }
-    async Task SelectedItemprod(NavprodOrderLineModel NAVProdOrder)
+    async Task SelectedItemprod(string? NAVProdOrder)
     {
+        FilterData.ProdOrderNo = NAVProdOrder;
         _poOrderDetails = new List<NavprodOrderLineModel>();
-        if (NAVProdOrder != null && !string.IsNullOrEmpty(NAVProdOrder.ProdOrderNo))
+        if (NAVProdOrder != null && !string.IsNullOrEmpty(NAVProdOrder))
         {
-            _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(FilterData.CompanyId, NAVProdOrder.ProdOrderNo));
+            _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(FilterData.CompanyId, NAVProdOrder));
             StateHasChanged();
         }
     }
@@ -1269,7 +1288,7 @@
     }
     void onEmailActivityOpen()
     {
-        ActivityEmailSubjectPopup=true;
+        ActivityEmailSubjectPopup = true;
         StateHasChanged();
     }
     void onIsChecker()

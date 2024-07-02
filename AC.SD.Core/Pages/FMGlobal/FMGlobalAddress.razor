@@ -31,8 +31,8 @@
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 Value="@CurrentAddress"
                                 ValueExpression="@(() => CurrentAddress )"
-                                SelectedItemChanged="@((view_SoCustomerAddress shipaddress) => SelectedItemShipChanged(shipaddress))"
-                                 ShowValidationIcon="true">
+                                ValueChanged="@((view_SoCustomerAddress shipaddress) => SelectedItemShipChanged(shipaddress))"
+                                ShowValidationIcon="true">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.Address1)"
                                                 Caption="Address1"
@@ -87,7 +87,7 @@
 </div>
 
 @code {
-    view_SoCustomerAddress CurrentAddress{ get; set; }
+    view_SoCustomerAddress CurrentAddress { get; set; }
     [Parameter]
     public ViewFmglobal _salesOrderItems { get; set; }
     bool ShippingChecked { get; set; } = false;
@@ -185,7 +185,7 @@
         }
         else
         {
-           // _soShippingCusterAddress = new view_SoCustomerAddress();
+            // _soShippingCusterAddress = new view_SoCustomerAddress();
         }
         await updateAddress();
     }

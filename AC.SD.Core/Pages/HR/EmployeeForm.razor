@@ -99,10 +99,9 @@
                                             TextFieldName="Name"
                                             ValueFieldName="DesignationID"
                                             ShowValidationIcon="true"
-                                            Value="@CurrentDesignation"
-                                            ValueExpression="@(() => CurrentDesignation )"
-                                            ValueChanged="@((ViewDesignation depSelect) => SelectedItemChanged(depSelect))" />
-                                <DxSpinEdit @bind-Value="@employee.DesignationID" ShowValidationIcon="true" style="display:none;" />
+                                            Value="@employee.DesignationID"
+                                            ValueExpression="@(() => employee.DesignationID )"
+                                            ValueChanged="@((long? depSelect) => SelectedItemChanged(depSelect))" />
                                 <ValidationMessage For="@(() => employee.DesignationID)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Department" ColSpanMd="6">
@@ -279,7 +278,6 @@
 
 
 @code {
-    ViewDesignation CurrentDesignation { get; set; }
     [Parameter]
     public Guid? SessionIds { get; set; }
     private bool loading;
@@ -313,7 +311,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        CurrentDesignation = null;
         _designationItems = await Mediator.Send(new GetAllDesignationQuery());
         _employeeData = new ViewEmployee();
         if (SessionIds != null)
@@ -364,7 +361,6 @@
         {
             employee.ReportToIds = employeeReportToItems.Select(s => s.ReportToId).ToList();
         }
-        CurrentDesignation = _designationItems != null && _employeeData.DesignationID > 0 ? _designationItems.FirstOrDefault(f => f.DesignationID == _employeeData.DesignationID):null;
         employee.EmployeeID = _employeeData.EmployeeID;
         employee.UserID = _employeeData.UserID;
         employee.FirstName = _employeeData.FirstName;
@@ -392,28 +388,29 @@
         employee.LanguageID = _employeeData.LanguageID;
         employee.SpeedDial = _employeeData.SpeedDial;
     }
-    void SelectedItemChanged(ViewDesignation viewDesignation)
+    void SelectedItemChanged(long? viewDesignations)
     {
-        CurrentDesignation = null;
-        employee.DesignationID = null;
-        if (viewDesignation != null)
+        employee.DesignationID = viewDesignations;
+        if (viewDesignations > 0)
         {
-            CurrentDesignation = viewDesignation;
-            employee.DesignationID = viewDesignation.DesignationID;
-            employee.DepartmentID = viewDesignation.DepartmentID;
-            employee.PlantID = viewDesignation.CompanyID;
-            employee.DivisionID = viewDesignation.DivisionID;
-            employee.LevelID = viewDesignation.LevelID;
-
-            employee.SectionID = viewDesignation.SectionID;
-            employee.SubSectionID = viewDesignation.SubSectionID;
-            employee.DesignationID = viewDesignation.DesignationID;
-            _designationCountItems = new List<int>();
-            if (viewDesignation.HeadCount > 0)
+            var viewDesignation = _designationItems.FirstOrDefault(f => f.DesignationID == viewDesignations);
+            if (viewDesignation != null)
             {
-                for (int i = 1; i <= viewDesignation.HeadCount; i++)
+                employee.DesignationID = viewDesignation.DesignationID;
+                employee.DepartmentID = viewDesignation.DepartmentID;
+                employee.PlantID = viewDesignation.CompanyID;
+                employee.DivisionID = viewDesignation.DivisionID;
+                employee.LevelID = viewDesignation.LevelID;
+
+                employee.SectionID = viewDesignation.SectionID;
+                employee.SubSectionID = viewDesignation.SubSectionID;
+                _designationCountItems = new List<int>();
+                if (viewDesignation.HeadCount > 0)
                 {
-                    _designationCountItems.Add(i);
+                    for (int i = 1; i <= viewDesignation.HeadCount; i++)
+                    {
+                        _designationCountItems.Add(i);
+                    }
                 }
             }
         }

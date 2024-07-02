@@ -65,11 +65,14 @@
                         <DxComboBox Data="@_dynamicFormSectionList"
                                     NullText="Select Section..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="SectionName"
                                     ValueFieldName="DynamicFormSectionId"
-                                    SelectedItemChanged="@((DynamicFormSection plantSelect) => SelectedItemSectionChanged(plantSelect))"
-                        @bind-Value="@Data.DynamicFormSectionId" ShowValidationIcon="true">
+                                    Value="@Data.DynamicFormSectionId"
+                                    ValueExpression="@(() => Data.DynamicFormSectionId )"
+                                    ValueChanged="@((long? plantSelect) => SelectedItemDynamicSectionChanged(plantSelect))"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(DynamicFormSection.SectionName)"
                                                     Caption="Section Name"
@@ -93,7 +96,7 @@
                         <ValidationMessage For="@(() => Data.DynamicFormSectionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="PlantValue"
                                        QueryDisplayText="QueryPlantText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -124,7 +127,7 @@
                         <ValidationMessage For="@(() => Data.PlantId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="DivisionValue"
                                        QueryDisplayText="QueryDivisionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -155,7 +158,7 @@
                         <ValidationMessage For="@(() => Data.DivisionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="DepartmentValue"
                                        QueryDisplayText="QueryDepartmentText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -186,7 +189,7 @@
                         <ValidationMessage For="@(() => Data.DepartmentId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="SectionValue"
                                        QueryDisplayText="QuerySectionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -217,7 +220,7 @@
                         <ValidationMessage For="@(() => Data.SectionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="SubSectionValue"
                                        QueryDisplayText="QuerySubSectionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -292,7 +295,7 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeView"
-                @bind-FilterString="FilterString"
+                            @bind-FilterString="FilterString"
                             AllowSelectNodes="true"
                             AfterExpand="@AfterExpand"
                             SelectionChanged="@SelectionChanged" Data="@_selectedTreeItems"
@@ -593,9 +596,11 @@
     {
         // var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
     }
-    void SelectedItemSectionChanged(DynamicFormSection dynamicFormSection)
+    void SelectedItemDynamicSectionChanged(long? dynamicFormSectionId)
     {
+        Data.DynamicFormSectionId = dynamicFormSectionId;
         dynamicFormSection1 = new DynamicFormSection();
+        var dynamicFormSection = _dynamicFormSectionList != null && dynamicFormSectionId > 0 ? _dynamicFormSectionList.FirstOrDefault(f => f.DynamicFormSectionId == dynamicFormSectionId) : null;
         if (dynamicFormSection != null)
         {
             if (dynamicFormSection.DynamicFormDataUploadId > 0)

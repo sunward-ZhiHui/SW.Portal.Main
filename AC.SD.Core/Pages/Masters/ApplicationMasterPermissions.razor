@@ -19,14 +19,16 @@
                             <DxFormLayout>
                                 <DxFormLayoutItem Caption="Users" ColSpanMd="10">
                                     <DxTagBox Data="_usersList"
-                                    @bind-Values="Data.SelectUserIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserID"
                                               TextFieldName="FirstName"
-                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               EditFormat="{0}-{1}"
-                                              SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
+                                              Values="@Data.SelectUserIDs"
+                                              ValuesExpression="@(() => Data.SelectUserIDs )"
+                                              ValuesChanged="@((IEnumerable<long?> values) => onSelectedUserItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
@@ -60,14 +62,15 @@
                             <DxFormLayout>
                                 <DxFormLayoutItem Caption="User Group" ColSpanMd="10">
                                     <DxTagBox Data="_userGroupsList"
-                                    @bind-Values="Data.SelectUserGroupIDs"
                                               NullText="Select To..."
                                               SearchMode="ListSearchMode.AutoSearch"
                                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserGroupId"
                                               TextFieldName="Name"
-                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedUserGroupItemsChanged(values))"
+                                              Values="@Data.SelectUserGroupIDs"
+                                              ValuesExpression="@(() => Data.SelectUserGroupIDs )"
+                                              ValuesChanged="@((IEnumerable<long?> values) => onSelectedUserGroupItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
@@ -99,14 +102,15 @@
                             <DxFormLayout>
                                 <DxFormLayoutItem Caption="Level Master" ColSpanMd="10">
                                     <DxTagBox Data="_levelMasterLists"
-                                    @bind-Values="Data.SelectLevelMasterIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               SearchMode="ListSearchMode.AutoSearch"
                                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               ValueFieldName="LevelID"
                                               TextFieldName="Name"
-                                              SelectedItemsChanged="@((IEnumerable<ViewLevel> values) => onSelectedLevelItemsChanged(values))"
+                                              Values="@Data.SelectLevelMasterIDs"
+                                              ValuesExpression="@(() => Data.SelectLevelMasterIDs )"
+                                              ValuesChanged="@((IEnumerable<long?> values) => onSelectedLevelItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
                                         <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
@@ -177,18 +181,21 @@
 
         StateHasChanged();
     }
-    void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
+    void onSelectedUserItemsChanged(IEnumerable<long?> values)
     {
+        Data.SelectUserIDs = values;
         ActiveTabSecIndex = 0;
         StateHasChanged();
     }
-    void onSelectedUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    void onSelectedUserGroupItemsChanged(IEnumerable<long?> values)
     {
+        Data.SelectUserGroupIDs = values;
         ActiveTabSecIndex = 1;
         StateHasChanged();
     }
-    void onSelectedLevelItemsChanged(IEnumerable<ViewLevel> values)
+    void onSelectedLevelItemsChanged(IEnumerable<long?> values)
     {
+        Data.SelectLevelMasterIDs = values;
         ActiveTabSecIndex = 2;
         StateHasChanged();
     }
@@ -197,16 +204,16 @@
         var userCount = Data.SelectUserIDs == null ? 0 : Data.SelectUserIDs.Count();
         var userGroupCount = Data.SelectUserGroupIDs == null ? 0 : Data.SelectUserGroupIDs.Count();
         var levelCount = Data.SelectLevelMasterIDs == null ? 0 : Data.SelectLevelMasterIDs.Count();
-            loading = true;
+        loading = true;
         var response = await Mediator.Send(new InsertApplicationMasterAccessSecurity(Data));
         if (response.ApplicationMasterId > 0)
-            {
-                Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;
-                toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        {
+            Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;
+            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await refDocumentUserRoleListsLevel.loadData(ApplicationMasterId);
-                loading = false;
-            }
-        
+            loading = false;
+        }
+
     }
     void HandleInvalidSubmit()
     {

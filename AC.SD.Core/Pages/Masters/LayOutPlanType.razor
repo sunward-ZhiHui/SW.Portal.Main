@@ -39,21 +39,20 @@
         </DxMenu>
     </div>
 </div>
- <DxGrid
-    @ref="Grid"
-    Data="_layout"
+<DxGrid @ref="Grid"
+        Data="_layout"
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeElement="Grid_CustomizeElement"
-    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-    PagerNavigationMode="PagerNavigationMode.InputBox"
-    PageSizeSelectorVisible="true"
-    PageSizeSelectorAllRowsItemVisible="true"
-    PageSizeSelectorItems="@(new int[] { 5, 10, 20 })"
-    PageSize="20"
-    SelectionMode="GridSelectionMode.Multiple"
-    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-    AutoExpandAllGroupRows="true"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5, 10, 20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
         KeyFieldName="LayoutPlanTypeId"
         CssClass="ch-360"
         style="height: calc(100vh - 250px);"
@@ -69,34 +68,36 @@
         <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCodeId" Caption="StatusCodeId" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
-            </Columns>
+    </Columns>
 
     <EditFormTemplate Context="EditFormContext">
         @{
             var plant = (ViewLayOutPlanType)EditFormContext.EditModel;
         }
-       <DxFormLayout CssClass="w-100">
-           <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                         <DxComboBox Data="@_codes"
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_codes"
                             NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                              TextFieldName="CodeValue"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
-                             @bind-Value="@plant.StatusCodeId"
+                            @bind-Value="@plant.StatusCodeId"
                             ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@plant.Name" />
             </DxFormLayoutItem>
-            
+
             <DxFormLayoutItem Caption="VersionNo" ColSpanMd="6">
                 <DxTextBox @bind-Text="@plant.VersionNo" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="StatusCodeId" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
                             @bind-Value="@plant.StatusCodeId"
@@ -110,7 +111,7 @@
     </TotalSummary>
 
 
- </DxGrid>
+</DxGrid>
 
 
 
@@ -127,7 +128,7 @@
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
-        var model = await Mediator.Send(new  GetAllLayOutPlanTypeQuery());
+        var model = await Mediator.Send(new GetAllLayOutPlanTypeQuery());
         // var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         // _stausItems = models;
         _layout = model;
@@ -135,17 +136,17 @@
     }
     async Task UpdateDataAsync()
     {
-         await jsRuntime.InvokeAsync<string>("showLoading");
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllLayOutPlanTypeQuery());
         _layout = model;
-         await jsRuntime.InvokeAsync<string>("hideLoading");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
         {
             var newplant = (ViewLayOutPlanType)e.EditModel;
-            newplant.LayoutPlanTypeId =0;
+            newplant.LayoutPlanTypeId = 0;
             newplant.Description = "";
             newplant.StatusCodeId = null;
             newplant.Name = "";
@@ -159,11 +160,11 @@
         {
             var request = new CreateLayOutPlanTypeMasterCommand
                 {
-                    Name=editablePlant.Name,
+                    Name = editablePlant.Name,
                     LayoutPlanTypeId = editablePlant.LayoutPlanTypeId,
                     Description = editablePlant.Description,
                     StatusCodeId = editablePlant.StatusCodeId,
-                    VersionNo=editablePlant.VersionNo,
+                    VersionNo = editablePlant.VersionNo,
                 };
             await Mediator.Send(request);
             await UpdateDataAsync();
@@ -185,7 +186,7 @@
     {
         var request = new EditLayOutPlanTypeMasterCommand
             {
-                Name=editablePlant.Name,
+                Name = editablePlant.Name,
                 LayoutPlanTypeId = editablePlant.LayoutPlanTypeId,
                 VersionNo = editablePlant.VersionNo,
                 Description = editablePlant.Description,
@@ -202,7 +203,7 @@
         {
             e.CssClass = "alt-item";
         }
-       
+
     }
     async Task ExportToExcel()
     {

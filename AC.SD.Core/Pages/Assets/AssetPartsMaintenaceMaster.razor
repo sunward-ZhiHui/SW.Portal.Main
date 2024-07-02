@@ -74,13 +74,12 @@
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
-                            Value="@CurrentCatalog"
+                            Value="@plant.AssetCatalogId"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            ValueExpression="@(() => CurrentCatalog )"
-                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemCatalogChanged(plantSelect?.ApplicationMasterChildId,plant))"
+                            ValueExpression="@(() => plant.AssetCatalogId )"
+                            ValueChanged="@((long? plantSelect) => SelectedItemCatalogChanged(plantSelect,plant))"
                             ShowValidationIcon="true">
                 </DxComboBox>
-                <DxSpinEdit @bind-Value="@plant.AssetCatalogId" ShowValidationIcon="true" style="display:none;" />
                 <ValidationMessage For="@(() => plant.AssetCatalogId)" />
             </DxFormLayoutItem>
 
@@ -89,13 +88,12 @@
                             NullText="Select Section..."
                             SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
-                            Value="@CurrentSection"
+                            Value="@plant.SectionId"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            ValueExpression="@(() => CurrentSection )"
+                            ValueExpression="@(() => plant.SectionId )"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
-                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemSectionChanged(plantSelect?.ApplicationMasterChildId,plant))" />
-                <DxSpinEdit @bind-Value="@plant.SectionId" ShowValidationIcon="true" style="display:none;" />
+                            ValueChanged="@((long? plantSelect) => SelectedItemSectionChanged(plantSelect,plant))" />
                 <ValidationMessage For="@(() => plant.SectionId)" />
             </DxFormLayoutItem>
 
@@ -151,8 +149,6 @@
     </BodyTemplate>
 </DxPopup>
 @code {
-    ApplicationMasterChildModel CurrentCatalog { get; set; }
-    ApplicationMasterChildModel CurrentSection { get; set; }
     [Parameter]
     public View_AssetCatalogMaster _selectItems { get; set; }
     private List<ApplicationMasterChildModel> _applicationMasterChildAssetCatalogItems;
@@ -195,26 +191,20 @@
     }
     async Task SelectedItemCatalogChanged(long? values, View_AssetPartsMaintenaceMaster view_AssetPartsMaintenaceMaster)
     {
-        CurrentCatalog = null;
-        CurrentSection = null;
-        view_AssetPartsMaintenaceMaster.AssetCatalogId = null;
+        view_AssetPartsMaintenaceMaster.AssetCatalogId = values;
         _applicationMasterChildSubSectionItems = new List<ApplicationMasterChildModel>();
         view_AssetPartsMaintenaceMaster.AssetCatalogId = null;
         if (values > 0)
         {
-            CurrentCatalog = _applicationMasterChildAssetCatalogItems != null ? _applicationMasterChildAssetCatalogItems.FirstOrDefault(f => f.ApplicationMasterChildId == values) : null;
             view_AssetPartsMaintenaceMaster.AssetCatalogId = values;
-            
             _applicationMasterChildSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
         }
     }
     async Task SelectedItemSectionChanged(long? values, View_AssetPartsMaintenaceMaster view_AssetPartsMaintenaceMaster)
     {
-        CurrentSection = null;
-        view_AssetPartsMaintenaceMaster.AssetCatalogId = null;
+        view_AssetPartsMaintenaceMaster.AssetCatalogId = values;
         if (values > 0)
         {
-            CurrentSection = _applicationMasterChildSectionItems != null ? _applicationMasterChildAssetCatalogItems.FirstOrDefault(f => f.ApplicationMasterChildId == values) : null; ;
             view_AssetPartsMaintenaceMaster.SectionId = values;
             _applicationMasterChildSubSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
         }

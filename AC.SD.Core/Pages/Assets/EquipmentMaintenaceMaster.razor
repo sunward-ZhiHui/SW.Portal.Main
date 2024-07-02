@@ -71,8 +71,11 @@
 
             <DxFormLayoutItem Caption="Calibarion" ColSpanMd="6">
                 <DxComboBox Data="@CalibarionList"
-                            @bind-Value="@plant.IsCalibarion"
-                            SelectedItemChanged="@((string plantSelect) => SelectedItemChanged(plantSelect))"
+                            Value="@plant.IsCalibarion"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            ValueExpression="@(() => plant.IsCalibarion )"
+                            ValueChanged="@((string plantSelect) => SelectedItemChanged(plantSelect,plant))"
                             ShowValidationIcon="true" />
                 <ValidationMessage For="@(() => plant.IsCalibarion)" />
             </DxFormLayoutItem>
@@ -189,11 +192,12 @@
             {
                 newmaster.AssetDocumentationIds = lists.Select(s => s.AssetDocumentId).ToList();
             }
-            SelectedItemChanged(newmaster.IsCalibarion);
+            SelectedItemChanged(newmaster.IsCalibarion, newmaster);
         }
     }
-    void SelectedItemChanged(string value)
+    void SelectedItemChanged(string value,View_AssetEquipmentMaintenaceMaster view_AssetEquipmentMaintenaceMaster)
     {
+        view_AssetEquipmentMaintenaceMaster.IsCalibarion = value;
         if (value == "Yes")
         {
             IsCalibarionFlag = false;

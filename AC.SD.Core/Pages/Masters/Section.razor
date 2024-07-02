@@ -104,12 +104,11 @@
                                 TextFieldName="DepartmentDrop"
                                 ValueFieldName="DepartmentId"
                                 Enabled="@isEnabled"
-                                Value="@CurrentDepartment"
-                                ValueExpression="@(() => CurrentDepartment )"
-                                ValueChanged="@((ViewDepartment depSelect) => SelectedItemChanged(depSelect,sections))"
+                                Value="@sections.DepartmentId"
+                                ValueExpression="@(() => sections.DepartmentId )"
+                                ValueChanged="@((long? depSelect) => SelectedItemChanged(depSelect,sections))"
                                 ShowValidationIcon="true">
                     </DxComboBox>
-                    <DxSpinEdit @bind-Value="@sections.DepartmentId" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => sections.DepartmentId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Company" ColSpanMd="6">
@@ -194,7 +193,6 @@
 </DxPopup>
 
 @code {
-    ViewDepartment CurrentDepartment { get; set; }
     string Name = "";
     string Text { get; set; } = "Active";
     bool PanelVisible { get; set; }
@@ -227,7 +225,6 @@
     private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
-        CurrentDepartment = null;
         PanelVisible = true;
         // await jsRuntime.InvokeAsync<string>("showLoading");
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
@@ -244,7 +241,6 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        CurrentDepartment = null;
         if (e.IsNew)
         {
             var newmaster = (ViewSection)e.EditModel;
@@ -264,7 +260,6 @@
                     newmaster.DepartmentId = _masters.DepartmentId;
                     companyName = _masters.Company;
                     divisionName = _masters.Division;
-                    CurrentDepartment = _departmentItems != null && _masters.DepartmentId > 0 ? _departmentItems.FirstOrDefault(f => f.DepartmentId == _masters.DepartmentId) : null;
                     // SelectedItemChanged(_ictmasters);
                 }
             }
@@ -272,18 +267,18 @@
         else
         {
             var dep = (ViewSection)e.DataItem;
-            CurrentDepartment = _departmentItems != null && dep.DepartmentId > 0 ? _departmentItems.FirstOrDefault(f => f.DepartmentId == dep.DepartmentId) : null;
             companyName = dep.Company;
             divisionName = dep.Division;
         }
     }
-    void SelectedItemChanged(ViewDepartment dep, ViewSection viewSection)
+    void SelectedItemChanged(long? depId, ViewSection viewSection)
     {
-        CurrentDepartment = null;
-        if (dep!=null && dep.DepartmentId > 0)
+        viewSection.DepartmentId = depId;
+        var dep = _departmentItems != null && depId > 0 ? _departmentItems.FirstOrDefault(f => f.DepartmentId == depId) : null;
+        companyName = null;
+        divisionName = null;
+        if (dep != null)
         {
-            CurrentDepartment = dep;
-            viewSection.DepartmentId = dep.DepartmentId;
             companyName = dep.Company;
             divisionName = dep.Division;
         }

@@ -37,11 +37,13 @@
         <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
             <DxComboBox Data="@_ponumberActivities"
                         NullText="Select ProdOrderNo..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Name"
                         ValueFieldName="NavprodOrderLineId"
-                        SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod))"
-            @bind-Value="Data.NavprodOrderLineId"
+                        ValueChanged="@((long? prod) => SelectedItemprods(prod))"
+                        Value="Data.NavprodOrderLineId"
+                        ValueExpression="@(() => Data.NavprodOrderLineId )"
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
@@ -59,11 +61,13 @@
         <DxFormLayoutItem Caption="Routine:" ColSpanMd="6">
             <DxComboBox Data="@_ManuFactureProcessLines"
                         NullText="Select Routine..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
-            @bind-Value="Data.ManufacturingProcessChildId"
-                        SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemManuFactureChanged(plant))"
+                        Value="@Data.ManufacturingProcessChildId"
+                        ValueExpression="@(() => Data.ManufacturingProcessChildId )"
+                        ValueChanged="@((long? plant) => SelectedItemManuFactureChanged(plant))"
                         ShowValidationIcon="true">
                 <Buttons>
                     <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -76,11 +80,13 @@
         <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
             <DxComboBox Data="@_categoryItems"
                         NullText="Select Category ..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
-                        SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemCategoryChanged(plant))"
-            @bind-Value="Data.ProdActivityCategoryChildId"
+                        ValueChanged="@((long? plant) => SelectedItemCategoryChanged(plant))"
+                        Value="@Data.ProdActivityCategoryChildId"
+                        ValueExpression="@(() => Data.ProdActivityCategoryChildId )"
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.ProdActivityCategoryChildId)" />
@@ -89,11 +95,13 @@
         <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
             <DxComboBox Data="@_actionItems"
                         NullText="Select ActionDropdown..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
-                        SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemActionChanged(plant))"
-            @bind-Value="Data.ProdActivityActionChildD"
+                        ValueChanged="@((long? plant) => SelectedItemActionChanged(plant))"
+                        Value="@Data.ProdActivityActionChildD"
+                        ValueExpression="@(() => Data.ProdActivityActionChildD )"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
@@ -108,11 +116,13 @@
         <DxFormLayoutItem Caption="Name Of Template:" ColSpanMd="6" Visible="@Data.IsTemplateUpload">
             <DxComboBox Data="@_templateItems"
                         NullText="Select Name Of Template..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="NameOfTemplate"
                         ValueFieldName="ProductActivityCaseLineId"
-                        SelectedItemChanged="@((ProductActivityCaseLineModel plant) => SelectedItemplateItemsChanged(plant))"
-            @bind-Value="Data.ProductActivityCaseLineId"
+                        ValueChanged="@((long? plant) => SelectedItemplateItemsChanged(plant))"
+                        Value="@Data.ProductActivityCaseLineId"
+                        ValueExpression="@(() => Data.ProductActivityCaseLineId )"
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.ProductActivityCaseLineId)" />
@@ -120,30 +130,34 @@
         <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
             <DxComboBox Data="@_ActivityResult"
                         NullText="Select Activity Result..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="Data.ProdActivityResultId"
+                        @bind-Value="Data.ProdActivityResultId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Routine Status:" ColSpanMd="6">
             <DxComboBox Data="@_ActivityStatusItem"
                         NullText="Select Routine Status..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="Data.RoutineStatusId"
+                        @bind-Value="Data.RoutineStatusId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
             <DxTagBox NullText="Select Routine Info..."
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
                       Data="@_ActivityMaster"
                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                       TextFieldName="Value"
                       ValueFieldName="ApplicationMasterDetailID"
-            @bind-Values="@Data.RoutineInfoIds"
+                      @bind-Values="@Data.RoutineInfoIds"
                       CssClass="cw-480" />
         </DxFormLayoutItem>
 
@@ -243,7 +257,7 @@
                 Data.NavprodOrderLineId = 0;
             }
             if (_selectedEditItems.IsTemplateUpload == true)
-            {}
+            { }
             else
             {
                 Data.ProductActivityCaseLineId = 0;
@@ -288,22 +302,26 @@
         addEnabled = true; saveEnabled = true;
         StateHasChanged();
     }
-    void SelectedItemplateItemsChanged(ProductActivityCaseLineModel Itemss)
+    void SelectedItemplateItemsChanged(long? Itemss)
     {
+        Data.ProductActivityCaseLineId = Itemss;
         Data.FileProfileTypeId = null; FileProfileTypeId = null;
-        if (Itemss != null && Itemss.LocationToSaveId > 0)
+        if (Itemss != null && Itemss > 0)
         {
-            FileProfileTypeId = Itemss.LocationToSaveId;
-            Data.FileProfileTypeId = Itemss.LocationToSaveId;
+            Data.ProductActivityCaseLineId = Itemss;
+            var items = _templateItems.FirstOrDefault(f => f.ProductActivityCaseLineId == Itemss);
+            FileProfileTypeId = items?.LocationToSaveId;
+            Data.FileProfileTypeId = items?.LocationToSaveId;
         }
     }
-    async Task SelectedItemManuFactureChanged(ApplicationMasterChildModel selectItem)
+    async Task SelectedItemManuFactureChanged(long? selectItem)
     {
+        Data.ManufacturingProcessChildId = selectItem;
         _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
         Data.ProdActivityCategoryChildId = null; Data.ProdActivityActionChildD = null;
-        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
+        if (selectItem != null && selectItem > 0)
         {
-            _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem.ApplicationMasterChildId));
+            _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem));
         }
         await OnTemplateUploadGroupValueChanged("No");
     }
@@ -316,12 +334,13 @@
         }
         StateHasChanged();
     }
-    void SelectedItemprod(NavprodOrderLineModel NAVProdOrder)
+    void SelectedItemprods(long? NAVProdOrder)
     {
-
-        if (NAVProdOrder != null && NAVProdOrder.NavprodOrderLineId > 0)
+        Data.NavprodOrderLineId = NAVProdOrder;
+        if (NAVProdOrder != null && NAVProdOrder > 0)
         {
             _editContext = new EditContext(Data);
+            Data.NavprodOrderLineId = NAVProdOrder;
             Data.OthersOptions = "No";
         }
         StateHasChanged();
@@ -345,20 +364,24 @@
         Data.NavprodOrderLineId = 0;
         StateHasChanged();
     }
-    async Task SelectedItemCategoryChanged(ApplicationMasterChildModel selectItem)
+    async Task SelectedItemCategoryChanged(long? selectItem)
     {
+        Data.ProdActivityCategoryChildId = null;
         _actionItems = new List<ApplicationMasterChildModel>();
         Data.ProdActivityActionChildD = null;
-        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
+        if (selectItem != null && selectItem > 0)
         {
-            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem.ApplicationMasterChildId));
+            Data.ProdActivityCategoryChildId = selectItem;
+            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem));
         }
         await OnTemplateUploadGroupValueChanged("No");
     }
-    async Task SelectedItemActionChanged(ApplicationMasterChildModel selectItem)
+    async Task SelectedItemActionChanged(long? selectItem)
     {
-        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
+        Data.ProdActivityActionChildD = null;
+        if (selectItem != null && selectItem > 0)
         {
+            Data.ProdActivityActionChildD = selectItem;
             await getTemplateItems();
         }
         await OnTemplateUploadGroupValueChanged("No");

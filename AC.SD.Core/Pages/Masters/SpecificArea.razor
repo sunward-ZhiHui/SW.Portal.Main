@@ -95,9 +95,9 @@
                                 TextFieldName="Description"
                                 ValueFieldName="PlantID"
                                 Enabled="@isEnabled"
-                                ValueChanged="@((ViewPlants plant) => SelectedItemChanged(plant,ict))"
-                                Value="@CurrentPlant"
-                                ValueExpression="@(() => CurrentPlant )"
+                                ValueChanged="@((long plant) => SelectedItemChanged(plant,ict))"
+                                Value="@ict.CompanyId"
+                                ValueExpression="@(() => ict.CompanyId )"
                                 ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => ict.CompanyId)" />
@@ -161,7 +161,8 @@
                     }
                     <DxComboBox Data="@_masterLocation"
                                 NullText="Select Area..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Name"
                                 ValueFieldName="IctmasterId"
                                 @bind-Value="@ict.ParentIctid"
@@ -172,7 +173,7 @@
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Name" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@ict.Name" Rows="5" />
+                    <DxTextBox @bind-Text="@ict.Name" />
                     <ValidationMessage For="@(() => ict.Name)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Description" ColSpanMd="6">
@@ -221,7 +222,6 @@
 </DxPopup>
 
 @code {
-    ViewPlants CurrentPlant { get; set; }
     bool PanelVisible { get; set; }
     string comapnyName = "";
     string siteName = "";
@@ -322,7 +322,6 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        CurrentPlant = null;
         if (e.IsNew)
         {
             var newmaster = (ViewIctmaster)e.EditModel;
@@ -344,8 +343,7 @@
                     newmaster.ZoneId = _ictmasters.ZoneId;
                     newmaster.LocationId = _ictmasters.ParentIctid.Value;
                     newmaster.ParentIctid = _ictmasters.IctmasterId;
-                    var item = _plantItems.FirstOrDefault(c => c.PlantID == _ictmasters.CompanyId);
-                    SelectedItemChanged(item, newmaster);
+                    SelectedItemChanged(_ictmasters.CompanyId, newmaster);
                     SelectedChanged(_ictmasters.SiteId);
                     SelectChanged(_ictmasters.ZoneId);
                     SelectAreaChanges(_ictmasters.ParentIctid);
@@ -355,10 +353,8 @@
         else
         {
             var newmaster = (ViewIctmaster)e.EditModel;
-            var item = _plantItems.FirstOrDefault(c => c.PlantID == newmaster.CompanyId);
             var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == newmaster.SiteId);
-            CurrentPlant = item;
-            SelectedItemChanged(item, newmaster);
+            SelectedItemChanged(newmaster.CompanyId, newmaster);
             SelectedChanged(_ictmasters.SiteId);
             SelectChanged(_ictmasters.ZoneId);
             SelectAreaChanges(_ictmasters.ParentIctid);
@@ -427,21 +423,19 @@
         toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await UpdateDataAsync();
     }
-    void SelectedItemChanged(ViewPlants companyId, ViewIctmaster viewIctmaster)
+    void SelectedItemChanged(long companyId, ViewIctmaster viewIctmaster)
     {
 
-        CurrentPlant = null;
-        viewIctmaster.CompanyId = 0;
+        viewIctmaster.CompanyId = companyId;
         _masterCompany = new List<ViewIctmaster>(); _masterSite = new List<ViewIctmaster>(); _masterZone = new List<ViewIctmaster>(); _masterLocation = new List<ViewIctmaster>();
         if (companyId == null)
         {
             viewIctmaster.ParentIctid = null;
         }
-        if (companyId != null && companyId.PlantID > 0)
+        if (companyId > 0)
         {
-            CurrentPlant = companyId;
-            viewIctmaster.CompanyId = companyId.PlantID;
-            _masterCompany = _ictmaster.Where(c => c.CompanyId == companyId.PlantID && c.MasterType == 570).ToList();
+            viewIctmaster.CompanyId = companyId;
+            _masterCompany = _ictmaster.Where(c => c.CompanyId == companyId && c.MasterType == 570).ToList();
         }
 
     }

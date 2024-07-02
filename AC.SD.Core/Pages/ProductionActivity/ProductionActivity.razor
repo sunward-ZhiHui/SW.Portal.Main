@@ -36,13 +36,15 @@
 
                                 <DxComboBox Data="@_plantItems"
                                             NullText="Select Company..."
-                                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant))"
+                                            Value="@Data.CompanyID"
+                                            ValueExpression="@(() => Data.CompanyID )"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             ListRenderMode="ListRenderMode.Virtual"
                                             TextFieldName="Description"
                                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                                             ValueFieldName="PlantID"
-                                @bind-Value="Data.CompanyID"
                                             ShowValidationIcon="true">
 
                                 </DxComboBox>
@@ -51,13 +53,15 @@
                             <DxFormLayoutItem Caption="Location" ColSpanMd="4">
                                 <DxComboBox Data="@_productionActivities"
                                             NullText="Select Loctaion..."
-                                            SelectedItemChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ValueChanged="@((long? loc) => SelectedItemloc(loc))"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="DeropdownName"
                                             ValueFieldName="ICTMasterID"
                                             ListRenderMode="ListRenderMode.Virtual"
                                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                                @bind-Value="Data.LocationID"
+                                            Value="@Data.LocationID"
+                                            ValueExpression="@(() => Data.LocationID )"
                                             ShowValidationIcon="true">
                                     <Buttons>
                                         <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -69,13 +73,15 @@
                             <DxFormLayoutItem Caption="Ticket No" ColSpanMd="4">
                                 <DxComboBox Data="@_ponumberActivities"
                                             NullText="Select Ticket No..."
-                                            SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod?.ProdOrderNo))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ValueChanged="@((string? prod) => SelectedItemprod(prod))"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="Name"
                                             ValueFieldName="ProdOrderNo"
                                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                                             ListRenderMode="ListRenderMode.Virtual"
-                                @bind-Value="Data.ProdOrderNo"
+                                            Value="@Data.ProdOrderNo"
+                                            ValueExpression="@(() => Data.ProdOrderNo )"
                                             ShowValidationIcon="true">
                                     <Buttons>
                                         <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -439,7 +445,7 @@
     IGrid? AppLine { get; set; }
     IGrid? _PoAppLine { get; set; }
     private List<ProductActivityAppModel> _AppLines;
-    bool AddPopup { get; set; }= false; bool PanelVisible { get; set; } = false;
+    bool AddPopup { get; set; } = false; bool PanelVisible { get; set; } = false;
     bool PopupLocationScanVisible { get; set; } = false;
     bool PopupProductionNoScanVisible { get; set; } = false;
     private AddPopupApp? RefToDoLeftNotes { get; set; }
@@ -483,12 +489,13 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
     }
-    async Task SelectedItemloc(ProductionActivityApp loc)
+    async Task SelectedItemloc(long? loc)
     {
+        Data.LocationID = loc;
         LocationID = 0; _editContext = new EditContext(Data);
-        if (loc != null && loc.ICTMasterID > 0)
+        if (loc != null && loc > 0)
         {
-            LocationID = loc.ICTMasterID;
+            LocationID = loc;
         }
         await onLoadDataList();
         StateHasChanged();
@@ -650,15 +657,16 @@
         }
         StateHasChanged();
     }
-    async Task SelectedItemPlantChanged(ViewPlants PlantsData)
+    async Task SelectedItemPlantChanged(long? PlantsData)
     {
+        Data.CompanyID = PlantsData;
         _productionActivities = new List<ProductionActivityApp>();
         _ponumberActivities = new List<NavprodOrderLineModel>();
         _AppLines = new List<ProductActivityAppModel>(); ActiveTabIndex = 0; _poOrderDetails = new List<NavprodOrderLineModel>();
         NAVProdOrderno = string.Empty; CompanyID = 0; Data.CompanyID = null; Data.LocationID = null; Data.ProdOrderNo = null; LocationID = 0;
-        if (PlantsData != null && PlantsData.PlantID > 0)
+        if (PlantsData != null && PlantsData > 0)
         {
-            CompanyID = PlantsData.PlantID;
+            CompanyID = PlantsData;
             Data.CompanyID = CompanyID;
             _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(CompanyID));
             _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(CompanyID));
@@ -686,7 +694,7 @@
 
     async void SelectedItemprod(string? NAVProdOrder)
     {
-
+        Data.ProdOrderNo = NAVProdOrder;
         NAVProdOrderno = string.Empty;
         if (!string.IsNullOrEmpty(NAVProdOrder))
         {

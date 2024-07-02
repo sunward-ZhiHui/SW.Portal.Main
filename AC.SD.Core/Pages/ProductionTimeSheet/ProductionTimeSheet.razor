@@ -36,13 +36,15 @@
 
                                 <DxComboBox Data="@_plantItems"
                                             NullText="Select Company..."
-                                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant))"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             ListRenderMode="ListRenderMode.Virtual"
                                             TextFieldName="Description"
                                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                                             ValueFieldName="PlantID"
-                                @bind-Value="Data.CompanyID"
+                                            Value="@Data.CompanyID"
+                                            ValueExpression="@(() => Data.CompanyID )"
                                             ShowValidationIcon="true">
 
                                 </DxComboBox>
@@ -51,13 +53,15 @@
                             <DxFormLayoutItem Caption="Location" ColSpanMd="4">
                                 <DxComboBox Data="@_productionActivities"
                                             NullText="Select Loctaion..."
-                                            SelectedItemChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ValueChanged="@((long? loc) => SelectedItemloc(loc))"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="DeropdownName"
                                             ValueFieldName="ICTMasterID"
                                             ListRenderMode="ListRenderMode.Virtual"
                                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                                @bind-Value="Data.LocationID"
+                                            Value="@Data.LocationID"
+                                            ValueExpression="@(() => Data.LocationID )"
                                             ShowValidationIcon="true">
                                     <Buttons>
                                         <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -67,31 +71,31 @@
                                 </DxComboBox>
                             </DxFormLayoutItem>
                             @* @*  <DxFormLayoutItem Caption="Ticket No" ColSpanMd="4">
-                                <DxTextBox @bind-Text="@Data.TicketNo" spellcheck="true" ShowValidationIcon="true" NullText="Ticket No" >
-                                <Buttons>
-                                    <DxEditorButton IconCssClass="fa fa-qrcode"
-                                                    Tooltip="Scan Ticket No"
-                                                    Click="@(_ => OnButtonTicketNoClick())" />
-                                </Buttons>
-                                </DxTextBox> 
-                               <DxComboBox Data="@_ponumberActivities"
-                                            NullText="Select Ticket No..."
-                                            SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod?.ProdOrderNo))"
-                                            FilteringMode="DataGridFilteringMode.Contains"
-                                            TextFieldName="Name"
-                                            ValueFieldName="ProdOrderNo"
-                                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                @bind-Value="Data.ProdOrderNo"
-                                            ShowValidationIcon="true">
-                                    <Buttons>
-                                        <DxEditorButton IconCssClass="fa fa-qrcode"
-                                                        Tooltip="Scan Ticket No"
-                                                        Click="@(_ => OnButtonTicketNoClick())" />
-                                    </Buttons>
-                                </DxComboBox> 
-                                <ValidationMessage For="@(() => Data.ProdOrderNo)" />
-                            </DxFormLayoutItem>  *@ 
+                            <DxTextBox @bind-Text="@Data.TicketNo" spellcheck="true" ShowValidationIcon="true" NullText="Ticket No" >
+                            <Buttons>
+                            <DxEditorButton IconCssClass="fa fa-qrcode"
+                            Tooltip="Scan Ticket No"
+                            Click="@(_ => OnButtonTicketNoClick())" />
+                            </Buttons>
+                            </DxTextBox>
+                            <DxComboBox Data="@_ponumberActivities"
+                            NullText="Select Ticket No..."
+                            SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod?.ProdOrderNo))"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="ProdOrderNo"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ListRenderMode="ListRenderMode.Virtual"
+                            @bind-Value="Data.ProdOrderNo"
+                            ShowValidationIcon="true">
+                            <Buttons>
+                            <DxEditorButton IconCssClass="fa fa-qrcode"
+                            Tooltip="Scan Ticket No"
+                            Click="@(_ => OnButtonTicketNoClick())" />
+                            </Buttons>
+                            </DxComboBox>
+                            <ValidationMessage For="@(() => Data.ProdOrderNo)" />
+                            </DxFormLayoutItem>  *@
                             <DxFormLayoutItem Caption="Lot No" ColSpanMd="4">
                                 <DxTextBox Text="@Data.LotNo" spellcheck="true" ShowValidationIcon="true" NullText="Lot No" TextExpression="@(() => Data.LotNo )" TextChanged="@((newValue) => OnTextChanged(newValue))">
                                     <Buttons>
@@ -100,17 +104,17 @@
                                                         Click="@(_ => OnButtonTicketNoClick())" />
                                     </Buttons>
                                 </DxTextBox>
-                              
+
                                 <ValidationMessage For="@(() => Data.LotNo)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Item Name" ColSpanMd="4">
                                 <DxTextBox Text="@Data.ItemName" spellcheck="true" ShowValidationIcon="true" NullText="Item Name" TextExpression="@(() => Data.ItemName )" TextChanged="@((newValue) => OnItemNameChanged(newValue))" />
                                 <ValidationMessage For="@(() => Data.ItemName)" />
                             </DxFormLayoutItem>
-                          @*   <DxFormLayoutItem ColSpanMd="4">
-                                <DxButton IconCssClass="fa fa-filter" Text="Search" RenderStyle="ButtonRenderStyle.Secondary"
-                                                    Click="@(_ => onLoadDataList())" />                                     
-                                   
+                            @*   <DxFormLayoutItem ColSpanMd="4">
+                            <DxButton IconCssClass="fa fa-filter" Text="Search" RenderStyle="ButtonRenderStyle.Secondary"
+                            Click="@(_ => onLoadDataList())" />
+
                             </DxFormLayoutItem> *@
                         </DxFormLayout>
 
@@ -285,21 +289,21 @@
     </div>
 </div>
 
- <DxPopup @bind-Visible="@AddPopup"
-          ShowFooter="true"
-          HeaderText="Add Activity"
-          Closed="EulaPopupClosed"
-          CloseOnOutsideClick="false"
-          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
-          CloseOnEscape="false" ShowCloseButton="false">
-     <BodyContentTemplate>
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="true"
+         HeaderText="Add Activity"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
+    <BodyContentTemplate>
         <AddTimeSheetPopupApp ParentData="@Data" @ref="RefToDoLeftNotes" RevokeBack="ClosePopup" _selectedEditItems="@_selectedEditItems" _poOrderDetails="@_poOrderDetails"></AddTimeSheetPopupApp>
 
-     </BodyContentTemplate>
-     <FooterContentTemplate Context="Context">
-         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
-     </FooterContentTemplate>
- </DxPopup>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 <DxPopup @bind-Visible="@PopupLocationScanVisible"
          CssClass="popup-demo-events"
          ShowFooter="true" HeaderText="Scan Location" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
@@ -465,7 +469,7 @@
     IGrid? AppLine { get; set; }
     IGrid? _PoAppLine { get; set; }
     private List<ProductionActivityRoutineAppModel> _AppLines;
-    bool AddPopup { get; set; }= false; bool PanelVisible { get; set; } = false;
+    bool AddPopup { get; set; } = false; bool PanelVisible { get; set; } = false;
     bool PopupLocationScanVisible { get; set; } = false;
     bool PopupProductionNoScanVisible { get; set; } = false;
     private AddTimeSheetPopupApp? RefToDoLeftNotes { get; set; }
@@ -511,7 +515,7 @@
     }
     async void OnTextChanged(string newValue)
     {
-        Data.LotNo =newValue;
+        Data.LotNo = newValue;
         await onLoadDataList();
     }
     async void OnItemNameChanged(string newValue)
@@ -519,12 +523,13 @@
         Data.ItemName = newValue;
         await onLoadDataList();
     }
-    async Task SelectedItemloc(ProductionActivityApp loc)
+    async Task SelectedItemloc(long? loc)
     {
+        Data.LocationID = loc;
         LocationID = 0; _editContext = new EditContext(Data);
-        if (loc != null && loc.ICTMasterID > 0)
+        if (loc != null && loc > 0)
         {
-            LocationID = loc.ICTMasterID;
+            LocationID = loc;
         }
         await onLoadDataList();
         StateHasChanged();
@@ -540,8 +545,8 @@
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
         FilterData = new ProductionActivityRoutineAppModel();
         // if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
-       // if (CompanyID > 0 && !string.IsNullOrEmpty(Data.LotNo) && !string.IsNullOrEmpty(Data.ItemName))
-        if (CompanyID > 0 )
+        // if (CompanyID > 0 && !string.IsNullOrEmpty(Data.LotNo) && !string.IsNullOrEmpty(Data.ItemName))
+        if (CompanyID > 0)
         {
             FilterData.CompanyId = CompanyID;
             FilterData.LotNo = Data.LotNo;
@@ -690,19 +695,20 @@
         }
         StateHasChanged();
     }
-    async Task SelectedItemPlantChanged(ViewPlants PlantsData)
+    async Task SelectedItemPlantChanged(long? PlantsData)
     {
+        Data.CompanyID = PlantsData;
         _productionActivities = new List<ProductionActivityApp>();
         _ponumberActivities = new List<NavprodOrderLineModel>();
         _AppLines = new List<ProductionActivityRoutineAppModel>(); ActiveTabIndex = 0; _poOrderDetails = new List<NavprodOrderLineModel>();
         NAVProdOrderno = string.Empty; CompanyID = 0; Data.CompanyID = null; Data.LocationID = null; Data.ProdOrderNo = null; LocationID = 0;
-        if (PlantsData != null && PlantsData.PlantID > 0)
+        if (PlantsData > 0)
         {
-            CompanyID = PlantsData.PlantID;
+            CompanyID = PlantsData;
             Data.CompanyID = CompanyID;
             _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(CompanyID));
             _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(CompanyID));
-            
+
             await onLoadDataList();
         }
 
@@ -790,7 +796,7 @@
     {
         addNew();
         //if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
-        if(CompanyID > 0)
+        if (CompanyID > 0)
         {
             _selectedEditItems = null;
             AddPopup = true;
@@ -864,7 +870,7 @@
                 if (exists == true)
                 {
 
-                   
+
                     Data.ItemName = ticketNo[0];
                     Data.LotNo = ticketNo[1];
                     // var poNo = _ponumberActivities.Where(w => w.ProdOrderNo != null).FirstOrDefault(f => f.ProdOrderNo.ToLower() == ticketNo[5].ToLower());
@@ -894,7 +900,7 @@
         {
             toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
         }
-       
+
         StateHasChanged();
         await onLoadDataList();
     }

@@ -49,6 +49,7 @@
                                             SearchMode="ListSearchMode.AutoSearch"
                                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="NavCompany"
+                                            ValueFieldName="PlantID"
                                             Value="@Data.AttributeCompanyId"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                             ValueExpression="@(() => Data.AttributeCompanyId )"
@@ -329,7 +330,7 @@
     void SelectedPlantChanged(long? country)
     {
         Data.AttributeCompanyId = null;
-        if (country>0)
+        if (country > 0)
         {
             Data.AttributeCompanyId = country;
         }
@@ -372,6 +373,7 @@
         {
             Data.AttributeCompanyId = _plantItems.OrderBy(o => o.PlantID).FirstOrDefault()?.PlantID;
         }
+        StateHasChanged();
     }
     async Task OnTabClick(TabClickEventArgs e)
     {
@@ -452,8 +454,9 @@
         Data.EntryMask = null;
         Data.RegExp = null;
         Data.IsInternal = false;
+        Data.AttributeCompanyId = null;
         Data.ControlTypeId = null; Data.ControlType = null;
-        Data.AttributeCompanyId = null; Data.AttrDescription = null;
+        Data.AttrDescription = null;
         Data.IsMultiple = false;
         Data.IsRequired = false;
         Data.RequiredMessage = null;
@@ -481,7 +484,6 @@
         IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null; IsCheckBoxEnabled = false;
         _dynamicForms = new List<DynamicForm>();
         _dynamicForms = _dynamicForm;
-        
         loadPlantItems();
         StateHasChanged();
     }
@@ -645,7 +647,7 @@
         {
             Data.DataSourceId = value;
             var data = _attributeHeaderDataSource.FirstOrDefault(f => f.AttributeHeaderDataSourceId == value);
-            if (data!=null && data.DataSourceTable == "DynamicGrid")
+            if (data != null && data.DataSourceTable == "DynamicGrid")
             {
                 Data.DynamicFormId = null; isGridForm = true;
             }
@@ -655,7 +657,7 @@
     void SelectedItemDynamicFormChanged(long? dynamicForm)
     {
         Data.DynamicFormId = null;
-        if (dynamicForm>0)
+        if (dynamicForm > 0)
         {
             Data.DynamicFormId = dynamicForm;
         }

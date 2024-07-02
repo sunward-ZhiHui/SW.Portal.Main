@@ -168,25 +168,23 @@ else
                             @if (Data.UserType == "Users")
                             {
                                 <DxFormLayoutItem Caption="To" ColSpanMd="7">
-                                    <DxTagBox Data="_Toparticipant"
-                                         
+                                    <DxTagBox Data="_Toparticipant"                                         
                                     SearchMode="ListSearchMode.AutoSearch"
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                              NullText="Select To..."
-                                               Values="@toparticipant"
-                                                ValuesExpression="@(() => toparticipant )"
-                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                              ValueFieldName="UserID"
-                                              TextFieldName="Name"
-                                              ValuesChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
-                                              ListRenderMode="ListRenderMode.Virtual"
-                                              CssClass="cw-480">
+                                    NullText="Select To..."
+                                    Values="@Data.ToIds"
+                                    ValuesExpression="@(() => Data.ToIds )"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ValueFieldName="UserID"
+                                    TextFieldName="Name"
+                                    ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    CssClass="cw-480">
 
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-
+                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                                         
                                     </DxTagBox>
                                     <ValidationMessage For="@(() => Data.ToIds)" />
@@ -202,8 +200,6 @@ else
                             {
                                 <DxFormLayoutItem Caption="To Group" ColSpanMd="8">
                                     <DxTagBox Data="_ToUserGroup"
-                                             
-                                               
                                     SearchMode="ListSearchMode.AutoSearch"
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
                                               NullText="Select To Group..."
@@ -211,7 +207,7 @@ else
                                               ValueFieldName="UserGroupId"
                                               TextFieldName="Name"
                                               Values="@toUserGroupValues"
-                              ValuesExpression="@(() => toUserGroupValues )"
+                                              ValuesExpression="@(() => toUserGroupValues )"
                                               ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual"
                                               CssClass="cw-480">
@@ -253,9 +249,9 @@ else
                                               ListRenderMode="ListRenderMode.Virtual"
                                               ValueFieldName="UserID"
                                               TextFieldName="Name"
-                                               Values="@ccparticipant"
-                                               ValuesExpression="@(() => ccparticipant )"
-                                              ValuesChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
+                                               Values="@Data.CCIds"
+                                              ValuesExpression="@(() =>  Data.CCIds )"
+                                              ValuesChanged="@((IEnumerable<long>? values) => onSelectedCCItemsChanged(values))"
                                               
                                     SearchMode="ListSearchMode.AutoSearch"
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -608,10 +604,9 @@ else
             <DxFormLayout>
                 <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
                     <DxTagBox Data="_ToUserGroup"
-                             
-                             
-                                    SearchMode="ListSearchMode.AutoSearch"
-                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                         
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               NullText="Select To Group..."
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserGroupId"
@@ -689,9 +684,8 @@ else
 @code {
     IEnumerable<UserGroup> UserGroupValues { get; set; }
     IEnumerable<UserGroup> TogroupValue { get; set; }
-      IEnumerable<UserGroup> ccgroupValue { get; set; }
-        IEnumerable<ViewEmployee> ccparticipant { get; set; }
-         IEnumerable<ViewEmployee> toparticipant { get; set; }
+    IEnumerable<UserGroup> ccgroupValue { get; set; }
+
     ApplicationMasterChildModel selectgrouptagItems { get; set; } 
     ApplicationMasterChildModel selectCategory { get; set; }
     IEnumerable<UserGroup> toUserGroupValues { get; set; }
@@ -827,10 +821,30 @@ else
     {
         var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
     }
-
-    void onSelectedToItemsChanged(IEnumerable<ViewEmployee> values)
+    void onSelectedToItemsChanged(IEnumerable<long>? values)
     {
-        Data.ToIds =values.Select(s=>s.UserID.Value).ToList();
+        Data.ToIds = values;
+        if (values != null)
+        {
+            // Update _CCparticipant based on selected values from _Toparticipant
+            // _CCparticipant = _participant.Except(values).ToList();
+            if (_participant != null && values != null)
+            {
+                _CCparticipant = _participant.Where(p => !values.Contains(p.UserID.Value)).ToList();
+            }
+        }
+        else
+        {
+            // Reset _CCparticipant to all participants if nothing is selected in _Toparticipant
+            _CCparticipant = _participant.ToList();
+            Data.ToIds = null;
+        }
+
+        UpdateOnBehalfParticipant();
+    }
+    void onSelectedToItemsChangedold(IEnumerable<ViewEmployee> values)
+    {
+        Data.ToIds = values.Select(s=>s.UserID.Value).ToList();
         if (values != null)
         {
             // Update _CCparticipant based on selected values from _Toparticipant
@@ -869,7 +883,7 @@ else
     {
         if (values != null)
         {
-          Data.CCUserGroupIds = UserGroupValues.Select(S => S.UserGroupId).ToList();
+            Data.CCUserGroupIds = values.Select(S => S.UserGroupId).ToList();
             //var userIds = await Mediator.Send(new GetGroupByUserids(1));
             onCCChange_Change(values);
 
@@ -897,10 +911,11 @@ else
         {
             Data.ToIds = userIdsList;
 
+
             if (_participant != null && userIds != null)
             {
                 var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
-                onSelectedToItemsChanged(emplst);
+                onSelectedToItemsChanged(emplst.Select(s=>s.UserID.Value));
             }
             // _CCparticipant = _participant.Except(userIds, new ViewEmployeeComparer()).ToList();
 
@@ -930,7 +945,7 @@ else
             if (_participant != null && combinedIds != null)
             {
                 var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
-                onSelectedToItemsChanged(emplst1);
+                onSelectedToItemsChanged(emplst1.Select(s=>s.UserID.Value));
             }
         }
 
@@ -966,7 +981,7 @@ else
             if (_participant != null && userIds != null)
             {
                 var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
-                onSelectedCCItemsChanged(emplst);
+                onSelectedCCItemsChanged(emplst.Select(s=>s.UserID.Value));
             }
 
         }
@@ -994,7 +1009,7 @@ else
             if (_participant != null && combinedIds != null)
             {
                 var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
-                onSelectedCCItemsChanged(emplst1);
+                onSelectedCCItemsChanged(emplst1.Select(s => s.UserID.Value));
             }
         }
 
@@ -1003,7 +1018,7 @@ else
     void onSelectedToUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
         Data.ToUserGroupIds=values.Select(s=>s.UserGroupId).ToList();
-       
+
         if (values != null)
         {
 
@@ -1018,7 +1033,28 @@ else
         StateHasChanged();
     }
 
-    void onSelectedCCItemsChanged(IEnumerable<ViewEmployee> values)
+    void onSelectedCCItemsChanged(IEnumerable<long>? values)
+    {
+        Data.CCIds = values;
+        if (values != null)
+        {
+            // Update _Toparticipant based on selected values from _CCparticipant
+            //  _Toparticipant = _participant.Except(values).ToList();
+            if (_participant != null && values != null)
+            {
+                _Toparticipant = _participant.Where(p => !values.Contains(p.UserID.Value)).ToList();
+            }
+        }
+        else
+        {
+            // Reset _Toparticipant to all participants if nothing is selected in _CCparticipant
+            _Toparticipant = _participant.ToList();
+            Data.CCIds = null;
+        }
+
+        UpdateOnBehalfParticipant();
+    }
+    void onSelectedCCItemsChangedold(IEnumerable<ViewEmployee> values)
     {
         Data.CCIds = values.Select(s=>s.UserID.Value).ToList();
         if (values != null)
@@ -1038,7 +1074,7 @@ else
 
     void onSelectedCCUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
-         Data.CCUserGroupIds = values.Select(s=> s.UserGroupId).ToList();
+        Data.CCUserGroupIds = values.Select(s=> s.UserGroupId).ToList();
         if (values != null)
         {
             _ToUserGroup = _participantUserGroup.Except(values).ToList();
@@ -1064,6 +1100,7 @@ else
 
     void onSelectedOnBehalfItemsChanged(ViewEmployee values)
     {
+        Data.OnBehalf = values.UserID;
         selectBehalf = values;
         //if (values != null)
         //{
@@ -1560,6 +1597,15 @@ else
     internal async void onClearAll()
     {
         onloadSession();
+        UserGroupValues = null;
+        TogroupValue = null;
+        ccgroupValue = null;
+        selectCategory = null;
+        selectgrouptagItems = null;
+        selectBehalf = null;
+        toUserGroupValues = null;
+        SelectedToDataItems = null;
+        SelectedCCDataItems = null;
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -1585,6 +1631,7 @@ else
             Data.DueDate = null;
             Data.From = applicationUser.UserName;
             Data.NoOfDays = 0;
+           
             OnUserTypeChanged("Users");
         }
 
@@ -1627,6 +1674,17 @@ else
         onloadSession();
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
+        UserGroupValues = null;
+        TogroupValue = null;
+        ccgroupValue = null;
+        selectCategory = null;
+        selectgrouptagItems = null;
+      
+        selectBehalf = null;
+        toUserGroupValues = null;
+        SelectedToDataItems = null;
+        SelectedCCDataItems = null;
+        SelectedDataItems = null;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
         Follow = new List<string>
@@ -2366,6 +2424,7 @@ else
     async void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
         selectgrouptagItems = applicationMasterChildModel;
+        CategoryData.GroupTag = selectgrouptagItems.ApplicationMasterChildId;
         if (applicationMasterChildModel != null)
         {
             await GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
@@ -2380,6 +2439,7 @@ else
     async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
         selectCategory = applicationMasterChildModel;
+        CategoryData.CategoryTag = selectCategory.ApplicationMasterChildId;
         if (applicationMasterChildModel != null)
         {
             await CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);

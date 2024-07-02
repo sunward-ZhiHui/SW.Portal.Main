@@ -254,7 +254,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-         NavigationManager.LocationChanged += OnLocationChanged;
+        NavigationManager.LocationChanged += OnLocationChanged;
 
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
 
@@ -479,7 +479,7 @@
         }
         else
         {
-            
+
             var editModel = (EmailActivityCatgorys)e.EditModel;             
 
             if (string.IsNullOrEmpty(editModel.ActivityType))
@@ -511,6 +511,7 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _topicCategorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
+      
 
         if (_selectedItems.IsTagDelete.GetValueOrDefault(false))
         {
@@ -544,9 +545,18 @@
 
         if (Grid != null)
         {
+           
             Grid.StartEditDataItemAsync(_selectedItems);
+            var lists = new ApplicationMasterChildModel();
+            var lists1 = new ApplicationMasterChildModel();
+            lists1.ApplicationMasterChildId = _selectedItems.GroupTag.Value;
+            lists.ApplicationMasterChildId = _selectedItems.CategoryTag.Value;
+            selectGroupItems = lists1;
+          
+            selectcategory = lists;
+           
         }
-
+        StateHasChanged();
 
     }
     void addDelete()

@@ -69,5 +69,7 @@ namespace Core.Entities.Views
         public int? UserStatus { get; set; }
         public string Name { get; set; }
         public string? StatusName { get; set; }
+
+       
     }
 }

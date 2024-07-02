@@ -34,11 +34,7 @@
         VirtualScrollingEnabled="true"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
+      
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 281px);"
@@ -163,7 +159,7 @@
                                     ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChangeddd(applicationMasterChildModel))"
                                     ShowValidationIcon="true">
                         </DxComboBox>
-                         <DxSpinEdit @bind-Value="@Data.GroupTag" ShowValidationIcon="true" style="display:none;" />
+                        @*  <DxSpinEdit @bind-Value="@Data.GroupTag" ShowValidationIcon="true" style="display:none;" /> *@
                         <ValidationMessage For="@(() => Data.GroupTag)" />
                     </DxFormLayoutItem>
 
@@ -182,7 +178,7 @@
                                   AllowUserInput ="true"
                                     ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChangedd(applicationMasterChildModel))">
                         </DxComboBox>
-                          <DxSpinEdit   @bind-Value="@Data.CategoryTag" ShowValidationIcon="true" style="display:none;" />
+                         @*  <DxSpinEdit   @bind-Value="@Data.CategoryTag" ShowValidationIcon="true" style="display:none;" /> *@
                         <ValidationMessage For="@(() => Data.CategoryTag)" />
                     </DxFormLayoutItem>
 

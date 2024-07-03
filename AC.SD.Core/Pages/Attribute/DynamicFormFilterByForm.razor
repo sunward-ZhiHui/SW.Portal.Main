@@ -309,7 +309,8 @@
                         editor.AddAttribute(j + 1, "ValueFieldName", "AttributeDetailID");
                         editor.AddAttribute(j + 1, "NullText", "Select " + s.FilterDisplayName + "..");
                         editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
-                        editor.AddAttribute(j + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                        editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
+                        editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                         editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                         editor.AddAttribute(j + 1, "Value", valueData);
                         editor.AddAttribute(j + 1, "Enabled", isEnabled);
@@ -392,7 +393,8 @@
                                         editor1.AddAttribute(i + 1, "ValueFieldName", "Value");
                                         editor1.AddAttribute(i + 1, "NullText", "Select Type");
                                         editor1.AddAttribute(i + 1, "ListRenderMode", ListRenderMode.Virtual);
-                                        editor1.AddAttribute(i + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                                        editor1.AddAttribute(i + 1, "SearchMode", ListSearchMode.AutoSearch);
+                                        editor1.AddAttribute(i + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                                         editor1.AddAttribute(i + 1, "Value", _likevalue == null ? "Equal" : _likevalue);
                                         editor1.AddAttribute(i + 1, "Enabled", true);
                                         editor1.AddAttribute(i + 1, "ValueExpression", _likelambda);
@@ -433,7 +435,8 @@
                                         editor1.AddAttribute(i + 1, "ValueFieldName", "Value");
                                         editor1.AddAttribute(i + 1, "NullText", "Select Type");
                                         editor1.AddAttribute(i + 1, "ListRenderMode", ListRenderMode.Virtual);
-                                        editor1.AddAttribute(i + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                                        editor1.AddAttribute(i + 1, "SearchMode", ListSearchMode.AutoSearch);
+                                        editor1.AddAttribute(i + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                                         editor1.AddAttribute(i + 1, "Value", valueDataAndOr == null ? "AND" : valueDataAndOr);
                                         editor1.AddAttribute(i + 1, "Enabled", true);
                                         editor1.AddAttribute(i + 1, "ValueExpression", lambdaAndOr);

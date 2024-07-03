@@ -34,12 +34,14 @@
         <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
             <DxComboBox Data="@_productItems"
                         NullText="Select Product..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Code"
                         ValueFieldName="GenericCodeId"
                         EditFormat="{0}-{1}-{3}"
-                        SelectedItemChanged="@((GenericCodes prod) => SelectedItemprod(prod))"
-            @bind-Value="Data.ProductId"
+                        Value="@Data.ProductId"
+                        ValueExpression="@(() => Data.ProductId )"
+                       ValueChanged="@((long? prod) => SelectedItemprod(prod))"
                         ShowValidationIcon="true">
                 <Columns>
                     <DxListEditorColumn FieldName="@nameof(GenericCodes.Code)"
@@ -66,20 +68,22 @@
         <DxFormLayoutItem Caption="Packing:" ColSpanMd="6">
             <DxComboBox Data="@_packingItems"
                         NullText="Select Packing..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="Data.PackingId"
+                        @bind-Value="Data.PackingId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Offer Currency:" ColSpanMd="6">
             <DxComboBox Data="@_currencyItems"
                         NullText="Select Offer Currency..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="Data.OfferCurrencyId"
+                        @bind-Value="Data.OfferCurrencyId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
@@ -90,10 +94,12 @@
         <DxFormLayoutItem Caption="Offer Uom" ColSpanMd="6">
             <DxComboBox NullText="Select Offer Uom..."
                         Data="@_offeruomItems"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="@Data.OfferUomid"
+                        @bind-Value="@Data.OfferUomid"
                         CssClass="cw-480" />
         </DxFormLayoutItem>
 
@@ -104,10 +110,12 @@
         <DxFormLayoutItem Caption="Shipping Terms" ColSpanMd="6">
             <DxComboBox NullText="Select Shipping Terms..."
                         Data="@_shippingItems"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="@Data.ShippingTermsId"
+                        @bind-Value="@Data.ShippingTermsId"
                         CssClass="cw-480" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Remarks:" ColSpanMd="12">
@@ -116,10 +124,11 @@
         <DxFormLayoutItem Caption="Status" ColSpanMd="6">
             <DxComboBox Data="@_stausItems"
                         NullText="Select Status..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="CodeValue"
                         ValueFieldName="CodeId"
-            @bind-Value="@Data.StatusCodeId"
+                        @bind-Value="@Data.StatusCodeId"
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.StatusCodeId)" />
@@ -183,8 +192,9 @@
         }
         StateHasChanged();
     }
-    void SelectedItemprod(GenericCodes genericCodes)
+    void SelectedItemprod(long? genericCodes)
     {
+        Data.ProductId = genericCodes;
     }
     void onBack()
     {
@@ -204,7 +214,7 @@
         Data.QuotationHistoryLineId = 0;
         Data.ProductId = null;
         Data.Source = null;
-        Data.Quantity = null; Data.Quantitys= null;
+        Data.Quantity = null; Data.Quantitys = null;
         Data.PackingId = null;
         Data.OfferPrice = null;
         Data.OfferCurrencyId = null;

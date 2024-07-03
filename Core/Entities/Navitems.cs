@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,5 +62,11 @@ namespace Core.Entities
         public long? PackSizeId { get; set; }
         public long? SupplyToId { get; set; }
         public long? UomId { get; set; }
+        [NotMapped]
+        public long? MethodCodeId { get; set; }
+        [NotMapped]
+        public string? MethodName { get; set; }
+        [NotMapped]
+        public string? GenericCodeDescription2 { get; set; }
     }
 }

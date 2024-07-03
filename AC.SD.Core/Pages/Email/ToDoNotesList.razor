@@ -392,7 +392,8 @@
                               ValueFieldName="UserID"
                               TextFieldName="Name"                            
                               ListRenderMode="ListRenderMode.Virtual"
-                              
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               CssClass="cw-480">
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />

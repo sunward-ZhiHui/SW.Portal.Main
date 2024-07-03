@@ -29,100 +29,100 @@
         </DxMenu>
     </div>
 </div>
- <DxLoadingPanel @bind-Visible="PanelVisible"
+<DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
-<DxGrid @ref="Grid"  FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        Data="_plants"
+            Data="_plants"
             ShowGroupPanel="true" ShowGroupedColumns="true"
             KeyFieldName="PlantID"
-        EditModelSaving="Grid_EditModelSaving"
-        DataItemDeleting="Grid_DataItemDeleting"
-        CustomizeEditModel="Grid_CustomizeEditModel"
-        CustomizeElement="Grid_CustomizeElement"
-        ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        AutoExpandAllGroupRows="true"
-        CssClass="ch-360"
-        style="height: calc(100vh - 270px);"
-        FocusedRowEnabled="true"
-        RowDoubleClick="OnRowDoubleClick"
-          SelectedDataItemsChanged="@SelectedDataItemsChanged"
-        RowClick="OnRowClick"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowDoubleClick="OnRowDoubleClick"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            RowClick="OnRowClick"
             AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
-    <Columns>
-        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-        <DxGridDataColumn FieldName="PlantID" MinWidth="80" Visible="false" />
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="PlantID" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="Index" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>
-        <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
-        <DxGridDataColumn FieldName="Description" MinWidth="80" />
-        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-        @* <DxGridDataColumn FieldName="ModifiedDate" Width="180">
+            <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
+            <DxGridDataColumn FieldName="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+            @* <DxGridDataColumn FieldName="ModifiedDate" Width="180">
             <CellDisplayTemplate>
-                @{
-                    var item = (ViewPlants)context.DataItem;
-                }
-                @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+            @{
+            var item = (ViewPlants)context.DataItem;
+            }
+            @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
             </CellDisplayTemplate>
-        </DxGridDataColumn>
-        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" /> *@
-        <DxGridCommandColumn Width="160px" Visible="false" />
-    </Columns>
-    <EditFormTemplate Context="EditFormContext">
-        @{
-            var plant = (ViewPlants)EditFormContext.EditModel;
-        }
-        <DxFormLayout CssClass="w-100">
-               
-            <DxFormLayoutItem Caption="PlantCode" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.PlantCode" ShowValidationIcon="true" />
-                <ValidationMessage For="@(() => plant.PlantCode)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedBy" Width="10%" /> *@
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var plant = (ViewPlants)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+
+                <DxFormLayoutItem Caption="PlantCode" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@plant.PlantCode" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => plant.PlantCode)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                    <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => plant.Description)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
-                <DxComboBox Data="@_stausItems"
-                            NullText="Select Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="CodeValue"
-                            ValueFieldName="CodeId"
-                            @bind-Text="@Text"
-                            @bind-Value="@plant.StatusCodeID"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => plant.StatusCodeID)" />
-            </DxFormLayoutItem>
-            @* <DxFormLayoutItem ColSpanMd="12">
-            <ValidationSummary />
-            </DxFormLayoutItem>*@
-        </DxFormLayout>
-    </EditFormTemplate>
-    <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
-    </TotalSummary>
-</DxGrid>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxComboBox Data="@_stausItems"
+                                NullText="Select Status..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
+                                @bind-Text="@Text"
+                                @bind-Value="@plant.StatusCodeID"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => plant.StatusCodeID)" />
+                </DxFormLayoutItem>
+                @* <DxFormLayoutItem ColSpanMd="12">
+                <ValidationSummary />
+                </DxFormLayoutItem>*@
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
+        </TotalSummary>
+    </DxGrid>
 </DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+
         </p>
     </Content>
-       
+
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
@@ -208,7 +208,7 @@
 
         }
         //await jsRuntime.InvokeAsync<string>("hideLoading");
-        
+
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
@@ -231,7 +231,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-       // UpdateDataAsync();
+        // UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -258,8 +258,8 @@
         //}
         //else
         //{
-            Grid.StartEditDataItemAsync(_selectedItems);
-       // }
+        Grid.StartEditDataItemAsync(_selectedItems);
+        // }
 
     }
     void addDelete()
@@ -289,7 +289,7 @@
 
                 }
             }
-    }
+        }
         catch (Exception eq)
         {
             //DeleteerrorMessage = eq.Message;
@@ -297,7 +297,7 @@
             Blukdeletepopup = false;
             toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
-   // await UpdateDataAsync();
+        // await UpdateDataAsync();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -370,7 +370,7 @@
         {
             e.CssClass = "alt-item";
         }
-       
+
     }
     async Task ExportToExcel()
     {
@@ -408,17 +408,17 @@
         if (SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
-           
+
         }
         else
         {
             EditEnabled = true;
-           
-        }
-      
-          
 
-        
+        }
+
+
+
+
     }
     void AddDivision()
     {

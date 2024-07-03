@@ -21,7 +21,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                border-collapse: collapse;*/
+                                                                    border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -99,11 +99,16 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
+                                    AllowUserInput="true"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
+                                    Value="@Data.CompanyId"
+                                    ValueExpression="@(() => Data.CompanyId )"
+                                    ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Customer Name"
@@ -132,13 +137,16 @@
                         <DxComboBox Data="@_AllSoCustomer"
                                     NullText="Select Customer..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.StartsWith"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="CustomerName"
                                     ValueFieldName="SoCustomerId"
                                     EditFormat="{0}-{1}"
+                                    Value="@Data.SoCustomerId"
+                                    ValueExpression="@(() => Data.SoCustomerId )"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">
+                                    ShowValidationIcon="true"
+                                    ValueChanged="@((long? soCustomer) => SelectedItemChanged(soCustomer))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
                                                     Caption="Customer Name"
@@ -310,10 +318,13 @@
     string MessageHeader = "";
     string MessageBody = "";
 
-    void SelectedItemChanged(SoCustomer soCustomer)
+    void SelectedItemChanged(long? soCustomerid)
     {
+        Data.SoCustomerId = soCustomerid;
+        var soCustomer = _AllSoCustomer != null && soCustomerid > 0 ? _AllSoCustomer.FirstOrDefault(f => f.SoCustomerId == soCustomerid) : null;
         if (soCustomer != null)
         {
+            Data.SoCustomerId = soCustomer.SoCustomerId;
             Data.ShipCode = soCustomer.ShipCode;
             Data.AssignToRep = soCustomer.AssignToRep;
             Data.Address1 = soCustomer.Address1;
@@ -322,10 +333,15 @@
         else
         {
             soCustomer1 = new SoCustomer();
+            Data.SoCustomerId = null;
             Data.ShipCode = "";
             Data.AssignToRep = "";
             Data.Address1 = "";
         }
+    }
+    void SelectedPlantChanged(long? country)
+    {
+        Data.CompanyId = country;
     }
     void OnButtonCustomerClick()
     {

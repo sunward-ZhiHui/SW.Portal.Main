@@ -133,6 +133,7 @@
             </div>
         </div>
     </div>
+
     <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
         <DxTabPage Text="Form">
             <div class="card-body" style="margin-top:5px;">
@@ -172,112 +173,247 @@
                                     <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                                    <DxComboBox Data="@_plantItems"
-                                                NullText="Select Company..."
-                                                ListRenderMode="ListRenderMode.Virtual"
-                                                FilteringMode="DataGridFilteringMode.Contains"
-                                                TextFieldName="PlantCode"
-                                                ValueFieldName="PlantID"
-                                                SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
-                                                Enabled="isPlant"
-                                                @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                                                Caption="Plant Code"
-                                                                Width="180px" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                                                Caption="Description" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-                                                                Caption="Nav Company" />
-                                        </Columns>
-                                    </DxComboBox>
+                                    <DxDropDownBox @bind-Value="PlantValue"
+                                                   QueryDisplayText="QueryPlantText"
+                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                   NullText="Select a Company..."
+                                                   Enabled="isPlant"
+                                                   ShowValidationIcon="true">
+                                        <DropDownBodyTemplate Context="ddbBodyContext">
+                                            <DxGrid Data="@_plantItems"
+                                                    KeyFieldName="@nameof(ViewPlants.PlantID)" ShowSearchBox="true"
+                                                    HighlightRowOnHover="true"
+                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    TextWrapEnabled="false"
+                                                    CssClass="templateGrid"
+                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewPlants)"
+                                                    SelectedDataItemChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="PlantCode" />
+                                                    <DxGridDataColumn FieldName="Description" />
+                                                    <DxGridDataColumn FieldName="NavCompanyName" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </DropDownBodyTemplate>
+                                    </DxDropDownBox>
+                                    <DxSpinEdit @bind-Value="@Datas.PlantId" ShowValidationIcon="true" style="display:none;" />
+                                    @*  <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                    Enabled="isPlant"
+                                    @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
+                                    <Columns>
+                                    <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                    Caption="Plant Code"
+                                    Width="180px" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                    Caption="Description" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                    Caption="Nav Company" />
+                                    </Columns>
+                                    </DxComboBox>*@
                                     <ValidationMessage For="@(() => Datas.PlantId)" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                                    <DxComboBox Data="@_divisionItems"
-                                                NullText="Select Division..."
-                                                ListRenderMode="ListRenderMode.Virtual"
-                                                FilteringMode="DataGridFilteringMode.Contains"
-                                                TextFieldName="Name"
-                                                ValueFieldName="DivisionID"
-                                                Enabled="isDivision"
-                                                SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
-                                                @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
-                                                                Caption="Name"
-                                                                Width="180px" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
-                                                                Caption="Code" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
-                                                                Caption="Description" />
-                                        </Columns>
-                                    </DxComboBox>
+                                    @*   <DxComboBox Data="@_divisionItems"
+                                    NullText="Select Division..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="DivisionID"
+                                    Enabled="isDivision"
+                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
+                                    @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
+                                    <Columns>
+                                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                    Caption="Name"
+                                    Width="180px" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                    Caption="Code" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                    Caption="Description" />
+                                    </Columns>
+                                    </DxComboBox> *@
+                                    <DxDropDownBox @bind-Value="DivisionValue"
+                                                   QueryDisplayText="QueryDivisionText"
+                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                   NullText="Select a Division..."
+                                                   Enabled="isDivision"
+                                                   ShowValidationIcon="true">
+                                        <DropDownBodyTemplate Context="ddbBodyContext">
+                                            <DxGrid Data="@_divisionItems"
+                                                    KeyFieldName="@nameof(ViewDivision.DivisionID)" ShowSearchBox="true"
+                                                    HighlightRowOnHover="true"
+                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    TextWrapEnabled="false"
+                                                    CssClass="templateGrid"
+                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDivision)"
+                                                    SelectedDataItemChanged="item => GridDivisionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Name)" Caption="Name" />
+                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Code)" Caption="Code" />
+                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Description)" Caption="Description" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </DropDownBodyTemplate>
+                                    </DxDropDownBox>
+                                    <DxSpinEdit @bind-Value="@Datas.DivisionId" ShowValidationIcon="true" style="display:none;" />
                                     <ValidationMessage For="@(() => Datas.DivisionId)" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                                    <DxComboBox Data="@_departmentItems"
-                                                NullText="Select Department..."
-                                                ListRenderMode="ListRenderMode.Virtual"
-                                                FilteringMode="DataGridFilteringMode.Contains"
-                                                TextFieldName="DepartmentName"
-                                                ValueFieldName="DepartmentId"
-                                                Enabled="isDepartment"
-                                                SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
-                                                @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
-                                                                Caption="Name"
-                                                                Width="180px" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
-                                                                Caption="Code" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
-                                                                Caption="Description" />
-                                        </Columns>
-                                    </DxComboBox>
+                                    @*  <DxComboBox Data="@_departmentItems"
+                                    NullText="Select Department..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="DepartmentName"
+                                    ValueFieldName="DepartmentId"
+                                    Enabled="isDepartment"
+                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
+                                    @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
+                                    <Columns>
+                                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                    Caption="Name"
+                                    Width="180px" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                    Caption="Code" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                    Caption="Description" />
+                                    </Columns>
+                                    </DxComboBox> *@
+                                    <DxDropDownBox @bind-Value="DepartmentValue"
+                                                   QueryDisplayText="QueryDepartmentText"
+                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                   NullText="Select a Department..."
+                                                   Enabled="isDepartment"
+                                                   ShowValidationIcon="true">
+                                        <DropDownBodyTemplate Context="ddbBodyContext">
+                                            <DxGrid Data="@_departmentItems"
+                                                    KeyFieldName="@nameof(ViewDepartment.DepartmentId)" ShowSearchBox="true"
+                                                    HighlightRowOnHover="true"
+                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    TextWrapEnabled="false"
+                                                    CssClass="templateGrid"
+                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDepartment)"
+                                                    SelectedDataItemChanged="item => GridDepartmentSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentName)" Caption="Name" />
+                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentCode)" Caption="Code" />
+                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.Description)" Caption="Description" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </DropDownBodyTemplate>
+                                    </DxDropDownBox>
+                                    <DxSpinEdit @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true" style="display:none;" />
                                     <ValidationMessage For="@(() => Datas.DepartmentId)" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                                    <DxComboBox Data="@_sectionItems"
-                                                NullText="Select Section..."
-                                                ListRenderMode="ListRenderMode.Virtual"
-                                                FilteringMode="DataGridFilteringMode.Contains"
-                                                TextFieldName="SectionName"
-                                                ValueFieldName="SectionId"
-                                                Enabled="isSection"
-                                                SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
-                                                @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
-                                                                Caption="Name"
-                                                                Width="180px" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
-                                                                Caption="Code" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
-                                                                Caption="Description" />
-                                        </Columns>
-                                    </DxComboBox>
+                                    @* <DxComboBox Data="@_sectionItems"
+                                    NullText="Select Section..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SectionName"
+                                    ValueFieldName="SectionId"
+                                    Enabled="isSection"
+                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                                    @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
+                                    <Columns>
+                                    <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                    Caption="Name"
+                                    Width="180px" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                    Caption="Code" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                    Caption="Description" />
+                                    </Columns>
+                                    </DxComboBox> *@
+                                    <DxDropDownBox @bind-Value="SectionValue"
+                                                   QueryDisplayText="QuerySectionText"
+                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                   NullText="Select a Section..."
+                                                   Enabled="isSection"
+                                                   ShowValidationIcon="true">
+                                        <DropDownBodyTemplate Context="ddbBodyContext">
+                                            <DxGrid Data="@_sectionItems"
+                                                    KeyFieldName="@nameof(ViewSection.SectionId)" ShowSearchBox="true"
+                                                    HighlightRowOnHover="true"
+                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    TextWrapEnabled="false"
+                                                    CssClass="templateGrid"
+                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSection)"
+                                                    SelectedDataItemChanged="item => GridSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.SectionName)" Caption="Name" />
+                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.SectionCode)" Caption="Code" />
+                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.Description)" Caption="Description" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </DropDownBodyTemplate>
+                                    </DxDropDownBox>
+                                    <DxSpinEdit @bind-Value="@Datas.SectionId" ShowValidationIcon="true" style="display:none;" />
                                     <ValidationMessage For="@(() => Datas.SectionId)" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-                                    <DxComboBox Data="@_subSectionItems"
-                                                NullText="Select SubSection..."
-                                                ListRenderMode="ListRenderMode.Virtual"
-                                                FilteringMode="DataGridFilteringMode.Contains"
-                                                TextFieldName="SubSectionName"
-                                                ValueFieldName="SubSectionId"
-                                                Enabled="isSubSection"
-                                                @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
-                                        <Columns>
-                                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
-                                                                Caption="Name"
-                                                                Width="180px" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
-                                                                Caption="Code" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
-                                                                Caption="Description" />
-                                        </Columns>
-                                    </DxComboBox>
+                                    @* <DxComboBox Data="@_subSectionItems"
+                                    NullText="Select SubSection..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SubSectionName"
+                                    ValueFieldName="SubSectionId"
+                                    Enabled="isSubSection"
+                                    @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
+                                    <Columns>
+                                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                    Caption="Name"
+                                    Width="180px" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                    Caption="Code" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                    Caption="Description" />
+                                    </Columns>
+                                    </DxComboBox> *@
+                                    <DxDropDownBox @bind-Value="SubSectionValue"
+                                                   QueryDisplayText="QuerySubSectionText"
+                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                   NullText="Select a Sub Section..."
+                                                   Enabled="isSubSection"
+                                                   ShowValidationIcon="true">
+                                        <DropDownBodyTemplate Context="ddbBodyContext">
+                                            <DxGrid Data="@_subSectionItems"
+                                                    KeyFieldName="@nameof(ViewSubSection.SubSectionId)" ShowSearchBox="true"
+                                                    HighlightRowOnHover="true"
+                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                    SelectionMode="GridSelectionMode.Single"
+                                                    AllowSelectRowByClick="true"
+                                                    FocusedRowEnabled="true"
+                                                    TextWrapEnabled="false"
+                                                    CssClass="templateGrid"
+                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSubSection)"
+                                                    SelectedDataItemChanged="item => GridSubSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                <Columns>
+                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionName)" Caption="Name" />
+                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionCode)" Caption="Code" />
+                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.Description)" Caption="Description" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </DropDownBodyTemplate>
+                                    </DxDropDownBox>
+                                    <DxSpinEdit @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true" style="display:none;" />
                                     <ValidationMessage For="@(() => Datas.SubSectionId)" />
                                 </DxFormLayoutItem>
                             </Items>
@@ -444,6 +580,12 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+
+    object PlantValue { get; set; }
+    object DivisionValue { get; set; }
+    object DepartmentValue { get; set; }
+    object SectionValue { get; set; }
+    object SubSectionValue { get; set; }
     private IDisposable? DynamicFormPage6;
     bool DynamicFormFilterBypopup { get; set; } = false;
     string? _tooltipShowId { get; set; } = string.Empty; string? _filterAttrName { get; set; } = string.Empty; string? _dataSourceName { get; set; } = string.Empty;
@@ -536,6 +678,7 @@
         }
         AddMenuEnabled();
     }
+
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
@@ -604,7 +747,7 @@
     }
     async Task loadDynamicForm()
     {
-        await onshowLoading(); _dynamicformData = null;_dynamicFormApprovedList = null;_dynamicFormWorkFlowSection = null;_dynamicFormSectionList = null;
+        await onshowLoading(); _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
@@ -791,7 +934,17 @@
                                         addTempSectionAttributess.DataType = a.DataType;
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
-
+                                        if (a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0)
+                                        {
+                                            Type dataTypess = a.IsDynamicFormGridDropdownMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
+                                            var nameDataGrid = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                            typesLists.Add(dataTypess);
+                                            objectNameLists.Add(nameDataGrid);
+                                            AddTempSectionAttribute addTempSectionAttributesss = new AddTempSectionAttribute();
+                                            addTempSectionAttributesss.DataType = dataTypess;
+                                            addTempSectionAttributesss.DynamicAttributeName = nameDataGrid;
+                                            addTempSectionAttributes.Add(addTempSectionAttributesss);
+                                        }
                                     });
                                 }
                                 if (a.DataSourceTable == "DynamicGrid")
@@ -823,6 +976,17 @@
                                         addTempSectionAttributess.DynamicAttributeName = nameData;
                                         addTempSectionAttributes.Add(addTempSectionAttributess);
                                         loadApplicationMasterParentDataList(a, ab, typesLists, objectNameLists);
+                                        if (a.IsDynamicFormGridDropdown == true && a.GridDropDownDynamicFormID > 0)
+                                        {
+                                            Type dataTypess = a.IsDynamicFormGridDropdownMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
+                                            var nameDataGrid = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
+                                            typesLists.Add(dataTypess);
+                                            objectNameLists.Add(nameDataGrid);
+                                            AddTempSectionAttribute addTempSectionAttributesss = new AddTempSectionAttribute();
+                                            addTempSectionAttributesss.DataType = dataTypess;
+                                            addTempSectionAttributesss.DynamicAttributeName = nameDataGrid;
+                                            addTempSectionAttributes.Add(addTempSectionAttributesss);
+                                        }
                                     });
                                 }
                                 if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
@@ -1252,6 +1416,29 @@
                                     }
                                 }
                             }
+                            if (dynamicFormSectionAttributes.IsDynamicFormGridDropdown == true && dynamicFormSectionAttributes.GridDropDownDynamicFormID > 0)
+                            {
+                                var nameDataGrid = dynamicFormSectionAttributes.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + dynamicFormSectionAttributes.GridDropDownDynamicFormID + "_GridAppMaster";
+                                if (Data.GetType().GetProperty(nameDataGrid) != null)
+                                {
+                                    var SubNamesss = jsonObjs.ContainsKey(nameDataGrid);
+                                    if (SubNamesss == true)
+                                    {
+                                        var itemValuess = jsonObjs[nameDataGrid];
+                                        if (itemValuess is JArray)
+                                        {
+                                            var values = (JArray)itemValuess;
+                                            List<long?> listDatas = values.ToObject<List<long?>>();
+                                            Data.GetType().GetProperty(nameDataGrid).SetValue(Data, listDatas);
+                                        }
+                                        else
+                                        {
+                                            long? values = itemValuess == null ? null : (long)itemValuess;
+                                            Data.GetType().GetProperty(nameDataGrid).SetValue(Data, values);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 });
@@ -1267,7 +1454,30 @@
                 dynamicFormSectionAttributes.ApplicationMasterParents.ForEach(ab =>
                 {
                     loadApplicationMasterParentSetDataList(dynamicFormSectionAttributes, ab);
+                    if (dynamicFormSectionAttributes.IsDynamicFormGridDropdown == true && dynamicFormSectionAttributes.GridDropDownDynamicFormID > 0)
+                    {
+                        var nameDataGrid = dynamicFormSectionAttributes.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + dynamicFormSectionAttributes.GridDropDownDynamicFormID + "_GridAppMaster";
 
+                        if (Data.GetType().GetProperty(nameDataGrid) != null)
+                        {
+                            var SubNamess = jsonObjs.ContainsKey(nameDataGrid);
+                            if (SubNamess == true)
+                            {
+                                var itemValues = jsonObjs[nameDataGrid];
+                                if (itemValues is JArray)
+                                {
+                                    var values = (JArray)itemValues;
+                                    List<long?> listDatas = values.ToObject<List<long?>>();
+                                    Data.GetType().GetProperty(nameDataGrid).SetValue(Data, listDatas);
+                                }
+                                else
+                                {
+                                    long? values = itemValues == null ? null : (long)itemValues;
+                                    Data.GetType().GetProperty(nameDataGrid).SetValue(Data, values);
+                                }
+                            }
+                        }
+                    }
                 });
             }
         }
@@ -1560,7 +1770,7 @@
         _editContexts = new EditContext(Datas);
         isPlant = false;
         isDivision = false; isDepartment = false;
-        isSection = false; isSubSection = false;
+        isSection = false; isSubSection = false;PlantValue = null; 
         Datas.PlantId = 0; Datas.DepartmentId = 0; Datas.ProfileId = 0; Datas.ProfileNo = null;
         Datas.DivisionId = 0; Datas.SectionId = 0; Datas.SubSectionId = 0;
         if (profileID > 0)
@@ -1606,6 +1816,38 @@
         await SelectedItemSectionChanged(0);
         StateHasChanged();
     }
+    string? QueryPlantText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        Datas.PlantId = isPlant == false ? 0 : null;
+        Datas.DivisionId = isDivision == false ? 0 : null;
+        Datas.DepartmentId = isDepartment == false ? 0 : null;
+        Datas.SectionId = isSection == false ? 0 : null;
+        Datas.SubSectionId = isSubSection == false ? 0 : null;
+        DivisionValue = null; DepartmentValue = null; SectionValue = null; SubSectionValue = null;
+        string? returnData = string.Empty;
+        if (arg.Value is ViewPlants value)
+        {
+            if (value != null)
+            {
+                Datas.PlantId = value.PlantID;
+                returnData = value?.PlantCode;
+            }
+        }
+        InvokeAsync(SelectedItemPlantChanged);
+        return returnData;
+    }
+    async Task SelectedItemPlantChanged()
+    {
+        await SelectedItemChanged(Datas.PlantId);
+    }
+    void GridSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            PlantValue = item as ViewPlants;
+        }
+        dropDownBox.HideDropDown();
+    }
     async Task SelectedItemChanged(long? plantID)
     {
         _divisionItems = new List<ViewDivision>();
@@ -1617,6 +1859,36 @@
             _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
         }
     }
+    void GridDivisionSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            DivisionValue = item as ViewDivision;
+        }
+        dropDownBox.HideDropDown();
+    }
+    string? QueryDivisionText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        Datas.DivisionId = isDivision == false ? 0 : null;
+        Datas.DepartmentId = isDepartment == false ? 0 : null;
+        Datas.SectionId = isSection == false ? 0 : null;
+        Datas.SubSectionId = isSubSection == false ? 0 : null;
+        string? returnData = string.Empty; DepartmentValue = null; SectionValue = null; SubSectionValue = null;
+        if (arg.Value is ViewDivision value)
+        {
+            if (value != null)
+            {
+                Datas.DivisionId = value.DivisionID;
+                returnData = value?.Name;
+            }
+        }
+        InvokeAsync(SelectedItemDivisionChangeds);
+        return returnData;
+    }
+    async Task SelectedItemDivisionChangeds()
+    {
+        await SelectedItemDivisionChanged(Datas.DivisionId);
+    }
     async Task SelectedItemDivisionChanged(long? divisionId)
     {
         _departmentItems = new List<ViewDepartment>();
@@ -1627,6 +1899,38 @@
             _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
         }
     }
+
+    void GridDepartmentSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            DepartmentValue = item as ViewDepartment;
+        }
+        dropDownBox.HideDropDown();
+    }
+    string? QueryDepartmentText(DropDownBoxQueryDisplayTextContext arg)
+    {
+
+        Datas.DepartmentId = isDepartment == false ? 0 : null;
+        Datas.SectionId = isSection == false ? 0 : null;
+        Datas.SubSectionId = isSubSection == false ? 0 : null;
+        string? returnData = string.Empty; SectionValue = null; SubSectionValue = null;
+        if (arg.Value is ViewDepartment value)
+        {
+            if (value != null)
+            {
+                Datas.DepartmentId = value.DepartmentId;
+                returnData = value?.DepartmentName;
+            }
+        }
+        InvokeAsync(SelectedItemDepartementChangeds);
+        return returnData;
+    }
+    async Task SelectedItemDepartementChangeds()
+    {
+        await SelectedItemDepartementChanged(Datas.DepartmentId);
+    }
+
     async Task SelectedItemDepartementChanged(long? departmentId)
     {
         _sectionItems = new List<ViewSection>();
@@ -1636,6 +1940,37 @@
             _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
         }
     }
+
+    void GridSectionSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            SectionValue = item as ViewSection;
+        }
+        dropDownBox.HideDropDown();
+    }
+    string? QuerySectionText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        Datas.SectionId = isSection == false ? 0 : null;
+        Datas.SubSectionId = isSubSection == false ? 0 : null;
+        SubSectionValue = null;
+        string? returnData = string.Empty;
+        if (arg.Value is ViewSection value)
+        {
+            if (value != null)
+            {
+                Datas.SectionId = value.SectionId;
+                returnData = value?.SectionName;
+            }
+        }
+        InvokeAsync(SelectedItemSectionChangeds);
+        return returnData;
+    }
+    async Task SelectedItemSectionChangeds()
+    {
+        await SelectedItemSectionChanged(Datas.SectionId);
+    }
+
     async Task SelectedItemSectionChanged(long? sectionId)
     {
         _subSectionItems = new List<ViewSubSection>();
@@ -1643,6 +1978,28 @@
         {
             _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
         }
+    }
+    string? QuerySubSectionText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        Datas.SubSectionId = isSubSection == false ? 0 : null;
+        string? returnData = string.Empty;
+        if (arg.Value is ViewSubSection value)
+        {
+            if (value != null)
+            {
+                Datas.SubSectionId = value.SubSectionId;
+                returnData = value?.SubSectionName;
+            }
+        }
+        return returnData;
+    }
+    void GridSubSectionSelectedDataItemChanged(object item, IDropDownBox dropDownBox)
+    {
+        if (item != null)
+        {
+            SubSectionValue = item as ViewSubSection;
+        }
+        dropDownBox.HideDropDown();
     }
     public async Task CloseFilterFormPopup(AttributeFilterDetails ab)
     {
@@ -1883,7 +2240,7 @@
     {
         if (SessionIds != null)
         {
-            SessionIds=null;
+            SessionIds = null;
             _dynamicformData = null;
             string str = NavigationManager.Uri;
             string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
@@ -2940,8 +3297,8 @@
                                 isVisible = true;
                             }
                             //if (isReadonly != false)
-                           // {
-                                isReadonly = true;
+                            // {
+                            isReadonly = true;
                             //}
                         }
                     }
@@ -2951,10 +3308,10 @@
                         {
                             isVisible = true;
                         }
-                       // if (isReadonly != false)
-                       // {
-                            isReadonly = true;
-                       // }
+                        // if (isReadonly != false)
+                        // {
+                        isReadonly = true;
+                        // }
                     }
                 }
             }
@@ -3618,7 +3975,8 @@
                      editor.AddAttribute(j + 1, "ValueFieldName", s.IsDynamicFormDropTagBox == true ? "ID" : "AttributeDetailID");
                      editor.AddAttribute(j + 1, "NullText", "Select " + s.DisplayName + "..");
                      editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
-                     editor.AddAttribute(j + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                     editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
+                     editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                      editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                      editor.AddAttribute(j + 1, "Value", valueData);
                      if (isAccessOnly == true)
@@ -3846,7 +4204,8 @@
                      editor.AddAttribute(j + 1, "TextFieldName", s.IsDynamicFormDropTagBox == true ? "Name" : "AttributeDetailName");
                      editor.AddAttribute(j + 1, "ValueFieldName", s.IsDynamicFormDropTagBox == true ? "ID" : "AttributeDetailID");
                      editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
-                     editor.AddAttribute(j + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                     editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
+                     editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                      editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                      editor.AddAttribute(j + 1, "Values", valueData);
                      editor.AddAttribute(j + 1, "ValuesExpression", lambda);
@@ -4245,7 +4604,8 @@
             editor11.AddAttribute(d + 1, "ValueFieldName", "AttributeDetailID");
             editor11.AddAttribute(d + 1, "NullText", "Select " + s.PlantDropDownWithOtherDataSourceTable + "..");
             editor11.AddAttribute(d + 1, "ListRenderMode", ListRenderMode.Virtual);
-            editor11.AddAttribute(d + 1, "FilteringMode", DataGridFilteringMode.Contains);
+            editor11.AddAttribute(d + 1, "SearchMode", ListSearchMode.AutoSearch);
+            editor11.AddAttribute(d + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
             editor11.AddAttribute(d + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
             if (isAccessOnly == true)
             {
@@ -4775,7 +5135,8 @@
                     editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
                     editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
                     editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
-                    editor1.AddAttribute(m + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor1.AddAttribute(m + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor1.AddAttribute(m + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                     editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                     editor1.AddAttribute(m + 1, "Value", valueDataSub);
                     // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
@@ -4859,7 +5220,8 @@
                     editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
                     editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
                     editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
-                    editor1.AddAttribute(m + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor1.AddAttribute(m + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor1.AddAttribute(m + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                     editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                     editor1.AddAttribute(m + 1, "Values", valueDataSub);
                     editor1.AddAttribute(m + 1, "ValuesExpression", lambdaSub);
@@ -5219,7 +5581,8 @@
                             editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
                             editor11.AddAttribute(p + 1, "NullText", "Select " + formNames?.DynamicFormName + "..");
                             editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
-                            editor11.AddAttribute(p + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                            editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
+                            editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                             editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                             editor11.AddAttribute(p + 1, "Value", valueDataDependency);
                             if (isAccessOnly == true)
@@ -5340,7 +5703,8 @@
                             editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
                             editor11.AddAttribute(p + 1, "NullText", "Select " + formNames?.DynamicFormName + "..");
                             editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
-                            editor11.AddAttribute(p + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                            editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
+                            editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                             editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                             editor11.AddAttribute(p + 1, "Values", valueDataDependency);
                             if (isAccessOnly == true)
@@ -5452,20 +5816,353 @@
     {
         s.ApplicationMasterParents.ForEach(ab =>
         {
+            List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
             loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true);
             if (ab.ApplicationMasterParentCodeId > 0)
             {
-                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly);
+                nameDatas.Add(ab);
+                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas);
+                if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
+                {
+                    loadDynamicGridDropDownNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas);
+                }
             }
         });
     }
-    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames)
     {
         var dataList = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == ab.ApplicationMasterParentCodeId);
         if (dataList != null)
         {
+            var nameData = s.DynamicFormSectionAttributeId + "_" + dataList.ApplicationMasterParentCodeId + "_AppMasterPar";
+            dataColumnNames.Add(dataList);
             loadApplicationMasterParentRecursiveForm(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, false);
-            loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly);
+
+            loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, dataColumnNames);
+        }
+    }
+    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems)
+    {
+        var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+        var propertyDependency = Data.GetType().GetProperty(appendDependency);
+        if (propertyDependency != null)
+        {
+            int p = 0;
+            var valueDataDependency = propertyDependency.GetValue(Data);
+            var accesspropertyDependency = Expression.Property(Expression.Constant(Data), appendDependency);
+            Type dataTypess = s.IsDynamicFormGridDropdownMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
+            var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(dataTypess), accesspropertyDependency);
+            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+            var dynamicFormDatass = _AttributeHeader.DropDownOptionsGridListModel.DynamicFormData.Where(f => f.DynamicFormId == s.GridDropDownDynamicFormID).ToList();
+            var dynamicFormDataIds = dynamicFormDatass.FirstOrDefault()?.DynamicFormDataGridFormId;
+            gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == (dynamicFormDataIds > 0 ? dynamicFormDataIds : 0)).FirstOrDefault()?.DropDownOptionsModels;
+            var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+            List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
+
+            if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
+            {
+                List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
+                List<ApplicationMasterParent> nameDataLists = new List<ApplicationMasterParent>();
+                nameDatas.Add(ab);
+                if (ab.ParentId > 0)
+                {
+                    GetApplicationMasterParentListId(ab.ParentId, nameDatas);
+                }
+                var applicationMasterCodeId = nameDatas.Last()?.ApplicationMasterParentCodeId;
+                if (applicationMasterCodeId > 0 && _AttributeHeader.ApplicationMasterParent != null && _AttributeHeader.ApplicationMasterParent.Count() > 0)
+                {
+                    var appName = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ApplicationMasterParentCodeId == applicationMasterCodeId);
+                    if (appName != null)
+                    {
+                        nameDataLists.Add(appName);
+                        GetApplicationMasterParentAllListId(applicationMasterCodeId, nameDataLists);
+                    }
+                }
+                IDictionary<string, object> objectDataList = new ExpandoObject();
+                if (nameDataLists != null && nameDataLists.Count() > 0)
+                {
+                    nameDataLists.ForEach(a =>
+                    {
+                        var namesetData = s.DynamicFormSectionAttributeId + "_" + a.ApplicationMasterParentCodeId + "_AppMasterPar";
+                        var propertyAppMastersData = Data.GetType().GetProperty(namesetData);
+                        long? valueDataAppMaster = 0;
+                        if (propertyAppMastersData != null)
+                        {
+                            valueDataAppMaster = (long?)propertyAppMastersData.GetValue(Data);
+                        }
+                        if (valueDataAppMaster != null)
+                        {
+                            objectDataList[a.ApplicationMasterParentCodeId + "_AppMasterPar"] = valueDataAppMaster == null ? 0 : valueDataAppMaster;
+                        }
+                    });
+                }
+                List<long?> _dynamicformObjectDataIds = new List<long?>();
+                if (collection != null)
+                {
+                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                    {
+                        dynamic eod = v;
+                        var IsDynamicFormDataGrids = (bool?)eod.IsDynamicFormDataGrid;
+                        var vc = (long?)eod.DynamicFormId; var vcIds = (long?)eod.DynamicFormDataId;
+                        if ((long?)vc == s.GridDropDownDynamicFormID && IsDynamicFormDataGrids == false)
+                        {
+                            IDictionary<string, object> CheckobjectDataList = new ExpandoObject();
+                            if (nameDataLists != null && nameDataLists.Count() > 0)
+                            {
+                                nameDataLists.ForEach(a =>
+                                {
+                                    var attrData = a.ApplicationMasterParentCodeId + "_AppMasterPar";
+                                    foreach (var item in v)
+                                    {
+                                        var v1 = item.Key;
+                                        var v2 = item.Value;
+                                        if (v1 == attrData)
+                                        {
+                                            long? values = (long?)v2;
+                                            if (values > 0)
+                                            {
+                                                CheckobjectDataList[attrData] = v2;
+                                            }
+                                        }
+                                    }
+                                });
+                                var objectDataListCount = objectDataList.Count();
+                                var CheckobjectDataListCount = CheckobjectDataList.Count();
+                                if (objectDataListCount > 0 && CheckobjectDataListCount > 0 && objectDataListCount == CheckobjectDataListCount)
+                                {
+                                    if (objectDataList.SequenceEqual(CheckobjectDataList))
+                                    {
+                                        _dynamicformObjectDataIds.Add(vcIds);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                    {
+                        dynamic eod = v;
+                        var IsDynamicFormDataGrids = (bool?)eod.IsDynamicFormDataGrid;
+                        var vc = (long?)eod.DynamicFormDataGridId;
+                        if (_dynamicformObjectDataIds.Contains(vc) && IsDynamicFormDataGrids == true)
+                        {
+                            _dynamicformObjectDataList.Add(v);
+                        }
+                    }
+                }
+            }
+
+            if (s.IsDynamicFormGridDropdownMultiple == true)
+            {
+                itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
+                {
+                    editor11.OpenElement(p + 1, "div");
+                    editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                    editor11.AddContent(p + 1, s.GridDropDownDynamicFormName);
+                    editor11.CloseElement();
+                    editor11.OpenComponent<DxTagBox<ExpandoObject, long?>>(p + 1);
+                    editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
+                    editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                    editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "Values", valueDataDependency);
+                    if (isAccessOnly == true)
+                    {
+                        editor11.AddAttribute(p + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(i + 1, "Enabled", isAccessOnly);
+                    }
+                    editor11.AddAttribute(p + 1, "ValuesExpression", lambdapropertyDependency);
+                    editor11.AddAttribute(p + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyDependency.SetValue(Data, str); }));
+                    if (gridlistss != null)
+                    {
+                        var gridEditCount = gridlistss.Count();
+                        var editFormat = "{0}";
+                        for (int e = 0; e < gridEditCount; e++)
+                        {
+                            if (e == 0)
+                            {
+                                editFormat = string.Empty;
+                            }
+                            editFormat += "{" + "" + e + "" + "}|";
+                        }
+                        editFormat = editFormat.Trim();
+                        if (editFormat.EndsWith("|"))
+                        {
+                            editFormat = editFormat.Remove(editFormat.Length - 1);
+                        }
+                        editor11.AddAttribute(p + 1, "EditFormat", editFormat);
+                    }
+                    editor11.AddAttribute(p + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                    {
+                        if (gridlistss != null)
+                        {
+                            var qCount = 0;
+                            gridlistss.ForEach(q =>
+                            {
+                                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(qCount);
+                                layoutItemBuilders1.AddAttribute(qCount, "FieldName", q.Value);
+                                layoutItemBuilders1.AddAttribute(qCount, "Caption", q.Text);
+                                layoutItemBuilders1.CloseComponent();
+                                qCount++;
+                            });
+                        }
+                    }));
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataDependency == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                            }
+                        }
+                        else
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0)
+                                {
+                                    isRequiredCount += 1;
+                                    if (isSubmit == true)
+                                    {
+                                        //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    editor11.CloseComponent();
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataDependency == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(p + 1, "span");
+                            editor11.AddAttribute(p + 1, "class", "text-danger");
+                            editor11.AddContent(p + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                            editor11.CloseElement();
+                        }
+                        else
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0 && isSubmit == true)
+                                {
+                                    editor11.OpenElement(p + 1, "span");
+                                    editor11.AddAttribute(p + 1, "class", "text-danger");
+                                    editor11.AddContent(p + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                                    editor11.CloseElement();
+                                }
+                            }
+                        }
+                    }
+                })));
+                itemBuilder.CloseComponent();
+            }
+            else
+            {
+                itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
+                {
+                    editor11.OpenElement(p + 1, "div");
+                    editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                    editor11.AddContent(p + 1, s.GridDropDownDynamicFormName);
+                    editor11.CloseElement();
+                    editor11.OpenComponent<DxComboBox<ExpandoObject, long?>>(p + 1);
+                    editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
+                    editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                    editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "Value", valueDataDependency);
+                    if (isAccessOnly == true)
+                    {
+                        editor11.AddAttribute(p + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(i + 1, "Enabled", isAccessOnly);
+                    }
+                    editor11.AddAttribute(p + 1, "ValueExpression", lambdapropertyDependency);
+                    editor11.AddAttribute(p + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
+                    if (gridlistss != null)
+                    {
+                        var gridEditCount = gridlistss.Count();
+                        var editFormat = "{0}";
+                        for (int e = 0; e < gridEditCount; e++)
+                        {
+                            if (e == 0)
+                            {
+                                editFormat = string.Empty;
+                            }
+                            editFormat += "{" + "" + e + "" + "}|";
+                        }
+                        editFormat = editFormat.Trim();
+                        if (editFormat.EndsWith("|"))
+                        {
+                            editFormat = editFormat.Remove(editFormat.Length - 1);
+                        }
+                        editor11.AddAttribute(p + 1, "EditFormat", editFormat);
+                    }
+                    editor11.AddAttribute(p + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                    {
+                        if (gridlistss != null)
+                        {
+                            var qCount = 0;
+                            gridlistss.ForEach(q =>
+                            {
+                                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(qCount);
+                                layoutItemBuilders1.AddAttribute(qCount, "FieldName", q.Value);
+                                layoutItemBuilders1.AddAttribute(qCount, "Caption", q.Text);
+                                layoutItemBuilders1.CloseComponent();
+                                qCount++;
+                            });
+                        }
+                    }));
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataDependency == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor11.AddAttribute(i + 1, "style", "border-color:red;");
+                            }
+                        }
+                    }
+                    editor11.CloseComponent();
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataDependency == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(p + 1, "span");
+                            editor11.AddAttribute(p + 1, "class", "text-danger");
+                            editor11.AddContent(p + 1, "This field is Required");
+                            editor11.CloseElement();
+                        }
+                    }
+                })));
+                itemBuilder.CloseComponent();
+            }
         }
     }
     void OnApplicationMasterParentChangedMultipleItem(IEnumerable<long?> str, PropertyInfo propertyAppMaster, ApplicationMasterParent ab, DynamicFormSectionAttribute s)
@@ -5714,6 +6411,28 @@
             }
         }
     }
+    void GetApplicationMasterParentListId(long? parentId, List<ApplicationMasterParent> applicationMasterParents)
+    {
+        var listss = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ApplicationMasterParentCodeId == parentId);
+        if (listss != null)
+        {
+            applicationMasterParents.Add(listss);
+            if (listss.ParentId > 0)
+            {
+                GetApplicationMasterParentListId(listss.ParentId, applicationMasterParents);
+            }
+        }
+    }
+    void GetApplicationMasterParentAllListId(long? applicationMasterParentCodeId, List<ApplicationMasterParent> applicationMasterParents)
+    {
+        var listss = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == applicationMasterParentCodeId);
+        if (listss != null)
+        {
+            applicationMasterParents.Add(listss);
+            GetApplicationMasterParentAllListId(listss.ApplicationMasterParentCodeId, applicationMasterParents);
+
+        }
+    }
     void OnApplicationMasterParentChangedSingleItem(long? str, PropertyInfo propertyAppMaster, ApplicationMasterParent ab, DynamicFormSectionAttribute s)
     {
         var pervValue = (long?)propertyAppMaster.GetValue(Data);
@@ -5866,7 +6585,8 @@
                 editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
                 editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
                 editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
-                editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
+                editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                 editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                 editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                 if (isAccessOnly == true)
@@ -5926,7 +6646,8 @@
                 editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
                 editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
                 editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
-                editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
+                editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                 editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                 editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                 if (isAccessOnly == true)
@@ -6154,7 +6875,8 @@
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
                     editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
-                    editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                     editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                     if (isAccessOnly == true)
@@ -6217,7 +6939,8 @@
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
                     editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
-                    editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                     editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                     if (isAccessOnly == true)
@@ -6404,10 +7127,312 @@
                 }
             })));
                 itemBuilder.CloseComponent();
-
+                if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMaster" && s.IsDynamicFormGridDropdown == true)
+                {
+                    loadDynamicGridDropDownApplicationMasterNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly);
+                }
             }
         });
     }
+    void loadDynamicGridDropDownApplicationMasterNestedForm(DynamicFormSectionAttribute s, ApplicationMaster ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    {
+        var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
+        var propertyDependency = Data.GetType().GetProperty(appendDependency);
+        if (propertyDependency != null)
+        {
+            int p = 0;
+            var valueDataDependency = propertyDependency.GetValue(Data);
+            var accesspropertyDependency = Expression.Property(Expression.Constant(Data), appendDependency);
+            Type dataTypess = s.IsDynamicFormGridDropdownMultiple == true ? typeof(IEnumerable<long?>) : typeof(long?);
+            var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(dataTypess), accesspropertyDependency);
+            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+            var dynamicFormDatass = _AttributeHeader.DropDownOptionsGridListModel.DynamicFormData.Where(f => f.DynamicFormId == s.GridDropDownDynamicFormID).ToList();
+            var dynamicFormDataIds = dynamicFormDatass.FirstOrDefault()?.DynamicFormDataGridFormId;
+            gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == (dynamicFormDataIds > 0 ? dynamicFormDataIds : 0)).FirstOrDefault()?.DropDownOptionsModels;
+            var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+            List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
+
+            if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMaster" && s.IsDynamicFormGridDropdown == true)
+            {
+
+                IDictionary<string, object> objectDataList = new ExpandoObject();
+                var namesetData = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
+                var propertyAppMastersData = Data.GetType().GetProperty(namesetData);
+                long? valueDataAppMaster = 0;
+                if (propertyAppMastersData != null)
+                {
+                    valueDataAppMaster = (long?)propertyAppMastersData.GetValue(Data);
+                }
+                if (valueDataAppMaster != null)
+                {
+                    objectDataList[ab.ApplicationMasterCodeId + "_AppMaster"] = valueDataAppMaster == null ? 0 : valueDataAppMaster;
+                }
+
+                List<long?> _dynamicformObjectDataIds = new List<long?>();
+                if (collection != null)
+                {
+                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                    {
+                        dynamic eod = v;
+                        var IsDynamicFormDataGrids = (bool?)eod.IsDynamicFormDataGrid;
+                        var vc = (long?)eod.DynamicFormId; var vcIds = (long?)eod.DynamicFormDataId;
+                        if ((long?)vc == s.GridDropDownDynamicFormID && IsDynamicFormDataGrids == false)
+                        {
+                            IDictionary<string, object> CheckobjectDataList = new ExpandoObject();
+                            var attrData = ab.ApplicationMasterCodeId + "_AppMaster";
+                            foreach (var item in v)
+                            {
+                                var v1 = item.Key;
+                                var v2 = item.Value;
+                                if (v1 == attrData)
+                                {
+                                    long? values = (long?)v2;
+                                    if (values > 0)
+                                    {
+                                        CheckobjectDataList[attrData] = v2;
+                                    }
+                                }
+                            }
+                            var objectDataListCount = objectDataList.Count();
+                            var CheckobjectDataListCount = CheckobjectDataList.Count();
+                            if (objectDataListCount > 0 && CheckobjectDataListCount > 0 && objectDataListCount == CheckobjectDataListCount)
+                            {
+                                if (objectDataList.SequenceEqual(CheckobjectDataList))
+                                {
+                                    _dynamicformObjectDataIds.Add(vcIds);
+                                }
+                            }
+
+                        }
+                    }
+                    foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                    {
+                        dynamic eod = v;
+                        var IsDynamicFormDataGrids = (bool?)eod.IsDynamicFormDataGrid;
+                        var vc = (long?)eod.DynamicFormDataGridId;
+                        if (_dynamicformObjectDataIds.Contains(vc) && IsDynamicFormDataGrids == true)
+                        {
+                            _dynamicformObjectDataList.Add(v);
+                        }
+                    }
+                }
+            }
+
+            if (s.IsDynamicFormGridDropdownMultiple == true)
+            {
+                itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
+                {
+                    editor11.OpenElement(p + 1, "div");
+                    editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                    editor11.AddContent(p + 1, s.GridDropDownDynamicFormName);
+                    editor11.CloseElement();
+                    editor11.OpenComponent<DxTagBox<ExpandoObject, long?>>(p + 1);
+                    editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
+                    editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                    editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "Values", valueDataDependency);
+                    if (isAccessOnly == true)
+                    {
+                        editor11.AddAttribute(p + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(i + 1, "Enabled", isAccessOnly);
+                    }
+                    editor11.AddAttribute(p + 1, "ValuesExpression", lambdapropertyDependency);
+                    editor11.AddAttribute(p + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyDependency.SetValue(Data, str); }));
+                    if (gridlistss != null)
+                    {
+                        var gridEditCount = gridlistss.Count();
+                        var editFormat = "{0}";
+                        for (int e = 0; e < gridEditCount; e++)
+                        {
+                            if (e == 0)
+                            {
+                                editFormat = string.Empty;
+                            }
+                            editFormat += "{" + "" + e + "" + "}|";
+                        }
+                        editFormat = editFormat.Trim();
+                        if (editFormat.EndsWith("|"))
+                        {
+                            editFormat = editFormat.Remove(editFormat.Length - 1);
+                        }
+                        editor11.AddAttribute(p + 1, "EditFormat", editFormat);
+                    }
+                    editor11.AddAttribute(p + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                    {
+                        if (gridlistss != null)
+                        {
+                            var qCount = 0;
+                            gridlistss.ForEach(q =>
+                            {
+                                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(qCount);
+                                layoutItemBuilders1.AddAttribute(qCount, "FieldName", q.Value);
+                                layoutItemBuilders1.AddAttribute(qCount, "Caption", q.Text);
+                                layoutItemBuilders1.CloseComponent();
+                                qCount++;
+                            });
+                        }
+                    }));
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataDependency == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                            }
+                        }
+                        else
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0)
+                                {
+                                    isRequiredCount += 1;
+                                    if (isSubmit == true)
+                                    {
+                                        //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    editor11.CloseComponent();
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataDependency == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(p + 1, "span");
+                            editor11.AddAttribute(p + 1, "class", "text-danger");
+                            editor11.AddContent(p + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                            editor11.CloseElement();
+                        }
+                        else
+                        {
+                            IEnumerable<long?> valueDatas = (IEnumerable<long?>)valueDataDependency;
+                            if (valueDatas != null)
+                            {
+                                List<long?> listData = valueDatas.ToList();
+                                if (listData.Count() == 0 && isSubmit == true)
+                                {
+                                    editor11.OpenElement(p + 1, "span");
+                                    editor11.AddAttribute(p + 1, "class", "text-danger");
+                                    editor11.AddContent(p + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                                    editor11.CloseElement();
+                                }
+                            }
+                        }
+                    }
+                })));
+                itemBuilder.CloseComponent();
+            }
+            else
+            {
+                itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
+                {
+                    editor11.OpenElement(p + 1, "div");
+                    editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                    editor11.AddContent(p + 1, s.GridDropDownDynamicFormName);
+                    editor11.CloseElement();
+                    editor11.OpenComponent<DxComboBox<ExpandoObject, long?>>(p + 1);
+                    editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
+                    editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
+                    editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
+                    editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                    editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
+                    editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "Value", valueDataDependency);
+                    if (isAccessOnly == true)
+                    {
+                        editor11.AddAttribute(p + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(i + 1, "Enabled", isAccessOnly);
+                    }
+                    editor11.AddAttribute(p + 1, "ValueExpression", lambdapropertyDependency);
+                    editor11.AddAttribute(p + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyDependency.SetValue(Data, str); }));
+                    if (gridlistss != null)
+                    {
+                        var gridEditCount = gridlistss.Count();
+                        var editFormat = "{0}";
+                        for (int e = 0; e < gridEditCount; e++)
+                        {
+                            if (e == 0)
+                            {
+                                editFormat = string.Empty;
+                            }
+                            editFormat += "{" + "" + e + "" + "}|";
+                        }
+                        editFormat = editFormat.Trim();
+                        if (editFormat.EndsWith("|"))
+                        {
+                            editFormat = editFormat.Remove(editFormat.Length - 1);
+                        }
+                        editor11.AddAttribute(p + 1, "EditFormat", editFormat);
+                    }
+                    editor11.AddAttribute(p + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
+                    {
+                        if (gridlistss != null)
+                        {
+                            var qCount = 0;
+                            gridlistss.ForEach(q =>
+                            {
+                                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(qCount);
+                                layoutItemBuilders1.AddAttribute(qCount, "FieldName", q.Value);
+                                layoutItemBuilders1.AddAttribute(qCount, "Caption", q.Text);
+                                layoutItemBuilders1.CloseComponent();
+                                qCount++;
+                            });
+                        }
+                    }));
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataDependency == null)
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor11.AddAttribute(i + 1, "style", "border-color:red;");
+                            }
+                        }
+                    }
+                    editor11.CloseComponent();
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
+                    {
+                        if (valueDataDependency == null && isSubmit == true)
+                        {
+                            editor11.OpenElement(p + 1, "span");
+                            editor11.AddAttribute(p + 1, "class", "text-danger");
+                            editor11.AddContent(p + 1, "This field is Required");
+                            editor11.CloseElement();
+                        }
+                    }
+                })));
+                itemBuilder.CloseComponent();
+            }
+        }
+    }
+
     void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
         q.SubApplicationMaster.ForEach(ab =>
@@ -6439,7 +7464,8 @@
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
                     editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
-                    editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                     editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                     if (isAccessOnly == true)
@@ -6503,7 +7529,8 @@
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
                     editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
-                    editor11.AddAttribute(l + 1, "FilteringMode", DataGridFilteringMode.Contains);
+                    editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
+                    editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
                     editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                     if (isAccessOnly == true)

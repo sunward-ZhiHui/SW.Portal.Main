@@ -108,7 +108,8 @@
             <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
                 <DxComboBox Data="@_ActivityResult"
                             NullText="Select Activity Result..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                 @bind-Value="Data.ActivityResultId"
@@ -119,7 +120,8 @@
             <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="6">
                 <DxComboBox Data="@_ActivityStatusItem"
                             NullText="Select Activity Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto

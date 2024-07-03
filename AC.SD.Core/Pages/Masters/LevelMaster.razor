@@ -32,125 +32,128 @@
     </div>
 </div>
 @if (Type == "designation")
-    {
+{
     <div style="" class="breadcrumb card-body  bradcrumb-txt">
 
         <div class="items"> @companyName<span class="separator-txt fa fa-caret-right"></span>@divisionName<span class="separator-txt fa fa-caret-right"></span>@departmentName<span class="separator-txt fa fa-caret-right"></span>@secName<span class="separator-txt fa fa-caret-right"></span>@subsecName<span class="separator-txt fa fa-caret-right"></span>@Name</div>
     </div>
-    }
-    <DxLoadingPanel @bind-Visible="PanelVisible"
+}
+<DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
+                Text="Fetching Data...">
 
-    
-<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true"
- ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        Data="_levelItems"
-        KeyFieldName="LevelID"
-        EditModelSaving="Grid_EditModelSaving"
-        DataItemDeleting="Grid_DataItemDeleting"
-        CustomizeEditModel="Grid_CustomizeEditModel"
-        CustomizeElement="Grid_CustomizeElement"
-        ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        AutoExpandAllGroupRows="true"
-        CssClass="ch-360 " style="height: calc(100vh - 270px);"
-        FocusedRowEnabled="true"
-        RowClick="OnRowClick"
-        AllowSelectRowByClick="true"
-        RowDoubleClick="OnRowDoubleClick"
-         SelectedDataItemsChanged="@SelectedDataItemsChanged"
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_levelItems"
+            KeyFieldName="LevelID"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            RowDoubleClick="OnRowDoubleClick"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
             ValidationEnabled="true" VirtualScrollingEnabled="true">
 
 
-    <Columns>
-        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-        <DxGridDataColumn FieldName="LevelID" MinWidth="80" Visible="false" />
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="LevelID" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="Index" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>
-        <DxGridDataColumn FieldName="PlantCode"  Caption="Company Code" MinWidth="80" />
-        <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
-        <DxGridDataColumn FieldName="Name" MinWidth="80" />
-        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-        @* <DxGridDataColumn FieldName="ModifiedDate" Width="180">
+            <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
+            <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
+            <DxGridDataColumn FieldName="Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+            @* <DxGridDataColumn FieldName="ModifiedDate" Width="180">
             <CellDisplayTemplate>
-                @{
-                    var item = (ViewLevel)context.DataItem;
-                }
-                @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+            @{
+            var item = (ViewLevel)context.DataItem;
+            }
+            @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
             </CellDisplayTemplate>
-        </DxGridDataColumn>
-        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" /> *@
-    </Columns>
-    <EditFormTemplate Context="EditFormContext">
-        @{
-            var plant = (ViewLevel)EditFormContext.EditModel;
-        }
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                <DxComboBox Data="@_plantItems"
-                            NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"                             
-                            TextFieldName="PlantCode"
-                            ValueFieldName="PlantID"
-                            Enabled = "@isEnabled"
-                            @bind-Value="@plant.CompanyID"
-                            SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => plant.CompanyID)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                <DxComboBox Data="@_divisionsItems"
-                            NullText="Select Division..."
-                            Enabled="@isEnabled"
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="DivisionDrop"
-                            ValueFieldName="DivisionID"
-                            @bind-Value="@plant.DivisionID">
-                </DxComboBox>
-                <ValidationMessage For="@(() => plant.DivisionID)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
-                <ValidationMessage For="@(() => plant.Name)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
-                <DxComboBox Data="@_stausItems"
-                            NullText="Select Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="CodeValue"
-                            ValueFieldName="CodeId"
-                           @bind-Text="@Text"
-                            @bind-Value="@plant.StatusCodeID"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => plant.StatusCodeID)" />
-            </DxFormLayoutItem>
-        </DxFormLayout>
-    </EditFormTemplate>
-    <TotalSummary>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedBy" Width="10%" /> *@
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var plant = (ViewLevel)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="PlantCode"
+                                ValueFieldName="PlantID"
+                                Enabled="@isEnabled"
+                                Value="@plant.CompanyID"
+                                ValueExpression="@(() => plant.CompanyID )"
+                                ValueChanged="@((long? plantSelect) => SelectedItemChanged(plantSelect,plant))"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => plant.CompanyID)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                    <DxComboBox Data="@_divisionsItems"
+                                NullText="Select Division..."
+                                Enabled="@isEnabled"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="DivisionDrop"
+                                ValueFieldName="DivisionID"
+                                @bind-Value="@plant.DivisionID">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => plant.DivisionID)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => plant.Name)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxComboBox Data="@_stausItems"
+                                NullText="Select Status..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
+                                @bind-Text="@Text"
+                                @bind-Value="@plant.StatusCodeID"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => plant.StatusCodeID)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
-    </TotalSummary>
-</DxGrid>
+        </TotalSummary>
+    </DxGrid>
 </DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+
         </p>
     </Content>
-       
+
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
@@ -173,10 +176,10 @@
 </DxPopup>
 @code {
     string companyName = "";
-    string divisionName ="";
-    string  departmentName ="";
-    string secName ="";
-    string   subsecName = "";
+    string divisionName = "";
+    string departmentName = "";
+    string secName = "";
+    string subsecName = "";
     bool PanelVisible { get; set; }
     string Text { get; set; } = "Active";
     string Name = "";
@@ -240,7 +243,7 @@
                 _selectdesignation = _designation.FirstOrDefault(f => f.DesignationID == PlantID);
                 companyName = _selectdesignation.PlantCode;
                 divisionName = _selectdesignation.DivisionName;
-                departmentName =_selectdesignation.DepartmentName;
+                departmentName = _selectdesignation.DepartmentName;
                 secName = _selectdesignation.SectionName;
                 subsecName = _selectdesignation.SubSectionName;
                 Name = _selectdesignation.Name;
@@ -250,20 +253,22 @@
         if (_levelItems.Count > 0)
         {
             _selectedItems = _levelItems.FirstOrDefault();
-           
-                EditEnabled = true;
-                DeleteEnabled = true;
-                StateHasChanged();
-            
+
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+
 
         }
         // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
     }
-    void SelectedItemChanged(long? plantID)
+    void SelectedItemChanged(long? plantID, ViewLevel viewLevel)
     {
-        if (plantID != null)
+        viewLevel.CompanyID = plantID;
+        if (plantID > 0)
         {
+            viewLevel.CompanyID = plantID;
             _divisionsItems = _divisions.Where(w => w.CompanyId == plantID).ToList();
         }
     }
@@ -284,9 +289,9 @@
 
                     isEnabled = false;
                     newData.CompanyID = _masters.CompanyID;
-                    newData.DivisionID =_masters.DivisionID;
+                    newData.DivisionID = _masters.DivisionID;
                     // newData.DivisionID = _masters.DivisionID;
-                    SelectedItemChanged(_masters.CompanyID);
+                    SelectedItemChanged(_masters.CompanyID, _masters);
                 }
             }
 
@@ -294,7 +299,7 @@
         else
         {
             var newData = (ViewLevel)e.EditModel;
-            SelectedItemChanged(newData.CompanyID);
+            SelectedItemChanged(newData.CompanyID, newData);
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -309,7 +314,7 @@
                     CompanyId = editableData.CompanyID,
                     AddedByUserId = applicationUser.UserID,
                     ModifiedByUserId = applicationUser.UserID,
-                    DivisionID=editableData.DivisionID,
+                    DivisionID = editableData.DivisionID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
                 };
@@ -393,7 +398,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-       // UpdateDataAsync();
+        // UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -435,8 +440,8 @@
         //}
         //else
         //{
-            Grid.StartEditDataItemAsync(_selectedItems);
-       // }
+        Grid.StartEditDataItemAsync(_selectedItems);
+        // }
     }
     void addDelete()
     {
@@ -487,7 +492,7 @@
         {
             EditEnabled = true;
         }
-        
+
     }
     void ResetDesignation()
     {

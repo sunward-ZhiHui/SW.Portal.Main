@@ -790,4 +790,88 @@ namespace Application.Handlers.QueryHandlers
             return await _DynamicFormQueryRepository.InsertDmsDocumentDynamicFormData(request.DynamicFormDataUpload);
         }
     }
+    public class InsertDynamicFormReportHandler : IRequestHandler<InsertDynamicFormReport, DynamicFormReport>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormReportHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<DynamicFormReport> Handle(InsertDynamicFormReport request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormReport(request);
+        }
+
+    }
+    public class GetDynamicFormReportListHandler : IRequestHandler<GetDynamicFormReportList, List<DynamicFormReport>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormReportListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormReport>> Handle(GetDynamicFormReportList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormReport>)await _dynamicFormQueryRepository.GetDynamicFormReportList(request.DynamicFormId);
+        }
+
+
+    }
+    public class DeleteDynamicFormReportHandler : IRequestHandler<DeleteDynamicFormReport, DynamicFormReport>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormReportHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormReport> Handle(DeleteDynamicFormReport request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormReport(request.DynamicFormReport);
+
+
+        }
+    }
+    public class GetDynamicFormReportOneDataHandler : IRequestHandler<GetDynamicFormReportOneData, DynamicFormReport>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormReportOneDataHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormReport> Handle(GetDynamicFormReportOneData request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormReportOneData(request.SessionId);
+        }
+
+
+    }
+    public class GetDynamicFormApplicationMasterParentHandler : IRequestHandler<GetDynamicFormApplicationMasterParent, List<ApplicationMasterParent>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormApplicationMasterParentHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<ApplicationMasterParent>> Handle(GetDynamicFormApplicationMasterParent request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationMasterParent>)await _dynamicFormQueryRepository.GetDynamicFormApplicationMasterParentAsync(request.DynamicFormId);
+        }
+
+
+    }
+    public class GetDynamicFormApplicationMasterHandler : IRequestHandler<GetDynamicFormApplicationMaster, List<ApplicationMaster>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormApplicationMasterHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<ApplicationMaster>> Handle(GetDynamicFormApplicationMaster request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationMaster>)await _dynamicFormQueryRepository.GetDynamicFormApplicationMasterAsync(request.DynamicFormId);
+        }
+
+
+    }
 }

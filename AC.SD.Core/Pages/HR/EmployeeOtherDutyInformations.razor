@@ -68,17 +68,21 @@
             <DxFormLayoutItem Caption="Designation" ColSpanMd="6">
                 <DxComboBox Data="@_designationItems"
                             NullText="Select Designation..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Name"
                             ValueFieldName="DesignationID"
-                            SelectedItemChanged="@((ViewDesignation depSelect) => SelectedItemOtherChanged(depSelect))"
-                            @bind-Value="@responseOtherData.DesignationId"></DxComboBox>
+                             Value="@CurrentDesignation"
+                             ValueExpression="@(() => CurrentDesignation )"
+                            ValueChanged="@((ViewDesignation depSelect) => SelectedItemOtherChanged(depSelect))"
+                            ></DxComboBox>
                 <ValidationMessage For="@(() => responseOtherData.DesignationId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Department" ColSpanMd="6">
                 <DxComboBox Data="@_departmentItems"
                             NullText="Select Department..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="DepartmentName"
                             ValueFieldName="DepartmentId"
                             @bind-Value="@employeeOtherDutyInformationResponse.DepartmentId" ReadOnly="true" />
@@ -86,7 +90,8 @@
             <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
                 <DxComboBox Data="@_subSectionItems"
                             NullText="Select SubSection..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="SubSectionName"
                             ValueFieldName="SubSectionId"
                             @bind-Value="@employeeOtherDutyInformationResponse.SubSectionId" ReadOnly="true" />
@@ -94,7 +99,8 @@
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@employeeOtherDutyInformationResponse.CompanyId" ReadOnly="true" />
@@ -103,7 +109,8 @@
             <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                 <DxComboBox Data="@_sectionItems"
                             NullText="Select Section..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="SectionName"
                             ValueFieldName="SectionId"
                             @bind-Value="@employeeOtherDutyInformationResponse.SectionId" ReadOnly="true" />
@@ -112,7 +119,8 @@
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
                 <DxComboBox Data="@_divisionsItems"
                             NullText="Select Division..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Name"
                             ValueFieldName="DivisionID"
                             @bind-Value="@employeeOtherDutyInformationResponse.DivisionId" ReadOnly="true" />
@@ -121,7 +129,8 @@
             <DxFormLayoutItem Caption="Level" ColSpanMd="6">
                 <DxComboBox Data="@_leveMasterItems"
                             NullText="Select Level..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Name"
                             ValueFieldName="LevelID"
                             @bind-Value="@employeeOtherDutyInformationResponse.LevelId" ReadOnly="true" />
@@ -138,7 +147,8 @@
             <DxFormLayoutItem Caption="Duty Type" ColSpanMd="6">
                 <DxComboBox Data="@_view_ApplicationMasterDetails"
                             NullText="Select Duty TYpe..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             @bind-Value="@responseOtherData.DutyTypeId" />
@@ -147,7 +157,8 @@
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
                             @bind-Value="@responseOtherData.StatusCodeId"
@@ -160,6 +171,7 @@
 </DxGrid>
 
 @code {
+    ViewDesignation CurrentDesignation  { get; set; }
     [Parameter]
     public long? EmployeeIds { get; set; }
     private View_EmployeeOtherDutyInformation _employeeOtherDutyInfoselectedItems;
@@ -186,6 +198,7 @@
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        CurrentDesignation =null;
         if (EmployeeIds > 0)
         {
             AddEnabledOtherDuty = true;
@@ -209,13 +222,20 @@
     }
     void SelectedItemOtherChanged(ViewDesignation viewDesignation)
     {
-        employeeOtherDutyInformationResponse.DepartmentId = viewDesignation.DepartmentID;
-        employeeOtherDutyInformationResponse.CompanyId = viewDesignation.CompanyID;
-        employeeOtherDutyInformationResponse.DivisionId = viewDesignation.DivisionID;
-        employeeOtherDutyInformationResponse.LevelId = viewDesignation.LevelID;
-        employeeOtherDutyInformationResponse.SectionId = viewDesignation.SectionID;
-        employeeOtherDutyInformationResponse.SubSectionId = viewDesignation.SubSectionID;
-        employeeOtherDutyInformationResponse.DesignationId = viewDesignation.DesignationID;
+        CurrentDesignation = null;
+        employeeOtherDutyInformationResponse.DesignationId = null;
+        if (viewDesignation != null)
+        {
+            CurrentDesignation = viewDesignation;
+            employeeOtherDutyInformationResponse.DesignationId = viewDesignation.DesignationID;
+            employeeOtherDutyInformationResponse.DepartmentId = viewDesignation.DepartmentID;
+            employeeOtherDutyInformationResponse.CompanyId = viewDesignation.CompanyID;
+            employeeOtherDutyInformationResponse.DivisionId = viewDesignation.DivisionID;
+            employeeOtherDutyInformationResponse.LevelId = viewDesignation.LevelID;
+            employeeOtherDutyInformationResponse.SectionId = viewDesignation.SectionID;
+            employeeOtherDutyInformationResponse.SubSectionId = viewDesignation.SubSectionID;
+            employeeOtherDutyInformationResponse.DesignationId = viewDesignation.DesignationID;
+        }
     }
     void OnRowOtherDutyClick(GridRowClickEventArgs e)
     {
@@ -259,6 +279,7 @@
             var newplant = (View_EmployeeOtherDutyInformation)e.EditModel;
             if (e.IsNew)
             {
+                CurrentDesignation = null;
                 newplant.EmployeeId = EmployeeIds;
                 newplant.DepartmentId = null;
                 newplant.StatusCodeId = null;
@@ -279,6 +300,7 @@
                 }
                 else
                 {
+                    CurrentDesignation = null;
                     employeeOtherDutyInformationResponse.DepartmentId = null;
                     employeeOtherDutyInformationResponse.CompanyId = null;
                     employeeOtherDutyInformationResponse.DivisionId = null;

@@ -481,5 +481,69 @@ namespace SW.Portal.Solutions.Controllers
                 return response;
             }
         }
+        [HttpPost]
+        [Route("UploadDynamicFormReportFile")]
+        public async Task<ActionResult> UploadDynamicFormReportFile(IFormFile files, Guid? SessionId, long? addedByUserId)
+        {
+            long ReportdocumentId = 0;
+            // Handling Upload with Chunks
+            string chunkMetadata = Request.Form["chunkMetadata"];
+
+            // Set BasePath
+            string BaseDirectory = System.AppContext.BaseDirectory;
+            var serverPaths = Path.Combine(BaseDirectory, "Reports");
+
+            try
+            {
+                if (!string.IsNullOrEmpty(chunkMetadata))
+                {
+                    var metaDataObject = JsonSerializer.Deserialize<ChunkMetadata>(chunkMetadata);
+
+                    // Use tmp File for Upload
+                    var tempFilePath = Path.Combine(serverPaths, SessionId + ".tmp");
+
+                    // Create UploadFolder
+                    if (!System.IO.Directory.Exists(serverPaths))
+                    {
+                        System.IO.Directory.CreateDirectory(serverPaths);
+                    }
+                    // Removes temporary files 
+                    //RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
+
+                    // Save FileStream
+                    using (var stream = new FileStream(tempFilePath, FileMode.Append, FileAccess.Write))
+                    {
+                        files.CopyTo(stream);
+                    }
+                    if (metaDataObject.Index == (metaDataObject.TotalCount - 1))
+                    {
+                        var ext = metaDataObject.FileName.Split(".").Last();
+                        var fileName1 = SessionId + "." + ext;
+                        var serverPath = serverPaths + @"\" + fileName1;
+
+                        var FileName = Path.GetFileNameWithoutExtension(metaDataObject.FileName);
+
+                        // Upload finished - overwrite/copy file and remove tempFile
+                        System.IO.File.Copy(tempFilePath, Path.Combine(serverPaths, serverPath), true);
+                        System.IO.File.Delete(tempFilePath);
+                        DynamicFormReport documents = new DynamicFormReport();
+
+                        documents.FileName = FileName;
+                        documents.ContentType = files.ContentType;
+                        documents.FileSize = files.Length;
+                        documents.SessionId = SessionId;
+                        documents.FilePath = serverPath.Replace(Path.Combine(BaseDirectory, "Reports"), "");
+                       var response = await _fileuploadqueryRepository.UpdateDynamicFormReportBySession(documents);
+                        System.GC.Collect();
+                        GC.SuppressFinalize(this);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            return Ok(ReportdocumentId.ToString());
+        }
     }
 }

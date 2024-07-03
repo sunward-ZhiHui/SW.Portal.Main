@@ -84,10 +84,10 @@
     </DxGrid>
 </DxLoadingPanel>
 <DxPopup @bind-Visible="@PopupVisibleLinkDocument"
-         ShowFooter="true"
+         ShowFooter="false"
          HeaderText="Sunward Libraries"
          CloseOnOutsideClick="false"
-         ShowCloseButton="false"
+         ShowCloseButton="true"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <LinkFileprofileTypeList ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="@LinkType"></LinkFileprofileTypeList>
@@ -97,10 +97,10 @@
     </FooterContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisibleLinkParentDocument"
-         ShowFooter="true"
+         ShowFooter="false"
          HeaderText="Parent Documents"
          CloseOnOutsideClick="false"
-         ShowCloseButton="false"
+         ShowCloseButton="true"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <ParentLinkDocuments ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="Link Documents"></ParentLinkDocuments>
@@ -111,6 +111,7 @@
 </DxPopup>
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
+         ShowCloseButton="true"
          HeaderText="Delete Link"
          Closed="EulaPopupClosed"
          Width="300px">
@@ -128,7 +129,7 @@
          ShowFooter="true"
          HeaderText="Security Access"
          CloseOnOutsideClick="false"
-         ShowCloseButton="false"
+         ShowCloseButton="true"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <UploadLinkDoumentFiles @ref="refUploadLinkDoumentFiles" selectedFiles="@selectedFiles" applicationUser="@applicationUser" FileProfileSessionId="@SessionId" RevokeLinkDocBack="CloseLinkDocumentsUploadPopup"></UploadLinkDoumentFiles>

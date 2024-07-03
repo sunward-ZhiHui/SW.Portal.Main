@@ -92,8 +92,8 @@
                     @{
                         var item = (ProductionActivityRoutineAppModel)context.DataItem;
                     }
-@*                     <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;color:green" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityRoutineAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>
- *@                    @if (item.IsLocked == true)
+                    @*                     <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;color:green" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityRoutineAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>
+                    *@                    @if (item.IsLocked == true)
                     {
                         <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
                     }
@@ -124,7 +124,7 @@
             <DxGridDataColumn Caption="Company" FieldName="CompanyName" MinWidth="180" />
             <DxGridDataColumn Caption="Ticket No" FieldName="ProdOrderNoDesc" MinWidth="180" />
             <DxGridDataColumn Caption="Location/Batch Info." FieldName="LocationName" MinWidth="180" />
-           
+
             <DxGridDataColumn Caption="Routine" FieldName="ManufacturingProcessChild" MinWidth="180" />
             <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />
             <DxGridDataColumn Caption="Action" FieldName="ProdActivityActionChild" MinWidth="180" />
@@ -141,7 +141,7 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn Caption="Result" FieldName="ProdActivityResult" MinWidth="180" />
-           @*  <DxGridDataColumn Caption="Routine Info" FieldName="RoutineStatus" MinWidth="180" /> *@
+            @*  <DxGridDataColumn Caption="Routine Info" FieldName="RoutineStatus" MinWidth="180" /> *@
             <DxGridDataColumn Caption="Status" FieldName="RoutineInfoStatus" MinWidth="180" />
             <DxGridDataColumn Caption="Modified By" FieldName="ModifiedByUser" MinWidth="180" />
 
@@ -179,30 +179,30 @@
         <UploadProductionRoutineFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionRoutineFiles>
     </BodyContentTemplate>
 </DxPopup>
-  <DxFlyout @bind-IsOpen=IsDescriptionOpen
-           PositionTarget=@($"#flyout-overview-target-container-Description-{_selectedDescriptionItems?.ProductionActivityRoutineAppLineId}")
-           RestrictionTarget="#Navigation-Flyout-Customization"
-           AnimationType="FlyoutAnimationType.Fade"
-           PreventCloseOnPositionTargetClick="true"
-           HeaderVisible="true"
-           HeaderText="Update Description"
-           FooterVisible="true"
-           CloseOnOutsideClick="false"
-           FooterCssClass="custom-flyout-footer"
-           MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
-           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
-     <BodyContentTemplate Context="PopupContext">
-         <DxFormLayout CssClass="w-100">
-             <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
-                 <DxMemo @bind-Text="@_selectedDescriptionItems.LineComment" CssClass="cw-480" Rows="5" />
-             </DxFormLayoutItem>
-         </DxFormLayout>
-     </BodyContentTemplate>
-     <FooterContentTemplate Context="Context">
-         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
-         <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
-     </FooterContentTemplate>
- </DxFlyout> 
+<DxFlyout @bind-IsOpen=IsDescriptionOpen
+          PositionTarget=@($"#flyout-overview-target-container-Description-{_selectedDescriptionItems?.ProductionActivityRoutineAppLineId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Update Description"
+          FooterVisible="true"
+          CloseOnOutsideClick="false"
+          FooterCssClass="custom-flyout-footer"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
+                <DxMemo @bind-Text="@_selectedDescriptionItems.LineComment" CssClass="cw-480" Rows="5" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
+    </FooterContentTemplate>
+</DxFlyout>
 <DxPopup @bind-Visible="@PopupUpload"
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
@@ -242,7 +242,7 @@
 
     </FooterContentTemplate>
 </DxPopup>
- <DxPopup @bind-Visible="@SupportingDocumentsPopup"
+<DxPopup @bind-Visible="@SupportingDocumentsPopup"
          ShowFooter="true"
          HeaderText="Supporting Documents"
          CloseOnOutsideClick="false"
@@ -253,8 +253,8 @@
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
     </FooterContentTemplate>
-</DxPopup> 
- <DxPopup @bind-Visible="@OperatorsPopup"
+</DxPopup>
+<DxPopup @bind-Visible="@OperatorsPopup"
          ShowFooter="true"
          HeaderText="@OperatorsNonCom"
          CloseOnOutsideClick="false"
@@ -265,8 +265,8 @@
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
     </FooterContentTemplate>
-</DxPopup> 
- <DxPopup @bind-Visible="@ActivityEmailPopup"
+</DxPopup>
+<DxPopup @bind-Visible="@ActivityEmailPopup"
          ShowFooter="false"
          HeaderText="Activity Email"
          CloseOnOutsideClick="false"
@@ -299,25 +299,28 @@
                 <DxFormLayoutItem Caption="Routine Status" ColSpanMd="12">
                     <DxComboBox Data="@_ActivityStatusItem"
                                 NullText="Select Routine Status..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
-                    @bind-Value="_selectedDescriptionItems.RoutineStatusId"
+                                @bind-Value="_selectedDescriptionItems.RoutineStatusId"
                                 ShowValidationIcon="true">
                     </DxComboBox>
                 </DxFormLayoutItem>
             }
             @if (ActivityStatusMasterType == "Activity Info")
             {
-                  <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
-                      <DxTagBox NullText="Select Routine Info..."
-                                Data="@_ActivityMaster"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                TextFieldName="Value"
-                                ValueFieldName="ApplicationMasterDetailID"
-                      @bind-Values="@_selectedDescriptionItems.RoutineInfoIds"
-                                CssClass="cw-480" />
-                  </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
+                    <DxTagBox NullText="Select Routine Info..."
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              Data="@_ActivityMaster"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              TextFieldName="Value"
+                              ValueFieldName="ApplicationMasterDetailID"
+                              @bind-Values="@_selectedDescriptionItems.RoutineInfoIds"
+                              CssClass="cw-480" />
+                </DxFormLayoutItem>
             }
         </DxFormLayout>
     </BodyContentTemplate>
@@ -342,59 +345,66 @@
             <DxFormLayoutItem Caption="Company" ColSpanMd="12">
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
-                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant))"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             ListRenderMode="ListRenderMode.Virtual"
                             TextFieldName="Description"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ValueFieldName="PlantID"
-                @bind-Value="FilterData.CompanyId">
-
+                            Value="FilterData.CompanyId"
+                            ValueExpression="@(() => FilterData.CompanyId )">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Location" ColSpanMd="12">
                 <DxComboBox Data="@_productionActivities"
                             NullText="Select Loctaion..."
-                            SelectedItemChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            ValueChanged="@((long? loc) => SelectedItemloc(loc))"
+                            Value="FilterData.LocationId"
+                            ValueExpression="@(() => FilterData.LocationId )"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="DeropdownName"
                             ValueFieldName="ICTMasterID"
                             ListRenderMode="ListRenderMode.Virtual"
-                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.LocationId">
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto>
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Ticket No" ColSpanMd="12">
                 <DxComboBox Data="@_ponumberActivities"
                             NullText="Select Ticket No..."
-                            SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod))"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            ValueChanged="@((string? prod) => SelectedItemprod(prod))"
+                            Value="FilterData.ProdOrderNo"
+                            ValueExpression="@(() => FilterData.ProdOrderNo )"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Name"
                             ValueFieldName="ProdOrderNo"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                            ListRenderMode="ListRenderMode.Virtual"
-                @bind-Value="FilterData.ProdOrderNo">
+                            ListRenderMode="ListRenderMode.Virtual">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="12">
                 <DxComboBox Data="@_poOrderDetails"
                             NullText="Select ProdOrderNo..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Name"
                             ValueFieldName="NavprodOrderLineId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.NavprodOrderLineId">
+                            @bind-Value="FilterData.NavprodOrderLineId">
                 </DxComboBox>
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Routine:" ColSpanMd="12">
                 <DxComboBox Data="@_ManuFactureProcessLines"
                             NullText="Select Routine..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.ManufacturingProcessChildId"
+                            @bind-Value="FilterData.ManufacturingProcessChildId"
                             ShowValidationIcon="true">
 
                 </DxComboBox>
@@ -402,10 +412,11 @@
             <DxFormLayoutItem Caption="Category:" ColSpanMd="12">
                 <DxComboBox Data="@_categoryItems"
                             NullText="Select Category ..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
-                @bind-Value="FilterData.ProdActivityCategoryChildId"
+                            @bind-Value="FilterData.ProdActivityCategoryChildId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -414,10 +425,11 @@
             <DxFormLayoutItem Caption="Action:" ColSpanMd="12">
                 <DxComboBox Data="@_actionItems"
                             NullText="Select ActionDropdown..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterChildId"
-                @bind-Value="FilterData.ProdActivityActionChildD"
+                            @bind-Value="FilterData.ProdActivityActionChildD"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -425,10 +437,11 @@
             <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="12">
                 <DxComboBox Data="@_ActivityResult"
                             NullText="Select Activity Result..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
-                @bind-Value="FilterData.ProdActivityResultId"
+                            @bind-Value="FilterData.ProdActivityResultId"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -436,22 +449,24 @@
             <DxFormLayoutItem Caption="Routine Status:" ColSpanMd="12">
                 <DxComboBox Data="@_ActivityStatusItem"
                             NullText="Select Routine Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.RoutineStatusId"
+                            @bind-Value="FilterData.RoutineStatusId"
                             ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Routine Info:" ColSpanMd="12">
                 <DxComboBox Data="@_ActivityMaster"
                             NullText="Select Routine Info..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="ApplicationMasterDetailID"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                @bind-Value="FilterData.VisaMasterId"
+                            @bind-Value="FilterData.VisaMasterId"
                             ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
@@ -470,20 +485,20 @@
 
     </FooterContentTemplate>
 </DxFlyout>
- <DxPopup @bind-Visible="@ActivityEmailSubjectPopup"
-          ShowFooter="false"
-          HeaderText="Email Activity Subject"
-          CloseOnOutsideClick="false"
-          ShowCloseButton="false"
-          CloseOnEscape="false"
-          MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
-     <BodyContentTemplate>
-         <ProductRoutineEmailActivitySubjects selectedFiles="@_selectedItems" ActivityType="Production Routine" applicationUser="@applicationUser"></ProductRoutineEmailActivitySubjects>
-     </BodyContentTemplate>
-     <FooterContentTemplate Context="Context">
-         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
-     </FooterContentTemplate>
- </DxPopup>
+<DxPopup @bind-Visible="@ActivityEmailSubjectPopup"
+         ShowFooter="false"
+         HeaderText="Email Activity Subject"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <ProductRoutineEmailActivitySubjects selectedFiles="@_selectedItems" ActivityType="Production Routine" applicationUser="@applicationUser"></ProductRoutineEmailActivitySubjects>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 <DxPopup @bind-Visible="@IsCheckerPopUp"
          ShowFooter="false"
          HeaderText="Check By"
@@ -540,7 +555,7 @@
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public string isVisibleMore { get; set; } = "display:none;";
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
-    public bool EditEnabled { get; set; } = false; 
+    public bool EditEnabled { get; set; } = false;
     public bool DownloadEnabled { get; set; } = false;
     public bool DeleteEnabled { get; set; } = false;
     public bool HistoryEnabled { get; set; } = false;
@@ -583,8 +598,9 @@
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         await onLoadDataList();
     }
-    void SelectedItemloc(ProductionActivityApp loc)
+    void SelectedItemloc(long? loc)
     {
+        FilterData.LocationId = loc;
         StateHasChanged();
     }
     protected override async Task OnParametersSetAsync()
@@ -597,7 +613,7 @@
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
-        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;IsChecker = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false; IsChecker = false;
         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         _AppLines = new List<ProductionActivityRoutineAppModel>();
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
@@ -647,7 +663,7 @@
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
-        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;IsChecker = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false; IsChecker = false;
         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         if (_selectedItems != null)
         {
@@ -708,8 +724,8 @@
                             CheckInEnabled = true;
                             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                             HistoryEnabled = false;
-                            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
-                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;IsChecker = false;
+                            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false;
+                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; IsChecker = false;
                         }
                         else
                         {
@@ -896,8 +912,8 @@
     {
         isVisibleMore = "";
         EditEnabled = true; DeleteEnabled = true;
-        NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;IsChecker = true;
-        if(_selectedItems.IsEmailCreated==true)
+        NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true; IsChecker = true;
+        if (_selectedItems.IsEmailCreated == true)
         {
             EmailActivityEnabled = true;
         }
@@ -907,8 +923,8 @@
             CheckOutEnabled = false;
             CheckInEnabled = true;
             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
-            HistoryEnabled = false;EmailActivityEnabled = false;
-            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker = false;
+            HistoryEnabled = false; EmailActivityEnabled = false;
+            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; IsChecker = false;
             NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         }
         else
@@ -925,26 +941,27 @@
             }
         }
     }
-    async Task SelectedItemPlantChanged(ViewPlants PlantsData)
+    async Task SelectedItemPlantChanged(long? PlantsData)
     {
+        FilterData.CompanyId = PlantsData;
         _productionActivities = new List<ProductionActivityApp>();
         _ponumberActivities = new List<NavprodOrderLineModel>();
         ActiveTabIndex = 0;
         FilterData.ProdOrderNo = null; FilterData.LocationId = 0; FilterData.CompanyId = null;
-        if (PlantsData != null && PlantsData.PlantID > 0)
+        if (PlantsData != null && PlantsData > 0)
         {
-            FilterData.CompanyId = PlantsData.PlantID;
-            _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(PlantsData.PlantID));
-            _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(PlantsData.PlantID));
+            _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(PlantsData));
+            _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(PlantsData));
         }
         StateHasChanged();
     }
-    async Task SelectedItemprod(NavprodOrderLineModel NAVProdOrder)
+    async Task SelectedItemprod(string? NAVProdOrder)
     {
+        FilterData.ProdOrderNo = NAVProdOrder;
         _poOrderDetails = new List<NavprodOrderLineModel>();
-        if (NAVProdOrder != null && !string.IsNullOrEmpty(NAVProdOrder.ProdOrderNo))
+        if (!string.IsNullOrEmpty(NAVProdOrder))
         {
-            _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(FilterData.CompanyId, NAVProdOrder.ProdOrderNo));
+            _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(FilterData.CompanyId, NAVProdOrder));
             StateHasChanged();
         }
     }
@@ -1274,7 +1291,7 @@
     }
     void onEmailActivityOpen()
     {
-        ActivityEmailSubjectPopup=true;
+        ActivityEmailSubjectPopup = true;
         StateHasChanged();
     }
     void onIsChecker()

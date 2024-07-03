@@ -36,7 +36,8 @@
             <DxFormLayoutItem Caption="Move Transaction Entry" ColSpanMd="6">
                 <DxTagBox Data="@_MovePalletNoEntryItems"
                           NullText="Select Transaction Entry..."
-                          FilteringMode="DataGridFilteringMode.Contains"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
                           TextFieldName="PalletNo"
                           ValueFieldName="FmglobalLineId"
                           @bind-Values="@PalletMoveEntryNoIds" ShowValidationIcon="true" Enabled="IsRelease" />
@@ -145,11 +146,12 @@
                 <DxFormLayoutItem Caption="Pallet Entry" ColSpanMd="6">
                     <DxComboBox Data="@_viewPalletNoEntryItems"
                                 NullText="Select Pallet Entry..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                Value="@types.PalletEntryNoId"
+                                ValueExpression="@(() => types.PalletEntryNoId )"
                                 TextFieldName="PalletNo"
                                 ValueFieldName="FmglobalLineId"
-                                SelectedItemChanged="@((ViewFmglobalLine navitems) => SelectedItemMethodChangesChanged(navitems.FmglobalLineId))"
-                                @bind-Value="@types.PalletEntryNoId" ShowValidationIcon="true" />
+                                ValueChanged="@((long? navitems) => SelectedItemMethodChangesChanged(navitems,types))"
+                                ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.PalletEntryNoId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Pallet No:" ColSpanMd="6">
@@ -270,8 +272,9 @@
         }
 
     }
-    void SelectedItemMethodChangesChanged(long? ItemsId)
+    void SelectedItemMethodChangesChanged(long? ItemsId, ViewFmglobalLine viewFmglobalLine)
     {
+        viewFmglobalLine.PalletEntryNoId = ItemsId;
         if (ItemsId > 0)
         {
             var masterDetail = _viewPalletNoEntryItems.FirstOrDefault(f => f.FmglobalLineId == ItemsId);
@@ -375,7 +378,7 @@
             palletNo = navitems.PalletNo;
             if (navitems.PalletEntryNoId > 0)
             {
-                SelectedItemMethodChangesChanged(navitems.PalletEntryNoId);
+                SelectedItemMethodChangesChanged(navitems.PalletEntryNoId, navitems);
             }
         }
     }

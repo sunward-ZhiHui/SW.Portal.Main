@@ -100,11 +100,11 @@ namespace Infrastructure.Repository.Query
                 query += "from view_FileProfileTypeDocument t2 ";
                 if (selectedFileProfileTypeID == null)
                 {
-                    query += "\r\nWhere parentid is null AND IsDelete is null or IsDelete=0";
+                    query += "\r\nWhere parentid is null AND IsDelete is null or IsDelete=0 order by Filename asc";
                 }
                 else
                 {
-                    query += "\r\nwhere parentid=" + selectedFileProfileTypeID + " AND IsDelete is null or IsDelete = 0";
+                    query += "\r\nwhere parentid=" + selectedFileProfileTypeID + " AND IsDelete is null or IsDelete = 0 order by Filename asc";
                 }
                 using (var connection = CreateConnection())
                 {
@@ -850,7 +850,7 @@ namespace Infrastructure.Repository.Query
                             counts++;
                         });
                     }
-                    DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
+                    DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderBy(a => a.FileName).ToList());
 
                 }
                 return DocumentTypeModel;

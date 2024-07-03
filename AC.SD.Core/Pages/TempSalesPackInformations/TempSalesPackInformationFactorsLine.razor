@@ -49,11 +49,12 @@
                             <DxComboBox Data="@_documentProfileNoList"
                                         NullText="Select Profile..."
                                         ListRenderMode="ListRenderMode.Virtual"
-                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                                         TextFieldName="Name"
                                         ValueFieldName="ProfileID"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            @bind-Value="@Data.ProfileId" ShowValidationIcon="true">
+                                        @bind-Value="@Data.ProfileId" ShowValidationIcon="true">
                                 <Columns>
                                     <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Name)"
                                                         Caption="Name"
@@ -70,12 +71,13 @@
                             <DxComboBox Data="@_navItemLists"
                                         NullText="Select Navision No..."
                                         ListRenderMode="ListRenderMode.Virtual"
-                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                                         TextFieldName="No"
                                         ValueFieldName="ItemId"
                                         EditFormat="{0}|{1}|{2}"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            @bind-Value="@Data.ItemId" ShowValidationIcon="true">
+                                        @bind-Value="@Data.ItemId" ShowValidationIcon="true">
                                 <Columns>
                                     <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                         Caption="Name"
@@ -185,12 +187,12 @@
             Data.ModifiedByUserId = applicationUser.UserID;
             Data.AddedDate = _selectedItems.AddedDate; Data.Fpname = _selectedItems.Fpname;
             Data.ModifiedDate = DateTime.Now; Data.StatusCodeId = 1;
-            Data.TempSalesPackInformationId = _selectedParentItems.TempSalesPackInformationID; 
+            Data.TempSalesPackInformationId = _selectedParentItems.TempSalesPackInformationID;
             Data.SalesPackSize = _selectedItems.SalesPackSize;
             Data.SellingPackUnit = _selectedItems.SellingPackUnit;
-            Data.ProfileId = _selectedItems.ProfileId; 
-            Data.ItemId = _selectedItems.ItemId; 
-            Data.SalesFactor = _selectedItems.SalesFactor; 
+            Data.ProfileId = _selectedItems.ProfileId;
+            Data.ItemId = _selectedItems.ItemId;
+            Data.SalesFactor = _selectedItems.SalesFactor;
             Data.QtypackPerCarton = _selectedItems.QtypackPerCarton;
             isMainGrid = false;
             onAddVisible = "";

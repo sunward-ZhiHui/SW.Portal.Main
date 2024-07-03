@@ -80,12 +80,15 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
-                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                    ValueChanged="@((long? plantSelect) => SelectedItemChanged(plantSelect))"
                                     Enabled="isPlant"
-                        @bind-Value="@Data.PlantId" ShowValidationIcon="true">
+                                    ValueExpression="@(() => Data.PlantId )"
+                                    Value="@Data.PlantId"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Plant Code"
@@ -102,12 +105,15 @@
                         <DxComboBox Data="@_divisionItems"
                                     NullText="Select Division..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Name"
                                     ValueFieldName="DivisionID"
                                     Enabled="isDivision"
-                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
-                        @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
+                                    ValueChanged="@((long? plantSelect) => SelectedItemDivisionChanged(plantSelect))"
+                                    ValueExpression="@(() => Data.DivisionId )"
+                                    Value="@Data.DivisionId"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
                                                     Caption="Name"
@@ -124,12 +130,15 @@
                         <DxComboBox Data="@_departmentItems"
                                     NullText="Select Department..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="DepartmentName"
                                     ValueFieldName="DepartmentId"
                                     Enabled="isDepartment"
-                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
-                        @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
+                                    ValueChanged="@((long? plantSelect) => SelectedItemDepartementChanged(plantSelect))"
+                                    ValueExpression="@(() => Data.DepartmentId )"
+                                    Value="@Data.DepartmentId"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
                                                     Caption="Name"
@@ -146,12 +155,15 @@
                         <DxComboBox Data="@_sectionItems"
                                     NullText="Select Section..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="SectionName"
                                     ValueFieldName="SectionId"
                                     Enabled="isSection"
-                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
-                        @bind-Value="@Data.SectionId" ShowValidationIcon="true">
+                                    ValueChanged="@((long? plantSelect) => SelectedItemSectionChanged(plantSelect))"
+                                    ValueExpression="@(() => Data.SectionId )"
+                                    Value="@Data.SectionId"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
                                                     Caption="Name"
@@ -168,11 +180,12 @@
                         <DxComboBox Data="@_subSectionItems"
                                     NullText="Select SubSection..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="SubSectionName"
                                     ValueFieldName="SubSectionId"
                                     Enabled="isSubSection"
-                        @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
+                                    @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
                                                     Caption="Name"
@@ -437,10 +450,10 @@
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
         }
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        await SelectedItemChanged(0);
-        await SelectedItemDivisionChanged(0);
-        await SelectedItemDepartementChanged(0);
-        await SelectedItemSectionChanged(0);
+        await SelectedItemChanged(Data.PlantId);
+        await SelectedItemDivisionChanged(Data.DivisionId);
+        await SelectedItemDepartementChanged(Data.DepartmentId);
+        await SelectedItemSectionChanged(Data.SectionId);
         StateHasChanged();
     }
     private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
@@ -564,6 +577,7 @@
     }
     async Task SelectedItemChanged(long? plantID)
     {
+        Data.PlantId = plantID;
         _divisionItems = new List<ViewDivision>();
         _departmentItems = new List<ViewDepartment>();
         _sectionItems = new List<ViewSection>();
@@ -575,6 +589,7 @@
     }
     async Task SelectedItemDivisionChanged(long? divisionId)
     {
+        Data.DivisionId = divisionId;
         _departmentItems = new List<ViewDepartment>();
         _sectionItems = new List<ViewSection>();
         _subSectionItems = new List<ViewSubSection>();
@@ -585,6 +600,7 @@
     }
     async Task SelectedItemDepartementChanged(long? departmentId)
     {
+        Data.DepartmentId = departmentId;
         _sectionItems = new List<ViewSection>();
         _subSectionItems = new List<ViewSubSection>();
         if (departmentId > 0)
@@ -594,6 +610,7 @@
     }
     async Task SelectedItemSectionChanged(long? sectionId)
     {
+        Data.SectionId = sectionId;
         _subSectionItems = new List<ViewSubSection>();
         if (sectionId > 0)
         {

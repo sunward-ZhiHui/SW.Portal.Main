@@ -127,4 +127,32 @@ namespace Core.Entities.CustomValidations
             return ValidationResult.Success;
         }
     }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormSectionAttributeCustomValidation : ValidationAttribute
+    {
+        private IServiceProvider serviceProvider;
+
+        public DynamicFormSectionAttributeCustomValidation()
+        {
+            serviceProvider = AppDependencyResolver.Current.GetService<IServiceProvider>();
+        }
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var datas = (DynamicFormSectionAttribute)validationContext.ObjectInstance;
+
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var service = scope.ServiceProvider.GetService<IDynamicFormQueryRepository>();
+                    var results = service.GetDynamicFormSectionAttributeCheckValidation(datas.SelectDynamicFormId,datas.DynamicFormSectionAttributeId,datas.AttributeId);
+                    if (results != null)
+                    {
+                        return new ValidationResult("Gird form already exits", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            return ValidationResult.Success;
+        }
+    }
 }

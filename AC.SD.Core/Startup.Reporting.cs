@@ -90,6 +90,9 @@ namespace AC.ShippingDocument.Reporting
                  services.AddSingleton<ReportingCustomConfigurationProvider, ReportingCustomConfigurationProvider>();
                 services.AddSingleton<DocumentUploadServices, DocumentUploadServices>();
                 services.AddSingleton<TreeGenerateRecursive, TreeGenerateRecursive>();
+                //DevExpress.Blazor.CompatibilitySettings.ComboBoxCompatibilityMode = true;
+                //DevExpress.Blazor.CompatibilitySettings.TagBoxCompatibilityMode = true;
+
                 //services.ConfigureReportingServices((builder) =>
                 //{
                 //    builder.UseAsyncEngine();

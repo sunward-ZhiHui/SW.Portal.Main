@@ -41,10 +41,11 @@
                     <DxFormLayoutItem Caption="Type Of Order:" ColSpanMd="6">
                         <DxComboBox Data="@_typeOfOrderItems"
                                     NullText="Select Type Of Order..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Value"
                                     ValueFieldName="ApplicationMasterDetailID"
-                        @bind-Value="Data.TypeOfOrderId"
+                                    @bind-Value="Data.TypeOfOrderId"
                                     ShowValidationIcon="true">
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.TypeOfOrderId)" />
@@ -52,12 +53,14 @@
                     <DxFormLayoutItem Caption="Navision No" ColSpanMd="6">
                         <DxComboBox Data="@_productItems"
                                     NullText="Select Navision No..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Code"
                                     ValueFieldName="GenericCodeId"
                                     EditFormat="{0}-{1}-{3}"
-                                    SelectedItemChanged="@((GenericCodes prod) => SelectedItemprod(prod))"
-                        @bind-Value="Data.ItemId"
+                                    Value="@Data.ItemId"
+                                    ValueExpression="@(() => Data.ItemId )"
+                                    ValueChanged="@((long? prod) => SelectedItemprod(prod))"
                                     ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(GenericCodes.Code)"
@@ -115,10 +118,11 @@
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_stausItems"
                                     NullText="Select Status..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="CodeValue"
                                     ValueFieldName="CodeId"
-                        @bind-Value="@Data.StatusCodeId"
+                                    @bind-Value="@Data.StatusCodeId"
                                     ShowValidationIcon="true">
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.StatusCodeId)" />
@@ -262,8 +266,9 @@
         StateHasChanged();
     }
 
-    void SelectedItemprod(GenericCodes genericCodes)
+    void SelectedItemprod(long? genericCodes)
     {
+        Data.ItemId = genericCodes;
     }
     async Task OnTabClick(TabClickEventArgs e)
     {

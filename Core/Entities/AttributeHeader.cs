@@ -134,6 +134,7 @@ namespace Core.Entities
         public object? ObjectData { get; set; }
         public List<DropDownGridOptionsModel> DropDownGridOptionsModel { get; set; } = new List<DropDownGridOptionsModel>();
         public List<DynamicFormData> DynamicFormData { get; set; } = new List<DynamicFormData>();
+        public List<DynamicFormData> DynamicFormListData { get; set; } = new List<DynamicFormData>();
     }
     public class ApplicationMasterParentByListModel
     {

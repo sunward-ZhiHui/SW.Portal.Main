@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Base;
+using Core.Entities.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -70,12 +71,15 @@ namespace Core.Entities
         [NotMapped]
         [Required(ErrorMessage = "Please Select To.")]
         public IEnumerable<long>? ToIds { get; set; } = null;
+      //  public IEnumerable<ViewEmployee>? ToEmployeeIds { get; set; }
 
         [NotMapped]        
         public IEnumerable<long>? ToUserGroupIds { get; set; } = null;
 
         [NotMapped]
-        public IEnumerable<long>? CCIds { get; set; }
+        public IEnumerable<long>? CCIds { get; set; } = null ;
+       // public IEnumerable<ViewEmployee>? ccEmployeeIds { get; set; }
+
         [NotMapped]
         public IEnumerable<long>? CCUserGroupIds { get; set; }
         

@@ -110,7 +110,8 @@
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserID"
                               TextFieldName="FirstName"
-                              FilteringMode="DataGridFilteringMode.Contains"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               EditFormat="{0}-{1}-{3}"
                               ListRenderMode="ListRenderMode.Virtual">
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
@@ -127,6 +128,8 @@
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserGroupId"
                               TextFieldName="Name"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               ListRenderMode="ListRenderMode.Virtual">
                         <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
@@ -139,6 +142,8 @@
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="LevelID"
                               TextFieldName="Name"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               ListRenderMode="ListRenderMode.Virtual">
                         <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
                         <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
@@ -151,6 +156,8 @@
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="DynamicFormSectionId"
                               TextFieldName="SectionName"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
                               ListRenderMode="ListRenderMode.Virtual">
                         <DxListEditorColumn FieldName="@nameof(DynamicFormSection.SectionName)" Caption="Name" />
                         <DxListEditorColumn FieldName="@nameof(DynamicFormSection.Instruction)" Caption="Instruction" />

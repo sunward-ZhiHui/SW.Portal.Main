@@ -63,11 +63,15 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="NavCompany"
                                     ValueFieldName="PlantID"
+                                    Value="@Data.CompanyId"
+                                    ValueExpression="@(() => Data.CompanyId )"
+                                    ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Company Code"
@@ -84,11 +88,15 @@
                         <DxComboBox Data="@_documentProfileNoList"
                                     NullText="Select Profile..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Name"
                                     ValueFieldName="ProfileID"
+                                    Value="@Data.ProfileId"
+                                    ValueExpression="@(() => Data.ProfileId )"
+                                    ValueChanged="@((long? plantData) => SelectedProfileChanged(plantData))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.ProfileId" ShowValidationIcon="true">
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Name)"
                                                     Caption="Name"
@@ -104,12 +112,12 @@
                         <ValidationMessage For="@(() => Data.ProfileId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Screen Name" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@Data.ScreenID"></DxTextBox>
+                        <DxTextBox @bind-Text="@Data.ScreenID" ShowValidationIcon="true"></DxTextBox>
 
                         <ValidationMessage For="@(() => Data.ScreenID)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Form Name" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@Data.Name"></DxTextBox>
+                        <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true"></DxTextBox>
                         <ValidationMessage For="@(() => Data.Name)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Approval Level" ColSpanMd="6">
@@ -118,17 +126,17 @@
                     <DxFormLayoutItem Caption="Is Grid Form" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsGridForm"></DxCheckBox>
                     </DxFormLayoutItem>
-                      <DxFormLayoutItem Caption="SW Library" ColSpanMd="6" Visible="@Data.IsUpload">
-                          <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
-                              <Buttons>
-                                  <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
-                                                  Tooltip="Select File ProfileType"
-                                                  Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
-                              </Buttons>
-                          </DxTextBox>
-                          <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
-                          <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
-                      </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SW Library" ColSpanMd="6" Visible="@Data.IsUpload">
+                        <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                        <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
 
                     @*  <DxFormLayoutItem Caption="Is Generate ProfileNo" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsProfileNoGenerate"></DxCheckBox>
@@ -176,7 +184,7 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeFilterDocView"
-                @bind-FilterString="FilterDocumentString"
+                            @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
                             AllowSelectNodes="true"
@@ -260,6 +268,22 @@
         return ValueTask.CompletedTask;
     }
 
+    void SelectedPlantChanged(long? country)
+    {
+        Data.CompanyId = null;
+        if (country>0)
+        {
+            Data.CompanyId = country;
+        }
+    }
+    void SelectedProfileChanged(long? country)
+    {
+        Data.ProfileId = null;
+        if (country>0)
+        {
+            Data.ProfileId = country;
+        }
+    }
     public void Dispose()
     {
 

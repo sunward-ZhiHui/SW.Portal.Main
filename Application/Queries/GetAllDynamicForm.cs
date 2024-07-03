@@ -483,7 +483,49 @@ namespace Application.Queries
             this.DynamicFormDataUpload = dynamicFormDataUpload;
         }
     }
-    
+    public class InsertDynamicFormReport : DynamicFormReport, IRequest<DynamicFormReport>
+    {
 
+    }
+    public class GetDynamicFormReportList : PagedRequest, IRequest<List<DynamicFormReport>>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormReportList(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
+    public class DeleteDynamicFormReport : DynamicFormReport, IRequest<DynamicFormReport>
+    {
+        public DynamicFormReport DynamicFormReport { get; set; }
+        public DeleteDynamicFormReport(DynamicFormReport dynamicFormReport)
+        {
+            this.DynamicFormReport = dynamicFormReport;
+        }
+    }
+    public class GetDynamicFormReportOneData : PagedRequest, IRequest<DynamicFormReport>
+    {
+        public Guid? SessionId { get; set; }
+        public GetDynamicFormReportOneData(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    public class GetDynamicFormApplicationMasterParent : PagedRequest, IRequest<List<ApplicationMasterParent>>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormApplicationMasterParent(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
+    public class GetDynamicFormApplicationMaster : PagedRequest, IRequest<List<ApplicationMaster>>
+    {
+        public long? DynamicFormId { get; set; }
+        public GetDynamicFormApplicationMaster(long? dynamicFormId)
+        {
+            this.DynamicFormId = dynamicFormId;
+        }
+    }
 }
 

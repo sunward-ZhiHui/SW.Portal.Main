@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Base;
+using Core.Entities.CustomValidations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,6 +18,7 @@ namespace Core.Entities
         [Required(ErrorMessage = "Label Name is Required")]
         public string? DisplayName { get; set; }
         [Required(ErrorMessage = "Field Name is Required")]
+        [DynamicFormSectionAttributeCustomValidation]
         public long? AttributeId { get; set; }
 
         public int? SortOrderBy { get; set; }
@@ -87,6 +89,13 @@ namespace Core.Entities
         public List<ApplicationMasterParent> ApplicationMasterParents { get; set; } = new List<ApplicationMasterParent>();
         public List<DynamicFormData> DynamicGridDynamicFormData { get; set; } = new List<DynamicFormData>();
         public bool? IsDependencyMultiple { get; set; } = false;
+        [NotMapped]
+        public long? SelectDynamicFormId { get; set; }
+        public bool IsDynamicFormGridDropdown { get; set; } = false;
+        [Required(ErrorMessage = "Dynamic Form Name is Required")]
+        public long? GridDropDownDynamicFormID { get; set; }
+        public string? GridDropDownDynamicFormName { get; set; }
+        public bool IsDynamicFormGridDropdownMultiple { get; set; } = false;
     }
     public class DynamicFormSectionSpinEdit
     {

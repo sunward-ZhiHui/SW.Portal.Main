@@ -29,7 +29,7 @@
     <div class="card-body p-0">
         <div class="row">
             <div class="">
-               
+
                 <DxMenu CollapseItemsToHamburgerMenu="true"
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
@@ -40,7 +40,7 @@
                         <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="SubmitFormExternally" Enabled="@Uploadloading" />
                     </Items>
                 </DxMenu>
-               
+
             </div>
         </div>
     </div>
@@ -61,7 +61,7 @@
                                       CssClass="dx-demo-radio-group" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="New File Name" ColSpanMd="6" Visible="@isTemplateUploadTypeImages">
-                        <DxTextBox @bind-Text="@Data.ChangeNewFileName"  ShowValidationIcon="true" />
+                        <DxTextBox @bind-Text="@Data.ChangeNewFileName" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.ChangeNewFileName)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
@@ -79,12 +79,15 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
-                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                    ValueChanged="@((long? plantSelect) => SelectedItemChanged(plantSelect))"
                                     Enabled="isPlant"
-                        @bind-Value="@Data.PlantId" ShowValidationIcon="true">
+                                    ValueExpression="@(() => Data.PlantId )"
+                                    Value="@Data.PlantId"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Plant Code"
@@ -101,12 +104,15 @@
                         <DxComboBox Data="@_divisionItems"
                                     NullText="Select Division..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Name"
                                     ValueFieldName="DivisionID"
                                     Enabled="isDivision"
-                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
-                        @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
+                                    ValueChanged="@((long? plantSelect) => SelectedItemDivisionChanged(plantSelect))"
+                                    ValueExpression="@(() => Data.DivisionId )"
+                                    Value="@Data.DivisionId"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
                                                     Caption="Name"
@@ -123,12 +129,15 @@
                         <DxComboBox Data="@_departmentItems"
                                     NullText="Select Department..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="DepartmentName"
                                     ValueFieldName="DepartmentId"
                                     Enabled="isDepartment"
-                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
-                        @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
+                                    ValueChanged="@((long? plantSelect) => SelectedItemDepartementChanged(plantSelect))"
+                                    ValueExpression="@(() => Data.DepartmentId )"
+                                    Value="@Data.DepartmentId"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
                                                     Caption="Name"
@@ -145,12 +154,15 @@
                         <DxComboBox Data="@_sectionItems"
                                     NullText="Select Section..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="SectionName"
                                     ValueFieldName="SectionId"
                                     Enabled="isSection"
-                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
-                        @bind-Value="@Data.SectionId" ShowValidationIcon="true">
+                                    ValueChanged="@((long? plantSelect) => SelectedItemSectionChanged(plantSelect))"
+                                    ValueExpression="@(() => Data.SectionId )"
+                                    Value="@Data.SectionId"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
                                                     Caption="Name"
@@ -167,11 +179,12 @@
                         <DxComboBox Data="@_subSectionItems"
                                     NullText="Select SubSection..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="SubSectionName"
                                     ValueFieldName="SubSectionId"
                                     Enabled="isSubSection"
-                        @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
+                                    @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
                                                     Caption="Name"
@@ -233,7 +246,7 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeView"
-                @bind-FilterString="FilterString"
+                            @bind-FilterString="FilterString"
                             Data="@fileProfileTypeDocumentsAll"
                             AllowSelectNodes="true"
                             AfterExpand="@AfterExpand"
@@ -366,7 +379,7 @@
     {
         _editContext = new EditContext(Data);
         Data.TemplateUploadType = "Files";
-        UploadSessionId =Guid.NewGuid();
+        UploadSessionId = Guid.NewGuid();
         isFilesUpload = true;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         await loadFileDataFirst();
@@ -391,7 +404,7 @@
     async Task OnTemplateUploadGroupValueChanged(string? radioValue)
     {
         Data.TemplateUploadType = radioValue;
-        TabType = radioValue;isTemplateUploadTypeImages = false;
+        TabType = radioValue; isTemplateUploadTypeImages = false;
         if (radioValue == "Files")
         {
             Data.ChangeNewFileName = "Empty";
@@ -495,10 +508,10 @@
             IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
         }
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        await SelectedItemChanged(0);
-        await SelectedItemDivisionChanged(0);
-        await SelectedItemDepartementChanged(0);
-        await SelectedItemSectionChanged(0);
+        await SelectedItemChanged(Data.PlantId);
+        await SelectedItemDivisionChanged(Data.DivisionId);
+        await SelectedItemDepartementChanged(Data.DepartmentId);
+        await SelectedItemSectionChanged(Data.SectionId);
         StateHasChanged();
     }
     private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
@@ -555,7 +568,7 @@
             IsFileProfileTypeOpen = false;
             var nodeName = e.NodeInfo.DataItem as DocumentsModel;
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
-            FileProfileTypeId= nodeName.FileProfileTypeId;
+            FileProfileTypeId = nodeName.FileProfileTypeId;
             DocSessionId = nodeName.SessionID;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
@@ -666,7 +679,7 @@
                         {
                             var filesessionIds = new Guid(s.Guid);
                             var ext = s.Name.Split(".").Last();
-                            var filePath  = @"Documents\" + UploadSessionId + @"\" + filesessionIds + "." + ext;
+                            var filePath = @"Documents\" + UploadSessionId + @"\" + filesessionIds + "." + ext;
                             DocumentsUploadModel documentsUploadModel = new DocumentsUploadModel();
                             documentsUploadModel.SessionId = filesessionIds;
                             documentsUploadModel.FileSessionId = filesessionIds;
@@ -674,15 +687,15 @@
                             documentsUploadModel.Type = s.Type;
                             documentsUploadModel.FileSizes = FormatSize(s.Size);
                             documentsUploadModel.Index = i;
- 
+
                             documentsUploadModel.FilePath = filePath;
                             Data.DocumentsUploadModels.Add(documentsUploadModel);
                             Data.FailedDocumentsUploadModels.Add(documentsUploadModel);
                             i++;
                         });
                         Data.IpirAppId = IpirAppId;
-                             Data.SourceFrom = "FileProfile";
-                             Data.Type = "IpirApp";
+                        Data.SourceFrom = "FileProfile";
+                        Data.Type = "IpirApp";
                         MyMessage = "All File is Uploaded. Pls Wait Document No is Generating...";
                         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
                         var responses = await Mediator.Send(new UpdateDocumentNoDocumentBySession(Data));
@@ -729,7 +742,7 @@
                 var filesessionIds = new Guid(s.Guid);
                 var ext = s.Name.Split(".").Last();
                 var filePath = @"Documents\" + UploadSessionId + @"\" + filesessionIds + "." + ext;
-                
+
                 DocumentsUploadModel documentsUploadModel = new DocumentsUploadModel();
                 documentsUploadModel.FileName = s.Name;
                 documentsUploadModel.Type = s.Type;
@@ -737,7 +750,7 @@
                 documentsUploadModel.SessionId = filesessionIds;
                 documentsUploadModel.FileSessionId = filesessionIds;
                 documentsUploadModel.Index = i;
-               
+
                 documentsUploadModel.FilePath = filePath;
                 Data.FailedDocumentsUploadModels.Add(documentsUploadModel);
                 i++;
@@ -785,6 +798,7 @@
     }
     async Task SelectedItemChanged(long? plantID)
     {
+        Data.PlantId = plantID;
         _divisionItems = new List<ViewDivision>();
         _departmentItems = new List<ViewDepartment>();
         _sectionItems = new List<ViewSection>();
@@ -796,6 +810,7 @@
     }
     async Task SelectedItemDivisionChanged(long? divisionId)
     {
+        Data.DivisionId = divisionId;
         _departmentItems = new List<ViewDepartment>();
         _sectionItems = new List<ViewSection>();
         _subSectionItems = new List<ViewSubSection>();
@@ -806,6 +821,7 @@
     }
     async Task SelectedItemDepartementChanged(long? departmentId)
     {
+        Data.DepartmentId = departmentId;
         _sectionItems = new List<ViewSection>();
         _subSectionItems = new List<ViewSubSection>();
         if (departmentId > 0)
@@ -815,6 +831,7 @@
     }
     async Task SelectedItemSectionChanged(long? sectionId)
     {
+        Data.SectionId = sectionId;
         _subSectionItems = new List<ViewSubSection>();
         if (sectionId > 0)
         {
@@ -898,8 +915,8 @@
     async Task SubmitImagesFormExternally()
     {
         Uploadloading = false; isImageUpload = false; Message = "Uploading...";
-        var response=await refUploadFileImagesToPdf.uploadImagesToPdf(DocSessionId,Data);
-        if (response=="Done")
+        var response = await refUploadFileImagesToPdf.uploadImagesToPdf(DocSessionId, Data);
+        if (response == "Done")
         {
             Message = "Upload";
             Uploadloading = true; isImageUpload = true;

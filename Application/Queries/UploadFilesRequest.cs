@@ -30,6 +30,12 @@ namespace Application.Queries
         public string FileName { get; set; }
         public byte[]? FileData { get; set; }
     }
+    public class DownloadDynamicFormReportFileRequest : IRequest<DynamicFormReport>
+    {
+        public string? FileName { get; set; }
+        public byte[]? FileData { get; set; }
+        public Guid? SessionId { get; set; }
+    }
     public class CreateFileQuery : Documents, IRequest<long>
     {
 

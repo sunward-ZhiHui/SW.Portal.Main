@@ -188,14 +188,25 @@ namespace Application.Queries
         public Guid? DynamicFormSessionId { get; set; }
         public Guid? DynamicFormDataSessionId { get; set; }
         public Guid? DynamicFormDataGridSessionId { get; set; }
+        public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
         public string? BaseUrl { get; set; }
-        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, string? baseUrl)
+        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl)
         {
             this.DynamicFormSessionId = dynamicFormSessionId;
             this.DynamicFormDataSessionId = dynamicFormDataSessionId;
             this.DynamicFormDataGridSessionId = dynamicFormDataGridSessionId;
+            this.DynamicFormSectionGridAttributeSessionId = dynamicFormSectionGridAttributeSessionId;
             this.BaseUrl = baseUrl;
         }
     }
-
+    public class GetDynamicGridDropDownById : PagedRequest, IRequest<DropDownOptionsGridListModel>
+    {
+        public long? DynamicFormId { get; set; }
+        public long? UserId { get; set; }
+        public GetDynamicGridDropDownById(long? dynamicFormId, long? userId)
+        {
+            this.DynamicFormId = dynamicFormId;
+            this.UserId = userId;
+        }
+    }
 }

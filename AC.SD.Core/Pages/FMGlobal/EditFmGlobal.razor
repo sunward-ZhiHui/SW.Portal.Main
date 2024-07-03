@@ -21,7 +21,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                                border-collapse: collapse;*/
+                                                                                                border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -88,12 +88,15 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
                                     Enabled="@IsRelease"
-                        @bind-Value="@Data.CompanyId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((ViewPlants viewPlantsmaster) => SelectedItemPlantChanged(viewPlantsmaster.PlantID))">
+                                    ShowValidationIcon="true"
+                                    Value="@Data.CompanyId"
+                                    ValueExpression="@(() => Data.CompanyId )"
+                                    ValueChanged="@((long? viewPlantsmaster) => SelectedItemPlantChanged(viewPlantsmaster))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Company Name"
@@ -119,14 +122,17 @@
                         <DxComboBox Data="@_AllICTMasterFrom"
                                     NullText="Select Location From..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Name"
                                     ValueFieldName="IctmasterId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     Enabled="@IsRelease"
                                     EditFormat="{0}-{1}"
-                        @bind-Value="@Data.LocationFromId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedFromItemChanged(viewIctmaster?.IctmasterId))">
+                                    Value="@Data.LocationFromId"
+                                    ValueExpression="@(() => Data.LocationFromId )"
+                                    ShowValidationIcon="true"
+                                    ValueChanged="@((long? viewIctmaster) => SelectedFromItemChanged(viewIctmaster,"Add",0))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewIctmaster.Name)"
                                                     Caption="Location" />
@@ -146,13 +152,16 @@
                         <DxComboBox Data="@_AllICTMasterTo"
                                     NullText="Select Location To..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Name"
                                     ValueFieldName="IctmasterId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.LocationToId" ShowValidationIcon="true"
+                                    ShowValidationIcon="true"
                                     Enabled="@IsRelease"
-                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedToItemChanged(viewIctmaster?.IctmasterId))">
+                                    Value="@Data.LocationToId"
+                                    ValueExpression="@(() => Data.LocationToId )"
+                                    ValueChanged="@((long? viewIctmaster) => SelectedToItemChanged(viewIctmaster))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewIctmaster.Name)"
                                                     Caption="Location" />
@@ -170,12 +179,14 @@
                         <DxComboBox Data="@_AllSoCustomer"
                                     NullText="Select Customer..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="CustomerName"
                                     ValueFieldName="SoCustomerId"
                                     EditFormat="{0}-{1}"
-                                    SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))"
-                        @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true">
+                                    Value="@Data.SoCustomerId"
+                                    ValueExpression="@(() => Data.SoCustomerId )"
+                                    ValueChanged="@((long? soCustomer) => SelectedItemChanged(soCustomer))" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
                                                     Caption="Customer Name"
@@ -199,12 +210,12 @@
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_statusListItems"
                                     NullText="Select Status..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Value"
                                     ValueFieldName="ApplicationMasterDetailID"
-                        @bind-Value="@Data.FmglobalStausId"
+                                    @bind-Value="@Data.FmglobalStausId"
                                     Enabled="@IsRelease"
-                                    SelectedItemChanged="@((View_ApplicationMasterDetail applicationMasteModel) => SelectedStatusItemChanged(applicationMasteModel))"
                                     ShowValidationIcon="true">
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.FmglobalStausId)" />
@@ -343,7 +354,7 @@
     public Guid? BackSessionId2 { get; set; }
     protected override async Task OnInitializedAsync()
     {
-       
+
         _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -353,23 +364,39 @@
         await LoadEditData();
 
     }
-    async Task SelectedFromItemChanged(long? fromId)
+    async Task SelectedFromItemChanged(long? fromId, string? type, long? toId)
     {
-        _AllICTMasterTo = new List<ViewIctmaster>();
+
+        if (type == "Add")
+        {
+            Data.LocationToId = null;
+
+            Data.LocationFromId = fromId;
+            _AllICTMasterTo = new List<ViewIctmaster>();
+        }
         if (fromId > 0)
         {
-            _AllICTMasterTo = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, Data.CompanyId));
+            Data.LocationFromId = fromId;
+            _AllICTMasterTo = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, _fmglobalItem.CompanyId));
             _AllICTMasterTo = _AllICTMasterTo.Where(w => w.IctmasterId != fromId).ToList();
+            StateHasChanged();
             await RefFmGlobalLine.GetMovePalletData(fromId);
             StateHasChanged();
         }
+    }
+    void SelectedToItemChanged(long? fromId)
+    {
+        Data.LocationToId = fromId;
+
     }
     void OnButtonCustomerClick()
     {
         IsCustomerOpen = true;
     }
-    void SelectedItemChanged(SoCustomer soCustomer)
+    void SelectedItemChanged(long? soCustomerid)
     {
+        Data.SoCustomerId = soCustomerid;
+        var soCustomer = _AllSoCustomer != null && soCustomerid > 0 ? _AllSoCustomer.FirstOrDefault(f => f.SoCustomerId == soCustomerid) : null;
         if (soCustomer != null)
         {
             soCustomer1 = soCustomer;
@@ -379,10 +406,7 @@
             soCustomer1 = new SoCustomer();
         }
     }
-    async Task SelectedToItemChanged(long? fromId)
-    {
 
-    }
     async Task ClickReleased()
     {
         var releasedSatausId = _statusListItems.FirstOrDefault(a => a.Value.ToLower() == "released")?.ApplicationMasterDetailID;
@@ -391,14 +415,15 @@
     }
     async Task SelectedItemPlantChanged(long? companyId)
     {
+        Data.CompanyId = companyId; Data.LocationFromId = null; Data.LocationToId = null;
+        if (companyId  > 0)
+        {
+            _AllICTMasterFrom = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
 
-        _AllICTMasterFrom = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
+        }
         StateHasChanged();
     }
-    async void SelectedStatusItemChanged(View_ApplicationMasterDetail applicationMasterChildModel)
-    {
 
-    }
     void OnTabClick(TabClickEventArgs e)
     {
         if (e.TabIndex == 1)
@@ -439,6 +464,7 @@
                 Data.SoCustomerShipingAddressId = _fmglobalItem.SoCustomerShipingAddressId;
                 Data.ShippedBy = _fmglobalItem.ShippedBy;
                 Data.FmglobalStatus = _fmglobalItem.FmglobalStatus;
+
                 if (_fmglobalItem.FmglobalId > 0)
                 {
                     Data.FmglobalStausId = _fmglobalItem.FmglobalStausId;
@@ -471,10 +497,12 @@
                 {
                     _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("Customer"));
                 }
-
                 StateHasChanged();
                 await SelectedItemPlantChanged(_fmglobalItem.CompanyId);
-                await SelectedFromItemChanged(_fmglobalItem.LocationFromId);
+                _AllICTMasterTo = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, _fmglobalItem.CompanyId));
+                await SelectedFromItemChanged(_fmglobalItem.LocationFromId, "Edit", _fmglobalItem.LocationToId);
+                Data.LocationToId = _fmglobalItem.LocationToId;
+                StateHasChanged();
             }
         }
     }

@@ -65,7 +65,8 @@
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="NavCompany"
                                     ValueFieldName="PlantID"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -85,7 +86,8 @@
                     <DxFormLayoutItem Caption="Sales Pricing For" ColSpanMd="6">
                         <DxComboBox Data="@_viewSalesPricingForItems"
                                     NullText="Select Sales Pricing For..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Value"
                                     ValueFieldName="ApplicationMasterDetailID"
                                     @bind-Value="@Data.SalesPricingForId" ShowValidationIcon="true" />
@@ -103,7 +105,8 @@
                     <DxFormLayoutItem Caption="Reason For Change" ColSpanMd="6">
                         <DxComboBox Data="@_viewReasonForChangeItems"
                                     NullText="Select Reason For Change..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="Value"
                                     ValueFieldName="ApplicationMasterDetailID"
                                     @bind-Value="@Data.ReasonForChangeId" ShowValidationIcon="true" />

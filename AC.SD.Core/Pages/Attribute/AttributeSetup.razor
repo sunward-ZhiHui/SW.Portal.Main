@@ -46,10 +46,15 @@
                                 <DxComboBox Data="@_plantItems"
                                             NullText="Select Company..."
                                             ListRenderMode="ListRenderMode.Virtual"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="NavCompany"
                                             ValueFieldName="PlantID"
-                                @bind-Value="@Data.AttributeCompanyId" ShowValidationIcon="true">
+                                            Value="@Data.AttributeCompanyId"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            ValueExpression="@(() => Data.AttributeCompanyId )"
+                                            ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
+                                            ShowValidationIcon="true">
                                     <Columns>
                                         <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                             Caption="Company Code"
@@ -62,16 +67,6 @@
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.AttributeCompanyId)" />
                             </DxFormLayoutItem>
-                            @*   <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isSelectEnabled">
-                            <DxTextBox @bind-Text="@Data.AttributeName"></DxTextBox>
-                            <ValidationMessage For="@(() => Data.AttributeName)" />
-                            </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Attribute Name" ColSpanMd="6" Visible="isAddAttributeEnabled">
-                            <DxTextBox @bind-Text="Data.AttributeName">
-                            </DxTextBox>
-                            <ValidationMessage For="@(() => Data.AttributeName)" />
-                            </DxFormLayoutItem> *@
-
                             <DxFormLayoutItem Caption="Label Name" ColSpanMd="6">
                                 <DxTextBox @bind-Text="@Data.Description"></DxTextBox>
                                 <ValidationMessage For="@(() => Data.Description)" />
@@ -79,13 +74,17 @@
                             <DxFormLayoutItem Caption="Control Type" ColSpanMd="6">
                                 <DxComboBox Data="@_controlTypeData"
                                             NullText="Select ControlType..."
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="CodeValue"
                                             ValueFieldName="CodeId"
                                             Enabled="isEdit"
                                             EditFormat="{0}-{1}"
-                                            SelectedItemChanged="@((CodeMaster plant) =>SelectedControlChanged(plant?.CodeId,"Add"))"
-                                @bind-Value="@Data.ControlTypeId">
+                                            Value="@Data.ControlTypeId"
+                                            ValueExpression="@(() => Data.ControlTypeId )"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            ValueChanged="@((int? plantData) => SelectedControlChanged(plantData,"Add"))">
                                     <Columns>
                                         <DxListEditorColumn FieldName="@nameof(CodeMaster.CodeValue)"
                                                             Caption="Control Type"
@@ -116,52 +115,57 @@
                             <DxFormLayoutItem Caption="Is Data Source" ColSpanMd="3" Visible="@isDropDownType">
                                 <DxCheckBox Checked="@Data.IsDataSource" CheckedExpression="@(() => Data.IsDataSource)" CheckedChanged="@((bool? value) => OnTemplateDataSourceGroupValueChanged(value))" Enabled="isEdit"></DxCheckBox>
                             </DxFormLayoutItem>
-                           @*   <DxFormLayoutItem Caption="Is Filter Source" ColSpanMd="3" Visible="@isDropDownType">
-                                 <DxCheckBox Checked="@Data.IsFilterDataSource" CheckedExpression="@(() => Data.IsFilterDataSource)" CheckedChanged="@((bool? value) => OnFilterDataSourceValueChanged(value))" Enabled="isEdit"></DxCheckBox>
-                             </DxFormLayoutItem> *@
+                            @*   <DxFormLayoutItem Caption="Is Filter Source" ColSpanMd="3" Visible="@isDropDownType">
+                            <DxCheckBox Checked="@Data.IsFilterDataSource" CheckedExpression="@(() => Data.IsFilterDataSource)" CheckedChanged="@((bool? value) => OnFilterDataSourceValueChanged(value))" Enabled="isEdit"></DxCheckBox>
+                            </DxFormLayoutItem> *@
                             @*   <DxFormLayoutItem Caption="DynamicForm Single/Multiple Dropdown" ColSpanMd="3" Visible="@IsDynamicFormDropTagBoxEnabled">
                             <DxCheckBox Checked="@Data.IsDynamicFormDropTagBox" CheckedExpression="@(() => Data.IsDynamicFormDropTagBox)" CheckedChanged="@((bool? value) => OnDynamicFormDropTagBoxValueChanged(value))" Enabled="isEdit"></DxCheckBox>
                             </DxFormLayoutItem> *@
                             <DxFormLayoutItem Caption="Data Source" ColSpanMd="6" Visible="@isDataSource">
                                 <DxComboBox Data="@_attributeHeaderDataSource"
                                             NullText="Select Data Source..."
-                                            FilteringMode="DataGridFilteringMode.Contains"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="DisplayName"
                                             ValueFieldName="AttributeHeaderDataSourceId"
                                             Enabled="isEdit"
-                                            SelectedItemChanged="@((AttributeHeaderDataSource plant) => SelectedItemDataSourceChanged(plant))"
-                                @bind-Value="@Data.DataSourceId">
-
+                                            Value="@Data.DataSourceId"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            ValueExpression="@(() => Data.DataSourceId )"
+                                            ValueChanged="@((long? plantData) => SelectedItemDataSourceChanged(plantData))">
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.DataSourceId)" />
                             </DxFormLayoutItem>
 
-                           @*   <DxFormLayoutItem Caption="Filter Source" ColSpanMd="6" Visible="@isFilterDataSource">
-                                 <DxComboBox Data="@_dynamicFormFilter"
-                                             NullText="Select Filter Source..."
-                                             FilteringMode="DataGridFilteringMode.Contains"
-                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                             TextFieldName="DisplayName"
-                                             ValueFieldName="DynamicFilterId"
-                                             Enabled="isEdit"
-                                             SelectedItemChanged="@((DynamicFormFilter plant) => SelectedItemFilterDataSourceChanged(plant))"
-                                 @bind-Value="@Data.FilterDataSocurceId">
+                            @*   <DxFormLayoutItem Caption="Filter Source" ColSpanMd="6" Visible="@isFilterDataSource">
+                            <DxComboBox Data="@_dynamicFormFilter"
+                            NullText="Select Filter Source..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            TextFieldName="DisplayName"
+                            ValueFieldName="DynamicFilterId"
+                            Enabled="isEdit"
+                            SelectedItemChanged="@((DynamicFormFilter plant) => SelectedItemFilterDataSourceChanged(plant))"
+                            @bind-Value="@Data.FilterDataSocurceId">
 
-                                 </DxComboBox>
-                                 <ValidationMessage For="@(() => Data.FilterDataSocurceId)" />
-                             </DxFormLayoutItem> *@
+                            </DxComboBox>
+                            <ValidationMessage For="@(() => Data.FilterDataSocurceId)" />
+                            </DxFormLayoutItem> *@
                             <DxFormLayoutItem Caption="Dynamic Form" ColSpanMd="6" Visible="isGridForm">
                                 <DxComboBox Data="@_dynamicForms"
                                             NullText="Select Dynamic Form..."
                                             ListRenderMode="ListRenderMode.Virtual"
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="Name"
                                             ValueFieldName="ID"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@Data.DynamicFormId" ShowValidationIcon="true">
+                                            Enabled="isEdit"
+                                            Value="@Data.DynamicFormId"
+                                            ValueExpression="@(() => Data.DynamicFormId )"
+                                            ValueChanged="@((long? plantData) => SelectedItemDynamicFormChanged(plantData))"
+                                            ShowValidationIcon="true">
                                     <Columns>
-                                        @*    <DxListEditorColumn FieldName="IsGridForm" Caption="Grid Form" Width="100px" /> *@
                                         <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
                                                             Caption="Name"
                                                             Width="180px" />
@@ -171,9 +175,9 @@
                                                             Caption="Profile" />
                                         <DxListEditorColumn FieldName="@nameof(DynamicForm.ScreenID)"
                                                             Caption="Screen Name" />
-                                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedBy)"
+                                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedBy)" SearchEnabled="false"
                                                             Caption="Modified By" />
-                                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedDate)"
+                                        <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedDate)" SearchEnabled="false"
                                                             Caption="Modified Date" />
                                     </Columns>
                                 </DxComboBox>
@@ -323,7 +327,14 @@
                 NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
     }
-
+    void SelectedPlantChanged(long? country)
+    {
+        Data.AttributeCompanyId = null;
+        if (country > 0)
+        {
+            Data.AttributeCompanyId = country;
+        }
+    }
     private ValueTask OnLocationChanging(LocationChangingContext context)
     {
         if (context.TargetLocation == "/counter")
@@ -362,6 +373,7 @@
         {
             Data.AttributeCompanyId = _plantItems.OrderBy(o => o.PlantID).FirstOrDefault()?.PlantID;
         }
+        StateHasChanged();
     }
     async Task OnTabClick(TabClickEventArgs e)
     {
@@ -442,8 +454,9 @@
         Data.EntryMask = null;
         Data.RegExp = null;
         Data.IsInternal = false;
+        Data.AttributeCompanyId = null;
         Data.ControlTypeId = null; Data.ControlType = null;
-        Data.AttributeCompanyId = null; Data.AttrDescription = null;
+        Data.AttrDescription = null;
         Data.IsMultiple = false;
         Data.IsRequired = false;
         Data.RequiredMessage = null;
@@ -626,19 +639,28 @@
         Data.DropDownTypeId = null; Data.DynamicFormId = 0;
         StateHasChanged();
     }
-    void SelectedItemDataSourceChanged(AttributeHeaderDataSource value)
+    void SelectedItemDataSourceChanged(long? value)
     {
+        Data.DataSourceId = null;
         Data.DynamicFormId = 0; isGridForm = false;
-
         if (Data.IsDataSource == true && value != null)
         {
-            if (value.DataSourceTable == "DynamicGrid")
+            Data.DataSourceId = value;
+            var data = _attributeHeaderDataSource.FirstOrDefault(f => f.AttributeHeaderDataSourceId == value);
+            if (data != null && data.DataSourceTable == "DynamicGrid")
             {
-
                 Data.DynamicFormId = null; isGridForm = true;
             }
         }
         StateHasChanged();
+    }
+    void SelectedItemDynamicFormChanged(long? dynamicForm)
+    {
+        Data.DynamicFormId = null;
+        if (dynamicForm > 0)
+        {
+            Data.DynamicFormId = dynamicForm;
+        }
     }
     void SelectedItemChanged(AttributeHeader header, string? type)
     {
@@ -903,6 +925,7 @@
     }
     void SelectedControlChanged(int? controlTypeId, string type)
     {
+        Data.ControlTypeId = null;
         isMultipleEnabled = false;
         MaskEnabled = false;
         RegEnabled = false; isDropDownType = false; IsDynamicFormDropTagBoxEnabled = false; IsSpinEditTypeEnabled = false;
@@ -953,6 +976,7 @@
         }
         if (controlTypeId > 0)
         {
+            Data.ControlTypeId = controlTypeId;
             var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == controlTypeId)?.CodeValue;
             if (!string.IsNullOrEmpty(controlType))
             {
@@ -1000,6 +1024,7 @@
                 isGridForm = true;
             }
         }
+
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {

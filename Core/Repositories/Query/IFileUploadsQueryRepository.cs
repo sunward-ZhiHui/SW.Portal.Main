@@ -18,5 +18,6 @@ namespace Core.Repositories.Query
         Task<long> Insert(ReportDocuments reportDocuments);
         Task<long> Update(ReportDocuments reportDocuments);
         Task<long> Delete(long ReportDocumentID);
+        Task<DynamicFormReport> UpdateDynamicFormReportBySession(DynamicFormReport value);
     }
 }

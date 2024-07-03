@@ -40,11 +40,13 @@
         <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
             <DxComboBox Data="@_ManuFactureProcessLines"
                         NullText="Select Manufacturing Process..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
-            @bind-Value="Data.ManufacturingProcessId"
-                        SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemManuFactureChanged(plant))"
+                        Value="Data.ManufacturingProcessId"
+                        ValueExpression="@(() => Data.ManufacturingProcessId )"
+                        ValueChanged="@((long? plant) => SelectedItemManuFactureChanged(plant))"
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.ManufacturingProcessId)" />
@@ -52,11 +54,13 @@
         <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
             <DxComboBox Data="@_categoryItems"
                         NullText="Select Category ..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
-                        SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemCategoryChanged(plant))"
-            @bind-Value="Data.CategoryActionId"
+                        ValueChanged="@((long? plant) => SelectedItemCategoryChanged(plant))"
+                        Value="Data.CategoryActionId"
+                        ValueExpression="@(() => Data.CategoryActionId )"
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.CategoryActionId)" />
@@ -65,24 +69,27 @@
         <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
             <DxComboBox Data="@_actionItems"
                         NullText="Select ActionDropdown..."
-                        FilteringMode="DataGridFilteringMode.Contains"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
-            @bind-Value="Data.ActionId"
+                        @bind-Value="Data.ActionId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="To" ColSpanMd="6">
             <DxTagBox Data="_TousersList"
-            @bind-Values="Data.ToId"
                       NullText="Select To Users..."
                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                       ValueFieldName="UserID"
                       TextFieldName="FirstName"
-                      FilteringMode="DataGridFilteringMode.Contains"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
                       EditFormat="{0}-{1}"
                       ShowValidationIcon="true"
-                      SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
+                      Values="Data.ToId"
+                      ValuesExpression="@(() => Data.ToId )"
+                      ValuesChanged="@((IEnumerable<long?> values) => onSelectedToItemsChanged(values))"
                       ListRenderMode="ListRenderMode.Virtual">
                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
@@ -95,15 +102,17 @@
 
         <DxFormLayoutItem Caption="CC" ColSpanMd="6">
             <DxTagBox Data="_CcusersList"
-            @bind-Values="Data.CcId"
                       NullText="Select CC Users..."
                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                       ValueFieldName="UserID"
                       TextFieldName="FirstName"
-                      FilteringMode="DataGridFilteringMode.Contains"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
                       EditFormat="{0}-{1}"
                       ShowValidationIcon="true"
-                      SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
+                      Values="Data.CcId"
+                      ValuesExpression="@(() => Data.CcId )"
+                      ValuesChanged="@((IEnumerable<long?> values) => onSelectedCCItemsChanged(values))"
                       ListRenderMode="ListRenderMode.Virtual">
                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
@@ -154,22 +163,24 @@
         _CcusersList = await Mediator.Send(new GetAllEmployeeQuery());
         StateHasChanged();
     }
-    async Task SelectedItemManuFactureChanged(ApplicationMasterChildModel selectItem)
+    async Task SelectedItemManuFactureChanged(long? selectItem)
     {
+        Data.ManufacturingProcessId = selectItem;
         _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
         Data.CategoryActionId = null; Data.ManufacturingProcessId = null; Data.ActionId = null;
-        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
+        if (selectItem > 0)
         {
-            _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem.ApplicationMasterChildId));
+            _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem));
         }
     }
-    async Task SelectedItemCategoryChanged(ApplicationMasterChildModel selectItem)
+    async Task SelectedItemCategoryChanged(long? selectItem)
     {
+        Data.CategoryActionId = selectItem;
         _actionItems = new List<ApplicationMasterChildModel>();
         Data.ActionId = null;
-        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
+        if (selectItem > 0)
         {
-            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem.ApplicationMasterChildId));
+            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem));
         }
     }
     private async Task SubmitProductionFormExternally()
@@ -209,11 +220,12 @@
         RevokeBack?.Invoke();
 
     }
-    void onSelectedToItemsChanged(IEnumerable<ViewEmployee> values)
+    void onSelectedToItemsChanged(IEnumerable<long?> values)
     {
-        if (values != null && _AllusersList != null)
+        Data.ToId = values;
+        if (values != null && values.Count() > 0 && _AllusersList != null)
         {
-            var ids = values.Select(s => s.UserID).ToList();
+            var ids = values;
             _CcusersList = _AllusersList.Where(w => !ids.Contains(w.UserID)).ToList();
         }
         else
@@ -222,11 +234,12 @@
         }
         StateHasChanged();
     }
-    void onSelectedCCItemsChanged(IEnumerable<ViewEmployee> values)
+    void onSelectedCCItemsChanged(IEnumerable<long?> values)
     {
-        if (values != null && _AllusersList != null)
+        Data.CcId = values;
+        if (values != null && values.Count() > 0 && _AllusersList != null)
         {
-            var ids = values.Select(s => s.UserID).ToList();
+            var ids = values.ToList();
             _TousersList = _AllusersList.Where(w => !ids.Contains(w.UserID)).ToList();
         }
         else

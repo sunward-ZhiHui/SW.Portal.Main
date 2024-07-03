@@ -101,13 +101,16 @@
                     <DxComboBox Data="@_AllNavitems"
                                 NullText="Select Item..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.StartsWith"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Description"
                                 ValueFieldName="ItemId"
                                 EditFormat="{0}-{1}-{2}"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
-                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                                ShowValidationIcon="true"
+                                Value="@types.ItemId"
+                                ValueExpression="@(() => types.ItemId )"
+                                ValueChanged="@((long? navitems) => SelectedItemChanged(navitems,types))">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                 Caption="Item No"
@@ -129,7 +132,8 @@
                 <DxFormLayoutItem Caption="Batch Info" ColSpanMd="6">
                     <DxComboBox Data="@navItemBatchNoItems"
                                 NullText="Select Batch Info..."
-                                FilteringMode="DataGridFilteringMode.StartsWith"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="BatchNo"
                                 ValueFieldName="ItemBatchId"
                                 @bind-Value="@types.ItemBatchInfoId"
@@ -161,7 +165,8 @@
                 <DxFormLayoutItem Caption="Carton Packing" ColSpanMd="6">
                     <DxComboBox Data="@_viewCartonPackingItems"
                                 NullText="Select Carton Packing..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
                                 @bind-Value="@types.CartonPackingId"
@@ -242,8 +247,10 @@
     long? NavItemId { get; set; }
     string? NavItemNo { get; set; }
     bool IsRelease { get; set; } = true;
-    async Task SelectedItemChanged(View_NavItems navitems)
+    async Task SelectedItemChanged(long? navitemsId,ViewFmglobalLineItem viewFmglobalLineItem)
     {
+        viewFmglobalLineItem.ItemId = navitemsId;
+        var navitems = _AllNavitems != null && navitemsId > 0 ? _AllNavitems.FirstOrDefault(f => f.ItemId == navitemsId) : null;
         if (navitems != null)
         {
             NavItemNo = navitems.No;
@@ -253,6 +260,8 @@
         }
         else
         {
+
+            
             NavItemId = 0;
             NavItemNo = "";
             BaseUnitofMeasure = "";

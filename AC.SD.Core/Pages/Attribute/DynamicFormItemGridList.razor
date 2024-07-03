@@ -1,0 +1,179 @@
+﻿@page "/DynamicFormItemGridList"
+@using Application.Queries;
+@using DevExtreme.AspNet.Data.ResponseModel;
+@using DevExtreme.AspNet.Data;
+@using Duende.IdentityServer.Models;
+@using MediatR
+@using System.Threading;
+@using System.Text.Json;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+    @bind-SelectedDataItems="@SelectedDataItems"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_dynamicformItems" VirtualScrollingEnabled="true"
+            KeyFieldName="DynamicFormItemID"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 200px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            RowDoubleClick="OnRowDoubleClick"
+            ShowGroupPanel="true" ShowGroupedColumns="true">
+
+        <Columns>
+            <DxGridDataColumn FieldName="AutoNumber"  MinWidth="80" />
+            <DxGridDataColumn FieldName="TransactionDate"  MinWidth="80" />
+            <DxGridDataColumn FieldName="CompanyName" MinWidth="80" Caption="Company Name" />
+            <DxGridDataColumn FieldName="Description"  MinWidth="80" />
+            <DxGridDataColumn FieldName="TransactionTypeName" MinWidth="80" Caption="TransactionType" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="AutoNumber" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Crt"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" @onclick="@(() => bulkDelete(_selectedItems))" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private List<DynamicFormItem> _dynamicformItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private DynamicFormItem _selectedItems;
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    bool Blukdeletepopup { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+
+
+    }
+    async Task  UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _dynamicformItems = await Mediator.Send(new GetAllDynamicFormItemListQuery());
+        PanelVisible = false;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormItemID");
+        _selectedItems = _dynamicformItems.FirstOrDefault(f => f.DynamicFormItemID == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+       
+    }
+    void addNew()
+    {
+        NavigationManager.NavigateTo("/DynamicFormItemGridList/AddDynamicFormItem");
+    }
+    void addEdit()
+    {
+        NavigationManager.NavigateTo("/DynamicFormItemGridList/AddDynamicFormItem/" + _selectedItems.SessionId );
+       
+
+    }
+  
+  
+   
+  
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+
+    }
+   
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete(DynamicFormItem DynamicFormItem)
+    {
+        try
+        {
+            
+            var request = new DeleteDynamicFormItemListt(DynamicFormItem.DynamicFormItemID);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+           
+
+        }
+        catch (Exception eq)
+        {
+           
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        Blukdeletepopup = false;
+
+    }
+}

@@ -1,5 +1,4 @@
-﻿
-@using Application.Command.Ictmaster;
+﻿@using Application.Command.Ictmaster;
 @using Application.Command.LeveMasters;
 @using Application.Commands;
 @using Application.Queries;
@@ -21,7 +20,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew"/>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
@@ -32,160 +31,166 @@
 </div>
 
 
-    @if (Type == "Area")
-    {
-        <div class="breadcrumb card-body bradcrumb-txt">
+@if (Type == "Area")
+{
+    <div class="breadcrumb card-body bradcrumb-txt">
         <div class="items">  @comapnyName<span class="separator-txt fa fa-caret-right"></span>@siteName<span class="separator-txt fa fa-caret-right"></span>@ZoneName<span class="separator-txt fa fa-caret-right"></span>@LocationName <span class="separator-txt fa fa-caret-right"></span> @AreaName </div>
     </div>
-    } 
+}
 
-     <DxLoadingPanel @bind-Visible="PanelVisible"
+<DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
+                Text="Fetching Data...">
 
-<DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+    <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ShowGroupPanel="true" ShowGroupedColumns="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        CustomizeEditModel="Grid_CustomizeEditModel"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        CustomizeElement="Grid_CustomizeElement"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        ValidationEnabled="true"
-        AutoExpandAllGroupRows="true"
-        CssClass="ch-360" style="height: calc(100vh - 270px);"
-        CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
-        FocusedRowEnabled="true"
-        RowClick="OnRowClick"
-        RowDoubleClick="OnRowDoubleClick"
-        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CustomizeElement="Grid_CustomizeElement"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360" style="height: calc(100vh - 270px);"
+            CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
             AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
-    <Columns>
-        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-        <DxGridDataColumn FieldName="IctmasterId" MinWidth="80" Visible="false" />
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="IctmasterId" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="Index" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>
-        <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridDataColumn FieldName="Site" Caption="Site" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridDataColumn FieldName="Zone" Caption="Zone" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridDataColumn FieldName="Location" Caption="Location" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridDataColumn FieldName="ParentName" Caption="Area" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="Site" Caption="Site" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="Zone" Caption="Zone" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="Location" Caption="Location" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="ParentName" Caption="Area" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
 
-    </Columns>
-    <EditFormTemplate Context="EditFormContext">
-        @{
-            var ict = (ViewIctmaster)EditFormContext.EditModel;
-        }
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var ict = (ViewIctmaster)EditFormContext.EditModel;
+            }
 
 
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                   @* SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"*@
-                <DxComboBox Data="@_plantItems"
-                            NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Description"
-                            ValueFieldName="PlantID"
-                            @bind-Value="@ict.CompanyId"
-                            Enabled="@isEnabled"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => ict.CompanyId)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Site" ColSpanMd="6">
-                @{
-                    SelectedItemChanged(ict.CompanyId);
-                }
-                @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    @* SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"*@
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Description"
+                                ValueFieldName="PlantID"
+                                Enabled="@isEnabled"
+                                ValueChanged="@((long plant) => SelectedItemChanged(plant,ict))"
+                                Value="@ict.CompanyId"
+                                ValueExpression="@(() => ict.CompanyId )"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => ict.CompanyId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Site" ColSpanMd="6">
+                    @{
+                        var item = _plantItems.FirstOrDefault(c => c.PlantID == ict.CompanyId);
+                        _masterCompany = _ictmaster.Where(c => c.CompanyId == ict.CompanyId && c.MasterType == 570).ToList();
+                    }
+                    @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
                     @*SelectedItemChanged="@((ViewIctmaster plant) => SelectedChanged(plant.IctmasterId))"*@
-                <DxComboBox Data="@_masterCompany"
-                            NullText="Select Site..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Name"
-                            ValueFieldName="IctmasterId"
-                            @bind-Value="@ict.SiteId"
-                            Enabled="@isEnabled"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => ict.SiteId)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Zone" ColSpanMd="6">
-                @{
-                    SelectedChanged(ict.SiteId);
-                }
-                @*    SelectedItemChanged="@((ViewIctmaster plant) => SelectChanged(plant.IctmasterId))"*@
-                <DxComboBox Data="@_masterSite"
-                            NullText="Select Zone..."
-                            FilteringMode="DataGridFilteringMode.Contains"                          
-                            TextFieldName="Name"
-                            ValueFieldName="IctmasterId"
-                            @bind-Value="@ict.ZoneId"
-                            Enabled="@isEnabled"
-                            ShowValidationIcon="true">
-                </DxComboBox>
+                    <DxComboBox Data="@_masterCompany"
+                                NullText="Select Site..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="IctmasterId"
+                                @bind-Value="@ict.SiteId"
+                                Enabled="@isEnabled"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => ict.SiteId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Zone" ColSpanMd="6">
+                    @{
+                        SelectedChanged(ict.SiteId);
+                    }
+                    @*    SelectedItemChanged="@((ViewIctmaster plant) => SelectChanged(plant.IctmasterId))"*@
+                    <DxComboBox Data="@_masterSite"
+                                NullText="Select Zone..." SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="IctmasterId"
+                                @bind-Value="@ict.ZoneId"
+                                Enabled="@isEnabled"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
 
-                <ValidationMessage For="@(() => ict.ZoneId)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Location" ColSpanMd="6">
-                @{
-                    SelectChanged(ict.ZoneId);
-                }
-                @*    SelectedItemChanged="@((ViewIctmaster plant) => SelectAreaChanges(plant.IctmasterId))"*@
-                <DxComboBox Data="@_masterZone"
-                            NullText="Select Location..."
-                            FilteringMode="DataGridFilteringMode.Contains" 
-                            TextFieldName="Name"
-                            ValueFieldName="IctmasterId"
-                            @bind-Value="@ict.LocationId"
-                            Enabled="@isEnabled"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => ict.LocationId)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Area" ColSpanMd="6">
-                @{
-                    SelectAreaChanges(ict.LocationId);
-                }
-                <DxComboBox Data="@_masterLocation"
-                            NullText="Select Area..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Name"
-                            ValueFieldName="IctmasterId"
-                            @bind-Value="@ict.ParentIctid"
-                            Enabled="@isEnabled"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => ict.AreaId)" />
-            </DxFormLayoutItem>
+                    <ValidationMessage For="@(() => ict.ZoneId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Location" ColSpanMd="6">
+                    @{
+                        SelectChanged(ict.ZoneId);
+                    }
+                    @*    SelectedItemChanged="@((ViewIctmaster plant) => SelectAreaChanges(plant.IctmasterId))"*@
+                    <DxComboBox Data="@_masterZone"
+                                NullText="Select Location..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="IctmasterId"
+                                @bind-Value="@ict.LocationId"
+                                Enabled="@isEnabled"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => ict.LocationId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Area" ColSpanMd="6">
+                    @{
+                        SelectAreaChanges(ict.LocationId);
+                    }
+                    <DxComboBox Data="@_masterLocation"
+                                NullText="Select Area..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="IctmasterId"
+                                @bind-Value="@ict.ParentIctid"
+                                Enabled="@isEnabled"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => ict.AreaId)" />
+                </DxFormLayoutItem>
 
-            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@ict.Name" Rows="5" />
-                <ValidationMessage For="@(() => ict.Name)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@ict.Description" Rows="5" />
-            </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@ict.Name" />
+                    <ValidationMessage For="@(() => ict.Name)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                    <DxMemo @bind-Text="@ict.Description" Rows="5" />
+                </DxFormLayoutItem>
 
 
 
-            <DxFormLayoutItem ColSpanMd="12">
-                <ValidationSummary />
-            </DxFormLayoutItem>
-        </DxFormLayout>
-    </EditFormTemplate>
-    <TotalSummary>
+                <DxFormLayoutItem ColSpanMd="12">
+                    <ValidationSummary />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="CompanyId" />
-    </TotalSummary>
-</DxGrid>
+        </TotalSummary>
+    </DxGrid>
 </DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
@@ -292,7 +297,7 @@
         _ictmaster = model;
         _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
 
-        if (SiteId != null &&  SiteId != -1)
+        if (SiteId != null && SiteId != -1)
         {
             _selectedItems = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
             var item = _plantItems.Where(c => c.PlantID == _selectedItems.CompanyId);
@@ -324,9 +329,9 @@
             newmaster.Name = "";
             newmaster.Description = "";
             newmaster.StatusCodeId = null;
-            //_masterCompany = new List<ViewIctmaster>();
-            //_masterSite = new List<ViewIctmaster>();
-            //_masterZone = new List<ViewIctmaster>();
+            _masterCompany = new List<ViewIctmaster>();
+            _masterSite = new List<ViewIctmaster>();
+            _masterZone = new List<ViewIctmaster>(); _masterLocation = new List<ViewIctmaster>();
             if (Type == "Area")
             {
                 var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
@@ -338,12 +343,21 @@
                     newmaster.ZoneId = _ictmasters.ZoneId;
                     newmaster.LocationId = _ictmasters.ParentIctid.Value;
                     newmaster.ParentIctid = _ictmasters.IctmasterId;
-                    SelectedItemChanged(_ictmasters.CompanyId);
+                    SelectedItemChanged(_ictmasters.CompanyId, newmaster);
                     SelectedChanged(_ictmasters.SiteId);
                     SelectChanged(_ictmasters.ZoneId);
                     SelectAreaChanges(_ictmasters.ParentIctid);
                 }
             }
+        }
+        else
+        {
+            var newmaster = (ViewIctmaster)e.EditModel;
+            var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == newmaster.SiteId);
+            SelectedItemChanged(newmaster.CompanyId, newmaster);
+            SelectedChanged(_ictmasters.SiteId);
+            SelectChanged(_ictmasters.ZoneId);
+            SelectAreaChanges(_ictmasters.ParentIctid);
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -409,11 +423,18 @@
         toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await UpdateDataAsync();
     }
-    async void SelectedItemChanged(long? companyId)
+    void SelectedItemChanged(long companyId, ViewIctmaster viewIctmaster)
     {
 
+        viewIctmaster.CompanyId = companyId;
+        _masterCompany = new List<ViewIctmaster>(); _masterSite = new List<ViewIctmaster>(); _masterZone = new List<ViewIctmaster>(); _masterLocation = new List<ViewIctmaster>();
+        if (companyId == null)
+        {
+            viewIctmaster.ParentIctid = null;
+        }
         if (companyId > 0)
         {
+            viewIctmaster.CompanyId = companyId;
             _masterCompany = _ictmaster.Where(c => c.CompanyId == companyId && c.MasterType == 570).ToList();
         }
 
@@ -467,7 +488,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-      //  UpdateDataAsync();
+        //  UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -577,7 +598,7 @@
                 }
             }
         }
-    
+
         catch (Exception eq)
         {
             Blukdeletepopup = false;
@@ -585,7 +606,7 @@
             //DeleteerrorMessage = eq.Message;
             //PopupVisible = true;
         }
-       // await UpdateDataAsync();
+        // await UpdateDataAsync();
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -598,7 +619,7 @@
         {
             EditEnabled = true;
         }
-       
+
     }
     void ResetArea()
     {

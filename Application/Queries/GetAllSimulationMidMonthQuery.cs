@@ -18,4 +18,12 @@ namespace Application.Queries
     {
 
     }
+    public class GetSimulationAddhocV3Query : PagedRequest, IRequest<List<INPCalendarPivotModel>>
+    {
+        public DateRangeModel DateRangeModel { get; set; }
+        public GetSimulationAddhocV3Query(DateRangeModel dateRangeModel)
+        {
+            this.DateRangeModel = dateRangeModel;
+        }
+    }
 }

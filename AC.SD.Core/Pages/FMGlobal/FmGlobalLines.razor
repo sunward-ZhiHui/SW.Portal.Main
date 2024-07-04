@@ -150,6 +150,8 @@
                                 ValueExpression="@(() => types.PalletEntryNoId )"
                                 TextFieldName="PalletNo"
                                 ValueFieldName="FmglobalLineId"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 ValueChanged="@((long? navitems) => SelectedItemMethodChangesChanged(navitems,types))"
                                 ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.PalletEntryNoId)" />

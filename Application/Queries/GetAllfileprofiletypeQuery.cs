@@ -235,9 +235,11 @@ namespace Application.Queries
     public class GetDocumentUserRoleList : PagedRequest, IRequest<List<DocumentUserRoleModel>>
     {
         public long? Id { get; private set; }
-        public GetDocumentUserRoleList(long? id)
+        public long? DocumentId { get; set; }
+        public GetDocumentUserRoleList(long? id, long? documentId)
         {
             this.Id = id;
+            this.DocumentId = documentId;
         }
     }
     public class DeleteDocumentUserRole : PagedRequest, IRequest<DocumentUserRoleModel>
@@ -350,10 +352,12 @@ namespace Application.Queries
     {
         public long? Id { get; private set; }
         public long? UserId { get; private set; }
-        public GetDocumentUserRoleByUserID(long? id, long? userId)
+        public long? DocumentId { get; set; }
+        public GetDocumentUserRoleByUserID(long? id, long? userId, long? documentId)
         {
             this.Id = id;
             this.UserId = userId;
+            this.DocumentId = documentId;
         }
     }
     public class UpdateDocumentUserRole : PagedRequest, IRequest<DocumentUserRoleModel>

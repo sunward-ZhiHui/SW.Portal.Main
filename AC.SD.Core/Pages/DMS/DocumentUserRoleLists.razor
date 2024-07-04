@@ -106,7 +106,7 @@
                             TextFieldName="DocumentRoleName"
                             ValueFieldName="DocumentRoleId"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                @bind-Value="@documentUserRoleModel.RoleID" ShowValidationIcon="true">
+                            @bind-Value="@documentUserRoleModel.RoleID" ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
         </DxFormLayout>
@@ -126,6 +126,8 @@
     public long? FileProfileTypeId { get; set; }
     [Parameter]
     public string? TypeRole { get; set; }
+    [Parameter]
+    public long? DocumentId { get; set; }
     public List<DocumentUserRoleModel> _documentUserRoleLists { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool PanelVisible { get; set; }
@@ -140,15 +142,16 @@
     protected override async Task OnInitializedAsync()
     {
         _documentRoleList = await Mediator.Send(new GetDocumentRoles());
-        await loadData(FileProfileTypeId);
+        await loadData(FileProfileTypeId, DocumentId);
     }
-    public async Task loadData(long? fileProfileTypeId)
+    public async Task loadData(long? fileProfileTypeId, long? docId)
     {
         DeleteEnabled = false; updateEnabled = false;
         _documentUserRoleLists = new List<DocumentUserRoleModel>();
         if (fileProfileTypeId > 0)
         {
-            _documentUserRoleLists = await Mediator.Send(new GetDocumentUserRoleList(fileProfileTypeId));
+            DocumentId = docId;
+            _documentUserRoleLists = await Mediator.Send(new GetDocumentUserRoleList(fileProfileTypeId, DocumentId));
             if (_documentUserRoleLists.Count > 0)
             {
                 _selectedItems = _documentUserRoleLists.FirstOrDefault();
@@ -189,7 +192,7 @@
     async void ClosePopup()
     {
         PopupVisible = false;
-        await loadData(FileProfileTypeId);
+        await loadData(FileProfileTypeId, DocumentId);
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
@@ -215,7 +218,7 @@
         if (documentUserRoleModel.RoleID > 0)
         {
             await Mediator.Send(new UpdateDocumentUserRole(documentUserRoleModel));
-            await loadData(FileProfileTypeId);
+            await loadData(FileProfileTypeId, DocumentId);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             IsFilterOpen = false;
         }
@@ -236,7 +239,7 @@
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        await loadData(FileProfileTypeId);
+                        await loadData(FileProfileTypeId, DocumentId);
                         SMGrid.SetFocusedRowIndex(0);
                     }
 

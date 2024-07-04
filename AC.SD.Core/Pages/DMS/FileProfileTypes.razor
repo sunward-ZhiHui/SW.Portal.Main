@@ -411,7 +411,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
+        <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId" selectedItems="@_selectedItems"></FileProfileTypeSecurity>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSecurityAccessPopup())" />
@@ -1034,7 +1034,7 @@
             isCreateSubFolder = false; isProfileInfoEnabled = false; isMoveEnabled = "display:none;";
             if (fileTypeData != null)
             {
-                var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID));
+                var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID,null));
                 if (documentPermissionModels != null)
                 {
                     if (documentPermissionModels.IsPermissionExits == true)
@@ -1205,7 +1205,7 @@
                 else
                 {
                     EmailEnabled = true;
-                    var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID));
+                    var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID,null));
                     if (permissionData != null)
                     {
                         if (permissionData.IsPermissionExits == true)

@@ -414,7 +414,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DocumentUserRoleModel>> Handle(GetDocumentUserRoleList request, CancellationToken cancellationToken)
         {
-            return (List<DocumentUserRoleModel>)await _fileprofileQueryRepository.GetDocumentUserRoleList(request.Id);
+            return (List<DocumentUserRoleModel>)await _fileprofileQueryRepository.GetDocumentUserRoleList(request.Id,request.DocumentId);
         }
 
     }
@@ -621,7 +621,7 @@ namespace Application.Handlers.QueryHandlers
             }
             public async Task<DocumentPermissionModel> Handle(GetDocumentUserRoleByUserID request, CancellationToken cancellationToken)
             {
-                return await _fileprofileQueryRepository.GetDocumentUserRoleByUserIDAsync(request.Id, request.UserId);
+                return await _fileprofileQueryRepository.GetDocumentUserRoleByUserIDAsync(request.Id, request.UserId,request.DocumentId);
             }
         }
         public class UpdateDocumentUserRoleHandler : IRequestHandler<UpdateDocumentUserRole, DocumentUserRoleModel>

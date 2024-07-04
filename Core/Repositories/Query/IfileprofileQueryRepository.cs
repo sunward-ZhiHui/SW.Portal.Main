@@ -39,14 +39,14 @@ namespace Core.Repositories.Query
         Task<FileProfileTypeModel> InsertOrUpdateFileProfileType(FileProfileTypeModel fileProfileTypeModel);
         Task<DocumentPermissionModel> GetDocumentPermissionByRoleID(long? Id);
         Task<DocumentUserRoleModel> InsertFileProfileTypeAccess(DocumentUserRoleModel documentUserRole);
-        Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id);
+        Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id,long? DocumentId);
         Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value);
         Task<IReadOnlyList<FileProfileSetupFormModel>> GetFileProfileSetupFormList(long? Id);
         Task<IReadOnlyList<DocumentNoSeriesModel>> GetReserveProfileNumberSeries(long? Id, long? ProfileId);
         Task<DocumentTypeModel> GetAllDocumentDeleteAsync();
         Task<DocumentsModel> ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetFileContetTypes();
-        Task<DocumentPermissionModel> GetDocumentUserRoleByUserIDAsync(long? fileProfileTypeId, long? userId);
+        Task<DocumentPermissionModel> GetDocumentUserRoleByUserIDAsync(long? fileProfileTypeId, long? userId,long? DocumentId);
         Task<DocumentUserRoleModel> UpdateDocumentUserRole(DocumentUserRoleModel documentUserRoleModel);
         Task<IReadOnlyList<DocumentRole>> GetDocumentRoleList();
         Task<DocumentRole> InsertOrUpdateDocumentRole(DocumentRole documentRole);

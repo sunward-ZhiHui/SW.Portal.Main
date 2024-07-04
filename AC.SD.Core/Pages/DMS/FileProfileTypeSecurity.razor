@@ -234,7 +234,7 @@
         </DxFormLayoutItem>
     </DxFormLayout>
     <div class="col-md-12">
-        <DocumentUserRoleLists @ref="refDocumentUserRoleListsUser" TypeRole="Users" FileProfileTypeId="@FileProfileTypeId"></DocumentUserRoleLists>
+        <DocumentUserRoleLists @ref="refDocumentUserRoleListsUser" TypeRole="Users" FileProfileTypeId="@FileProfileTypeId" DocumentId="@DocumentId"></DocumentUserRoleLists>
     </div>
 </div>
 <DxFlyout @bind-IsOpen=IsOpen
@@ -368,6 +368,8 @@
     [Parameter]
     public long? FileProfileTypeId { get; set; }
     [Parameter]
+    public DocumentsModel selectedItems { get; set; }
+    [Parameter]
     public IEnumerable fileProfileTypeDocumentsAlls { get; set; }
     public ApplicationUser _applicationUser { get; private set; }
     private List<UserGroup> _userGroupsList { get; set; }
@@ -386,10 +388,16 @@
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     string? FilterDocumentString { get; set; }
     bool saveEnabled { get; set; } = true;
+    public long? DocumentId { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         Data.FileProfileTypeId = FileProfileTypeId;
+        if (selectedItems != null && selectedItems.Type == "Document" && selectedItems.DocumentID > 0)
+        {
+            DocumentId = selectedItems.Type == "Document" ? selectedItems.DocumentID : null;
+            Data.DocumentID = DocumentId;
+        }
         // fileProfileTypeDocumentsAll = fileProfileTypeDocumentsAlls.Cast<DocumentsModel>().ToList();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         //_treeFilterDocView.ExpandAll();
@@ -504,7 +512,7 @@
             Data.Type = "Level";
             await OnSelectRoleItems(Data.LevelRoleID, "No");
         }
-        await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
+        await refDocumentUserRoleListsUser.loadData(FileProfileTypeId, DocumentId);
         StateHasChanged();
     }
     void onSelectedUserItemsChanged(IEnumerable<long> values)
@@ -540,7 +548,7 @@
         {
             saveEnabled = true;
             toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
+            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId,DocumentId);
         }
         StateHasChanged();
     }

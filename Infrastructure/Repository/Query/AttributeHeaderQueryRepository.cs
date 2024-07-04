@@ -1508,6 +1508,7 @@ namespace Infrastructure.Repository.Query
 
                                             if (b.DataSourceTable == "ApplicationMaster")
                                             {
+                                                dict[attrName] = string.Empty;
                                                 if (b.ApplicationMaster != null && b.ApplicationMaster.Count() > 0)
                                                 {
                                                     b.ApplicationMaster.ForEach(ab =>

@@ -48,7 +48,7 @@ namespace SW.Portal.Solutions.Controllers
         }
         [HttpPost]
         [Route("UploadDocumentsBySession")]
-        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId, bool? IsFileSession, string? SourceFrom)
+        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId, bool? IsFileSession, string? SourceFrom,long? FileProfileId)
         {
             long documentId = 0;
             // Handling Upload with Chunks
@@ -100,6 +100,7 @@ namespace SW.Portal.Solutions.Controllers
                         documents.ContentType = ext.ToLower() == "msg" ? "application/octet-stream" : metaDataObject.FileType;
                         documents.FileSize =  metaDataObject.FileSize;
                         documents.SourceFrom = SourceFrom;
+                        documents.SwProfileTypeId = FileProfileId;
                         documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                         var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
                         documentId = response.DocumentId;

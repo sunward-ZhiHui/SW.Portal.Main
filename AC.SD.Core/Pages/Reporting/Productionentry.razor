@@ -31,7 +31,7 @@
                >
 
     <DxGrid @ref="Grid" Data="@_productionEntry" KeyFieldName="ProductionEntryID"
-            @bind-SelectedDataItems="@SelectedDataItems"
+           
         EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
@@ -48,7 +48,9 @@
         CustomizeElement="Grid_CustomizeElement"
         FocusedRowEnabled="true"
         AllowSelectRowByClick="true"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+         SelectedDataItemsChanged="@SelectedDataItemsChanged"
+           >
     <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="LocationName" Width="180px" />
@@ -118,9 +120,10 @@
     bool PopupVisible { get; set; } = false;
     private string LiveUrl;
     public string image1, image2;
+
     protected override async Task OnInitializedAsync()
     {
-        LiveUrl = Configuration["DocumentsUrl:ImageUrl"];
+        LiveUrl = Configuration["DocumentsUrl:ImageUrlLive"];
         PanelVisible = true;
         var model = await Mediator.Send(new GetAllProductionEntryQuery());
         _productionEntry = model;
@@ -128,13 +131,13 @@
         // await jsRuntime.InvokeAsync<string>("hideLoading");
         // await UpdateDataAsync();
 
-          if (_productionEntry.Count > 0)
-         {
-         _selectedItems = _productionEntry.FirstOrDefault();
+        if (_productionEntry.Count > 0)
+        {
+            _selectedItems = _productionEntry.FirstOrDefault();
 
-           ViewEnabled = true;
+            ViewEnabled = true;
 
-         } 
+        } 
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
@@ -147,12 +150,12 @@
         {
             e.CssClass = "alt-item";
         }
-        
+
     }
     void onPreview()
     {
-      
-         image1 = LiveUrl + _selectedItems.RoomStatus ;
+
+        image1 = LiveUrl + _selectedItems.RoomStatus ;
         image2 = LiveUrl + _selectedItems.RoomStatus1;
         PopupVisible = true;
     }
@@ -193,6 +196,37 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
+
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        var list = new ViewProductionEntry();
+        
+
+
+        foreach (object item in SelectedDataItems)
+        {
+
+            if (item is ViewProductionEntry productionEntry)
+            {
+                _selectedItems = productionEntry;
+            }
+        }
+      
+        if (SelectedDataItems.Count > 1)
+        {
+            ViewEnabled = false;
+
+        }
+        else
+        {
+            ViewEnabled = true;
+
+        }
+
 
 
 

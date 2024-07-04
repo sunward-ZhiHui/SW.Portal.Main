@@ -210,9 +210,10 @@
 
     void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
-        selectGroupItems = applicationMasterChildModel;
+
         if (applicationMasterChildModel != null)
         {
+            selectGroupItems = applicationMasterChildModel;
             GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
             //_categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
         }
@@ -224,16 +225,21 @@
     }
     async void GroupTagChanged(long? ApplicationMasterChildId)
     {
-        if (ApplicationMasterChildId != null)
+        if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1)
         {
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        }
+        else
+        {
+            selectcategory = null;
         }
     }
     void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
-        selectcategory = applicationMasterChildModel;
+
         if (applicationMasterChildModel != null)
         {
+            selectcategory = applicationMasterChildModel;
             // _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
             CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
         }
@@ -244,11 +250,14 @@
     }
     async void CategoryTagChange(long? ApplicationMasterChildID)
     {
-        if (ApplicationMasterChildID != null)
+        if (ApplicationMasterChildID != null && ApplicationMasterChildID != -1)
         {
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
         }
-
+        else
+        {
+            _selectedItems.ActionTag = null;
+        }
     }
 
 
@@ -361,7 +370,14 @@
     {
 
         var editModel = (EmailActivityCatgorys)e.EditModel;
-
+        if(selectGroupItems != null)
+        {
+            editModel.GroupTag = selectGroupItems.ApplicationMasterChildId;
+        }
+        if (selectcategory != null)
+        {
+            editModel.CategoryTag = selectcategory.ApplicationMasterChildId;
+        }
         if (e.IsNew)
         {
             var ex = _topicCategorys.Where(x => x.Name == editModel.Name);
@@ -545,15 +561,20 @@
 
         if (Grid != null)
         {
-           
-            Grid.StartEditDataItemAsync(_selectedItems);
-            var lists = new ApplicationMasterChildModel();
-            var lists1 = new ApplicationMasterChildModel();
-            lists1.ApplicationMasterChildId = _selectedItems.GroupTag.Value;
-            lists.ApplicationMasterChildId = _selectedItems.CategoryTag.Value;
-            selectGroupItems = lists1;
+            if (_selectedItems.GroupTag != null)
+            {
+                var tag = new ApplicationMasterChildModel();
+                tag.ApplicationMasterChildId = _selectedItems.GroupTag.Value;
+                selectGroupItems = tag;
+
+
+                // selectgrouptagItems = _TagEmailList[0];
+                GroupTagChangedEdit(_selectedItems.GroupTag);
+                CategoryTagChangeEdit(_selectedItems.CategoryTag);
+            }
           
-            selectcategory = lists;
+            Grid.StartEditDataItemAsync(_selectedItems);
+           
            
         }
         StateHasChanged();
@@ -623,5 +644,33 @@
         GC.SuppressFinalize(this);
     }
     
+    async void GroupTagChangedEdit(long? ApplicationMasterChildId)
+    {
+        if (ApplicationMasterChildId != null)
+        {
+            _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+            if (_categoryTagItems.Count > 0)
+            {
+                selectcategory = _categoryTagItems[0];
+            }
+        }
 
+        StateHasChanged();
+    }
+    async void CategoryTagChangeEdit(long? ApplicationMasterChildID)
+    {
+        if (ApplicationMasterChildID != null)
+        {
+            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+            if (_actionTagItems.Count > 0)
+            {
+                _selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
+               
+            }
+
+
+        }
+
+        StateHasChanged();
+    }
 }

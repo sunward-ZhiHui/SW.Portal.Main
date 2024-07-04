@@ -780,9 +780,10 @@ else
     private List<Documents>? _documentslst;
     void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
     {
-        Data.ToUserGroupIds = values.Select(s => s.UserGroupId).ToList();
+      
         if (values != null)
         {
+            Data.ToUserGroupIds = values.Select(s => s.UserGroupId).ToList();
             //var userIds = await Mediator.Send(new GetGroupByUserids(1));
             onToChange_Change(values);
 
@@ -800,9 +801,10 @@ else
     }
     void onSelectedCCUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
     {
-        Data.CCUserGroupIds = values.Select(s => s.UserGroupId).ToList();
+       
         if (values != null)
         {
+            Data.CCUserGroupIds = values.Select(s => s.UserGroupId).ToList();
             //var userIds = await Mediator.Send(new GetGroupByUserids(1));
             onCCChange_Change(values);
 
@@ -922,9 +924,10 @@ else
     }
     void onSelectedToItemsChanged(IEnumerable<long>? values)
     {
-        Data.ToIds = values;
+       
         if (values != null)
         {
+            Data.ToIds = values;
             // Update _CCparticipant based on selected values from _Toparticipant
           //  _participant = _Toparticipant.Except(values).ToList();
             if (_Toparticipant != null && values != null)
@@ -942,9 +945,10 @@ else
     }
     void onSelectedToItemsChangedold(IEnumerable<ViewEmployee> values)
     {
-        Data.ToIds = values.Select(s => s.UserID.Value).ToList();
+       
         if (values != null)
         {
+            Data.ToIds = values.Select(s => s.UserID.Value).ToList();
             // Update _CCparticipant based on selected values from _Toparticipant
             _participant = _Toparticipant.Except(values).ToList();
         }
@@ -1044,9 +1048,10 @@ else
     }
     void onSelectedCCItemsChanged(IEnumerable<long>? values)
     {
-        Data.CCIds = values;
+       
         if (values != null)
         {
+            Data.CCIds = values;
             // Update _Toparticipant based on selected values from _CCparticipant
            // _participant = _Toparticipant.Except(values).ToList();
             if (_Toparticipant != null && values != null)
@@ -1065,9 +1070,10 @@ else
     }
      void onSelectedCCItemsChangedold(IEnumerable<ViewEmployee> values)
     {
-        Data.CCIds = values.Select(s => s.UserID.Value).ToList();
+       
         if (values != null)
         {
+            Data.CCIds = values.Select(s => s.UserID.Value).ToList();
             // Update _Toparticipant based on selected values from _CCparticipant
             _participant = _Toparticipant.Except(values).ToList();
            
@@ -1092,10 +1098,10 @@ else
     }
     void onSelectedToUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
-        Data.ToUserGroupIds = values.Select(s => s.UserGroupId).ToList();
+       
         if (values != null)
         {
-
+            Data.ToUserGroupIds = values.Select(s => s.UserGroupId).ToList();
             _CCUserGroup = _participantUserGroup.Except(values).ToList();
         }
         else
@@ -1108,10 +1114,11 @@ else
     }
     void onSelectedCCUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
-        Data.CCUserGroupIds=values.Select(S=>S.UserGroupId).ToList();
+       
 
         if (values != null)
         {
+            Data.CCUserGroupIds = values.Select(S => S.UserGroupId).ToList();
             _ToUserGroup = _participantUserGroup.Except(values).ToList();
         }
         else
@@ -1200,9 +1207,10 @@ else
 
     void OnSelectedToDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
-        SelectedToDataItems = SelectedToItems;
         if(SelectedToItems !=null)
         {
+
+            SelectedToDataItems = SelectedToItems;
             List<object> newList = new List<object>(SelectedDataItems);
             // Remove the selected items from the new list
             newList.RemoveAll(item => SelectedToItems.Contains(item));
@@ -1212,9 +1220,10 @@ else
 
     void OnSelectedCCDataItemsChanged(IReadOnlyList<object> SelectedCCItems)
     {
-        SelectedCCDataItems = SelectedCCItems;
+       
         if(SelectedCCItems != null)
         {
+            SelectedCCDataItems = SelectedCCItems;
             List<object> newList = new List<object>(SelectedDataItems);
             // Remove the selected items from the new list
             newList.RemoveAll(item => SelectedCCItems.Contains(item));
@@ -1225,11 +1234,12 @@ else
 
     private void OnSelectionChanged(object args)
     {
-        var res = args;
-        var lst = @SelectedDataItems;
-
+      
         if(args != null)
         {
+            var res = args;
+            var lst = @SelectedDataItems;
+
             ViewEmployee selectedEmployee = @SelectedDataItems as ViewEmployee;
             if (selectedEmployee != null)
             {
@@ -1413,8 +1423,8 @@ else
 
                        
                         // selectgrouptagItems = _TagEmailList[0];
-                        GroupTagChanged(_TagEmailList[0].GroupTag);
-                        CategoryTagChange(_TagEmailList[0].CategoryTag);
+                        GroupTagChangedEdit(_TagEmailList[0].GroupTag);
+                        CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
                     }
                 }              
 
@@ -1849,10 +1859,12 @@ else
     }
     async void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
-        
-        selectgrouptagItems =applicationMasterChildModel;
+
+
         if (applicationMasterChildModel != null)
         {
+            selectgrouptagItems = applicationMasterChildModel;
+            CategoryData.GroupTag = applicationMasterChildModel.ApplicationMasterChildId;
             GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
             //_categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
         }
@@ -1864,9 +1876,11 @@ else
     }
     async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
-        selectCategory = applicationMasterChildModel;
-        if (applicationMasterChildModel != null)
+
+        if (applicationMasterChildModel != null )
         {
+            selectCategory = applicationMasterChildModel;
+            CategoryData.CategoryTag = applicationMasterChildModel.ApplicationMasterChildId;
             // _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
             CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
         }
@@ -1877,19 +1891,31 @@ else
     }
     async void GroupTagChanged(long? ApplicationMasterChildId)
     {
-        if (ApplicationMasterChildId != null)
+        if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1)
+        {
+            _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+
+        }
+        else
+        {
+            selectCategory = null;
+        }
+        StateHasChanged();
+    }
+    async void GroupTagChangedEdit(long? ApplicationMasterChildId)
+    {
+        if (ApplicationMasterChildId != null )
         {
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
             if(_categoryTagItems.Count > 0)
             {
                 selectCategory = _categoryTagItems[0];
             }
-
-
         }
+
         StateHasChanged();
     }
-    async void CategoryTagChange(long? ApplicationMasterChildID)
+    async void CategoryTagChangeEdit(long? ApplicationMasterChildID)
     {
         if (ApplicationMasterChildID != null)
         {
@@ -1899,8 +1925,22 @@ else
                 CategoryData.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
                 Text = _actionTagItems[0].Value;
             }
-         
 
+
+        }
+
+        StateHasChanged();
+    }
+    async void CategoryTagChange(long? ApplicationMasterChildID)
+    {
+        if (ApplicationMasterChildID != null && ApplicationMasterChildID != -1)
+        {
+            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        }
+        else
+        {
+            CategoryData.ActionTag = null;
+            Text = null;
         }
         StateHasChanged();
     }

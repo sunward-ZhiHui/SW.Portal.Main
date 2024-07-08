@@ -196,7 +196,7 @@ else
                                 <ValidationMessage For="@(() => Data.ToIds)" />
                                 </DxFormLayoutItem>
 
-                                <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="gbtn">
                                     <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
                                               Click="@(_ => OnButtonUserGroupToClick())">
                                     </DxButton>
@@ -273,7 +273,7 @@ else
                                             Caption="Company" />
                                 </DxTagBox>
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="gbtn">
                                     <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
                                               Click="@(_ => OnButtonUserGroupCCClick())">
                                     </DxButton>

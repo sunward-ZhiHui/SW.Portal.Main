@@ -1499,5 +1499,7 @@ a.icon {
     color: #444;
     border-color: #ddd;
 }
-
-
+.gbtn label
+{
+    display:none;
+}

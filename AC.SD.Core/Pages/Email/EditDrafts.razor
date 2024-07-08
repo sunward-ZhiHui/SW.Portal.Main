@@ -30,6 +30,10 @@
     .txtEditorMsg {
         height: calc(100vh - 477px);
     }
+
+    .gbtn label {
+        display: none;
+    }
     .dxuc-file-list-view
     {
         padding: 20px;
@@ -442,7 +446,7 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="8">
                                 <DxRichEdit DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" DocumentContent="@Data.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
-                                  
+
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="4">
                                 <DxFormLayout CssClass="w-100 ">

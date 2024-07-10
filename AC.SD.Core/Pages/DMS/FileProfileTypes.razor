@@ -1205,7 +1205,7 @@
                 else
                 {
                     EmailEnabled = true;
-                    var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID,null));
+                    var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID,_selectedItems.DocumentID));
                     if (permissionData != null)
                     {
                         if (permissionData.IsPermissionExits == true)

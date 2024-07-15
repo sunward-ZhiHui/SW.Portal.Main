@@ -874,4 +874,48 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormSectionAttributeSectionParentHandler : IRequestHandler<GetDynamicFormSectionAttributeSectionParent, List<DynamicFormSectionAttributeSectionParent>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionAttributeSectionParentHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttributeSectionParent>> Handle(GetDynamicFormSectionAttributeSectionParent request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttributeSectionParent>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeSectionParentAsync(request.DynamicFormSectionAttributeId);
+        }
+
+
+    }
+    public class InsertOrUpdateDynamicFormSectionAttributeSectionParentHandler : IRequestHandler<InsertOrUpdateDynamicFormSectionAttributeSectionParent, DynamicFormSectionAttributeSectionParent>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertOrUpdateDynamicFormSectionAttributeSectionParentHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormSectionAttributeSectionParent> Handle(InsertOrUpdateDynamicFormSectionAttributeSectionParent request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateDynamicFormSectionAttributeSectionParent(request);
+
+
+        }
+    }
+    public class DeleteDynamicFormSectionAttributeParentHandler : IRequestHandler<DeleteDynamicFormSectionAttributeParent, DynamicFormSectionAttributeSectionParent>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormSectionAttributeParentHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormSectionAttributeSectionParent> Handle(DeleteDynamicFormSectionAttributeParent request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormSectionAttributeParent(request.DynamicFormSectionAttributeSectionParent);
+
+
+        }
+    }
 }

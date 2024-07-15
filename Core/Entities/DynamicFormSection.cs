@@ -69,6 +69,8 @@ namespace Core.Entities
         public string? ProfileNo { get; set; }
         public long? SectionFileProfileTypeId { get; set; }
         public string? SectionFileProfileTypeName { get; set; }
+        public long? CompanyId { get; set; }
+        public string? PlantCode { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

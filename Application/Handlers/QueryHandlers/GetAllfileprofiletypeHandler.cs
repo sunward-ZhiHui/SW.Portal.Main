@@ -573,6 +573,19 @@ namespace Application.Handlers.QueryHandlers
                 return await _documentsqueryrepository.UpdateReserveNumberDescriptionField(request.DocumentNoSeriesModel);
             }
         }
+        public class UpdateReserveNumberTitleFieldHandler : IRequestHandler<UpdateReserveNumberTitleField, DocumentNoSeriesModel>
+        {
+            private readonly IDocumentsQueryRepository _documentsqueryrepository;
+            public UpdateReserveNumberTitleFieldHandler(IDocumentsQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<DocumentNoSeriesModel> Handle(UpdateReserveNumberTitleField request, CancellationToken cancellationToken)
+            {
+                return await _documentsqueryrepository.UpdateReserveNumberTitleField(request.DocumentNoSeriesModel);
+            }
+        }
+
         public class GetAllDocumentDeleteHandler : IRequestHandler<GetAllDocumentDelete, DocumentTypeModel>
         {
             private readonly IFileprofileQueryRepository _fileprofileQueryRepository;

@@ -961,6 +961,39 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<DocumentNoSeriesModel> UpdateReserveNumberTitleField(DocumentNoSeriesModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+
+                        var LinkDocparameters = new DynamicParameters();
+                        LinkDocparameters.Add("Title", value.Title);
+                        LinkDocparameters.Add("ModifiedByUserID", value.AddedByUserID);
+                        LinkDocparameters.Add("ModifiedDate", DateTime.Now);
+                        LinkDocparameters.Add("NumberSeriesId", value.NumberSeriesId);
+                        var query = "Update DocumentNoSeries SET Title=@Title,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate WHERE NumberSeriesId= @NumberSeriesId";
+                        await connection.ExecuteAsync(query, LinkDocparameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         private async Task<GenerateDocumentNoSeriesModel> GenerateDocumentProfileAutoNumberOne(DocumentsUploadModel value)
         {
             DocumentNoSeriesModel documentNoSeriesModel = new DocumentNoSeriesModel();

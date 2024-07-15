@@ -337,6 +337,14 @@ namespace Application.Queries
             this.DocumentNoSeriesModel = documentNoSeriesModel;
         }
     }
+    public class UpdateReserveNumberTitleField : PagedRequest, IRequest<DocumentNoSeriesModel>
+    {
+        public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }
+        public UpdateReserveNumberTitleField(DocumentNoSeriesModel documentNoSeriesModel)
+        {
+            this.DocumentNoSeriesModel = documentNoSeriesModel;
+        }
+    }
     public class GetAllDocumentDelete : PagedRequest, IRequest<DocumentTypeModel>
     {
     }

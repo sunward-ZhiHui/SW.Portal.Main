@@ -209,4 +209,14 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class GetAttributeDetailsDataSource : PagedRequest, IRequest<List<AttributeDetails>>
+    {
+        public long? AttributeId { get; set; }
+        public string? BaseUrl { get; set; }
+        public GetAttributeDetailsDataSource(long? attributeId)
+        {
+            this.AttributeId = attributeId;
+        }
+    }
+
 }

@@ -947,7 +947,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsDisplayDropDownHeader", dynamicFormSection.IsDisplayDropDownHeader);
                         parameters.Add("IsDynamicFormGridDropdown", dynamicFormSection.IsDynamicFormGridDropdown == true ? true : null);
                         parameters.Add("GridDropDownDynamicFormID", dynamicFormSection.GridDropDownDynamicFormID);
-                        parameters.Add("IsDynamicFormGridDropdownMultiple", dynamicFormSection.IsDynamicFormGridDropdownMultiple==true?true:null);
+                        parameters.Add("IsDynamicFormGridDropdownMultiple", dynamicFormSection.IsDynamicFormGridDropdownMultiple == true ? true : null);
                         parameters.Add("ApplicationMasterIds", dynamicFormSection.ApplicationMasterIdsListIds != null && dynamicFormSection.ApplicationMasterIdsListIds.Count() > 0 ? string.Join(",", dynamicFormSection.ApplicationMasterIdsListIds) : null, DbType.String);
                         parameters.Add("PlantDropDownWithOtherDataSourceIds", dynamicFormSection.PlantDropDownWithOtherDataSourceListIds != null && dynamicFormSection.PlantDropDownWithOtherDataSourceListIds.Count() > 0 ? string.Join(",", dynamicFormSection.PlantDropDownWithOtherDataSourceListIds) : null, DbType.String);
                         if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
@@ -964,13 +964,38 @@ namespace Infrastructure.Repository.Query
                         {
                             parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
                             var query = "INSERT INTO DynamicFormSectionAttribute(IsDynamicFormGridDropdownMultiple,IsDynamicFormGridDropdown,GridDropDownDynamicFormID,IsDependencyMultiple,IsDisplayDropDownHeader,ApplicationMasterIds,IsSetDefaultValue,IsDefaultReadOnly,PlantDropDownWithOtherDataSourceIds,IsPlantLoadDependency,PlantDropDownWithOtherDataSourceLabelName,PlantDropDownWithOtherDataSourceId,RemarksLabelName,IsRadioCheckRemarks,RadioLayout,FormToolTips,DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
-                                "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader,IsVisible) VALUES " +
+                                "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader,IsVisible) OUTPUT INSERTED.DynamicFormSectionAttributeId VALUES " +
                                 "(@IsDynamicFormGridDropdownMultiple,@IsDynamicFormGridDropdown,@GridDropDownDynamicFormID,@IsDependencyMultiple,@IsDisplayDropDownHeader,@ApplicationMasterIds,@IsSetDefaultValue,@IsDefaultReadOnly,@PlantDropDownWithOtherDataSourceIds,@IsPlantLoadDependency,@PlantDropDownWithOtherDataSourceLabelName,@PlantDropDownWithOtherDataSourceId,@RemarksLabelName,@IsRadioCheckRemarks,@RadioLayout,@FormToolTips,@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
                                 "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader,@IsVisible)";
 
-                            dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters);
+                            dynamicFormSection.DynamicFormSectionAttributeId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
+                        /*if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
+                        {
+                            var querys = string.Empty;
+                            querys += "Delete from DynamicFormSectionAttributeSection where DynamicFormSectionAttributeId=" + dynamicFormSection.DynamicFormSectionAttributeId + ";\r\n";
 
+                            if (dynamicFormSection.DynamicFormSectionIds != null && dynamicFormSection.ShowSectionVisibleDataIds != null && dynamicFormSection.DynamicFormSectionIds.Count() > 0 && dynamicFormSection.ShowSectionVisibleDataIds.Count() > 0)
+                            {
+                                dynamicFormSection.DynamicFormSectionIds.ToList().ForEach(a =>
+                                {
+                                    dynamicFormSection.ShowSectionVisibleDataIds.ToList().ForEach(b =>
+                                    {
+                                        if (!string.IsNullOrEmpty(b))
+                                        {
+                                            var c = b.Split("_");
+                                            var exists = c.ElementAtOrDefault(1) != null;
+                                            if (exists == true)
+                                            {
+                                                querys += "INSERT INTO DynamicFormSectionAttributeSection(DynamicFormSectionAttributeID,DynamicFormSectionID,DynamicFormSectionSelectionByID,DynamicFormSectionSelectionID) VALUES " +
+                                            "(" + dynamicFormSection.DynamicFormSectionAttributeId + "," + a + ",'" + b + "'," + c[1] + ");\n\r";
+                                            }
+                                        }
+                                    });
+                                });
+                            }
+                            var rowsAffected = await connection.ExecuteAsync(querys);
+                        }*/
                         return dynamicFormSection;
                     }
 
@@ -997,12 +1022,14 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", dynamicFormId);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name as SectionFileProfileTypeName,\r\n" +
+                var query = "select t1.*,t7.PlantID as CompanyId,t7.PlantCode,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name as SectionFileProfileTypeName,\r\n" +
                     "(select SUM(t5.FormUsedCount) from DynamicFormSectionAttribute t5 where t5.DynamicFormSectionId=t1.DynamicFormSectionId) as  FormUsedCount\r\n" +
                     "from DynamicFormSection t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
+                    "JOIN DynamicForm t6 ON t6.ID=t1.DynamicFormID\r\n" +
+                    "LEFT JOIN Plant t7 ON t7.PlantID=t6.CompanyID\r\n" +
                      "LEFT JOIN FileProfileType t5 ON t5.FileProfileTypeID=t1.SectionFileProfileTypeID\r\n" +
                     "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId=@DynamicFormId";
 
@@ -1020,6 +1047,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
+                List<DynamicFormSectionAttribute> dynamicFormSectionAttributes = new List<DynamicFormSectionAttribute>();
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
                 var query = "select t1.*,t9.Name DynamicGridName,t10.DataSourceTable as PlantDropDownWithOtherDataSourceTable,t6.IsFilterDataSource,t6.FilterDataSocurceID,tt4.DisplayName as FilterDataSourceDisplayName,tt4.TableName as FilterDataSourceTableName," +
@@ -1035,11 +1063,46 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN DynamicForm t9 ON t9.ID=t6.DynamicFormID\r\n" +
                     "LEFT JOIN DynamicFormFilter tt4 ON tt4.DynamicFilterID=t6.FilterDataSocurceID\r\n" +
                     "LEFT JOIN AttributeHeaderDataSource t10 ON t10.AttributeHeaderDataSourceID=t1.PlantDropDownWithOtherDataSourceId\r\n" +
-                    "Where (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null)  AND t1.DynamicFormSectionId=@DynamicFormSectionId\r\n";
+                    "Where (t5.IsDeleted=0 or t5.IsDeleted is null) AND (t6.IsDeleted=0 or t6.IsDeleted is null) AND (t6.AttributeIsVisible=1 or t6.AttributeIsVisible is NULL) AND (t1.IsDeleted=0 or t1.IsDeleted is null) AND (t9.IsDeleted=0 or t9.IsDeleted is null)  AND t1.DynamicFormSectionId=@DynamicFormSectionId;\r\n";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DynamicFormSectionAttribute>(query, parameters)).ToList();
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    dynamicFormSectionAttributes = results.Read<DynamicFormSectionAttribute>().ToList();
                 }
+                return dynamicFormSectionAttributes != null ? dynamicFormSectionAttributes : new List<DynamicFormSectionAttribute>();
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormSectionAttributeSectionParent>> GetDynamicFormSectionAttributeSectionParentAsync(long? dynamicFormSectionAttributeId)
+        {
+            try
+            {
+                List<DynamicFormSectionAttributeSectionParent> _dynamicFormSectionAttributeSectionParent = new List<DynamicFormSectionAttributeSectionParent>();
+                List<DynamicFormSectionAttributeSection> _dynamicFormSectionAttributeSection = new List<DynamicFormSectionAttributeSection>();
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormSectionAttributeId", dynamicFormSectionAttributeId);
+                var query = "select * from DynamicFormSectionAttributeSectionParent where DynamicFormSectionAttributeID=@DynamicFormSectionAttributeId;\r\n";
+                query += "select t1.*,t2.DynamicFormSectionAttributeId from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentId=t2.DynamicFormSectionAttributeSectionParentId\r\n" +
+                    "where t2.DynamicFormSectionAttributeId=@DynamicFormSectionAttributeId";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    _dynamicFormSectionAttributeSectionParent = results.Read<DynamicFormSectionAttributeSectionParent>().ToList();
+                    _dynamicFormSectionAttributeSection = results.Read<DynamicFormSectionAttributeSection>().ToList();
+                }
+                if (_dynamicFormSectionAttributeSectionParent != null && _dynamicFormSectionAttributeSectionParent.Count() > 0)
+                {
+                    _dynamicFormSectionAttributeSectionParent.ForEach(s =>
+                    {
+                        s.DynamicFormSectionAttributeSections = _dynamicFormSectionAttributeSection.Where(w => w.DynamicFormSectionAttributeSectionParentId == s.DynamicFormSectionAttributeSectionParentId).ToList();
+                        s.DynamicFormSectionIds = s.DynamicFormSectionAttributeSections.Select(a => a.DynamicFormSectionId).Distinct().ToList();
+                        s.ShowSectionVisibleDataIds = s.DynamicFormSectionAttributeSections.Select(a => a.DynamicFormSectionSelectionById).Distinct().ToList();
+                    });
+                }
+                return _dynamicFormSectionAttributeSectionParent;
             }
             catch (Exception exp)
             {
@@ -1065,6 +1128,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
         public async Task<long> DeleteDynamicFormSection(DynamicFormSection dynamicFormSection)
         {
             try
@@ -2340,7 +2404,7 @@ namespace Infrastructure.Repository.Query
                 query += "Select * from ApplicationMasterParent where ParentID is null;\r\n";
                 using (var connection = CreateConnection())
                 {
-                    var results = await connection.QueryMultipleAsync(query,parameters);
+                    var results = await connection.QueryMultipleAsync(query, parameters);
                     dynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
                     applicationMasterParent = results.Read<ApplicationMasterParent>().ToList();
                 }
@@ -4306,6 +4370,111 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormSectionAttributeSectionParent> InsertOrUpdateDynamicFormSectionAttributeSectionParent(DynamicFormSectionAttributeSectionParent dynamicFormSection)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+
+                    try
+                    {
+                        if (dynamicFormSection.DynamicFormSectionIds != null && dynamicFormSection.ShowSectionVisibleDataIds != null && dynamicFormSection.DynamicFormSectionIds.Count() > 0 && dynamicFormSection.ShowSectionVisibleDataIds.Count() > 0)
+                        {
+                            var parameters = new DynamicParameters();
+                            if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
+                            {
+                                var query = string.Empty;
+
+                                parameters.Add("DynamicFormSectionAttributeId", dynamicFormSection.DynamicFormSectionAttributeId);
+                                parameters.Add("DynamicFormSectionAttributeSectionParentId", dynamicFormSection.DynamicFormSectionAttributeSectionParentId);
+                                if (dynamicFormSection.DynamicFormSectionAttributeSectionParentId > 0)
+                                {
+
+                                    query += "UPDATE DynamicFormSectionAttributeSectionParent SET  DynamicFormSectionAttributeId=@DynamicFormSectionAttributeId\n\r" +
+                                       "WHERE DynamicFormSectionAttributeSectionParentId = @DynamicFormSectionAttributeSectionParentId";
+                                    await connection.ExecuteAsync(query, parameters);
+
+                                }
+                                else
+                                {
+                                    query += "INSERT INTO DynamicFormSectionAttributeSectionParent(DynamicFormSectionAttributeId) OUTPUT INSERTED.DynamicFormSectionAttributeSectionParentId VALUES " +
+                                        "(@DynamicFormSectionAttributeId)";
+
+                                    dynamicFormSection.DynamicFormSectionAttributeSectionParentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                                }
+                                var querys = string.Empty;
+                                querys += "Delete from DynamicFormSectionAttributeSection where DynamicFormSectionAttributeSectionParentId=" + dynamicFormSection.DynamicFormSectionAttributeSectionParentId + ";\r\n";
+                                dynamicFormSection.DynamicFormSectionIds.ToList().ForEach(a =>
+                                {
+                                    dynamicFormSection.ShowSectionVisibleDataIds.ToList().ForEach(b =>
+                                    {
+                                        if (!string.IsNullOrEmpty(b))
+                                        {
+                                            var c = b.Split("_");
+                                            var exists = c.ElementAtOrDefault(1) != null;
+                                            if (exists == true)
+                                            {
+                                                querys += "INSERT INTO DynamicFormSectionAttributeSection(DynamicFormSectionAttributeSectionParentId,DynamicFormSectionID,DynamicFormSectionSelectionByID,DynamicFormSectionSelectionID) VALUES " +
+                                            "(" + dynamicFormSection.DynamicFormSectionAttributeSectionParentId + "," + a + ",'" + b + "'," + c[1] + ");\n\r";
+                                            }
+                                        }
+                                    });
+                                });
+
+                                var rowsAffected = await connection.ExecuteAsync(querys);
+                            }
+                        }
+                        return dynamicFormSection;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<DynamicFormSectionAttributeSectionParent> DeleteDynamicFormSectionAttributeParent(DynamicFormSectionAttributeSectionParent value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormSectionAttributeSectionParentId", value.DynamicFormSectionAttributeSectionParentId);
+
+                        var query = "Delete from DynamicFormSectionAttributeSection where DynamicFormSectionAttributeSectionParentId=@DynamicFormSectionAttributeSectionParentId\r\n;";
+                        query += "DELETE  FROM DynamicFormSectionAttributeSectionParent WHERE DynamicFormSectionAttributeSectionParentId = @DynamicFormSectionAttributeSectionParentId;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
             }
         }
     }

@@ -1,19 +1,17 @@
 ﻿@using Application.Queries;
-@using Microsoft.Extensions.Configuration;
-@using System.Dynamic;
+@using Application.Response;
+@using MediatR
 @using global::Core.Entities;
-@using MediatR;
-@inject IMediator Mediator
-@using DevExpress.Export
 @using global::Core.Entities.Views;
 @using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
 @using global::Core.Repositories.Query;
-@inject IJSRuntime jsRuntime
+@inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@inject NavigationManager NavigationManager
-@inject IConfiguration Configuration
-
+@* @page "/DynamicFormItemGridList/AddDynamicFormItemLine"
+@page "/DynamicFormItemGridList/AddDynamicFormItemLine/{DynamicFormItemids:long}" *@
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -24,7 +22,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-              
+
 
             </Items>
         </DxMenu>
@@ -38,33 +36,33 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
 
-    <DxGrid @ref="FormItemGrid" Data="@_dynamicFormItemLine" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-            PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            PageSizeSelectorAllRowsItemVisible="true"
+    <DxGrid @ref="FormItemLineGrid" Data="@_dynamicFormItemLine" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
             KeyFieldName="DynamicFormItemLineID"
-            CustomizeElement="Grid_CustomizeElement"
-            style="height: calc(100vh - 220px);"
-            CssClass="w-100"
-            RowClick="OnRowClick"
-            EditModelSaving="@OnEditModelSaving"
-            AllowSelectRowByClick="true"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" VirtualScrollingEnabled="true"
+            style="height: calc(100vh - 336px);"
+            CssClass="ch-360"
             FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
             AutoExpandAllGroupRows="true"
-            SelectionMode="GridSelectionMode.Multiple"
+            SelectionMode="GridSelectionMode.Single"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+
         <Columns>
-
-
-          
+            <DxGridDataColumn FieldName="DynamicFormItemLineID" Visible="false" />
             <DxGridDataColumn FieldName="Qty" />
-            @* <DxGridDataColumn FieldName="EmailID"/> *@
             <DxGridDataColumn FieldName="ItemDynamicFormType" Caption="ItemDynamicForm Type" />
             <DxGridDataColumn FieldName="ItemDynamicFormData" Caption="ItemDynamicForm Data" />
-            <DxGridDataColumn FieldName="Description" />           
+            <DxGridDataColumn FieldName="Description" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
 
         <EditFormTemplate Context="EditFormContext">
@@ -72,7 +70,6 @@
                 var Line = (DynamicFormItemLine)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-               
                 <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
                     <DxSpinEdit @bind-Value="@Line.Qty" />
                     <ValidationMessage For="@(() => Line.Qty)" />
@@ -82,33 +79,35 @@
 
                     <DxComboBox Data="@_dynamicForm"
                                 NullText="Select ItemDynamicForm Type..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Name"
                                 ValueFieldName="ID"
-                    @bind-Value="@Line.ItemDynamicFormTypeID" 
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                SelectedItemChanged="@((DynamicForm dynamicForm) => SelecteddynamicFormItemChanged(dynamicForm))">
+                                Value="@Line.ItemDynamicFormTypeID"
+                                ValueExpression="@(() => Line.ItemDynamicFormTypeID )"
+                                ValueChanged="@((long? plantData) => SelecteddynamicFormItemChanged(plantData,Line))">
                     </DxComboBox>
+                    <ValidationMessage For="@(() => Line.ItemDynamicFormTypeID)" />
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="ItemDynamicForm Data:" ColSpanMd="6">
                     <DxComboBox Data="@_dynamicFormData"
                                 NullText="Select ItemDynamicForm Data..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="ProfileNo"
                                 ValueFieldName="DynamicFormDataId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                    @bind-Value="@Line.ItemDynamicFormDataID" >
-                              
+                                @bind-Value="@Line.ItemDynamicFormDataID">
                     </DxComboBox>
+                    <ValidationMessage For="@(() => Line.ItemDynamicFormDataID)" />
                 </DxFormLayoutItem>
-
-               
 
                 <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
                     <DxMemo @bind-Text="@Line.Description" />
-               </DxFormLayoutItem>
+                </DxFormLayoutItem>
 
-               
             </DxFormLayout>
         </EditFormTemplate>
 
@@ -133,13 +132,11 @@
 @code {
 
     [Parameter]
-    public long DynamicFormItemids { get; set; }
+    public long? DynamicFormItemids { get; set; }
     private List<DynamicForm> _dynamicForm;
-
-    List<DynamicFormData> _dynamicFormData { get; set; } = new List<DynamicFormData>();
-    public DynamicFormItemLine dataitem = new DynamicFormItemLine();
+    private List<DynamicFormData>? _dynamicFormData;
     string Text { get; set; } = "";
-    IGrid? FormItemGrid { get; set; }
+    IGrid? FormItemLineGrid { get; set; }
     private List<DynamicFormItemLine>? _dynamicFormItemLine;
     bool PanelVisible { get; set; }
     bool DeleteEnabled { get; set; } = false;
@@ -155,27 +152,33 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _dynamicForm = await Mediator.Send(new GetAllDynamicFormDropdownListQuery());
-
+        _dynamicFormItemLine = new List<DynamicFormItemLine>();
         await UpdateDataAsync();
-
+        StateHasChanged();
     }
-
     public async Task UpdateDataAsync()
     {
         PanelVisible = true;
-
-
         if (DynamicFormItemids > 0)
         {
-            _dynamicFormItemLine = await Mediator.Send(new GetAllDynamicItemFormLineList(DynamicFormItemids));
+            _dynamicFormItemLine = await Mediator.Send(new GetAllDynamicItemFormLineList((long)DynamicFormItemids));
+            if (_dynamicFormItemLine != null && _dynamicFormItemLine.Count > 0)
+            {
+                PanelVisible = true;
+                _selectedItems = _dynamicFormItemLine.FirstOrDefault();
 
+                if (_dynamicFormItemLine != null)
+                {
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+                    StateHasChanged();
+                }
+            }
         }
-
-
         PanelVisible = false;
         StateHasChanged();
     }
-    async void OnRowClick(GridRowClickEventArgs e)
+    void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormItemLineID");
         _selectedItems = _dynamicFormItemLine.FirstOrDefault(f => f.DynamicFormItemLineID == (long?)UniqueId);
@@ -183,7 +186,19 @@
 
         StateHasChanged();
     }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (DynamicFormItemLine)e.EditModel;
+        if (e.IsNew)
+        {
+        }
+    }
+    void OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
 
+        var editModel = (DynamicFormItemLine)e.DataItem;
+
+    }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
@@ -213,7 +228,7 @@
                 var result = await Mediator.Send(createReq);
                 toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
-              
+
                 await UpdateDataAsync();
 
             }
@@ -226,7 +241,7 @@
 
             var UpdateReq = new EditDynamicFormItemLine
                 {
-                    DynamicFormItemLineID =editModel.DynamicFormItemLineID,
+                    DynamicFormItemLineID = editModel.DynamicFormItemLineID,
                     DynamicFormItemID = DynamicFormItemids,
                     Qty = editModel.Qty,
                     ItemDynamicFormTypeID = editModel.ItemDynamicFormTypeID,
@@ -236,7 +251,7 @@
                     AddedByUserID = applicationUser.UserID,
                     ModifiedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
-                    SessionId =editModel.SessionId,
+                    SessionId = editModel.SessionId,
 
                 };
 
@@ -257,7 +272,7 @@
             Blukdeletepopup = false;
             toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
-            FormItemGrid.SetFocusedRowIndex(0);
+            FormItemLineGrid.SetFocusedRowIndex(0);
 
         }
         catch (Exception eq)
@@ -270,19 +285,6 @@
 
     }
 
-    public async Task AddDisable()
-    {
-      //  AddEnabled = false;
-        EditEnabled = false;
-        DeleteEnabled = false;
-        CancelEnabled = true;
-    }
-
-    public async Task AddEnable()
-    {
-        AddEnabled = true;
-
-    }
     void addDelete()
     {
         Blukdeletepopup = true;
@@ -291,18 +293,12 @@
     public void addNew()
     {
 
-        FormItemGrid.StartEditNewRowAsync();
-
-        // dataitem.RegistrationLineID = 0;
-       _selectedItems = null;
-        StateHasChanged();
+        FormItemLineGrid.StartEditNewRowAsync();
 
     }
-    async void addEdit()
+    void addEdit()
     {
-        FormItemGrid.StartEditDataItemAsync(_selectedItems);
-
-        //  dataitem.RegistrationLineID = 0;
+        FormItemLineGrid.StartEditDataItemAsync(_selectedItems);
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -320,13 +316,15 @@
 
     }
 
-    async void SelecteddynamicFormItemChanged(DynamicForm dynamicForm)
+    async void SelecteddynamicFormItemChanged(long? dynamicFormId, DynamicFormItemLine dynamicFormItemLine)
     {
-        List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
+        dynamicFormItemLine.ItemDynamicFormTypeID = dynamicFormId;
+        dynamicFormItemLine.ItemDynamicFormDataID = null;
+        //List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
         _dynamicFormData = new List<DynamicFormData>();
-        if (dynamicForm != null)
+        if (dynamicFormId > 0)
         {
-            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicForm.ID, applicationUser.UserID));
+            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList((long)dynamicFormId, applicationUser.UserID));
             _dynamicFormData = list.DynamicFormListData;
             // var collection = list.ObjectData;
             // int j = 0;
@@ -339,7 +337,7 @@
             //         obj1.AttributeDetailName = $"Statuss_{j}";
             //        _dynamicFormData.Add(v);
             //     }
-            // }  
+            // }
         }
         // for (int i = 0; i < 20; i++)
         // {

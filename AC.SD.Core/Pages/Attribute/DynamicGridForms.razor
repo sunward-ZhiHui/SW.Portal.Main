@@ -31,6 +31,7 @@
     .FormLayoutGroupCss {
         padding: 5px;
     }
+
     .my-style-captionw {
         text-align: right;
     }
@@ -1674,7 +1675,7 @@
                             long? values = itemValues == null ? null : (long)itemValues;
                             Data.GetType().GetProperty(nameData).SetValue(Data, values);
                             loadApplicationMasterParentDataLoad(values, dynamicFormSectionAttributes);
-                            
+
                         }
                     }
                 }
@@ -3520,13 +3521,13 @@
                  editor.OpenElement(i + 1, "div");
                  editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                  editor.AddContent(i + 1, s.DisplayName);
-if (s.IsRequired == true)
-                {
-                    editor.OpenElement(i + 1, "span");
-                    editor.AddAttribute(i + 1, "style", "color: red;");
-                    editor.AddContent(i + 1, "(*)");
-                    editor.CloseElement();
-                }
+                 if (s.IsRequired == true)
+                 {
+                     editor.OpenElement(i + 1, "span");
+                     editor.AddAttribute(i + 1, "style", "color: red;");
+                     editor.AddContent(i + 1, "(*)");
+                     editor.CloseElement();
+                 }
                  if (!string.IsNullOrEmpty(s.FormToolTips))
                  {
 
@@ -5662,12 +5663,12 @@ if (s.IsRequired == true)
                             editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                             editor11.AddContent(p + 1, formNames?.DynamicFormName);
                             if (s.IsRequired == true)
-                {
-                    editor11.OpenElement(p + 1, "span");
-                    editor11.AddAttribute(p + 1, "style", "color: red;");
-                    editor11.AddContent(p + 1, "(*)");
-                    editor11.CloseElement();
-                }
+                            {
+                                editor11.OpenElement(p + 1, "span");
+                                editor11.AddAttribute(p + 1, "style", "color: red;");
+                                editor11.AddContent(p + 1, "(*)");
+                                editor11.CloseElement();
+                            }
                             editor11.CloseElement();
                             editor11.OpenComponent<DxComboBox<ExpandoObject, long?>>(p + 1);
                             editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
@@ -6062,13 +6063,13 @@ if (s.IsRequired == true)
                     editor11.OpenElement(p + 1, "div");
                     editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                     editor11.AddContent(p + 1, s.GridDropDownDynamicFormName);
-                     if (s.IsRequired == true)
-                {
-                    editor11.OpenElement(p + 1, "span");
-                    editor11.AddAttribute(p + 1, "style", "color: red;");
-                    editor11.AddContent(p + 1, "(*)");
-                    editor11.CloseElement();
-                }
+                    if (s.IsRequired == true)
+                    {
+                        editor11.OpenElement(p + 1, "span");
+                        editor11.AddAttribute(p + 1, "style", "color: red;");
+                        editor11.AddContent(p + 1, "(*)");
+                        editor11.CloseElement();
+                    }
                     editor11.CloseElement();
                     editor11.OpenComponent<DxTagBox<ExpandoObject, long?>>(p + 1);
                     editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
@@ -6191,13 +6192,13 @@ if (s.IsRequired == true)
                     editor11.OpenElement(p + 1, "div");
                     editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                     editor11.AddContent(p + 1, s.GridDropDownDynamicFormName);
-                     if (s.IsRequired == true)
-                {
-                    editor11.OpenElement(p + 1, "span");
-                    editor11.AddAttribute(p + 1, "style", "color: red;");
-                    editor11.AddContent(p + 1, "(*)");
-                    editor11.CloseElement();
-                }
+                    if (s.IsRequired == true)
+                    {
+                        editor11.OpenElement(p + 1, "span");
+                        editor11.AddAttribute(p + 1, "style", "color: red;");
+                        editor11.AddContent(p + 1, "(*)");
+                        editor11.CloseElement();
+                    }
                     editor11.CloseElement();
                     editor11.OpenComponent<DxComboBox<ExpandoObject, long?>>(p + 1);
                     editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
@@ -6562,37 +6563,33 @@ if (s.IsRequired == true)
             loadApplicationMasterParentDataLoad(str, s);
         }
         //if (s.DataSourceTable == "ApplicationMasterParent")
-       // {
-            DynamicFormSectionAttributeSection dynamicFormSectionAttributeSection = new DynamicFormSectionAttributeSection();
-            if (str > 0)
+        // {
+        DynamicFormSectionAttributeSection dynamicFormSectionAttributeSection = new DynamicFormSectionAttributeSection();
+        if (str > 0)
+        {
+            if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
             {
-                if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
+                var valuess = s.DataSourceTable + "_" + str;
+                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionSelectionById == valuess);
+                if (valeExits != null)
                 {
-                    var valuess = s.DataSourceTable + "_" + str;
-                    var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                    if (valeExits != null)
+                    var exits2 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
+                    if (exits2 != null)
                     {
-                        var exits2 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
-                        if (exits2 != null)
-                        {
-                            int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
-                            dynamicFormSectionAttributeSectionSelected[index] = valeExits;
-                        }
-                        else
-                        {
-                            var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                            if (exits1 == null)
-                            {
-                                dynamicFormSectionAttributeSectionSelected.Add(valeExits);
-                            }
-                        }
-
+                        int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
+                        dynamicFormSectionAttributeSectionSelected[index] = valeExits;
                     }
+                    else
+                    {
+                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
+                        if (exits1 == null)
+                        {
+                            dynamicFormSectionAttributeSectionSelected.Add(valeExits);
+                        }
+                    }
+
                 }
-            }
-            else
-            {
-                if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
+                else
                 {
                     int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
                     var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
@@ -6602,6 +6599,19 @@ if (s.IsRequired == true)
                     }
                 }
             }
+        }
+        else
+        {
+            if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
+            {
+                int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
+                var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
+                if (exists == true)
+                {
+                    dynamicFormSectionAttributeSectionSelected.RemoveAt(index);
+                }
+            }
+        }
         //}
     }
     void OnRadioAppMasterMultipleChangedItem(IEnumerable<long?> str, PropertyInfo propertyAppMaster, DynamicFormSectionAttribute dynamicFormSectionAttribute)
@@ -6646,38 +6656,34 @@ if (s.IsRequired == true)
     void OnRadioAppMasterChangedItem(long? str, PropertyInfo propertyAppMaster, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
         propertyAppMaster.SetValue(Data, str);
-        if (dynamicFormSectionAttribute.DataSourceTable == "ApplicationMaster")
+        // if (dynamicFormSectionAttribute.DataSourceTable == "ApplicationMaster")
+        // {
+        DynamicFormSectionAttributeSection dynamicFormSectionAttributeSection = new DynamicFormSectionAttributeSection();
+        if (str > 0)
         {
-            DynamicFormSectionAttributeSection dynamicFormSectionAttributeSection = new DynamicFormSectionAttributeSection();
-            if (str > 0)
+            if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
             {
-                if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
+                var valuess = dynamicFormSectionAttribute.DataSourceTable + "_" + str;
+                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionSelectionById == valuess);
+                if (valeExits != null)
                 {
-                    var valuess = dynamicFormSectionAttribute.DataSourceTable + "_" + str;
-                    var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                    if (valeExits != null)
+                    var exits2 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
+                    if (exits2 != null)
                     {
-                        var exits2 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                        if (exits2 != null)
-                        {
-                            int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                            dynamicFormSectionAttributeSectionSelected[index] = valeExits;
-                        }
-                        else
-                        {
-                            var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                            if (exits1 == null)
-                            {
-                                dynamicFormSectionAttributeSectionSelected.Add(valeExits);
-                            }
-                        }
-
+                        int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
+                        dynamicFormSectionAttributeSectionSelected[index] = valeExits;
                     }
+                    else
+                    {
+                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
+                        if (exits1 == null)
+                        {
+                            dynamicFormSectionAttributeSectionSelected.Add(valeExits);
+                        }
+                    }
+
                 }
-            }
-            else
-            {
-                if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
+                else
                 {
                     int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
                     var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
@@ -6688,6 +6694,19 @@ if (s.IsRequired == true)
                 }
             }
         }
+        else
+        {
+            if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
+            {
+                int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
+                var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
+                if (exists == true)
+                {
+                    dynamicFormSectionAttributeSectionSelected.RemoveAt(index);
+                }
+            }
+        }
+        // }
     }
     void RemoveloadApplicationMasterParentDataLoad(long? pervValue, DynamicFormSectionAttribute s)
     {
@@ -6806,13 +6825,13 @@ if (s.IsRequired == true)
             editor11.OpenElement(i + 1, "div");
             editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
             editor11.AddContent(i + 1, ab.ApplicationMasterName);
- if (s.IsRequired == true)
-                {
-                    editor11.OpenElement(i + 1, "span");
-                    editor11.AddAttribute(i + 1, "style", "color: red;");
-                    editor11.AddContent(i + 1, "(*)");
-                    editor11.CloseElement();
-                }
+            if (s.IsRequired == true)
+            {
+                editor11.OpenElement(i + 1, "span");
+                editor11.AddAttribute(i + 1, "style", "color: red;");
+                editor11.AddContent(i + 1, "(*)");
+                editor11.CloseElement();
+            }
             if (!string.IsNullOrEmpty(s.FormToolTips))
             {
                 editor11.OpenElement(i + 1, "i");
@@ -7144,7 +7163,7 @@ if (s.IsRequired == true)
                         editor11.AddAttribute(l + 1, "Enabled", isAccessOnly);
                     }
                     editor11.AddAttribute(l + 1, "ValueExpression", lambdapropertyAppMaster);
-                     editor11.AddAttribute(l + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, (str) => OnRadioAppMasterChangedItem(str, propertyAppMaster, s)));
+                    editor11.AddAttribute(l + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, (str) => OnRadioAppMasterChangedItem(str, propertyAppMaster, s)));
                     //editor11.AddAttribute(l + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertyAppMaster.SetValue(Data, str); }));
                     editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
                     {
@@ -7210,7 +7229,7 @@ if (s.IsRequired == true)
                     }
                     editor11.AddAttribute(l + 1, "ValuesExpression", lambdapropertyAppMaster);
                     editor11.AddAttribute(l + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, (str) => OnRadioAppMasterMultipleChangedItem(str, propertyAppMaster, s)));
-                   // editor11.AddAttribute(l + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyAppMaster.SetValue(Data, str); }));
+                    // editor11.AddAttribute(l + 1, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { propertyAppMaster.SetValue(Data, str); }));
                     editor11.AddAttribute(l + 1, "ChildContent", (RenderFragment)((layoutItemBuilders1) =>
                     {
                         layoutItemBuilders1.OpenComponent<DxListEditorColumn>(0);
@@ -7487,12 +7506,12 @@ if (s.IsRequired == true)
                     editor11.AddAttribute(p + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                     editor11.AddContent(p + 1, s.GridDropDownDynamicFormName);
                     if (s.IsRequired == true)
-                {
-                    editor11.OpenElement(p + 1, "span");
-                    editor11.AddAttribute(p + 1, "style", "color: red;");
-                    editor11.AddContent(p + 1, "(*)");
-                    editor11.CloseElement();
-                }
+                    {
+                        editor11.OpenElement(p + 1, "span");
+                        editor11.AddAttribute(p + 1, "style", "color: red;");
+                        editor11.AddContent(p + 1, "(*)");
+                        editor11.CloseElement();
+                    }
                     editor11.CloseElement();
                     editor11.OpenComponent<DxTagBox<ExpandoObject, long?>>(p + 1);
                     editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);

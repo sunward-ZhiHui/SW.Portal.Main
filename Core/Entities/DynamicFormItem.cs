@@ -9,18 +9,21 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class DynamicFormItem:BaseEntity
+    public class DynamicFormItem : BaseEntity
     {
         [Key]
         public long DynamicFormItemID { get; set; }
-          public string AutoNumber { get; set; }
+        public string? AutoNumber { get; set; }
+        [Required(ErrorMessage = "Company is Required")]
         public long? CompanyID { get; set; }
-      public int TransactionTypeID { get; set; }
+        [Required(ErrorMessage = "Transaction Type is Required")]
+        public int? TransactionTypeID { get; set; }
+        [Required(ErrorMessage = "Transaction Date is Required")]
         public DateTime? TransactionDate { get; set; }
-        public string  Description { get; set;}
-        [NotMapped] 
-      public string TransactionTypeName { get; set; }
+        public string? Description { get; set; }
         [NotMapped]
-        public string CompanyName { get; set; }
+        public string? TransactionTypeName { get; set; }
+        [NotMapped]
+        public string? CompanyName { get; set; }
     }
 }

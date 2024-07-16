@@ -25,6 +25,8 @@
         public Guid SessionId { get; set; }
         public long? addedByUserId { get; set; }
         public IFormFile File { get; set; }
-       // public Guid? FileSessionId { get; set; }
+        public string? NewFilename { get; set; }
+        public IFormCollection Files { get; set; }
+        // public Guid? FileSessionId { get; set; }
     }
 }

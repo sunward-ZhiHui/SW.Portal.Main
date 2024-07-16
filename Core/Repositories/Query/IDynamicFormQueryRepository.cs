@@ -81,6 +81,9 @@ namespace Core.Repositories.Query
         DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId,long? attributeId);
         Task<IReadOnlyList<ApplicationMasterParent>> GetDynamicFormApplicationMasterParentAsync(long? dynamicFormId);
         Task<IReadOnlyList<ApplicationMaster>> GetDynamicFormApplicationMasterAsync(long? dynamicFormId);
+        Task<IReadOnlyList<DynamicFormSectionAttributeSectionParent>> GetDynamicFormSectionAttributeSectionParentAsync(long? dynamicFormSectionAttributeId);
+        Task<DynamicFormSectionAttributeSectionParent> InsertOrUpdateDynamicFormSectionAttributeSectionParent(DynamicFormSectionAttributeSectionParent dynamicFormSection);
+        Task<DynamicFormSectionAttributeSectionParent> DeleteDynamicFormSectionAttributeParent(DynamicFormSectionAttributeSectionParent value);
     }
 
 }

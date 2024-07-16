@@ -18,6 +18,8 @@ using System.IO;
 using Core.EntityModels;
 using Newtonsoft.Json.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static iTextSharp.text.pdf.AcroFields;
+using Google.Cloud.Firestore;
 
 namespace Infrastructure.Repository.Query
 {
@@ -339,7 +341,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        public long? GetDocumentIdCount(long? AddedByUserId, Guid? FileSessionId, string? FilePath)
+        {
+            try
+            {
+                var query = "SELECT documentId FROM Documents WHERE FilePath=@FilePath AND SessionId=@SessionId AND AddedByUserId = @AddedByUserId";
+                var parameters = new DynamicParameters();
+                parameters.Add("AddedByUserId", AddedByUserId);
+                parameters.Add("SessionId", FileSessionId, DbType.Guid);
+                parameters.Add("FilePath", FilePath, DbType.String);
+                using (var connection = CreateConnection())
+                {
+                    var result = connection.QueryFirstOrDefault<Documents>(query, parameters);
+                    return result != null ? result.DocumentId : 0;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DocumentsUploadModel> InsertCreateDocument(DocumentsUploadModel value)
         {
             try
@@ -413,6 +434,7 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
+                        //var userRole = await GetDocumentUserRoleByUserIDExitsAsync(value.SwProfileTypeId, null);
                         var parameters = new DynamicParameters();
                         parameters.Add("FilterProfileTypeID", value.FilterProfileTypeId);
                         parameters.Add("FileName", value.FileName, DbType.String);
@@ -434,7 +456,25 @@ namespace Infrastructure.Repository.Query
                             "OUTPUT INSERTED.DocumentId VALUES " +
                            "(@FilterProfileTypeID,@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@ModifiedByUserID,@ModifiedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath,@IsTemp,@SourceFrom,@ProfileNo)";
                         value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-
+                        /*if (value.SwProfileTypeId > 0 && userRole != null && userRole.Count > 0)
+                        {
+                            var querys = string.Empty;
+                            userRole.ForEach(s =>
+                            {
+                                if (s.UserId > 0)
+                                {
+                                    string? RoleId = s.RoleId > 0 ? s.RoleId.ToString() : "null";
+                                    string? UserGroupId = s.UserGroupId > 0 ? s.UserGroupId.ToString() : "null";
+                                    string? LevelId = s.LevelId > 0 ? s.LevelId.ToString() : "null";
+                                    querys += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId,DocumentID,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                           "VALUES (" + value.SwProfileTypeId + "," + s.UserId + "," + RoleId + "," + UserGroupId + "," + value.DocumentId + "," + LevelId + "); ";
+                                }
+                            });
+                            if (!string.IsNullOrEmpty(querys))
+                            {
+                                await connection.QuerySingleOrDefaultAsync<long>(querys, null);
+                            }
+                        }*/
                     }
                     catch (Exception exp)
                     {
@@ -482,6 +522,7 @@ namespace Infrastructure.Repository.Query
                             profileNo = await GenerateDocumentProfileAutoNumber(value);
 
                         }
+                        var userRole = await GetDocumentUserRoleByUserIDExitsAsync(value.FileProfileTypeId, value.DocumentParentId);
                         parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
                         parameters.Add("Description", value.Description);
                         parameters.Add("ExpiryDate", value.ExpiryDate);
@@ -495,7 +536,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("FileSessionId", value.FileSessionId);
                         parameters.Add("IsTemp", 0);
                         parameters.Add("FilePath", value.FilePath, DbType.String);
-
+                        var docId = GetDocumentIdCount(value.UserId, value.FileSessionId, value.FilePath);
                         var query = "Update Documents SET " +
                             "FilterProfileTypeId=@FileProfileTypeId, " +
                             "Description=@Description, " +
@@ -515,7 +556,7 @@ namespace Infrastructure.Repository.Query
                              "SessionId=@FileSessionId AND " +
                             "FilePath= @FilePath";
                         await connection.ExecuteAsync(query, parameters);
-                        connection.Close();
+                        //connection.Close();
                         if (value.Type == "Document Link")
                         {
                             await InsertDocumentLink(value);
@@ -531,6 +572,35 @@ namespace Infrastructure.Repository.Query
                         if (value.Type == "IpirApp")
                         {
                             await InsertIpirAppSupportDocLink(value);
+                        }
+                        if (docId > 0)
+                        {
+                            if (value.FileProfileTypeId > 0 && userRole != null && userRole.Count > 0)
+                            {
+                                var querys = string.Empty;
+                                if (value.DocumentParentId > 0)
+                                {
+                                    querys += "update DocumentUserRole set DocumentID=" + docId + " Where FileProfileTypeId=" + value.FileProfileTypeId + " AND DocumentID=" + value.DocumentParentId + ";";
+                                }
+                                else
+                                {
+                                    userRole.ForEach(s =>
+                                    {
+                                        if (s.UserId > 0)
+                                        {
+                                            string? RoleId = s.RoleId > 0 ? s.RoleId.ToString() : "null";
+                                            string? UserGroupId = s.UserGroupId > 0 ? s.UserGroupId.ToString() : "null";
+                                            string? LevelId = s.LevelId > 0 ? s.LevelId.ToString() : "null";
+                                            querys += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId,DocumentID,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                                   "VALUES (" + value.FileProfileTypeId + "," + s.UserId + "," + RoleId + "," + UserGroupId + "," + docId + "," + LevelId + "); ";
+                                        }
+                                    });
+                                }
+                                if (!string.IsNullOrEmpty(querys))
+                                {
+                                    await connection.QuerySingleOrDefaultAsync<long>(querys, null);
+                                }
+                            }
                         }
                         return value;
                     }
@@ -576,6 +646,7 @@ namespace Infrastructure.Repository.Query
                         {
                             profileNo = await GenerateDocumentProfileAutoNumber(value);
                         }
+                        var userRole = await GetDocumentUserRoleByUserIDExitsAsync(value.FileProfileTypeId, value.DocumentParentId);
                         parameters.Add("DocumentId", value.DocumentId);
                         parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
                         parameters.Add("Description", value.Description);
@@ -590,7 +661,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("FileSessionId", value.FileSessionId);
                         parameters.Add("IsTemp", 0);
                         parameters.Add("FilePath", value.FilePath, DbType.String);
-
+                        var docId = GetDocumentIdCount(value.UserId, value.FileSessionId, value.FilePath);
                         var query = "Update Documents SET " +
                             "FilterProfileTypeId=@FileProfileTypeId, " +
                             "Description=@Description, " +
@@ -605,7 +676,36 @@ namespace Infrastructure.Repository.Query
                             "WHERE " +
                             "DocumentID= @DocumentId";
                         await connection.ExecuteAsync(query, parameters);
-                        connection.Close();
+                        //connection.Close();
+                        if (docId > 0)
+                        {
+                            if (value.FileProfileTypeId > 0 && userRole != null && userRole.Count > 0)
+                            {
+                                var querys = string.Empty;
+                                if (value.DocumentParentId > 0)
+                                {
+                                    querys += "update DocumentUserRole set DocumentID=" + docId + " Where FileProfileTypeId=" + value.FileProfileTypeId + " AND DocumentID=" + value.DocumentParentId + ";";
+                                }
+                                else
+                                {
+                                    userRole.ForEach(s =>
+                                    {
+                                        if (s.UserId > 0)
+                                        {
+                                            string? RoleId = s.RoleId > 0 ? s.RoleId.ToString() : "null";
+                                            string? UserGroupId = s.UserGroupId > 0 ? s.UserGroupId.ToString() : "null";
+                                            string? LevelId = s.LevelId > 0 ? s.LevelId.ToString() : "null";
+                                            querys += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId,DocumentID,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                                   "VALUES (" + value.FileProfileTypeId + "," + s.UserId + "," + RoleId + "," + UserGroupId + "," + docId + "," + LevelId + "); ";
+                                        }
+                                    });
+                                }
+                                if (!string.IsNullOrEmpty(querys))
+                                {
+                                    await connection.QuerySingleOrDefaultAsync<long>(querys, null);
+                                }
+                            }
+                        }
                         return value;
                     }
                     catch (Exception exp)
@@ -861,6 +961,39 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<DocumentNoSeriesModel> UpdateReserveNumberTitleField(DocumentNoSeriesModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+
+                        var LinkDocparameters = new DynamicParameters();
+                        LinkDocparameters.Add("Title", value.Title);
+                        LinkDocparameters.Add("ModifiedByUserID", value.AddedByUserID);
+                        LinkDocparameters.Add("ModifiedDate", DateTime.Now);
+                        LinkDocparameters.Add("NumberSeriesId", value.NumberSeriesId);
+                        var query = "Update DocumentNoSeries SET Title=@Title,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate WHERE NumberSeriesId= @NumberSeriesId";
+                        await connection.ExecuteAsync(query, LinkDocparameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         private async Task<GenerateDocumentNoSeriesModel> GenerateDocumentProfileAutoNumberOne(DocumentsUploadModel value)
         {
             DocumentNoSeriesModel documentNoSeriesModel = new DocumentNoSeriesModel();
@@ -899,13 +1032,40 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<DocumentUserRole>> GetDocumentUserRoleByUserIDExitsAsync(long? fileProfileTypeId, long? DocumentId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("FileProfileTypeID", fileProfileTypeId);
+                parameters.Add("DocumentId", DocumentId);
+                var query = "select  t1.* from DocumentUserRole t1\r\n" +
+                    "Where  t1.FileProfileTypeID=@FileProfileTypeID\r\n";
+                if (DocumentId > 0)
+                {
+                    query += "AND t1.DocumentId=@DocumentId;";
+                }
+                else
+                {
+                    query += "AND t1.DocumentId is null;";
+                }
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentUserRole>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DocumentsUploadModel> UpdateDocumentNoDocumentBySession(DocumentsUploadModel values)
         {
 
             try
             {
-                var query = string.Empty;
-
+                var query = string.Empty; var querys = string.Empty;
+                var userRole = await GetDocumentUserRoleByUserIDExitsAsync(values.FileProfileTypeId, null);
                 if (values.DocumentsUploadModels != null && values.DocumentsUploadModels.Count > 0)
                 {
                     var profileNos = await GenerateDocumentProfileAutoNumberOne(values);
@@ -928,7 +1088,7 @@ namespace Infrastructure.Repository.Query
                     {
                         profileNo += Convert.ToInt32(lastNoUsed).ToString("D" + profileNos.DocumentProfileNoSeries.NoOfDigit);
                     }
-
+                    var docId = GetDocumentIdCount(values.UserId, value.FileSessionId, value.FilePath);
                     query += "Update Documents SET " +
                             "FilterProfileTypeId=" + values.FileProfileTypeId + ", " +
                             "Description='" + values.Description + "', " +
@@ -976,7 +1136,25 @@ namespace Infrastructure.Repository.Query
                         values.FilePath = value.FilePath;
                         await InsertIpirAppSupportDocLink(values);
                     }
+                    if (docId > 0)
+                    {
+                        if (values.FileProfileTypeId > 0 && userRole != null && userRole.Count > 0)
+                        {
+                            userRole.ForEach(s =>
+                            {
+                                if (s.UserId > 0)
+                                {
+                                    string? RoleId = s.RoleId > 0 ? s.RoleId.ToString() : "null";
+                                    string? UserGroupId = s.UserGroupId > 0 ? s.UserGroupId.ToString() : "null";
+                                    string? LevelId = s.LevelId > 0 ? s.LevelId.ToString() : "null";
+                                    querys += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId,DocumentID,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                           "VALUES (" + values.FileProfileTypeId + "," + s.UserId + "," + RoleId + "," + UserGroupId + "," + docId + "," + LevelId + ");";
+                                }
+                            });
+                        }
+                    }
                 });
+                    query += querys;
                     if (!string.IsNullOrEmpty(query))
                     {
                         await UpdateDocumentNoDocumentBySessions(query, values);

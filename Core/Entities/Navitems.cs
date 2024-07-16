@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.EntityModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -68,5 +69,9 @@ namespace Core.Entities
         public string? MethodName { get; set; }
         [NotMapped]
         public string? GenericCodeDescription2 { get; set; }
+        [NotMapped]
+        public List<NavMethodCodeLines> NavMethodCodeLines { get; set; } = new List<NavMethodCodeLines>();
+        [NotMapped]
+        public List<NavItemCitemList> NavItemCitemList { get; set; } = new List<NavItemCitemList>();
     }
 }

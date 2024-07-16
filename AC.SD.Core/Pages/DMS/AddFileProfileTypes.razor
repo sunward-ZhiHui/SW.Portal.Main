@@ -156,7 +156,7 @@
     async Task onCheckPermission(DocumentsModel fileType)
     {
         isEditProfileType = false; isSaveEnabled = false; IsGrantAdminPermission = false;
-        var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(FileProfileTypeId, _applicationUser.UserID));
+        var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(FileProfileTypeId, _applicationUser.UserID,null));
         if (Type == "Add")
         {
             if (fileType.AddedByUserID == _applicationUser.UserID)

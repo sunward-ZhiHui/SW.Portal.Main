@@ -93,12 +93,13 @@ namespace Core.Entities
         public List<Plant> Plant { get; set; } = new List<Plant>();
         public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
         public List<ApplicationMasterParent> ApplicationMasterParent { get; set; } = new List<ApplicationMasterParent>();
+        public List<DynamicFormSectionAttributeSection> DynamicFormSectionAttributeSections = new List<DynamicFormSectionAttributeSection>();
     }
     public class DynamicFormGridModel
     {
         public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute { get; set; } = new List<DynamicFormSectionAttribute>();
         public List<DynamicFormData> DynamicFormData { get; set; } = new List<DynamicFormData>();
-       // public List<DynamicFormApproved> DynamicFormApproved { get; set; } = new List<DynamicFormApproved>();
+        // public List<DynamicFormApproved> DynamicFormApproved { get; set; } = new List<DynamicFormApproved>();
         public List<AttributeDetails> AttributeDetails { get; set; } = new List<AttributeDetails>();
         public List<DynamicForm> DynamicForm { get; set; } = new List<DynamicForm>();
         public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
@@ -162,5 +163,5 @@ namespace Core.Entities
         public List<ViewEmployee> Employee { get; set; } = new List<ViewEmployee>();
         public List<View_NavItems> NavItems { get; set; } = new List<View_NavItems>();
     }
-    
+
 }

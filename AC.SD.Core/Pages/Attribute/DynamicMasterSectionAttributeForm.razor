@@ -22,6 +22,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Add Control Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Add Control Section" IconCssClass="fa fa-user-lock" Click="@addValuePermission" Enabled="@IsDynamicFormAttributeEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -221,7 +222,10 @@
                               ValueFieldName="ApplicationMasterId"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               Enabled="isFormCountUsed"
-                              @bind-Values="@types.ApplicationMasterIdsListIds">
+                              Values="types.ApplicationMasterIdsListIds"
+                              ValuesExpression="@(() => types.ApplicationMasterIdsListIds )"
+                              ValuesChanged="@((IEnumerable<long?> values) => onChangedApplicationMaster(values,types))"
+                              ListRenderMode="ListRenderMode.Virtual">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMaster.ApplicationMasterName)"
                                             Caption="Name" Width="100px" />
                         <DxListEditorColumn FieldName="@nameof(ApplicationMaster.ApplicationMasterDescription)"
@@ -394,12 +398,26 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AddControlSectionPopup"
+         ShowFooter="true"
+         HeaderText="Add Control Section"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormSectionAttributeSectionForm Items="@Items" SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSectionForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Action? RevokeBack { get; set; }
     [Parameter]
     public DynamicFormSection Items { get; set; }
     public bool? IsDynamicSubForm { get; set; } = false;
+    public bool AddControlSectionEnabled { get; set; } = false; public bool AddControlSectionPopup { get; set; } = false;
     public long? DynamicFormSectionId { get; set; }
     bool PanelAttibuteVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -433,6 +451,7 @@
     bool addPermissionEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false; bool isApplicationMasterParentEnabled { get; set; } = false;
     bool isFormCountUsed { get; set; } = true; private List<AttributeHeaderDataSource> _attributeHeaderDataSource; bool isDataSource { get; set; } = false;
     private List<global::Core.Entities.ApplicationMaster> _applicationMasterItems; private List<ApplicationMasterParent>? _applicationMasterParentItems;
+    bool IsDynamicFormAttributeEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -458,6 +477,10 @@
             _dynamicForm = _dynamicForm.Where(w => w.ID != Items.DynamicFormId).ToList();
         }
         await UpdateDataAsync();
+    }
+    void addValuePermission()
+    {
+        AddControlSectionPopup = true;
     }
     public async Task loadChildData(long? dynamicFormIds)
     {
@@ -493,6 +516,7 @@
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; IsRadioCheckBoxLayoutEnabled = false;
         navitems.IsSingleTextBoxRemarks = false; navitems.IsSingleTextBoxRemarks = false; IsSetDefaultValueEnabled = false; IsDynamicFormGridDropdownEnabled = false;
+
         if (e.IsNew)
         {
             navitems.IsSpinEditType = "int";
@@ -657,7 +681,7 @@
         string? dataSourceTable = types?.DataSourceTable;
         if (dynamicFormId > 0 && !string.IsNullOrEmpty(dataSourceTable))
         {
-          //  types.GridDropDownDynamicFormID = dynamicFormId;
+            //  types.GridDropDownDynamicFormID = dynamicFormId;
             if (dataSourceTable == "ApplicationMasterParent")
             {
                 _applicationMasterParentItems = await Mediator.Send(new GetDynamicFormApplicationMasterParent(dynamicFormId));
@@ -672,7 +696,7 @@
     async Task UpdateDataAsync()
     {
         PanelAttibuteVisible = true; AddEnabled = false;
-        EditEnabled = false; DeleteEnabled = false;
+        EditEnabled = false; DeleteEnabled = false; IsDynamicFormAttributeEnabled = false;
 
         if (DynamicFormSectionId > 0)
         {
@@ -690,6 +714,17 @@
                 // {
                 //     DeleteEnabled = false;
                 // }
+                if (_selectedAttributeItems.ControlTypeId == 2702 || _selectedAttributeItems.ControlTypeId == 2708)
+                {
+                    if (_selectedAttributeItems.DataSourceTable != "DynamicGrid" && _selectedAttributeItems.DataSourceTable != "ApplicationMaster" && _selectedAttributeItems.DataSourceTable != "ApplicationMasterParent")
+                    {
+                        IsDynamicFormAttributeEnabled = true;
+                    }
+                    if (_selectedAttributeItems.DataSourceTable == "ApplicationMaster" || _selectedAttributeItems.DataSourceTable == "ApplicationMasterParent")
+                    {
+                        IsDynamicFormAttributeEnabled = true;
+                    }
+                }
             }
         }
         PanelAttibuteVisible = false;
@@ -790,9 +825,14 @@
                     IsDynamicFormGridDropdownEnabled = true;
                 }
             }
+
         }
 
         StateHasChanged();
+    }
+    void onChangedApplicationMaster(IEnumerable<long?> AppmasterId, DynamicFormSectionAttribute types)
+    {
+        types.ApplicationMasterIdsListIds = AppmasterId;
     }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -1000,6 +1040,19 @@
         //{
         //   DeleteEnabled = false;
         // }
+        IsDynamicFormAttributeEnabled = false;
+        if (_selectedAttributeItems.ControlTypeId == 2702 || _selectedAttributeItems.ControlTypeId == 2708)
+        {
+            if (_selectedAttributeItems.DataSourceTable != "DynamicGrid" && _selectedAttributeItems.DataSourceTable != "ApplicationMaster" && _selectedAttributeItems.DataSourceTable != "ApplicationMasterParent")
+            {
+                IsDynamicFormAttributeEnabled = true;
+
+            }
+            if (_selectedAttributeItems.DataSourceTable == "ApplicationMaster" || _selectedAttributeItems.DataSourceTable == "ApplicationMasterParent")
+            {
+                IsDynamicFormAttributeEnabled = true;
+            }
+        }
         StateHasChanged();
 
     }
@@ -1129,6 +1182,7 @@
         RevokeBack?.Invoke();
         await UpdateDataAsync();
         addPermissionEnabled = false;
+        AddControlSectionPopup = false;
     }
     public void Dispose()
     {

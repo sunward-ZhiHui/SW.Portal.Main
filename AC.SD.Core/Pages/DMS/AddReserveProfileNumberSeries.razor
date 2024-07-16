@@ -48,6 +48,7 @@
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Title" ColSpanMd="6">
                         <DxTextBox @bind-Text="@Data.Title" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.Title)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                        @*  <DxComboBox Data="@_plantItems"
@@ -289,6 +290,7 @@
                                     ValueFieldName="CodeId"
                         @bind-Value="@Data.StatusCodeID" ShowValidationIcon="true">
                         </DxComboBox>
+                        <ValidationMessage For="@(() => Data.StatusCodeID)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Description" ColSpanMd="12">
                         <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />

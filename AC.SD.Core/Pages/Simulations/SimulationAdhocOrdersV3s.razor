@@ -7,7 +7,7 @@
 @using global::Core.Repositories.Query;
 @using global::Core.EntityModels;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@page "/simulationMidMonth"
+@page "/simulationAdhocOrdersV3"
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
 
@@ -139,7 +139,7 @@
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
-            <DxGridBandColumn Caption="@StbPreheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
+            @* <DxGridBandColumn Caption="@StbPreheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
                     <DxGridDataColumn FieldName="PreApexStockBalance" Caption="Apex" DisplayFormat="n2" Width="100">
                         <CellDisplayTemplate>
@@ -222,7 +222,7 @@
                         </CellDisplayTemplate>
                     </DxGridDataColumn>
                 </Columns>
-            </DxGridBandColumn>
+            </DxGridBandColumn> *@
             <DxGridBandColumn Caption="@Stbheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
                     <DxGridDataColumn FieldName="ApexStockBalance" Caption="Apex" DisplayFormat="n2" Width="100">
@@ -263,7 +263,7 @@
                                 var item = (INPCalendarPivotModel)context.DataItem;
                             }
                             @((item.SgTenderStockBalance > 0 ? (Convert.ToDecimal(item.SgTenderStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                            </CellDisplayTemplate>
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="MyStockBalance" Caption="SWMY" DisplayFormat="n2" Width="100">
                         <CellDisplayTemplate>
@@ -497,7 +497,7 @@
                             @{
                                 var item = (INPCalendarPivotModel)context.DataItem;
                             }
-                            @((item.ProjectedHoldingStock5 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock5.ToString("0.00"))) : ""))
+                           @((item.ProjectedHoldingStock5 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock5.ToString("0.00"))) : ""))
                         </CellDisplayTemplate>
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket5" Caption="Production Ticket" Width="100"></DxGridDataColumn>
@@ -653,7 +653,7 @@
                             @{
                                 var item = (INPCalendarPivotModel)context.DataItem;
                             }
-                            @((item.ProjectedHoldingStock9 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock9.ToString("0.00"))) : ""))
+                             @((item.ProjectedHoldingStock9 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock9.ToString("0.00"))) : ""))
                         </CellDisplayTemplate>
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket9" Caption="Production Ticket" Width="100"></DxGridDataColumn>
@@ -1005,7 +1005,7 @@
             countmonth++;
         }
 
-        _simulationItems = await Mediator.Send(new GetAllSimulationMidMonthQuery(dateRangeModel));
+        _simulationItems = await Mediator.Send(new GetSimulationAddhocV3Query(dateRangeModel));
         if (_simulationItems != null && _simulationItems.Count() > 0)
         {
             PanelVisible = false;

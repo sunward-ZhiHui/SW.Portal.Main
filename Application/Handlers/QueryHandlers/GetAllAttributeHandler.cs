@@ -331,4 +331,17 @@ namespace Application.Handlers.QueryHandlers
             return await _attrubutequeryRepository.GetDynamicGridDropDownById(request.DynamicFormId, request.UserId);
         }
     }
+    public class GetAttributeDetailsDataSourceHandler : IRequestHandler<GetAttributeDetailsDataSource, List<AttributeDetails>>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAttributeDetailsDataSourceHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeDetails>> Handle(GetAttributeDetailsDataSource request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetAttributeDetailsDataSource(request.AttributeId);
+        }
+    }
 }

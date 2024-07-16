@@ -617,6 +617,25 @@ namespace Core.EntityModels
         public long NavItemCitemId { get; set; }
         public long? NavItemId { get; set; }
         public long? NavItemCustomerItemId { get; set; }
+        public long DistAcid { get; set; }
+        public long? CompanyId { get; set; }
+        public long? CustomerId { get; set; }
+        public string DistName { get; set; }
+        public string ItemGroup { get; set; }
+        public string Steriod { get; set; }
+        public string ShelfLife { get; set; }
+        public string Quota { get; set; }
+        public string Status { get; set; }
+        public string ItemDesc { get; set; }
+        public string PackSize { get; set; }
+        public decimal? Acqty { get; set; }
+        public DateTime? Acmonth { get; set; }
+        public int? StatusCodeId { get; set; }
+        public long? AddedByUserId { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public long? ModifiedByUserId { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public string ItemNo { get; set; }
     }
     public class NavSaleCategory
     {
@@ -721,5 +740,26 @@ namespace Core.EntityModels
         public int? AdhocMonthStandAlone { get; set; }
         public decimal? AdhocPlanQty { get; set; }
         public string DropDownName { get; set; }
+    }
+    public class NavMethodCodeLines
+    {
+        public long MethodCodeLineId { get; set; }
+        public long? MethodCodeId { get; set; }
+        public long? ItemId { get; set; }
+        public int? StatusCodeId { get; set; }
+        public long? AddedByUserId { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public long? ModifiedByUserId { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public string MethodName { get; set; }
+        public string MethodDescription { get; set; }
+        public long? NavinpcategoryId { get; set; }
+        public long? CompanyId { get; set; }
+        public decimal? ProdFrequency { get; set; }
+        public decimal? DistReplenishHs { get; set; }
+        public decimal? DistAcmonth { get; set; }
+        public decimal? AdhocReplenishHs { get; set; }
+        public int? AdhocMonthStandAlone { get; set; }
+        public decimal? AdhocPlanQty { get; set; }
     }
 }

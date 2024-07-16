@@ -78,5 +78,6 @@ namespace Core.Entities
         public string DMSBackUrl { get; set; }
         [NotMapped]
         public long ReplaceDocumentId { get; set; }
+        public long? SwProfileTypeId { get; set; }
     }
 }

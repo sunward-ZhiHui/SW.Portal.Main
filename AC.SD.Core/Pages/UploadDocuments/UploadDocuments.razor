@@ -574,7 +574,7 @@
                 }
                 else
                 {
-                    var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID));
+                    var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID,null));
                     if (documentPermissionModels != null)
                     {
                         if (documentPermissionModels.IsPermissionExits == true)
@@ -686,7 +686,7 @@
                     else
                     {
                         EmailEnabled = true;
-                        var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID));
+                        var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID,_selectedItems.DocumentID));
                         if (permissionData != null)
                         {
                             if (permissionData.IsPermissionExits == true)

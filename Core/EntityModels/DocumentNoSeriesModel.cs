@@ -15,7 +15,8 @@ namespace Core.EntityModels
         public long? ProfileID { get; set; }
         public string DocumentNo { get; set; }
         public string VersionNo { get; set; }
-        public string Title { get; set; }
+        [Required(ErrorMessage = "Title is Required")]
+        public string? Title { get; set; }
         public DateTime? EffectiveDate { get; set; }
         public DateTime? Implementation { get; set; }
         public string ProfileName { get; set; }
@@ -55,6 +56,7 @@ namespace Core.EntityModels
         public string Description { get; set; }
         public long? ScreenAutoNumberId { get; set; }
         public List<NumberSeriesCodeModel> Abbreviation1 { get; set; }
+        [Required(ErrorMessage = "Status is Required")]
         public int? StatusCodeID { get; set; }
         public string StatusCode { get; set; }
         public long? AddedByUserID { get; set; }

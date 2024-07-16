@@ -72,6 +72,16 @@
             <DxGridDataColumn FieldName="NumberSeriesId" Visible="false" />
             <DxGridDataColumn FieldName="DocumentNo" Caption="Document No" MinWidth="80" />
             <DxGridDataColumn FieldName="RequestorName" Caption="Requestor Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="Title" Caption="Title" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentNoSeriesModel)context.DataItem;
+                    }
+                    <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Title-{item.NumberSeriesId}") onclick="@(() => OnButtonTitleClick(item))" title="@item.Title"></i>
+                    <span title="@item.Title">@item.Title</span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            @* <DxGridDataColumn FieldName="Title" Caption="Title" MinWidth="80" /> *@
             @*  <DxGridDataColumn FieldName="ProfileName" Caption="Profile Name" MinWidth="40" /> *@
             <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80">
                 <CellDisplayTemplate>
@@ -83,7 +93,7 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="VersionNo" Caption="Version No" MinWidth="80" />
-            <DxGridDataColumn FieldName="Title" Caption="Title" MinWidth="80" />
+            
             <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="80" />
             <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="40" />
 
@@ -179,6 +189,34 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
+<DxFlyout @bind-IsOpen=IsTitleOpen
+          PositionTarget=@($"#flyout-overview-target-container-Title-{_selectedDescriptionItems?.NumberSeriesId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          CloseOnOutsideClick="false"
+          HeaderVisible="true"
+          HeaderText="Update Title"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Title:" ColSpanMd="12">
+                <DxTextBox @bind-Text="@_selectedDescriptionItems.Title" CssClass="cw-480"  />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateTitle()) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsTitleClose()) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -201,7 +239,7 @@
     private DocumentsModel _ParentselectedItems;
     int SelectedFilesCount { get; set; }
     public DocumentNoSeriesModel _selectedItems { get; set; }
-    bool IsDescriptionOpen { get; set; } = false;
+    bool IsDescriptionOpen { get; set; } = false; bool IsTitleOpen { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -397,16 +435,29 @@
     }
     void OnButtonDescriptionClick(DocumentNoSeriesModel items)
     {
-        IsDescriptionOpen = true;
+        IsDescriptionOpen = true; IsTitleOpen = false;
         _selectedDescriptionItems = new DocumentNoSeriesModel();
         _selectedDescriptionItems.NumberSeriesId = items.NumberSeriesId;
         _selectedDescriptionItems.Description = items.Description;
         _selectedDescriptionItems.AddedByUserID = applicationUser.UserID;
     }
+    void OnButtonTitleClick(DocumentNoSeriesModel items)
+    {
+        IsTitleOpen = true; IsDescriptionOpen = false;
+        _selectedDescriptionItems = new DocumentNoSeriesModel();
+        _selectedDescriptionItems.NumberSeriesId = items.NumberSeriesId;
+        _selectedDescriptionItems.Title = items.Title;
+        _selectedDescriptionItems.AddedByUserID = applicationUser.UserID;
+    }
     void IsDescriptionClose()
     {
         _selectedDescriptionItems = new DocumentNoSeriesModel();
-        IsDescriptionOpen = false;
+        IsDescriptionOpen = false; IsTitleOpen = false;
+    }
+    void IsTitleClose()
+    {
+        _selectedDescriptionItems = new DocumentNoSeriesModel();
+        IsTitleOpen = false; IsDescriptionOpen = false;
     }
     async Task OnUpdateDescription()
     {
@@ -418,6 +469,17 @@
             await loadReserveNoData();
         }
     }
+    async Task OnUpdateTitle()
+    {
+        var response = await Mediator.Send(new UpdateReserveNumberTitleField(_selectedDescriptionItems));
+        if (response.NumberSeriesId > 0)
+        {
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            IsTitleOpen = false;
+            await loadReserveNoData();
+        }
+    }
+    
     public void Dispose()
     {
         System.GC.Collect();

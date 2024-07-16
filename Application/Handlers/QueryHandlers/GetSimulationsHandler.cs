@@ -36,4 +36,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<NavMethodCodeModel>)await _queryRepository.GetAllNavMethodCodeAsync();
         }
     }
+    public class GetSimulationAddhocV3QueryHandler : IRequestHandler<GetSimulationAddhocV3Query, List<INPCalendarPivotModel>>
+    {
+        private readonly ISimulationQueryRepository _queryRepository;
+        public GetSimulationAddhocV3QueryHandler(ISimulationQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<INPCalendarPivotModel>> Handle(GetSimulationAddhocV3Query request, CancellationToken cancellationToken)
+        {
+            return (List<INPCalendarPivotModel>)await _queryRepository.GetSimulationAddhocV3(request.DateRangeModel);
+        }
+    }
 }

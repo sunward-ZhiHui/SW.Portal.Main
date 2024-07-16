@@ -659,9 +659,8 @@
                                       ShowFooter=false
                                       AllowResize="true"
                                       Closing="EulaClosing"
-                                      MinWidth="950"
-                                      Width="950"                                      
-                                      Height="600"
+                                      Width="max(75vw, 250px)"                                                                       
+                                      Height="800"
                                       ShowCloseButton="true"                                                
                                       @ref="dxWindow">
                                         <BodyTemplate Context="Context">
@@ -677,11 +676,10 @@
                                                                     <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                                         @* <DataAnnotationsValidator />*@
                                                                         <DxFormLayout>
-                                                                            <DxFormLayoutItem Caption="Section:" ColSpanMd="12" Visible="@isDynamicFormEmailSection">                                                                               
+                                                                             <DxFormLayoutItem Caption="Section:" ColSpanMd="12" Visible="@isDynamicFormEmailSection">                                                                               
                                                                                 <DxComboBox Data="@_DynamicFormEmailSection"
                                                                                             NullText="Select Section Name"
-                                                                                            Enabled="@isDynamicFormEmailSection"
-                                                                                            FilteringMode="DataGridFilteringMode.Contains"
+                                                                                            Enabled="@isDynamicFormEmailSection"                                                                                            
                                                                                             TextFieldName="SectionName"
                                                                                             ValueFieldName="EmailFormSectionSessionID"
                                                                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -689,7 +687,7 @@
                                                                                             SelectedItemChanged="@((DynamicFormSection dynamicFormSection) => onSelectedDynFomSectionChanged(dynamicFormSection))">
                                                                                 </DxComboBox>
                                                                                 <ValidationMessage For="@(() => Data.EmailFormSectionSessionID)" />
-                                                                            </DxFormLayoutItem>
+                                                                            </DxFormLayoutItem> 
                                                                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
                                                                                 <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" spellcheck="true" NullText="Subject Name" Enabled="@IsReadOnly" />
                                                                                 <ValidationMessage For="@(() => Data.Name)" />
@@ -705,13 +703,15 @@
                                                                                       <DxFormLayoutItem Caption="Assign To" ColSpanMd="11">
                                                                                            <DxTagBox NullText="Select Assign To..."
                                                                                                   Data="@_Toparticipant"
+                                                                                                  SearchMode="ListSearchMode.AutoSearch"
+                                                                                                  SearchFilterCondition="ListSearchFilterCondition.Contains"                                                                                                  
+                                                                                                  Values="@Data.AssigntoIds"
+                                                                                                  ValuesExpression="@(() => Data.AssigntoIds )"
                                                                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                                                                   ValueFieldName="UserID"
-                                                                                                  TextFieldName="Name"                                                                                      
-                                                                                                  ListRenderMode="ListRenderMode.Virtual"                                                                                      
-                                                                                      
-                                                                                                  @bind-Values="@Data.AssigntoIds"
-                                                                                                  SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
+                                                                                                  TextFieldName="Name"
+                                                                                                  ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"                                                                            
+                                                                                                  ListRenderMode="ListRenderMode.Virtual"                                                                                                  
                                                                                                   CssClass="cw-480">
                                                                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                                                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
@@ -725,12 +725,15 @@
                                                                                       <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
                                                                                         <DxTagBox NullText="Select Assign To..."
                                                                                                   Data="@_Toparticipant"
+                                                                                                 SearchMode="ListSearchMode.AutoSearch"
+                                                                                                  SearchFilterCondition="ListSearchFilterCondition.Contains"                                                                                                  
+                                                                                                  Values="@Data.AssigntoIds"
+                                                                                                  ValuesExpression="@(() => Data.AssigntoIds )"
                                                                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                                                                   ValueFieldName="UserID"
                                                                                                   TextFieldName="Name"
-                                                                                                  ListRenderMode="ListRenderMode.Virtual"
-                                                                                                  @bind-Values="@Data.AssigntoIds"
-                                                                                                  SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
+                                                                                                  ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"                                                                            
+                                                                                                  ListRenderMode="ListRenderMode.Virtual" 
                                                                                                   CssClass="cw-480">
                                                                                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                                                                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
@@ -745,7 +748,7 @@
 
                                                                                 @if(isCheckAllowParticipant)
                                                                                 {
-                                                                                    <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                                                                    <DxFormLayoutItem CssClass="gbtn" Caption=" " ColSpanMd="1">
                                                                                         <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
                                                                                               Click="@(_ => OnButtonUserGroupToClick())">
                                                                                         </DxButton>
@@ -782,15 +785,18 @@
                                                                                 @if (isCheckAllowParticipant)
                                                                                 {
                                                                                      <DxFormLayoutItem Caption="CC" ColSpanMd="11">
-                                                                                    <DxTagBox NullText="Select cc..."
+                                                                                    <DxTagBox NullText="Select cc1..."
                                                                                           Data="@_CCparticipant"
+                                                                                          SearchMode="ListSearchMode.AutoSearch"
+                                                                                          AllowCustomTags="true"
+                                                                                          SearchFilterCondition="ListSearchFilterCondition.Contains"                      
+                                                                                          Values="@Data.AssignccIds"
+                                                                                          ValuesExpression="@(() => Data.AssignccIds )"
                                                                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                                                           ValueFieldName="UserID"
                                                                                           TextFieldName="Name"
-                                                                                          SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
+                                                                                          ValuesChanged="@((IEnumerable<long>? values) => onSelectedCCItemsChanged(values))"                                                                                          
                                                                                           ListRenderMode="ListRenderMode.Virtual"
-                                                                                          @bind-Values="@Data.AssignccIds"
-                                                                                      
                                                                                           CssClass="cw-480">
                                                                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                                                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
@@ -803,15 +809,17 @@
                                                                                 {
                                                                                  <DxFormLayoutItem Caption="CC" ColSpanMd="12">
                                                                                     <DxTagBox NullText="Select cc..."
-                                                                                          Data="@_CCparticipant"
-                                                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                                                          ValueFieldName="UserID"
-                                                                                          TextFieldName="Name"
-                                                                                          SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
-                                                                                          ListRenderMode="ListRenderMode.Virtual"
-                                                                                          @bind-Values="@Data.AssignccIds"
-                                                                                      
-                                                                                          CssClass="cw-480">
+                                                                                                  Data="@_CCparticipant"
+                                                                                                  SearchMode="ListSearchMode.AutoSearch"
+                                                                                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                                                  Values="@Data.AssignccIds"
+                                                                                                  ValuesExpression="@(() => Data.AssignccIds )"
+                                                                                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                                                  ValueFieldName="UserID"
+                                                                                                  TextFieldName="Name"
+                                                                                                  ValuesChanged="@((IEnumerable<long>? values) => onSelectedCCItemsChanged(values))"
+                                                                                                  ListRenderMode="ListRenderMode.Virtual"
+                                                                                                  CssClass="cw-480">
                                                                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                                                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
                                                                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
@@ -821,7 +829,7 @@
                                                                                 }
                                                                                 @if (isCheckAllowParticipant)
                                                                                 {
-                                                                                    <DxFormLayoutItem Caption=" " ColSpanMd="1">
+                                                                                    <DxFormLayoutItem CssClass="gbtn" Caption=" " ColSpanMd="1">
                                                                                         <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
                                                                                                   Click="@(_ => OnButtonUserGroupCCClick())">
                                                                                         </DxButton>
@@ -1795,7 +1803,8 @@
             if (_allparticipants != null && userIds != null)
             {                
                 var emplst = _allparticipants.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
-                onSelectedToItemsChanged(emplst);
+                var toItems = emplst.Select(employee => employee.UserID.Value).ToList();
+                onSelectedToItemsChanged(toItems);
             }
             // _CCparticipant = _participant.Except(userIds, new ViewEmployeeComparer()).ToList();
 
@@ -1825,7 +1834,8 @@
             if (_allparticipants != null && combinedIds != null)
             {
                 var emplst1 =  _allparticipants.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
-                onSelectedToItemsChanged(emplst1);
+                var toItems = emplst1.Select(employee => employee.UserID.Value).ToList();
+                onSelectedToItemsChanged(toItems);
             }
         }
 
@@ -1849,7 +1859,8 @@
             if (_allparticipants != null && userIds != null)
             {
                 var emplst = _allparticipants.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
-                onSelectedCCItemsChanged(emplst);
+                var toItems = emplst.Select(employee => employee.UserID.Value).ToList();
+                onSelectedCCItemsChanged(toItems);
             }
 
         }
@@ -1877,7 +1888,8 @@
             if (_allparticipants != null && combinedIds != null)
             {
                 var emplst1 = _allparticipants.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
-                onSelectedCCItemsChanged(emplst1);
+                var toItems = emplst1.Select(employee => employee.UserID.Value).ToList();
+                onSelectedCCItemsChanged(toItems);
             }
         }
 
@@ -3114,7 +3126,20 @@
         //    e.CssClass = "header-bold";
         //}
     }
-    void onSelectedToItemsChanged(IEnumerable<ViewEmployee> values)
+    void onSelectedToItemsChanged(IEnumerable<long>? values)
+    {
+        Data.AssigntoIds = values;
+        if (values != null)
+        {            
+            //_CCparticipant = _allparticipants.Except(values).ToList();
+            _CCparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        }
+        else
+        {            
+            _CCparticipant = _allparticipants.ToList();
+        }
+    }
+    void onSelectedToItemsChangedold(IEnumerable<ViewEmployee> values)
     {
         if (values != null)
         {
@@ -3127,8 +3152,21 @@
             _CCparticipant = _allparticipants.ToList();
         }
     }
+    void onSelectedCCItemsChanged(IEnumerable<long>? values)
+    {
+        Data.AssignccIds = values;
+        if (values != null)
+        {            
+            //_Toparticipant = _allparticipants.Except(values).ToList();
+            _Toparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        }
+        else
+        {            
+            _Toparticipant = _allparticipants.ToList();
+        }
+    }
 
-    void onSelectedCCItemsChanged(IEnumerable<ViewEmployee> values)
+    void onSelectedCCItemsChangedold(IEnumerable<ViewEmployee> values)
     {
         if (values != null)
         {
@@ -3183,10 +3221,12 @@
                 Data.AssignccIds = new List<long>();
 
                 var emplst = _allparticipants.Where(employee => assTo.Contains(employee.UserID.Value)).ToList();
-                onSelectedToItemsChanged(emplst);
+                var userIds = emplst.Select(employee => employee.UserID.Value).ToList();
+                onSelectedToItemsChanged(userIds);                
 
                 var emplst1 = _allparticipants.Where(employee => assCC.Contains(employee.UserID.Value)).ToList();
-                onSelectedCCItemsChanged(emplst1);
+                var ccids = emplst1.Select(employee => employee.UserID.Value).ToList();
+                onSelectedCCItemsChanged(ccids);
 
 
                 Data.AssigntoIds = assTo;
@@ -3209,10 +3249,12 @@
 
 
             var emplst = _allparticipants.Where(employee => assTo.Contains(employee.UserID.Value)).ToList();
-            onSelectedToItemsChanged(emplst);
+            var toItems = emplst.Select(employee => employee.UserID.Value).ToList();
+            onSelectedToItemsChanged(toItems);
 
             var emplst1 = _allparticipants.Where(employee => assCC.Contains(employee.UserID.Value)).ToList();
-            onSelectedCCItemsChanged(emplst1);
+            var ccItems = emplst1.Select(employee => employee.UserID.Value).ToList();
+            onSelectedCCItemsChanged(ccItems);
 
             Data.DynamicFormID = null;
             Data.EmailFormDataSessionID = null;

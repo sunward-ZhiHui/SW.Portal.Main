@@ -65,6 +65,10 @@
         margin-bottom: 10px;
         min-height: 60px;
     }
+
+    .gbtn label {
+        display: none;
+    }
 </style>
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
     <div class="card-body p-0 tooltiptops">
@@ -190,7 +194,7 @@ else
                                     <ValidationMessage For="@(() => Data.ToIds)" />
                                 </DxFormLayoutItem>
 
-                                <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label">
+                                <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn">
                                     <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
                                               Click="@(_ => OnButtonUserGroupToClick())">
                                     </DxButton>
@@ -223,12 +227,12 @@ else
                                 <DxComboBox Data="@_categoryTagItems"
                                             NullText="Select Category..."
                                             Enabled="@isEnabled"
-                                           ListRenderMode="ListRenderMode.Virtual"
+                                            ListRenderMode="ListRenderMode.Virtual"
                                             AllowUserInput ="true"
                                             SearchMode="ListSearchMode.AutoSearch"
                                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                                              Value="@selectCategory"
-                                               ValueExpression="@(() => selectCategory )"
+                                            ValueExpression="@(() => selectCategory )"
                                             TextFieldName="Value"
                                             ValueFieldName="ApplicationMasterChildId"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -270,7 +274,7 @@ else
 
                                     </DxTagBox>
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label">
+                                <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn">
                                     <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
                                               Click="@(_ => OnButtonUserGroupCCClick())">
                                     </DxButton>

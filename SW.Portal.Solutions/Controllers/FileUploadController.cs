@@ -546,5 +546,112 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(ReportdocumentId.ToString());
         }
+
+
+        [HttpPost("MobileFileProfileTypeMultiple")]
+
+        public async Task<ResponseModel> MobileFileProfileTypeMultiple([FromForm] Models.FileProfileTypeModel value)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                if (!Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase))
+                {
+                    response.IsSuccess = false;
+                    response.Message = "Invalid content type.";
+                    return response;
+                }
+
+                var file = Request.Form.Files;
+                if (file == null )
+                {
+                    response.IsSuccess = false;
+                    response.Message = "No file uploaded.";
+                    return response;
+                }
+
+              
+                    var sessionID = value.SessionId;
+                    var addedByUserId = value.UserID;
+                    var SourceFrom = "FileProfile";
+                    var ChangeNewFileName = value.NewFilename;
+                    var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + sessionID + @"\";
+                    string fileName = sessionID + ".pdf";
+                    var serverFilePath = serverPaths + fileName;
+                    if (!System.IO.Directory.Exists(serverPaths))
+                    {
+                        System.IO.Directory.CreateDirectory(serverPaths);
+                    }
+                    using (var memoryStream = new MemoryStream())
+                    {
+
+                        PdfDocument pdfDocument = new PdfDocument(new PdfWriter(memoryStream));
+                        Document document = new Document(pdfDocument);
+                        int i = 0;
+                        foreach (var f in file)
+                        {
+                            var files = f;
+                            var fs = files.OpenReadStream();
+                            var br = new BinaryReader(fs);
+                            var filePath = Path.Combine(serverPaths, files.FileName);
+                            Byte[] documentByte = br.ReadBytes((Int32)fs.Length);
+                            var image = new Image(ImageDataFactory.Create(documentByte));
+                            pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
+                            image.SetFixedPosition(i + 1, 0, 0);
+                            document.Add(image);
+                            i++;
+
+                            //using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            //{
+                            //    await file.CopyToAsync(fileStream);
+                            //}
+                        }
+                        pdfDocument.Close();
+                        byte[] fileData = memoryStream.ToArray();
+                        var fileSize = fileData.Length;
+                        await System.IO.File.WriteAllBytesAsync(serverFilePath, fileData);
+                        var documentNoSeriesModel = new DocumentNoSeriesModel
+                        {
+                            AddedByUserID = value.UserID,
+                            StatusCodeID = 710,
+                            ProfileID = value.ProfileId,
+                            PlantID = value.PlantId,
+                            DepartmentId = value.DepartmentId,
+                            SectionId = value.SectionId,
+                            SubSectionId = value.SubSectionId,
+                            DivisionId = value.DivisionId,
+
+                        };
+                    var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
+                    Documents documents = new Documents();
+                        documents.UploadDate = DateTime.Now;
+                        documents.AddedByUserId = addedByUserId;
+                        documents.AddedDate = DateTime.Now;
+                        documents.SessionId = sessionID;
+                        documents.IsLatest = true;
+                        documents.IsTemp = true;
+                        documents.FileName = ChangeNewFileName + ".pdf";
+                        documents.ContentType = "application/pdf";
+                        documents.FileSize = fileSize;
+                        documents.SourceFrom = SourceFrom;
+                        documents.ProfileNo = profileNo;
+                        documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                        var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+                        System.GC.Collect();
+                        GC.SuppressFinalize(this);
+                        response.IsSuccess = true;
+                        //response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
+                        return response;
+                    }
+                
+                
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = $"Internal server error: {ex.Message}";
+                return response;
+            }
+        }
     }
 }

@@ -1,0 +1,98 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@using MediatR
+@inject IMediator Mediator
+<style>
+    .templateGrid {
+        border-width: 0;
+        width: 800px;
+        height: 350px
+    }
+</style>
+
+
+
+
+@* <DxDropDownBox @bind-Value="Value"
+               QueryDisplayText="QueryText"
+               DropDownWidthMode="DropDownWidthMode.ContentWidth"
+               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+               NullText="Select a customer..."
+               InputId="ddbSearchLookup"
+               CssClass="cw-480">
+    <DropDownBodyTemplate>
+        <ToDropDownBoxPage DropDownBox="@context.DropDownBox" SelectedDataItems="onSelectedDataItems" />
+    </DropDownBodyTemplate>
+</DxDropDownBox> *@
+
+
+
+<DxGrid @ref="Grid"
+        Data="@_participant"
+        KeyFieldName="UserID"
+        ShowSearchBox="true"
+        HighlightRowOnHover="true"
+        ShowAllRows="true"
+        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+        SelectionMode="GridSelectionMode.Multiple"
+        AllowSelectRowByClick="true"
+        SelectedDataItem="@(DropDownBox.Value as ViewEmployee)"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"        
+        TextWrapEnabled="false"
+        VirtualScrollingEnabled="true"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        FocusedRowEnabled="true"
+        CssClass="templateGrid">
+    <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+        <DxGridDataColumn FieldName="Name" />
+        <DxGridDataColumn FieldName="NickName" />
+        <DxGridDataColumn FieldName="DesignationName" />
+        <DxGridDataColumn FieldName="CompanyName" />
+    </Columns>
+</DxGrid>
+
+@code {
+    [Parameter]
+    public IDropDownBox DropDownBox { get; set; }
+    IGrid Grid;   
+    private List<ViewEmployee>? _participant;
+    public ApplicationUser? applicationUser { get; private set; }     
+    [Parameter]
+    public Action<IReadOnlyList<object>>? SelectedDataItems { get; set; }
+    void GridSelectedDataItemChanged(object item)
+    {
+        DropDownBox.BeginUpdate();
+        DropDownBox.Value = item;
+        DropDownBox.HideDropDown();
+        DropDownBox.EndUpdate();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        //SelectedDataItems = SelectedToItems;
+        SelectedDataItems?.Invoke(SelectedToItems);
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        var plist = await Mediator.Send(new GetAllEmployeeListQuery());
+        _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();        
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && DropDownBox.Value is ViewEmployee value)
+        {
+            await Grid.SetFocusedDataItemAsync(value);
+            await Grid.MakeDataItemVisibleAsync(value);
+        }
+    }
+}

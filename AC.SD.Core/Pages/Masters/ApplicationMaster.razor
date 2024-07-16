@@ -221,6 +221,7 @@
          ShowFooter="true"
          HeaderText="Add Permission Control"
          CloseOnOutsideClick="false"
+         Closed="EulaPermissionClosed"
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
@@ -351,6 +352,11 @@
         }
         StateHasChanged();
 
+    }
+    async Task EulaPermissionClosed(PopupClosedEventArgs args)
+    {
+        await loadMAsterItems();
+        addPermissionEnabled = false;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

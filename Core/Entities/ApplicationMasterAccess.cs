@@ -43,5 +43,6 @@ namespace Core.Entities
         [NotMapped]
         public IEnumerable<long?> SelectLevelMasterIDs { get; set; } = new List<long?>();
         public string? ApplicationMasterName { get; set; }
+        public long? ApplicationMasterParentId { get; set; }
     }
 }

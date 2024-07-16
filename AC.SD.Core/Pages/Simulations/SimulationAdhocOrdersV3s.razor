@@ -54,62 +54,27 @@
             <DxGridBandColumn Caption="@Acheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
                     <DxGridDataColumn FieldName="ApexQty" DisplayFormat="n2" Caption="Apex" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ApexQty > 0 ? (Convert.ToDecimal(item.ApexQty.GetValueOrDefault(0).ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="AntahQty" DisplayFormat="n2" Caption="Antah" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.AntahQty > 0 ? (Convert.ToDecimal(item.AntahQty.GetValueOrDefault(0).ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="MissQty" DisplayFormat="n2" Caption="MSS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.MissQty > 0 ? (Convert.ToDecimal(item.MissQty.GetValueOrDefault(0).ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="PxQty" DisplayFormat="n2" Caption="PX" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PxQty > 0 ? (Convert.ToDecimal(item.PxQty.GetValueOrDefault(0).ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="AcSum" DisplayFormat="n2" Caption="AC Total" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.AcSum > 0 ? (Convert.ToDecimal(item.AcSum.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="AcSum_" DisplayFormat="n2" Caption="AC Total" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
             <DxGridDataColumn FieldName="SymlQty" DisplayFormat="n2" Caption="AC in Units" Width="100">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (INPCalendarPivotModel)context.DataItem;
-                    }
-                    @((item.SymlQty > 0 ? (Convert.ToDecimal(item.SymlQty.GetValueOrDefault(0).ToString("0.00"))) : ""))
-                </CellDisplayTemplate>
+
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ThreeMonthACQty" DisplayFormat="n2" Caption="AC Unit X 3" Width="100">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (INPCalendarPivotModel)context.DataItem;
-                    }
-                    @((item.ThreeMonthACQty > 0 ? (Convert.ToDecimal(item.ThreeMonthACQty.ToString("0.00"))) : ""))
-                </CellDisplayTemplate>
+            <DxGridDataColumn FieldName="ThreeMonthACQty_" DisplayFormat="n2" Caption="AC Unit X 3" Width="100">
+
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProdRecipe" Caption="Register Batch Size" Width="100">
             </DxGridDataColumn>
@@ -121,237 +86,105 @@
             </DxGridBandColumn>
             <DxGridBandColumn Caption="" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="Roundup1" Caption="Count" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Roundup1 > 0 ? (Convert.ToDecimal(item.Roundup1.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Roundup1_" Caption="Count" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Roundup2" Caption="Round Up" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Roundup2 > 0 ? (Convert.ToDecimal(item.Roundup2.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Roundup2_" Caption="Round Up" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
             @* <DxGridBandColumn Caption="@StbPreheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="PreApexStockBalance" Caption="Apex" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PreApexStockBalance > 0 ? (Convert.ToDecimal(item.PreApexStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PreApexStockBalance_" Caption="Apex" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PreAntahStockBalance" Caption="Antah" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PreAntahStockBalance > 0 ? (Convert.ToDecimal(item.PreAntahStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PreAntahStockBalance_" Caption="Antah" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PreMsbStockBalance" Caption="MSS" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PreMsbStockBalance > 0 ? (Convert.ToDecimal(item.PreMsbStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PreMsbStockBalance_" Caption="MSS" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PrePsbStockBalance" Caption="PX" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PrePsbStockBalance > 0 ? (Convert.ToDecimal(item.PrePsbStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PrePsbStockBalance_" Caption="PX" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PreSgTenderStockBalance" Caption="SWSIN" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PreSgTenderStockBalance > 0 ? (Convert.ToDecimal(item.PreSgTenderStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PreSgTenderStockBalance_" Caption="SWSIN" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PreMyStockBalance" Caption="SWMY" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PreMyStockBalance > 0 ? (Convert.ToDecimal(item.PreMyStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="WipQty_" Caption="WIP" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PreOtherStoreQty" Caption="Other Store" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PreOtherStoreQty > 0 ? (Convert.ToDecimal(item.PreOtherStoreQty.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PreMyStockBalance_" Caption="SWMY" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PrewipQty" Caption="WIP Stock" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PrewipQty > 0 ? (Convert.ToDecimal(item.PrewipQty.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PreOtherStoreQty_" Caption="Other Store" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PreStockBalance" Caption="Total Stock Balance" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PreStockBalance > 0 ? (Convert.ToDecimal(item.PreStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PrewipQty_" Caption="WIP Stock" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PreStockHoldingBalance" Caption="No. of mth" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PreStockHoldingBalance > 0 ? (Convert.ToDecimal(item.PreStockHoldingBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PreStockBalance_" Caption="Total Stock Balance" DisplayFormat="n2" Width="100">
+
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="PreStockHoldingBalance_" Caption="No. of mth" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn> *@
             <DxGridBandColumn Caption="@Stbheader" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
-                    <DxGridDataColumn FieldName="ApexStockBalance" Caption="Apex" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ApexStockBalance > 0 ? (Convert.ToDecimal(item.ApexStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ApexStockBalance_" Caption="Apex" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="AntahStockBalance" Caption="Antah" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.AntahStockBalance > 0 ? (Convert.ToDecimal(item.AntahStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="AntahStockBalance_" Caption="Antah" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="MsbStockBalance" Caption="MSS" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.MsbStockBalance > 0 ? (Convert.ToDecimal(item.MsbStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="MsbStockBalance_" Caption="MSS" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PsbStockBalance" Caption="PX" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.PsbStockBalance > 0 ? (Convert.ToDecimal(item.PsbStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="PsbStockBalance_" Caption="PX" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="SgTenderStockBalance" Caption="SWSIN" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.SgTenderStockBalance > 0 ? (Convert.ToDecimal(item.SgTenderStockBalance.ToString("0.00"))) : ""))
-                            </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="SgTenderStockBalance_" Caption="SWSIN" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="MyStockBalance" Caption="SWMY" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.MyStockBalance > 0 ? (Convert.ToDecimal(item.MyStockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="MyStockBalance_" Caption="SWMY" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="OtherStoreQty" Caption="Other Store" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.OtherStoreQty > 0 ? (Convert.ToDecimal(item.OtherStoreQty.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="OtherStoreQty_" Caption="Other Store" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="DeliverynotReceived" Caption="In Transit" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.DeliverynotReceived > 0 ? (Convert.ToDecimal(item.DeliverynotReceived.GetValueOrDefault(0).ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="InterCompanyTransitQty" Caption="In T/intercompany" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.InterCompanyTransitQty > 0 ? (Convert.ToDecimal(item.InterCompanyTransitQty.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="InterCompanyTransitQty_" Caption="In T/intercompany" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="StockBalance" Caption="Stock Balance" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.StockBalance > 0 ? (Convert.ToDecimal(item.StockBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="StockBalance_" Caption="Stock Balance" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="StockHoldingBalance" Caption="No. of mth" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.StockHoldingBalance > 0 ? (Convert.ToDecimal(item.StockHoldingBalance.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="StockHoldingBalance_" Caption="No. of mth" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Rework" Caption="Rework" Width="100"></DxGridDataColumn>
+                    <DxGridDataColumn FieldName="Rework" Caption="Rework" DisplayFormat="n2" Width="100"></DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
             <DxGridBandColumn Caption="@Month1" CaptionAlignment="GridTextAlignment.Center" Width="200">
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc1" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc1 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc1.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc1_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month1" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month1 > 0 ? (Convert.ToDecimal(item.Month1.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month1_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock1" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock1 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock1.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock1_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket1" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected1" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected1 > 0 ? (Convert.ToDecimal(item.ProductionProjected1.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected1_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -359,38 +192,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc2" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc2 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc2.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc2_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month2" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month2 > 0 ? (Convert.ToDecimal(item.Month2.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month2_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock2" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock2 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock2.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock2_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket2" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected2" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected2 > 0 ? (Convert.ToDecimal(item.ProductionProjected2.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected2_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -398,38 +211,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc3" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc3 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc3.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc3_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month3" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month3 > 0 ? (Convert.ToDecimal(item.Month3.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month3_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock3" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock3 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock3.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock3_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket3" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected3" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected3 > 0 ? (Convert.ToDecimal(item.ProductionProjected3.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected3_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -437,38 +230,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc4" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc4 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc4.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc4_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month4" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month4 > 0 ? (Convert.ToDecimal(item.Month4.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month4_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock4" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock4 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock4.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock4_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket4" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected4" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected4 > 0 ? (Convert.ToDecimal(item.ProductionProjected4.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected4_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -476,38 +249,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc5" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc5 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc5.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc5_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month5" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month5 > 0 ? (Convert.ToDecimal(item.Month5.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month5_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock5" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                           @((item.ProjectedHoldingStock5 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock5.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock5_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket5" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected5" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected5 > 0 ? (Convert.ToDecimal(item.ProductionProjected5.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected5_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -515,38 +268,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc6" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc6 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc6.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc6_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month6" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month6 > 0 ? (Convert.ToDecimal(item.Month6.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month6_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock6" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock6 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock6.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock6_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket6" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected6" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected6 > 0 ? (Convert.ToDecimal(item.ProductionProjected6.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected6_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -554,38 +287,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc7" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc7 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc7.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc7_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month7" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month7 > 0 ? (Convert.ToDecimal(item.Month7.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month7_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock7" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock7 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock7.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock7_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket7" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected7" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected7 > 0 ? (Convert.ToDecimal(item.ProductionProjected7.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected7_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -593,38 +306,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc8" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc8 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc8.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc8_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month8" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month8 > 0 ? (Convert.ToDecimal(item.Month8.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month8_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock8" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock8 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock8.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock8_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket8" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected8" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected8 > 0 ? (Convert.ToDecimal(item.ProductionProjected8.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected8_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -632,38 +325,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc9" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc9 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc9.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc9_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month9" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month9 > 0 ? (Convert.ToDecimal(item.Month9.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month9_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock9" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                             @((item.ProjectedHoldingStock9 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock9.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock9_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket9" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected9" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected9 > 0 ? (Convert.ToDecimal(item.ProductionProjected9.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected9_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -671,38 +344,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc10" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc10 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc10.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc10_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month10" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month10 > 0 ? (Convert.ToDecimal(item.Month10.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month10_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock10" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock10 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock10.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock10_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket10" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected10" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected10 > 0 ? (Convert.ToDecimal(item.ProductionProjected10.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected10_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -710,38 +363,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc11" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc11 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc11.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc11_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month11" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month11 > 0 ? (Convert.ToDecimal(item.Month11.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month11_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock11" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock11 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock11.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock11_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket11" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected11" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected11 > 0 ? (Convert.ToDecimal(item.ProductionProjected11.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected11_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -749,38 +382,18 @@
                 <Columns>
                     <DxGridDataColumn FieldName="AddhocCust" Caption="" Width="100">
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="BlanketAddhoc12" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.BlanketAddhoc12 > 0 ? (Convert.ToDecimal(item.BlanketAddhoc12.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="BlanketAddhoc12_" Caption="Ad Hoc" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="Month12" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.Month12 > 0 ? (Convert.ToDecimal(item.Month12.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="Month12_" Caption="Proj. Inv" DisplayFormat="n2" Width="100">
+
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProjectedHoldingStock12" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProjectedHoldingStock12 > 0 ? (Convert.ToDecimal(item.ProjectedHoldingStock12.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProjectedHoldingStock12_" DisplayFormat="n2" Caption="Prod. Proj." Width="100">
+
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="Ticket12" Caption="Production Ticket" Width="100"></DxGridDataColumn>
-                    <DxGridDataColumn FieldName="ProductionProjected12" DisplayFormat="n2" Caption="Proj. HS" Width="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (INPCalendarPivotModel)context.DataItem;
-                            }
-                            @((item.ProductionProjected12 > 0 ? (Convert.ToDecimal(item.ProductionProjected12.ToString("0.00"))) : ""))
-                        </CellDisplayTemplate>
+                    <DxGridDataColumn FieldName="ProductionProjected12_" DisplayFormat="n2" Caption="Proj. HS" Width="100">
+
                     </DxGridDataColumn>
                 </Columns>
             </DxGridBandColumn>
@@ -819,7 +432,7 @@
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
                             ListRenderMode="ListRenderMode.Virtual"
-                            SearchMode="ListSearchMode.Default"
+                            SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="NavCompany"
                             ValueFieldName="PlantID"
@@ -845,7 +458,7 @@
                 <DxComboBox Data="@_versionItems"
                             NullText="Select Version..."
                             ListRenderMode="ListRenderMode.Virtual"
-                            SearchMode="ListSearchMode.Default"
+                            SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Value"
                             ValueFieldName="Id"
@@ -857,7 +470,7 @@
                 <DxComboBox Data="@_salesCategoryItems"
                             NullText="Select Sales Category..."
                             ListRenderMode="ListRenderMode.Virtual"
-                            SearchMode="ListSearchMode.Default"
+                            SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="Text"
                             ValueFieldName="Id"
@@ -869,7 +482,7 @@
                 <DxComboBox Data="@_navMethodCodeModeltems"
                             NullText="Select Method Code..."
                             ListRenderMode="ListRenderMode.Virtual"
-                            SearchMode="ListSearchMode.Default"
+                            SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                             TextFieldName="MethodName"
                             ValueFieldName="MethodCodeID"

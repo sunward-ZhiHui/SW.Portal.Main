@@ -394,7 +394,84 @@ namespace Core.EntityModels
         public decimal? workingQty11 { get; set; }
         public decimal? workingQty12 { get; set; }
 
+
         public List<ProposedAddhocModel> ProposedAddhocOrders { get; set; }
+
+
+        public decimal? AcSum_ { get; set; }
+        public decimal? ThreeMonthACQty_ { get; set; }
+        public decimal? Roundup1_ { get; set; }
+        public decimal? Roundup2_ { get; set; }
+        public decimal? PreApexStockBalance_ { get; set; }
+        public decimal? PreAntahStockBalance_ { get; set; }
+        public decimal? PreMsbStockBalance_ { get; set; }
+        public decimal? PrePsbStockBalance_ { get; set; }
+        public decimal? PreSgTenderStockBalance_ { get; set; }
+        public decimal? WipQty_ { get; set; }
+        public decimal? PreMyStockBalance_ { get; set; }
+        public decimal? PreOtherStoreQty_ { get; set; }
+        public decimal? PrewipQty_ { get; set; }
+        public decimal? PreStockBalance_ { get; set; }
+        public decimal? PreStockHoldingBalance_ { get; set; }
+        public decimal? ApexStockBalance_ { get; set; }
+        public decimal? AntahStockBalance_ { get; set; }
+        public decimal? MsbStockBalance_ { get; set; }
+        public decimal? PsbStockBalance_ { get; set; }
+        public decimal? SgTenderStockBalance_ { get; set; }
+        public decimal? MyStockBalance_ { get; set; }
+        public decimal? OtherStoreQty_ { get; set; }
+        public decimal? InterCompanyTransitQty_ { get; set; }
+        public decimal? StockBalance_ { get; set; }
+        public decimal? StockHoldingBalance_ { get; set; }
+        public decimal? BlanketAddhoc1_ { get; set; }
+        public decimal? Month1_ { get; set; }
+        public decimal? ProjectedHoldingStock1_ { get; set; }
+        public decimal? ProductionProjected1_ { get; set; }
+        public decimal? BlanketAddhoc2_ { get; set; }
+        public decimal? Month2_ { get; set; }
+        public decimal? ProjectedHoldingStock2_ { get; set; }
+        public decimal? ProductionProjected2_ { get; set; }
+        public decimal? BlanketAddhoc3_ { get; set; }
+        public decimal? Month3_ { get; set; }
+        public decimal? ProjectedHoldingStock3_ { get; set; }
+        public decimal? ProductionProjected3_ { get; set; }
+        public decimal? BlanketAddhoc4_ { get; set; }
+        public decimal? Month4_ { get; set; }
+        public decimal? ProjectedHoldingStock4_ { get; set; }
+        public decimal? ProductionProjected4_ { get; set; }
+        public decimal? BlanketAddhoc5_ { get; set; }
+        public decimal? Month5_ { get; set; }
+        public decimal? ProjectedHoldingStock5_ { get; set; }
+        public decimal? ProductionProjected5_ { get; set; }
+        public decimal? BlanketAddhoc6_ { get; set; }
+        public decimal? Month6_ { get; set; }
+        public decimal? ProjectedHoldingStock6_ { get; set; }
+        public decimal? ProductionProjected6_ { get; set; }
+        public decimal? BlanketAddhoc7_ { get; set; }
+        public decimal? Month7_ { get; set; }
+        public decimal? ProjectedHoldingStock7_ { get; set; }
+        public decimal? ProductionProjected7_ { get; set; }
+        public decimal? BlanketAddhoc8_ { get; set; }
+        public decimal? Month8_ { get; set; }
+        public decimal? ProjectedHoldingStock8_ { get; set; }
+        public decimal? ProductionProjected8_ { get; set; }
+        public decimal? BlanketAddhoc9_ { get; set; }
+        public decimal? Month9_ { get; set; }
+        public decimal? ProjectedHoldingStock9_ { get; set; }
+        public decimal? ProductionProjected9_ { get; set; }
+        public decimal? BlanketAddhoc10_ { get; set; }
+        public decimal? Month10_ { get; set; }
+        public decimal? ProjectedHoldingStock10_ { get; set; }
+        public decimal? ProductionProjected10_ { get; set; }
+        public decimal? BlanketAddhoc11_ { get; set; }
+        public decimal? Month11_ { get; set; }
+        public decimal? ProjectedHoldingStock11_ { get; set; }
+        public decimal? ProductionProjected11_ { get; set; }
+        public decimal? BlanketAddhoc12_ { get; set; }
+        public decimal? Month12_ { get; set; }
+        public decimal? ProjectedHoldingStock12_ { get; set; }
+        public decimal? ProductionProjected12_ { get; set; }
+        public decimal? Rework_ { get; set; }
     }
     public class NAVRecipesModel
     {
@@ -697,7 +774,7 @@ namespace Core.EntityModels
         public int? NoOfTicket { get; set; }
         public decimal? TotalQuantity { get; set; }
     }
-    public  class Acitems
+    public class Acitems
     {
         public long DistAcid { get; set; }
         public long? CompanyId { get; set; }

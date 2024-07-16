@@ -180,8 +180,11 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("ApplicationMasterId", ApplicationMasterId);
                 parameters.Add("AccessTypeFrom", AccessTypeFrom, DbType.String);
-                var query = "select  * from ApplicationMasterAccess where  ApplicationMasterId=@ApplicationMasterId";
-
+                var query = "select  * from ApplicationMasterAccess where  AccessTypeFrom=@AccessTypeFrom AND ApplicationMasterId=@ApplicationMasterId";
+                if (AccessTypeFrom == "AppMasterParent")
+                {
+                    query = "select  * from ApplicationMasterAccess where AccessTypeFrom=@AccessTypeFrom AND  ApplicationMasterParentId=@ApplicationMasterId";
+                }
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationMasterAccess>(query, parameters)).ToList();
@@ -192,7 +195,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<ApplicationMasterAccess>> GetApplicationMasterAccessSecurityList(long? Id,string? AccessTypeFrom)
+        public async Task<IReadOnlyList<ApplicationMasterAccess>> GetApplicationMasterAccessCheckSecurityEmptyAsync(ApplicationMasterAccess value, string? AccessTypeFrom)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ApplicationMasterId", value.ApplicationMasterId);
+                parameters.Add("ApplicationMasterParentId", value.ApplicationMasterParentId);
+                parameters.Add("AccessTypeFrom", AccessTypeFrom, DbType.String);
+                var query = "select  * from ApplicationMasterAccess where  AccessTypeFrom=@AccessTypeFrom AND ApplicationMasterId=@ApplicationMasterId";
+                if (AccessTypeFrom == "AppMasterParent")
+                {
+                    query = "select  * from ApplicationMasterAccess where  AccessTypeFrom=@AccessTypeFrom AND ApplicationMasterParentId=@ApplicationMasterParentId";
+                }
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationMasterAccess>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ApplicationMasterAccess>> GetApplicationMasterAccessSecurityList(long? Id, string? AccessTypeFrom)
         {
             try
             {
@@ -209,7 +235,23 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n" +
                     "JOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
                     "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
-                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n WHERE t1.AccessTypeFrom=@AccessTypeFrom AND t1.ApplicationMasterId=@ApplicationMasterId";
+                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n WHERE t1.AccessTypeFrom=@AccessTypeFrom AND " +
+                    "t1.ApplicationMasterId=@ApplicationMasterId";
+                if (AccessTypeFrom == "AppMasterParent")
+                {
+                    query = "select t1.*,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.ApplicationMasterName,\r\n" +
+                   "t5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
+                   "t8.Name as DesignationName,\r\n" +
+                   "CONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\n" +
+                   "from ApplicationMasterAccess t1\r\n" +
+                   "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
+                   "LEFT JOIN ApplicationMasterParent t4 ON t4.ApplicationMasterParentCodeId=t1.ApplicationMasterId\r\n" +
+                   "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n" +
+                   "JOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
+                   "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
+                   "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n WHERE t1.AccessTypeFrom=@AccessTypeFrom AND " +
+                   "t1.ApplicationMasterParentId=@ApplicationMasterId";
+                }
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationMasterAccess>(query, parameters)).ToList();
@@ -226,7 +268,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    var userExitsRoles = await GetApplicationMasterAccessSecurityEmptyAsync(value.ApplicationMasterId, value.AccessTypeFrom);
+                    var userExitsRoles = await GetApplicationMasterAccessCheckSecurityEmptyAsync(value, value.AccessTypeFrom);
                     var userGroupUsers = await GetUserGroupUserList();
                     var LevelUsers = await GetLeveMasterUsersList(value.SelectLevelMasterIDs);
 
@@ -234,64 +276,44 @@ namespace Infrastructure.Repository.Query
                     {
                         var query = string.Empty;
                         var parameters = new DynamicParameters();
-                        parameters.Add("AccessTypeFrom", value.AccessTypeFrom,DbType.String);
+                        parameters.Add("AccessTypeFrom", value.AccessTypeFrom, DbType.String);
                         parameters.Add("UserType", value.UserType, DbType.String);
                         parameters.Add("ApplicationMasterId", value.ApplicationMasterId);
-                       
-                            if (value.UserType == "User")
+                        parameters.Add("ApplicationMasterParentId", value.ApplicationMasterParentId);
+                        if (value.UserType == "User")
+                        {
+                            if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
                             {
-                                if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
+                                foreach (var item in value.SelectUserIDs)
                                 {
-                                    foreach (var item in value.SelectUserIDs)
+                                    var counts = userExitsRoles.Where(w => w.UserId == item).FirstOrDefault();
+                                    if (counts == null)
                                     {
-                                        var counts = userExitsRoles.Where(w => w.UserId == item).FirstOrDefault();
-                                        if (counts == null)
-                                        {
-                                            query += "INSERT INTO [ApplicationMasterAccess](AccessTypeFrom,ApplicationMasterId,UserId,UserType) OUTPUT INSERTED.ApplicationMasterAccessId " +
-                                                "VALUES (@AccessTypeFrom,@ApplicationMasterId," + item + ",@UserType);\r\n";
+                                        query += "INSERT INTO [ApplicationMasterAccess](AccessTypeFrom,ApplicationMasterId,UserId,UserType,ApplicationMasterParentId) OUTPUT INSERTED.ApplicationMasterAccessId " +
+                                            "VALUES (@AccessTypeFrom,@ApplicationMasterId," + item + ",@UserType,@ApplicationMasterParentId);\r\n";
 
-                                        }
-                                        else
-                                        {
-                                            query += " UPDATE ApplicationMasterAccess SET AccessTypeFrom=@AccessTypeFrom,UserType=@UserType WHERE ApplicationMasterAccessId='" + counts.ApplicationMasterAccessId + "' AND ApplicationMasterId = @ApplicationMasterId;\r\n";
-                                        }
                                     }
-                                }
-                            }
-                            if (value.UserType == "UserGroup")
-                            {
-                                if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
-                                {
-                                    var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
-                                    if (userGropuIds != null && userGropuIds.Count > 0)
+                                    else
                                     {
-                                        userGropuIds.ForEach(s =>
-                                        {
-                                            var counts = userExitsRoles.Where(w => w.UserId == s.UserId).FirstOrDefault();
-                                            if (counts == null)
-                                            {
-                                                query += "INSERT INTO [ApplicationMasterAccess](AccessTypeFrom,ApplicationMasterId,UserId,UserGroupId,UserType) OUTPUT INSERTED.ApplicationMasterAccessId " +
-                                                    "VALUES (@AccessTypeFrom,@ApplicationMasterId," + s.UserId + "," + s.UserGroupId + ",@UserType);\r\n";
-                                            }
-                                            else
-                                            {
-                                                query += " UPDATE ApplicationMasterAccess SET AccessTypeFrom=@AccessTypeFrom,UserType=@UserType WHERE ApplicationMasterAccessId='" + counts.ApplicationMasterAccessId + "' AND ApplicationMasterId = @ApplicationMasterId;\r\n";
-                                            }
-                                        });
+                                        query += " UPDATE ApplicationMasterAccess SET AccessTypeFrom=@AccessTypeFrom,UserType=@UserType WHERE ApplicationMasterAccessId='" + counts.ApplicationMasterAccessId + "' AND ApplicationMasterId = @ApplicationMasterId;\r\n";
                                     }
                                 }
                             }
-                            if (value.UserType == "Level")
+                        }
+                        if (value.UserType == "UserGroup")
+                        {
+                            if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
                             {
-                                if (LevelUsers != null && LevelUsers.Count > 0)
+                                var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
+                                if (userGropuIds != null && userGropuIds.Count > 0)
                                 {
-                                    LevelUsers.ToList().ForEach(s =>
+                                    userGropuIds.ForEach(s =>
                                     {
                                         var counts = userExitsRoles.Where(w => w.UserId == s.UserId).FirstOrDefault();
                                         if (counts == null)
                                         {
-                                            query += "INSERT INTO [ApplicationMasterAccess](AccessTypeFrom,ApplicationMasterId,UserId,LevelId,UserType) OUTPUT INSERTED.ApplicationMasterAccessId " +
-                                                "VALUES (@AccessTypeFrom,@ApplicationMasterId," + s.UserId + "," + s.LevelId + ",@UserType);\r\n";
+                                            query += "INSERT INTO [ApplicationMasterAccess](AccessTypeFrom,ApplicationMasterId,UserId,UserGroupId,UserType,ApplicationMasterParentId) OUTPUT INSERTED.ApplicationMasterAccessId " +
+                                                "VALUES (@AccessTypeFrom,@ApplicationMasterId," + s.UserId + "," + s.UserGroupId + ",@UserType,@ApplicationMasterParentId);\r\n";
                                         }
                                         else
                                         {
@@ -300,7 +322,27 @@ namespace Infrastructure.Repository.Query
                                     });
                                 }
                             }
-                        
+                        }
+                        if (value.UserType == "Level")
+                        {
+                            if (LevelUsers != null && LevelUsers.Count > 0)
+                            {
+                                LevelUsers.ToList().ForEach(s =>
+                                {
+                                    var counts = userExitsRoles.Where(w => w.UserId == s.UserId).FirstOrDefault();
+                                    if (counts == null)
+                                    {
+                                        query += "INSERT INTO [ApplicationMasterAccess](AccessTypeFrom,ApplicationMasterId,UserId,LevelId,UserType,ApplicationMasterParentId) OUTPUT INSERTED.ApplicationMasterAccessId " +
+                                            "VALUES (@AccessTypeFrom,@ApplicationMasterId," + s.UserId + "," + s.LevelId + ",@UserType,@ApplicationMasterParentId);\r\n";
+                                    }
+                                    else
+                                    {
+                                        query += " UPDATE ApplicationMasterAccess SET AccessTypeFrom=@AccessTypeFrom,UserType=@UserType WHERE ApplicationMasterAccessId='" + counts.ApplicationMasterAccessId + "' AND ApplicationMasterId = @ApplicationMasterId;\r\n";
+                                    }
+                                });
+                            }
+                        }
+
                         if (!string.IsNullOrEmpty(query))
                         {
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);

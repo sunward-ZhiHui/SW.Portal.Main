@@ -148,7 +148,92 @@ namespace Infrastructure.Repository.Query
                         f.Remarks = dateRangeModel.Remarks;
                     });
                 }
-
+                if(acreports!=null && acreports.Count()>0)
+                {
+                    acreports.ForEach(s =>
+                    {
+                        s.ApexQty = s.ApexQty == 0 ? null : s.ApexQty;
+                        s.AntahQty = s.AntahQty == 0 ? null : s.AntahQty;
+                        s.MissQty = s.MissQty == 0 ? null : s.MissQty;
+                        s.PxQty = s.PxQty == 0 ? null : s.PxQty;
+                        s.DeliverynotReceived = s.DeliverynotReceived == 0 ? null : s.DeliverynotReceived;
+                        s.SymlQty = s.SymlQty == 0 ? null : s.SymlQty;
+                        s.Rework_ = s.Rework == 0 ? null : s.Rework;
+                        s.AcSum_ = s.AcSum == 0 ? null : s.AcSum;
+                        s.ThreeMonthACQty_ = s.ThreeMonthACQty == 0 ? null : s.ThreeMonthACQty;
+                        s.Roundup1_ = s.Roundup1 == 0 ? null : s.Roundup1;
+                        s.Roundup2_ = s.Roundup2 == 0 ? null : s.Roundup2;
+                        s.PreApexStockBalance_ = s.PreApexStockBalance == 0 ? null : s.PreApexStockBalance;
+                        s.PreAntahStockBalance_ = s.PreAntahStockBalance == 0 ? null : s.PreAntahStockBalance;
+                        s.PreMsbStockBalance_ = s.PreMsbStockBalance == 0 ? null : s.PreMsbStockBalance;
+                        s.PrePsbStockBalance_ = s.PrePsbStockBalance == 0 ? null : s.PrePsbStockBalance;
+                        s.PreSgTenderStockBalance_ = s.PreSgTenderStockBalance == 0 ? null : s.PreSgTenderStockBalance;
+                        s.WipQty_ = s.WipQty == 0 ? null : s.WipQty;
+                        s.PreMyStockBalance_ = s.PreMyStockBalance == 0 ? null : s.PreMyStockBalance;
+                        s.PreOtherStoreQty_ = s.PreOtherStoreQty == 0 ? null : s.PreOtherStoreQty;
+                        s.PrewipQty_ = s.PrewipQty == 0 ? null : s.PrewipQty;
+                        s.PreStockBalance_ = s.PreStockBalance == 0 ? null : s.PreStockBalance;
+                        s.PreStockHoldingBalance_ = s.PreStockHoldingBalance == 0 ? null : s.PreStockHoldingBalance;
+                        s.ApexStockBalance_ = s.ApexStockBalance == 0 ? null : s.ApexStockBalance;
+                        s.AntahStockBalance_ = s.AntahStockBalance == 0 ? null : s.AntahStockBalance;
+                        s.MsbStockBalance_ = s.MsbStockBalance == 0 ? null : s.MsbStockBalance;
+                        s.PsbStockBalance_ = s.PsbStockBalance == 0 ? null : s.PsbStockBalance;
+                        s.SgTenderStockBalance_ = s.SgTenderStockBalance == 0 ? null : s.SgTenderStockBalance;
+                        s.MyStockBalance_ = s.MyStockBalance == 0 ? null : s.MyStockBalance;
+                        s.OtherStoreQty_ = s.OtherStoreQty == 0 ? null : s.OtherStoreQty;
+                        s.InterCompanyTransitQty_ = s.InterCompanyTransitQty == 0 ? null : s.InterCompanyTransitQty;
+                        s.StockBalance_ = s.StockBalance == 0 ? null : s.StockBalance;
+                        s.StockHoldingBalance_ = s.StockHoldingBalance == 0 ? null : s.StockHoldingBalance;
+                        s.BlanketAddhoc1_ = s.BlanketAddhoc1 == 0 ? null : s.BlanketAddhoc1;
+                        s.Month1_ = s.Month1 == 0 ? null : s.Month1;
+                        s.ProjectedHoldingStock1_ = s.ProjectedHoldingStock1 == 0 ? null : s.ProjectedHoldingStock1;
+                        s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                        s.BlanketAddhoc2_ = s.BlanketAddhoc2 == 0 ? null : s.BlanketAddhoc2;
+                        s.Month2_ = s.Month2 == 0 ? null : s.Month2;
+                        s.ProjectedHoldingStock2_ = s.ProjectedHoldingStock2 == 0 ? null : s.ProjectedHoldingStock2;
+                        s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
+                        s.BlanketAddhoc3_ = s.BlanketAddhoc3 == 0 ? null : s.BlanketAddhoc3;
+                        s.Month3_ = s.Month3 == 0 ? null : s.Month3;
+                        s.ProjectedHoldingStock3_ = s.ProjectedHoldingStock3 == 0 ? null : s.ProjectedHoldingStock3;
+                        s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
+                        s.BlanketAddhoc4_ = s.BlanketAddhoc4 == 0 ? null : s.BlanketAddhoc4;
+                        s.Month4_ = s.Month4 == 0 ? null : s.Month4;
+                        s.ProjectedHoldingStock4_ = s.ProjectedHoldingStock4 == 0 ? null : s.ProjectedHoldingStock4;
+                        s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
+                        s.BlanketAddhoc5_ = s.BlanketAddhoc5 == 0 ? null : s.BlanketAddhoc5;
+                        s.Month5_ = s.Month5 == 0 ? null : s.Month5;
+                        s.ProjectedHoldingStock5_ = s.ProjectedHoldingStock5 == 0 ? null : s.ProjectedHoldingStock5;
+                        s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
+                        s.BlanketAddhoc6_ = s.BlanketAddhoc6 == 0 ? null : s.BlanketAddhoc6;
+                        s.Month6_ = s.Month6 == 0 ? null : s.Month6;
+                        s.ProjectedHoldingStock6_ = s.ProjectedHoldingStock6 == 0 ? null : s.ProjectedHoldingStock6;
+                        s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
+                        s.BlanketAddhoc7_ = s.BlanketAddhoc7 == 0 ? null : s.BlanketAddhoc7;
+                        s.Month7_ = s.Month7 == 0 ? null : s.Month7;
+                        s.ProjectedHoldingStock7_ = s.ProjectedHoldingStock7 == 0 ? null : s.ProjectedHoldingStock7;
+                        s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                        s.BlanketAddhoc8_ = s.BlanketAddhoc8 == 0 ? null : s.BlanketAddhoc8;
+                        s.Month8_ = s.Month8 == 0 ? null : s.Month8;
+                        s.ProjectedHoldingStock8_ = s.ProjectedHoldingStock8 == 0 ? null : s.ProjectedHoldingStock8;
+                        s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                        s.BlanketAddhoc9_ = s.BlanketAddhoc9 == 0 ? null : s.BlanketAddhoc9;
+                        s.Month9_ = s.Month9 == 0 ? null : s.Month9;
+                        s.ProjectedHoldingStock9_ = s.ProjectedHoldingStock9 == 0 ? null : s.ProjectedHoldingStock9;
+                        s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                        s.BlanketAddhoc10_ = s.BlanketAddhoc10 == 0 ? null : s.BlanketAddhoc10;
+                        s.Month10_ = s.Month10 == 0 ? null : s.Month10;
+                        s.ProjectedHoldingStock10_ = s.ProjectedHoldingStock10 == 0 ? null : s.ProjectedHoldingStock10;
+                        s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                        s.BlanketAddhoc11_ = s.BlanketAddhoc11 == 0 ? null : s.BlanketAddhoc11;
+                        s.Month11_ = s.Month11 == 0 ? null : s.Month11;
+                        s.ProjectedHoldingStock11_ = s.ProjectedHoldingStock11 == 0 ? null : s.ProjectedHoldingStock11;
+                        s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                        s.BlanketAddhoc12_ = s.BlanketAddhoc12 == 0 ? null : s.BlanketAddhoc12;
+                        s.Month12_ = s.Month12 == 0 ? null : s.Month12;
+                        s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
+                        s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                    });
+                }
                 return acreports;
             }
             catch (Exception exp)
@@ -1346,7 +1431,92 @@ namespace Infrastructure.Repository.Query
                     f.Remarks = dateRangeModel.Remarks;
                 });
             }
-
+            if (acreports != null && acreports.Count() > 0)
+            {
+                acreports.ForEach(s =>
+                {
+                    s.ApexQty = s.ApexQty == 0 ? null : s.ApexQty;
+                    s.AntahQty = s.AntahQty == 0 ? null : s.AntahQty;
+                    s.MissQty = s.MissQty == 0 ? null : s.MissQty;
+                    s.PxQty = s.PxQty == 0 ? null : s.PxQty;
+                    s.DeliverynotReceived = s.DeliverynotReceived == 0 ? null : s.DeliverynotReceived;
+                    s.SymlQty = s.SymlQty == 0 ? null : s.SymlQty;
+                    s.Rework_ = s.Rework == 0 ? null : s.Rework;
+                    s.AcSum_ = s.AcSum == 0 ? null : s.AcSum;
+                    s.ThreeMonthACQty_ = s.ThreeMonthACQty == 0 ? null : s.ThreeMonthACQty;
+                    s.Roundup1_ = s.Roundup1 == 0 ? null : s.Roundup1;
+                    s.Roundup2_ = s.Roundup2 == 0 ? null : s.Roundup2;
+                    s.PreApexStockBalance_ = s.PreApexStockBalance == 0 ? null : s.PreApexStockBalance;
+                    s.PreAntahStockBalance_ = s.PreAntahStockBalance == 0 ? null : s.PreAntahStockBalance;
+                    s.PreMsbStockBalance_ = s.PreMsbStockBalance == 0 ? null : s.PreMsbStockBalance;
+                    s.PrePsbStockBalance_ = s.PrePsbStockBalance == 0 ? null : s.PrePsbStockBalance;
+                    s.PreSgTenderStockBalance_ = s.PreSgTenderStockBalance == 0 ? null : s.PreSgTenderStockBalance;
+                    s.WipQty_ = s.WipQty == 0 ? null : s.WipQty;
+                    s.PreMyStockBalance_ = s.PreMyStockBalance == 0 ? null : s.PreMyStockBalance;
+                    s.PreOtherStoreQty_ = s.PreOtherStoreQty == 0 ? null : s.PreOtherStoreQty;
+                    s.PrewipQty_ = s.PrewipQty == 0 ? null : s.PrewipQty;
+                    s.PreStockBalance_ = s.PreStockBalance == 0 ? null : s.PreStockBalance;
+                    s.PreStockHoldingBalance_ = s.PreStockHoldingBalance == 0 ? null : s.PreStockHoldingBalance;
+                    s.ApexStockBalance_ = s.ApexStockBalance == 0 ? null : s.ApexStockBalance;
+                    s.AntahStockBalance_ = s.AntahStockBalance == 0 ? null : s.AntahStockBalance;
+                    s.MsbStockBalance_ = s.MsbStockBalance == 0 ? null : s.MsbStockBalance;
+                    s.PsbStockBalance_ = s.PsbStockBalance == 0 ? null : s.PsbStockBalance;
+                    s.SgTenderStockBalance_ = s.SgTenderStockBalance == 0 ? null : s.SgTenderStockBalance;
+                    s.MyStockBalance_ = s.MyStockBalance == 0 ? null : s.MyStockBalance;
+                    s.OtherStoreQty_ = s.OtherStoreQty == 0 ? null : s.OtherStoreQty;
+                    s.InterCompanyTransitQty_ = s.InterCompanyTransitQty == 0 ? null : s.InterCompanyTransitQty;
+                    s.StockBalance_ = s.StockBalance == 0 ? null : s.StockBalance;
+                    s.StockHoldingBalance_ = s.StockHoldingBalance == 0 ? null : s.StockHoldingBalance;
+                    s.BlanketAddhoc1_ = s.BlanketAddhoc1 == 0 ? null : s.BlanketAddhoc1;
+                    s.Month1_ = s.Month1 == 0 ? null : s.Month1;
+                    s.ProjectedHoldingStock1_ = s.ProjectedHoldingStock1 == 0 ? null : s.ProjectedHoldingStock1;
+                    s.ProductionProjected1_ = s.ProductionProjected1 == 0 ? null : s.ProductionProjected1;
+                    s.BlanketAddhoc2_ = s.BlanketAddhoc2 == 0 ? null : s.BlanketAddhoc2;
+                    s.Month2_ = s.Month2 == 0 ? null : s.Month2;
+                    s.ProjectedHoldingStock2_ = s.ProjectedHoldingStock2 == 0 ? null : s.ProjectedHoldingStock2;
+                    s.ProductionProjected2_ = s.ProductionProjected2 == 0 ? null : s.ProductionProjected2;
+                    s.BlanketAddhoc3_ = s.BlanketAddhoc3 == 0 ? null : s.BlanketAddhoc3;
+                    s.Month3_ = s.Month3 == 0 ? null : s.Month3;
+                    s.ProjectedHoldingStock3_ = s.ProjectedHoldingStock3 == 0 ? null : s.ProjectedHoldingStock3;
+                    s.ProductionProjected3_ = s.ProductionProjected3 == 0 ? null : s.ProductionProjected3;
+                    s.BlanketAddhoc4_ = s.BlanketAddhoc4 == 0 ? null : s.BlanketAddhoc4;
+                    s.Month4_ = s.Month4 == 0 ? null : s.Month4;
+                    s.ProjectedHoldingStock4_ = s.ProjectedHoldingStock4 == 0 ? null : s.ProjectedHoldingStock4;
+                    s.ProductionProjected4_ = s.ProductionProjected4 == 0 ? null : s.ProductionProjected4;
+                    s.BlanketAddhoc5_ = s.BlanketAddhoc5 == 0 ? null : s.BlanketAddhoc5;
+                    s.Month5_ = s.Month5 == 0 ? null : s.Month5;
+                    s.ProjectedHoldingStock5_ = s.ProjectedHoldingStock5 == 0 ? null : s.ProjectedHoldingStock5;
+                    s.ProductionProjected5_ = s.ProductionProjected5 == 0 ? null : s.ProductionProjected5;
+                    s.BlanketAddhoc6_ = s.BlanketAddhoc6 == 0 ? null : s.BlanketAddhoc6;
+                    s.Month6_ = s.Month6 == 0 ? null : s.Month6;
+                    s.ProjectedHoldingStock6_ = s.ProjectedHoldingStock6 == 0 ? null : s.ProjectedHoldingStock6;
+                    s.ProductionProjected6_ = s.ProductionProjected6 == 0 ? null : s.ProductionProjected6;
+                    s.BlanketAddhoc7_ = s.BlanketAddhoc7 == 0 ? null : s.BlanketAddhoc7;
+                    s.Month7_ = s.Month7 == 0 ? null : s.Month7;
+                    s.ProjectedHoldingStock7_ = s.ProjectedHoldingStock7 == 0 ? null : s.ProjectedHoldingStock7;
+                    s.ProductionProjected7_ = s.ProductionProjected7 == 0 ? null : s.ProductionProjected7;
+                    s.BlanketAddhoc8_ = s.BlanketAddhoc8 == 0 ? null : s.BlanketAddhoc8;
+                    s.Month8_ = s.Month8 == 0 ? null : s.Month8;
+                    s.ProjectedHoldingStock8_ = s.ProjectedHoldingStock8 == 0 ? null : s.ProjectedHoldingStock8;
+                    s.ProductionProjected8_ = s.ProductionProjected8 == 0 ? null : s.ProductionProjected8;
+                    s.BlanketAddhoc9_ = s.BlanketAddhoc9 == 0 ? null : s.BlanketAddhoc9;
+                    s.Month9_ = s.Month9 == 0 ? null : s.Month9;
+                    s.ProjectedHoldingStock9_ = s.ProjectedHoldingStock9 == 0 ? null : s.ProjectedHoldingStock9;
+                    s.ProductionProjected9_ = s.ProductionProjected9 == 0 ? null : s.ProductionProjected9;
+                    s.BlanketAddhoc10_ = s.BlanketAddhoc10 == 0 ? null : s.BlanketAddhoc10;
+                    s.Month10_ = s.Month10 == 0 ? null : s.Month10;
+                    s.ProjectedHoldingStock10_ = s.ProjectedHoldingStock10 == 0 ? null : s.ProjectedHoldingStock10;
+                    s.ProductionProjected10_ = s.ProductionProjected10 == 0 ? null : s.ProductionProjected10;
+                    s.BlanketAddhoc11_ = s.BlanketAddhoc11 == 0 ? null : s.BlanketAddhoc11;
+                    s.Month11_ = s.Month11 == 0 ? null : s.Month11;
+                    s.ProjectedHoldingStock11_ = s.ProjectedHoldingStock11 == 0 ? null : s.ProjectedHoldingStock11;
+                    s.ProductionProjected11_ = s.ProductionProjected11 == 0 ? null : s.ProductionProjected11;
+                    s.BlanketAddhoc12_ = s.BlanketAddhoc12 == 0 ? null : s.BlanketAddhoc12;
+                    s.Month12_ = s.Month12 == 0 ? null : s.Month12;
+                    s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
+                    s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                });
+            }
             return acreports.OrderBy(o => o.ItemNo).ToList();
 
         }

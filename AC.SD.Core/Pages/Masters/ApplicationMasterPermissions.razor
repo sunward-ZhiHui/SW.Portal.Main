@@ -143,6 +143,8 @@
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
     [Parameter]
+    public ApplicationMasterParent ApplicationMasterParent { get; set; }
+    [Parameter]
     public string? AccessTypeFrom { get; set; }
     public long ApplicationMasterId { get; set; }
     private bool loading;
@@ -154,8 +156,22 @@
     int ActiveTabSecIndex { get; set; } = 0;
     protected override async Task OnInitializedAsync()
     {
-        Data.ApplicationMasterId = SelectedItems.ApplicationMasterId;
-        ApplicationMasterId = SelectedItems.ApplicationMasterId;
+        if (SelectedItems != null && AccessTypeFrom == "AppMaster")
+        {
+            if (SelectedItems.ApplicationMasterId > 0)
+            {
+                Data.ApplicationMasterId = SelectedItems.ApplicationMasterId;
+                ApplicationMasterId = SelectedItems.ApplicationMasterId;
+            }
+        }
+        if (ApplicationMasterParent != null && AccessTypeFrom == "AppMasterParent")
+        {
+            if (ApplicationMasterParent.ApplicationMasterParentCodeId > 0)
+            {
+                Data.ApplicationMasterParentId = ApplicationMasterParent?.ApplicationMasterParentCodeId;
+                ApplicationMasterId = ApplicationMasterParent.ApplicationMasterParentCodeId;
+            }
+        }
         _userGroupsList = await Mediator.Send(new GetUserGroups());
         _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
         Data.UserType = "User";
@@ -206,7 +222,7 @@
         var levelCount = Data.SelectLevelMasterIDs == null ? 0 : Data.SelectLevelMasterIDs.Count();
         loading = true;
         var response = await Mediator.Send(new InsertApplicationMasterAccessSecurity(Data));
-        if (response.ApplicationMasterId > 0)
+        if (response.ApplicationMasterId > 0 || response.ApplicationMasterParentId > 0)
         {
             Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;
             toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);

@@ -29,6 +29,7 @@
                                         <Items>
                                             <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addMasterNew" Enabled="@AddMasterEnabled" />
                                             <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addMasterEdit" Enabled="@EditMasterEnabled" />
+                                            <DxMenuItem Text="Access Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditPermissionEnabled" />
                                         </Items>
                                     </DxMenu>
                                     <DxLoadingPanel @bind-Visible="PanelVisible"
@@ -435,6 +436,20 @@
         <DxButton Text="OK" Click="@(() => CloseChildChildPopup())" />
     </div>
 </DxPopup>
+<DxPopup @bind-Visible="@addPermissionEnabled"
+         ShowFooter="true"
+         HeaderText="Add Permission Control"
+         Closed="EulaPermissionClosed"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <ApplicationMasterPermissions ApplicationMasterParent="@_selectItems" AccessTypeFrom="AppMasterParent" applicationUser="@applicationUser"></ApplicationMasterPermissions>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     public int ActiveTabIndex { get; set; } = 0;
     IGrid? MasterGrid { get; set; }
@@ -491,6 +506,9 @@
     bool AddMasterEnabled { get; set; } = false;
     bool EditMasterEnabled { get; set; } = false;
     private List<OpenAccessUserLink> _openAccessUserLink { get; set; }
+     bool addPermissionEnabled { get; set; } = false;
+    private List<ApplicationMasterAccess> _applicationMasterAccess { get; set; }
+    bool EditPermissionEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -498,8 +516,8 @@
     }
     async Task loadMAsterItems()
     {
-        _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
-        DisplayParent = "";
+        _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterParentQuery()); _applicationMasterAccess = new List<ApplicationMasterAccess>();
+        DisplayParent = ""; EditPermissionEnabled = false;
         ChildHeaderName = ""; ActiveTabIndex = 0;
         EditChildEnabled = false;
         DeleteChildEnabled = false;
@@ -518,18 +536,18 @@
             _selectItems = _applicationMasterAllItems.FirstOrDefault();
             MasterGrid.ClearSelection();
         }
-        if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
-        {
-            AddMasterEnabled = false;
-            var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
-            if (userExits != null)
-            {
-                if (userExits.IsAdd == true)
-                {
-                    AddMasterEnabled = true;
-                }
-            }
-        }
+        // if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
+        // {
+        //     AddMasterEnabled = false;
+        //     var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+        //     if (userExits != null)
+        //     {
+        //         if (userExits.IsAdd == true)
+        //         {
+        //             AddMasterEnabled = true;
+        //         }
+        //     }
+        // }
         PanelVisible = false;
         StateHasChanged();
     }
@@ -546,9 +564,23 @@
             childChildTabEnabled = false;
         }
     }
+    void addPermission()
+    {
+        addPermissionEnabled = true;
+    }
+    async Task EulaPermissionClosed(PopupClosedEventArgs args)
+    {
+        await loadMAsterItems();
+        addPermissionEnabled = false;
+    }
+    async Task CloseAddPermissionEnabled()
+    {
+        await loadMAsterItems();
+        addPermissionEnabled = false;
+    }
     async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
-        DisplayParent = "";
+        DisplayParent = ""; EditPermissionEnabled = true;
         ChildHeaderName = "";
         SelectedDataItems = SelectedToItems;
         ActiveTabIndex = 0;
@@ -568,18 +600,19 @@
                 if (item is ApplicationMasterParent masterData)
                 {
                     AddEnabled = true; EditMasterEnabled = true;
-                    if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
-                    {
-                        EditMasterEnabled = false;
-                        var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
-                        if (userExits != null)
-                        {
-                            if (userExits.IsEdit == true)
-                            {
-                                EditMasterEnabled = true;
-                            }
-                        }
-                    }
+                   // if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
+                    //{
+                       // EditMasterEnabled = false;
+                       // var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+                       // if (userExits != null)
+                       // {
+                           // if (userExits.IsEdit == true)
+                           // {
+                           //     EditMasterEnabled = true;
+                           //}
+                        //}
+                   // }
+                    _applicationMasterAccess = await Mediator.Send(new GetApplicationMasterAccessSecurityByMaster(masterData.ApplicationMasterParentCodeId, "AppMasterParent"));
                     _selectItems = masterData;
                     var nameList = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == masterData.ApplicationMasterParentCodeId);
                     if (nameList != null)
@@ -615,6 +648,17 @@
             _selectedItems = _applicationMasterDetails.FirstOrDefault();
             EditEnabled = true; EditNewChildEnabled = true; DeleteEnabled = true;
             Grid.SetFocusedRowIndex(0);
+        }
+        if (_applicationMasterAccess != null && _applicationMasterAccess.Count() > 0)
+        {
+            EditEnabled = false;
+            DeleteEnabled = false; AddEnabled = false;
+            var userExits = _applicationMasterAccess.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+            if (userExits != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true; AddEnabled = true;
+            }
         }
         StateHasChanged();
 

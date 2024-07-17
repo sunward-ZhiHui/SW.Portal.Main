@@ -27,6 +27,8 @@ using DevExpress.CodeParser;
 using Newtonsoft.Json.Linq;
 using Method = RestSharp.Method;
 using Microsoft.Ajax.Utilities;
+using Core.Repositories.Query.Base;
+using Microsoft.AspNetCore.Http.HttpResults;
 namespace SW.Portal.Solutions.Controllers
 {
     [Route("api/[controller]")]
@@ -140,5 +142,8 @@ namespace SW.Portal.Solutions.Controllers
             RestResponse response = client.Get(request);
             return JsonConvert.DeserializeObject<dynamic>(response.Content);
         }
+
     }
+
+    
 }

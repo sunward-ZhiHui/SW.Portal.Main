@@ -218,5 +218,9 @@ namespace Application.Queries
             this.AttributeId = attributeId;
         }
     }
+    public class GetQcTestRequirementSummery : PagedRequest, IRequest<List<QCTestRequirement>>
+    {
+    }
+
 
 }

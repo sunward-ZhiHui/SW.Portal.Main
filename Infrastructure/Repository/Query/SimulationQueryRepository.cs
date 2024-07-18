@@ -148,7 +148,7 @@ namespace Infrastructure.Repository.Query
                         f.Remarks = dateRangeModel.Remarks;
                     });
                 }
-                if(acreports!=null && acreports.Count()>0)
+                if (acreports != null && acreports.Count() > 0)
                 {
                     acreports.ForEach(s =>
                     {
@@ -232,6 +232,258 @@ namespace Infrastructure.Repository.Query
                         s.Month12_ = s.Month12 == 0 ? null : s.Month12;
                         s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
                         s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                        var GroupTicket1 = s.GroupItemTicket1 + "," + s.GroupTicket1;
+                        if (GroupTicket1 != null)
+                        {
+                            var tic1 = GroupTicket1.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick1_ = tic1.Distinct().ToList(); s.Ticket1 = "";
+                            if (tick1_ != null && tick1_.Count > 0)
+                            {
+                                tick1_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket1 += tic1.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket1))
+                                        {
+                                            s.Ticket1 += s.NoOfTicket1 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket1 += s.ProdOrderNo1;
+                        }
+                        var GroupTicket2 = s.GroupItemTicket2 + "," + s.GroupTicket2;
+                        if (GroupTicket2 != null)
+                        {
+                            var tic2 = GroupTicket2.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick2_ = tic2.Distinct().ToList(); s.Ticket2 = "";
+                            if (tick2_ != null && tick2_.Count > 0)
+                            {
+                                tick2_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket2 += tic2.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket2))
+                                        {
+                                            s.Ticket2 += s.NoOfTicket2 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket2 += s.ProdOrderNo2;
+                        }
+                        var GroupTicket3 = s.GroupItemTicket3 + "," + s.GroupTicket3;
+                        if (GroupTicket3 != null)
+                        {
+                            var tic3 = GroupTicket3.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick3_ = tic3.Distinct().ToList(); s.Ticket3 = "";
+                            if (tick3_ != null && tick3_.Count > 0)
+                            {
+                                tick3_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket3 += tic3.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket3))
+                                        {
+                                            s.Ticket3 += s.NoOfTicket3 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket3 += s.ProdOrderNo3;
+                        }
+                        var GroupTicket4 = s.GroupItemTicket4 + "," + s.GroupTicket4;
+                        if (GroupTicket4 != null)
+                        {
+                            var tic4 = GroupTicket4.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick4_ = tic4.Distinct().ToList(); s.Ticket4 = "";
+                            if (tick4_ != null && tick4_.Count > 0)
+                            {
+                                tick4_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket4 += tic4.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket4))
+                                        {
+                                            s.Ticket4 += s.NoOfTicket4 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket4 += s.ProdOrderNo4;
+                        }
+                        var GroupTicket5 = s.GroupItemTicket5 + "," + s.GroupTicket5;
+                        if (GroupTicket5 != null)
+                        {
+                            var tic5 = GroupTicket5.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick5_ = tic5.Distinct().ToList(); s.Ticket5 = "";
+                            if (tick5_ != null && tick5_.Count > 0)
+                            {
+                                tick5_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket5 += tic5.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket5))
+                                        {
+                                            s.Ticket5 += s.NoOfTicket5 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket5 += s.ProdOrderNo5;
+                        }
+                        var GroupTicket6 = s.GroupItemTicket6 + "," + s.GroupTicket6;
+                        if (GroupTicket6 != null)
+                        {
+                            var tic6 = GroupTicket6.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick6_ = tic6.Distinct().ToList(); s.Ticket6 = "";
+                            if (tick6_ != null && tick6_.Count > 0)
+                            {
+                                tick6_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket6 += tic6.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket6))
+                                        {
+                                            s.Ticket6 += s.NoOfTicket6 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket6 += s.ProdOrderNo6;
+                        }
+                        var GroupTicket7 = s.GroupItemTicket7 + "," + s.GroupTicket7;
+                        if (GroupTicket7 != null)
+                        {
+                            var tic7 = GroupTicket7.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick7_ = tic7.Distinct().ToList(); s.Ticket7 = "";
+                            if (tick7_ != null && tick7_.Count > 0)
+                            {
+                                tick7_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket7 += tic7.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket7))
+                                        {
+                                            s.Ticket7 += s.NoOfTicket7 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket7 += s.ProdOrderNo7;
+                        }
+                        var GroupTicket8 = s.GroupItemTicket8 + "," + s.GroupTicket8;
+                        if (GroupTicket8 != null)
+                        {
+                            var tic8 = GroupTicket8.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick8_ = tic8.Distinct().ToList(); s.Ticket8 = "";
+                            if (tick8_ != null && tick8_.Count > 0)
+                            {
+                                tick8_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket8 += tic8.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket8))
+                                        {
+                                            s.Ticket8 += s.NoOfTicket8 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket8 += s.ProdOrderNo8;
+                        }
+                        var GroupTicket9 = s.GroupItemTicket9 + "," + s.GroupTicket9;
+                        if (GroupTicket9 != null)
+                        {
+                            var tic9 = GroupTicket9.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick9_ = tic9.Distinct().ToList(); s.Ticket9 = "";
+                            if (tick9_ != null && tick9_.Count > 0)
+                            {
+                                tick9_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket9 += tic9.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket9))
+                                        {
+                                            s.Ticket9 += s.NoOfTicket9 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket9 += s.ProdOrderNo9;
+                        }
+                        var GroupTicket10 = s.GroupItemTicket10 + "," + s.GroupTicket10;
+                        if (GroupTicket10 != null)
+                        {
+                            var tic10 = GroupTicket10.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick10_ = tic10.Distinct().ToList(); s.Ticket10 = "";
+                            if (tick10_ != null && tick10_.Count > 0)
+                            {
+                                tick10_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket10 += tic10.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket10))
+                                        {
+                                            s.Ticket10 += s.NoOfTicket10 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket10 += s.ProdOrderNo10;
+                        }
+                        var GroupTicket11 = s.GroupItemTicket11 + "," + s.GroupTicket11;
+                        if (GroupTicket11 != null)
+                        {
+                            var tic11 = GroupTicket11.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick11_ = tic11.Distinct().ToList(); s.Ticket11 = "";
+                            if (tick11_ != null && tick11_.Count > 0)
+                            {
+                                tick11_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket11 += tic11.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket11))
+                                        {
+                                            s.Ticket11 += s.NoOfTicket11 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket11 += s.ProdOrderNo11;
+                        }
+                        var GroupTicket12 = s.GroupItemTicket12 + "," + s.GroupTicket12;
+                        if (GroupTicket12 != null)
+                        {
+                            var tic12 = GroupTicket12.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                            var tick12_ = tic12.Distinct().ToList(); s.Ticket12 = "";
+                            if (tick12_ != null && tick12_.Count > 0)
+                            {
+                                tick12_.ForEach(a =>
+                                {
+                                    if (!string.IsNullOrEmpty(a))
+                                    {
+                                        s.Ticket12 += tic12.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                        if (!string.IsNullOrEmpty(s.NoOfTicket12))
+                                        {
+                                            s.Ticket12 += s.NoOfTicket12 + "/";
+                                        }
+                                    }
+                                });
+                            }
+                            s.Ticket12 += s.ProdOrderNo12;
+                        }
                     });
                 }
                 return acreports;
@@ -750,6 +1002,34 @@ namespace Infrastructure.Repository.Query
                             Month12 = stockHoldingBalance > 12 ? stockHoldingBalance - 12 : 0,
                             DeliverynotReceived = inTransitQty,//doNotReceivedList.Where(d => d.ItemNo == ac.No && d.IsRecived == false).Sum(s => s.DoQty),
 
+                            GroupItemTicket1 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket2 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket3 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month3 && t.StartDate.Value.Year == year3).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket4 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month4 && t.StartDate.Value.Year == year4).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket5 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month5 && t.StartDate.Value.Year == year5).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket6 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month6 && t.StartDate.Value.Year == year6).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket7 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month7 && t.StartDate.Value.Year == year7).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket8 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month8 && t.StartDate.Value.Year == year8).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket9 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month9 && t.StartDate.Value.Year == year9).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket10 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month10 && t.StartDate.Value.Year == year10).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket11 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month11 && t.StartDate.Value.Year == year11).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket12 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month12 && t.StartDate.Value.Year == year12).Select(s => s.Quantity).ToList()),
+
+                            NoOfTicket1 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket2 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket3 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month3 && t.StartDate.Value.Year == year3).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket4 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month4 && t.StartDate.Value.Year == year4).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket5 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month5 && t.StartDate.Value.Year == year5).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket6 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month6 && t.StartDate.Value.Year == year6).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket7 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month7 && t.StartDate.Value.Year == year7).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket8 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month8 && t.StartDate.Value.Year == year8).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket9 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month9 && t.StartDate.Value.Year == year9).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket10 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month10 && t.StartDate.Value.Year == year10).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket11 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month11 && t.StartDate.Value.Year == year11).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket12 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month12 && t.StartDate.Value.Year == year12).Select(s => s.NoOfTicket).ToList()),
+
+
+
                             Ticket1 = string.Format("{0}/{1}", string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Select(s => s.Quantity).ToList()), string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Select(s => s.NoOfTicket).ToList())),
                             Ticket2 = string.Format("{0}/{1}", string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Select(s => s.Quantity).ToList()), string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Select(s => s.NoOfTicket).ToList())),
                             Ticket3 = string.Format("{0}/{1}", string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month3 && t.StartDate.Value.Year == year3).Select(s => s.Quantity).ToList()), string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month3 && t.StartDate.Value.Year == year3).Select(s => s.NoOfTicket).ToList())),
@@ -888,19 +1168,59 @@ namespace Infrastructure.Repository.Query
                 var itemNos = itemMasterforReport.Where(i => i.GenericCodeId == f.GenericCodeID).Select(s => s.ItemId).ToList();
                 var item_Nos = itemMasterforReport.Where(i => i.GenericCodeId == f.GenericCodeID).Select(s => s.No).ToList();
 
-                f.Ticket1 = f.Ticket1 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket2 = f.Ticket2 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket3 = f.Ticket3 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket4 = f.Ticket4 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket5 = f.Ticket5 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket6 = f.Ticket6 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket7 = f.Ticket7 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket8 = f.Ticket8 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket9 = f.Ticket9 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket10 = f.Ticket10 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket11 = f.Ticket11 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket12 = f.Ticket12 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList()));
 
+                f.GroupTicket1 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList());
+                f.GroupTicket2 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList());
+                f.GroupTicket3 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.Quantity).ToList());
+                f.GroupTicket4 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.Quantity).ToList());
+                f.GroupTicket5 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.Quantity).ToList());
+                f.GroupTicket6 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.Quantity).ToList());
+                f.GroupTicket7 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.Quantity).ToList());
+                f.GroupTicket8 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.Quantity).ToList());
+                f.GroupTicket9 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.Quantity).ToList());
+                f.GroupTicket10 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.Quantity).ToList());
+                f.GroupTicket11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList());
+                f.GroupTicket12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList());
+
+                f.ProdOrderNo1 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo2 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo3 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo4 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo5 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo6 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo7 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo8 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo9 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo10 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList());
+
+                f.ProTicket1 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket2 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket3 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket4 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket5 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket6 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket7 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket8 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket9 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket10 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket11 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket12 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList()));
+
+
+                f.Ticket1 = f.Ticket1 + f.ProTicket1;
+                f.Ticket2 = f.Ticket2 + f.ProTicket2;
+                f.Ticket3 = f.Ticket3 + f.ProTicket3;
+                f.Ticket4 = f.Ticket4 + f.ProTicket4;
+                f.Ticket5 = f.Ticket5 + f.ProTicket5;
+                f.Ticket6 = f.Ticket6 + f.ProTicket6;
+                f.Ticket7 = f.Ticket7 + f.ProTicket7;
+                f.Ticket8 = f.Ticket8 + f.ProTicket8;
+                f.Ticket9 = f.Ticket9 + f.ProTicket9;
+                f.Ticket10 = f.Ticket10 + f.ProTicket10;
+                f.Ticket11 = f.Ticket11 + f.ProTicket11;
+                f.Ticket12 = f.Ticket12 + f.ProTicket12;
 
                 f.ProjectedHoldingStock1 += f.AcSum > 0 ? grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Sum(s => s.TotalQuantity.Value) / (f.AcSum) : grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Sum(s => s.TotalQuantity.Value);
                 f.ProjectedHoldingStock2 += f.AcSum > 0 ? grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Sum(s => s.TotalQuantity.Value) / (f.AcSum) : grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Sum(s => s.TotalQuantity.Value);
@@ -1515,6 +1835,258 @@ namespace Infrastructure.Repository.Query
                     s.Month12_ = s.Month12 == 0 ? null : s.Month12;
                     s.ProjectedHoldingStock12_ = s.ProjectedHoldingStock12 == 0 ? null : s.ProjectedHoldingStock12;
                     s.ProductionProjected12_ = s.ProductionProjected12 == 0 ? null : s.ProductionProjected12;
+                    var GroupTicket1 = s.GroupItemTicket1 + "," + s.GroupTicket1;
+                    if (GroupTicket1 != null)
+                    {
+                        var tic1 = GroupTicket1.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick1_ = tic1.Distinct().ToList(); s.Ticket1 = "";
+                        if (tick1_ != null && tick1_.Count > 0)
+                        {
+                            tick1_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket1 += tic1.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket1))
+                                    {
+                                        s.Ticket1 += s.NoOfTicket1 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket1 += s.ProdOrderNo1;
+                    }
+                    var GroupTicket2 = s.GroupItemTicket2 + "," + s.GroupTicket2;
+                    if (GroupTicket2 != null)
+                    {
+                        var tic2 = GroupTicket2.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick2_ = tic2.Distinct().ToList(); s.Ticket2 = "";
+                        if (tick2_ != null && tick2_.Count > 0)
+                        {
+                            tick2_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket2 += tic2.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket2))
+                                    {
+                                        s.Ticket2 += s.NoOfTicket2 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket2 += s.ProdOrderNo2;
+                    }
+                    var GroupTicket3 = s.GroupItemTicket3 + "," + s.GroupTicket3;
+                    if (GroupTicket3 != null)
+                    {
+                        var tic3 = GroupTicket3.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick3_ = tic3.Distinct().ToList(); s.Ticket3 = "";
+                        if (tick3_ != null && tick3_.Count > 0)
+                        {
+                            tick3_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket3 += tic3.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket3))
+                                    {
+                                        s.Ticket3 += s.NoOfTicket3 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket3 += s.ProdOrderNo3;
+                    }
+                    var GroupTicket4 = s.GroupItemTicket4 + "," + s.GroupTicket4;
+                    if (GroupTicket4 != null)
+                    {
+                        var tic4 = GroupTicket4.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick4_ = tic4.Distinct().ToList(); s.Ticket4 = "";
+                        if (tick4_ != null && tick4_.Count > 0)
+                        {
+                            tick4_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket4 += tic4.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket4))
+                                    {
+                                        s.Ticket4 += s.NoOfTicket4 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket4 += s.ProdOrderNo4;
+                    }
+                    var GroupTicket5 = s.GroupItemTicket5 + "," + s.GroupTicket5;
+                    if (GroupTicket5 != null)
+                    {
+                        var tic5 = GroupTicket5.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick5_ = tic5.Distinct().ToList(); s.Ticket5 = "";
+                        if (tick5_ != null && tick5_.Count > 0)
+                        {
+                            tick5_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket5 += tic5.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket5))
+                                    {
+                                        s.Ticket5 += s.NoOfTicket5 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket5 += s.ProdOrderNo5;
+                    }
+                    var GroupTicket6 = s.GroupItemTicket6 + "," + s.GroupTicket6;
+                    if (GroupTicket6 != null)
+                    {
+                        var tic6 = GroupTicket6.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick6_ = tic6.Distinct().ToList(); s.Ticket6 = "";
+                        if (tick6_ != null && tick6_.Count > 0)
+                        {
+                            tick6_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket6 += tic6.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket6))
+                                    {
+                                        s.Ticket6 += s.NoOfTicket6 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket6 += s.ProdOrderNo6;
+                    }
+                    var GroupTicket7 = s.GroupItemTicket7 + "," + s.GroupTicket7;
+                    if (GroupTicket7 != null)
+                    {
+                        var tic7 = GroupTicket7.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick7_ = tic7.Distinct().ToList(); s.Ticket7 = "";
+                        if (tick7_ != null && tick7_.Count > 0)
+                        {
+                            tick7_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket7 += tic7.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket7))
+                                    {
+                                        s.Ticket7 += s.NoOfTicket7 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket7 += s.ProdOrderNo7;
+                    }
+                    var GroupTicket8 = s.GroupItemTicket8 + "," + s.GroupTicket8;
+                    if (GroupTicket8 != null)
+                    {
+                        var tic8 = GroupTicket8.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick8_ = tic8.Distinct().ToList(); s.Ticket8 = "";
+                        if (tick8_ != null && tick8_.Count > 0)
+                        {
+                            tick8_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket8 += tic8.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket8))
+                                    {
+                                        s.Ticket8 += s.NoOfTicket8 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket8 += s.ProdOrderNo8;
+                    }
+                    var GroupTicket9 = s.GroupItemTicket9 + "," + s.GroupTicket9;
+                    if (GroupTicket9 != null)
+                    {
+                        var tic9 = GroupTicket9.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick9_ = tic9.Distinct().ToList(); s.Ticket9 = "";
+                        if (tick9_ != null && tick9_.Count > 0)
+                        {
+                            tick9_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket9 += tic9.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket9))
+                                    {
+                                        s.Ticket9 += s.NoOfTicket9 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket9 += s.ProdOrderNo9;
+                    }
+                    var GroupTicket10 = s.GroupItemTicket10 + "," + s.GroupTicket10;
+                    if (GroupTicket10 != null)
+                    {
+                        var tic10 = GroupTicket10.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick10_ = tic10.Distinct().ToList(); s.Ticket10 = "";
+                        if (tick10_ != null && tick10_.Count > 0)
+                        {
+                            tick10_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket10 += tic10.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket10))
+                                    {
+                                        s.Ticket10 += s.NoOfTicket10 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket10 += s.ProdOrderNo10;
+                    }
+                    var GroupTicket11 = s.GroupItemTicket11 + "," + s.GroupTicket11;
+                    if (GroupTicket11 != null)
+                    {
+                        var tic11 = GroupTicket11.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick11_ = tic11.Distinct().ToList(); s.Ticket11 = "";
+                        if (tick11_ != null && tick11_.Count > 0)
+                        {
+                            tick11_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket11 += tic11.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket11))
+                                    {
+                                        s.Ticket11 += s.NoOfTicket11 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket11 += s.ProdOrderNo11;
+                    }
+                    var GroupTicket12 = s.GroupItemTicket12 + "," + s.GroupTicket12;
+                    if (GroupTicket12 != null)
+                    {
+                        var tic12 = GroupTicket12.Split(",").ToList().Where(w => w != "," && w != "").ToList();
+                        var tick12_ = tic12.Distinct().ToList(); s.Ticket12 = "";
+                        if (tick12_ != null && tick12_.Count > 0)
+                        {
+                            tick12_.ForEach(a =>
+                            {
+                                if (!string.IsNullOrEmpty(a))
+                                {
+                                    s.Ticket12 += tic12.Where(q => q == a).Count() + "*" + a.Split(".")[0] + "/";
+                                    if (!string.IsNullOrEmpty(s.NoOfTicket12))
+                                    {
+                                        s.Ticket12 += s.NoOfTicket12 + "/";
+                                    }
+                                }
+                            });
+                        }
+                        s.Ticket12 += s.ProdOrderNo12;
+                    }
                 });
             }
             return acreports.OrderBy(o => o.ItemNo).ToList();
@@ -2000,6 +2572,35 @@ namespace Infrastructure.Repository.Query
                             Month12 = stockHoldingBalance - 12,
                             DeliverynotReceived = inTransitQty,//doNotReceivedList.Where(d => d.ItemNo == ac.No && d.IsRecived == false).Sum(s => s.DoQty),
 
+
+                            GroupItemTicket1 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket2 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket3 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month3 && t.StartDate.Value.Year == year3).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket4 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month4 && t.StartDate.Value.Year == year4).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket5 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month5 && t.StartDate.Value.Year == year5).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket6 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month6 && t.StartDate.Value.Year == year6).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket7 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month7 && t.StartDate.Value.Year == year7).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket8 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month8 && t.StartDate.Value.Year == year8).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket9 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month9 && t.StartDate.Value.Year == year9).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket10 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month10 && t.StartDate.Value.Year == year10).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket11 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month11 && t.StartDate.Value.Year == year11).Select(s => s.Quantity).ToList()),
+                            GroupItemTicket12 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month12 && t.StartDate.Value.Year == year12).Select(s => s.Quantity).ToList()),
+
+                            NoOfTicket1 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket2 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket3 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month3 && t.StartDate.Value.Year == year3).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket4 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month4 && t.StartDate.Value.Year == year4).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket5 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month5 && t.StartDate.Value.Year == year5).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket6 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month6 && t.StartDate.Value.Year == year6).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket7 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month7 && t.StartDate.Value.Year == year7).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket8 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month8 && t.StartDate.Value.Year == year8).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket9 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month9 && t.StartDate.Value.Year == year9).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket10 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month10 && t.StartDate.Value.Year == year10).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket11 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month11 && t.StartDate.Value.Year == year11).Select(s => s.NoOfTicket).ToList()),
+                            NoOfTicket12 = string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month12 && t.StartDate.Value.Year == year12).Select(s => s.NoOfTicket).ToList()),
+
+
+
                             Ticket1 = string.Format("{0}/{1}", string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Select(s => s.Quantity).ToList()), string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Select(s => s.NoOfTicket).ToList())),
                             Ticket2 = string.Format("{0}/{1}", string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Select(s => s.Quantity).ToList()), string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Select(s => s.NoOfTicket).ToList())),
                             Ticket3 = string.Format("{0}/{1}", string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month3 && t.StartDate.Value.Year == year3).Select(s => s.Quantity).ToList()), string.Join(",", grouptickets.Where(t => groupItemNo.Contains(t.ItemNo) && t.StartDate.Value.Month == month3 && t.StartDate.Value.Year == year3).Select(s => s.NoOfTicket).ToList())),
@@ -2126,7 +2727,61 @@ namespace Infrastructure.Repository.Query
 
                 var item_Nos = itemMasterforReport.Where(i => i.GenericCodeId == f.GenericCodeID).Select(s => s.No).ToList();
 
-                f.Ticket1 = f.Ticket1 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
+
+                f.GroupTicket1 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList());
+                f.GroupTicket2 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList());
+                f.GroupTicket3 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.Quantity).ToList());
+                f.GroupTicket4 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.Quantity).ToList());
+                f.GroupTicket5 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.Quantity).ToList());
+                f.GroupTicket6 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.Quantity).ToList());
+                f.GroupTicket7 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.Quantity).ToList());
+                f.GroupTicket8 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.Quantity).ToList());
+                f.GroupTicket9 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.Quantity).ToList());
+                f.GroupTicket10 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.Quantity).ToList());
+                f.GroupTicket11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList());
+                f.GroupTicket12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList());
+
+                f.ProdOrderNo1 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo2 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo3 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo4 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo5 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo6 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo7 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo8 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo9 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo10 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo11 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList());
+                f.ProdOrderNo12 = string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList());
+
+                f.ProTicket1 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket2 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket3 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket4 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket5 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket6 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket7 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket8 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket9 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket10 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket11 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList()));
+                f.ProTicket12 = string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList()));
+
+
+                f.Ticket1 = f.Ticket1 + f.ProTicket1;
+                f.Ticket2 = f.Ticket2 + f.ProTicket2;
+                f.Ticket3 = f.Ticket3 + f.ProTicket3;
+                f.Ticket4 = f.Ticket4 + f.ProTicket4;
+                f.Ticket5 = f.Ticket5 + f.ProTicket5;
+                f.Ticket6 = f.Ticket6 + f.ProTicket6;
+                f.Ticket7 = f.Ticket7 + f.ProTicket7;
+                f.Ticket8 = f.Ticket8 + f.ProTicket8;
+                f.Ticket9 = f.Ticket9 + f.ProTicket9;
+                f.Ticket10 = f.Ticket10 + f.ProTicket10;
+                f.Ticket11 = f.Ticket11 + f.ProTicket11;
+                f.Ticket12 = f.Ticket12 + f.ProTicket12;
+
+               /* f.Ticket1 = f.Ticket1 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
                 f.Ticket2 = f.Ticket2 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList()));
                 f.Ticket3 = f.Ticket3 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList()));
                 f.Ticket4 = f.Ticket4 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList()));
@@ -2138,7 +2793,7 @@ namespace Infrastructure.Repository.Query
                 f.Ticket10 = f.Ticket10 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList()));
                 f.Ticket11 = f.Ticket11 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList()));
                 f.Ticket12 = f.Ticket12 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList()));
-
+*/
 
                 f.ProjectedHoldingStock1 += f.AcSum > 0 ? grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Sum(s => s.TotalQuantity.Value) / (f.AcSum) : grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Sum(s => s.TotalQuantity.Value);
                 f.ProjectedHoldingStock2 += f.AcSum > 0 ? grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Sum(s => s.TotalQuantity.Value) / (f.AcSum) : grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Sum(s => s.TotalQuantity.Value);

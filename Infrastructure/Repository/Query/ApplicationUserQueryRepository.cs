@@ -236,7 +236,25 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }       
+        }
+        public async Task<List<UserNotification>> GetAllTokenList()
+        {
+            try
+            {
+                var query = "select TokenID From UserNotifications where DeviceType ='Mobile'";
+                var parameters = new DynamicParameters();
+                //parameters.Add("LoginID", name, DbType.String);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<UserNotification>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<ApplicationUser> GetByUserID(string name)
         {
             try

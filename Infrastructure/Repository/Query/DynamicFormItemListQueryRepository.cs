@@ -27,10 +27,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select DFI.AutoNumber,DFI.DynamicFormItemID,DFI.TransactionDate,DFI.SessionId," +
-                    "CM.CodeValue as TransactionTypeName,Pt.Description as CompanyName,DFI.Description FROM DynamicFormItem DFI " +
-                    "Left Join CodeMaster CM on CM.CodeID = DFI.TransactionTypeID" +
-                    " Left join Plant Pt on Pt.PlantID = DFI.CompanyId";
+                var query = "select DFI.AutoNumber,DFI.DynamicFormItemID,\r\nDFI.TransactionDate,DFI.SessionId,\r\nCM.CodeValue as TransactionTypeName,\r\nDFI.Reason,\r\nDFI.StockGroupAppParentID,DFI.DepartmentAppParentID,DFI.ItemGroupAppParentID,\r\nt1.Value as StockGroupAppParent,t2.Value as DepartmentAppParent,t3.Value as ItemGroupAppParent,\r\nPt.Description as CompanyName,DFI.Description FROM DynamicFormItem DFI \r\nLeft Join CodeMaster CM on CM.CodeID = DFI.TransactionTypeID \r\nLeft join Plant Pt on Pt.PlantID = DFI.CompanyId\r\nLeft join ApplicationMasterChild t1 on t1.ApplicationMasterChildID = DFI.StockGroupAppParentID\r\nLeft join ApplicationMasterChild t2 on t2.ApplicationMasterChildID = DFI.DepartmentAppParentID\r\nLeft join ApplicationMasterChild t3 on t3.ApplicationMasterChildID = DFI.ItemGroupAppParentID";
 
                 using (var connection = CreateConnection())
                 {
@@ -52,19 +49,21 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        // parameters.Add("DynamicFormItemID", dynamicformitem.DynamicFormItemID);
                         parameters.Add("AutoNumber", dynamicformitem.AutoNumber);
-                        // parameters.Add("DevoteeRegistrationID", DevoteeRegistrationlist.DevoteeRegistrationID);
                         parameters.Add("AddedByUserID", dynamicformitem.AddedByUserID);
-                        parameters.Add("AddedDate", dynamicformitem.AddedDate);
+                        parameters.Add("AddedDate", dynamicformitem.AddedDate, DbType.DateTime);
                         parameters.Add("Description", dynamicformitem.Description, DbType.String);
                         parameters.Add("StatusCodeID", dynamicformitem.StatusCodeID);
                         parameters.Add("TransactionDate", dynamicformitem.TransactionDate, DbType.DateTime);
                         parameters.Add("SessionId", dynamicformitem.SessionId, DbType.Guid);
                         parameters.Add("CompanyID", dynamicformitem.CompanyID);
                         parameters.Add("TransactionTypeID", dynamicformitem.TransactionTypeID);
-                        var query = "INSERT INTO DynamicFormItem(AutoNumber,AddedByUserID,AddedDate,Description,StatusCodeID,TransactionDate,SessionId,CompanyID,TransactionTypeID) " +
-                                    "OUTPUT INSERTED.DynamicFormItemID VALUES (@AutoNumber,@AddedByUserID,@AddedDate,@Description,@StatusCodeID,@TransactionDate,@SessionId,@CompanyID,@TransactionTypeID)";
+                        parameters.Add("StockGroupAppParentID", dynamicformitem.StockGroupAppParentID);
+                        parameters.Add("DepartmentAppParentID", dynamicformitem.DepartmentAppParentID);
+                        parameters.Add("ItemGroupAppParentID", dynamicformitem.ItemGroupAppParentID);
+                        parameters.Add("Reason", dynamicformitem.Reason, DbType.String);
+                        var query = "INSERT INTO DynamicFormItem(AutoNumber,AddedByUserID,AddedDate,Description,StatusCodeID,TransactionDate,SessionId,CompanyID,TransactionTypeID,StockGroupAppParentID,DepartmentAppParentID,ItemGroupAppParentID,Reason) " +
+                                    "OUTPUT INSERTED.DynamicFormItemID VALUES (@AutoNumber,@AddedByUserID,@AddedDate,@Description,@StatusCodeID,@TransactionDate,@SessionId,@CompanyID,@TransactionTypeID,@StockGroupAppParentID,@DepartmentAppParentID,@ItemGroupAppParentID,@Reason)";
 
                         var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
@@ -99,18 +98,19 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("AutoNumber", dynamicformitem.AutoNumber);
                         parameters.Add("DynamicFormItemID", dynamicformitem.DynamicFormItemID);
-                        parameters.Add("AddedByUserID", dynamicformitem.AddedByUserID);
-                        parameters.Add("AddedDate", dynamicformitem.AddedDate);
-                        parameters.Add("Description", dynamicformitem.Description);
+                        parameters.Add("ModifiedDate", dynamicformitem.ModifiedDate, DbType.DateTime);
+                        parameters.Add("ModifiedByUserID", dynamicformitem.ModifiedByUserID);
+                        parameters.Add("Description", dynamicformitem.Description, DbType.String);
                         parameters.Add("StatusCodeID", dynamicformitem.StatusCodeID);
-                        parameters.Add("TransactionDate", dynamicformitem.TransactionDate);
-                        parameters.Add("SessionId", dynamicformitem.SessionId);
+                        parameters.Add("TransactionDate", dynamicformitem.TransactionDate, DbType.DateTime);
+                        parameters.Add("SessionId", dynamicformitem.SessionId, DbType.Guid);
                         parameters.Add("CompanyID", dynamicformitem.CompanyID);
                         parameters.Add("TransactionTypeID", dynamicformitem.TransactionTypeID);
-
-                        var query = @"UPDATE DynamicFormItem SET AutoNumber = @AutoNumber,
-   AddedByUserID=@AddedByUserID,AddedDate=@AddedDate,Description=@Description,StatusCodeID=@StatusCodeID,TransactionDate=@TransactionDate,SessionId=@SessionId,CompanyID=@CompanyID,TransactionTypeID=@TransactionTypeID
-          where DynamicFormItemID = @DynamicFormItemID";
+                        parameters.Add("StockGroupAppParentID", dynamicformitem.StockGroupAppParentID);
+                        parameters.Add("DepartmentAppParentID", dynamicformitem.DepartmentAppParentID);
+                        parameters.Add("ItemGroupAppParentID", dynamicformitem.ItemGroupAppParentID);
+                        parameters.Add("Reason", dynamicformitem.Reason, DbType.String);
+                        var query = @"UPDATE DynamicFormItem SET Reason=@Reason,AutoNumber = @AutoNumber,StockGroupAppParentID=@StockGroupAppParentID,DepartmentAppParentID=@DepartmentAppParentID,ItemGroupAppParentID=@ItemGroupAppParentID,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Description=@Description,StatusCodeID=@StatusCodeID,TransactionDate=@TransactionDate,SessionId=@SessionId,CompanyID=@CompanyID,TransactionTypeID=@TransactionTypeID where DynamicFormItemID = @DynamicFormItemID";
 
 
 
@@ -178,10 +178,8 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("DynamicFormItemLineID", DynamicFormItemLine.DynamicFormItemLineID);
-
                         parameters.Add("DynamicFormItemID", DynamicFormItemLine.DynamicFormItemID);
                         parameters.Add("Qty", DynamicFormItemLine.Qty);
-                        // parameters.Add("DevoteeRegistrationID", DevoteeRegistrationlist.DevoteeRegistrationID);
                         parameters.Add("ModifiedByUserID", DynamicFormItemLine.ModifiedByUserID);
                         parameters.Add("ModifiedDate", DynamicFormItemLine.ModifiedDate);
                         parameters.Add("ItemDynamicFormTypeID", DynamicFormItemLine.ItemDynamicFormTypeID);
@@ -192,7 +190,7 @@ namespace Infrastructure.Repository.Query
 
 
                         var query = @"UPDATE DynamicFormItemLine SET DynamicFormItemID = @DynamicFormItemID, Qty = @Qty,ModifiedByUserID =@ModifiedByUserID, ModifiedDate = @ModifiedDate,
-          ItemDynamicFormTypeID=@ItemDynamicFormTypeID,StatusCodeID=@StatusCodeID,ItemDynamicFormDataID=@ItemDynamicFormDataID,Description=@Description,SessionId=@SessionId,
+          ItemDynamicFormTypeID=@ItemDynamicFormTypeID,StatusCodeID=@StatusCodeID,ItemDynamicFormDataID=@ItemDynamicFormDataID,Description=@Description,SessionId=@SessionId
     
           where DynamicFormItemLineID = @DynamicFormItemLineID";
 
@@ -230,14 +228,13 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("DynamicFormItemID", DynamicFormItemLine.DynamicFormItemID);
                         parameters.Add("Qty", DynamicFormItemLine.Qty);
-                        // parameters.Add("DevoteeRegistrationID", DevoteeRegistrationlist.DevoteeRegistrationID);
                         parameters.Add("ModifiedByUserID", DynamicFormItemLine.ModifiedByUserID);
                         parameters.Add("ModifiedDate", DynamicFormItemLine.ModifiedDate);
                         parameters.Add("ItemDynamicFormTypeID", DynamicFormItemLine.ItemDynamicFormTypeID);
                         parameters.Add("StatusCodeID", DynamicFormItemLine.StatusCodeID);
                         parameters.Add("ItemDynamicFormDataID", DynamicFormItemLine.ItemDynamicFormDataID);
-                        parameters.Add("Description", DynamicFormItemLine.Description,DbType.String);
-                        parameters.Add("SessionId", DynamicFormItemLine.SessionId,DbType.Guid);
+                        parameters.Add("Description", DynamicFormItemLine.Description, DbType.String);
+                        parameters.Add("SessionId", DynamicFormItemLine.SessionId, DbType.Guid);
 
                         var query = "INSERT INTO DynamicFormItemLine(DynamicFormItemID,Qty,ModifiedByUserID,ModifiedDate,ItemDynamicFormTypeID,StatusCodeID,ItemDynamicFormDataID,Description,SessionId) " +
                                     "OUTPUT INSERTED.DynamicFormItemLineID VALUES (@DynamicFormItemID,@Qty,@ModifiedByUserID,@ModifiedDate,@ItemDynamicFormTypeID,@StatusCodeID,@ItemDynamicFormDataID,@Description,@SessionId)";
@@ -311,14 +308,14 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DynamicFormItemLine>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<DynamicFormItemLine>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
-         
+
         }
 
         public async Task<IReadOnlyList<DynamicForm>> GetAllDynamicFormDropdownAsync()

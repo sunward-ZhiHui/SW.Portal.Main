@@ -25,5 +25,13 @@ namespace Core.Entities
         public string? TransactionTypeName { get; set; }
         [NotMapped]
         public string? CompanyName { get; set; }
+        public string? Reason { get; set; }
+        [Required(ErrorMessage = "Stock Group is Required")]
+        public long? StockGroupAppParentID { get; set; }
+        public long? DepartmentAppParentID { get; set; }
+        public long? ItemGroupAppParentID { get; set; }
+        public string? StockGroupAppParent { get; set; }
+        public string? DepartmentAppParent { get; set; }
+        public string? ItemGroupAppParent { get; set; }
     }
 }

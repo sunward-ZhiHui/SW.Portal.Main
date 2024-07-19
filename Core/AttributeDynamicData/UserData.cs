@@ -9,66 +9,46 @@ using System.Threading.Tasks;
 
 namespace Core.AttributeDynamicData
 {
+
     public class UserData
     {
-
         [Required(ErrorMessage = "The Username value should be specified.")]
-        [FieldType(FieldType.Text)]
-        [Display(Name = "UserName",Description = "User Name")]
+        [DataType(DataType.Text)]
+        [Display(Name = "User Name")]
         public string Username { get; set; }
 
         [Required(ErrorMessage = "The Password value should be specified.")]
         [MinPasswordLength(6, "The Password must be at least 6 characters long.")]
-        [FieldType(FieldType.Password)]
+        [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
 
 
         [Required(ErrorMessage = "The Email value should be specified.")]
         [Email(ErrorMessage = "The Email value is invalid.")]
-        [FieldType(FieldType.Text)]
+        [DataType(DataType.Text)]
         [Display(Name = "Email Address")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "The Phone value should be specified.")]
-        [FieldType(FieldType.PhoneNumber)]
+        [DataType(DataType.PhoneNumber)]
         [Display(Name = "Phone Number")]
         public string Phone { get; set; }
 
-        [FieldType(FieldType.Date)]
+        [DataType(DataType.Date)]
         [Display(Name = "Birth Date")]
         public DateTime BirthDate { get; set; } = new DateTime(1970, 1, 1);
 
-        [FieldType(FieldType.CheckBox)]
-        [Display(Name = "Active")]
-        public bool IsActive { get; set; } = false;
-
-        [FieldType(FieldType.RadioGroup)]
-        [Display(Name = "Language")]
-        public string Language { get; set; }
-
-        [FieldType(FieldType.ComboBox)]
+        [DataType("ComboBox")]
         [Display(Name = "Occupation")]
         public string Occupation { get; set; }
 
-        [FieldType(FieldType.MultilineText)]
+        [DataType(DataType.MultilineText)]
         [Display(Name = "Notes")]
         public string Notes { get; set; }
 
-        [FieldType(FieldType.List)]
-        [Display(Name = "List")]
-        public string List { get; set; }
-        [FieldType(FieldType.TagBox)]
-        [Display(Name = "TagBox")]
-        public IEnumerable<long?> TagBoxList { get; set; }
+    }
 
-    }
-    public class UserDataMultiple
-    {
-        public long AttributeDetailID { get; set; }
-        public string? AttributeDetailName { get; set; }
-        public string? Description { get; set; }
-    }
     public class AdditionalData
     {
         public static IEnumerable<string> Occupations { get; set; } = new List<string>() {
@@ -100,11 +80,6 @@ namespace Core.AttributeDynamicData
     };
     }
 
-    public class UserEntry
-    {
-        public static IEnumerable<UserData> UserDatas { get; set; } = new List<UserData>() { new UserData { Username = "Sakthi", BirthDate = new DateTime(1986, 05, 20), Email = "sakthiaseer@gmail.com", IsActive = true, Language = "English" }, new UserData { Username = "Ramya", BirthDate = new DateTime(1991, 07, 08), Email = "sakthiaseer@gmail.com", IsActive = true, Language = "English" } };
-    }
-
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
     public class MinPasswordLengthAttribute : ValidationAttribute
     {
@@ -130,6 +105,8 @@ namespace Core.AttributeDynamicData
                                               + @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$");
         }
     }
+
+
 
 
 }

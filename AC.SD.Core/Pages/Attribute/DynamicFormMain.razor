@@ -3,182 +3,155 @@
 @using System.Linq.Expressions
 @using System.ComponentModel.DataAnnotations
 @using global::Core.AttributeDynamicData;
-@using global::Core.Entities.Views;
-@inject IMediator Mediator
-@using global::Core.Entities;
-@using Application.Queries;
-@using MediatR
-<DxFormLayout CssClass="w-100">
-    <EditForm EditContext="this._editContexts" Context="EditFormContext">
+
+<h2>Edit Form</h2>
+
+<div class="card cw-480">
+    <EditForm Model="@Data"
+              OnValidSubmit="@HandleValidSubmit"
+              OnInvalidSubmit="@HandleInvalidSubmit"
+              Context="EditFormContext">
         <DataAnnotationsValidator />
-        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="true" AnimationType="LayoutAnimationType.Slide">
-            <Items>
-                <DxFormLayoutItem Caption="Profile No" ColSpanMd="12">
-                    <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                    <DxComboBox Data="@_plantItems"
-                                NullText="Select Company..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                SearchMode="ListSearchMode.Default"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                TextFieldName="PlantCode"
-                                ValueFieldName="PlantID"
-                                SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
-                                @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
-                        <Columns>
-                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                                Caption="Plant Code"
-                                                Width="180px" />
-                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                                Caption="Description" />
-                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-                                                Caption="Nav Company" />
-                        </Columns>
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => Datas.PlantId)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                    <DxComboBox Data="@_divisionItems"
-                                NullText="Select Division..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                SearchMode="ListSearchMode.Default"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                TextFieldName="Name"
-                                ValueFieldName="DivisionID"
-                                SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
-                                @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
-                        <Columns>
-                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
-                                                Caption="Name"
-                                                Width="180px" />
-                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
-                                                Caption="Code" />
-                            <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
-                                                Caption="Description" />
-                        </Columns>
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => Datas.DivisionId)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                    <DxComboBox Data="@_departmentItems"
-                                NullText="Select Department..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                SearchMode="ListSearchMode.Default"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                TextFieldName="DepartmentName"
-                                ValueFieldName="DepartmentId"
-                                SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
-                                @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
-                        <Columns>
-                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
-                                                Caption="Name"
-                                                Width="180px" />
-                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
-                                                Caption="Code" />
-                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
-                                                Caption="Description" />
-                        </Columns>
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => Datas.DepartmentId)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                    <DxComboBox Data="@_sectionItems"
-                                NullText="Select Section..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                SearchMode="ListSearchMode.Default"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                TextFieldName="SectionName"
-                                ValueFieldName="SectionId"
-                                SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
-                                @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
-                        <Columns>
-                            <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
-                                                Caption="Name"
-                                                Width="180px" />
-                            <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
-                                                Caption="Code" />
-                            <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
-                                                Caption="Description" />
-                        </Columns>
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => Datas.SectionId)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-                    <DxComboBox Data="@_subSectionItems"
-                                NullText="Select SubSection..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                SearchMode="ListSearchMode.Default"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                TextFieldName="SubSectionName"
-                                ValueFieldName="SubSectionId"
-                                @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
-                        <Columns>
-                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
-                                                Caption="Name"
-                                                Width="180px" />
-                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
-                                                Caption="Code" />
-                            <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
-                                                Caption="Description" />
-                        </Columns>
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => Datas.SubSectionId)" />
-                </DxFormLayoutItem>
-            </Items>
-        </DxFormLayoutGroup>
+        <div class="card-header text-center py-3">
+            <h4>Register with DevExpress</h4>
+            <p class="tm-8 mb-0 fw-normal fs-825">
+                Create a new account to see it in action
+            </p>
+        </div>
+        <div class="card-body">
+            @CreateEditFormFields()
+        </div>
     </EditForm>
-</DxFormLayout>
+</div>
+<p class="tm-8 cw-480 mt-2">
+    @FormSubmitResult
+</p>
 
 @code {
-    EditContext _editContexts;
-    private List<ViewPlants>? _plantItems;
-    private List<ViewDivision>? _divisionItems;
-    private List<ViewDepartment>? _departmentItems;
-    private List<ViewSection>? _sectionItems;
-    private List<ViewSubSection>? _subSectionItems;
-    DynamicFormProfile Datas = new DynamicFormProfile();
-    protected override async Task OnInitializedAsync()
+    string FormSubmitResult = "";
+    UserData Data { get; set; } = new UserData();
+
+    string PhoneMask { get; set; } = "(999)000-0000";
+
+    void HandleValidSubmit()
     {
-        _editContexts = new EditContext(Datas);
-        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        FormSubmitResult = "You have been registred successully.";
     }
-    async Task SelectedItemChanged(long? plantID)
+    void HandleInvalidSubmit()
     {
-        _divisionItems = new List<ViewDivision>();
-        _departmentItems = new List<ViewDepartment>();
-        _sectionItems = new List<ViewSection>();
-        _subSectionItems = new List<ViewSubSection>();
-        if (plantID > 0)
+        FormSubmitResult = "Please correct all errors";
+    }
+
+    public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
+    {
+        var propertyList = typeof(UserData).GetProperties();
+        formLayoutBuilder.OpenComponent<DxFormLayout>(0);
+        formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
         {
-            _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
-        }
-    }
-    async Task SelectedItemDivisionChanged(long? divisionId)
-    {
-        _departmentItems = new List<ViewDepartment>();
-        _sectionItems = new List<ViewSection>();
-        _subSectionItems = new List<ViewSubSection>();
-        if (divisionId > 0)
-        {
-            _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
-        }
-    }
-    async Task SelectedItemDepartementChanged(long? departmentId)
-    {
-        _sectionItems = new List<ViewSection>();
-        _subSectionItems = new List<ViewSubSection>();
-        if (departmentId > 0)
-        {
-            _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
-        }
-    }
-    async Task SelectedItemSectionChanged(long? sectionId)
-    {
-        _subSectionItems = new List<ViewSubSection>();
-        if (sectionId > 0)
-        {
-            _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
-        }
-    }
+            int i = 0;
+            foreach (var property in propertyList)
+            {
+
+                var attrList = (DataTypeAttribute)property.GetCustomAttributes(typeof(DataTypeAttribute), false).First();
+                DisplayAttribute displayLabel = (DisplayAttribute)property.GetCustomAttributes(typeof(DisplayAttribute), false).First();
+                layoutItemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                layoutItemBuilder.AddAttribute(i++, "Caption", displayLabel.Name);
+                layoutItemBuilder.AddAttribute(i++, "ColSpanMd", 12);
+                var access = Expression.Property(Expression.Constant(Data), property.Name);
+                var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(property.PropertyType), access);
+                layoutItemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                {
+                    var j = 0;
+                    switch (attrList.DataType)
+                    {
+                        case DataType.Text:
+                            {
+                                editor.OpenComponent<DxTextBox>(j++);
+                                editor.AddAttribute(j++, "Text", property.GetValue(Data));
+                                editor.AddAttribute(j++, "TextExpression", lambda);
+                                editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                                editor.CloseComponent();
+                                break;
+                            }
+                        case DataType.Password:
+                            {
+
+                                editor.OpenComponent<DxTextBox>(j++);
+                                editor.AddAttribute(j++, "Password", true);
+                                editor.AddAttribute(j++, "NullText", "Password");
+                                editor.AddAttribute(j++, "Text", property.GetValue(Data));
+                                editor.AddAttribute(j++, "TextExpression", lambda);
+                                editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                                editor.CloseComponent();
+                                break;
+                            }
+                        case DataType.PhoneNumber:
+                            {
+                                editor.OpenComponent<DxMaskedInput<String>>(j++);
+                                editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                                editor.AddAttribute(j++, "Mask", PhoneMask);
+                                editor.AddAttribute(j++, "ValueExpression", lambda);
+                                editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                                editor.CloseComponent();
+                                break;
+                            }
+                        case DataType.Date:
+                            {
+                                editor.OpenComponent<DxDateEdit<DateTime>>(j);
+                                editor.AddAttribute(j++, "Date", property.GetValue(Data));
+                                editor.AddAttribute(j++, "DateExpression", lambda);
+                                editor.AddAttribute(j++, "DateChanged", EventCallback.Factory.Create<System.DateTime>(this, str => { property.SetValue(Data, str); }));
+                                editor.CloseComponent();
+                                break;
+
+                            }
+                        case DataType.Custom:
+                            {
+                                editor.OpenComponent<DxComboBox<String, String>>(j);
+                                editor.AddAttribute(j++, "Data", AdditionalData.Occupations);
+                                editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                                editor.AddAttribute(j++, "ValueExpression", lambda);
+                                editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                                editor.CloseComponent();
+                                break;
+
+                            }
+                        case DataType.MultilineText:
+                            {
+                                editor.OpenComponent<DxMemo>(j);
+                                editor.AddAttribute(j++, "Text", property.GetValue(Data));
+                                editor.AddAttribute(j++, "TextExpression", lambda);
+                                editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                                editor.CloseComponent();
+                                break;
+
+                            }
+                        default:
+                            break;
+                    }
+                })));
+
+                layoutItemBuilder.CloseComponent();
+                layoutItemBuilder.OpenElement(i++, "div");
+                layoutItemBuilder.AddAttribute(i++, "class", "text-danger");
+                layoutItemBuilder.OpenComponent(i++, typeof(ValidationMessage<>).MakeGenericType(property.PropertyType));
+                layoutItemBuilder.AddAttribute(i++, "For", lambda);
+                layoutItemBuilder.CloseComponent();
+                layoutItemBuilder.CloseElement();
+            }
+            layoutItemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+            layoutItemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+            {
+
+                editor.OpenComponent<DxButton>(i++);
+                editor.AddAttribute(i++, "SubmitFormOnClick", true);
+                editor.AddAttribute(i++, "Text", "Register");
+                editor.CloseComponent();
+            })));
+
+            layoutItemBuilder.CloseComponent();
+        }));
+        formLayoutBuilder.CloseComponent();
+    };
+
 }

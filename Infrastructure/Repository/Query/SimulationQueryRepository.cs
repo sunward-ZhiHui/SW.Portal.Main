@@ -777,7 +777,7 @@ namespace Infrastructure.Repository.Query
                     var navItemIds = itemMasterforReport.Where(i => i.GenericCodeId == ac.GenericCodeId).Select(s => s.ItemId).ToList();
 
                     inventoryQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Quantity));
-                    decimal? wipQty = 0;// (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Wipqty));
+                    decimal? wipQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Wipqty));
                     var reWorkQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.ReworkQty));
                     var globalQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.GlobalQty));
 

@@ -344,4 +344,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<AttributeDetails>)await _attrubutequeryRepository.GetAttributeDetailsDataSource(request.AttributeId);
         }
     }
+    public class GetQcTestRequirementSummeryHandler : IRequestHandler<GetQcTestRequirementSummery, List<QCTestRequirement>>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetQcTestRequirementSummeryHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<QCTestRequirement>> Handle(GetQcTestRequirementSummery request, CancellationToken cancellationToken)
+        {
+            return (List<QCTestRequirement>)await _attrubutequeryRepository.GetQcTestRequirementSummery();
+        }
+    }
+    
 }

@@ -142,7 +142,29 @@ namespace SW.Portal.Solutions.Controllers
             RestResponse response = client.Get(request);
             return JsonConvert.DeserializeObject<dynamic>(response.Content);
         }
+        [HttpGet("GetQcTestRequirementSummery")]
+        public async Task<ActionResult<Services.ResponseModel<List<QCTestRequirement>>>> GetQcTestRequirementSummery()
+        {
+            var response = new Services.ResponseModel<QCTestRequirement>();
+            var result = await _mediator.Send(new GetQcTestRequirementSummery());
 
+            response.ResponseCode = Services.ResponseCode.Success;
+            response.Results = result;
+            
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 
     

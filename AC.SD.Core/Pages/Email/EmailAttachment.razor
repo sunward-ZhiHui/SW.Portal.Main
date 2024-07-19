@@ -311,7 +311,7 @@
                                     ListRenderMode="ListRenderMode.Virtual"
                                     TextFieldName="FileName"
                                     ValueFieldName="ReplaceDocumentId"
-                                     Value="@selectfilereplaceList"
+                                    Value="@selectfilereplaceList"
                                     ValueExpression="@(() => selectfilereplaceList )"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ValueChanged="@((Documents documents) => onSelectedFileReplaceChanged(documents))"
@@ -1054,6 +1054,7 @@
         selectfilereplaceList = documents;
         if (documents != null)
         {
+            _dataFileProfileType.ReplaceDocumentId = documents.ReplaceDocumentId;
             SeletedExtensions = Path.GetExtension(documents.FileName);
 
             isPlant = false;
@@ -1376,7 +1377,19 @@
     }
     async Task SelectedItemChanged(long? plantID)
     {
-        CurrentPlant.PlantID = plantID.Value;
+        if (plantID.HasValue)
+        {
+            if (CurrentPlant == null)
+            {
+                CurrentPlant = new ViewPlants(); // Assuming Plant is the type of CurrentPlant
+            }
+
+            CurrentPlant.PlantID = plantID.Value;
+            _dataFileProfileType.PlantId = plantID;
+        }
+
+
+        //CurrentPlant.PlantID = plantID.Value;
         _divisionItems = new List<ViewDivision>();
         _departmentItems = new List<ViewDepartment>();
         _sectionItems = new List<ViewSection>();
@@ -1392,7 +1405,17 @@
     }
     async Task SelectedItemDivisionChanged(long? divisionId)
     {
-        selectdivision.DivisionID = divisionId.Value;
+        if (divisionId.HasValue)
+        {
+            if (selectdivision == null)
+            {
+                selectdivision = new ViewDivision();
+            }
+
+            selectdivision.DivisionID = divisionId.Value;
+            _dataFileProfileType.DivisionId = divisionId;
+        }
+
         _departmentItems = new List<ViewDepartment>();
         _sectionItems = new List<ViewSection>();
         _subSectionItems = new List<ViewSubSection>();
@@ -1407,7 +1430,17 @@
     }
     async Task SelectedItemDepartementChanged(long? departmentId)
     {
-        selectDepartment.DepartmentId = departmentId.Value;
+        if (departmentId.HasValue)
+        {
+            if (selectDepartment == null)
+            {
+                selectDepartment = new ViewDepartment();
+            }
+
+            selectDepartment.DepartmentId = departmentId.Value;
+            _dataFileProfileType.DepartmentId = departmentId;
+        }
+
         _sectionItems = new List<ViewSection>();
         _subSectionItems = new List<ViewSubSection>();
         if (departmentId > 0)
@@ -1420,7 +1453,18 @@
     }
     async Task SelectedItemSectionChanged(long? sectionId)
     {
-        selectsection.SectionId = sectionId.Value;
+        if (sectionId.HasValue)
+        {
+            if (selectsection == null)
+            {
+                selectsection = new ViewSection();
+            }
+
+            selectsection.SectionId = sectionId.Value;
+            _dataFileProfileType.SectionId = sectionId;
+        }
+
+        
         _subSectionItems = new List<ViewSubSection>();
         if (sectionId > 0)
         {

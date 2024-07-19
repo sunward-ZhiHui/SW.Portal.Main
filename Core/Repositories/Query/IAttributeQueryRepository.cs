@@ -30,5 +30,6 @@ namespace Core.Repositories.Query
         Task<List<DynamicFormData>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId,Guid? DynamicFormDataGridSessionId,Guid? DynamicFormSectionGridAttributeSessionId, string? BaseUrl);
         Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(long? DynamicFormId, long? userId);
         Task<IReadOnlyList<AttributeDetails>> GetAttributeDetailsDataSource(long? AttributeId);
+        Task<IReadOnlyList<QCTestRequirement>> GetQcTestRequirementSummery();
     }
 }

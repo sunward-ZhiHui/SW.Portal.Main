@@ -22,6 +22,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static Azure.Core.HttpHeader;
 using static iText.Kernel.Utils.CompareTool;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using static iText.Svg.SvgConstants;
@@ -3804,6 +3805,132 @@ namespace Infrastructure.Repository.Query
                     dataColumnNames.Add(listss);
                     RemoveApplicationMasterParentSingleNameItemApi(listss, dynamicFormSectionAttribute, dataColumnNames, ApplicationMasterParent);
                 }
+            }
+        }
+
+        public async Task<IReadOnlyList<QCTestRequirement>> GetQcTestRequirementSummery()
+        {
+            try
+            {
+                List<QCTestRequirement> qCTestRequirements = new List<QCTestRequirement>(); List<DynamicFormData> dynamicGridFormDatas = new List<DynamicFormData>(); List<Plant> plantData = new List<Plant>();
+                List<DynamicFormData> dynamicFormDatas = new List<DynamicFormData>(); List<ApplicationMasterDetail> applicationMasterDetail = new List<ApplicationMasterDetail>();
+                var query = "select * from DynamicFormData where DynamicFormid=12 AND (IsDeleted=0 or IsDeleted is null);";
+                query += "select t1.* from ApplicationMasterDetail  t1 JOIN ApplicationMaster t2 ON t2.ApplicationMasterID=t1.ApplicationMasterID  where ApplicationMasterCodeID in(103,130,354,356,369);";
+                query += "select * from DynamicFormData where DynamicFormSectionGridAttributeID=331 AND  DynamicFormDataGridID in(select DynamicFormDataID from DynamicFormData where DynamicFormid=12 AND (IsDeleted=0 or IsDeleted is null));";
+                query += "Select * from Plant;";
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryMultipleAsync(query));
+                    dynamicFormDatas = result.Read<DynamicFormData>().ToList();
+                    applicationMasterDetail = result.Read<ApplicationMasterDetail>().ToList();
+                    dynamicGridFormDatas = result.Read<DynamicFormData>().ToList(); plantData = result.Read<Plant>().ToList();
+                }
+                if (dynamicFormDatas != null && dynamicFormDatas.Count() > 0)
+                {
+                    dynamicFormDatas.ForEach(s =>
+                    {
+                        QCTestRequirement QCTestRequirement = new QCTestRequirement();
+                        QCTestRequirement.Reference = s.ProfileNo;
+                        QCTestRequirement.PurposeOfTest = "Routine";
+                        QCTestRequirement.BatchNo = "624/24014-R";
+                        dynamic jsonObj = new object();
+                        if (IsValidJson(s.DynamicFormItem))
+                        {
+                            jsonObj = JsonConvert.DeserializeObject(s.DynamicFormItem);
+                        }
+                        var namePlantData = "347_Attr";
+                        var PlantNames = jsonObj.ContainsKey(namePlantData);
+                        if (PlantNames == true)
+                        {
+                            var itemValue = jsonObj[namePlantData];
+                            long? values = itemValue == null ? -1 : (long?)itemValue;
+                            QCTestRequirement.PlantID = values;
+                            QCTestRequirement.PlantCode = plantData.FirstOrDefault(f => f.PlantID == values)?.PlantCode;
+                        }
+
+                        var nameData = "363_103_AppMaster";
+                        var Names = jsonObj.ContainsKey(nameData);
+                        if (Names == true)
+                        {
+                            var itemValue = jsonObj[nameData];
+                            long? values = itemValue == null ? -1 : (long?)itemValue;
+                            QCTestRequirement.ItemId = values;
+                            QCTestRequirement.ItemName = applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == values)?.Value;
+                        }
+                        var dynamicGridFormList = dynamicGridFormDatas.Where(w => w.DynamicFormDataGridId == s.DynamicFormDataId).ToList();
+                        if (dynamicGridFormList != null && dynamicGridFormList.Count() > 0)
+                        {
+                            List<QCTestRequirementChild> qCTestRequirementChildren = new List<QCTestRequirementChild>();
+                            dynamicGridFormList.ForEach(d =>
+                            {
+
+                                dynamic jsonObjs = new object();
+                                if (IsValidJson(d.DynamicFormItem))
+                                {
+                                    jsonObjs = JsonConvert.DeserializeObject(d.DynamicFormItem);
+                                }
+                                var nameDatasRoutineTest = "377_369_AppMaster";//QC Routine Test
+                                var nameDatas1 = "276_354_AppMaster";//QC Testing Name
+                                var nameDatas = "10683_130_AppMaster";
+                                var nameDataMachine = "365_356_AppMaster";//QC Testing Machine
+                                var Name = jsonObjs.ContainsKey(nameDatas);
+                                var TestingName = jsonObjs.ContainsKey(nameDatas1); var TestingMachine = jsonObjs.ContainsKey(nameDataMachine);
+                                long? TestingNameId = -1; long? TestingMachineId = -1;
+                                var RoutineTestName = jsonObjs.ContainsKey(nameDatasRoutineTest);
+                                ApplicationMasterDetail routineTestDetail = new ApplicationMasterDetail();
+                                if (RoutineTestName == true)
+                                {
+                                    var itemRoutineValue = jsonObjs[nameDatasRoutineTest];
+                                    if (itemRoutineValue is JArray)
+                                    {
+                                        List<long?> listData = itemRoutineValue.ToObject<List<long?>>();
+                                        routineTestDetail = applicationMasterDetail.Where(q => listData.Contains(q.ApplicationMasterDetailId) && q.Value.ToLower() == "Routine Test".ToLower()).FirstOrDefault();
+                                    }
+                                }
+                                if (routineTestDetail != null && routineTestDetail.ApplicationMasterDetailId > 0)
+                                {
+                                    if (TestingName == true)
+                                    {
+                                        var itemValues = jsonObjs[nameDatas1];
+                                        TestingNameId = itemValues == null ? -1 : (long?)itemValues;
+                                    }
+                                    if (TestingMachine == true)
+                                    {
+                                        var itemMachineValues = jsonObjs[nameDataMachine];
+                                        TestingMachineId = itemMachineValues == null ? -1 : (long?)itemMachineValues;
+                                    }
+                                    if (Name == true)
+                                    {
+                                        var itemValue = jsonObjs[nameDatas];
+                                        if (itemValue is JArray)
+                                        {
+                                            List<long?> listData = itemValue.ToObject<List<long?>>();
+                                            if (listData != null && listData.Count() > 0)
+                                            {
+                                                listData.ForEach(a =>
+                                                {
+                                                    QCTestRequirementChild qCTestRequirementChild = new QCTestRequirementChild();
+                                                    qCTestRequirementChild.TestName = applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == TestingNameId)?.Value;
+                                                    qCTestRequirementChild.Process = applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == a)?.Value;
+                                                    qCTestRequirementChild.Equipment = applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == TestingMachineId)?.Value;
+                                                    qCTestRequirementChild.QCReferenceNo = "624/24014-" + routineTestDetail.Description + "-" + applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == a)?.Description + "-" + applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == TestingNameId)?.Description + "-1";
+                                                    qCTestRequirementChildren.Add(qCTestRequirementChild);
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                            QCTestRequirement.QCTestRequirementChild = qCTestRequirementChildren;
+                        }
+                        qCTestRequirements.Add(QCTestRequirement);
+                    });
+                }
+                return qCTestRequirements;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
             }
         }
     }

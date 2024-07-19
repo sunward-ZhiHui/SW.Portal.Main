@@ -472,6 +472,74 @@ namespace Core.EntityModels
         public decimal? ProjectedHoldingStock12_ { get; set; }
         public decimal? ProductionProjected12_ { get; set; }
         public decimal? Rework_ { get; set; }
+
+        public string GroupTicket1 { get; set; }
+        public string GroupTicket2 { get; set; }
+        public string GroupTicket3 { get; set; }
+        public string GroupTicket4 { get; set; }
+        public string GroupTicket5 { get; set; }
+        public string GroupTicket6 { get; set; }
+        public string GroupTicket7 { get; set; }
+        public string GroupTicket8 { get; set; }
+        public string GroupTicket9 { get; set; }
+        public string GroupTicket10 { get; set; }
+        public string GroupTicket11 { get; set; }
+        public string GroupTicket12 { get; set; }
+
+        public string ProTicket1 { get; set; }
+        public string ProTicket2 { get; set; }
+        public string ProTicket3 { get; set; }
+        public string ProTicket4 { get; set; }
+        public string ProTicket5 { get; set; }
+        public string ProTicket6 { get; set; }
+        public string ProTicket7 { get; set; }
+        public string ProTicket8 { get; set; }
+        public string ProTicket9 { get; set; }
+        public string ProTicket10 { get; set; }
+        public string ProTicket11 { get; set; }
+        public string ProTicket12 { get; set; }
+
+        public string GroupItemTicket1 { get; set; }
+        public string GroupItemTicket2 { get; set; }
+        public string GroupItemTicket3 { get; set; }
+        public string GroupItemTicket4 { get; set; }
+        public string GroupItemTicket5 { get; set; }
+        public string GroupItemTicket6 { get; set; }
+        public string GroupItemTicket7 { get; set; }
+        public string GroupItemTicket8 { get; set; }
+        public string GroupItemTicket9 { get; set; }
+        public string GroupItemTicket10 { get; set; }
+        public string GroupItemTicket11 { get; set; }
+        public string GroupItemTicket12 { get; set; }
+
+        public string NoOfTicket1 { get; set; }
+        public string NoOfTicket2 { get; set; }
+        public string NoOfTicket3 { get; set; }
+        public string NoOfTicket4 { get; set; }
+        public string NoOfTicket5 { get; set; }
+        public string NoOfTicket6 { get; set; }
+        public string NoOfTicket7 { get; set; }
+        public string NoOfTicket8 { get; set; }
+        public string NoOfTicket9 { get; set; }
+        public string NoOfTicket10 { get; set; }
+        public string NoOfTicket11 { get; set; }
+        public string NoOfTicket12 { get; set; }
+
+
+
+        public string ProdOrderNo1 { get; set; }
+        public string ProdOrderNo2 { get; set; }
+        public string ProdOrderNo3 { get; set; }
+        public string ProdOrderNo4 { get; set; }
+        public string ProdOrderNo5 { get; set; }
+        public string ProdOrderNo6 { get; set; }
+        public string ProdOrderNo7 { get; set; }
+        public string ProdOrderNo8 { get; set; }
+        public string ProdOrderNo9 { get; set; }
+        public string ProdOrderNo10 { get; set; }
+        public string ProdOrderNo11 { get; set; }
+        public string ProdOrderNo12 { get; set; }
+
     }
     public class NAVRecipesModel
     {

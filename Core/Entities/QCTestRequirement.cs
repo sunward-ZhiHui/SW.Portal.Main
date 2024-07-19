@@ -7,15 +7,19 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class QCTestRequirement:BaseEntity
+    public class QCTestRequirement : BaseEntity
     {
         public string? No { get; set; }
         public DateTime? Date { get; set; }
-        public string? ItemName {  get; set; }  
+        public string? PlantCode { get; set; }
+        public long? PlantID { get; set; }
+        public string? ItemName { get; set; }
+        public long? ItemId { get; set; }
         public string? BatchNo { get; set; }
         public string? Reference { get; set; }
         public int VersionNo { get; set; }
         public string? PurposeOfTest { get; set; }
+        public List<QCTestRequirementChild> QCTestRequirementChild { get; set; } = new List<QCTestRequirementChild>();
 
     }
 

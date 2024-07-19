@@ -131,6 +131,31 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetAllMobileTokenList")]
+        public async Task<ActionResult<ResponseModel<List<UserNotification>>>> GetAllMobileTokenList()
+        {
+            var response = new ResponseModel<UserNotification>();
+            List<String>? tokenList = [];
+            try
+            {
+
+                response.ResponseCode = ResponseCode.Success;
+                var userNotifications = await _applicationUserQueryRepository.GetAllTokenList();
+                foreach (var token in userNotifications)
+                {
+                    tokenList.Add(token.TokenID);
+                }
+                response.ErrorMessages = tokenList; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
 
         [HttpGet]
         public string Get()

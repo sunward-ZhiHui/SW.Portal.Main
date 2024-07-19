@@ -20,6 +20,7 @@ namespace Core.Repositories.Query
         Task<ApplicationUser> GetByUsers(string LoginID);
         Task<UserNotification> GetUserNotificationValidatation(long UserId, string DeviceType, string TokenID);
         Task<List<UserNotification>> GetTokenList();
+        Task<List<UserNotification>> GetAllTokenList();
         Task<string> UpdateDeviceId(string LoginID, string DeviceType,string TokenID);
         Task<long> DeleteDeviceId(string TokenID);
         Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword, string OldPassword, string LoginID);

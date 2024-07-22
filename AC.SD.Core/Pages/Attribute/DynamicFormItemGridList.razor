@@ -23,7 +23,8 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -34,7 +35,7 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-    @bind-SelectedDataItems="@SelectedDataItems"
+            @bind-SelectedDataItems="@SelectedDataItems"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_dynamicformItems" VirtualScrollingEnabled="true"
             KeyFieldName="DynamicFormItemID"
@@ -58,14 +59,14 @@
             ShowGroupPanel="true" ShowGroupedColumns="true">
 
         <Columns>
-            <DxGridDataColumn FieldName="AutoNumber"  MinWidth="80" />
-            <DxGridDataColumn FieldName="TransactionDate"  MinWidth="80" />
+            <DxGridDataColumn FieldName="AutoNumber" MinWidth="80" />
+            <DxGridDataColumn FieldName="TransactionDate" MinWidth="80" />
             <DxGridDataColumn FieldName="CompanyName" MinWidth="80" Caption="Company Name" />
             <DxGridDataColumn FieldName="TransactionTypeName" MinWidth="80" Caption="TransactionType" />
             <DxGridDataColumn FieldName="StockGroupAppParent" Caption="Stock Group" MinWidth="80" />
-            <DxGridDataColumn FieldName="DepartmentAppParent" Caption="Department"  MinWidth="80" />
+            <DxGridDataColumn FieldName="DepartmentAppParent" Caption="Department" MinWidth="80" />
             <DxGridDataColumn FieldName="ItemGroupAppParent" Caption="Item Group" MinWidth="80" />
-            
+
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="AutoNumber" />
@@ -87,6 +88,19 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" @onclick="@(() => bulkDelete(_selectedItems))" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="true"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private List<DynamicFormItem> _dynamicformItems;
@@ -96,30 +110,42 @@
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
     bool Blukdeletepopup { get; set; } = false;
+    bool AttachmentPopUp { get; set; } = false;
+    bool AttachmentEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         await UpdateDataAsync();
-
-
     }
-    async Task  UpdateDataAsync()
+    async Task UpdateDataAsync()
     {
-        PanelVisible = true;
+        PanelVisible = true; EditEnabled = false; DeleteEnabled = false; AttachmentEnabled = false;
         _dynamicformItems = await Mediator.Send(new GetAllDynamicFormItemListQuery());
+        if (_dynamicformItems != null && _dynamicformItems.Count > 0)
+        {
+            PanelVisible = true;
+            _selectedItems = _dynamicformItems.FirstOrDefault();
+            if (_dynamicformItems != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true; AttachmentEnabled = true;
+                StateHasChanged();
+            }
+        }
         PanelVisible = false;
+        StateHasChanged();
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormItemID");
         _selectedItems = _dynamicformItems.FirstOrDefault(f => f.DynamicFormItemID == (long?)UniqueId);
         EditEnabled = true;
-        DeleteEnabled = true;
+        DeleteEnabled = true; AttachmentEnabled = true;
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowClick(e);
         addEdit();
-       
+
     }
     void addNew()
     {
@@ -127,19 +153,15 @@
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("DynamicFormItemGridList/AddDynamicFormItem/" + _selectedItems.SessionId );
-       
+        NavigationManager.NavigateTo("DynamicFormItemGridList/AddDynamicFormItem/" + _selectedItems.SessionId);
+
 
     }
-  
-  
-   
-  
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
 
     }
-   
+
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -156,18 +178,18 @@
     {
         try
         {
-            
+
             var request = new DeleteDynamicFormItemListt(DynamicFormItem.DynamicFormItemID);
             await Mediator.Send(request);
             Blukdeletepopup = false;
             toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
-           
+
 
         }
         catch (Exception eq)
         {
-           
+
             Blukdeletepopup = false;
             toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
@@ -178,5 +200,15 @@
 
         Blukdeletepopup = false;
 
+    }
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void CloseAttachmentPopup()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AttachmentPopUp = false;
+        StateHasChanged();
     }
 }

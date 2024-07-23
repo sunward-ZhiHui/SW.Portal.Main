@@ -23,6 +23,7 @@ namespace Core.Entities
         public string? CategoryTag { get; set; }
         public string? ActionTag { get; set; }
         public string? Name { get; set; }
-        public string? UserTag { get; set; }        
+        public string? UserTag { get; set; }
+        public bool UnArchive { get; set; }
     }
 }

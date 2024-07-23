@@ -34,7 +34,9 @@
         VirtualScrollingEnabled="true"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
-       
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 281px);"
@@ -43,6 +45,7 @@
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
+        <DxGridSelectionColumn Width="50px" AllowSelectAll="true" />
         @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
         <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
         <DxGridDataColumn FieldName="FirstName" Caption="">
@@ -239,6 +242,11 @@
                         @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
                         <ValidationMessage For="@(() => Data.FilterTo)" />*@
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Archive" ColSpanMd="12">
+                      <DxCheckBox  @bind-Checked = "@Data.UnArchive"></DxCheckBox>
+                        @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
+                        <ValidationMessage For="@(() => Data.FilterTo)" />*@
+                    </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
         </div>
@@ -268,8 +276,8 @@
     DateTime MinDateFrom;
     DateTime MaxDateTo;
     DateTime DateRange = DateTime.Now.AddYears(-1);
-
-
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    List<string>? SelectedGroups = new List<string>();
     DateTime MinFilterFrom;
     DateTime MaxFilterTo;
     internal bool loading;
@@ -301,7 +309,10 @@
     public Action<string>? SubViewAllTopicId { get; set; }
     [Parameter]
     public string? Page { get; set; }
-
+    [Parameter]
+    public Action<List<string>>? ToTopicIds { get; set; }
+    [Parameter]
+    public Action EnableUnArchiveAll { get; set; }
     void selectedGroupTagChangeddd(ApplicationMasterChildModel applicationMasterChildModel)
     {
         selectGroupItem = applicationMasterChildModel;
@@ -376,7 +387,8 @@
                 Name = Data.Name,
                 UserTag = data.UserTag,
                 FilterFrom = Data.FilterFrom,
-                FilterTo = Data.FilterTo
+                FilterTo = Data.FilterTo,
+                UnArchive = Data.UnArchive
         };
 
         _emailTopicAll = await Mediator.Send(request);
@@ -461,10 +473,10 @@
     public async Task loadLibaryList(string txt)
     {
         MSearchText = txt;
-        ApplySearch();
+       await ApplySearch();
         await InvokeAsync(StateHasChanged);
     }
-    async void ApplySearch()
+    public async Task ApplySearch()
     {        
         await JSRuntime.InvokeAsync<string>("showLoading");
         var request = new GetEmailMasterSearchAll
@@ -475,7 +487,8 @@
                 BySubject = null,
                 ByTag = null,
                 FilterFrom = null,
-                FilterTo = null
+                FilterTo = null,
+                UnArchive = false
             };
         _emailTopicAll = await Mediator.Send(request);
         StateHasChanged();
@@ -485,10 +498,11 @@
     {
         IsSearchInfoOpen = true;
     }
-
+   
 
     internal async void SubmitUnArchived(long id)
     {
+
         var UpdateReq = new UpdateTopicUnArchive
             {
                 ID = id,
@@ -504,5 +518,29 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        EnableUnArchiveAll.Invoke();
+    }
+    public async Task GetID()
+    {
+        foreach (object item in SelectedDataItems)
+        {
+            if (item is EmailTopics emailTopics)
+            {
+
+                SelectedGroups.Add(emailTopics.ID.ToString());
+
+
+            }
+
+        }
+
+       ToTopicIds?.Invoke(SelectedGroups);
+
+        StateHasChanged();
+
     }
 }

@@ -106,7 +106,7 @@
                         else if(isLeftMenuvisible == "Library")
                         {
                               
-                           <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch> 
+                           <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick" ToTopicIds ="onViewEmailUnArchiveClick"  EnableUnArchiveAll = "EnableUnArchiveAll"></MasterSearch> 
                         }
                         else if (isLeftMenuvisible == "Administrator")
                         {
@@ -143,7 +143,8 @@
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />                                                    
                                                    
                                                 <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
-                                                    
+                                                <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
+                                                <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                             </Items>
                                         </DxMenu>
                                         }
@@ -165,7 +166,8 @@
                                                 <DxMenuItem Text="Group List" Enabled="@isEnabled" class="@((isMenuvisible == "AddGroupParticipants" ? "tActive": "taddgroupparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddGroupParticipants"))" />
 
                                                 <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
-                                                    <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Enabled="@ArchiveEnabled" />
+                                                <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
+                                                    <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                   
                                             
                                             </Items>
@@ -3001,6 +3003,7 @@
     bool isComponentVisible = true;
     bool isEnabled { get; set; } = false;
     bool ArchiveEnabled { get; set; } = false;
+    bool UnArchiveEnabled { get; set; } = false;
     bool isUserGroup { get; set; } = false;
     bool isPage { get; set; } = false;
     bool isTodoEnabled { get; set; } = false;
@@ -4070,12 +4073,44 @@
         ArchiveEnabled = true;
         StateHasChanged();
     }
+    private async void EnableUnArchiveAll()
+    {
+        UnArchiveEnabled = true;
+        StateHasChanged();
+    }
     private async void onViewEmailToClickMultiple(List<string> ToTopicId)
     {
         SelectedGroups = ToTopicId;
         await SubmitIsArchivedAll();
         StateHasChanged();
     } 
+    private async void onViewEmailUnArchiveClick(List<string> ToTopicId)
+    {
+        SelectedGroups = ToTopicId;
+        await UnArchiveAll();
+        StateHasChanged();
+    } 
+    public async void SubmitunArchivedAll()
+    {
+        await RefMasterSearch.GetID();
+    }
+    public  async Task UnArchiveAll()
+    {
+        foreach (var item in SelectedGroups)
+        {
+            var UpdateReq = new UpdateTopicUnArchive
+            {
+                    ID = long.Parse(item),
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+            };
+            var result = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("UnArchive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            await RefMasterSearch.ApplySearch(); 
+            UnArchiveEnabled  = false;
+        }
+    }
+
 
     private async void onViewEmailAllClick(string ATopicId)
     {
@@ -4442,7 +4477,7 @@
             // else
             // {
 
-        // }
+            // }
 
 
 
@@ -4466,6 +4501,7 @@
             _headTopic = new List<EmailTopics>();
             isComponentVisible = false;
             AddPopupArchive = false;
+            ArchiveEnabled = false;
         }
     }
     private async Task SubmitDocDelete(long Id)
@@ -5629,6 +5665,22 @@
     {
         isLeftMenuvisible = text;
         Page = text;
+        if (text == "AssignTo" && SelectedGroups.Count > 0)
+        {
+            ArchiveEnabled = true;
+        }
+        else
+        {
+             ArchiveEnabled = false;            
+        }
+        if (text == "Library" && SelectedGroups.Count > 0)
+        {
+            UnArchiveEnabled = true;
+        }
+        else
+        {
+            UnArchiveEnabled = false;
+        }
         StateHasChanged();
     }
     async Task OnMenuItemClick(string text)
@@ -5694,6 +5746,7 @@
         }
         else
         {
+            
             isAddParticipant = false;
             isComponentVisible = false;
             isEllipsis = true;

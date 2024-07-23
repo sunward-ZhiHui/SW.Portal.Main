@@ -37,13 +37,15 @@
 
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
-                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            ValueChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                             ListRenderMode="ListRenderMode.Virtual"
                             TextFieldName="Description"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ValueFieldName="PlantID"
-                @bind-Value="data.CompanyID"
+                            Value="@CurrentPlant"
+                            ValueExpression="@(() => CurrentPlant )"
                             ShowValidationIcon="true">
 
                 </DxComboBox>
@@ -109,6 +111,7 @@
     </DxLoadingPanel>
 </div>
 @code {
+    ViewPlants CurrentPlant { get; set; }
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = false;
     private List<NavitemStockBalance> navitemStockBalance;
@@ -139,7 +142,12 @@
     }
     async Task SelectedItemPlantChanged(ViewPlants PlantsData)
     {
-        data.CompanyID = PlantsData.CompanyID;
+        if(PlantsData != null)
+        {
+            CurrentPlant = PlantsData;
+            data.CompanyID = PlantsData.CompanyID;
+        }
+       
     }
     private int GetWeekNumberOfMonth(DateTime date)
     {

@@ -4106,7 +4106,7 @@
             };
             var result = await Mediator.Send(UpdateReq);
             toastService.ShowToast("UnArchive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
-            await RefMasterSearch.ApplySearch(); 
+            await RefMasterSearch.HandleValidSubmit();
             UnArchiveEnabled  = false;
         }
     }

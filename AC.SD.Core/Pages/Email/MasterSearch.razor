@@ -361,7 +361,7 @@
         StateHasChanged();
     }
 
-    async Task HandleValidSubmit()
+    public async Task HandleValidSubmit()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
         string toidsString = null;

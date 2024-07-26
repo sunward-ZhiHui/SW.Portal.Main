@@ -237,13 +237,13 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<UserNotification>> GetAllTokenList()
+        public async Task<List<UserNotification>> GetAllTokenList(string DeviceType)
         {
             try
             {
-                var query = "select TokenID From UserNotifications where DeviceType ='Mobile'";
+                var query = "select TokenID From UserNotifications where DeviceType = @DeviceType";
                 var parameters = new DynamicParameters();
-                //parameters.Add("LoginID", name, DbType.String);
+                parameters.Add("DeviceType", DeviceType, DbType.String);
 
                 using (var connection = CreateConnection())
                 {

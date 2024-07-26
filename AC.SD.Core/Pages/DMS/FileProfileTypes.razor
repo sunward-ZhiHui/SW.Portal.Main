@@ -239,6 +239,7 @@
                         }
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
+                <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type" MinWidth="170" />
                 <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="170" />
                 <DxGridDataColumn FieldName="ActivityProfileNo" Caption="Activity Profile" MinWidth="170" />
                 <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="170">
@@ -1004,7 +1005,8 @@
             renameEnabled = false; viewParentEnabled = false;
             if (_selectedItems != null)
             {
-                var FileProfileTypeIds = _selectedItems.FilterProfileTypeId > 0 ? _selectedItems.FilterProfileTypeId : _selectedItems.FileProfileTypeId;
+               // var FileProfileTypeIds = _selectedItems.FilterProfileTypeId > 0 ? _selectedItems.FilterProfileTypeId : _selectedItems.FileProfileTypeId;
+                var FileProfileTypeIds = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
                 var fileTypeData = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeIds).FirstOrDefault();
                 if (fileTypeData != null)
                 {

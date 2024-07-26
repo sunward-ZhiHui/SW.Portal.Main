@@ -913,7 +913,7 @@
     {
         Grid.ClearFilter(); searchText = null; SearchText = null;
         IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false; IsFileProfileTypeInfoOpen = false;
-        isFilterMore = ""; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
+        isFilterMore = "display:none"; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _selectedItems = null;
         if (FileProfileTypeId == null && MainSessionId != null)
         {
@@ -959,10 +959,12 @@
     {
         if (_openAccessUserLink != null && _openAccessUserLink.IsDmsAccess == true)
         {
+            isFilterMore = "display:none";
             isVisibleParentMore = "display:none;"; moreEnabled = false;
 
             if (documentSearchModel.Type != "Search")
             {
+                isFilterMore = "";
                 isCreateFolder = false;
                 if (MainSessionId == null)
                 {
@@ -983,6 +985,7 @@
         }
         else
         {
+            isFilterMore = "display:none";
             isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;"; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
             DownloadEnabled = false; uploadEnabled = false; copylinkEnabled = false; viewfileEnabled = false; EmailEnabled = false;
             deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false; shareEnabled = false;
@@ -995,6 +998,7 @@
             {
                 if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true)
                 {
+                    isFilterMore = "";
                     if (MainSessionId == null)
                     {
                         isCreateFolder = true;
@@ -1032,8 +1036,11 @@
     {
         if (fileTypeData != null)
         {
-            moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateSubFolder = false; isCreateDynamicDocumentEnabled = false;
-            isCreateSubFolder = false; isProfileInfoEnabled = false; isMoveEnabled = "display:none;";
+            moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; 
+            //isCreateSubFolder = false; 
+            isCreateDynamicDocumentEnabled = false;
+            //isCreateSubFolder = false; 
+            isProfileInfoEnabled = false; isMoveEnabled = "display:none;";
             if (fileTypeData != null)
             {
                 var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID,null));
@@ -1052,7 +1059,8 @@
                                 isVisibleParentMore = "";
                             }
                             moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; isProfileInfoEnabled = true;
-                            isEdit = true; isDelete = true; isCreateSubFolder = true; IsGrantAdminPermission = true;
+                            //isEdit = true; isDelete = true; isCreateSubFolder = true; 
+                           //  IsGrantAdminPermission = true;
                             if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                             {
                                 isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
@@ -1121,14 +1129,14 @@
                         {
                             if (documentSearchModel.Type != "Search")
                             {
-                                IsGrantAdminPermission = true;
+                              //  IsGrantAdminPermission = true;
                             }
                         }
                         if (documentPermissionModels.IsCreateFolder == true)
                         {
                             if (documentSearchModel.Type != "Search")
                             {
-                                isCreateSubFolder = true;
+                              //  isCreateSubFolder = true;
                             }
                         }
                     }
@@ -1138,6 +1146,7 @@
         }
         if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true)
         {
+            isFilterMore = "";
             isCreateFolder = false;
             if (MainSessionId == null)
             {
@@ -2077,7 +2086,7 @@
         LinkFilterFileprofiletypeProfileNo = null;
         LinkFilterFileprofiletypeExtension = null;
         LinkFilterFileprofiletypeFrom = null; LinkFilterFileprofiletypeTo = null;
-        isFilterMore = "";
+        isFilterMore = "display:none";
         isEnablePath = false;
         IsFilterOpen = false;
         await mainPageLoad();

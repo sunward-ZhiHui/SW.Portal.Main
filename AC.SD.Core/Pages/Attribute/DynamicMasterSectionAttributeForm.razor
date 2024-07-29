@@ -999,12 +999,12 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+        await UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {

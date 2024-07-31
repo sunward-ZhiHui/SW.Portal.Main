@@ -88,7 +88,7 @@
                 style="height: calc(100vh - 340px);">
             <Columns>
 
-               
+
 
                 <DxGridDataColumn Caption="Item No" FieldName="ItemNo" MinWidth="180" />
                 <DxGridDataColumn Caption="Item Description" FieldName="ItemDescription" MinWidth="180" />
@@ -100,7 +100,7 @@
                 <DxGridDataColumn Caption="Quantity" FieldName="Quantity" MinWidth="180" />
                 <DxGridDataColumn Caption="Pack UOM" FieldName="PackUOM" MinWidth="180" />
                 <DxGridDataColumn Caption="StockBalMonth" FieldName="StockBalMonth" MinWidth="180" />
-              
+
 
             </Columns>
             <TotalSummary>
@@ -119,9 +119,11 @@
     private List<ViewPlants> _plantItems;
     NavitemStockBalance data = new NavitemStockBalance();
     EditContext _editContext;
+    public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(data);
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -142,12 +144,12 @@
     }
     async Task SelectedItemPlantChanged(ViewPlants PlantsData)
     {
-        if(PlantsData != null)
+        if (PlantsData != null)
         {
             CurrentPlant = PlantsData;
             data.CompanyID = PlantsData.CompanyID;
         }
-       
+
     }
     private int GetWeekNumberOfMonth(DateTime date)
     {
@@ -176,6 +178,11 @@
     }
     async void OnSync()
     {
-     
+        //StockBalanceSearch stockBalanceSearch = new StockBalanceSearch();
+        //stockBalanceSearch.StkMonth = data.FilterDate.Value;
+        //stockBalanceSearch.UserId = applicationUser.UserID;
+        //stockBalanceSearch.CompanyId = data.CompanyID;
+        //var result = await Mediator.Send(new GetNAVStockBalanceQuery(stockBalanceSearch));
+
     }
 }

@@ -169,6 +169,7 @@ namespace Infrastructure.Repository.Query
                         s.PrePsbStockBalance_ = s.PrePsbStockBalance == 0 ? null : s.PrePsbStockBalance;
                         s.PreSgTenderStockBalance_ = s.PreSgTenderStockBalance == 0 ? null : s.PreSgTenderStockBalance;
                         s.WipQty_ = s.WipQty == 0 ? null : s.WipQty;
+                        s.NotStartInvQty_ = s.NotStartInvQty == 0 ? null : s.NotStartInvQty;
                         s.PreMyStockBalance_ = s.PreMyStockBalance == 0 ? null : s.PreMyStockBalance;
                         s.PreOtherStoreQty_ = s.PreOtherStoreQty == 0 ? null : s.PreOtherStoreQty;
                         s.PrewipQty_ = s.PrewipQty == 0 ? null : s.PrewipQty;
@@ -778,12 +779,14 @@ namespace Infrastructure.Repository.Query
 
                     inventoryQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Quantity));
                     decimal? wipQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Wipqty));
+                    decimal? notStartInvQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.NotStartInvQty));
                     var reWorkQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.ReworkQty));
                     var globalQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.GlobalQty));
 
                     //previous month NAV stock
                     preinventoryQty = (prenavStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Quantity));
                     var prewipQty = (prenavStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Wipqty));
+                    var preNotStartInvQty = (prenavStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.NotStartInvQty));
                     var prereWorkQty = (prenavStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.ReworkQty));
                     var preglobalQty = (prenavStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.GlobalQty));
                     if (ac.No == "FP-PP-CRM-100")
@@ -906,8 +909,8 @@ namespace Infrastructure.Repository.Query
                         var inTransitQty = doNotReceivedList.Where(d => itemCodes.Contains(d.ItemNo) && d.IsRecived == false && d.CompanyId == endDate.CompanyId).Sum(s => s.DoQty);
                         if (distTotal > 0)
                         {
-                            stockHoldingBalance = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.GetValueOrDefault(0)) / distTotal;
-                            prestockHoldingBalance = (prewipQty.GetValueOrDefault(0) + 0 + preglobalQty.GetValueOrDefault(0) + pre_AntahStockBalance + pre_ApexStockBalance + pre_MsbStockBalance + pre_PsbStockBalance + pre_SgTenderStockBalance + preinventoryQty.GetValueOrDefault(0)) / distTotal;
+                            stockHoldingBalance = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0)+ notStartInvQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.GetValueOrDefault(0)) / distTotal;
+                            prestockHoldingBalance = (prewipQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + 0 + preglobalQty.GetValueOrDefault(0) + pre_AntahStockBalance + pre_ApexStockBalance + pre_MsbStockBalance + pre_PsbStockBalance + pre_SgTenderStockBalance + preinventoryQty.GetValueOrDefault(0)) / distTotal;
                         }
 
                         var isTenderExist = blanletOrders.Any(t => itemNos.Contains(t.ItemId.GetValueOrDefault(-1)));
@@ -967,11 +970,12 @@ namespace Infrastructure.Repository.Query
                             PsbStockBalance = PsbStockBalance,
                             NAVStockBalance = inventoryQty.GetValueOrDefault(0),
                             WipQty = wipQty.GetValueOrDefault(0),
+                            NotStartInvQty = notStartInvQty.GetValueOrDefault(0),
                             Rework = reWorkQty.GetValueOrDefault(0),
                             InterCompanyTransitQty = interCompanyTransitQty.GetValueOrDefault(0),
                             OtherStoreQty = globalQty.GetValueOrDefault(0),
-                            StockBalance = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value),
-                            StockHoldingPackSize = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value) * packSize,
+                            StockBalance = (interCompanyTransitQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value),
+                            StockHoldingPackSize = (interCompanyTransitQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value) * packSize,
                             StockHoldingBalance = stockHoldingBalance,
                             MyStockBalance = endDate.CompanyId == 1 || endDate.CompanyId == 3 ? inventoryQty.GetValueOrDefault(0) : SgTenderStockBalance,
                             SgStockBalance = endDate.CompanyId == 2 ? inventoryQty.GetValueOrDefault(0) : SgTenderStockBalance,
@@ -1149,9 +1153,10 @@ namespace Infrastructure.Repository.Query
                             PreSgTenderStockBalance = endDate.CompanyId == 2 ? preinventoryQty.GetValueOrDefault(0) : pre_SgTenderStockBalance,
                             PreMyStockBalance = endDate.CompanyId == 1 || endDate.CompanyId == 3 ? preinventoryQty.GetValueOrDefault(0) : pre_SgTenderStockBalance,
                             PreOtherStoreQty = preglobalQty.GetValueOrDefault(0),
-                            PreStockBalance = (prewipQty.GetValueOrDefault(0) + 0 + preglobalQty.GetValueOrDefault(0) + pre_AntahStockBalance + pre_ApexStockBalance + pre_MsbStockBalance + pre_PsbStockBalance + pre_SgTenderStockBalance + preinventoryQty.GetValueOrDefault(0)),
+                            PreStockBalance = (prewipQty.GetValueOrDefault(0)+ preNotStartInvQty.GetValueOrDefault(0) + 0 + preglobalQty.GetValueOrDefault(0) + pre_AntahStockBalance + pre_ApexStockBalance + pre_MsbStockBalance + pre_PsbStockBalance + pre_SgTenderStockBalance + preinventoryQty.GetValueOrDefault(0)),
                             PreStockHoldingBalance = prestockHoldingBalance,
                             PrewipQty = prewipQty.GetValueOrDefault(0),
+                            PreNotStartInvQty = preNotStartInvQty.GetValueOrDefault(0),
                         });
                     }
                 }
@@ -1772,6 +1777,7 @@ namespace Infrastructure.Repository.Query
                     s.PrePsbStockBalance_ = s.PrePsbStockBalance == 0 ? null : s.PrePsbStockBalance;
                     s.PreSgTenderStockBalance_ = s.PreSgTenderStockBalance == 0 ? null : s.PreSgTenderStockBalance;
                     s.WipQty_ = s.WipQty == 0 ? null : s.WipQty;
+                    s.NotStartInvQty_ = s.NotStartInvQty == 0 ? null : s.NotStartInvQty;
                     s.PreMyStockBalance_ = s.PreMyStockBalance == 0 ? null : s.PreMyStockBalance;
                     s.PreOtherStoreQty_ = s.PreOtherStoreQty == 0 ? null : s.PreOtherStoreQty;
                     s.PrewipQty_ = s.PrewipQty == 0 ? null : s.PrewipQty;
@@ -2356,6 +2362,7 @@ namespace Infrastructure.Repository.Query
                     var navItemIds = itemMasterforReport.Where(i => i.GenericCodeId == ac.GenericCodeId).Select(s => s.ItemId).ToList();
                     inventoryQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Quantity));
                     var wipQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.Wipqty));
+                    decimal? notStartInvQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.NotStartInvQty));
                     var reWorkQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.ReworkQty));
                     var globalQty = (navStkbalance.Where(n => navItemIds.Contains(n.ItemId.Value)).Sum(s => s.GlobalQty));
                     decimal? interCompanyTransitQty = 0;
@@ -2462,7 +2469,7 @@ namespace Infrastructure.Repository.Query
                         var inTransitQty = doNotReceivedList.Where(d => itemCodes.Contains(d.ItemNo) && d.IsRecived == false && d.CompanyId == endDate.CompanyId).Sum(s => s.DoQty);
                         if (distTotal > 0)
                         {
-                            stockHoldingBalance = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.GetValueOrDefault(0)) / distTotal;
+                            stockHoldingBalance = (interCompanyTransitQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.GetValueOrDefault(0)) / distTotal;
                         }
 
                         var isTenderExist = blanletOrders.Any(t => itemNos.Contains(t.ItemId.GetValueOrDefault(-1)));
@@ -2523,11 +2530,12 @@ namespace Infrastructure.Repository.Query
                             PsbStockBalance = PsbStockBalance,
                             NAVStockBalance = inventoryQty.GetValueOrDefault(0),
                             WipQty = wipQty.GetValueOrDefault(0),
+                            NotStartInvQty= notStartInvQty.GetValueOrDefault(0),
                             Rework = reWorkQty.GetValueOrDefault(0),
                             InterCompanyTransitQty = interCompanyTransitQty.GetValueOrDefault(0),
                             OtherStoreQty = globalQty.GetValueOrDefault(0),
-                            StockBalance = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value),
-                            StockHoldingPackSize = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value) * packSize,
+                            StockBalance = (interCompanyTransitQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value),
+                            StockHoldingPackSize = (interCompanyTransitQty.GetValueOrDefault(0)+ notStartInvQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value) * packSize,
                             StockHoldingBalance = stockHoldingBalance,
                             MyStockBalance = endDate.CompanyId == 1 || endDate.CompanyId == 3 ? inventoryQty.GetValueOrDefault(0) : SgTenderStockBalance,
                             SgStockBalance = endDate.CompanyId == 2 ? inventoryQty.GetValueOrDefault(0) : SgTenderStockBalance,

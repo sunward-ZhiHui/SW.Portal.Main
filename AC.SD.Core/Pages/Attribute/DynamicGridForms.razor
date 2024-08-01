@@ -4062,7 +4062,14 @@
                          {
                              editor.OpenComponent<DxComboBox<AttributeDetails, long?>>(j + 1);
                              editor.AddAttribute(j + 1, "Data", attributeDetailss);
-                             editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
+                             if (s.DataSourceTable == "Employee")
+                             {
+                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
+                             }
+                             else
+                             {
+                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
+                             }
 
                          }
                      }
@@ -4194,6 +4201,13 @@
                             layoutItemBuilders.AddAttribute(6, "Caption", "Area");
                             layoutItemBuilders.CloseComponent();
                         }
+                        if (s.DataSourceTable == "Employee")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
+                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                        layoutItemBuilders.CloseComponent();
+                    }
                     }
                 }
             }));
@@ -4291,7 +4305,14 @@
                          {
                              editor.OpenComponent<DxTagBox<AttributeDetails, long?>>(j + 1);
                              editor.AddAttribute(j + 1, "Data", attributeDetailss);
-                             editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
+                             if (s.DataSourceTable == "Employee")
+                             {
+                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
+                             }
+                             else
+                             {
+                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
+                             }
 
                          }
                      }
@@ -4410,6 +4431,13 @@
                     layoutItemBuilders.AddAttribute(6, "Caption", "Area");
                     layoutItemBuilders.CloseComponent();
                 }
+                if (s.DataSourceTable == "Employee")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
+                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                        layoutItemBuilders.CloseComponent();
+                    }
             }
         }
     }));
@@ -4590,6 +4618,13 @@
             layoutItemBuilders.AddAttribute(6, "Caption", "Area");
             layoutItemBuilders.CloseComponent();
         }
+        if (s.DataSourceTable == "Employee")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
+                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                        layoutItemBuilders.CloseComponent();
+                    }
 
     }));
                      editor.CloseComponent();
@@ -4701,7 +4736,14 @@
                 editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(d + 1);
             }
             editor11.AddAttribute(d + 1, "Data", aatrDetails);
-            editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
+            if (ff.DataSourceTable == "Employee")
+                             {
+                                 editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{3}");
+                             }
+                             else
+                             {
+                                 editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
+                             }
             editor11.AddAttribute(d + 1, "TextFieldName", "AttributeDetailName");
             editor11.AddAttribute(d + 1, "ValueFieldName", "AttributeDetailID");
             editor11.AddAttribute(d + 1, "NullText", "Select " + s.PlantDropDownWithOtherDataSourceTable + "..");
@@ -4778,6 +4820,13 @@
             layoutItemBuilders1.AddAttribute(6, "Caption", "Area");
             layoutItemBuilders1.CloseComponent();
         }
+        if (ff.DataSourceTable == "Employee")
+                    {
+                        layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders1.AddAttribute(7, "FieldName", "DesignationName");
+                        layoutItemBuilders1.AddAttribute(7, "Caption", "Designation");
+                        layoutItemBuilders1.CloseComponent();
+                    }
     }));
             if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
             {
@@ -5239,7 +5288,14 @@
                 {
                     editor1.OpenComponent<DxComboBox<AttributeDetails, long?>>(m + 1);
                     editor1.AddAttribute(m + 1, "Data", subaatrDetails);
-                    editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
+                   if (q.DataSourceTable == "Employee")
+                             {
+                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{3}");
+                             }
+                             else
+                             {
+                                 editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
+                             }
                     editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                     editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
                     editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
@@ -5296,6 +5352,13 @@
                         layoutItemBuilders.AddAttribute(6, "Caption", "Area");
                         layoutItemBuilders.CloseComponent();
                     }
+                    if (q.DataSourceTable == "Employee")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
+                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                        layoutItemBuilders.CloseComponent();
+                    }
                 }));
                     if (q.IsRequired == true)
                     {
@@ -5324,7 +5387,14 @@
                 {
                     editor1.OpenComponent<DxTagBox<AttributeDetails, long?>>(m + 1);
                     editor1.AddAttribute(m + 1, "Data", subaatrDetails);
-                    editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
+                    if (q.DataSourceTable == "Employee")
+                    {
+                        editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{3}");
+                    }
+                    else
+                    {
+                        editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
+                    }
                     editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                     editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
                     editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
@@ -5379,6 +5449,13 @@
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                         layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Employee")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
+                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                         layoutItemBuilders.CloseComponent();
                     }
                 }));
@@ -5503,6 +5580,13 @@
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                         layoutItemBuilders.AddAttribute(6, "FieldName", "AreaName");
                         layoutItemBuilders.AddAttribute(6, "Caption", "Area");
+                        layoutItemBuilders.CloseComponent();
+                    }
+                    if (q.DataSourceTable == "Employee")
+                    {
+                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
+                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                         layoutItemBuilders.CloseComponent();
                     }
                 }));

@@ -1129,7 +1129,7 @@
                         {
                             if (documentSearchModel.Type != "Search")
                             {
-                              //  IsGrantAdminPermission = true;
+                                IsGrantAdminPermission = true;
                             }
                         }
                         if (documentPermissionModels.IsCreateFolder == true)
@@ -1216,14 +1216,15 @@
                 else
                 {
                     EmailEnabled = true;
-                    var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID,_selectedItems.DocumentID));
+                    var fileTypeDatas = fileProfileTypeDocumentsAll.Where(w => w.SessionID == MainSessionId).FirstOrDefault();
+                    var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeDatas.FileProfileTypeId, applicationUser.UserID, _selectedItems.DocumentID));
                     if (permissionData != null)
                     {
                         if (permissionData.IsPermissionExits == true)
                         {
                             uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                             checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
-                            renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
+                            renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true; IsGrantAdminPermission = true;
                             if (_ParentselectedItems != null && _selectedItems.IsDynamicFromData == true)
                             {
                                 formdetailsEnabled = true;
@@ -1273,9 +1274,9 @@
                             {
                                 shareEnabled = true;
                             }
-                            if (permissionData.IsSendEmail == true)
+                            if (permissionData.IsGrantAdminPermission == true)
                             {
-                                //EmailEnabled = true;
+                                IsGrantAdminPermission = true;
                             }
 
                             if (_selectedItems.IsLocked == true)

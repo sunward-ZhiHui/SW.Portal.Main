@@ -97,7 +97,9 @@ namespace Core.Entities
         [NotMapped]
         public dynamic? ObjectDataItems { get; set; }
         public List<dynamic>? GridSingleItems { get; set; } = new List<dynamic>();
-       
+        public string? LockedUser { get; set; }
+        public long? LockedUserId { get; set; }
+        public bool? IsLocked { get; set; }
 
         [NotMapped]
         public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();
@@ -145,5 +147,8 @@ namespace Core.Entities
         public int? IsFileprofileTypeDocument { get; set; } = 0;
         public long? FileProfileTypeId { get; set; }
         public long? SortOrderByNo { get; set; }
+        public string? LockedUser { get; set; }
+        public long? LockedUserId { get; set; }
+        public bool? IsLocked { get; set; }
     }
 }

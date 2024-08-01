@@ -548,6 +548,13 @@ namespace Application.Queries
             this.DynamicFormSectionAttributeSectionParent = dynamicFormSectionAttributeSectionParent;
         }
     }
-    
+    public class UpdateDynamicFormLocked : PagedRequest, IRequest<DynamicFormData>
+    {
+        public DynamicFormData? DynamicFormData { get; set; }
+        public UpdateDynamicFormLocked(DynamicFormData? dynamicFormData)
+        {
+            this.DynamicFormData = dynamicFormData;
+        }
+    }
 }
 

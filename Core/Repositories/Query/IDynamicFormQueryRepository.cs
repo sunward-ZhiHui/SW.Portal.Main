@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Google.Rpc.Context.AttributeContext.Types;
 
 namespace Core.Repositories.Query
 {
@@ -34,7 +35,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData);
         Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId);
         Task<DocumentsModel> GetDynamicFormDataBySessionIdForDMSAsync(Guid? SessionId);
-        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId,long? DynamicFormDataGridId,long? DynamicFormSectionGridAttributeId);
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id, long? userId, long? DynamicFormDataGridId, long? DynamicFormSectionGridAttributeId);
         Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);
         Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalAsync(long? dynamicFormId);
         Task<DynamicFormApproval> InsertOrUpdateDynamicFormApproval(DynamicFormApproval dynamicFormApproval);
@@ -62,7 +63,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormWorkFlowForm>> GetDynamicFormWorkFlowFormList(long? dynamicFormDataId, long? dynamicFormId);
         Task<DynamicFormWorkFlowForm> GetDynamicFormWorkFlowFormExits(long? dynamicFormWorkFlowSectionId, long? userId, long? dynamicFormDataId);
 
-        Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId,long? dynamicFormDataId);
+        Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId, long? dynamicFormDataId);
         Task<DynamicFormData> InsertCreateEmailFormData(DynamicFormData dynamicFormData);
         Task<ViewEmployee> GetEmployeeByUserIdIdAsync(long? userId);
         Task<DynamicFormSectionAttributeSecurity> InsertDynamicFormSectionAttributeSecurity(DynamicFormSectionAttributeSecurity value);
@@ -78,12 +79,13 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormReport>> GetDynamicFormReportList(long? DynamicFormId);
         Task<DynamicFormReport> DeleteDynamicFormReport(DynamicFormReport dynamicFormReport);
         Task<DynamicFormReport> GetDynamicFormReportOneData(Guid? SessionId);
-        DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId,long? attributeId);
+        DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId, long? attributeId);
         Task<IReadOnlyList<ApplicationMasterParent>> GetDynamicFormApplicationMasterParentAsync(long? dynamicFormId);
         Task<IReadOnlyList<ApplicationMaster>> GetDynamicFormApplicationMasterAsync(long? dynamicFormId);
         Task<IReadOnlyList<DynamicFormSectionAttributeSectionParent>> GetDynamicFormSectionAttributeSectionParentAsync(long? dynamicFormSectionAttributeId);
         Task<DynamicFormSectionAttributeSectionParent> InsertOrUpdateDynamicFormSectionAttributeSectionParent(DynamicFormSectionAttributeSectionParent dynamicFormSection);
         Task<DynamicFormSectionAttributeSectionParent> DeleteDynamicFormSectionAttributeParent(DynamicFormSectionAttributeSectionParent value);
+        Task<DynamicFormData> UpdateDynamicFormLocked(DynamicFormData dynamicFormData);
     }
 
 }

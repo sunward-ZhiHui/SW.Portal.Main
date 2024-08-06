@@ -26,21 +26,12 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@AddSave" />
+                        <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
-                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" @onclick="@AddSave">
-                    @if (loading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    <i class="fa fa-save"></i>
-                    Save
-                </button>
-            </div>
-
         </div>
     </div>
 </div>
@@ -51,7 +42,7 @@
         <div class="cw-480" style="margin-top:10px;">
 
 
-            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@AddSave">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
                     <DxFormLayoutItem Caption="Company:" ColSpanMd="4">
@@ -161,9 +152,22 @@
         </div>
     </div>
 </div>
-
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="true"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 
 @code {
+    bool AttachmentPopUp { get; set; } = false;
     DynamicFormItemLines? refDynamicFormItemLines;
     int ActiveSubTabIndex { get; set; } = 0;
     bool Time = false;
@@ -182,10 +186,11 @@
     private string MyID = "myid";
     private List<ViewPlants> _plantItems;
     private List<CodeMaster> _TransactionType;
-    private DynamicFormItem _selectedItems;
+    private DynamicFormItem _selectedItems; bool AttachmentEnabled { get; set; } = false;
     private List<ApplicationMasterChildModel> _applicationMasterChildStockGroupItems;
     private List<ApplicationMasterChildModel> _applicationMasterChildDepartmentItems;
     private List<ApplicationMasterChildModel> _applicationMasterChildItemGroupItems;
+    private List<DynamicForm> _dynamicForm; private List<DynamicFormData>? _dynamicFormData; private DropDownOptionsGridListModel _dropDownOptionsGridList;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -193,48 +198,86 @@
         _applicationMasterChildStockGroupItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("136"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _TransactionType = await Mediator.Send(new GetAllCodeMasterQuery("DynamicFormTypeItem"));
-        Company = "";
-        TransactionType = "";
-        Data.TransactionDate = DateTime.Now;
-        if (SessionIds != null)
+        _dynamicForm = await Mediator.Send(new GetAllDynamicFormDropdownListQuery());
+        if (_dynamicForm!=null && _dynamicForm.Count()>0)
         {
-            var list = await Mediator.Send(new GetDynamicFormItemBySession(SessionIds));
-           
-            var _AllApInvoice = await Mediator.Send(new GetDynamicFormItemMasterList(list.DynamicFormItemID));
-            if (list != null)
+            var _dynamicFormIds = _dynamicForm.Select(s => (long?)s.ID).ToList();
+            _dropDownOptionsGridList = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(_dynamicFormIds, applicationUser.UserID));
+        }
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (applicationUser != null)
+        {
+            Company = "";
+            TransactionType = "";
+            Data.TransactionDate = DateTime.Now; DynamicFormItemID = 0; _selectedItems = null;AttachmentEnabled = false;
+            if (SessionIds != null)
             {
-                DynamicFormItemID = list.DynamicFormItemID;
-                _dynamicFormlistData = list;
-                Data.TransactionDate = list.TransactionDate;
-                Data.AutoNumber = list.AutoNumber;
-                Data.CompanyName = list.CompanyName;
-                Company = list.CompanyName;
-                TransactionType = list.TransactionTypeName;
-                Data.Description = list.Description;
-                Data.TransactionTypeName = list.TransactionTypeName;
-                Data.TransactionTypeID = list.TransactionTypeID;
-                Data.AddedByUserID = list.AddedByUserID;
-                Data.AddedDate = list.AddedDate;
-                Company = "";
-                TransactionType = "";
-                Data.Reason = list.Reason;
-                Data.StockGroupAppParentID = list.StockGroupAppParentID;
-                Data.DepartmentAppParentID = list.DepartmentAppParentID;
-                Data.ItemGroupAppParentID = list.ItemGroupAppParentID;
-                if (list.StockGroupAppParentID>0)
+                var list = await Mediator.Send(new GetDynamicFormItemBySession(SessionIds));
+
+                var _AllApInvoice = await Mediator.Send(new GetDynamicFormItemMasterList(list.DynamicFormItemID));
+                if (list != null)
                 {
-                    _applicationMasterChildDepartmentItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(list.StockGroupAppParentID));
+                    AttachmentEnabled = true;
+                    _selectedItems = list;
+                    DynamicFormItemID = list.DynamicFormItemID;
+                    Data.TransactionDate = list.TransactionDate;
+                    Data.AutoNumber = list.AutoNumber;
+                    Data.CompanyName = list.CompanyName;
+                    Data.CompanyID = list.CompanyID;
+                    Company = list.CompanyName;
+                    TransactionType = list.TransactionTypeName;
+                    Data.Description = list.Description;
+                    Data.TransactionTypeName = list.TransactionTypeName;
+                    Data.TransactionTypeID = list.TransactionTypeID;
+                    Data.AddedByUserID = list.AddedByUserID;
+                    Data.AddedDate = list.AddedDate;
+                    Company = "";
+                    TransactionType = "";
+                    Data.Reason = list.Reason;
+                    Data.StockGroupAppParentID = list.StockGroupAppParentID;
+                    Data.DepartmentAppParentID = list.DepartmentAppParentID;
+                    Data.ItemGroupAppParentID = list.ItemGroupAppParentID;
+                    if (list.StockGroupAppParentID > 0)
+                    {
+                        _applicationMasterChildDepartmentItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(list.StockGroupAppParentID));
+                    }
+                    if (list.DepartmentAppParentID > 0)
+                    {
+                        _applicationMasterChildItemGroupItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(list.DepartmentAppParentID));
+                    }
+                    await refDynamicFormItemLines.loadData(list.DynamicFormItemID);
                 }
-                if (list.DepartmentAppParentID > 0)
-                {
-                    _applicationMasterChildItemGroupItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(list.DepartmentAppParentID));
-                }
-                await refDynamicFormItemLines.loadData(list.DynamicFormItemID);
+            }
+            else
+            {
+                await OnParametersSetLoadAsync();
             }
         }
-
+        base.OnParametersSet();
     }
-
+    async Task OnParametersSetLoadAsync()
+    {
+        _editContext = new EditContext(Data); AttachmentEnabled = false;
+        TransactionType = "";DynamicFormItemID = 0;
+        _applicationMasterChildDepartmentItems = new List<ApplicationMasterChildModel>(); _applicationMasterChildItemGroupItems = new List<ApplicationMasterChildModel>();
+        Data.TransactionDate = DateTime.Now;
+        Data.AutoNumber = null;
+        Data.CompanyName = null; Data.CompanyID = null;
+        Company = string.Empty;
+        Data.Description = null;
+        Data.TransactionTypeName = null;
+        Data.TransactionTypeID = null;
+        Data.AddedByUserID = applicationUser.UserID;
+        Data.AddedDate = DateTime.Now;
+        Data.Reason = null;
+        Data.StockGroupAppParentID = null; _selectedItems = null;
+        Data.DepartmentAppParentID = null;
+        Data.ItemGroupAppParentID = null;
+        await refDynamicFormItemLines.loadData(DynamicFormItemID);
+        StateHasChanged();
+    }
     void backUrl()
     {
         ActiveSubTabIndex = 0;
@@ -249,6 +292,19 @@
             await this.HandleValidSubmit();
 
         }
+    }
+    async Task addNew()
+    {
+        if (SessionIds != null)
+        {
+            SessionIds = null;
+            NavigationManager.NavigateTo("DynamicFormItemGridList/AddDynamicFormItem");
+        }
+        else
+        {
+            await OnParametersSetLoadAsync();
+        }
+
     }
     async Task SelectedStockGroupChanged(long? stockGroupAppParentId)
     {
@@ -345,5 +401,14 @@
         {
             e.CssClass = "alt-item";
         }
+    }
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void CloseAttachmentPopup()
+    {
+        AttachmentPopUp = false;
+        StateHasChanged();
     }
 }

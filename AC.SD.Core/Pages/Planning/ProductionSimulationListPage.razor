@@ -40,18 +40,20 @@
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Company" ColSpanMd="4">
 
-            <DxComboBox Data="@_plantItems"
-                        NullText="Select Company..."
-                        SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        ListRenderMode="ListRenderMode.Virtual"
-                        TextFieldName="Description"
-                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                        ValueFieldName="PlantID"
-            @bind-Value="data.CompanyId"
-                        ShowValidationIcon="true">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ValueChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant))"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                TextFieldName="Description"
+                                ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                                ValueFieldName="PlantID"
+                                Value="@CurrentPlant"
+                                ValueExpression="@(() => CurrentPlant )"
+                                ShowValidationIcon="true">
 
-            </DxComboBox>
+                    </DxComboBox>
 
         </DxFormLayoutItem>
        
@@ -186,7 +188,7 @@
 </div>
 
 @code {
-
+    ViewPlants CurrentPlant { get; set; }
     EditContext _editContext;
     private ProductionSimulation _selectedItems;
     IGrid? Grid { get; set; }
@@ -218,7 +220,7 @@
     }
     async void OnSearch()
     {
-        
+
     }
     async Task bulkDelete()
     {
@@ -279,7 +281,12 @@
     }
     async Task SelectedItemPlantChanged(ViewPlants PlantsData)
     {
-        data.CompanyId = PlantsData.CompanyID;
+        if (PlantsData != null)
+        {
+            CurrentPlant = PlantsData;
+            data.CompanyId = PlantsData.CompanyID;
+        }
+       
     }
 
     async void ClosePopup()

@@ -395,45 +395,69 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var Exits = await GetDocumentUserRoleByUserIDExitsAsync(fileProfileTypeId, DocumentId);
-                if (Exits > 0)
+                if (DocumentId > 0)
                 {
-                    var parameters = new DynamicParameters();
-                    parameters.Add("FileProfileTypeID", fileProfileTypeId);
-                    parameters.Add("DocumentId", DocumentId);
-                    parameters.Add("UserID", userId);
-                    var query = "select  t4.* from DocumentUserRole t1\r\n" +
-                        "JOIN Employee t2 ON t2.UserID=t1.UserID\r\n" +
-                        "JOIN DocumentPermission t4 ON t4.DocumentRoleID=t1.RoleID\r\n" +
-                        "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
-                        "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')\r\n";
-                    if (DocumentId > 0)
+                    var Exits = await GetDocumentUserRoleByUserIDExitsAsync(fileProfileTypeId, DocumentId);
+                    if (Exits > 0)
                     {
-                        query += "AND t1.DocumentId=@DocumentId;";
-                    }
-                    else
-                    {
-                        query += "AND t1.DocumentId is null;";
-                    }
-                    using (var connection = CreateConnection())
-                    {
-                        var result = await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
-                        if (DocumentId > 0 && result == null)
+                        var parameters = new DynamicParameters();
+                        parameters.Add("FileProfileTypeID", fileProfileTypeId);
+                        parameters.Add("DocumentId", DocumentId);
+                        parameters.Add("UserID", userId);
+                        var query = "select  t4.* from DocumentUserRole t1\r\n" +
+                            "JOIN Employee t2 ON t2.UserID=t1.UserID\r\n" +
+                            "JOIN DocumentPermission t4 ON t4.DocumentRoleID=t1.RoleID\r\n" +
+                            "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
+                            "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')\r\n";
+                        if (DocumentId > 0)
                         {
-                            return await GetDocumentUserRoleByUserIDAsync(fileProfileTypeId, userId, null);
+                            query += "AND t1.DocumentId=@DocumentId;";
                         }
-                        else
+                        using (var connection = CreateConnection())
                         {
+                            var result = await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
                             return result;
                         }
                     }
+                    else
+                    {
+                        /*DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
+                        documentPermissionModel.DocumentPermissionID = -1;
+                        documentPermissionModel.IsPermissionExits = true;
+                        return documentPermissionModel;*/
+                        return await GetDocumentUserRoleByUserIDAsync(fileProfileTypeId, userId, null);
+
+                    }
+
                 }
                 else
                 {
-                    DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
-                    documentPermissionModel.DocumentPermissionID = -1;
-                    documentPermissionModel.IsPermissionExits = true;
-                    return documentPermissionModel;
+                    var Exits = await GetDocumentUserRoleByUserIDExitsAsync(fileProfileTypeId, null);
+                    if (Exits > 0)
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("FileProfileTypeID", fileProfileTypeId);
+                        parameters.Add("UserID", userId);
+                        var query = "select  t4.* from DocumentUserRole t1\r\n" +
+                            "JOIN Employee t2 ON t2.UserID=t1.UserID\r\n" +
+                            "JOIN DocumentPermission t4 ON t4.DocumentRoleID=t1.RoleID\r\n" +
+                            "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
+                            "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')\r\n";
+                        query += "AND t1.DocumentId is null;";
+
+                        using (var connection = CreateConnection())
+                        {
+                            var result = await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
+                        documentPermissionModel.DocumentPermissionID = -1;
+                        documentPermissionModel.IsPermissionExits = true;
+                        return documentPermissionModel;
+                    }
                 }
             }
             catch (Exception exp)

@@ -132,7 +132,7 @@ namespace SW.Portal.Solutions.Controllers
         }
 
         [HttpGet("GetAllMobileTokenList")]
-        public async Task<ActionResult<ResponseModel<List<UserNotification>>>> GetAllMobileTokenList()
+        public async Task<ActionResult<ResponseModel<List<UserNotification>>>> GetAllMobileTokenList(string DeviceType)
         {
             var response = new ResponseModel<UserNotification>();
             List<String>? tokenList = [];
@@ -140,7 +140,7 @@ namespace SW.Portal.Solutions.Controllers
             {
 
                 response.ResponseCode = ResponseCode.Success;
-                var userNotifications = await _applicationUserQueryRepository.GetAllTokenList();
+                var userNotifications = await _applicationUserQueryRepository.GetAllTokenList(DeviceType);
                 foreach (var token in userNotifications)
                 {
                     tokenList.Add(token.TokenID);

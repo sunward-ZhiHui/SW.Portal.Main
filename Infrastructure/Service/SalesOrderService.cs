@@ -1,10 +1,13 @@
 ﻿using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
+using Google.Protobuf.WellKnownTypes;
 using Infrastructure.Repository.Query;
 using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service.Config;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using NAV;
 using System;
@@ -411,6 +414,170 @@ namespace Infrastructure.Service
                 page++;
             }
             return navItems;
+        }
+        private int GetWeekNumberOfMonth(DateTime date)
+        {
+            DateTime firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+            int firstDay = (int)firstDayOfMonth.DayOfWeek;
+            if (firstDay == 0)
+            {
+                firstDay = 7;
+            }
+            double d = (firstDay + date.Day - 1) / 7.0;
+            return d > 5 ? (int)Math.Floor(d) : (int)Math.Ceiling(d);
+        }
+        public async Task<string> GetNAVStockBalance(StockBalanceSearch searchModel)
+        {
+            try
+            {
+                var companyListData = await _postSalesOrderQueryRepository.GetSotckBalanceItemsListAsync(searchModel);
+                string query = string.Empty;
+                query += UpdateSotckBalance(searchModel, companyListData);
+                query += UpdateKIVQty(searchModel, companyListData);
+                return query;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Stock balance update failed with some unexpected errors!", ex);
+            }
+        }
+        public string UpdateSotckBalance(StockBalanceSearch searchModel, SotckBalanceItemsList companyListData)
+        {
+            string query = string.Empty;
+            var companyList = companyListData.PlantData.ToList();
+            if (companyList != null && companyList.Count() > 0)
+            {
+                var company = companyList.FirstOrDefault(f => f.PlantID == searchModel.CompanyId.GetValueOrDefault(0));
+                if (company != null)
+                {
+                    var Company = company.NavCompanyName;
+
+                    var context = new NAVService(_configuration, Company);
+
+                    var post = new SWWebIntegration.WebIntegration_PortClient();
+
+                    post.Endpoint.Address = new EndpointAddress(new Uri(_configuration[Company + ":SoapUrl"] + "/" + _configuration[Company + ":Company"] + "/Codeunit/WebIntegration"), new DnsEndpointIdentity(""));
+
+                    post.ClientCredentials.UserName.UserName = _configuration[Company + ":UserName"];
+                    post.ClientCredentials.UserName.Password = _configuration[Company + ":Password"];
+                    post.ClientCredentials.Windows.ClientCredential.UserName = _configuration[Company + ":UserName"]; ;
+                    post.ClientCredentials.Windows.ClientCredential.Password = _configuration[Company + ":Password"];
+                    post.ClientCredentials.Windows.ClientCredential.Domain = _configuration[Company + ":Domain"];
+                    post.ClientCredentials.Windows.AllowedImpersonationLevel = System.Security.Principal.TokenImpersonationLevel.Impersonation;
+
+                    var inventoryItems = companyListData.NavitemsData;
+                    //var firstDayCurrentMonth = new DateTime(searchModel.StkMonth.Year, searchModel.StkMonth.Month, 1);
+                    //var lastDayLastMonth = firstDayCurrentMonth.AddDays(-1);
+
+                    var month = searchModel.StkMonth.Month;// lastDayLastMonth.Month;
+                    var year = searchModel.StkMonth.Year;// lastDayLastMonth.Year;
+
+                    var weekofMonth = GetWeekNumberOfMonth(searchModel.StkMonth);
+                    int count = 0;
+                    int totalItems = inventoryItems.Count();
+                    List<NavitemStockBalance> navitemStockBalances = new List<NavitemStockBalance>();
+
+                    if (totalItems > 0)
+                    {
+                        inventoryItems.ForEach(f =>
+                        {
+                            var stockdate = searchModel.StkMonth;
+
+                            var itemCount = count + " of " + totalItems;
+                            //notify client progress update
+                            var itemName = string.Format("{0} {1}-{2}  {3}", itemCount, f.No, f.Description, "from NAV Stock balance");
+
+                            var stockBalance = post.FnCalculateInventoryAsync(f.No, stockdate).Result.return_value;
+                            var fmqty = post.FnCalculateFMInventoryAsync(f.No, stockdate).Result.return_value;
+                            var reqty = post.FnCalculateRWInventoryAsync(f.No, stockdate).Result.return_value;
+                            var wipqty = post.FnCalculateWIPInventoryAsync(f.No, stockdate).Result.return_value;
+                            var notStartqty = post.FnCalcNotStartInventoryAsync(f.No, stockdate).Result.return_value;
+
+                            var kivQty = 0;
+
+                            var stockNav = companyListData.NavitemStockBalance.FirstOrDefault(d => d.ItemId == f.ItemId && d.StockBalMonth.Value.Month == month && d.StockBalMonth.Value.Year == year && d.StockBalWeek == weekofMonth);
+                            if (stockNav == null)
+                            {
+                                var stockdates = stockdate.ToString("yyyy-mm-dd");
+                                var AddedByUserId = 1; var StatusCodeId = 1; var RejectQuantity = 0; var Supply1ProcessQty = 0; var SupplyWipqty = 0;
+                                query += "INSERT INTO NavitemStockBalance(ItemId,AddedByUserId,AddedDate,StatusCodeId,Quantity,GlobalQty,ReworkQty,Wipqty,Kivqty,RejectQuantity,StockBalWeek,StockBalMonth,Supply1ProcessQty,SupplyWipqty,NotStartInvQty)VALUES " +
+                                "(" + f.ItemId + "," + AddedByUserId + ",'GetDate()'," + StatusCodeId + "," + (stockBalance > 0 ? stockBalance : 0) + "," + (fmqty > 0 ? fmqty : 0) + "," + (reqty > 0 ? reqty : 0) + "," + (kivQty > 0 ? kivQty : 0) + "," + RejectQuantity + "," + weekofMonth + ",'" + stockdates + "'," + Supply1ProcessQty + "," + SupplyWipqty + "," + (notStartqty > 0 ? notStartqty : 0) + ");\n\r";
+                            }
+                            else
+                            {
+                                query += "Update  DynamicForm SET Quantity=" + (stockBalance > 0 ? stockBalance : 0) + ",StockBalWeek=" + weekofMonth + ",Wipqty=" + (wipqty > 0 ? wipqty : 0) + ",ReworkQty=" + (reqty > 0 ? reqty : 0) + ",GlobalQty=" + (fmqty > 0 ? fmqty : 0) + ",Kivqty=" + (kivQty > 0 ? kivQty : 0) + ",NotStartInvQty=" + (notStartqty > 0 ? notStartqty : 0) + " WHERE ID =" + stockNav.NavStockBalanceId + ";\n\r";
+                            }
+                            count++;
+                        });
+                    }
+                }
+            }
+            return query;
+        }
+        public string UpdateKIVQty(StockBalanceSearch searchModel, SotckBalanceItemsList companyListData)
+        {
+            try
+            {
+                string querys = string.Empty;
+                var companyList = companyListData.PlantData.ToList();
+                if (companyList != null && companyList.Count() > 0)
+                {
+                    var company = companyList.FirstOrDefault(f => f.PlantID == searchModel.CompanyId.GetValueOrDefault(0));
+                    if (company != null)
+                    {
+                        var Company = company.NavCompanyName;
+
+                        var custMasts = companyListData.Navcustomer;
+                        var inventoryItems = companyListData.NavitemsData;
+
+                        if (inventoryItems != null && inventoryItems.Count() > 0)
+                        {
+                            inventoryItems.ForEach(f =>
+                            {
+                                var context = new NAVService(_configuration, Company);
+
+                                var nquery = context.Context.SalesOrderLineKIV.Where(cs => cs.No == f.No);
+                                DataServiceQuery<SalesOrderLineKIV> query = (DataServiceQuery<SalesOrderLineKIV>)nquery;
+                                TaskFactory<IEnumerable<SalesOrderLineKIV>> taskFactory = new TaskFactory<IEnumerable<SalesOrderLineKIV>>();
+                                IEnumerable<SalesOrderLineKIV> salesResults = taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar)).GetAwaiter().GetResult();
+                                var salesList = salesResults.ToList();
+
+                                var month = searchModel.StkMonth.Month;// lastDayLastMonth.Month;
+                                var year = searchModel.StkMonth.Year;// lastDayLastMonth.Year;
+                                var stockdate = searchModel.StkMonth;
+                                var weekofMonth = GetWeekNumberOfMonth(searchModel.StkMonth);
+
+
+                                salesList.ForEach(c =>
+                                {
+                                    var itemMas = f;
+                                    var custMas = custMasts.FirstOrDefault(i => i.Code == c.Sell_to_Customer_No);
+                                    var stockNav = companyListData.DistStockBalanceKiv.FirstOrDefault(d => d.ItemNo == f.No && d.StockBalMonth.Value.Month == month && d.StockBalMonth.Value.Year == year && d.StockBalWeek == weekofMonth && d.CustomerId == custMas.CustomerId);
+                                    if (stockNav == null)
+                                    {
+                                        var stockdates = stockdate.ToString("yyyy-mm-dd");
+                                        querys += "INSERT INTO DistStockBalanceKiv(ItemId,ItemNo,CompanyId,CustomerId,Quantity,CustomerNo,StockBalWeek,StockBalMonth)VALUES " +
+                               "(" + itemMas?.ItemId + "," + c.No + "," + custMas?.CustomerId + "" + (c.Outstanding_Quantity > 0 ? c.Outstanding_Quantity : 0) + "," + (c.Sell_to_Customer_Name) + "," + weekofMonth + ",'" + stockdates + "');\n\r";
+
+                                    }
+                                    else
+                                    {
+
+                                        var Quantity = stockNav.Quantity + c.Outstanding_Quantity;
+                                        querys += "Update  DynamicForm SET Quantity=" + Quantity + " WHERE ID =" + stockNav.DistKivId + ";\n\r";
+                                    }
+                                });
+                            });
+                        }
+
+                    }
+                }
+                return querys;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -130,7 +130,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select * from UserNotifications where UserId = @userId";
+                var query = @"select * from UserNotifications where UserId = @userId And DeviceType !='IPIR'";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("userId", userId);

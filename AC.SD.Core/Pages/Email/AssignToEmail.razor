@@ -22,11 +22,13 @@
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 245px);"
         RowClick="OnEmailToRowClick"     
-        AllowSelectRowByClick="true">
+        AllowSelectRowByClick="true" SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" SelectedDataItemsChanged="@SelectedDataItemsChanged">
     <Columns>
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
         @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
-        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@        
+        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
+        <DxGridSelectionColumn Width="50px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="FirstName" Caption="First Name">
             <CellDisplayTemplate>
                 @{
@@ -90,6 +92,8 @@
 </div>
 
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+   
     private int pageNumber = 1; // Initial page number
     private int pageSize = 15; // Number of records per page
     DxContextMenu? ContextMenu { get; set; }
@@ -97,6 +101,7 @@
     internal List<EmailTopics>? _forumTopicTo;
     public ApplicationUser? applicationUser { get; internal set; }
     string SelectedGroup = "none";
+    List<string>? SelectedGroups = new List<string>();
     public long RTopicId = 0;
     string SelectedReplyId = "none";
     public string? filterrowname { get; set; }
@@ -105,9 +110,12 @@
     public string? Page { get; set; }
     [Parameter]
     public string? GridSearchText { get; set; }
-
+    [Parameter]
+    public Action EnableArchiveAll { get; set; }
     [Parameter]
     public Action<string>? ToTopicId { get; set; }
+    [Parameter]
+    public Action<List<string>>? ToTopicIds { get; set; }
     [Parameter]
     public Action<string>? SubViewToTopicId { get; set; }
     protected override async Task OnInitializedAsync()
@@ -132,8 +140,8 @@
             TOGrid.Reload();
         }
         //var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));
-        
-       
+
+
         await JSRuntime.InvokeAsync<string>("hideLoading");
         StateHasChanged();
     }
@@ -172,7 +180,7 @@
         {
             _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         }
-        
+
     }
     async Task onPin(long Id)
     {           
@@ -192,7 +200,7 @@
         StateHasChanged();
     }
 
-  
+
     internal async void onSubViewEmailClick(string RId)
     {
         SelectedReplyId = RId;
@@ -201,7 +209,7 @@
         SelectedGroup = conversationList[0].TopicID.ToString();
         SubViewToTopicId?.Invoke(SelectedReplyId);
         //await Task.Delay(1000); // Example asynchronous operation
-                                //await LoadReplyData();
+        //await LoadReplyData();
         StateHasChanged();
     }
     public void Dispose()
@@ -209,5 +217,29 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        EnableArchiveAll.Invoke();
+    }
+    public  async Task GetID()
+    {
+        foreach (object item in SelectedDataItems)
+        {
+            if (item is EmailTopics emailTopics)
+            {
+
+                SelectedGroups.Add(emailTopics.ID.ToString());
+
+
+            }
+
+        }
+
+        ToTopicIds?.Invoke(SelectedGroups);
+
+        StateHasChanged();
+
     }
 }

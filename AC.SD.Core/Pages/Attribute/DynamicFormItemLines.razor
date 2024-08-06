@@ -25,7 +25,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-
+                <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
 
             </Items>
         </DxMenu>
@@ -134,6 +134,19 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" @onclick="@(() => bulkDelete(_selectedItems))" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="true"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     EditContext _editContext;
     [Parameter]
@@ -148,12 +161,14 @@
     bool CancelEnabled { get; set; } = false;
     private DynamicFormItemLine _selectedItems;
     bool EditEnabled { get; set; } = false;
-    bool AddEnabled { get; set; } = true;
+    bool AddEnabled { get; set; } = false;
     public ApplicationUser? applicationUser { get; private set; }
     DynamicFormItemLine Data = new DynamicFormItemLine();
     bool Blukdeletepopup { get; set; } = false;
     public long? DynamicFormId { get; set; }
     private DropDownOptionsGridListModel dropDownOptionsGridListModel { get; set; }
+    bool AttachmentPopUp { get; set; } = false;
+    bool AttachmentEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -170,9 +185,10 @@
     }
     public async Task UpdateDataAsync()
     {
-        PanelVisible = true;
+        PanelVisible = true; AddEnabled = false; EditEnabled = false; DeleteEnabled = false; _dynamicFormItemLine = new List<DynamicFormItemLine>(); AttachmentEnabled = false;
         if (DynamicFormItemids > 0)
         {
+            AddEnabled = true;
             _dynamicFormItemLine = await Mediator.Send(new GetAllDynamicItemFormLineList((long)DynamicFormItemids));
             if (_dynamicFormItemLine != null && _dynamicFormItemLine.Count > 0)
             {
@@ -181,7 +197,7 @@
 
                 if (_dynamicFormItemLine != null)
                 {
-                    EditEnabled = true;
+                    EditEnabled = true;AttachmentEnabled = true;
                     DeleteEnabled = true;
                     StateHasChanged();
                 }
@@ -194,7 +210,8 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormItemLineID");
         _selectedItems = _dynamicFormItemLine.FirstOrDefault(f => f.DynamicFormItemLineID == (long?)UniqueId);
-
+        EditEnabled = true; AttachmentEnabled = true;
+        DeleteEnabled = true;
 
         StateHasChanged();
     }
@@ -218,39 +235,30 @@
 
         if (e.IsNew)
         {
+            var createReq = new CreateDynamicFormItemLine
+                {
 
-            {
-                var createReq = new CreateDynamicFormItemLine
-                    {
+                    DynamicFormItemID = DynamicFormItemids,
+                    Qty = editModel.Qty,
+                    ItemDynamicFormTypeID = editModel.ItemDynamicFormTypeID,
+                    ItemDynamicFormDataID = editModel.ItemDynamicFormDataID,
+                    Description = editModel.Description,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
 
-                        DynamicFormItemID = DynamicFormItemids,
-                        Qty = editModel.Qty,
-                        ItemDynamicFormTypeID = editModel.ItemDynamicFormTypeID,
-                        ItemDynamicFormDataID = editModel.ItemDynamicFormDataID,
-                        Description = editModel.Description,
-                        StatusCodeID = 1,
-                        AddedByUserID = applicationUser.UserID,
-                        ModifiedByUserID = applicationUser.UserID,
-                        AddedDate = DateTime.Now,
-                        SessionId = Guid.NewGuid(),
-
-                    };
+                };
 
 
-                var result = await Mediator.Send(createReq);
-                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-
-
-                await UpdateDataAsync();
-
-            }
-
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
         }
 
         else
         {
-
-
             var UpdateReq = new EditDynamicFormItemLine
                 {
                     DynamicFormItemLineID = editModel.DynamicFormItemLineID,
@@ -271,9 +279,7 @@
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
         }
-
     }
-
     async Task bulkDelete(DynamicFormItemLine DynamicFormItemLine)
     {
         try
@@ -336,7 +342,9 @@
         _dynamicFormData = new List<DynamicFormData>();
         if (dynamicFormId > 0)
         {
-            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList((long)dynamicFormId, applicationUser.UserID));
+            List<long?> dynamicFormIds = new List<long?>();
+            dynamicFormIds.Add(dynamicFormId);
+            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID));
             _dynamicFormData = list.DynamicFormListData;
             // var collection = list.ObjectData;
             // int j = 0;
@@ -365,7 +373,9 @@
         _dynamicFormData = new List<DynamicFormData>();
         if (itemDynamicFormTypeID > 0)
         {
-            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList((long)itemDynamicFormTypeID, applicationUser.UserID));
+            List<long?> dynamicFormIds = new List<long?>();
+            dynamicFormIds.Add(itemDynamicFormTypeID);
+            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID));
             _dynamicFormData = list.DynamicFormListData;
             dropDownOptionsGridListModel = list;
         }
@@ -379,6 +389,16 @@
         {
             await OnRadioChangedItems(str);
         }
+        StateHasChanged();
+    }
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void CloseAttachmentPopup()
+    {
+        InvokeAsync(UpdateDataAsync);
+        AttachmentPopUp = false;
         StateHasChanged();
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>

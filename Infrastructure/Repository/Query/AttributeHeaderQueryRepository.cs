@@ -1180,7 +1180,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(long? DynamicFormId, long? userId)
+        public async Task<DropDownOptionsGridListModel> GetDynamicGridDropDownById(List<long?> DynamicFormId, long? userId)
         {
             try
             {
@@ -1190,7 +1190,7 @@ namespace Infrastructure.Repository.Query
                 DynamicForm dynamicFormData = new DynamicForm();
                 var parameters = new DynamicParameters();
                 List<long?> dynamicFormIds = new List<long?>();
-                var query = "select t1.*,t3.PlantCode as CompanyName from DynamicForm t1  \r\nJOIN Plant t3 ON t1.CompanyID=t3.PlantID \r\nWHERE  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.ID =" + DynamicFormId + ";";
+                var query = "select t1.*,t3.PlantCode as CompanyName from DynamicForm t1  \r\nJOIN Plant t3 ON t1.CompanyID=t3.PlantID \r\nWHERE  (t1.IsDeleted is null OR t1.IsDeleted=0) AND t1.ID =" + DynamicFormId.First() + ";";
                 query += "Select * from ApplicationMaster;";
                 query += "Select * from ApplicationMasterParent;";
                 using (var connection = CreateConnection())
@@ -1203,7 +1203,7 @@ namespace Infrastructure.Repository.Query
                 }
                 if (dynamicFormDatas != null && dynamicFormDatas.Count() > 0)
                 {
-                    dynamicFormIds.Add(DynamicFormId);
+                    dynamicFormIds.AddRange(DynamicFormId);
                     dropDownOptionsGridListModel = await GetDynamicFormGridModelAsync(dynamicFormIds, userId, dynamicFormData?.CompanyId, dynamicFormData?.CompanyName, applicationMasters, applicationMasterParents, null, true);
                     //dropDownOptionsGridListModel.DynamicFormData = dynamicFormDatas;
                 }
@@ -1508,6 +1508,7 @@ namespace Infrastructure.Repository.Query
                                 obj.DynamicFormGridId = s.DynamicFormGridId;
                                 obj.DynamicFormDataGridProfileNo = s.DynamicFormDataGridProfileNo;
                                 obj.SessionId = s.SessionId;
+                                obj.DynamicFormName = s.Name;
                                 var dynamicFormSectionAttribute = new List<DynamicFormSectionAttribute>();
                                 if (isTableHeader == true)
                                 {

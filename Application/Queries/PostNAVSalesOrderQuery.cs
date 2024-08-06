@@ -1,6 +1,7 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -26,5 +27,12 @@ namespace Application.Queries
             this.Type = type;
         }
     }
-   
+    public class GetNAVStockBalanceQuery : PagedRequest, IRequest<string>
+    {
+        public StockBalanceSearch StockBalanceSearch { get; set; }
+        public GetNAVStockBalanceQuery(StockBalanceSearch stockBalanceSearch)
+        {
+            this.StockBalanceSearch = stockBalanceSearch;
+        }
+    }
 }

@@ -23,6 +23,7 @@ namespace Core.Entities
         public long? ModifiedByUserId { get; set; }
         public decimal? ReworkQty { get; set; }
         public decimal? Wipqty { get; set; }
+        public decimal? NotStartInvQty { get; set; }
         public decimal? GlobalQty { get; set; }
         public decimal? Kivqty { get; set; }
         public decimal? SupplyWipqty { get; set; }

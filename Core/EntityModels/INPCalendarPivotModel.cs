@@ -70,12 +70,14 @@ namespace Core.EntityModels
         public decimal PreStockBalance { get; set; }
         public decimal PreStockHoldingBalance { get; set; }
         public decimal PrewipQty { get; set; }
+        public decimal PreNotStartInvQty { get; set; }
         public decimal NAVStockBalance { get; set; }
         public decimal SgStockBalance { get; set; }
         public decimal MyStockBalance { get; set; }
         public decimal OtherStoreQty { get; set; }
         public decimal InterCompanyTransitQty { get; set; }
         public decimal WipQty { get; set; }
+        public decimal NotStartInvQty { get; set; }
         public decimal Rework { get; set; }
         public decimal NoOfTicket { get; set; }
         public decimal kivQty { get; set; }
@@ -408,6 +410,7 @@ namespace Core.EntityModels
         public decimal? PrePsbStockBalance_ { get; set; }
         public decimal? PreSgTenderStockBalance_ { get; set; }
         public decimal? WipQty_ { get; set; }
+        public decimal? NotStartInvQty_ { get; set; }
         public decimal? PreMyStockBalance_ { get; set; }
         public decimal? PreOtherStoreQty_ { get; set; }
         public decimal? PrewipQty_ { get; set; }
@@ -906,5 +909,20 @@ namespace Core.EntityModels
         public decimal? AdhocReplenishHs { get; set; }
         public int? AdhocMonthStandAlone { get; set; }
         public decimal? AdhocPlanQty { get; set; }
+    }
+    public class StockBalanceSearch
+    {
+        public DateTime StkMonth { get; set; }
+        public string? ItemNo { get; set; }
+        public long? CompanyId { get; set; }
+        public long? UserId { get; set; }
+    }
+    public class SotckBalanceItemsList
+    {
+        public List<Plant> PlantData { get; set; } = new List<Plant>();
+        public List<Navitems> NavitemsData { get; set; } = new List<Navitems>();
+        public List<NavitemStockBalance> NavitemStockBalance { get; set; } = new List<NavitemStockBalance>();
+        public List<Navcustomer> Navcustomer { get; set; } = new List<Navcustomer>();
+        public List<DistStockBalanceKiv> DistStockBalanceKiv { get; set; } = new List<DistStockBalanceKiv>();
     }
 }

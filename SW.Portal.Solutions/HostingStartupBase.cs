@@ -34,36 +34,48 @@ using DevExpress.DashboardAspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Google.Cloud.Firestore;
+using SW.Portal.Solutions.Services;
+using Core.EntityModels;
+using Quartz.Impl;
+using Quartz.Spi;
+using Quartz;
 
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
 
-namespace SW.Portal.Solutions.ServerSide {
+namespace SW.Portal.Solutions.ServerSide
+{
     partial class Startup : HostingStartupBase { }
 
-    abstract class HostingStartupBase : IHostingStartup {
+    abstract class HostingStartupBase : IHostingStartup
+    {
         protected IConfiguration Configuration { get; private set; }
 
         public abstract string EnvironmentName { get; }
 
         public abstract void Configure(IApplicationBuilder app, IWebHostEnvironment env);
         public abstract void ConfigureServices(WebHostBuilderContext context, IServiceCollection services);
-        public virtual void Configure(IWebHostBuilder builder) {
+
+
+        public virtual void Configure(IWebHostBuilder builder)
+        {
             builder.UseEnvironment(EnvironmentName);
-            builder.UseStaticWebAssets();      
+            builder.UseStaticWebAssets();
             builder.ConfigureServices(ConfigureServices);
             builder.Configure(ConfigureApp);
             builder.UseIISIntegration();
             builder.UseIIS();
 
-            void ConfigureApp(WebHostBuilderContext context, IApplicationBuilder app) {
+            void ConfigureApp(WebHostBuilderContext context, IApplicationBuilder app)
+            {
                 string pathBase = Configuration.GetValue<string>("pathbase");
-                if(!string.IsNullOrEmpty(pathBase)) {
+                if (!string.IsNullOrEmpty(pathBase))
+                {
                     string pathString = pathBase.StartsWith('/') ? pathBase : "/" + pathBase;
                     app.UsePathBase(pathString);
                 }
 
-                app.UseRequestLocalization(new RequestLocalizationOptions().SetDefaultCulture("en-US"));                
+                app.UseRequestLocalization(new RequestLocalizationOptions().SetDefaultCulture("en-US"));
                 app.UseAuthentication();
                 app.UseHttpsRedirection();
                 app.UseStaticFiles();
@@ -80,19 +92,21 @@ namespace SW.Portal.Solutions.ServerSide {
                 app.UseWebSockets();
                 app.UseAuthorization();
 
-                app.UseEndpoints(endpoints => {
+                app.UseEndpoints(endpoints =>
+                {
                     endpoints.MapControllers();
                     endpoints.MapDashboardRoute("api/dashboard", "DefaultDashboard");
                     endpoints.MapFallbackToPage("/_Host");
                     //endpoints.MapFallbackToPage("/Login"); // Add this line to handle the login route
                 });
                 // Add your dashboard route mapping here
-                
+
                 Configure(app, context.HostingEnvironment);
             };
-            
 
-            void ConfigureServices(WebHostBuilderContext context, IServiceCollection services) {
+
+            void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
+            {
                 Configuration = services.BuildServiceProvider().GetService<IConfiguration>();
 
 
@@ -100,7 +114,8 @@ namespace SW.Portal.Solutions.ServerSide {
                 IConfiguration configuration = context.Configuration;
                 IFileProvider fileProvider = context.HostingEnvironment.ContentRootFileProvider;
 
-                services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) => {
+                services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) =>
+                {
                     return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
                 });
 
@@ -126,14 +141,26 @@ namespace SW.Portal.Solutions.ServerSide {
                 services.AddScoped<FirebaseMessagingService>();
                 services.AddScoped<ToastService>();
                 services.AddScoped<IFirebaseSync, FirebaseSync>();
+
+                services.AddSingleton<IJobFactory, SingletonJobFactory>();
+                services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+                /*services.AddSingleton<HandfireJob>();
+                services.AddSingleton(new JobScheduleType(
+                    jobType: typeof(HandfireJob),
+                    cronExpression: "0/59 * * * * ?")); // run every 59 seconds
+
+
+                services.AddHostedService<QuartzHostedService>();*/
+
                 // Configure Firestore
                 ConfigureFirestore(services);
 
                 services.AddScoped<Helper>();
                 services.AddServerSideBlazor();
                 services.AddBlazoredToast();
-                services.AddRazorPages();                
-                services.AddResponseCompression(options => {
+                services.AddRazorPages();
+                services.AddResponseCompression(options =>
+                {
                     options.EnableForHttps = true;
                     options.MimeTypes = new[] {
                             "text/plain",
@@ -146,7 +173,7 @@ namespace SW.Portal.Solutions.ServerSide {
                             "text/json"
                         };
                 });
-                services.AddControllers().AddJsonOptions(ConfigureJsonOptions);                
+                services.AddControllers().AddJsonOptions(ConfigureJsonOptions);
                 //services.AddTransient<RealtimeService>();
                 //services.AddTransient<EmailAutoRefresh>();
                 //Enable CORS
@@ -154,16 +181,20 @@ namespace SW.Portal.Solutions.ServerSide {
                 {
                     c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
                 });
-               
-                static void ConfigureHttpClient(HttpClient httpClient) {
+
+
+
+                static void ConfigureHttpClient(HttpClient httpClient)
+                {
                     httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                 };
 
-                static void ConfigureJsonOptions(JsonOptions options) {
+                static void ConfigureJsonOptions(JsonOptions options)
+                {
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 };
 
-               
+
             }
         }
 
@@ -177,7 +208,10 @@ namespace SW.Portal.Solutions.ServerSide {
             FirestoreDb firestoreDb = FirestoreDb.Create("novatonotify"); // Replace with your Firestore project ID
             services.AddSingleton(_ => firestoreDb);
         }
-        void IHostingStartup.Configure(IWebHostBuilder builder) {
+
+
+        void IHostingStartup.Configure(IWebHostBuilder builder)
+        {
             Configure(builder);
         }
     }

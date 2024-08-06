@@ -45,6 +45,7 @@ namespace Core.Entities
         public string? LocationName { get; set; }
         public string? AreaName { get; set; }
         public string? AttributeDetailNameId { get; set; }
+        public string? DesignationName { get; set; }
     }
     public class DataSourceAttributeDetails
     {

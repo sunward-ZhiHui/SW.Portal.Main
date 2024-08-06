@@ -11,7 +11,8 @@ namespace Core.Entities
     public class ApplicationPermission
     {
         [Key]
-        public long PermissionID { get; set; }  
+        public long PermissionID { get; set; }
+        [Required(ErrorMessage = "Page Name is Required")]
         public string PermissionName { get; set; }
         public string PermissionCode { get; set; }
         public long ParentID { get; set; }
@@ -20,6 +21,7 @@ namespace Core.Entities
         public string ActionName { get; set; }
         public string Icon { get; set; }
         public string MenuId { get; set; }
+        [Required(ErrorMessage = "Page URL is Required")]
         public string PermissionURL { get; set; }
         public string PermissionGroup { get; set; }
         public string PermissionOrder { get; set; }

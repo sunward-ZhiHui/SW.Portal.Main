@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Repositories.Query;
 using Dapper;
+using Google.Api.Gax.ResourceNames;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -25,31 +26,14 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("PermissionID", id);
-
-                            var query = "DELETE  FROM ApplicationPermission WHERE PermissionID = @PermissionID";
+                    var parameters = new DynamicParameters();
+                    parameters.Add("id", id);
 
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                    var query = "DELETE  FROM ApplicationPermission WHERE PermissionID = @id";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
 
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
                 }
 
             }
@@ -63,7 +47,9 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ApplicationPermission";
+                var parameters = new DynamicParameters();
+              
+                var query = "SELECT * FROM ApplicationPermission WHERE ParentID=60400";
 
                 using (var connection = CreateConnection())
                 {
@@ -96,9 +82,18 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("PermissionID", permissionid);                        
                         parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
                         parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
+                        parameters.Add("ParentID", applicationPermission.ParentID, DbType.Int64);
+                        parameters.Add("PermissionLevel", applicationPermission.PermissionLevel, DbType.String);
+                        parameters.Add("PermissionOrder", applicationPermission.PermissionOrder, DbType.String);
+                        parameters.Add("IsDisplay", applicationPermission.IsDisplay, DbType.String);
+                        parameters.Add("IsHeader", applicationPermission.IsHeader, DbType.String);
+                        parameters.Add("IsNewPortal", applicationPermission.IsNewPortal, DbType.String);
+                        parameters.Add("Component", applicationPermission.Component, DbType.String);
                         parameters.Add("PortalUrl", applicationPermission.Name, DbType.String);
+                        parameters.Add("IsCmsApp", applicationPermission.IsCmsApp, DbType.String);
+                        parameters.Add("IsMobile", applicationPermission.IsMobile, DbType.String);
 
-                        var query = "INSERT INTO ApplicationPermission(PermissionURL,PermissionName,Name,PermissionID) VALUES (@PermissionURL,@PermissionName,@PortalUrl,@PermissionID)";
+                        var query = "INSERT INTO ApplicationPermission(PermissionID,PermissionURL,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,Component,Name,IsCmsApp,IsMobile) VALUES (@PermissionID,@PermissionURL,@PermissionName,60400,@PermissionLevel,@PermissionOrder,@IsDisplay,@IsHeader,@IsNewPortal,@Component,@PortalUrl,@IsCmsApp,@IsMobile)";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
 
                         return rowsAffected;
@@ -135,9 +130,18 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("PermissionID", applicationPermission.PermissionID, DbType.Int64);
                             parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
                             parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
+                            parameters.Add("ParentID", applicationPermission.ParentID, DbType.Int64);
+                            parameters.Add("PermissionLevel", applicationPermission.PermissionLevel, DbType.String);
+                            parameters.Add("PermissionOrder", applicationPermission.PermissionOrder, DbType.String);
+                            parameters.Add("IsDisplay", applicationPermission.IsDisplay, DbType.String);
+                            parameters.Add("IsHeader", applicationPermission.IsHeader, DbType.String);
+                            parameters.Add("IsNewPortal", applicationPermission.IsNewPortal, DbType.String);
+                            parameters.Add("Component", applicationPermission.Component, DbType.String);
+                            parameters.Add("PortalUrl", applicationPermission.Name, DbType.String);
+                            parameters.Add("IsCmsApp", applicationPermission.IsCmsApp, DbType.String);
+                            parameters.Add("IsMobile", applicationPermission.IsMobile, DbType.String);
 
-
-                            var query = "UPDATE ApplicationPermission SET PermissionURL = @PermissionURL ,PermissionName = @PermissionName  WHERE PermissionID = @PermissionID";
+                            var query = "UPDATE ApplicationPermission SET PermissionURL = @PermissionURL ,PermissionName = @PermissionName,ParentID=60400,PermissionLevel=@PermissionLevel,PermissionOrder=@PermissionOrder,IsDisplay=@IsDisplay,IsHeader =@IsHeader,IsNewPortal=@IsNewPortal,Component=@Component,Name=@PortalUrl,IsCmsApp=@IsCmsApp,IsMobile=@IsMobile WHERE PermissionID = @PermissionID";
 
 
                                 var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -166,7 +170,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ApplicationPermission ORDER BY PermissionID DESC;";
+                var query = "SELECT TOP 1 * FROM ApplicationPermission ORDER BY PermissionID DESC;";
 
                 using (var connection = CreateConnection())
                 {

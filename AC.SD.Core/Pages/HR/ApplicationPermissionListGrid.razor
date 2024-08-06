@@ -50,38 +50,34 @@
             CssClass="ch-360  " style="height: calc(100vh - 270px);"
             FocusedRowEnabled="true"
             RowClick="OnRowClick"
-            SelectedDataItemsChanged="@SelectedDataItemsChanged"
             RowDoubleClick="OnRowDoubleClick"
             AllowSelectRowByClick="true">
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="PermissionName" Caption="PageName" MinWidth="80"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="PermissionURL" Caption="PageURL" MinWidth="80" />
 
-            <DxGridDataColumn FieldName="PermissionURL" MinWidth="80"></DxGridDataColumn>
-            <DxGridDataColumn FieldName="PermissionName" MinWidth="80" />
 
-
-        </Columns>
+        </Columns> 
         <EditFormTemplate Context="EditFormContext">
             @{
                 var department = (ApplicationPermission)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-
-
-                <DxFormLayoutItem Caption="PermissionURL" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@department.PermissionURL" ShowValidationIcon="true" />
-
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="PermissionName" ColSpanMd="6">
+      
+                <DxFormLayoutItem Caption="PageName" ColSpanMd="6">
                     <DxTextBox @bind-Text="@department.PermissionName" ShowValidationIcon="true" />
-
+                    <ValidationMessage For="@(() => department.PermissionName)" />
                 </DxFormLayoutItem>
-
+                <DxFormLayoutItem Caption="PageURL" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@department.PermissionURL" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => department.PermissionURL)" />
+                </DxFormLayoutItem>
 
             </DxFormLayout>
         </EditFormTemplate>
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PermissionName" />
         </TotalSummary>
     </DxGrid>
 
@@ -113,21 +109,14 @@
 
 </DxPopup>
 @code {
-    string plantcode = "";
-    string Name = "";
-    string Text { get; set; } = "Active";
-    [Parameter]
-    public long? PlantID { get; set; }
-    [Parameter]
-    public string Type { get; set; }
-    bool isDivisionEnabled { get; set; } = false;
+  
     bool isEnabled { get; set; } = true;
     bool PanelVisible { get; set; }
 
     private List<ApplicationPermission> _TreeData;
     private ApplicationPermission _selectedItems;
     public ApplicationUser? applicationUser { get; private set; }
-
+   
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = true;
@@ -160,14 +149,8 @@
         if (e.IsNew)
         {
             var newmaster = (ApplicationPermission)e.EditModel;
-
-
-
         }
-        else
-        {
-
-        }
+        
     }
 
 
@@ -197,7 +180,15 @@
                     Name = editableDepartment.Name,
                     PermissionName = editableDepartment.PermissionName,
                     PermissionURL = editableDepartment.PermissionURL,
-
+                    ParentID=editableDepartment.ParentID,
+                    PermissionLevel = editableDepartment.PermissionLevel,
+                    PermissionOrder=editableDepartment.PermissionOrder,
+                    IsDisplay=editableDepartment.IsDisplay,
+                    IsHeader=editableDepartment.IsHeader,
+                    IsNewPortal=editableDepartment.IsNewPortal,
+                    Component=editableDepartment.Component,
+                   IsCmsApp=editableDepartment.IsCmsApp,
+                   IsMobile=editableDepartment.IsMobile
                 };
             await Mediator.Send(request);
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -211,6 +202,15 @@
                     Name = editableDepartment.Name,
                     PermissionName = editableDepartment.PermissionName,
                     PermissionURL = editableDepartment.PermissionURL,
+                    ParentID = editableDepartment.ParentID,
+                    PermissionLevel = editableDepartment.PermissionLevel,
+                    PermissionOrder = editableDepartment.PermissionOrder,
+                    IsDisplay = editableDepartment.IsDisplay,
+                    IsHeader = editableDepartment.IsHeader,
+                    IsNewPortal = editableDepartment.IsNewPortal,
+                    Component = editableDepartment.Component,
+                    IsCmsApp = editableDepartment.IsCmsApp,
+                    IsMobile = editableDepartment.IsMobile
                     // StatusCodeId = editableDepartment.StatusCodeId,
                     // ModifiedByUserId = applicationUser.UserID,
                     // ModifiedDate = DateTime.Now,
@@ -286,52 +286,17 @@
     {
         Blukdeletepopup = true;
     }
+   
+
     async Task bulkDelete()
     {
-        try
+        if (_selectedItems != null)
         {
-            if (SelectedDataItems != null)
-            {
-                foreach (object item in SelectedDataItems)
-                {
-
-                    if (item is ApplicationPermission forumdepartment)
-                    {
-
-                        // var editableDepartment = (ViewDepartment)e.DataItem;
-                        // var request = new DeleteDepartmentCommand(forumdepartment.DepartmentId);
-                        // await Mediator.Send(request);
-
-                        Blukdeletepopup = false;
-                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        await UpdateDataAsync();
-                        Grid.SetFocusedRowIndex(0);
-                    }
-
-                }
-            }
-        }
-        catch (Exception eq)
-        {
-            //DeleteerrorMessage = eq.Message;
-            //PopupVisible = true;
+            var request = new DeleteApplicationPermissionListQuery(_selectedItems.PermissionID);
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+            Grid.SetFocusedRowIndex(0);
             Blukdeletepopup = false;
-            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
-        }
-
-        //  await UpdateDataAsync();
-    }
-
-    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
-    {
-        SelectedDataItems = SelectedToItems;
-        if (SelectedDataItems.Count > 1)
-        {
-            EditEnabled = false;
-        }
-        else
-        {
-            EditEnabled = true;
         }
 
     }

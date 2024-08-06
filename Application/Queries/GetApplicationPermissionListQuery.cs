@@ -11,7 +11,6 @@ namespace Application.Queries
 {
     public class GetApplicationPermissionListQuery : PagedRequest, IRequest<List<ApplicationPermission>>
     {
-
     }
 
     public class CreateApplicationPermissionListQuery : ApplicationPermission, IRequest<long>

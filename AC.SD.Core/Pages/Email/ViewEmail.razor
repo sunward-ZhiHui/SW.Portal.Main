@@ -5517,8 +5517,8 @@
                     var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
                     //vk
-                    Data.AssignccIds = t1.Concat(t2).ToList();
-                    //Data.AssignccIds = parttcc;
+                    //Data.AssignccIds = t1.Concat(t2).ToList();
+                    Data.AssignccIds = parttcc;
 
                     var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
                     IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
@@ -5590,8 +5590,8 @@
                     var t2 = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
                     //vk
-                    Data.AssignccIds = t1.Concat(t2).ToList();
-                    //Data.AssignccIds = getpatlist;
+                    //Data.AssignccIds = t1.Concat(t2).ToList();
+                    Data.AssignccIds = getpatlist;
 
 
                     //string assignccIdAsString = Data.AssignccIds.ToString(); // Convert Data.AssignccIds to a string

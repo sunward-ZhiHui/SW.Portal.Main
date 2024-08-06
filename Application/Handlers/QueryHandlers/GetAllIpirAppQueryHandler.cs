@@ -101,5 +101,31 @@ namespace Application.Handlers.QueryHandlers
             return await iIpirAppQueryRepostitory.InsertIpirAppCheckedDetails(request.IpirAppCheckedDetailsModel);
         }
     }
+    public class IpirReportinginformationHandler : IRequestHandler<InsertOrUpdateIpirReportinginformation, IPIRReportingInformation>
+    {
+        private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
+        public IpirReportinginformationHandler(IIpirAppQueryRepostitory _iIpirAppQueryRepostitory)
+        {
+            iIpirAppQueryRepostitory = _iIpirAppQueryRepostitory;
+        }
+        public async Task<IPIRReportingInformation> Handle(InsertOrUpdateIpirReportinginformation request, CancellationToken cancellationToken)
+        {
+            return await iIpirAppQueryRepostitory.InsertOrUpdateIpirReportingInformation(request.IpirApp);
+        }
+
+    }
+    public class DeleteIpirReportingInformationHandler : IRequestHandler<DeleteIpirReportingInformation, IPIRReportingInformation>
+    {
+        private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
+        public DeleteIpirReportingInformationHandler(IIpirAppQueryRepostitory _iIpirAppQueryRepostitory)
+        {
+            iIpirAppQueryRepostitory = _iIpirAppQueryRepostitory;
+        }
+        public async Task<IPIRReportingInformation> Handle(DeleteIpirReportingInformation request, CancellationToken cancellationToken)
+        {
+            return await iIpirAppQueryRepostitory.DeleteIpirReportingInformation(request.ReportingInformation);
+        }
+
+    }
 }
 

@@ -179,7 +179,9 @@ namespace Application.Handlers.QueryHandlers
                 var t11 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
                 var t21 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
-                CcIds = t11.Concat(t21).ToList();
+                //vk
+                //CcIds = t11.Concat(t21).ToList();
+                CcIds = parttcc;
 
                 var t1 = ToIds;
                 var t2 = CcIds;

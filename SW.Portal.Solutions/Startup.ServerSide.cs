@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
- 
+
 using System.Collections.Generic;
 using AC.SD.Core.Services;
 using Infrastructure;
@@ -27,15 +27,17 @@ using Microsoft.Extensions.FileProviders;
 using SW.Portal.Solutions.Code;
 using AC.SD.Core;
 using DevExpress.CodeParser;
+namespace SW.Portal.Solutions.ServerSide
+{
 
-namespace SW.Portal.Solutions.ServerSide {
-
-    partial class Startup {
+    partial class Startup
+    {
         private IWebHostEnvironment env;
 
         //public IConfiguration Configuration { get; }
         public override string EnvironmentName => "ServerSide";
-        public override void ConfigureServices(WebHostBuilderContext context, IServiceCollection services) {
+        public override void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
+        {
 #if DEBUG
             bool detailedErrors = true;
 #else
@@ -51,12 +53,13 @@ namespace SW.Portal.Solutions.ServerSide {
             System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
             System.Diagnostics.Debug.WriteLine(keys.PublicKey);
 
-            services.AddControllersWithViews();            
+            services.AddControllersWithViews();
             services.AddDemoServices(Configuration, env);
 
-            services.AddSingleton<IDemoVersion, DemoVersion>(x => {
+            services.AddSingleton<IDemoVersion, DemoVersion>(x =>
+            {
                 string customVersion = Configuration.GetValue<string>("dxversion");
-                if(!string.IsNullOrEmpty(customVersion))
+                if (!string.IsNullOrEmpty(customVersion))
                     customVersion = " " + customVersion.TrimStart();
                 var dxVersion = new Version(AssemblyInfo.Version);
                 return new DemoVersion(new Version(dxVersion.Major, dxVersion.Minor, dxVersion.Build) + customVersion);
@@ -71,7 +74,7 @@ namespace SW.Portal.Solutions.ServerSide {
             services.AddTransient<IFcm>(s => new FcmBuilder()
                .WithApiKey("Your_API_key")
                .GetFcm()
-           );        
+           );
 
 
             //Enable CORS
@@ -121,11 +124,16 @@ namespace SW.Portal.Solutions.ServerSide {
             //services.AddHostedService<StockQuoteChangeTimerService>(
             //    provider => new StockQuoteChangeTimerService((StockQuoteService)provider.GetRequiredService<IStockQuoteService>())
             //);
+
         }
-        public override void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
-            if(env.IsDevelopment()) {
+        public override void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
                 app.UseDeveloperExceptionPage();
-            } else {
+            }
+            else
+            {
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
@@ -136,15 +144,20 @@ namespace SW.Portal.Solutions.ServerSide {
             //    ServeUnknownFileTypes = true
             //});
             app.UseWebSockets();
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapBlazorHub();
                 endpoints.MapHub<NotificationHub>(ApplicationConstants.SignalR.HubUrl);
             });
+
             AppDependencyResolver.Init(app.ApplicationServices);
         }
-        public override void Configure(IWebHostBuilder builder) {
-            builder.ConfigureAppConfiguration(((context, configurationBuilder) => {
-                configurationBuilder.AddInMemoryCollection(new Dictionary<string, string> {
+        public override void Configure(IWebHostBuilder builder)
+        {
+            builder.ConfigureAppConfiguration(((context, configurationBuilder) =>
+            {
+                configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
+                {
                     ["DataSourcesFolder"] = Path.Combine(System.AppContext.BaseDirectory, "DataSources")
                 });
             }));

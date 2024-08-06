@@ -190,6 +190,7 @@
     private List<ApplicationMasterChildModel> _applicationMasterChildStockGroupItems;
     private List<ApplicationMasterChildModel> _applicationMasterChildDepartmentItems;
     private List<ApplicationMasterChildModel> _applicationMasterChildItemGroupItems;
+    private List<DynamicForm> _dynamicForm; private List<DynamicFormData>? _dynamicFormData; private DropDownOptionsGridListModel _dropDownOptionsGridList;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -197,6 +198,12 @@
         _applicationMasterChildStockGroupItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("136"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _TransactionType = await Mediator.Send(new GetAllCodeMasterQuery("DynamicFormTypeItem"));
+        _dynamicForm = await Mediator.Send(new GetAllDynamicFormDropdownListQuery());
+        if (_dynamicForm!=null && _dynamicForm.Count()>0)
+        {
+            var _dynamicFormIds = _dynamicForm.Select(s => (long?)s.ID).ToList();
+            _dropDownOptionsGridList = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(_dynamicFormIds, applicationUser.UserID));
+        }
     }
     protected override async Task OnParametersSetAsync()
     {

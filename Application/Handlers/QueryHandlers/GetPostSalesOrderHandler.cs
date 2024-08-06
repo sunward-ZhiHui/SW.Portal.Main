@@ -26,8 +26,8 @@ namespace Application.Handlers.QueryHandlers
             return (List<PostSalesOrder>)await _postSalesOrderQueryRepository.GetAllAsync();
         }
     }
-    public class PostNAVSalesOrderHandler : IRequestHandler<PostNAVSalesOrderQuery,PostSalesOrder>
-    {   
+    public class PostNAVSalesOrderHandler : IRequestHandler<PostNAVSalesOrderQuery, PostSalesOrder>
+    {
         private readonly ISalesOrderService _salesOrderService;
         public PostNAVSalesOrderHandler(ISalesOrderService salesOrderService)
         {
@@ -59,11 +59,11 @@ namespace Application.Handlers.QueryHandlers
         public async Task<string> Handle(rawitemSalesOrderQuery request, CancellationToken cancellationToken)
         {
             string result = "";
-            if(request.Type == "RawMatItem")
+            if (request.Type == "RawMatItem")
             {
                 result = await _salesOrderService.RawMatItemAsync(request.CompanyName, (long)request.Companyid, request.Type);
             }
-            else if(request.Type == "PackagingItem")
+            else if (request.Type == "PackagingItem")
             {
                 result = await _salesOrderService.PackagingItemAsync(request.CompanyName, (long)request.Companyid, request.Type);
             }
@@ -71,11 +71,31 @@ namespace Application.Handlers.QueryHandlers
             {
                 result = await _salesOrderService.ProcessItemAsync(request.CompanyName, (long)request.Companyid, request.Type);
             }
-            
+
 
             // Return the result as a string
             return result;
         }
     }
+    public class GetNAVStockBalanceHandler : IRequestHandler<GetNAVStockBalanceQuery, string>
+    {
+        private readonly ISalesOrderService _salesOrderService;
+        private readonly IPostSalesOrderQueryRepository _postSalesOrderQueryRepository;
+        public GetNAVStockBalanceHandler(ISalesOrderService salesOrderService, IPostSalesOrderQueryRepository postSalesOrderQueryRepository)
+        {
+            _salesOrderService = salesOrderService;
+            _postSalesOrderQueryRepository = postSalesOrderQueryRepository;
+        }
 
+        public async Task<string> Handle(GetNAVStockBalanceQuery request, CancellationToken cancellationToken)
+        {
+            var result = await _salesOrderService.GetNAVStockBalance(request.StockBalanceSearch);
+            if (!string.IsNullOrEmpty(result))
+            {
+                var res = await _postSalesOrderQueryRepository.UpdateStockBalanceData(result);
+            }
+            // Return the result as a string
+            return result;
+        }
+    }
 }

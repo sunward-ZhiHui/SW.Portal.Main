@@ -328,7 +328,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormData>> Handle(GetDynamicFormDataById request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId,request.DynamicFormSectionGridAttributeId);
+            return (List<DynamicFormData>)await _dynamicFormQueryRepository.GetDynamicFormDataByIdAsync(request.Id, request.UserId, request.DynamicFormDataGridId, request.DynamicFormSectionGridAttributeId);
         }
 
 
@@ -678,7 +678,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormDataWrokFlow>> Handle(GetDynamicFormWorkFlowListByUser request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormDataWrokFlow>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowListByUser(request.UserId,request.DynamicFormDataId);
+            return (List<DynamicFormDataWrokFlow>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowListByUser(request.UserId, request.DynamicFormDataId);
         }
     }
     public class InsertCreateEmailFormDataHandler : IRequestHandler<InsertCreateEmailFormData, DynamicFormData>
@@ -914,6 +914,21 @@ namespace Application.Handlers.QueryHandlers
         public async Task<DynamicFormSectionAttributeSectionParent> Handle(DeleteDynamicFormSectionAttributeParent request, CancellationToken cancellationToken)
         {
             return await _queryRepository.DeleteDynamicFormSectionAttributeParent(request.DynamicFormSectionAttributeSectionParent);
+
+
+        }
+    }
+    public class UpdateDynamicFormLockedHandler : IRequestHandler<UpdateDynamicFormLocked, DynamicFormData>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormLockedHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormData> Handle(UpdateDynamicFormLocked request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormLocked(request.DynamicFormData);
 
 
         }

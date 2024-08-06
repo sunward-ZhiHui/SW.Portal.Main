@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
 using Infrastructure.Repository.Query.Base;
@@ -10,6 +11,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace Infrastructure.Repository.Query
 {
@@ -30,6 +32,66 @@ namespace Infrastructure.Repository.Query
                 {
                     return (await connection.QueryAsync<PostSalesOrder>(query)).ToList();
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<string> UpdateStockBalanceData(string query)
+        {
+            try
+            {
+                var querys = string.Empty;
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                            parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                await connection.ExecuteAsync(query, parameters);
+                            }
+                        }
+                        return query;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<SotckBalanceItemsList> GetSotckBalanceItemsListAsync(StockBalanceSearch searchModel)
+        {
+            try
+            {
+                SotckBalanceItemsList sotckBalanceItemsList = new SotckBalanceItemsList();
+                var parameters = new DynamicParameters();
+                parameters.Add("CompanyId", searchModel.CompanyId, DbType.Int64);
+                var query = "select  * from Plant;";
+                query += "select * from Navitems where companyid=@CompanyId and no like 'FP-%';";
+                query += "select * from NavitemStockBalance;";
+                query += "select * from Navcustomer where companyid=@CompanyId;";
+                query += "select * from DistStockBalanceKiv;";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    sotckBalanceItemsList.PlantData = results.Read<Plant>().ToList();
+                    sotckBalanceItemsList.NavitemsData = results.Read<Navitems>().ToList();
+                    sotckBalanceItemsList.NavitemStockBalance = results.Read<NavitemStockBalance>().ToList();
+                    sotckBalanceItemsList.Navcustomer = results.Read<Navcustomer>().ToList();
+                    sotckBalanceItemsList.DistStockBalanceKiv = results.Read<DistStockBalanceKiv>().ToList();
+                }
+                return sotckBalanceItemsList;
             }
             catch (Exception exp)
             {
@@ -105,10 +167,10 @@ namespace Infrastructure.Repository.Query
                 return "All items already added or failed to insert.";
         }
 
-        public async Task<RawMatItemList> GetRawMatItemValidatation(long? companyid, string? itemno,string? type)
+        public async Task<RawMatItemList> GetRawMatItemValidatation(long? companyid, string? itemno, string? type)
         {
             try
-            {              
+            {
                 var parameters = new DynamicParameters();
                 parameters.Add("companyid", companyid);
                 parameters.Add("itemno", itemno);

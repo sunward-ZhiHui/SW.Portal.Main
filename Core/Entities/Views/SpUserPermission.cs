@@ -27,5 +27,7 @@ namespace Core.Entities.Views
         public string Component { get; set; }
         public string ScreenID { get; set; }
         public bool? IsCmsApp { get;set; }
+        public bool IsPermissionURL { get; set; }
+        public Guid UniqueSessionID { get; set; }
     }
 }

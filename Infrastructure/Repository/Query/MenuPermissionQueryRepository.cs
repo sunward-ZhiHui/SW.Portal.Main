@@ -62,6 +62,8 @@ namespace Infrastructure.Repository.Query
                             Items = null,
                             ScreenID = m.ScreenID,
                             ParentID = m.ParentID,
+                            IsPermissionURL  = m.IsPermissionURL,
+                            UniqueSessionID = m.UniqueSessionID,
                             PermissionID = m.PermissionID
                         };
                         menuList.Add(menu);
@@ -205,6 +207,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
 
     }
 }

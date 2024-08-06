@@ -1819,12 +1819,13 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormId", id);
                 parameters.Add("DynamicFormDataGridId", DynamicFormDataGridId);
                 parameters.Add("DynamicFormSectionGridAttributeId", DynamicFormSectionGridAttributeId);
-                var query = "select t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeID,t1.DynamicFormID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t6.SessionID as DynamicFormSectionGridAttributeSessionId,\r\nt1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.DynamicFormItem,t1.IsSendApproval,t1.FileProfileSessionID,t1.ProfileID,t1.ProfileNo,t1.DynamicFormDataGridID,t1.IsDeleted,t1.SortOrderByNo,t1.GridSortOrderByNo,t1.DynamicFormSectionGridAttributeID,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
+                var query = "select t33.UserName as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeID,t1.DynamicFormID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t6.SessionID as DynamicFormSectionGridAttributeSessionId,\r\nt1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.DynamicFormItem,t1.IsSendApproval,t1.FileProfileSessionID,t1.ProfileID,t1.ProfileNo,t1.DynamicFormDataGridID,t1.IsDeleted,t1.SortOrderByNo,t1.GridSortOrderByNo,t1.DynamicFormSectionGridAttributeID,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
                     "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
                     "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid\r\n" +
                     "from DynamicFormData t1\r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID = t1.AddedByUserID\r\n" +
                     "LEFT JOIN ApplicationUser t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
+                     "LEFT JOIN ApplicationUser t33 ON t33.UserID = t1.LockedUserId\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
                     "LEFT JOIN DynamicFormSectionAttribute t6 ON t6.DynamicFormSectionAttributeId = t1.DynamicFormSectionGridAttributeId\r\n" +
                     "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.DynamicFormId =@DynamicFormId\r\n";
@@ -3455,10 +3456,10 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", userId);
                 parameters.Add("DynamicFormDataId", dynamicFormDataId);
-                var query = "select t1.DynamicFormID,t2.FileProfileTypeId," +
+                var query = "select t33.UserName as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormID,t2.FileProfileTypeId," +
                     "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
                     "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID,t1.SortOrderByNo from DynamicFormData t1\r\n" +
-                    "JOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID WHERE (t2.IsDeleted =0 OR t2.IsDeleted is null) AND (t1.IsDeleted =0 OR t1.IsDeleted is null) AND t1.DynamicFormID in( select t3.DynamicFormID from DynamicFormWorkFlow t3 where t3.UserID=@UserId)\r\n";
+                    "LEFT JOIN ApplicationUser t33 ON t33.UserID = t1.LockedUserId JOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID WHERE (t2.IsDeleted =0 OR t2.IsDeleted is null) AND (t1.IsDeleted =0 OR t1.IsDeleted is null) AND t1.DynamicFormID in( select t3.DynamicFormID from DynamicFormWorkFlow t3 where t3.UserID=@UserId)\r\n";
                 if (dynamicFormDataId > 0)
                 {
                     query += "AND t1.DynamicFormDataID=@DynamicFormDataId";
@@ -4459,6 +4460,37 @@ namespace Infrastructure.Repository.Query
 
                         var query = "Delete from DynamicFormSectionAttributeSection where DynamicFormSectionAttributeSectionParentId=@DynamicFormSectionAttributeSectionParentId\r\n;";
                         query += "DELETE  FROM DynamicFormSectionAttributeSectionParent WHERE DynamicFormSectionAttributeSectionParentId = @DynamicFormSectionAttributeSectionParentId;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<DynamicFormData> UpdateDynamicFormLocked(DynamicFormData value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormDataId", value.DynamicFormDataId);
+                        parameters.Add("IsLocked", value.IsLocked == true ? true : null);
+                        parameters.Add("LockedUserId", value.LockedUserId);
+                        var query = "update DynamicFormData set IsLocked=@IsLocked,LockedUserID=@LockedUserId where DynamicFormDataId=@DynamicFormDataId\r\n;";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 

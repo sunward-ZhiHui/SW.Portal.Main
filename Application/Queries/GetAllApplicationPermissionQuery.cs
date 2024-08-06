@@ -34,4 +34,12 @@ namespace Application.Queries
     public class CreateApplicationRolePermissionQuery : ApplicationRolePermission, IRequest<long>
     {
     }
+    public class GetListByApplicationPermissionSession : PagedRequest, IRequest<List<ApplicationPermission>>
+    {
+        public string SessionId { get; private set; }
+        public GetListByApplicationPermissionSession(string SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
 }

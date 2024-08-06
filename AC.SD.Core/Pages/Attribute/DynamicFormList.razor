@@ -49,6 +49,7 @@
                 <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
+                <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
             </Items>
         </DxMenu>
     </div>
@@ -117,7 +118,8 @@
                                         dynamic item = (ExpandoObject)context.DataItem;
                                         var items = (int?)item.IsFileprofileTypeDocument;
                                         var isDraft = (bool?)item.IsDraft;
-
+                                        var isLocked = (bool?)item.IsLocked;
+                                        var lockedUser = (string?)item.LockedUser;
                                     }
                                     @if (items > 0)
                                     {
@@ -127,6 +129,10 @@
                                     {
                                         var emailName = isDraft == true ? "Draft" : "View Email";
                                         <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@emailName"></i>
+                                    }
+                                    @if (isLocked == true)
+                                    {
+                                        <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="Locked By:@lockedUser"></i>
                                     }
                                 </CellDisplayTemplate>
                             </DxGridDataColumn>
@@ -203,6 +209,22 @@
         <AC.SD.Core.Pages.Attribute.DynamicFormGridLists DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridId" IsShow="false" MainSessionId="@MainSessionId" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@lockpopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupLockClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to @LockedName this record?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkLock())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     private IDisposable? DynamicFormPage5;
     Guid myKey { get; set; } = Guid.NewGuid();
@@ -217,7 +239,7 @@
     private DocumentsModel _documentsDmsData;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicFormData _selectedItems;
-    bool EditEnabled { get; set; } = false; bool PopupUpload { get; set; } = false; bool AddEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool PopupUpload { get; set; } = false; bool AddEnabled { get; set; } = false; bool lockpopup { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     bool fileEnabled { get; set; } = false; bool emailEnabled { get; set; } = false;
@@ -235,7 +257,7 @@
     bool ReInitializeDragging { get; set; }
     DotNetObjectReference<DynamicFormList> DotNetHelper { get; set; }
     IJSObjectReference JsModule { get; set; }
-
+    bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock";
     public Guid? DynamicFormSessionId { get; set; }
     public Guid? MainSessionId { get; set; }
     public long? DynamicFormDataGridId { get; set; }
@@ -447,6 +469,9 @@
                             objectData["IsFileprofileTypeDocument"] = s.IsFileprofileTypeDocument;
                             objectData["DynamicFormSectionGridAttributeId"] = s.DynamicFormSectionGridAttributeId;
                             objectData["IsDraft"] = s.IsDraft;
+                            objectData["IsLocked"] = s.IsLocked;
+                            objectData["LockedUserId"] = s.LockedUserId;
+                            objectData["LockedUser"] = s.LockedUser;
                             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                             {
                                 _AttributeHeader.DynamicFormSectionAttribute.ForEach(s =>
@@ -1013,8 +1038,18 @@
         _selectedItems = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
         FileProfileTypeId = _selectedItems?.FileProfileTypeId;
         //await DynamicFormOnDms();
-        EditEnabled = true;
+        EditEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock";
         DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
+        if (_selectedItems.IsLocked == true && _selectedItems.LockedUserId > 0)
+        {
+            LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
+            if (_selectedItems.LockedUserId != applicationUser.UserID)
+            {
+                isLocked = false;
+                // EditEnabled = false;
+                DeleteEnabled = false; fileEnabled = false; emailEnabled = false;
+            }
+        }
     }
     async Task OpenOdataUrl()
     {
@@ -1031,6 +1066,53 @@
         if (_documentsDmsData != null && _documentsDmsData.DocumentID > 0)
         {
             fileEnabled = true;
+        }
+        StateHasChanged();
+    }
+    void OpenLock()
+    {
+        lockpopup = true;
+    }
+    void EulaPopupLockClosed(PopupClosedEventArgs args)
+    {
+        lockpopup = false;
+        InvokeAsync(UpdateDataAsync);
+        StateHasChanged();
+    }
+    async Task bulkLock()
+    {
+        if (_selectedItems != null)
+        {
+            DynamicFormData dynamicFormData = new DynamicFormData();
+            dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+            dynamicFormData.IsLocked = _selectedItems.IsLocked == true ? null : true;
+            if (dynamicFormData.IsLocked == true)
+            {
+                dynamicFormData.LockedUserId = applicationUser.UserID;
+                dynamicFormData.LockedUser = applicationUser.UserName;
+            }
+            var result = await Mediator.Send(new UpdateDynamicFormLocked(dynamicFormData));
+            if (result.DynamicFormDataId > 0)
+            {
+                LockedName = "Lock"; fafaunlock = "fa fa-lock";
+                if (dynamicFormData.IsLocked == true)
+                {
+                    _selectedItems.IsLocked = dynamicFormData.IsLocked;
+                    _selectedItems.LockedUserId = applicationUser.UserID;
+                    _selectedItems.LockedUser = applicationUser.UserName;
+                    LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
+                }
+                lockpopup = false;
+                if (dynamicFormData.IsLocked == true)
+                {
+                    toastService.ShowToast("Unlock successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                }
+                else
+                {
+                    toastService.ShowToast("Lock successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                }
+
+            }
         }
         StateHasChanged();
     }
@@ -1163,12 +1245,14 @@
     {
         Blukdeletepopup = true;
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    
+    void EulaPopupClosed()
     {
         BackUpload();
         PopupDynamicFormGridLists = false;
         Blukdeletepopup = false;
         createEmailpopup = false;
+
         // await UpdateDataAsync();
     }
     void openFormGridList(DropDownOptionsModel dropDownOptionsModel, object datas)

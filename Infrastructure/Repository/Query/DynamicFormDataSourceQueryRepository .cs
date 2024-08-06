@@ -338,7 +338,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('Employee_',t1.EmployeeID) as AttributeDetailNameId,'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID \r\n";
+                query += "select CONCAT('Employee_',t1.EmployeeID) as AttributeDetailNameId,'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID\r\n";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")
@@ -830,7 +830,7 @@ namespace Infrastructure.Repository.Query
             {
                 var query = string.Empty;
                 query += "select 'Plant' as DropDownTypeId, PlantID as AttributeDetailID,PlantCode as AttributeDetailName,Description as Description from Plant;\r\n";
-                query += "select 'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID;\r\n";
+                query += "select 'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName from Employee t1 JOIN Plant t2 ON t1.PlantID=t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID;\r\n";
                 query += "select 'NavItems' as DropDownTypeId,t1.ItemId as AttributeDetailID,t1.CompanyId,No as AttributeDetailName,t2.PlantCode as CompanyName,CONCAT(t1.Description,(case when ISNULL(NULLIF(t1.Description2, ''), null) is NULL then  t1.Description2 ELSE  CONCAT(' | ',t1.Description2) END)) as Description\r\n from Navitems t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID;\r\n";
                 query += "select Type as DropDownTypeId, SoCustomerID as AttributeDetailID,CustomerName as AttributeDetailName,Address1 as Description from SoCustomer;";
                 using (var connection = CreateConnection())
@@ -933,7 +933,7 @@ namespace Infrastructure.Repository.Query
                         {
                             if (DataSource == "Employee")
                             {
-                                query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as ParentId t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID\r";
+                                query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as ParentId t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID\r";
                             }
                             else if (DataSource == "NavItems")
                             {
@@ -1053,7 +1053,7 @@ namespace Infrastructure.Repository.Query
                 query += "\r";
                 if (DataSource == "Employee")
                 {
-                    query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID\r";
+                    query += "select \r'Employee' as DropDownTypeId,t1.EmployeeID as AttributeDetailID,t1.PlantId as CompanyId,t2.PlantCode as CompanyName, t1.FirstName as AttributeDetailName,CONCAT(case when t1.NickName is NULL then  t1.FirstName ELSE  t1.NickName END,' | ',t1.LastName) as Description,t3.Name as DesignationName\r from Employee t1 JOIN Plant t2 ON t1.PlantID = t2.PlantID LEFT JOIN Designation t3 ON t3.DesignationID=t1.DesignationID\r";
                 }
                 else if (DataSource == "NavItems")
                 {

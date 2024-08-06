@@ -201,9 +201,9 @@ namespace Application.Queries
     }
     public class GetDynamicGridDropDownById : PagedRequest, IRequest<DropDownOptionsGridListModel>
     {
-        public long? DynamicFormId { get; set; }
+        public List<long?> DynamicFormId { get; set; }
         public long? UserId { get; set; }
-        public GetDynamicGridDropDownById(long? dynamicFormId, long? userId)
+        public GetDynamicGridDropDownById(List<long?> dynamicFormId, long? userId)
         {
             this.DynamicFormId = dynamicFormId;
             this.UserId = userId;

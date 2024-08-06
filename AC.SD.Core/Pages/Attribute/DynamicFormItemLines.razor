@@ -342,7 +342,9 @@
         _dynamicFormData = new List<DynamicFormData>();
         if (dynamicFormId > 0)
         {
-            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList((long)dynamicFormId, applicationUser.UserID));
+            List<long?> dynamicFormIds = new List<long?>();
+            dynamicFormIds.Add(dynamicFormId);
+            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID));
             _dynamicFormData = list.DynamicFormListData;
             // var collection = list.ObjectData;
             // int j = 0;
@@ -371,7 +373,9 @@
         _dynamicFormData = new List<DynamicFormData>();
         if (itemDynamicFormTypeID > 0)
         {
-            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList((long)itemDynamicFormTypeID, applicationUser.UserID));
+            List<long?> dynamicFormIds = new List<long?>();
+            dynamicFormIds.Add(itemDynamicFormTypeID);
+            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID));
             _dynamicFormData = list.DynamicFormListData;
             dropDownOptionsGridListModel = list;
         }

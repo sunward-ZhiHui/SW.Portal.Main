@@ -73,10 +73,10 @@ namespace Application.Queries
     public class GetDynamicFormItemLineDropdoenList : PagedRequest, IRequest<DropDownOptionsGridListModel>
     {
      
-       public long? DynamicFormId { get;set; }
+       public List<long?> DynamicFormId { get;set; }
 
         public long? Userid { get; set; }
-        public GetDynamicFormItemLineDropdoenList(long DynamicFormId, long? userid)
+        public GetDynamicFormItemLineDropdoenList(List<long?> DynamicFormId, long? userid)
         {
             this.DynamicFormId = DynamicFormId;
             this.Userid = userid;

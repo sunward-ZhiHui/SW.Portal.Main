@@ -1,0 +1,497 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime jsRuntime;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/JobScheduleList"
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_JobScheduleItems"
+            KeyFieldName="JobScheduleId"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            VirtualScrollingEnabled="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 200px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+
+        <Columns>
+            <DxGridDataColumn FieldName="JobScheduleId" MinWidth="80" Visible="false" />
+            <DxGridDataColumn FieldName="CompanyCode" Caption="Company" MinWidth="80" />
+            <DxGridDataColumn FieldName="Frequency" Caption="Frequency" MinWidth="80" />
+            <DxGridDataColumn FieldName="StartDate" Caption="Start Date" MinWidth="80" />
+            <DxGridDataColumn FieldName="StartTime" Caption="Execution Time" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (JobSchedule)context.DataItem;
+                        string displayTime = "";
+                        if (item.StartTime != null)
+                        {
+                            DateTime time = DateTime.Today.Add((TimeSpan)item.StartTime);
+                            displayTime = time.ToString("hh:mm tt");
+                        }
+                    }
+                    @displayTime
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="EndDate" Caption="End Date" MinWidth="80" />
+            <DxGridDataColumn FieldName="MonthlyDay" Caption="Day" MinWidth="80" />
+            <DxGridDataColumn FieldName="DaysOfWeek" Caption="Days Of Week" MinWidth="80" />
+            <DxGridDataColumn FieldName="JobScheduleFunUnique" Caption="Job Schedule Fun Name" MinWidth="80" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (JobSchedule)EditFormContext.EditModel;
+
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="NavCompany"
+                                ValueFieldName="PlantID"
+                                @bind-Value="@types.CompanyId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                Caption="Company Code"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                Caption="Description" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                                Caption="Nav Company" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CompanyId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Frequency" ColSpanMd="6">
+                    <DxComboBox Data="@_frequencyItems"
+                                NullText="Select Frequency..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
+                                Value="@types.FrequencyId"
+                                ValueExpression="@(() => types.FrequencyId )"
+                                ValueChanged="@((int? selectName) => SelectedItemChanged(selectName,types))"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.FrequencyId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Start Date" ColSpanMd="6">
+                    <DxDateEdit NullText="Select a Start Date" @bind-Date="@types.StartDate" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                    <ValidationMessage For="@(() => types.StartDate)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Execution Time" ColSpanMd="6">
+                    <DxTimeEdit NullText="Select a Execution Time" Format="hh:mm tt" @bind-Time="@types.StartTime" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" InputId="teOverview" />
+                    <ValidationMessage For="@(() => types.StartTime)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Day" ColSpanMd="6" Visible="@isMonthly">
+                    <DxComboBox Data="@_daysList"
+                                NullText="Select Day..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
+                                @bind-Value="@types.MonthlyDay"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.MonthlyDay)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Days Of Week" ColSpanMd="6" Visible="@isWeekly">
+                    <DxTagBox Data="@_weeklyTypeItems"
+                              NullText="Select Days Of Week..."
+                              ListRenderMode="ListRenderMode.Virtual"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              TextFieldName="CodeValue"
+                              ValueFieldName="CodeId"
+                              @bind-Values="@types.NoticeWeeklyIds"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ShowValidationIcon="true">
+                    </DxTagBox>
+                    <ValidationMessage For="@(() => types.NoticeWeeklyIds)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Days Of Week" ColSpanMd="6" Visible="@isYearly">
+                    <DxCheckBox Checked="@types.DaysOfWeek" CheckedExpression="@(() => types.DaysOfWeek)" CheckedChanged="@((bool? value) => OnTemplateDataSourceGroupValueChanged(value,types))" Alignment="CheckBoxContentAlignment.SpaceBetween"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Weekly" ColSpanMd="6" Visible="@isYearlyWeekly">
+                    <DxTagBox Data="@_daysOfWeekList"
+                              NullText="Select Weekly..."
+                              ListRenderMode="ListRenderMode.Virtual"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              TextFieldName="CodeValue"
+                              ValueFieldName="CodeId"
+                              @bind-Values="@types.DaysOfWeekIds"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ShowValidationIcon="true">
+                    </DxTagBox>
+                    <ValidationMessage For="@(() => types.DaysOfWeekIds)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="End Date" ColSpanMd="6">
+                    <DxDateEdit NullText="Select a End Date" @bind-Date="@types.EndDate" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                    <ValidationMessage For="@(() => types.EndDate)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Function Name" ColSpanMd="6">
+                    <DxComboBox Data="@_jobScheduleFunList"
+                                NullText="Select Function Name..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="DisplayName"
+                                ValueFieldName="JobScheduleFunUniqueId"
+                                @bind-Value="@types.JobScheduleFunUniqueId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.JobScheduleFunUniqueId)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="StatusCode" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup HeaderText="Error" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+@code {
+    bool PopupVisible { get; set; } = false;
+    private List<JobSchedule> _JobScheduleItems;
+    bool EditEnabled { get; set; } = false; bool isWeekly { get; set; } = false; bool isMonthly { get; set; } = false;
+    bool isYearlyWeekly { get; set; } = false; bool isYearly { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private JobSchedule _selectedItems;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    private List<ViewPlants>? _plantItems;
+    private List<CodeMaster> _stausItems;
+    bool Blukdeletepopup { get; set; } = false;
+    string? DeleteerrorMessage;
+    private List<CodeMaster> _frequencyItems; private List<CodeMaster> _weeklyTypeItems; private List<CodeMaster> _daysOfWeekList; private List<CodeMaster> _daysList;
+    private List<JobScheduleFun> _jobScheduleFunList;
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Send(new GetJobScheduleQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
+        _jobScheduleFunList = await Mediator.Send(new GetJobScheduleFunQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        _weeklyTypeItems = await Mediator.Send(new GetAllCodeMasterQuery("Day of Week"));
+        _frequencyItems = await Mediator.Send(new GetAllCodeMasterQuery("Notification Custom Status"));
+        _daysOfWeekList = await Mediator.Send(new GetAllCodeMasterQuery("Day of Week"));
+        _daysList = new List<CodeMaster>();
+        for (int i = 1; i <= 31; i++)
+        {
+            CodeMaster codeMaster = new CodeMaster();
+            codeMaster.CodeId = i;
+            codeMaster.CodeValue = i.ToString();
+            _daysList.Add(codeMaster);
+        }
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _JobScheduleItems = await Mediator.Send(new GetAllJobScheduleQuery());
+        PanelVisible = false;
+        if (_JobScheduleItems != null && _JobScheduleItems.Count > 0)
+        {
+            _selectedItems = _JobScheduleItems.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
+    }
+    void SelectedItemChanged(int? frequencyId, JobSchedule jobSchedule)
+    {
+        jobSchedule.FrequencyId = frequencyId;
+        jobSchedule.DaysOfWeekIds = new List<int?>();
+        jobSchedule.NoticeWeeklyIds = new List<int?>(); jobSchedule.DaysOfWeek = false;
+        isWeekly = false; isMonthly = false; isYearlyWeekly = false; isYearly = false;
+        if (frequencyId > 0)
+        {
+            if (frequencyId == 2133)
+            {
+                isMonthly = true;
+            }
+            if (frequencyId == 2132)
+            {
+                isWeekly = true;
+            }
+            if (frequencyId == 2134)
+            {
+                isYearlyWeekly = false; isYearly = true;
+            }
+        }
+        StateHasChanged();
+    }
+    void OnTemplateDataSourceGroupValueChanged(bool? dayofweek, JobSchedule jobSchedule)
+    {
+        jobSchedule.DaysOfWeek = dayofweek;
+        isYearlyWeekly = false;
+        if (dayofweek == true)
+        {
+            isYearlyWeekly = true;
+        }
+        StateHasChanged();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "JobScheduleId");
+        _selectedItems = _JobScheduleItems.FirstOrDefault(f => f.JobScheduleId == (long?)UniqueId);
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            if (SelectedDataItems.Count == 1)
+            {
+                JobSchedule _selectAttributelst = new JobSchedule();
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is JobSchedule dataselectItems)
+                    {
+                        _selectAttributelst = _JobScheduleItems.FirstOrDefault(f => f.JobScheduleId == dataselectItems.JobScheduleId);
+                    }
+                }
+                Grid.StartEditDataItemAsync(_selectAttributelst);
+            }
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is JobSchedule selectData)
+                    {
+                        var request = new DeleteJobSchedule(selectData);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (JobSchedule)e.EditModel;
+        if (e.IsNew)
+        {
+            isWeekly = false; isMonthly = false; isYearlyWeekly = false; isYearly = false;
+            navitems.StartDate = DateTime.Now.Date;
+            navitems.FrequencyId = null;
+            navitems.DaysOfWeekIds = new List<int?>();
+            navitems.NoticeWeeklyIds = new List<int?>();
+            navitems.DaysOfWeek = false;
+        }
+        else
+        {
+            isWeekly = false; isMonthly = false; isYearlyWeekly = false; isYearly = false;
+            if (navitems.FrequencyId == 2133)
+            {
+                isMonthly = true;
+            }
+            if (navitems.FrequencyId == 2132)
+            {
+                isWeekly = true;
+            }
+            if (navitems.FrequencyId == 2134)
+            {
+                isYearly = true;
+                if (navitems.DaysOfWeek == true)
+                {
+                    isYearlyWeekly = true;
+                }
+            }
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (JobSchedule)e.EditModel;
+        var createReq = new InsertOrUpdateJobSchedule
+            {
+                JobScheduleId = editModel.JobScheduleId,
+                StartTime = editModel.StartTime,
+                FrequencyId = editModel.FrequencyId,
+                StartDate = editModel.StartDate,
+                EndDate = editModel.EndDate,
+                MonthlyDay = editModel.MonthlyDay,
+                DaysOfWeek = editModel.DaysOfWeek,
+                CompanyId = editModel.CompanyId,
+                DaysOfWeekIds = editModel.DaysOfWeekIds,
+                NoticeWeeklyIds = editModel.NoticeWeeklyIds,
+                SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                AddedByUserId = editModel.AddedByUserId == null ? applicationUser?.UserID : editModel.AddedByUserId,
+                ModifiedByUserId = applicationUser?.UserID,
+                ModifiedDate = DateTime.Now,
+                StatusCodeId = 1,
+                AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
+                JobScheduleFunUniqueId=editModel.JobScheduleFunUniqueId,
+            };
+
+        try
+        {
+            var result = await Mediator.Send(createReq);
+            if (e.IsNew)
+            {
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            else
+            {
+                toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+        }
+        catch (Exception eq)
+        {
+
+        }
+    }
+    void Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+}

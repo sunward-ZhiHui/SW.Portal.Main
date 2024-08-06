@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<PostSalesOrder>> GetAllAsync();
         Task<PostSalesOrder> GetByIdAsync(Int64 id);
         Task<string> InsertRawMatItemList(IEnumerable<RawMatItemList> rawMatItemList);
+        Task<SotckBalanceItemsList> GetSotckBalanceItemsListAsync(StockBalanceSearch searchModel);
+        Task<string> UpdateStockBalanceData(string query);
     }
    
 }

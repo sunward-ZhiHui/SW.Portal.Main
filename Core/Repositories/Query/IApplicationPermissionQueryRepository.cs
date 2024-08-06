@@ -14,5 +14,6 @@ namespace Core.Repositories.Query
        
         Task<IReadOnlyList<ApplicationPermission>> GetAllAsync();
         Task<long> Insert(ApplicationRolePermission applicationrolepermission);
+        Task<List<ApplicationPermission>> GetByListSessionIdAsync(string sessionid);
     }
 }

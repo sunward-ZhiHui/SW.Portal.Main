@@ -82,46 +82,32 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+                    var checkLink = await GetByApplicationMasterCodeAsync();
+                    long? permissionid = 0;
+                    
+                    if (checkLink != null && checkLink.PermissionID > 0)
                     {
-                        var checkLink = await GetByApplicationMasterCodeAsync();
-                        long? permissionid = 0;
-                        if (checkLink != null && checkLink.PermissionID > 0)
-                        {
-                            permissionid = (long)checkLink.PermissionID + 1;
-                        }
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("PermissionID", permissionid);
-                        
-                            parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
-                            parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
-
-                            parameters.Add("PortalUrl", applicationPermission.Name, DbType.String);
-
-
-                            var query = "INSERT INTO ApplicationPermission(PermissionURL,PermissionName,Name,PermissionID) VALUES (@PermissionURL,@PermissionName,@PortalUrl,@PermissionID)";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        permissionid = (long)checkLink.PermissionID + 1;
                     }
-                }
 
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("PermissionID", permissionid);                        
+                        parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
+                        parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
+                        parameters.Add("PortalUrl", applicationPermission.Name, DbType.String);
+
+                        var query = "INSERT INTO ApplicationPermission(PermissionURL,PermissionName,Name,PermissionID) VALUES (@PermissionURL,@PermissionName,@PortalUrl,@PermissionID)";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {                           
+                        throw new Exception(exp.Message, exp);
+                    }                    
+                }
             }
 
             catch (Exception exp)

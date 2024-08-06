@@ -35,6 +35,8 @@ namespace Core.Entities
         public bool IsCmsApp { get; set; }
         [NotMapped]
         public bool Checked { get; set; } = false;
+        public bool IsPermissionURL { get; set; }
+        public Guid UniqueSessionID { get; set; }
 
     }
 }

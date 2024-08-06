@@ -64,4 +64,16 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetListByApplicationPermissionSessionHandler : IRequestHandler<GetListByApplicationPermissionSession, List<ApplicationPermission>>
+    {
+        private readonly IApplicationPermissionQueryRepository _queryRepository;
+        public GetListByApplicationPermissionSessionHandler(IApplicationPermissionQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ApplicationPermission>> Handle(GetListByApplicationPermissionSession request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationPermission>)await _queryRepository.GetByListSessionIdAsync(request.SessionId);
+        }
+    }
 }

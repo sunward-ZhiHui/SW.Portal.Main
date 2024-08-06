@@ -1,0 +1,339 @@
+﻿applicationPermissionLists
+@page "/"
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true"
+            Data="_TreeData"
+            KeyFieldName="PermissionID"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360  " style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            RowDoubleClick="OnRowDoubleClick"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+
+            <DxGridDataColumn FieldName="PermissionURL" MinWidth="80"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="PermissionName" MinWidth="80" />
+
+
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var department = (ApplicationPermission)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+
+
+                <DxFormLayoutItem Caption="PermissionURL" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@department.PermissionURL" ShowValidationIcon="true" />
+
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="PermissionName" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@department.PermissionName" ShowValidationIcon="true" />
+
+                </DxFormLayoutItem>
+
+
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+        </TotalSummary>
+    </DxGrid>
+
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="NOVATO"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+
+
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
+
+</DxPopup>
+@code {
+    string plantcode = "";
+    string Name = "";
+    string Text { get; set; } = "Active";
+    [Parameter]
+    public long? PlantID { get; set; }
+    [Parameter]
+    public string Type { get; set; }
+    bool isDivisionEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
+    bool PanelVisible { get; set; }
+
+    private List<ApplicationPermission> _TreeData;
+    private ApplicationPermission _selectedItems;
+    public ApplicationUser? applicationUser { get; private set; }
+
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
+    string? DeleteerrorMessage;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    IGrid Grid { get; set; }
+    long? companyId = null;
+    string companyName = "";
+    bool ExportSelectedRowsOnly { get; set; }
+
+    //   private List<ViewDivision> _divisions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        _TreeData = await Mediator.Send(new GetApplicationPermissionListQuery());
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("templeUser");
+        //await jsRuntime.InvokeAsync<string>("hideLoading");
+
+        PanelVisible = false;
+        await UpdateDataAsync();
+
+    }
+
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newmaster = (ApplicationPermission)e.EditModel;
+
+
+
+        }
+        else
+        {
+
+        }
+    }
+
+
+    async Task UpdateDataAsync()
+    {
+
+
+        PanelVisible = true;
+        _TreeData = await Mediator.Send(new GetApplicationPermissionListQuery());
+        PanelVisible = false;
+
+        StateHasChanged();
+
+    }
+
+
+
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editableDepartment = (ApplicationPermission)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateApplicationPermissionListQuery
+                {
+                   
+                    Name = editableDepartment.Name,
+                    PermissionName = editableDepartment.PermissionName,
+                    PermissionURL = editableDepartment.PermissionURL,
+
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            var request = new EditApplicationPermissionListQuery
+                {
+                    PermissionID=editableDepartment.PermissionID,
+                    Name = editableDepartment.Name,
+                    PermissionName = editableDepartment.PermissionName,
+                    PermissionURL = editableDepartment.PermissionURL,
+                    // StatusCodeId = editableDepartment.StatusCodeId,
+                    // ModifiedByUserId = applicationUser.UserID,
+                    // ModifiedDate = DateTime.Now,
+                    // AddedByUserId = applicationUser.UserID,
+                    // AddedDate = DateTime.Now,
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record update Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editableDepartment = (ApplicationPermission)e.DataItem;
+        var request = new DeleteApplicationPermissionListQuery(editableDepartment.PermissionID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PermissionID");
+        _selectedItems = _TreeData.FirstOrDefault(f => f.PermissionID == (long?)UniqueId);
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+
+        Grid.StartEditDataItemAsync(_selectedItems);
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        // UpdateDataAsync();
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is ApplicationPermission forumdepartment)
+                    {
+
+                        // var editableDepartment = (ViewDepartment)e.DataItem;
+                        // var request = new DeleteDepartmentCommand(forumdepartment.DepartmentId);
+                        // await Mediator.Send(request);
+
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+
+        //  await UpdateDataAsync();
+    }
+
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+}

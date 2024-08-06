@@ -171,6 +171,7 @@ namespace Infrastructure
             services.AddScoped<IDynamicFormItemQueryRepository,DynamicFormItemListQueryRepository>();
             services.AddScoped<ISimulationQueryRepository, SimulationQueryRepository>();
             services.AddScoped<IJobScheduleQueryRepository, JobScheduleQueryRepository>();
+            services.AddScoped<IApplicationPermissionListQueryRepository, ApplicationPermissionListQueryRepository>();
             return services;
         }
     }

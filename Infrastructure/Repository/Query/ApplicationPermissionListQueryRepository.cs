@@ -20,7 +20,7 @@ namespace Infrastructure.Repository.Query
         {
         }
 
-        public async Task<long> Delete(long id)
+        public async Task<long> Delete(long id, long permissionid)
         {
             try
             {
@@ -28,8 +28,13 @@ namespace Infrastructure.Repository.Query
                 {
                     var parameters = new DynamicParameters();
                     parameters.Add("id", id);
+                    parameters.Add("permissionid", permissionid);
+                    var query = string.Empty;
 
-                    var query = "DELETE  FROM ApplicationPermission WHERE PermissionID = @id";
+                    query += "Delete from  ApplicationRolePermission WHERE PermissionID=@permissionid;";
+                    query += "Delete from  ApplicationPermission WHERE PermissionID=@id;";
+                    
+                    //var query = "DELETE  FROM ApplicationPermission WHERE PermissionID = @id";
                     var rowsAffected = await connection.ExecuteAsync(query, parameters);
                     return rowsAffected;
 

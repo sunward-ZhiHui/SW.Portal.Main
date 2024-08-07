@@ -198,7 +198,7 @@
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
         var editableDepartment = (ApplicationPermission)e.DataItem;
-        var request = new DeleteApplicationPermissionListQuery(editableDepartment.PermissionID);
+        var request = new DeleteApplicationPermissionListQuery(editableDepartment.PermissionID,editableDepartment.PermissionID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
@@ -263,7 +263,7 @@
     {
         if (_selectedItems != null)
         {
-            var request = new DeleteApplicationPermissionListQuery(_selectedItems.PermissionID);
+            var request = new DeleteApplicationPermissionListQuery(_selectedItems.PermissionID,_selectedItems.PermissionID);
             await Mediator.Send(request);
             await UpdateDataAsync();
             Grid.SetFocusedRowIndex(0);

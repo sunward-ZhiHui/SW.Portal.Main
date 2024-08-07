@@ -29,7 +29,6 @@ namespace Infrastructure.Repository.Query
                     var parameters = new DynamicParameters();
                     parameters.Add("id", id);
 
-
                     var query = "DELETE  FROM ApplicationPermission WHERE PermissionID = @id";
                     var rowsAffected = await connection.ExecuteAsync(query, parameters);
                     return rowsAffected;
@@ -68,12 +67,26 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    var checkLink = await GetByApplicationMasterCodeAsync();
+                    var checkLink = await GetApplicationPermissionTop1Async();
                     long? permissionid = 0;
-                    
+                    string nextPermissionLevel = "A01";
+
+                    var allPermissions = await GetAllAsync();
+                    var nextpermission = allPermissions.OrderByDescending(p => p.PermissionOrder).FirstOrDefault();
+
                     if (checkLink != null && checkLink.PermissionID > 0)
                     {
                         permissionid = (long)checkLink.PermissionID + 1;
+                        
+                        if(nextpermission != null)
+                        {
+                            if (!string.IsNullOrEmpty(nextpermission.PermissionOrder))
+                            {
+                                int currentLevelNumber = int.Parse(nextpermission.PermissionOrder.Substring(1));
+                                nextPermissionLevel = "A" + (currentLevelNumber + 1).ToString("D2");
+                            }
+                        }                        
+
                     }
 
                     try
@@ -82,18 +95,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("PermissionID", permissionid);                        
                         parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
                         parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
-                        parameters.Add("ParentID", applicationPermission.ParentID, DbType.Int64);
-                        parameters.Add("PermissionLevel", applicationPermission.PermissionLevel, DbType.String);
-                        parameters.Add("PermissionOrder", applicationPermission.PermissionOrder, DbType.String);
-                        parameters.Add("IsDisplay", applicationPermission.IsDisplay, DbType.String);
-                        parameters.Add("IsHeader", applicationPermission.IsHeader, DbType.String);
-                        parameters.Add("IsNewPortal", applicationPermission.IsNewPortal, DbType.String);
-                        parameters.Add("Component", applicationPermission.Component, DbType.String);
-                        parameters.Add("PortalUrl", applicationPermission.Name, DbType.String);
-                        parameters.Add("IsCmsApp", applicationPermission.IsCmsApp, DbType.String);
-                        parameters.Add("IsMobile", applicationPermission.IsMobile, DbType.String);
+                        parameters.Add("PermissionLevel", nextPermissionLevel, DbType.String);
 
-                        var query = "INSERT INTO ApplicationPermission(PermissionID,PermissionURL,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,Component,Name,IsCmsApp,IsMobile) VALUES (@PermissionID,@PermissionURL,@PermissionName,60400,@PermissionLevel,@PermissionOrder,@IsDisplay,@IsHeader,@IsNewPortal,@Component,@PortalUrl,@IsCmsApp,@IsMobile)";
+                        var query = "INSERT INTO ApplicationPermission(PermissionID,PermissionURL,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,Component,Name,IsCmsApp,IsMobile,IsPermissionURL) VALUES (@PermissionID,@PermissionURL,@PermissionName,60400,1,@PermissionLevel,1,1,1,'PortalUrl','PortalUrl',1,0,1)";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
 
                         return rowsAffected;
@@ -118,45 +122,25 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+                    try
                     {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("PermissionID", applicationPermission.PermissionID, DbType.Int64);
+                        parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
+                        parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);                           
 
-                        try
-                        {
-
-                            var parameters = new DynamicParameters();
-
-                            parameters.Add("PermissionID", applicationPermission.PermissionID, DbType.Int64);
-                            parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
-                            parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
-                            parameters.Add("ParentID", applicationPermission.ParentID, DbType.Int64);
-                            parameters.Add("PermissionLevel", applicationPermission.PermissionLevel, DbType.String);
-                            parameters.Add("PermissionOrder", applicationPermission.PermissionOrder, DbType.String);
-                            parameters.Add("IsDisplay", applicationPermission.IsDisplay, DbType.String);
-                            parameters.Add("IsHeader", applicationPermission.IsHeader, DbType.String);
-                            parameters.Add("IsNewPortal", applicationPermission.IsNewPortal, DbType.String);
-                            parameters.Add("Component", applicationPermission.Component, DbType.String);
-                            parameters.Add("PortalUrl", applicationPermission.Name, DbType.String);
-                            parameters.Add("IsCmsApp", applicationPermission.IsCmsApp, DbType.String);
-                            parameters.Add("IsMobile", applicationPermission.IsMobile, DbType.String);
-
-                            var query = "UPDATE ApplicationPermission SET PermissionURL = @PermissionURL ,PermissionName = @PermissionName,ParentID=60400,PermissionLevel=@PermissionLevel,PermissionOrder=@PermissionOrder,IsDisplay=@IsDisplay,IsHeader =@IsHeader,IsNewPortal=@IsNewPortal,Component=@Component,Name=@PortalUrl,IsCmsApp=@IsCmsApp,IsMobile=@IsMobile WHERE PermissionID = @PermissionID";
+                        var query = "UPDATE ApplicationPermission SET PermissionURL = @PermissionURL ,PermissionName = @PermissionName WHERE PermissionID = @PermissionID";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 
-                                var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                                transaction.Commit();
-
-                                return rowsAffected;
+                        return rowsAffected;
                             
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
                     }
+                    catch (Exception exp)
+                    {                           
+                        throw new Exception(exp.Message, exp);
+                    }
+                    
                 }
 
             }
@@ -166,7 +150,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<ApplicationPermission> GetByApplicationMasterCodeAsync()
+        private async Task<ApplicationPermission> GetApplicationPermissionTop1Async()
         {
             try
             {

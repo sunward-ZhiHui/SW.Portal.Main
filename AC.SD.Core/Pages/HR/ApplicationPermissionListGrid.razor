@@ -52,12 +52,9 @@
             RowClick="OnRowClick"
             RowDoubleClick="OnRowDoubleClick"
             AllowSelectRowByClick="true">
-        <Columns>
-            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-            <DxGridDataColumn FieldName="PermissionName" Caption="PageName" MinWidth="80"></DxGridDataColumn>
-            <DxGridDataColumn FieldName="PermissionURL" Caption="PageURL" MinWidth="80" />
-
-
+        <Columns>            
+            <DxGridDataColumn FieldName="PermissionName" Caption="Page Name" MinWidth="80"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="PermissionURL" Caption="Page URL" />
         </Columns> 
         <EditFormTemplate Context="EditFormContext">
             @{
@@ -65,11 +62,11 @@
             }
             <DxFormLayout CssClass="w-100">
       
-                <DxFormLayoutItem Caption="PageName" ColSpanMd="6">
+                <DxFormLayoutItem Caption="PageName" ColSpanMd="3">
                     <DxTextBox @bind-Text="@department.PermissionName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => department.PermissionName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="PageURL" ColSpanMd="6">
+                <DxFormLayoutItem Caption="PageURL" ColSpanMd="9">
                     <DxTextBox @bind-Text="@department.PermissionURL" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => department.PermissionURL)" />
                 </DxFormLayoutItem>
@@ -176,19 +173,8 @@
         {
             var request = new CreateApplicationPermissionListQuery
                 {
-                   
-                    Name = editableDepartment.Name,
                     PermissionName = editableDepartment.PermissionName,
-                    PermissionURL = editableDepartment.PermissionURL,
-                    ParentID=editableDepartment.ParentID,
-                    PermissionLevel = editableDepartment.PermissionLevel,
-                    PermissionOrder=editableDepartment.PermissionOrder,
-                    IsDisplay=editableDepartment.IsDisplay,
-                    IsHeader=editableDepartment.IsHeader,
-                    IsNewPortal=editableDepartment.IsNewPortal,
-                    Component=editableDepartment.Component,
-                   IsCmsApp=editableDepartment.IsCmsApp,
-                   IsMobile=editableDepartment.IsMobile
+                    PermissionURL = editableDepartment.PermissionURL                   
                 };
             await Mediator.Send(request);
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -198,24 +184,9 @@
         {
             var request = new EditApplicationPermissionListQuery
                 {
-                    PermissionID=editableDepartment.PermissionID,
-                    Name = editableDepartment.Name,
+                    PermissionID=editableDepartment.PermissionID,                    
                     PermissionName = editableDepartment.PermissionName,
-                    PermissionURL = editableDepartment.PermissionURL,
-                    ParentID = editableDepartment.ParentID,
-                    PermissionLevel = editableDepartment.PermissionLevel,
-                    PermissionOrder = editableDepartment.PermissionOrder,
-                    IsDisplay = editableDepartment.IsDisplay,
-                    IsHeader = editableDepartment.IsHeader,
-                    IsNewPortal = editableDepartment.IsNewPortal,
-                    Component = editableDepartment.Component,
-                    IsCmsApp = editableDepartment.IsCmsApp,
-                    IsMobile = editableDepartment.IsMobile
-                    // StatusCodeId = editableDepartment.StatusCodeId,
-                    // ModifiedByUserId = applicationUser.UserID,
-                    // ModifiedDate = DateTime.Now,
-                    // AddedByUserId = applicationUser.UserID,
-                    // AddedDate = DateTime.Now,
+                    PermissionURL = editableDepartment.PermissionURL
                 };
             await Mediator.Send(request);
             toastService.ShowToast("Record update Successfully", AC.SD.Core.Services.ToastLevel.Success);

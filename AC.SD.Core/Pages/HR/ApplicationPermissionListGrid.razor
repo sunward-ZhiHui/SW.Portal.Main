@@ -62,11 +62,11 @@
             }
             <DxFormLayout CssClass="w-100">
       
-                <DxFormLayoutItem Caption="PageName" ColSpanMd="3">
+                <DxFormLayoutItem Caption="Page Name" ColSpanMd="3">
                     <DxTextBox @bind-Text="@department.PermissionName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => department.PermissionName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="PageURL" ColSpanMd="9">
+                <DxFormLayoutItem Caption="Page URL" ColSpanMd="9">
                     <DxTextBox @bind-Text="@department.PermissionURL" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => department.PermissionURL)" />
                 </DxFormLayoutItem>

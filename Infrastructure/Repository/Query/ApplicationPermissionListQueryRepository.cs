@@ -83,7 +83,7 @@ namespace Infrastructure.Repository.Query
                             if (!string.IsNullOrEmpty(nextpermission.PermissionOrder))
                             {
                                 int currentLevelNumber = int.Parse(nextpermission.PermissionOrder.Substring(1));
-                                nextPermissionLevel = "A" + (currentLevelNumber + 1).ToString("D2");
+                                nextPermissionLevel = "A" + (currentLevelNumber + 1).ToString();
                             }
                         }                        
 

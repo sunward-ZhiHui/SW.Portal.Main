@@ -23,10 +23,13 @@ namespace Application.Queries
     public class DeleteApplicationPermissionListQuery : ApplicationPermission, IRequest<long>
     {
         public long ID { get; set; }
+        public long permissionid { get; set; }
 
-        public DeleteApplicationPermissionListQuery(long Id)
+        public DeleteApplicationPermissionListQuery(long Id, long permissionid)
         {
             this.ID = Id;
+
+            this.permissionid = permissionid;
         }
     }
    

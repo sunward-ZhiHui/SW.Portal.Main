@@ -16,6 +16,7 @@ using NAV;
 using Application.Queries;
 using Infrastructure.Data;
 using Newtonsoft.Json.Linq;
+using Google.Cloud.Firestore.V1;
 
 namespace Infrastructure.Repository.Query
 {
@@ -32,7 +33,17 @@ namespace Infrastructure.Repository.Query
             List<IpirApp> IpirApps = new List<IpirApp>();
             try
             {
-                var query = "select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
+                // var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
+                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,  t7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments  ,t12.SessionID AS ReportingSessionID  from IpirApp t1
+                            JOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   
+                            JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   
+                            LEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID  
+                            LEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID  
+                            LEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   
+                            JOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  
+                            LEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal 
+                            LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy 
+                            Left JOIN IPIRReportingInformation t12 on t12.IpirAppID = t1.IpirAppID";
                 var result = new List<IpirApp>();
                 using (var connection = CreateConnection())
                 {
@@ -55,6 +66,7 @@ namespace Infrastructure.Repository.Query
                             var counts = documents.FirstOrDefault(w => w.SessionId == s.SessionID);
                             if (counts != null)
                             {
+                              
                                 s.DocumentId = counts.DocumentId;
                                 s.FileProfileTypeId = counts.FilterProfileTypeId;
                                 s.DocumentID = counts.DocumentId;
@@ -282,6 +294,8 @@ namespace Infrastructure.Repository.Query
                                 value.ProfileNo = ProfileNo;
                             }
                             parameters.Add("ProfileNo", ProfileNo, DbType.String);
+                            value.SessionID = Guid.NewGuid();
+                            parameters.Add("SessionID", value.SessionID, DbType.Guid);
                             var query = @"INSERT INTO IpirApp(ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileId,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
 				                       OUTPUT INSERTED.IpirAppId 
 				                       VALUES (@ActivityStatusId,@MachineName,@DetectedBy,@SessionID,@CompanyID,@ProfileId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@LocationID,@NavprodOrderLineID,@ReportingPersonal,@RefNo,@ProdOrderNo,@FixedAssetNo,@Comment,@ProfileNo)";
@@ -466,6 +480,117 @@ namespace Infrastructure.Repository.Query
 
             }
 
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IPIRReportingInformation> InsertOrUpdateIpirReportingInformation(IPIRReportingInformation value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("IpirAppID", value.IpirAppID);
+                        parameters.Add("ReportinginformationID", value.ReportinginformationID);
+                        parameters.Add("AssignToIds", value.AssignToIds);
+                        parameters.Add("IssueRelatedTo", value.IssueRelatedTo);
+                        parameters.Add("AddedByUserID", value.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", value.ModifiedDate);
+                        parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                        parameters.Add("IssueDescription", value.IssueDescription);
+                        parameters.Add("ReportBy", value.ReportBy);
+                        parameters.Add("SessionId", value.SessionId);
+                        if (value.ReportinginformationID > 0)
+                        {
+
+                            var query = @"Update IPIRReportingInformation Set IpirAppID=@IpirAppID,IssueRelatedTo=@IssueRelatedTo,SessionID=@SessionId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,IssueDescription=@IssueDescription,ReportBy=@ReportBy 
+                           Where ReportinginformationID=@ReportinginformationID;";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+                        }
+                        else
+                        {
+
+                            value.SessionId = Guid.NewGuid();
+                            parameters.Add("SessionId", value.SessionId);
+                            var query = @"INSERT INTO IPIRReportingInformation(IpirAppID,IssueRelatedTo,AddedByUserID,SessionID,AddedDate,IssueDescription,ReportBy)
+                                        OUTPUT INSERTED.ReportinginformationID 
+				                       VALUES (@IpirAppID,@IssueRelatedTo,@AddedByUserID,@SessionId,@AddedDate,@IssueDescription,@ReportBy)";
+                            var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
+                            value.ReportinginformationID = insertedId;
+                        }
+                        if (value.ReportinginformationID > 0)
+                        {
+                            var Deletequery = "Delete From IssueReportAssignTo where ReportinginformationID =  " + value.ReportinginformationID + ";";
+                            await connection.ExecuteAsync(Deletequery);
+                        }
+                        var querys = string.Empty;
+                        if (value.AssignToIds != null)
+                        {
+                            var listData = value.AssignToIds.ToList();
+                            if (listData.Count > 0)
+                            {
+                                listData.ForEach(s =>
+                                {
+                                    querys += "INSERT INTO IssueReportAssignTo(IPIRId,AssignToId,ReportinginformationID) VALUES ( " + value.IpirAppID+","+s+","+value.ReportinginformationID+" );";
+                                });
+
+                            }
+                        }
+                       
+                        if (!string.IsNullOrEmpty(querys))
+                        {
+                            await connection.ExecuteAsync(querys, null);
+                        }
+
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async  Task<IPIRReportingInformation> DeleteIpirReportingInformation(IPIRReportingInformation value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ReportinginformationID", value.ReportinginformationID);
+                        var query = string.Empty;
+                       
+                        query += "Delete from  IPIRReportingInformation WHERE ReportinginformationID=@ReportinginformationID;";
+                        query += "Delete from  IssueReportAssignTo WHERE ReportinginformationID=@ReportinginformationID;";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);

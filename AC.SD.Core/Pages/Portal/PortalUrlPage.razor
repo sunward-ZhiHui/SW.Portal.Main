@@ -1,0 +1,87 @@
+﻿@using Application.Commands;
+@using Application.Common.Helper;
+@using Application.Queries;
+@using Application.Response;
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+@using System.Web;
+@inject IToastService ToastService
+@using MediatR
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+@page "/PortalUrl/{TSessionId:guid}"
+@implements IDisposable
+
+<iframe id="contentFrame" src="@iframeUrl" width="100%" style="height: calc(100vh - 152px);"></iframe>
+
+@code {
+    [Parameter]
+    public Guid TSessionId { get; set; }
+    private string iframeUrl="";
+    private string BaseUrl = "";
+    public ApplicationUser? applicationUser { get; private set; }
+    private DotNetObjectReference<PortalUrlPage>? dotNetRef;
+
+    protected override async void OnInitialized()
+    {
+        BaseUrl = NavigationManager.BaseUri;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        NavigationManager.LocationChanged += OnLocationChanged;
+        JSRuntime.InvokeVoidAsync("registerBlazorComponent", DotNetObjectReference.Create(this));
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        // Show loading indicator
+        await JSRuntime.InvokeVoidAsync("showLoading");
+
+        string sessionidString = TSessionId.ToString();
+        var lsts = await Mediator.Send(new GetListByApplicationPermissionSession(sessionidString));
+        if (lsts.Count > 0)
+        {
+            var allEmployees = await Mediator.Send(new GetAllEmployeeQuery());
+            var filteredEmployees = allEmployees.Where(e => e.UserID == applicationUser.UserID).ToList();
+            string sageId = filteredEmployees[0].SageID;
+
+            string urlTemplate = lsts[0].PermissionURL;      
+            if(urlTemplate != null)
+            {
+                string finalUrl = urlTemplate.Replace("{userId}", sageId);                
+                LoadUrl(finalUrl);
+            }
+            else
+            {
+                LoadUrl(null);
+            }
+
+        }
+        else
+        {
+            LoadUrl(null);
+        }
+    }
+    private void LoadUrl(string url)
+    {        
+        iframeUrl = string.IsNullOrEmpty(url) ? $"{BaseUrl}404url" : url;
+        dotNetRef = DotNetObjectReference.Create(this);
+        JSRuntime.InvokeVoidAsync("registerIframeOnload", "contentFrame", dotNetRef);
+    }
+    [JSInvokable]
+    public async Task HideIframeLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+        dotNetRef?.Dispose();
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}

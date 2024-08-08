@@ -24,6 +24,8 @@ namespace Core.EntityModels
         public List<PortalMenuModel> Items { get; set; }
         public long? ParentID { get; set; }
         public long? PermissionID { get; set; }
+        public bool IsPermissionURL { get; set; }
+        public Guid UniqueSessionID { get; set; }
     }
 
     public class PortalPermissionModel

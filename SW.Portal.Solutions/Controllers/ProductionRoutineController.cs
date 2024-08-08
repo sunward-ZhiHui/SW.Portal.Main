@@ -792,7 +792,7 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.AddedDate = DateTime.Now;
                     FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
                     FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
-                    FilterData.SessionID = Guid.NewGuid();
+                    FilterData.SessionID = IpirAppModel.SessionID;
                     FilterData.DepartmentIds = IpirAppModel.DepartmentIds.Count() > 0 ? IpirAppModel.DepartmentIds : new List<long?>();
                     FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds.Count() > 0 ? IpirAppModel.ActivityIssueRelateIds : new List<long?>();
                     var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
@@ -821,19 +821,69 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(response);
         }
-        [HttpPost("DeleteIPIRApp")]
-        public async Task<ActionResult<Services.ResponseModel<IEnumerable<DeleteIPIRAppModel>>>> DeleteIPIRApp(DeleteIPIRAppModel value)
+        [HttpPost("InsertIpirReportingInformation")]
+        public async Task<ActionResult<Services.ResponseModel<List<IPIRReportingInformation>>>> InsertIpirReportingInformation(IPIRReportingInformation IPIRReportingInformationmodel)
         {
-            var response = new Services.ResponseModel<DeleteIPIRAppModel>();
-            IpirApp Data = new IpirApp();
-            Data.IpirAppId = (long)value.IpirAppId;
-            var result = await _mediator.Send(new DeleteIpirApp(Data));
+            var message = new List<string>();
+            var response = new Services.ResponseModel<IPIRReportingInformation>();
+            if (IPIRReportingInformationmodel.IssueRelatedTo > 0 && IPIRReportingInformationmodel.AssignToIds != null)
+            {
+
+                IPIRReportingInformation FilterData = new IPIRReportingInformation();
+                {
+
+                    FilterData.IpirAppID = IPIRReportingInformationmodel.IpirAppID;
+
+                    FilterData.ReportBy = IPIRReportingInformationmodel.ReportBy;
+                    FilterData.IssueDescription = IPIRReportingInformationmodel.IssueDescription;
+                    FilterData.IssueRelatedTo = IPIRReportingInformationmodel.IssueRelatedTo > 0 ? IPIRReportingInformationmodel.IssueRelatedTo : null;
+                    FilterData.AddedByUserID = IPIRReportingInformationmodel.AddedByUserID;
+                    FilterData.SessionId = IPIRReportingInformationmodel.SessionId;
+                    FilterData.AddedDate = DateTime.Now;
+                    FilterData.ModifiedByUserID = IPIRReportingInformationmodel.ModifiedByUserID;
+                    FilterData.ModifiedDate = IPIRReportingInformationmodel.ModifiedDate;
+                    FilterData.ReportinginformationID = IPIRReportingInformationmodel.ReportinginformationID;
+
+                    FilterData.AssignToIds = IPIRReportingInformationmodel.AssignToIds.Count() > 0 ? IPIRReportingInformationmodel.AssignToIds : new List<long?>();
+                    var result = await _mediator.Send(new InsertOrUpdateIpirReportinginformation(FilterData));
+
+                    try
+                    {
+                        response.ResponseCode = Services.ResponseCode.Success;
+                        var display = new IPIRReportingInformation
+                        {
+                            IpirAppID = result.IpirAppID
+                        };
+                        response.Result = display;
+                    }
+                    catch (Exception ex)
+                    {
+                        response.ResponseCode = Services.ResponseCode.Failure;
+                        response.ErrorMessages.Add(ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                message.Add("Please Enter Required Fields");
+                response.ErrorMessages = message;
+            }
+            return Ok(response);
+        }
+        [HttpPost("DeleteIPIRReportingInformation")]
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<IPIRReportingInformation>>>> DeleteIPIRReportingInformation(IPIRReportingInformation value)
+        {
+            var response = new Services.ResponseModel<IPIRReportingInformation>();
+            IPIRReportingInformation Data = new IPIRReportingInformation();
+            Data.ReportinginformationID = (long)value.ReportinginformationID;
+            var result = await _mediator.Send(new DeleteIpirReportingInformation(Data));
 
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
 
-                var emailconversations = new DeleteIPIRAppModel
+                var emailconversations = new IPIRReportingInformation
                 {
 
                     Message = "Delete Successfully"
@@ -893,18 +943,37 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        [HttpGet("GetIpirIssueRelatedList")]
+        public async Task<ActionResult<Services.ResponseModel<List<View_ApplicationMasterDetail>>>> GetIpirIssueRelatedList()
+        {
 
+            var response = new Services.ResponseModel<View_ApplicationMasterDetail>();
+
+            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(385));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<View_ApplicationMasterDetail> { new View_ApplicationMasterDetail() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
         //[HttpGet("GetCompanyListTest")]
         //public async Task<ActionResult<Services.ResponseModel<List<SoCustomer>>>> GetCompanyListTest(DataSourceLoadOptions loadOptions)
         //{
 
 
         //    var result = await _SoCustomerQueryRepository.GetListAsync();
-           
+
         //        var loadResult = DataSourceLoader.Load<SoCustomer>((IQueryable<SoCustomer>)result.AsQueryable(), loadOptions);
         //        return Json(loadResult, new JsonSerializerOptions());
-           
-           
+
+
         //}
     }
 }

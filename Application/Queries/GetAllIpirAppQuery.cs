@@ -65,4 +65,21 @@ namespace Application.Queries
             this.IpirAppCheckedDetailsModel = ipirAppCheckedDetailsModel;
         }
     }
+    public class InsertOrUpdateIpirReportinginformation : PagedRequest, IRequest<IPIRReportingInformation>
+    {
+        public IPIRReportingInformation IpirApp { get; private set; }
+        public InsertOrUpdateIpirReportinginformation(IPIRReportingInformation ipirApp)
+        {
+            this.IpirApp = ipirApp;
+        }
+    }
+    public class DeleteIpirReportingInformation : PagedRequest, IRequest<IPIRReportingInformation>
+    {
+        public IPIRReportingInformation ReportingInformation { get; private set; }
+        public DeleteIpirReportingInformation(IPIRReportingInformation reportingInformation)
+        {
+            this.ReportingInformation = reportingInformation;
+        }
+    }
+
 }

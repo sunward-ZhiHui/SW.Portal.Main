@@ -53,11 +53,11 @@
         {
             portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
         }
-        
+
         NavigationManager.LocationChanged += OnLocationChanged;
         await InvokeAsync(StateHasChanged);
     }
-    
+
     async void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {    
         var currentUri = NavigationManager.Uri;
@@ -68,12 +68,12 @@
         if (currentUri != previousUri)
         {
             previousUri = currentUri; // Update the previous URL
-            //UpdateSelection(currentUri, true);
-            //StateHasChanged();
+                                      //UpdateSelection(currentUri, true);
+                                      //StateHasChanged();
         }
 
         previousUri = currentUri;       
-        
+
         //StateHasChanged();
         await InvokeAsync(StateHasChanged);
     }
@@ -116,7 +116,7 @@
             }
             return false;
         });
-        
+
     }
     void ExpandToSelectedNode(ITreeViewNodeInfo selectedNode)
     {
@@ -143,15 +143,20 @@
             var dataItem = e.NodeInfo.DataItem as PortalMenuModel;
             if (dataItem != null && dataItem.Component != null || dataItem.Name != null)
             {
+                var isPermissionURL = dataItem.IsPermissionURL;
                 var url = dataItem.Name;
-                // if (dataItem.Component.ToLower() != dataItem.Name.ToLower())
-                // {
-                //     url = dataItem.Component + "/" + dataItem.Name;
-                // }
                 if (url != null)
                 {
-                    NavigationManager.NavigateTo(url);
+                    if (isPermissionURL)
+                    {   
+                        NavigationManager.NavigateTo($"{url}/{dataItem.UniqueSessionID}"); 
+                    }
+                    else
+                    {   
+                        NavigationManager.NavigateTo($"{url}");
+                    }
                 }
+                
             }
             var nodes = treeView.GetNodesInfo(n => true);
             foreach (var node in nodes)
@@ -159,5 +164,7 @@
                 treeView.SetNodeExpanded(n => n == node, IsParentNode(node, e.NodeInfo));
             }
         }
+
+        StateHasChanged();
     }
 }

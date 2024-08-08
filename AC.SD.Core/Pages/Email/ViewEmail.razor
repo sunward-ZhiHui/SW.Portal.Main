@@ -164,12 +164,14 @@
                                                 <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
 
                                                 <DxMenuItem Text="Group List" Enabled="@isEnabled" class="@((isMenuvisible == "AddGroupParticipants" ? "tActive": "taddgroupparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddGroupParticipants"))" />
-
                                                 <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
-                                                    <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
-                                                  
-                                            
+                                                <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
+                                                @*  <DxMenuItem>
+                                                     <Template>
+                                                         <div>@elapsedTime </div>
+                                                    </Template>
+                                                </DxMenuItem> *@                                                    
                                             </Items>
                                         </DxMenu>
                                         }
@@ -1726,6 +1728,7 @@
 
 
 @code {
+    private string elapsedTime;
     private int pageNumber = 1; // Initial page number
     private int pageSize = 15; // Number of records per page
     private int submitCount = 0;
@@ -5036,7 +5039,8 @@
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
-    }
+        
+    }    
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
         StateHasChanged();
@@ -5059,7 +5063,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
         AppUserId = applicationUser.UserID;
-        await JSRuntime.InvokeAsync<string>("showLoading");
+       // await JSRuntime.InvokeAsync<string>("showLoading");
 
         filterrowname = "";
         if(Page == "Todo")
@@ -5150,15 +5154,15 @@
             }
             else
             {
-                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL", pageNumber, pageSize));
-                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
-                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
-                _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+                //_forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL", pageNumber, pageSize));
+                //_forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+                //_forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
+                //_topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
             }
         }
 
 
-        await JSRuntime.InvokeAsync<string>("hideLoading");
+       // await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
 
 
@@ -5174,9 +5178,9 @@
     private async Task LoadGridData()
     {
         _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL", pageNumber, pageSize));
-        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
-        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
-        _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+        //_forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+        //_forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
+        //_topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
     }
     public void Dispose()
     {
@@ -5185,7 +5189,7 @@
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
         System.GC.Collect();
-        GC.SuppressFinalize(this);
+        GC.SuppressFinalize(this);        
     }
 
     async Task onloadTwoGrid()
@@ -5516,7 +5520,9 @@
                     var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
                     var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
-                    Data.AssignccIds = t1.Concat(t2).ToList();
+                    //vk
+                    //Data.AssignccIds = t1.Concat(t2).ToList();
+                    Data.AssignccIds = parttcc;
 
                     var filteredCCList = _allparticipant.Where(c => Data.AssignccIds.Contains(c.UserID.Value)).ToList();
                     IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
@@ -5587,8 +5593,9 @@
                     var t1 = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
                     var t2 = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
-                    Data.AssignccIds = t1.Concat(t2).ToList();
-
+                    //vk
+                    //Data.AssignccIds = t1.Concat(t2).ToList();
+                    Data.AssignccIds = getpatlist;
 
 
                     //string assignccIdAsString = Data.AssignccIds.ToString(); // Convert Data.AssignccIds to a string

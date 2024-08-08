@@ -130,7 +130,15 @@
 
         function hideLoading() {
             setTimeout(function () { $(".load-indicator").fadeOut("slow"); }, 500);
-        }
+        }        
+        window.registerIframeOnload = function (iframeId, dotNetHelper) {
+            var iframe = document.getElementById(iframeId);
+            if (iframe) {
+                iframe.onload = function () {
+                    dotNetHelper.invokeMethodAsync('HideIframeLoading');
+                };
+            }
+        };
     </script>
     <environment include="ServerSide">
         <component type="typeof(DemoStylesheetContainer)" render-mode="ServerPrerendered" param-InitialThemeName="@InitialThemeName" />

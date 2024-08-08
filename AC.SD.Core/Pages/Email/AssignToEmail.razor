@@ -9,8 +9,14 @@
 @implements IDisposable;
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
+@using System.Timers
 <style scoped>  
 </style>
+<div style="text-align:center">@elapsedTime</div>
+<DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
 <DxGrid @ref="TOGrid" SearchText="@GridSearchText" 
         Data="_forumTopicTo"
         VirtualScrollingEnabled="true"   
@@ -20,7 +26,7 @@
        
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 245px);"
+        CssClass="w-100" style="height: calc(100vh - 262px);"
         RowClick="OnEmailToRowClick"     
         AllowSelectRowByClick="true" SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" SelectedDataItemsChanged="@SelectedDataItemsChanged">
@@ -87,13 +93,20 @@
         <SubViewEmail @ref=RefSubAssignTo Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
     </DetailRowTemplate>   
 </DxGrid>
+</DxLoadingPanel>
 <div style="text-align:center">
     <button @onclick="ToLoadMore" class="loadmorebg">Load More</button>
 </div>
 
 @code {
+    bool PanelVisible { get; set; }
+    private Timer timer;
+    public string elapsedTime = "00:00:00";
+    public string OnElapsedTimeChanged = "00:00:00";
+    private DateTime startTime;
+
     IReadOnlyList<object> SelectedDataItems { get; set; }
-   
+
     private int pageNumber = 1; // Initial page number
     private int pageSize = 15; // Number of records per page
     DxContextMenu? ContextMenu { get; set; }
@@ -117,21 +130,26 @@
     [Parameter]
     public Action<List<string>>? ToTopicIds { get; set; }
     [Parameter]
-    public Action<string>? SubViewToTopicId { get; set; }
+    public Action<string>? SubViewToTopicId { get; set; }    
     protected override async Task OnInitializedAsync()
     {
+        PanelVisible = true;
+        StartTimer();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         @if (Page == "AssignTo")
-        {
+        {  
             _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         }
+        StopTimer();
         //NavigationManager.LocationChanged += OnLocationChanged;
-
+        PanelVisible = false;
     }
     protected async Task ToLoadMore()
     {
+        PanelVisible = true;
         pageNumber++; // Increment page number                      
-        await JSRuntime.InvokeAsync<string>("showLoading");
+        //await JSRuntime.InvokeAsync<string>("showLoading");
+       
         @if (Page == "AssignTo")
         {
             var getassigntoEmailTask = Task.Factory.StartNew(() => Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize)));
@@ -139,11 +157,11 @@
             _forumTopicTo.AddRange(await getassigntoEmailTask.Result);
             TOGrid.Reload();
         }
-        //var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));
-
-
-        await JSRuntime.InvokeAsync<string>("hideLoading");
+        //var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));             
+        //await JSRuntime.InvokeAsync<string>("hideLoading");
         StateHasChanged();
+        PanelVisible = false;
+        StopTimer();
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -166,7 +184,9 @@
     {
         if (applicationUser != null)
         {
+            PanelVisible = true;
             _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
+            PanelVisible = false;
         }
 
         if(RefSubAssignTo != null)
@@ -217,6 +237,7 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
+        timer?.Dispose();
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -241,5 +262,27 @@
 
         StateHasChanged();
 
+    }
+
+    private void StartTimer()
+    {
+        startTime = DateTime.Now;
+        timer = new Timer(1000);
+        timer.Elapsed += UpdateElapsedTime;
+        timer.Start();
+    }
+
+    private void StopTimer()
+    {
+        timer.Stop();
+        timer.Elapsed -= UpdateElapsedTime;
+    }
+
+    private void UpdateElapsedTime(object sender, ElapsedEventArgs e)
+    {
+        var timeSpan = DateTime.Now - startTime;
+        elapsedTime = timeSpan.ToString(@"hh\:mm\:ss");         
+        InvokeAsync(StateHasChanged);
+    
     }
 }

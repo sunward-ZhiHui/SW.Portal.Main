@@ -67,7 +67,27 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        public async Task<List<ApplicationPermission>> GetByListSessionIdAsync(string SessionId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM ApplicationPermission  WHERE UniqueSessionID = @SessionId";
 
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);
+
+                using (var connection = CreateConnection())
+                {
+                    var res = await connection.QueryAsync<ApplicationPermission>(query, parameters);
+
+                    return res.ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
     }
 }

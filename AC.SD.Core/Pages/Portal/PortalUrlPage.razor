@@ -11,6 +11,7 @@
 @using MediatR
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+
 @page "/PortalUrl/{TSessionId:guid}"
 @implements IDisposable
 
@@ -21,11 +22,13 @@
     public Guid TSessionId { get; set; }
     private string iframeUrl="";
     private string BaseUrl = "";
+    public ApplicationUser? applicationUser { get; private set; }
     private DotNetObjectReference<PortalUrlPage>? dotNetRef;
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         BaseUrl = NavigationManager.BaseUri;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         NavigationManager.LocationChanged += OnLocationChanged;
         JSRuntime.InvokeVoidAsync("registerBlazorComponent", DotNetObjectReference.Create(this));
     }
@@ -42,8 +45,21 @@
         var lsts = await Mediator.Send(new GetListByApplicationPermissionSession(sessionidString));
         if (lsts.Count > 0)
         {
-            var url = lsts[0].PermissionURL;
-            LoadUrl(url);
+            var allEmployees = await Mediator.Send(new GetAllEmployeeQuery());
+            var filteredEmployees = allEmployees.Where(e => e.UserID == applicationUser.UserID).ToList();
+            string sageId = filteredEmployees[0].SageID;
+
+            string urlTemplate = lsts[0].PermissionURL;      
+            if(urlTemplate != null)
+            {
+                string finalUrl = urlTemplate.Replace("{userId}", sageId);                
+                LoadUrl(finalUrl);
+            }
+            else
+            {
+                LoadUrl(null);
+            }
+
         }
         else
         {

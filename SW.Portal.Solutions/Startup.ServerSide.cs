@@ -43,7 +43,13 @@ namespace SW.Portal.Solutions.ServerSide
 #else
             bool detailedErrors = Configuration.GetValue("detailedErrors", false);
 #endif
-            services.AddServerSideBlazor().AddCircuitOptions(x => x.DetailedErrors = detailedErrors);
+            //services.AddServerSideBlazor().AddCircuitOptions(x => x.DetailedErrors = detailedErrors);
+            services.AddServerSideBlazor().AddCircuitOptions(options =>
+            {
+                options.DetailedErrors = true;
+                options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(10);
+                options.DisconnectedCircuitMaxRetained = 0;
+            });
             services.AddBlazoredToast();
             services.AddDevExpressServerSideBlazorReportViewer();
             //services.AddTransient<RealtimeService>();

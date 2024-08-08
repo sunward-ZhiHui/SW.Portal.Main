@@ -148,9 +148,11 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    EditContext _editContext;
+        EditContext _editContext;
+        [Parameter]
+        public long? DynamicFormItemids { get; set; }
     [Parameter]
-    public long? DynamicFormItemids { get; set; }
+    public DynamicFormItem DynamicFormItemList { get; set; }
     private List<DynamicForm> _dynamicForm;
     private List<DynamicFormData>? _dynamicFormData;
     string Text { get; set; } = "";
@@ -167,6 +169,7 @@
     bool Blukdeletepopup { get; set; } = false;
     public long? DynamicFormId { get; set; }
     private DropDownOptionsGridListModel dropDownOptionsGridListModel { get; set; }
+    private List<ExpandoObject?> _dynamicformObjectDataList { get; set; }
     bool AttachmentPopUp { get; set; } = false;
     bool AttachmentEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
@@ -197,7 +200,7 @@
 
                 if (_dynamicFormItemLine != null)
                 {
-                    EditEnabled = true;AttachmentEnabled = true;
+                    EditEnabled = true; AttachmentEnabled = true;
                     DeleteEnabled = true;
                     StateHasChanged();
                 }
@@ -370,12 +373,40 @@
     }
     async Task OnRadioChangedItems(long? itemDynamicFormTypeID)
     {
+        _dynamicformObjectDataList = new List<ExpandoObject>();
         _dynamicFormData = new List<DynamicFormData>();
         if (itemDynamicFormTypeID > 0)
         {
             List<long?> dynamicFormIds = new List<long?>();
             dynamicFormIds.Add(itemDynamicFormTypeID);
             var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID));
+                if (DynamicFormItemList != null)
+                {
+                    foreach (var v in (list.ObjectData as IEnumerable<ExpandoObject>))
+                    {
+                        long? v1 = null; long? v2 = null; long? v3 = null;
+                        foreach (var item in (dynamic)v)
+                        {
+                            if (item.Key == "136_AppMasterPar")
+                            {
+                                v1 = (long?)item.Value;
+                            }
+                            if (item.Key == "137_AppMasterPar")
+                            {
+                                v2 = (long?)item.Value;
+                            }
+                            if (item.Key == "138_AppMasterPar")
+                            {
+                                v3 = (long?)item.Value;
+                            }
+                        }
+                        if (DynamicFormItemList.StockGroupAppParentID == v1 && DynamicFormItemList.DepartmentAppParentID == v2 && DynamicFormItemList.ItemGroupAppParentID == v3)
+                        {
+                            _dynamicformObjectDataList.Add(v);
+                        }
+                    }
+                }
+            
             _dynamicFormData = list.DynamicFormListData;
             dropDownOptionsGridListModel = list;
         }
@@ -433,28 +464,7 @@
                         var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
                         var access = Expression.Property(Expression.Constant(Data), s.Name);
                         var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
-                        if (s.Name == "Qty")
-                        {
-                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
-                            var j = 0;
-                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
-                            {
-                                editor.OpenElement(i + 1, "div");
-                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                                editor.AddContent(i + 1, "Qty");
-                                editor.CloseElement();
-                                editor.OpenComponent<DxSpinEdit<decimal?>>(j + 1);
-                                editor.AddAttribute(j + 1, "Value", valueData);
-                                editor.AddAttribute(j + 1, "ValueExpression", lambda);
-                                editor.AddAttribute(j + 1, "Enabled", true);
-                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                                editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { s.SetValue(Data, str); }));
-                                editor.CloseComponent();
-
-                            })));
-                            itemBuilder.CloseComponent();
-                        }
+                       
                         if (s.Name == "ItemDynamicFormTypeID")
                         {
                             itemBuilder.OpenComponent<DxFormLayoutItem>(1);
@@ -492,8 +502,8 @@
                             itemBuilder.OpenComponent<DxFormLayoutItem>(1);
                             itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
                             var gridlistss = dropDownOptionsGridListModel != null ? dropDownOptionsGridListModel.DropDownGridOptionsModel.FirstOrDefault()?.DropDownOptionsModels : null;
-                            var collection = dropDownOptionsGridListModel?.ObjectData;
-                            List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
+                            // var collection = dropDownOptionsGridListModel?.ObjectData;
+                            var collection = _dynamicformObjectDataList;
 
                             var j = 0;
                             itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
@@ -563,6 +573,28 @@
                             itemBuilder.AddAttribute(i++, "For", lambda);
                             itemBuilder.CloseComponent();
                             itemBuilder.CloseElement();
+                        }
+                        if (s.Name == "Qty")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(1);
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                            var j = 0;
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                editor.OpenElement(i + 1, "div");
+                                editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
+                                editor.AddContent(i + 1, "Qty");
+                                editor.CloseElement();
+                                editor.OpenComponent<DxSpinEdit<decimal?>>(j + 1);
+                                editor.AddAttribute(j + 1, "Value", valueData);
+                                editor.AddAttribute(j + 1, "ValueExpression", lambda);
+                                editor.AddAttribute(j + 1, "Enabled", true);
+                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { s.SetValue(Data, str); }));
+                                editor.CloseComponent();
+
+                            })));
+                            itemBuilder.CloseComponent();
                         }
                     });
                 }

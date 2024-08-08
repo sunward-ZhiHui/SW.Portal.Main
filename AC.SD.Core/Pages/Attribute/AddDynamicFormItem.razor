@@ -140,7 +140,7 @@
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.OnDemand">
                             <DxFormLayoutTabPage Caption="Form Data">
-                                <DynamicFormItemLines @ref="refDynamicFormItemLines" DynamicFormItemids="@DynamicFormItemID"></DynamicFormItemLines>
+                                <DynamicFormItemLines @ref="refDynamicFormItemLines" DynamicFormItemids="@DynamicFormItemID" DynamicFormItemList="Data"></DynamicFormItemLines>
                             </DxFormLayoutTabPage>
 
                         </DxFormLayoutTabPages>
@@ -313,7 +313,7 @@
         if (stockGroupAppParentId > 0)
         {
             _applicationMasterChildDepartmentItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(stockGroupAppParentId));
-
+           
         }
     }
     async Task SelectedDepartmentChanged(long? departmentAppParentID)

@@ -595,14 +595,24 @@ namespace Infrastructure.Repository.Query
                 navMethodCodeLines = results.Read<NavMethodCodeLines>().ToList();
                 acitems = results.Read<NavItemCitemList>().ToList();
             }
+            List<long?> idss = new List<long?>();
             if (itemMasterforReport != null && itemMasterforReport.Count() > 0)
             {
                 itemMasterforReport.ForEach(s =>
                 {
-                    s.NavMethodCodeLines = navMethodCodeLines.Where(w => w.ItemId == s.ItemId).ToList();
+                    var idsss = navMethodCodeLines.Where(w => w.ItemId == s.ItemId).ToList();
+
+                    s.NavMethodCodeLines = idsss;
+
+                    if (idsss.Count() == 0)
+                    {
+                        long? itemids = (long?)s.ItemId;
+                        idss.Add(itemids);
+                    }
                     s.NavItemCitemList = acitems.Where(w => w.NavItemId == s.ItemId).ToList();
                 });
             }
+            string a1 = string.Join(",", idss);
             var packSize = 900;
             decimal packSize2 = 0;
             var tenderExist1 = false;
@@ -849,7 +859,7 @@ namespace Infrastructure.Repository.Query
 
                         var prodRecipe = "";
                         var currentBatch = "";
-                        var methodeCodeID = ac.NavMethodCodeLines.First().MethodCodeId;
+                        var methodeCodeID = ac.NavMethodCodeLines.Count() > 0 ? ac.NavMethodCodeLines.First().MethodCodeId : -1;
                         var itemreceips = recipeList.Where(r => r.ItemRecipeId == methodeCodeID).ToList();
                         if (itemreceips.Count > 0)
                         {
@@ -909,7 +919,7 @@ namespace Infrastructure.Repository.Query
                         var inTransitQty = doNotReceivedList.Where(d => itemCodes.Contains(d.ItemNo) && d.IsRecived == false && d.CompanyId == endDate.CompanyId).Sum(s => s.DoQty);
                         if (distTotal > 0)
                         {
-                            stockHoldingBalance = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0)+ notStartInvQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.GetValueOrDefault(0)) / distTotal;
+                            stockHoldingBalance = (interCompanyTransitQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.GetValueOrDefault(0)) / distTotal;
                             prestockHoldingBalance = (prewipQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + 0 + preglobalQty.GetValueOrDefault(0) + pre_AntahStockBalance + pre_ApexStockBalance + pre_MsbStockBalance + pre_PsbStockBalance + pre_SgTenderStockBalance + preinventoryQty.GetValueOrDefault(0)) / distTotal;
                         }
 
@@ -1153,7 +1163,7 @@ namespace Infrastructure.Repository.Query
                             PreSgTenderStockBalance = endDate.CompanyId == 2 ? preinventoryQty.GetValueOrDefault(0) : pre_SgTenderStockBalance,
                             PreMyStockBalance = endDate.CompanyId == 1 || endDate.CompanyId == 3 ? preinventoryQty.GetValueOrDefault(0) : pre_SgTenderStockBalance,
                             PreOtherStoreQty = preglobalQty.GetValueOrDefault(0),
-                            PreStockBalance = (prewipQty.GetValueOrDefault(0)+ preNotStartInvQty.GetValueOrDefault(0) + 0 + preglobalQty.GetValueOrDefault(0) + pre_AntahStockBalance + pre_ApexStockBalance + pre_MsbStockBalance + pre_PsbStockBalance + pre_SgTenderStockBalance + preinventoryQty.GetValueOrDefault(0)),
+                            PreStockBalance = (prewipQty.GetValueOrDefault(0) + preNotStartInvQty.GetValueOrDefault(0) + 0 + preglobalQty.GetValueOrDefault(0) + pre_AntahStockBalance + pre_ApexStockBalance + pre_MsbStockBalance + pre_PsbStockBalance + pre_SgTenderStockBalance + preinventoryQty.GetValueOrDefault(0)),
                             PreStockHoldingBalance = prestockHoldingBalance,
                             PrewipQty = prewipQty.GetValueOrDefault(0),
                             PreNotStartInvQty = preNotStartInvQty.GetValueOrDefault(0),
@@ -2420,7 +2430,7 @@ namespace Infrastructure.Repository.Query
 
                         var prodRecipe = "";
                         var currentBatch = "";
-                        var methodeCodeID = ac.NavMethodCodeLines.First().MethodCodeId;
+                        var methodeCodeID = ac.NavMethodCodeLines.Count() > 0 ? ac.NavMethodCodeLines.First().MethodCodeId : -1;
                         var itemreceips = recipeList.Where(r => r.ItemRecipeId == methodeCodeID).ToList();
                         if (itemreceips.Count > 0)
                         {
@@ -2530,12 +2540,12 @@ namespace Infrastructure.Repository.Query
                             PsbStockBalance = PsbStockBalance,
                             NAVStockBalance = inventoryQty.GetValueOrDefault(0),
                             WipQty = wipQty.GetValueOrDefault(0),
-                            NotStartInvQty= notStartInvQty.GetValueOrDefault(0),
+                            NotStartInvQty = notStartInvQty.GetValueOrDefault(0),
                             Rework = reWorkQty.GetValueOrDefault(0),
                             InterCompanyTransitQty = interCompanyTransitQty.GetValueOrDefault(0),
                             OtherStoreQty = globalQty.GetValueOrDefault(0),
                             StockBalance = (interCompanyTransitQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value),
-                            StockHoldingPackSize = (interCompanyTransitQty.GetValueOrDefault(0)+ notStartInvQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value) * packSize,
+                            StockHoldingPackSize = (interCompanyTransitQty.GetValueOrDefault(0) + notStartInvQty.GetValueOrDefault(0) + wipQty.GetValueOrDefault(0) + 0 + globalQty.GetValueOrDefault(0) + AntahStockBalance + ApexStockBalance + MsbStockBalance + PsbStockBalance + SgTenderStockBalance + inventoryQty.GetValueOrDefault(0) + inTransitQty.Value) * packSize,
                             StockHoldingBalance = stockHoldingBalance,
                             MyStockBalance = endDate.CompanyId == 1 || endDate.CompanyId == 3 ? inventoryQty.GetValueOrDefault(0) : SgTenderStockBalance,
                             SgStockBalance = endDate.CompanyId == 2 ? inventoryQty.GetValueOrDefault(0) : SgTenderStockBalance,
@@ -2789,19 +2799,19 @@ namespace Infrastructure.Repository.Query
                 f.Ticket11 = f.Ticket11 + f.ProTicket11;
                 f.Ticket12 = f.Ticket12 + f.ProTicket12;
 
-               /* f.Ticket1 = f.Ticket1 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket2 = f.Ticket2 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket3 = f.Ticket3 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket4 = f.Ticket4 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket5 = f.Ticket5 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket6 = f.Ticket6 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket7 = f.Ticket7 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket8 = f.Ticket8 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket9 = f.Ticket9 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket10 = f.Ticket10 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket11 = f.Ticket11 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList()));
-                f.Ticket12 = f.Ticket12 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList()));
-*/
+                /* f.Ticket1 = f.Ticket1 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month1).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket2 = f.Ticket2 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month2).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket3 = f.Ticket3 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month3).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket4 = f.Ticket4 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month4).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket5 = f.Ticket5 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month5).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket6 = f.Ticket6 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month6).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket7 = f.Ticket7 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month7).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket8 = f.Ticket8 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month8).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket9 = f.Ticket9 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month9).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket10 = f.Ticket10 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month10).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket11 = f.Ticket11 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month11).Select(s => s.ProdOrderNo).ToList()));
+                 f.Ticket12 = f.Ticket12 + string.Format("{0}/{1}", string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.Quantity).ToList()), string.Join(",", prodyctionoutTickets.Where(t => itemNos.Contains(t.ItemId) && t.IsOutput == false && t.ProcessDate.Value.Month == month12).Select(s => s.ProdOrderNo).ToList()));
+ */
 
                 f.ProjectedHoldingStock1 += f.AcSum > 0 ? grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Sum(s => s.TotalQuantity.Value) / (f.AcSum) : grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month1 && t.StartDate.Value.Year == year1).Sum(s => s.TotalQuantity.Value);
                 f.ProjectedHoldingStock2 += f.AcSum > 0 ? grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Sum(s => s.TotalQuantity.Value) / (f.AcSum) : grouptickets.Where(t => item_Nos.Contains(t.ItemNo) && t.StartDate.Value.Month == month2 && t.StartDate.Value.Year == year2).Sum(s => s.TotalQuantity.Value);

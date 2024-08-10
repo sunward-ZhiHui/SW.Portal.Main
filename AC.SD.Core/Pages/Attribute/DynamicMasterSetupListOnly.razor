@@ -12,7 +12,7 @@
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
 
-@implements IDisposable
+@implements IAsyncDisposable
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -187,9 +187,15 @@
 
 
     }
-    public void Dispose()
+    // public void Dispose()
+    // {
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);
+    // }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        // Suppress finalization
         GC.SuppressFinalize(this);
     }
 }

@@ -237,7 +237,11 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
+        GC.WaitForPendingFinalizers();
         timer?.Dispose();
+        _forumTopicTo?.Clear();
+        _forumTopicTo = null;
+        StopTimer();        
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {

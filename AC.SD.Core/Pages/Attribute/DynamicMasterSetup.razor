@@ -11,7 +11,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
-@implements IDisposable
+@implements IAsyncDisposable;
 
 
 
@@ -140,11 +140,23 @@
         return ValueTask.CompletedTask;
     }
 
-    public void Dispose()
-    {
+    // public void Dispose()
+    // {
 
-        DynamicFormPage1?.Dispose();
+    //     DynamicFormPage1?.Dispose();
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);
+    // }
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
         System.GC.Collect();
+        DynamicFormPage1?.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();
+        // Suppress finalization
         GC.SuppressFinalize(this);
     }
     async Task UpdateDataAsync()

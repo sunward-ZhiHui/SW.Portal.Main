@@ -81,6 +81,19 @@ namespace Core.Entities
         public Guid? ReportingSessionID { get; set; }
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
+        public IEnumerable<long> ReportingAssignTo { get; set; } = new List<long>();
+        [NotMapped]
+        public long ReportinginformationID { get; set; }
+        [NotMapped]
+        public long IpirAppID { get; set; }
+        [NotMapped]
+        public string? IssueDescription { get; set; }
+        [NotMapped]
+        public bool ReportBy { get; set; }
+        [NotMapped]
+        public long? IssueRelatedTo { get; set; }
+        [NotMapped]
+        public string? IssueRelatedName { get; set; }
     }
     public class IpirAppIssueDep
     {

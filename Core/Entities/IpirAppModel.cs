@@ -44,6 +44,21 @@ namespace Core.Entities
         public Guid? UniqueSessionId { get; set; }
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
+        [NotMapped]
+        public Guid? ReportingSessionID { get; set; }
+        [NotMapped]
+        public IEnumerable<long> ReportingAssignTo { get; set; } = new List<long>();
+        [NotMapped]
+        public long? ReportinginformationID { get; set; }
+       
+        [NotMapped]
+        public string? IssueDescription { get; set; }
+        [NotMapped]
+        public bool ReportBy { get; set; }
+        [NotMapped]
+        public long? IssueRelatedTo { get; set; }
+        [NotMapped]
+        public string? IssueRelatedName { get; set; }
 
     }
 }

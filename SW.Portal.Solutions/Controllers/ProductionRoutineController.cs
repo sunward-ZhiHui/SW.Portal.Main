@@ -20,6 +20,7 @@ using DevExtreme.AspNet.Data;
 using System.Text.Json;
 using AC.SD.Core.AspNetCoreHost;
 using DevExtreme.AspNet.Data.ResponseModel;
+using AC.SD.Core.Pages.IpirApps;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -590,7 +591,7 @@ namespace SW.Portal.Solutions.Controllers
             var displayResult = result?.Select(topic => new IpirAppModel
             {
 
-                IpirAppId = topic.IpirAppId,
+                IpirAppId = topic.IpirAppID,
                 FixedAssetNo = topic.FixedAssetNo,
                 ProdOrderNo = topic.ProdOrderNo,
                 CompanyID = topic.CompanyID,
@@ -619,14 +620,22 @@ namespace SW.Portal.Solutions.Controllers
                 ActivityIssueRelateIds = topic.ActivityIssueRelateIds,
                 DepartmentIds = topic.DepartmentIds,
                 UniqueSessionId = topic.UniqueSessionId,
-                FileName = topic.FileName
+                FileName = topic.FileName,
+                ReportingSessionID = topic.ReportingSessionID,
+                ReportingAssignTo = topic.ReportingAssignTo,
+                ReportinginformationID = topic.ReportinginformationID,
+                IssueDescription = topic.IssueDescription,
+                ReportBy = topic.ReportBy,
+                IssueRelatedTo = topic.IssueRelatedTo,
+                IssueRelatedName = topic.IssueRelatedName,
+                
 
             }).ToList();
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;
 
-                response.Results = displayResult;
+                response.Results = displayResult.ToList();
             }
             catch (Exception ex)
             {

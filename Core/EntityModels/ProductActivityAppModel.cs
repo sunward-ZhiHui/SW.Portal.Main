@@ -163,6 +163,7 @@ namespace Core.EntityModels
         public List<Documents> Documents { get; set; } = new List<Documents>();
         public List<ApplicationUser> ApplicationUser { get; set; } = new List<ApplicationUser>();
         public List<IpirAppIssueDep> IpirAppIssueDep { get; set; } = new List<IpirAppIssueDep>();
+        public List<IssueReportAssignTo> IpirreportingAssignTo { get; set; } = new List<IssueReportAssignTo>();
 
     }
 }

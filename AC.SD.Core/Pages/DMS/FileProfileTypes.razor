@@ -18,7 +18,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
-@implements IDisposable;
+@implements IAsyncDisposable;
 @using System;
 @using System.IO;
 <style>
@@ -796,6 +796,7 @@
     public string? SearchText { get; set; } = null;
     protected override async Task OnInitializedAsync()
     {
+        PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
@@ -861,6 +862,7 @@
     }
     async Task mainPageLoad()
     {
+        PanelVisible = true;
         searchText = null; SearchText = null;
         PanelVisible = true; isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
@@ -1009,7 +1011,7 @@
             renameEnabled = false; viewParentEnabled = false;
             if (_selectedItems != null)
             {
-               // var FileProfileTypeIds = _selectedItems.FilterProfileTypeId > 0 ? _selectedItems.FilterProfileTypeId : _selectedItems.FileProfileTypeId;
+                // var FileProfileTypeIds = _selectedItems.FilterProfileTypeId > 0 ? _selectedItems.FilterProfileTypeId : _selectedItems.FileProfileTypeId;
                 var FileProfileTypeIds = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
                 var fileTypeData = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeIds).FirstOrDefault();
                 if (fileTypeData != null)
@@ -1060,7 +1062,7 @@
                             }
                             moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; isProfileInfoEnabled = true;
                             //isEdit = true; isDelete = true; isCreateSubFolder = true; 
-                           //  IsGrantAdminPermission = true;
+                            //  IsGrantAdminPermission = true;
                             if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                             {
                                 isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
@@ -1136,7 +1138,7 @@
                         {
                             if (documentSearchModel.Type != "Search")
                             {
-                              //  isCreateSubFolder = true;
+                                //  isCreateSubFolder = true;
                             }
                         }
                     }
@@ -2287,9 +2289,22 @@
     {
         MissingUploadFileProfileTypePopup = true;
     }
-    public void Dispose()
+    // public void Dispose()
+    // {
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);
+    // }
+    protected virtual async ValueTask DisposeAsyncCore()
     {
         System.GC.Collect();
+        _selectedTreeItems = new List<DocumentsModel>();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();        
+        // Suppress finalization
         GC.SuppressFinalize(this);
     }
+
 }

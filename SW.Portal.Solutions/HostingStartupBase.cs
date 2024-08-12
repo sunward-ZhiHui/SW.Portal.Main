@@ -126,7 +126,7 @@ namespace SW.Portal.Solutions.ServerSide
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                .AddCookie(options =>
                {
-                   options.Cookie.Name = "YourAppName.AuthCookie";
+                   options.Cookie.Name = "sunwardpharma";
                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
                    options.LoginPath = new PathString("/login");
                    options.LogoutPath = new PathString("/logout");

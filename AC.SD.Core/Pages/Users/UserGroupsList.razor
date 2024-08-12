@@ -9,6 +9,9 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IDisposable
+@using System;
+@using System.IO;
+
 <style>
     .alt-item > td {
         background-color: rgba(0, 0, 0, 0.05);
@@ -180,10 +183,32 @@
     private List<ViewEmployee>? _usersList;
     protected override async Task OnInitializedAsync()
     {
-        _usersList = await Mediator.Send(new GetAllEmployeeListQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        // Specify the path where the log file will be created
+        string logFilePath = "wwwroot/logs/initialization-log.txt";
+
+        // Log information
+        string logMessage = $"Component initialized at: {DateTime.Now}\n";      
+        logMessage += $"Additional information {applicationUser.UserID}\n";
+
+        // Write the log to a file
+        WriteLogToFile(logFilePath, logMessage);
+
+        _usersList = await Mediator.Send(new GetAllEmployeeListQuery());        
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         await UpdateDataAsync();
+    }
+    private void WriteLogToFile(string filePath, string message)
+    {
+        // Ensure the directory exists
+        var directory = Path.GetDirectoryName(filePath);
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        // Write the message to the log file (append mode)
+        File.AppendAllText(filePath, message);
     }
     async Task UpdateDataAsync()
     {

@@ -591,7 +591,7 @@ namespace SW.Portal.Solutions.Controllers
             var displayResult = result?.Select(topic => new IpirAppModel
             {
 
-                IpirAppId = topic.IpirAppID,
+                IpirAppId = topic.IpirAppId,
                 FixedAssetNo = topic.FixedAssetNo,
                 ProdOrderNo = topic.ProdOrderNo,
                 CompanyID = topic.CompanyID,
@@ -621,13 +621,7 @@ namespace SW.Portal.Solutions.Controllers
                 DepartmentIds = topic.DepartmentIds,
                 UniqueSessionId = topic.UniqueSessionId,
                 FileName = topic.FileName,
-                ReportingSessionID = topic.ReportingSessionID,
-                ReportingAssignTo = topic.ReportingAssignTo,
-                ReportinginformationID = topic.ReportinginformationID,
-                IssueDescription = topic.IssueDescription,
-                ReportBy = topic.ReportBy,
-                IssueRelatedTo = topic.IssueRelatedTo,
-                IssueRelatedName = topic.IssueRelatedName,
+               
                 
 
             }).ToList();
@@ -853,7 +847,7 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.ModifiedDate = IPIRReportingInformationmodel.ModifiedDate;
                     FilterData.ReportinginformationID = IPIRReportingInformationmodel.ReportinginformationID;
 
-                    FilterData.AssignToIds = IPIRReportingInformationmodel.AssignToIds.Count() > 0 ? IPIRReportingInformationmodel.AssignToIds : new List<long?>();
+                    FilterData.AssignToIds = IPIRReportingInformationmodel.AssignToIds.Count() > 0 ? IPIRReportingInformationmodel.AssignToIds : new List<long>();
                     var result = await _mediator.Send(new InsertOrUpdateIpirReportinginformation(FilterData));
 
                     try

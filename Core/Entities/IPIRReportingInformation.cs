@@ -19,7 +19,7 @@ namespace Core.Entities
         public bool ReportBy {  get; set; }
         public  long? IssueRelatedTo { get; set; }
         [NotMapped]
-        public IEnumerable<long?> AssignToIds { get; set; } = new List<long?>();
+        public IEnumerable<long> AssignToIds { get; set; } = new List<long>();
         [NotMapped]
         public string? Message { get; set; }
     }

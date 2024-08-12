@@ -164,7 +164,7 @@ namespace Infrastructure.Repository.Query
                 query += DocumentQueryString() + " where  SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") AND IsLatest=1 AND (IsDelete is null or IsDelete=0);";
                 query += "select UserName,UserId,SessionId from ApplicationUser;";
                 query += "select * from IpirAppIssueDep where IpirAppId in(" + string.Join(',', IpirAppIds) + ");";
-                query += "select * from IssueReportAssignTo where IPIRId in(" + string.Join(',', IpirAppIds) + ");";
+               
                 using (var connection = CreateConnection())
                 {
 
@@ -172,7 +172,7 @@ namespace Infrastructure.Repository.Query
                     MultipleIpirAppItemLists.Documents = result.Read<Documents>().ToList();
                     MultipleIpirAppItemLists.ApplicationUser = result.Read<ApplicationUser>().ToList();
                     MultipleIpirAppItemLists.IpirAppIssueDep = result.Read<IpirAppIssueDep>().ToList();
-                    MultipleIpirAppItemLists.IpirreportingAssignTo = result.Read<IssueReportAssignTo>().ToList();
+                   
                 }
                 return MultipleIpirAppItemLists;
             }

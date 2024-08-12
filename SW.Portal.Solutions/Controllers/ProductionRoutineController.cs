@@ -852,7 +852,8 @@ namespace SW.Portal.Solutions.Controllers
                         response.ResponseCode = Services.ResponseCode.Success;
                         var display = new IPIRReportingInformation
                         {
-                            IpirAppID = result.IpirAppID
+                            ReportinginformationID = result.ReportinginformationID,
+                            SessionId = result.SessionId
                         };
                         response.Result = display;
                     }

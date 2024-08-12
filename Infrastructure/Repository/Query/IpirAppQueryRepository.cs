@@ -520,7 +520,7 @@ namespace Infrastructure.Repository.Query
                             value.SessionId = Guid.NewGuid();
                             parameters.Add("SessionId", value.SessionId);
                             var query = @"INSERT INTO IPIRReportingInformation(IpirAppID,IssueRelatedTo,AddedByUserID,SessionID,AddedDate,IssueDescription,ReportBy)
-                                        OUTPUT INSERTED.ReportinginformationID 
+                                        OUTPUT INSERTED.ReportinginformationID ,INSERTED.SessionID
 				                       VALUES (@IpirAppID,@IssueRelatedTo,@AddedByUserID,@SessionId,@AddedDate,@IssueDescription,@ReportBy)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                             value.ReportinginformationID = insertedId;

@@ -949,7 +949,7 @@ namespace SW.Portal.Solutions.Controllers
 
             var response = new Services.ResponseModel<View_ApplicationMasterDetail>();
 
-            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(385));
+            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(386));
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;

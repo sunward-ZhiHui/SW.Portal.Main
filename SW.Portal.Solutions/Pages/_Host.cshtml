@@ -1,10 +1,8 @@
 ﻿@page "/"
 @using AC.SD.Core.Configuration
 @using AC.SD.Core.Shared;
-@* @namespace AC.ShippingDocument.ServerSide.Pages *@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject AC.SD.Core.Services.DemoThemeService Themes
-@* @inject DemoConfiguration DemoConfiguration *@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
@@ -15,7 +13,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="@Url.Content("~/")" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
     <link href="https://printjs-4de6.kxcdn.com/print.min.css" />
 
@@ -101,17 +98,6 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="For all the moments you want to cherish" />
     <link href="_content/AC.SD.Core/css/app.css" rel="stylesheet" />
-
-@* 
-    <link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
-
-    <link href="_content/DevExpress.Blazor.Dashboard/dx.light.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.common.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.light.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/dx-querybuilder.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/dx-dashboard.light.min.css" rel="stylesheet" />
- *@
 
    
     <link rel="stylesheet" href="_content/DevExpress.Blazor.Reporting.Viewer/css/dx-blazor-reporting-components.css"> 

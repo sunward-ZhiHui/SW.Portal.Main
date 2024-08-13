@@ -33,17 +33,8 @@ namespace Infrastructure.Repository.Query
             List<IpirApp> IpirApps = new List<IpirApp>();
             try
             {
-                // var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
-                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,  t7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments  ,t12.SessionID AS ReportingSessionID  from IpirApp t1
-                            JOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   
-                            JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   
-                            LEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID  
-                            LEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID  
-                            LEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   
-                            JOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  
-                            LEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal 
-                            LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy 
-                            Left JOIN IPIRReportingInformation t12 on t12.IpirAppID = t1.IpirAppID";
+                var query = "select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
+                
                 var result = new List<IpirApp>();
                 using (var connection = CreateConnection())
                 {
@@ -51,16 +42,20 @@ namespace Infrastructure.Repository.Query
                 }
                 if (result != null && result.Count > 0)
                 {
+                   
                     var IpirAppIds = result.ToList().Select(s => s.IpirAppId).ToList();
                     var sessionIds = result.ToList().Where(w => w.SessionID != null).Select(s => s.SessionID).ToList();
                     var resultData = await GetMultipleQueryAsync(sessionIds, IpirAppIds);
                     var documents = resultData.Documents.ToList();
                     var appUser = resultData.ApplicationUser.ToList();
                     var ipirAppIssueDeps = resultData.IpirAppIssueDep.ToList();
+                   
+                   
                     result.ForEach(s =>
                     {
                         s.ActivityIssueRelateIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").Select(z => z.ActivityInfoIssueId).ToList() : new List<long?>();
                         s.DepartmentIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Department").Select(z => z.DepartmentID).ToList() : new List<long?>();
+                       
                         if (documents != null && s.SessionID != null)
                         {
                             var counts = documents.FirstOrDefault(w => w.SessionId == s.SessionID);
@@ -95,6 +90,68 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<IPIRReportingInformation>> GetAllIPIRmobileByAsync()
+        {
+            List<IPIRReportingInformation> IpirApps = new List<IPIRReportingInformation>();
+            try
+            {
+                // var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
+                var query = @"select *,t2.value as IssueRelatedName From IPIRReportingInformation t1 
+                              LEFT JOIN ApplicationMasterDetail t2 ON t2.ApplicationMasterDetailID=t1.IssueRelatedTo";
+                var result = new List<IPIRReportingInformation>();
+                using (var connection = CreateConnection())
+                {
+                    result = (await connection.QueryAsync<IPIRReportingInformation>(query)).ToList();
+                }
+                if (result != null && result.Count > 0)
+                {
+                    var informationIDs = result.ToList().Select(s => s.ReportinginformationID).ToList();
+                    var IpirAppIds = result.ToList().Select(s => s.IpirAppID).ToList();
+                    var sessionIds = result.ToList().Where(w => w.SessionId != null).Select(s => s.SessionId).ToList();
+                    var resultData = await GetMultipleQueryAsync(sessionIds, IpirAppIds);
+                    var documents = resultData.Documents.ToList();
+                    var appUser = resultData.ApplicationUser.ToList();
+
+                    var Data = await GetIssueRelatedAssignToQueryAsync(informationIDs);
+                    var issueReportingAssignTo = Data.IpirreportingAssignTo.ToList();
+                    result.ForEach(s =>
+                    {
+
+                        s.AssignToIds = issueReportingAssignTo != null && issueReportingAssignTo.Count > 0 ? issueReportingAssignTo.Where(a => a.ReportinginformationID == s.ReportinginformationID).Select(z => z.AssignToId).ToList() : new List<long>();
+                        if (documents != null && s.SessionId != null)
+                        {
+                            var counts = documents.FirstOrDefault(w => w.SessionId == s.SessionId);
+                            if (counts != null)
+                            {
+
+                                s.DocumentId = counts.DocumentId;
+                                s.FileProfileTypeId = counts.FilterProfileTypeId;
+                                s.DocumentID = counts.DocumentId;
+                                s.DocumentParentId = counts.DocumentParentId;
+                                s.FileName = counts.FileName;
+                                s.ProfileNo = counts.ProfileNo;
+                                s.FilePath = counts.FilePath;
+                                s.UniqueSessionId = counts.UniqueSessionId;
+                                s.IsNewPath = counts.IsNewPath == true ? true : false;
+                                s.ContentType = counts.ContentType;
+                                s.IsLocked = counts.IsLocked;
+                                s.LockedByUserId = counts.LockedByUserId;
+                                s.ModifiedDate = counts.UploadDate;
+                                s.ModifiedByUser = appUser != null && appUser.Count() > 0 && counts.AddedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.AddedByUserId)?.UserName : "";
+                                s.LockedByUser = appUser != null && appUser.Count() > 0 && counts.LockedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.LockedByUserId)?.UserName : "";
+
+                            }
+                        }
+                        IpirApps.Add(s);
+                    });
+                }
+                return IpirApps;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<MultipleIpirAppItemLists> GetMultipleQueryAsync(List<Guid?> SessionIds, List<long> IpirAppIds)
         {
             MultipleIpirAppItemLists MultipleIpirAppItemLists = new MultipleIpirAppItemLists();
@@ -106,6 +163,7 @@ namespace Infrastructure.Repository.Query
                 query += DocumentQueryString() + " where  SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") AND IsLatest=1 AND (IsDelete is null or IsDelete=0);";
                 query += "select UserName,UserId,SessionId from ApplicationUser;";
                 query += "select * from IpirAppIssueDep where IpirAppId in(" + string.Join(',', IpirAppIds) + ");";
+               
                 using (var connection = CreateConnection())
                 {
 
@@ -113,6 +171,32 @@ namespace Infrastructure.Repository.Query
                     MultipleIpirAppItemLists.Documents = result.Read<Documents>().ToList();
                     MultipleIpirAppItemLists.ApplicationUser = result.Read<ApplicationUser>().ToList();
                     MultipleIpirAppItemLists.IpirAppIssueDep = result.Read<IpirAppIssueDep>().ToList();
+                   
+                }
+                return MultipleIpirAppItemLists;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<MultipleIpirAppItemLists> GetIssueRelatedAssignToQueryAsync( List<long> ReportingInformationID)
+        {
+            MultipleIpirAppItemLists MultipleIpirAppItemLists = new MultipleIpirAppItemLists();
+            try
+            {
+                var query = string.Empty;
+
+                ReportingInformationID = ReportingInformationID != null && ReportingInformationID.Count > 0 ? ReportingInformationID : new List<long>() { -1 };
+               
+               
+                query += "select * from IssueReportAssignTo where ReportinginformationID in(" + string.Join(',', ReportingInformationID) + ");";
+                using (var connection = CreateConnection())
+                {
+
+                    var result = await connection.QueryMultipleAsync(query);
+                   
+                    MultipleIpirAppItemLists.IpirreportingAssignTo = result.Read<IssueReportAssignTo>().ToList();
                 }
                 return MultipleIpirAppItemLists;
             }
@@ -520,7 +604,7 @@ namespace Infrastructure.Repository.Query
                             value.SessionId = Guid.NewGuid();
                             parameters.Add("SessionId", value.SessionId);
                             var query = @"INSERT INTO IPIRReportingInformation(IpirAppID,IssueRelatedTo,AddedByUserID,SessionID,AddedDate,IssueDescription,ReportBy)
-                                        OUTPUT INSERTED.ReportinginformationID 
+                                        OUTPUT INSERTED.ReportinginformationID ,INSERTED.SessionID
 				                       VALUES (@IpirAppID,@IssueRelatedTo,@AddedByUserID,@SessionId,@AddedDate,@IssueDescription,@ReportBy)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                             value.ReportinginformationID = insertedId;

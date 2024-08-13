@@ -20,6 +20,7 @@ using DevExtreme.AspNet.Data;
 using System.Text.Json;
 using AC.SD.Core.AspNetCoreHost;
 using DevExtreme.AspNet.Data.ResponseModel;
+using AC.SD.Core.Pages.IpirApps;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -33,13 +34,14 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IRoutineQueryRepository _RoutineQueryRepository;
         private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
         private readonly ISoCustomerQueryRepository _SoCustomerQueryRepository;
-        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository)
+        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository, IIpirAppQueryRepostitory ipirAppQueryRepostitory)
         {
             _mediator = mediator;
             _PlantQueryRepository = PlantQueryRepository;
             _ProductionActivityAppQueryRepository = productionActivityAppQueryRepository;
             _RoutineQueryRepository = routineQueryRepository;
             _SoCustomerQueryRepository = soCustomerQueryRepository;
+            iIpirAppQueryRepostitory = ipirAppQueryRepostitory;
         }
         [HttpGet("GetCompanyList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyList()
@@ -619,7 +621,53 @@ namespace SW.Portal.Solutions.Controllers
                 ActivityIssueRelateIds = topic.ActivityIssueRelateIds,
                 DepartmentIds = topic.DepartmentIds,
                 UniqueSessionId = topic.UniqueSessionId,
-                FileName = topic.FileName
+                FileName = topic.FileName,
+               
+                
+
+            }).ToList();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                response.Results = displayResult.ToList();
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetIpirAppSectionBList")]
+        public async Task<ActionResult<Services.ResponseModel<List<IPIRReportingInformation>>>> GetIpirAppSectionBList()
+        {
+
+            var response = new Services.ResponseModel<IPIRReportingInformationModel>();
+
+            var result = await iIpirAppQueryRepostitory.GetAllIPIRmobileByAsync();
+
+
+            var displayResult = result?.Select(topic => new IPIRReportingInformationModel
+            {
+
+                StatusCodeID = topic.StatusCodeID,
+                AddedByUserID = topic.AddedByUserID,
+                AddedDate = topic.AddedDate,
+                ModifiedDate = topic.ModifiedDate,
+                SessionId = topic.SessionId,
+                ModifiedByUserID = topic.ModifiedByUserID,               
+                ProfileNo = topic.ProfileNo,                       
+                UniqueSessionId = topic.UniqueSessionId,
+                FileName = topic.FileName,
+                AssignToIds = topic.AssignToIds,
+                ReportinginformationID = topic.ReportinginformationID,
+                IssueDescription = topic.IssueDescription,
+                ReportBy = topic.ReportBy,
+                IssueRelatedTo = topic.IssueRelatedTo,
+                IssueRelatedName = topic.IssueRelatedName,
+                IpirAppID = topic.IpirAppID,
 
             }).ToList();
             try
@@ -844,7 +892,7 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.ModifiedDate = IPIRReportingInformationmodel.ModifiedDate;
                     FilterData.ReportinginformationID = IPIRReportingInformationmodel.ReportinginformationID;
 
-                    FilterData.AssignToIds = IPIRReportingInformationmodel.AssignToIds.Count() > 0 ? IPIRReportingInformationmodel.AssignToIds : new List<long?>();
+                    FilterData.AssignToIds = IPIRReportingInformationmodel.AssignToIds.Count() > 0 ? IPIRReportingInformationmodel.AssignToIds : new List<long>();
                     var result = await _mediator.Send(new InsertOrUpdateIpirReportinginformation(FilterData));
 
                     try
@@ -852,7 +900,8 @@ namespace SW.Portal.Solutions.Controllers
                         response.ResponseCode = Services.ResponseCode.Success;
                         var display = new IPIRReportingInformation
                         {
-                            IpirAppID = result.IpirAppID
+                            ReportinginformationID = result.ReportinginformationID,
+                            SessionId = result.SessionId
                         };
                         response.Result = display;
                     }
@@ -949,7 +998,7 @@ namespace SW.Portal.Solutions.Controllers
 
             var response = new Services.ResponseModel<View_ApplicationMasterDetail>();
 
-            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(385));
+            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(386));
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;

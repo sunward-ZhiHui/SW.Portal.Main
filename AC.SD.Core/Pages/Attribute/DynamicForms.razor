@@ -126,6 +126,13 @@
                                         </DxMenuItem>
                                         <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                         <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                            <Items>
+                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                            </Items>
+                                        </DxMenuItem>
                                     </Items>
                                 </DxMenu>
                             }
@@ -150,6 +157,13 @@
                                         </DxMenuItem>
                                         <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                         <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                            <Items>
+                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                            </Items>
+                                        </DxMenuItem>
                                     </Items>
                                 </DxMenu>
                             }
@@ -167,6 +181,13 @@
                                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
                                         <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                         <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                            <Items>
+                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                            </Items>
+                                        </DxMenuItem>
                                     </Items>
                                 </DxMenu>
                             }
@@ -180,6 +201,13 @@
                                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
                                         <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
                                         <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                            <Items>
+                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                            </Items>
+                                        </DxMenuItem>
                                     </Items>
                                 </DxMenu>
                             }
@@ -484,20 +512,48 @@
             </div>
         </DxTabPage>
         <DxTabPage Text="Approval" Visible="@isApproval">
-            <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
-                    KeyFieldName="DynamicFormApprovedId">
-                <Columns>
-                    <DxGridDataColumn FieldName="ApprovalUser" Caption="User" />
-                    <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
-                    <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
-                    <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" />
-                    <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
-                </Columns>
-            </DxGrid>
+            <DynamicFormApprovedFormList isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></DynamicFormApprovedFormList>
+            @*  <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
+            KeyFieldName="DynamicFormApprovedId">
+            <Columns>
+            <DxGridDataColumn FieldName="ApprovalUser" Caption="User" />
+            <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
+            <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
+            <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" />
+            <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
+            </Columns>
+            </DxGrid> *@
         </DxTabPage>
         <DxTabPage Text="Work Flow">
-            <DxGrid Data="_dynamicFormWorkFlowFormList" style="padding:10px;"
-                    KeyFieldName="RowID">
+            <div class="card w-100" style="margin-bottom:10px;">
+                <div class="card-body p-0">
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Auto">
+                        <Items>
+                            <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@EditEnabledApproval" />
+                        </Items>
+                    </DxMenu>
+
+                </div>
+            </div>
+            <DxGrid Data="_dynamicFormWorkFlowFormListItems" style="padding:10px;"
+                    KeyFieldName="DynamicFormWorkFlowId"
+                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                    PageSizeSelectorVisible="true"
+                    PageSizeSelectorAllRowsItemVisible="true"
+                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                    PageSize="20"
+                    CssClass="ch-360"
+                    FocusedRowEnabled="true"
+                    AllowSelectRowByClick="true"
+                    CustomizeElement="Grid_CustomizeElement"
+                    RowClick="OnRowApprovalClick"
+                    AutoExpandAllGroupRows="true"
+                    SelectionMode="GridSelectionMode.Single">
                 <Columns>
                     <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
                     <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
@@ -636,8 +692,66 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnWorkFlowYes" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@lockpopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupLockClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to @LockedName this record?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkLock())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@SectionApprovalPopup"
+         ShowFooter="false"
+         HeaderText="Section Approval"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxFlyout @bind-IsOpen=IsWokFlowDescriptionOpen
+          PositionTarget=@($"#flyout-overview-target-container-WorkFlowApproval")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText=@($"{ApproveRejectWokFlowName} Description")
+          FooterVisible="true"
+          CloseOnOutsideClick="false"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                <DxMemo @bind-Text="@dynamicFormWorkFlowApprovedForm.ApprovedDescription" CssClass="cw-480" Rows="5" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsWokFlowDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="@ApproveRejectWokFlowName" Click=@(()=> OnUpdateWorkFlowDescription()) />
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
-
+    string? workflowStyle { get; set; } = "display:none;";
+    private DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); string? ApproveRejectWokFlowName { get; set; } = "Approve";
+    public bool IsWorkflowApprovalApproved { get; set; } = false; public bool IsWorkflowApprovalRejected { get; set; } = false; public bool IsWokFlowDescriptionOpen { get; set; } = false;
+    public DynamicFormWorkFlowForm _selectedDynamicFormWorkFlowItems { get; set; }
+    public DynamicFormWorkFlow DynamicFormWorkFlowItems { get; set; }
+    bool SectionApprovalPopup { get; set; } = false;
     object PlantValue { get; set; }
     object DivisionValue { get; set; }
     object DepartmentValue { get; set; }
@@ -683,6 +797,7 @@
     private DynamicFormApproved dynamicFormApproval = new DynamicFormApproved();
     private List<DynamicFormApproved>? _dynamicFormApprovedList;
     private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormList;
+    private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormListItems;
     public long? FileProfileTypeId { get; set; }
     public Guid? FileProfileSessionId { get; set; }
     int isRequiredCount { get; set; } = 0;
@@ -723,7 +838,9 @@
     public List<DynamicFormData> DynamicGridDynamicFormData { get; set; } = new List<DynamicFormData>();
     private List<long?> _DynamicFormSectionIds = new List<long?>();
     private List<DynamicFormSectionAttributeSection?> dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>();
-    bool isLocked { get; set; } = false;
+    bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock"; bool isUserLocked { get; set; } = false; bool lockpopup { get; set; } = false;
+    bool EditEnabledApproval { get; set; } = false; public List<DynamicFormWorkFlowApprovedForm> _dynamicFormWorkFlowApprovedFormList { get; set; }
+    public DynamicFormWorkFlowApprovedForm _dynamicFormWorkFlowApprovedFormOne { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -738,7 +855,63 @@
         }
         AddMenuEnabled();
     }
+    void addSectionApproval()
+    {
+        if (_selectedDynamicFormWorkFlowItems != null && _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowId > 0)
+        {
+            var sortbyy = _dynamicFormWorkFlowFormListItems.Where(w => w.SequenceNo > _selectedDynamicFormWorkFlowItems.SequenceNo).OrderBy(o => o.SequenceNo).FirstOrDefault();
 
+            DynamicFormWorkFlowItems = new DynamicFormWorkFlow();
+            DynamicFormWorkFlowItems.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
+            DynamicFormWorkFlowItems.DynamicFormWorkFlowFormId = _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowFormId;
+            DynamicFormWorkFlowItems.DynamicFormWorkFlowId = (long)_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowId;
+             DynamicFormWorkFlowItems.IsNextFlow = true;
+            if (sortbyy != null && sortbyy.FlowStatusID == 1)
+            {
+                DynamicFormWorkFlowItems.IsNextFlow = false;
+            }
+            SectionApprovalPopup = true;
+        }
+    }
+    void CloseSectionApprovalEnabled()
+    {
+        SectionApprovalPopup = false;
+        StateHasChanged();
+    }
+    void OnRowApprovalClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormWorkFlowId");
+        _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault(f => f.DynamicFormWorkFlowId == (long?)UniqueId);
+        EditEnabledApproval = true;
+    }
+    void onClickWorkFlowApprove()
+    {
+        dynamicFormWorkFlowApprovedForm.DynamicFormWorkFlowApprovedFormID = _dynamicFormWorkFlowApprovedFormOne.DynamicFormWorkFlowApprovedFormID;
+        dynamicFormWorkFlowApprovedForm.IsApproved = true;
+        dynamicFormWorkFlowApprovedForm.ApprovedDate = DateTime.Now;
+        dynamicFormWorkFlowApprovedForm.ApprovedByUserID = applicationUser.UserID;
+        ApproveRejectWokFlowName = "Approve";
+        IsWokFlowDescriptionOpen = true;
+        IsDescriptionOpen = false;
+    }
+    void onClickWorkFlowReject()
+    {
+        dynamicFormWorkFlowApprovedForm.DynamicFormWorkFlowApprovedFormID = _dynamicFormWorkFlowApprovedFormOne.DynamicFormWorkFlowApprovedFormID;
+        dynamicFormWorkFlowApprovedForm.IsApproved = false;
+        dynamicFormWorkFlowApprovedForm.ApprovedDate = DateTime.Now;
+        dynamicFormWorkFlowApprovedForm.ApprovedByUserID = applicationUser.UserID;
+        ApproveRejectWokFlowName = "Reject"; IsWokFlowDescriptionOpen = true; IsDescriptionOpen = false;
+    }
+    async Task OnUpdateWorkFlowDescription()
+    {
+        var result = await Mediator.Send(new UpdateDynamicFormWorkFlowApprovedFormByUser(dynamicFormWorkFlowApprovedForm));
+        if (result.DynamicFormWorkFlowApprovedFormID > 0)
+        {
+            IsWokFlowDescriptionOpen = false; IsDescriptionOpen = false;
+            toastService.ShowToast("Work Flow Approval Updated.", AC.SD.Core.Services.ToastLevel.Success);
+            await loadDynamicForm();
+        }
+    }
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
@@ -757,7 +930,11 @@
 
         return ValueTask.CompletedTask;
     }
+    void BackApprovalForm()
+    {
 
+        StateHasChanged();
+    }
     public void Dispose()
     {
 
@@ -807,12 +984,13 @@
     }
     async Task loadDynamicForm()
     {
-        await onshowLoading(); _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false;
-        bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>();
+        await onshowLoading(); _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false;
+        bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
+        IsWorkflowApprovalRejected = false; IsWokFlowDescriptionOpen = false; workflowStyle = "display:none;"; _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
-        _longInUser = applicationUser.UserName; _longInAddedBy = applicationUser.UserName; _longInDateTime = DateTime.Now;
-        _DynamicFormSectionIds = new List<long?>(); dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>();
+        _longInUser = applicationUser.UserName; _longInAddedBy = applicationUser.UserName; _longInDateTime = DateTime.Now; _dynamicFormWorkFlowApprovedFormList = new List<DynamicFormWorkFlowApprovedForm>();
+        _DynamicFormSectionIds = new List<long?>(); dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>(); _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
         if (_userEmployee != null)
         {
             _longInCompany = _userEmployee.CompanyName;
@@ -845,11 +1023,13 @@
                         _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
                         if (_dynamicformData != null)
                         {
+                            isUserLocked = true;
                             if (_dynamicformData.IsLocked == true && _dynamicformData.LockedUserId > 0)
                             {
+                                LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
                                 if (_dynamicformData.LockedUserId != applicationUser.UserID)
                                 {
-                                    isLocked = true;
+                                    isLocked = true; isUserLocked = false;
                                 }
                             }
                             _longInAddedBy = _dynamicformData.AddedBy; _longInDateTime = _dynamicformData.AddedDate;
@@ -857,12 +1037,13 @@
                             var _dynamicFormApprovedLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId)));
                             var _dynamicFormWorkFlowSections = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowExits(_dynamicform.ID, applicationUser.UserID, _dynamicformData?.DynamicFormDataId)));
                             var _dynamicFormSectionLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormSectionById(_dynamicformData.DynamicFormId, applicationUser.UserID, _dynamicformData.DynamicFormDataId)));
-                            await Task.WhenAll(_dynamicFormWorkFlowFormListss, _dynamicFormApprovedLists, _dynamicFormWorkFlowSections, _dynamicFormSectionLists);
+                            var _dynamicFormWorkFlowApprovedFormLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowApprovedFormList(_dynamicformData.DynamicFormDataId)));
+                            await Task.WhenAll(_dynamicFormWorkFlowFormListss, _dynamicFormApprovedLists, _dynamicFormWorkFlowSections, _dynamicFormSectionLists, _dynamicFormWorkFlowApprovedFormLists);
                             _dynamicFormWorkFlowFormList = await _dynamicFormWorkFlowFormListss.Result;
                             _dynamicFormApprovedList = await _dynamicFormApprovedLists.Result;
                             _dynamicFormWorkFlowSection = await _dynamicFormWorkFlowSections.Result;
                             _dynamicFormSectionList = await _dynamicFormSectionLists.Result;
-
+                            _dynamicFormWorkFlowApprovedFormList = await _dynamicFormWorkFlowApprovedFormLists.Result;
                             Datas.ProfileNo = _dynamicformData.ProfileNo;
                             IsUploadEnabled = true;
                             if (_dynamicformData.isDocuments > 0)
@@ -894,6 +1075,8 @@
                     }
 
                 }
+                workflowStyle = "display:none;";
+                IsWorkflowApprovalApproved = false; IsWorkflowApprovalRejected = false;
                 if (deleted == false)
                 {
                     if (_dynamicform != null)
@@ -902,6 +1085,31 @@
                         {
                             if (_dynamicFormWorkFlowSection != null && _dynamicFormWorkFlowSection.Count() > 0)
                             {
+                                bool? isGoWorkFlow = true;
+                                var Completed = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 1).OrderBy(x => x.SequenceNo).ToList();
+                                if (Completed.Count() > 0)
+                                {
+                                    var first = Completed.FirstOrDefault();
+                                    if (first != null)
+                                    {
+                                        var _dynamicFormWorkFlowApprovedFormListItems = _dynamicFormWorkFlowApprovedFormList.Where(w => w.DynamicFormWorkFlowFormID == first.DynamicFormWorkFlowFormId).ToList();
+                                        if (_dynamicFormWorkFlowApprovedFormListItems != null && _dynamicFormWorkFlowApprovedFormListItems.Count() > 0)
+                                        {
+                                            var totalApp = _dynamicFormWorkFlowApprovedFormListItems.Count();
+                                            var pendingApproval = _dynamicFormWorkFlowApprovedFormListItems.Where(w => w.IsApproved != true).Count();
+                                            var completedApproval = _dynamicFormWorkFlowApprovedFormListItems.Where(w => w.IsApproved == true).Count();
+                                            if (pendingApproval > 0)
+                                            {
+                                                if (totalApp != completedApproval)
+                                                {
+                                                    isGoWorkFlow = false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                // if (isGoWorkFlow == true)
+                                //{
                                 _sequenceNoList = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
                                 var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
                                 if (_sequenceNoList.Count() > 0)
@@ -915,6 +1123,27 @@
                                             break;
                                         }
                                     }
+                                }
+                                // }
+                                _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
+                                if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
+                                {
+                                    var firsts = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault();
+                                    var notapprovalExits = _dynamicFormWorkFlowApprovedFormList.FirstOrDefault(f => f.IsApproved != true);
+                                    if (notapprovalExits != null)
+                                    {
+                                        _dynamicFormWorkFlowApprovedFormOne = notapprovalExits;
+                                        if (notapprovalExits.UserID == applicationUser.UserID)
+                                        {
+                                            workflowStyle = "";
+                                            IsWorkflowApprovalApproved = true;
+                                            IsWorkflowApprovalRejected = true;
+                                        }
+                                    }
+                                }
+                                if (isGoWorkFlow == false)
+                                {
+                                    _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
                                 }
                             }
                         }
@@ -943,6 +1172,29 @@
                                         }
                                     }
                                 }
+                            }
+                        }
+                        _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
+                        if (_dynamicFormWorkFlowFormList != null && _dynamicFormWorkFlowFormList.Count() > 0)
+                        {
+                            var dynamicFormWorkFlowIds = _dynamicFormWorkFlowFormList.Select(z => z.DynamicFormWorkFlowId).Distinct().ToList();
+                            if (dynamicFormWorkFlowIds != null && dynamicFormWorkFlowIds.Count() > 0)
+                            {
+                                EditEnabledApproval = true;
+                                dynamicFormWorkFlowIds.ForEach(e =>
+                                {
+                                    DynamicFormWorkFlowForm dynamicFormWorkFlowForm = new DynamicFormWorkFlowForm();
+                                    var listsItems = _dynamicFormWorkFlowFormList.Where(z => z.DynamicFormWorkFlowId == e).ToList();
+                                    dynamicFormWorkFlowForm.SectionName = string.Join(",", listsItems.Select(aa => aa.SectionName).ToList());
+                                    dynamicFormWorkFlowForm.DynamicFormWorkFlowId = listsItems[0].DynamicFormWorkFlowId;
+                                    dynamicFormWorkFlowForm.SequenceNo = listsItems[0].SequenceNo;
+                                    dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = listsItems[0].DynamicFormWorkFlowUser;
+                                    dynamicFormWorkFlowForm.CompletedDate = listsItems[0].FlowStatusID ==1 ? listsItems[0].CompletedDate : null;
+                                    dynamicFormWorkFlowForm.CompletedBy = listsItems[0].FlowStatusID == 1? listsItems[0].CompletedBy : null;
+                                    dynamicFormWorkFlowForm.FlowStatusID = listsItems[0].FlowStatusID;
+                                    dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = listsItems[0].DynamicFormWorkFlowFormId;
+                                    _dynamicFormWorkFlowFormListItems.Add(dynamicFormWorkFlowForm);
+                                });
                             }
                         }
                         var screenId = _dynamicform.ScreenID.Replace(" ", "_");
@@ -1472,6 +1724,48 @@
         else
         {
             AddEnabled = false;
+        }
+        StateHasChanged();
+    }
+    void OpenLock()
+    {
+        lockpopup = true;
+    }
+    void EulaPopupLockClosed(PopupClosedEventArgs args)
+    {
+        lockpopup = false;
+        StateHasChanged();
+    }
+    async Task bulkLock()
+    {
+        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+        {
+            DynamicFormData dynamicFormData = new DynamicFormData();
+            dynamicFormData.DynamicFormDataId = _dynamicformData.DynamicFormDataId;
+            dynamicFormData.IsLocked = LockedName == "UnLock" ? null : true;
+            if (dynamicFormData.IsLocked == true)
+            {
+                dynamicFormData.LockedUserId = applicationUser.UserID;
+                dynamicFormData.LockedUser = applicationUser.UserName;
+            }
+            var result = await Mediator.Send(new UpdateDynamicFormLocked(dynamicFormData));
+            lockpopup = false;
+            if (result.DynamicFormDataId > 0)
+            {
+
+                if (dynamicFormData.IsLocked == true)
+                {
+                    toastService.ShowToast("Unlock successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadDynamicForm();
+                }
+                else
+                {
+                    toastService.ShowToast("Lock successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadDynamicForm();
+                }
+
+            }
+
         }
         StateHasChanged();
     }
@@ -2328,19 +2622,19 @@
     void onClickApprove()
     {
         ApproveRejectName = "Approve";
-        IsDescriptionOpen = true;
+        IsDescriptionOpen = true; IsWokFlowDescriptionOpen = false;
         dynamicFormApproval.IsApproved = true;
     }
     void onClickReject()
     {
         ApproveRejectName = "Reject";
-        IsDescriptionOpen = true;
+        IsDescriptionOpen = true; IsWokFlowDescriptionOpen = false;
         dynamicFormApproval.IsApproved = false;
     }
     async Task OnUpdateDescription()
     {
         await UpdateStatusApproval();
-        IsDescriptionOpen = false;
+        IsDescriptionOpen = false; IsWokFlowDescriptionOpen = false;
     }
     async Task UpdateStatusApproval()
     {
@@ -2890,7 +3184,7 @@
     {
         isButtonClick = "Yes";
 
-        if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0)
+        if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0 && _dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
         {
             var dynamicFormWorkFlowSectionId = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(w => w.DynamicFormId == dynamicFormData.DynamicFormId && w.UserId == applicationUser.UserID);
             if (dynamicFormWorkFlowSectionId != null)
@@ -2905,10 +3199,11 @@
                         isVisibleButton = false;
                         IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
                         toastService.ShowToast("Workflow completed successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadDynamicForm();
+                        StateHasChanged();
                     }
 
-                    await loadDynamicForm();
-                    StateHasChanged();
+
                 }
                 else
                 {
@@ -2927,7 +3222,7 @@
     {
         isButtonClick = "Yes";
 
-        if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0)
+        if (dynamicFormData != null && dynamicFormData.DynamicFormDataId > 0 && _dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
         {
             var response = await Mediator.Send(new InsertOrUpdateFormWorkFlowSectionNoWorkFlow(_dynamicFormWorkFlowSectionNoWorkFlow, dynamicFormData.DynamicFormDataId, applicationUser.UserID));
             StateHasChanged();
@@ -2935,6 +3230,13 @@
         else
         {
             StateHasChanged();
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
         }
     }
     async Task OnSectionUploadInfoClick(DynamicFormSection dynamicFormSection1)
@@ -3483,7 +3785,7 @@
             {
                 if (_dynamicformData != null)
                 {
-                    if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSection.Count > 0)
+                    if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSection != null && _dynamicFormWorkFlowSection.Count > 0)
                     {
                         var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
                         if (exitss != null)
@@ -3496,7 +3798,7 @@
                                 {
                                     isVisible = true;
                                 }
-                                if (isReadonly != false)
+                                if (isReadonly == false)
                                 {
                                     isReadonly = true;
                                 }
@@ -3532,7 +3834,7 @@
                             {
                                 isVisible = true;
                             }
-                            if (isReadonly != false)
+                            if (isReadonly == false)
                             {
                                 isReadonly = true;
                             }
@@ -3569,10 +3871,10 @@
                             {
                                 isVisible = true;
                             }
-                            //if (isReadonly != false)
-                            // {
-                            isReadonly = true;
-                            //}
+                            if (isReadonly == false)
+                            {
+                                isReadonly = true;
+                            }
                         }
                     }
                     else
@@ -3581,10 +3883,10 @@
                         {
                             isVisible = true;
                         }
-                        // if (isReadonly != false)
-                        // {
-                        isReadonly = true;
-                        // }
+                        if (isReadonly == false)
+                        {
+                            isReadonly = true;
+                        }
                     }
                 }
             }
@@ -3792,6 +4094,7 @@
                      editor.OpenComponent<AC.SD.Core.Pages.Attribute.DynamicFormGridLists>(j + 1);
                      editor.AddAttribute(j + 1, "SessionId", s.DynamicFormSessionId);
                      editor.AddAttribute(j + 1, "DynamicFormSectionGridAttributeId", s.DynamicFormSectionAttributeId);
+                     editor.AddAttribute(j + 1, "isMainLocked", isLocked);
                      if (isAccessOnly == true)
                      {
                          editor.AddAttribute(j + 1, "IsReadonly", isReadonly);
@@ -5618,7 +5921,7 @@
                     layoutItemBuilders.AddAttribute(1, "FieldName", "Description");
                     layoutItemBuilders.AddAttribute(1, "Caption", "Description");
                     layoutItemBuilders.CloseComponent();
-                    if (s.DropDownTypeId == "Data Source")
+                    if (q.DropDownTypeId == "Data Source")
                     {
                         layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                         layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
@@ -5879,7 +6182,7 @@
         }
         if (dynamicFormData != null)
         {
-            if (_dynamicFormWorkFlowSectionNoWorkFlow != null)
+            if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
             {
                 var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
                 if (_dynamicform.IsApproval == true)

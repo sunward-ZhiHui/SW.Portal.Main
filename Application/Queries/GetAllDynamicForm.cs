@@ -213,6 +213,18 @@ namespace Application.Queries
     {
 
     }
+    public class InsertOrUpdateDynamicFormDataApproved : DynamicFormApproved, IRequest<DynamicFormApproved>
+    {
+
+    }
+    public class DeleteDynamicFormDataApprovedQuery : DynamicFormApproval, IRequest<DynamicFormApproved>
+    {
+        public DynamicFormApproved DynamicFormApproved { get; set; }
+        public DeleteDynamicFormDataApprovedQuery(DynamicFormApproved dynamicFormApproved)
+        {
+            this.DynamicFormApproved = dynamicFormApproved;
+        }
+    }
     public class DeleteDynamicFormApproval : DynamicFormApproval, IRequest<DynamicFormApproval>
     {
         public DynamicFormApproval DynamicFormApproval { get; set; }
@@ -554,6 +566,80 @@ namespace Application.Queries
         public UpdateDynamicFormLocked(DynamicFormData? dynamicFormData)
         {
             this.DynamicFormData = dynamicFormData;
+        }
+    }
+    public class InsertDynamicFormApprovedChanged : PagedRequest, IRequest<DynamicFormApprovedChanged>
+    {
+        public DynamicFormApprovedChanged DynamicFormApprovedChanged { get; set; }
+        public InsertDynamicFormApprovedChanged(DynamicFormApprovedChanged dynamicFormApprovedChanged)
+        {
+            this.DynamicFormApprovedChanged = dynamicFormApprovedChanged;
+        }
+    }
+    public class InsertDynamicFormWorkFlowApproval : DynamicFormWorkFlowApproval, IRequest<DynamicFormWorkFlowApproval>
+    {
+
+    }
+    public class DeleteDynamicFormWorkFlowApproval : PagedRequest, IRequest<DynamicFormWorkFlowApproval>
+    {
+        public DynamicFormWorkFlowApproval DynamicFormWorkFlowApproval { get; set; }
+        public DeleteDynamicFormWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval)
+        {
+            this.DynamicFormWorkFlowApproval = dynamicFormWorkFlowApproval;
+        }
+    }
+    public class GetDynamicFormWorkFlowApprovalList : PagedRequest, IRequest<List<DynamicFormWorkFlowApproval>>
+    {
+        public long? DynamicFormWorkFlowId { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public GetDynamicFormWorkFlowApprovalList(long? dynamicFormWorkFlowId, long? dynamicFormDataId)
+        {
+            this.DynamicFormWorkFlowId = dynamicFormWorkFlowId;
+            this.DynamicFormDataId = dynamicFormDataId;
+        }
+    }
+    public class UpdateDynamicFormWorkFlowApprovalSortOrder : PagedRequest, IRequest<DynamicFormWorkFlowApproval>
+    {
+        public DynamicFormWorkFlowApproval DynamicFormWorkFlowApproval { get; private set; }
+        public UpdateDynamicFormWorkFlowApprovalSortOrder(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval)
+        {
+            this.DynamicFormWorkFlowApproval = dynamicFormWorkFlowApproval;
+        }
+    }
+    public class GetDynamicFormWorkFlowApprovedFormList : PagedRequest, IRequest<List<DynamicFormWorkFlowApprovedForm>>
+    {
+        public long? DynamicFormDataId { get; set; }
+        public GetDynamicFormWorkFlowApprovedFormList(long? dynamicFormDataId)
+        {
+            this.DynamicFormDataId = dynamicFormDataId;
+        }
+    }
+    public class UpdateDynamicFormWorkFlowApprovedFormByUser : PagedRequest, IRequest<DynamicFormWorkFlowApprovedForm>
+    {
+        public DynamicFormWorkFlowApprovedForm DynamicFormWorkFlowApprovedForm { get; set; }
+        public UpdateDynamicFormWorkFlowApprovedFormByUser(DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm)
+        {
+            this.DynamicFormWorkFlowApprovedForm = dynamicFormWorkFlowApprovedForm;
+        }
+    }
+    public class InsertDynamicFormWorkFlowApprovedFormChanged : PagedRequest, IRequest<DynamicFormWorkFlowApprovedFormChanged>
+    {
+        public DynamicFormWorkFlowApprovedFormChanged DynamicFormWorkFlowApprovedFormChanged { get; set; }
+        public InsertDynamicFormWorkFlowApprovedFormChanged(DynamicFormWorkFlowApprovedFormChanged dynamicFormWorkFlowApprovedFormChanged)
+        {
+            this.DynamicFormWorkFlowApprovedFormChanged = dynamicFormWorkFlowApprovedFormChanged;
+        }
+    }
+    public class InsertDynamicFormDataWorkFlowApproval : DynamicFormWorkFlowApproval, IRequest<DynamicFormWorkFlowApproval>
+    {
+
+    }
+    public class DeleteDynamicFormDataWorkFlowApproval : PagedRequest, IRequest<DynamicFormWorkFlowApproval>
+    {
+        public DynamicFormWorkFlowApproval DynamicFormWorkFlowApproval { get; set; }
+        public DeleteDynamicFormDataWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval)
+        {
+            this.DynamicFormWorkFlowApproval = dynamicFormWorkFlowApproval;
         }
     }
 }

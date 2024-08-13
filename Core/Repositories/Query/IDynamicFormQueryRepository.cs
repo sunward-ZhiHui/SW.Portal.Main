@@ -39,6 +39,8 @@ namespace Core.Repositories.Query
         Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);
         Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalAsync(long? dynamicFormId);
         Task<DynamicFormApproval> InsertOrUpdateDynamicFormApproval(DynamicFormApproval dynamicFormApproval);
+        Task<DynamicFormApproved> InsertOrUpdateDynamicFormDataApproved(DynamicFormApproved dynamicFormApproved);
+        Task<DynamicFormApproved> DeleteDynamicFormDataApproved(DynamicFormApproved dynamicFormApproved);
         Task<DynamicFormApproval> DeleteDynamicFormApproval(DynamicFormApproval dynamicFormApproval);
         DynamicFormApproval GetDynamicFormApprovalUserCheckValidation(long? dynamicFormId, long? dynamicFormApprovalId, long? approvalUserId);
         Task<DynamicFormApproval> UpdateDynamicFormApprovalSortOrder(DynamicFormApproval dynamicFormApproval);
@@ -86,6 +88,18 @@ namespace Core.Repositories.Query
         Task<DynamicFormSectionAttributeSectionParent> InsertOrUpdateDynamicFormSectionAttributeSectionParent(DynamicFormSectionAttributeSectionParent dynamicFormSection);
         Task<DynamicFormSectionAttributeSectionParent> DeleteDynamicFormSectionAttributeParent(DynamicFormSectionAttributeSectionParent value);
         Task<DynamicFormData> UpdateDynamicFormLocked(DynamicFormData dynamicFormData);
+        Task<DynamicFormApprovedChanged> InsertDynamicFormApprovedChanged(DynamicFormApprovedChanged dynamicFormApprovedChanged);
+
+        Task<DynamicFormWorkFlowApproval> InsertDynamicFormWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval);
+        Task<IReadOnlyList<DynamicFormWorkFlowApproval>> GetDynamicFormWorkFlowApprovalList(long? DynamicFormWorkFlowId, long? dynamicFormDataId);
+        Task<DynamicFormWorkFlowApproval> DeleteDynamicFormWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval);
+        Task<DynamicFormWorkFlowApproval> UpdateDynamicFormWorkFlowApprovalSortOrder(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval);
+        Task<IReadOnlyList<DynamicFormWorkFlowApprovedForm>> GetDynamicFormWorkFlowApprovedFormList(long? dynamicFormDataId);
+        Task<DynamicFormWorkFlowApprovedForm> UpdateDynamicFormWorkFlowApprovedFormByUser(DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm);
+        Task<DynamicFormWorkFlowApprovedFormChanged> InsertDynamicFormWorkFlowApprovedFormChanged(DynamicFormWorkFlowApprovedFormChanged dynamicFormApprovedChanged);
+
+        Task<DynamicFormWorkFlowApproval> InsertDynamicFormDataWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval);
+        Task<DynamicFormWorkFlowApproval> DeleteDynamicFormDataWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval);
     }
 
 }

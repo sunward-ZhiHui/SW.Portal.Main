@@ -13,6 +13,7 @@ namespace Core.Entities
         [Key]
         public long DynamicFormWorkFlowId { get; set; }
         public long? DynamicFormId { get; set; }
+        [Required(ErrorMessage = "User Name is required")]
         public long? UserId { get; set; }
         public long? UserGroupId { get; set; }
         public long? LevelId { get; set; }
@@ -46,10 +47,13 @@ namespace Core.Entities
         [NotMapped]
         [Required(ErrorMessage = "Section Name is required")]
         public IEnumerable<long>? SelectDynamicFormSectionIDs { get; set; } = new List<long>();
-        public List<long> DynamicFormSectionIDs { get; set; } = new List<long>();
+        public List<long> DynamicFormSectionIDs { get; set; } = new List<long>(); 
+        public List<long> DynamicFormSectionAllIDs { get; set; } = new List<long>();
         public List<long> DynamicFormSectionIdList { get; set; } = new List<long>();
         public string? Type { get; set; }
-
+        public long? DynamicFormDataId { get; set; }
+        public long? DynamicFormWorkFlowFormId { get; set; }
+        public bool? IsNextFlow { get; set; } = false;
     }
     public class DynamicFormWorkFlowSection
     {
@@ -69,6 +73,7 @@ namespace Core.Entities
         public string? SectionName { get; set; }
         public string? UserName { get; set; }
         public long? DynamicFormDataId { get; set; }
+        public long? DynamicFormWorkFlowFormId { get; set; }
     }
     public class DynamicFormWorkFlowForm
     {
@@ -93,6 +98,7 @@ namespace Core.Entities
         [NotMapped]
         public string? DynamicFormWorkFlowUser { get; set; }
         public int? RowID { get; set; }
+        public int? FlowStatusID { get; set; }
     }
     public class DynamicFormDataUploadByPermission
     {
@@ -106,5 +112,14 @@ namespace Core.Entities
         public List<DynamicFormApproved> DynamicFormApproved { get; set; } = new List<DynamicFormApproved>();
         public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSection { get; set; } = new List<DynamicFormWorkFlowSection>();
         public List<DynamicFormSection> DynamicFormSection { get; set; } = new List<DynamicFormSection>();
+    }
+    public class DynamicFormWorkFlowItems
+    {
+        public List<DynamicFormWorkFlowForm> DynamicFormWorkFlowForm { get; set; } = new List<DynamicFormWorkFlowForm>();
+        public List<DynamicFormWorkFlow> DynamicFormWorkFlow { get; set; } = new List<DynamicFormWorkFlow>();
+        public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSection { get; set; } = new List<DynamicFormWorkFlowSection>();
+        public List<DynamicFormWorkFlowApproval> DynamicFormWorkFlowApproval { get; set; } = new List<DynamicFormWorkFlowApproval>();
+
+
     }
 }

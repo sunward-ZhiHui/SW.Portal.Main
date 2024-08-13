@@ -20,11 +20,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
+using static iText.IO.Image.Jpeg2000ImageData;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -1583,6 +1585,77 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DynamicFormWorkFlowSection> InsertOrUpdateFormWorkFlowSectionNoWorkFlowStart(long? dynamicFormId, long? dynamicFormDataId, long? userId)
+        {
+            DynamicFormWorkFlowSection dynamicFormWorkFlowSection = new DynamicFormWorkFlowSection();
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+
+                        var parameters = new DynamicParameters();
+                        parameters.Add("CompletedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("FlowStatusID", 1);
+                        var dataList = await GetDynamicFormWorkFlowLists(dynamicFormId, dynamicFormDataId);
+                        var _dynamicFormWorkFlows = dataList.DynamicFormWorkFlow.ToList();
+                        var _dynamicFormWorkFlowForms = dataList.DynamicFormWorkFlowForm.ToList();
+
+                        if (_dynamicFormWorkFlows != null && _dynamicFormWorkFlows.Count() > 0)
+                        {
+                            int i = 0;
+                            _dynamicFormWorkFlows.ForEach(s =>
+                            {
+                                var query = string.Empty;
+                                int FlowStatusIDs = 0;
+                                var _dynamicFormWorkFlowSections = dataList.DynamicFormWorkFlowSection.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).ToList();
+                                query += "INSERT INTO [DynamicFormWorkFlowForm](SequenceNo,UserId,DynamicFormDataID,FlowStatusID) OUTPUT INSERTED.DynamicFormWorkFlowFormID " +
+                                                       "VALUES (" + s.SequenceNo + "," + s.UserId + "," + dynamicFormDataId + "," + FlowStatusIDs + ");\r\n";
+                                var ids = connection.QuerySingleOrDefault<long>(query, parameters);
+                                if (_dynamicFormWorkFlowSections != null && _dynamicFormWorkFlowSections.Count() > 0)
+                                {
+                                    var query1 = string.Empty;
+                                    _dynamicFormWorkFlowSections.ForEach(a =>
+                                    {
+                                        query1 += "INSERT INTO [DynamicFormWorkFlowSectionForm](DynamicFormSectionId,DynamicFormWorkFlowFormID) OUTPUT INSERTED.DynamicFormWorkFlowSectionFormID " +
+                                                  "VALUES (" + a.DynamicFormSectionId + "," + ids + ");\r\n";
+                                    });
+                                    if (!string.IsNullOrEmpty(query1))
+                                    {
+                                        connection.QuerySingleOrDefault<long>(query1, parameters);
+                                    }
+                                }
+                                var _dynamicFormWorkFlowApprovals = dataList.DynamicFormWorkFlowApproval.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).OrderBy(o => o.SortBy).ToList();
+                                if (_dynamicFormWorkFlowApprovals != null && _dynamicFormWorkFlowApprovals.Count() > 0)
+                                {
+                                    var query2 = string.Empty;
+                                    _dynamicFormWorkFlowApprovals.ForEach(d =>
+                                    {
+                                        query2 += "INSERT INTO [DynamicFormWorkFlowApprovedForm](DynamicFormWorkFlowFormID,UserID,SortBy) OUTPUT INSERTED.DynamicFormWorkFlowApprovedFormID " +
+                                                  "VALUES (" + ids + "," + d.UserId + "," + d.SortBy + ");\r\n";
+                                    });
+                                    if (!string.IsNullOrEmpty(query2))
+                                    {
+                                        connection.QuerySingleOrDefault<long>(query2, parameters);
+                                    }
+                                }
+                                i++;
+                            });
+                        }
+                        return dynamicFormWorkFlowSection;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData)
         {
             try
@@ -1591,6 +1664,7 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                     {
+                        bool? insert = false;
                         var parameters = new DynamicParameters();
                         parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
                         parameters.Add("DynamicFormItem", dynamicFormData.DynamicFormItem, DbType.String);
@@ -1644,10 +1718,13 @@ namespace Infrastructure.Repository.Query
                                 "(@DynamicFormSectionGridAttributeId,@GridSortOrderByNo,@SortOrderByNo,@DynamicFormDataGridId,@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID,@ProfileId,@ProfileNo);\n\r";
                             query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
                             dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
-
+                            insert = true;
 
                         }
-
+                        if (insert == true)
+                        {
+                            await InsertOrUpdateFormWorkFlowSectionNoWorkFlowStart(dynamicFormData.DynamicFormId, dynamicFormData.DynamicFormDataId, dynamicFormData.AddedByUserID);
+                        }
                         return dynamicFormData;
                     }
 
@@ -1683,8 +1760,8 @@ namespace Infrastructure.Repository.Query
 
                             _dynamicFormApproval.ForEach(s =>
                             {
-                                query += "INSERT INTO DynamicFormApproved(DynamicFormApprovalID,DynamicFormDataID,ApprovedDescription,UserID)VALUES " +
-                                "(" + s.DynamicFormApprovalId + "," + dynamicFormData.DynamicFormDataId + ",'" + s.Description + "'," + s.ApprovalUserId + ");\n\r";
+                                query += "INSERT INTO DynamicFormApproved(DynamicFormApprovalID,DynamicFormDataID,ApprovedDescription,UserID,ApprovedSortBy)VALUES " +
+                                "(" + s.DynamicFormApprovalId + "," + dynamicFormData.DynamicFormDataId + ",'" + s.Description + "'," + s.ApprovalUserId + "," + s.SortOrderBy + ");\n\r";
                             });
                             if (!string.IsNullOrEmpty(query))
                             {
@@ -1776,6 +1853,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
+                List<DynamicFormApproved> dynamicFormApproveds = new List<DynamicFormApproved>(); List<DynamicFormApprovedChanged> dynamicFormApprovedChanged = new List<DynamicFormApprovedChanged>();
                 dynamicFormDataIds = dynamicFormDataIds != null && dynamicFormDataIds.Count > 0 ? dynamicFormDataIds : new List<long>() { -1 };
                 var query = "select t1.*,t4.UserName as ApprovedByUser,t5.DynamicFormId,\r\n" +
                    "CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) as ApprovalUser,\r\n" +
@@ -1784,10 +1862,34 @@ namespace Infrastructure.Repository.Query
                    "JOIN Employee t2 ON t1.UserID=t2.UserID \r\n" +
                     "JOIN DynamicFormData t5 ON t5.DynamicFormDataId=t1.DynamicFormDataId \r\n" +
                    "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId WHERE (t5.IsDeleted=0 or t5.IsDeleted is null)  AND t1.DynamicFormDataId in(" + string.Join(',', dynamicFormDataIds) + ") order by t1.DynamicFormApprovedId asc;\r\n";
+                query += "select t1.*,CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) as UserName  from DynamicFormApprovedChanged t1 JOIN ApplicationUser t2 ON t1.UserID=t2.UserID JOIN Employee t3 ON t2.UserID=t3.UserID\r\n;";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DynamicFormApproved>(query, null)).ToList();
+                    var results = await connection.QueryMultipleAsync(query, null);
+                    dynamicFormApproveds = results.Read<DynamicFormApproved>().ToList();
+                    dynamicFormApprovedChanged = results.Read<DynamicFormApprovedChanged>().ToList();
                 }
+                if (dynamicFormApproveds != null && dynamicFormApproveds.Count() > 0)
+                {
+                    dynamicFormApproveds.ForEach(s =>
+                    {
+                        s.DelegateApproveAllUserName = s.ApprovalUser;
+                        s.DelegateApproveAllUserId = s.UserId;
+                        var list = dynamicFormApprovedChanged.Where(w => w.DynamicFormApprovedID == s.DynamicFormApprovedId).OrderByDescending(o => o.DynamicFormApprovedChangedId).ToList();
+                        if (list != null && list.Count() > 0)
+                        {
+                            s.DynamicFormApprovedChangeds = list;
+                            s.IsDelegateApproveStatus = list[0].IsApprovedStatus;
+                            s.DelegateApprovedChangedId = list[0].DynamicFormApprovedChangedId;
+                            s.DelegateApproveUserId = list[0].UserId;
+                            s.DelegateApproveUserName = list[0].UserName;
+                            s.UserId = list[0].UserId;
+                            s.ApprovalUser = list[0].UserName;
+                            // s.DelegateApproveAllUserName= list[0].UserName;
+                        }
+                    });
+                }
+                return dynamicFormApproveds;
             }
             catch (Exception exp)
             {
@@ -1819,7 +1921,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormId", id);
                 parameters.Add("DynamicFormDataGridId", DynamicFormDataGridId);
                 parameters.Add("DynamicFormSectionGridAttributeId", DynamicFormSectionGridAttributeId);
-                var query = "select t33.UserName as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeID,t1.DynamicFormID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t6.SessionID as DynamicFormSectionGridAttributeSessionId,\r\nt1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.DynamicFormItem,t1.IsSendApproval,t1.FileProfileSessionID,t1.ProfileID,t1.ProfileNo,t1.DynamicFormDataGridID,t1.IsDeleted,t1.SortOrderByNo,t1.GridSortOrderByNo,t1.DynamicFormSectionGridAttributeID,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
+                var query = "select t5.IsApproval,t33.UserName as LockedUser,t1.LockedUserId,(case when t1.IsLocked is NULL then  0 ELSE t1.IsLocked END) as IsLocked,t1.DynamicFormDataID,t1.DynamicFormSectionGridAttributeID,t1.DynamicFormID,t1.SessionID,t1.StatusCodeID,t1.AddedByUserID,t6.SessionID as DynamicFormSectionGridAttributeSessionId,\r\nt1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.DynamicFormItem,t1.IsSendApproval,t1.FileProfileSessionID,t1.ProfileID,t1.ProfileNo,t1.DynamicFormDataGridID,t1.IsDeleted,t1.SortOrderByNo,t1.GridSortOrderByNo,t1.DynamicFormSectionGridAttributeID,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t5.FileProfileTypeId,t5.Name,t5.ScreenID,\r\n" +
                     "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
                     "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid\r\n" +
                     "from DynamicFormData t1\r\n" +
@@ -2478,6 +2580,137 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public int? GetDynamicFormDataApprovedSort(long? id)
+        {
+            try
+            {
+                int? SortOrderBy = 1;
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormDataId", id);
+
+                query = "SELECT * FROM DynamicFormApproved Where DynamicFormDataId = @DynamicFormDataId order by  ApprovedSortBy desc";
+                using (var connection = CreateConnection())
+                {
+                    var result = connection.QueryFirstOrDefault<DynamicFormApproved>(query, parameters);
+                    if (result != null)
+                    {
+                        SortOrderBy = result.ApprovedSortBy + 1;
+                    }
+                }
+                return SortOrderBy;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<DynamicFormApproved>> UpdateDynamicFormDataApprovedSort(long? id, int? SortOrderBy)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormDataId", id);
+                parameters.Add("ApprovedSortBy", SortOrderBy);
+                query = "SELECT * FROM DynamicFormApproved Where DynamicFormDataId = @DynamicFormDataId AND ApprovedSortBy>@ApprovedSortBy";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormApproved> DeleteDynamicFormDataApproved(DynamicFormApproved dynamicFormApproval)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var result = await UpdateDynamicFormDataApprovedSort(dynamicFormApproval.DynamicFormDataId, dynamicFormApproval.ApprovedSortBy);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", dynamicFormApproval.DynamicFormApprovedId);
+                        var sortby = dynamicFormApproval.ApprovedSortBy;
+                        var query = "DELETE  FROM DynamicFormApproved WHERE DynamicFormApprovedId = @id;";
+                        if (result != null)
+                        {
+                            result.ForEach(s =>
+                            {
+                                query += "Update  DynamicFormApproved SET ApprovedSortBy=" + sortby + "  WHERE DynamicFormApprovedId =" + s.DynamicFormApprovedId + ";";
+                                sortby++;
+                            });
+                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return dynamicFormApproval;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormApproved> InsertOrUpdateDynamicFormDataApproved(DynamicFormApproved dynamicFormApproval)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormApprovalId", dynamicFormApproval.DynamicFormApprovalId);
+                        parameters.Add("UserId", dynamicFormApproval.DelegateApproveAllUserId);
+                        parameters.Add("DynamicFormDataId", dynamicFormApproval.DynamicFormDataId);
+                        parameters.Add("DynamicFormApprovedId", dynamicFormApproval.DynamicFormApprovedId);
+                        parameters.Add("ApprovedDescription", dynamicFormApproval.ApprovedDescription, DbType.String);
+                        if (dynamicFormApproval.DynamicFormApprovedId > 0)
+                        {
+                            var query = "UPDATE DynamicFormApproved SET DynamicFormApprovalId = @DynamicFormApprovalId,DynamicFormDataId =@DynamicFormDataId,\n\r" +
+                                "UserId=@UserId,ApprovedDescription=@ApprovedDescription\n\r" +
+                                "WHERE DynamicFormApprovedId = @DynamicFormApprovedId;\n\r";
+                            await connection.ExecuteAsync(query, parameters);
+
+                        }
+                        else
+                        {
+                            parameters.Add("ApprovedSortBy", GetDynamicFormDataApprovedSort(dynamicFormApproval.DynamicFormDataId));
+                            var query = "INSERT INTO DynamicFormApproved(DynamicFormApprovalId,DynamicFormDataId,UserId,ApprovedDescription,ApprovedSortBy)  OUTPUT INSERTED.DynamicFormApprovedId VALUES " +
+                                "(@DynamicFormApprovalId,@DynamicFormDataId,@UserId,@ApprovedDescription,@ApprovedSortBy);\n\r";
+                            dynamicFormApproval.DynamicFormApprovedId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+
+                        return dynamicFormApproval;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
         public async Task<DynamicFormApproval> InsertOrUpdateDynamicFormApproval(DynamicFormApproval dynamicFormApproval)
         {
             try
@@ -3076,7 +3309,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("DynamicFormApprovalId", dynamicForm.DynamicFormApprovalId);
                         parameters.Add("DynamicFormDataId", dynamicForm.DynamicFormDataId);
                         parameters.Add("IsApproved", dynamicForm.IsApproved);
-                        parameters.Add("ApprovedDescription", dynamicForm.ApprovedDescription);
+                        parameters.Add("ApprovedDescription", dynamicForm.ApprovedDescription, DbType.String);
                         var query = "INSERT INTO DynamicFormApproved(DynamicFormApprovalId,IsApproved,ApprovedDescription,DynamicFormDataId)  " +
                               "OUTPUT INSERTED.DynamicFormApprovedId VALUES " +
                              "(@DynamicFormApprovalId,@IsApproved,@ApprovedDescription,@DynamicFormDataId);\n\r";
@@ -3104,9 +3337,10 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IReadOnlyList<DynamicFormApproved>> GetDynamicFormApprovedList(long? DynamicFormDataId)
         {
-            List<DynamicFormApproved> dynamicFormApprovedList = new List<DynamicFormApproved>();
+
             try
             {
+                List<DynamicFormApproved> dynamicFormApprovedList = new List<DynamicFormApproved>();
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormDataId", DynamicFormDataId);
                 var query = "select t1.*,t3.Value as EmployeeStatus,t4.UserName as ApprovedByUser,\r\n" +
@@ -3115,15 +3349,32 @@ namespace Infrastructure.Repository.Query
                     "JOIN Employee t2 ON t1.UserID=t2.UserID \r\n" +
                     "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
                      "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId\r\n" +
-                    "Where t1.DynamicFormDataID=@DynamicFormDataId \r\norder by t1.DynamicFormApprovedID asc";
+                    "Where t1.DynamicFormDataID=@DynamicFormDataId \r\norder by t1.DynamicFormApprovedID asc;";
+                query += "select t1.*,CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) as UserName  from DynamicFormApprovedChanged t1 JOIN ApplicationUser t2 ON t1.UserID=t2.UserID JOIN Employee t3 ON t2.UserID=t3.UserID\r\n;";
                 using (var connection = CreateConnection())
                 {
-                    dynamicFormApprovedList = (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    dynamicFormApprovedList = results.Read<DynamicFormApproved>().ToList();
+                    var dynamicFormApprovedChanged = results.Read<DynamicFormApprovedChanged>().ToList();
                     if (dynamicFormApprovedList != null && dynamicFormApprovedList.Count > 0)
                     {
-                        //var empuserIds = dynamicFormApprovedList.Where(w => w.UserId > 0).Select(s => s.UserId).Distinct().ToList();
-                        // var appuserIds = dynamicFormApprovedList.Where(w => w.ApprovedByUserId > 0).Select(s => s.ApprovedByUserId).Distinct().ToList();
-                        // var acceptanceStatusIds = dynamicFormApprovedList.Where(w => w.ApprovedStatus > 0).Select(s => s.AcceptanceStatus).Distinct().ToList();
+                        dynamicFormApprovedList.ForEach(s =>
+                        {
+                            s.DelegateApproveAllUserName = s.ApprovalUser;
+                            s.DelegateApproveAllUserId = s.UserId;
+                            var list = dynamicFormApprovedChanged.Where(w => w.DynamicFormApprovedID == s.DynamicFormApprovedId).OrderByDescending(o => o.DynamicFormApprovedChangedId).ToList();
+                            if (list != null && list.Count() > 0)
+                            {
+                                s.DynamicFormApprovedChangeds = list;
+                                s.IsDelegateApproveStatus = list[0].IsApprovedStatus;
+                                s.DelegateApprovedChangedId = list[0].DynamicFormApprovedChangedId;
+                                s.DelegateApproveUserId = list[0].UserId;
+                                s.DelegateApproveUserName = list[0].UserName;
+                                s.UserId = list[0].UserId;
+                                s.ApprovalUser = list[0].UserName;
+                                // s.DelegateApproveAllUserName = list[0].UserName;
+                            }
+                        });
                     }
                 }
                 return dynamicFormApprovedList;
@@ -3283,12 +3534,14 @@ namespace Infrastructure.Repository.Query
                     {
                         if (listData != null && listData.Count() > 0)
                         {
-                            var listDatas = listData.Select(x => x.DynamicFormSectionId).Distinct().ToList();
+                            var listDatas = listData.Where(w => w.DynamicFormWorkFlowId != s.DynamicFormWorkFlowId).Select(x => x.DynamicFormSectionId).Distinct().ToList();
                             var lists = listData.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).ToList();
-                            s.DynamicFormSectionIdList = listDatas;
+                            s.DynamicFormSectionIDs = listDatas != null && listDatas.Count() > 0 ? listDatas : new List<long>();
+                            s.DynamicFormSectionAllIDs = listData != null && listData.Count() > 0 ? lists.Select(x => x.DynamicFormSectionId).ToList() : new List<long>();
+                            s.SelectDynamicFormSectionIDs = new List<long>();
                             if (lists != null && lists.Count() > 0)
                             {
-
+                                s.SelectDynamicFormSectionIDs = lists.Select(a => a.DynamicFormSectionId).ToList();
                                 s.SectionName = string.Join(',', lists.Select(z => z.SectionName).ToList());
                             }
                         }
@@ -3308,17 +3561,45 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    var userExitsRoles = await GetDynamicFormWorkFlowEmptyAsync(value.DynamicFormId);
-                    var userGroupUsers = await GetUserGroupUserList();
-                    var LevelUsers = await GetLeveMasterUsersList(value.SelectLevelMasterIDs);
+                    // var userExitsRoles = await GetDynamicFormWorkFlowEmptyAsync(value.DynamicFormId);
+                    //var userGroupUsers = await GetUserGroupUserList();
+                    //var LevelUsers = await GetLeveMasterUsersList(value.SelectLevelMasterIDs);
 
                     try
                     {
                         var query = string.Empty;
                         var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormWorkFlowId", value.DynamicFormWorkFlowId);
                         parameters.Add("DynamicFormId", value.DynamicFormId);
-                        parameters.Add("Type", value.Type); parameters.Add("SequenceNo", value.SequenceNo);
-                        if (value.Type == "User")
+                        parameters.Add("Type", "User");
+                        parameters.Add("SequenceNo", value.SequenceNo);
+                        parameters.Add("UserId", value.UserId);
+                        if (value.DynamicFormWorkFlowId > 0)
+                        {
+                            query = "UPDATE DynamicFormWorkFlow SET DynamicFormId=@DynamicFormId,UserId=@UserId,SequenceNo=@SequenceNo,Type=@Type WHERE DynamicFormWorkFlowId = @DynamicFormWorkFlowId;\r\n";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        else
+                        {
+                            query = "INSERT INTO [DynamicFormWorkFlow](DynamicFormId,UserId,Type,SequenceNo) OUTPUT INSERTED.DynamicFormWorkFlowId " +
+                                               "VALUES (@DynamicFormId,@UserId,@Type,@SequenceNo);\r\n";
+                            value.DynamicFormWorkFlowId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        if (value.DynamicFormWorkFlowId > 0)
+                        {
+                            var querys = string.Empty;
+                            querys += "DELETE  FROM DynamicFormWorkFlowSection WHERE DynamicFormWorkFlowId =" + value.DynamicFormWorkFlowId + ";";
+                            if (value.SelectDynamicFormSectionIDs != null && value.SelectDynamicFormSectionIDs.Count() > 0)
+                            {
+                                foreach (var items in value.SelectDynamicFormSectionIDs)
+                                {
+                                    querys += "INSERT INTO [DynamicFormWorkFlowSection](DynamicFormWorkFlowId,DynamicFormSectionId) OUTPUT INSERTED.DynamicFormWorkFlowSectionID " +
+                               "VALUES (" + value.DynamicFormWorkFlowId + "," + items + ");\r\n";
+                                }
+                                await connection.QuerySingleOrDefaultAsync<long>(querys);
+                            }
+                        }
+                        /*if (value.Type == "User")
                         {
                             if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
                             {
@@ -3399,7 +3680,7 @@ namespace Infrastructure.Repository.Query
                                     }
                                 }
                             }
-                        }
+                        }*/
                         // if (!string.IsNullOrEmpty(query))
                         //   {
                         //      await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
@@ -3430,6 +3711,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("id", dynamicFormWorkFlow.DynamicFormWorkFlowId);
                         var query = "DELETE  FROM DynamicFormWorkFlowSection WHERE DynamicFormWorkFlowId = @id;";
+                        query += "DELETE  FROM DynamicFormWorkFlowApproval WHERE DynamicFormWorkFlowId = @id;";
                         query += "DELETE  FROM DynamicFormWorkFlow WHERE DynamicFormWorkFlowId = @id;";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         return dynamicFormWorkFlow;
@@ -3449,7 +3731,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IReadOnlyList<DynamicFormDataWrokFlow>> GetDynamicFormWorkFlowListByUser(long? userId, long? dynamicFormDataId)
         {
-            var resultsa = await GenerateDynamicFormDataSortOrderByNo();
+            // var resultsa = await GenerateDynamicFormDataSortOrderByNo();
             List<DynamicFormDataWrokFlow> dynamicFormWorkFlowSections = new List<DynamicFormDataWrokFlow>();
             try
             {
@@ -3546,13 +3828,11 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", dynamicFormId);
                 parameters.Add("dynamicFormDataId", dynamicFormDataId);
-                var query = "select t1.DynamicFormWorkFlowID,t1.DynamicFormSectionId,t3.SectionName,t4.UserName,t1.DynamicFormWorkFlowSectionID,t2.DynamicFormID,t2.SequenceNo,t2.UserID," +
-                    "(SELECT (Count(*)) from DynamicFormWorkFlowForm t5 WHERE t5.DynamicFormWorkFlowSectionID=t1.DynamicFormWorkFlowSectionID AND t5.DynamicFormDataID=@dynamicFormDataId) as IsWorkFlowDone\r\n" +
-                    "from DynamicFormWorkFlowSection t1 \r\n" +
-                   "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID  \r\n" +
-                    "JOIN DynamicFormWorkFlow t2 ON t2.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID \r\n" +
-                     "JOIN ApplicationUser t4 ON t4.UserID=t2.UserID  \r\n" +
-                    "Where  t2.DynamicFormID=@DynamicFormId order by t2.SequenceNo asc";
+                var query = "select t1.DynamicFormWorkFlowFormID as DynamicFormWorkFlowID,t1.DynamicFormSectionId,t3.SectionName,t4.UserName,t1.DynamicFormWorkFlowSectionFormID as DynamicFormWorkFlowSectionID,t2.SequenceNo,t2.UserID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as IsWorkFlowDone\r\n" +
+                    "from DynamicFormWorkFlowSectionForm t1 \r\nJOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID  \r\n" +
+                    "JOIN DynamicFormWorkFlowForm t2 ON t2.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID \r\n" +
+                    "JOIN ApplicationUser t4 ON t4.UserID=t2.UserID  \r\n" +
+                    "Where  t2.DynamicFormDataID=@dynamicFormDataId order by t2.SequenceNo asc";
                 var result = new List<DynamicFormWorkFlowSection>();
                 using (var connection = CreateConnection())
                 {
@@ -3564,22 +3844,78 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormWorkFlowApprovedForm>> GetDynamicFormWorkFlowApprovedFormList(long? dynamicFormDataId)
+        {
+            try
+            {
+                List<DynamicFormWorkFlowApprovedForm> dynamicFormWorkFlowApprovedForms = new List<DynamicFormWorkFlowApprovedForm>();
+                List<DynamicFormWorkFlowApprovedFormChanged> dynamicFormWorkFlowApprovedFormChanged = new List<DynamicFormWorkFlowApprovedFormChanged>();
+                var parameters = new DynamicParameters();
+                parameters.Add("dynamicFormDataId", dynamicFormDataId);
+                var query = "select t1.*,CONCAT(case when t5.NickName is NULL then  t5.FirstName ELSE  t5.NickName END,' | ',t5.LastName) as UserName,t3.UserName as ApprovedByUser,t4.DynamicFormDataID,\r\n(CASE \r\nWHEN t1.IsApproved = 0  THEN 'Rejected'\r\nWHEN t1.IsApproved  <= 1 THEN 'Approved'\r\nELSE 'Pending' \r\nEND) AS ApprovedStatus\r\nfrom DynamicFormWorkFlowApprovedForm t1 \r\n" +
+                    "JOIN DynamicFormWorkFlowForm t4 ON t4.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID\r\n" +
+                    "JOIN ApplicationUser t2 ON t2.UserID=t1.UserID JOIN Employee t5 ON t2.UserID=t5.UserID\r\n" +
+                    "LEFT JOIN ApplicationUser t3 ON t3.UserID=t1.ApprovedByUserID  where t4.dynamicFormDataId=@dynamicFormDataId;";
+                query += "select t1.*,CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) as UserName  from DynamicFormWorkFlowApprovedFormChanged t1 JOIN ApplicationUser t2 ON t1.UserID=t2.UserID JOIN Employee t3 ON t2.UserID=t3.UserID\r\n;";
 
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    dynamicFormWorkFlowApprovedForms = results.Read<DynamicFormWorkFlowApprovedForm>().ToList();
+                    dynamicFormWorkFlowApprovedFormChanged = results.Read<DynamicFormWorkFlowApprovedFormChanged>().ToList();
+                }
+                if (dynamicFormWorkFlowApprovedForms != null && dynamicFormWorkFlowApprovedForms.Count() > 0)
+                {
+                    dynamicFormWorkFlowApprovedForms.ForEach(s =>
+                    {
+                        s.ActualUserId = s.UserID;
+                        s.DelegateUserName = s.UserName;
+                        var list = dynamicFormWorkFlowApprovedFormChanged.Where(w => w.DynamicFormWorkFlowApprovedFormID == s.DynamicFormWorkFlowApprovedFormID).OrderByDescending(o => o.DynamicFormWorkFlowApprovedFormChangedID).ToList();
+                        if (list != null && list.Count() > 0)
+                        {
+                            s.UserID = list[0].UserId;
+                            s.UserName = list[0].UserName;
+                            s.DelegateUserId = list[0].UserId;
+                            s.DelegateUserName = list[0].UserName;
+                        }
+                    });
+                }
+                return dynamicFormWorkFlowApprovedForms;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<IReadOnlyList<DynamicFormWorkFlowSection>> GetDynamicFormWorkFlowExits(long? dynamicFormId, long? userId, long? dynamicFormDataId)
         {
             try
             {
+
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", dynamicFormId);
                 parameters.Add("dynamicFormDataId", dynamicFormDataId);
-                var query = "select t1.DynamicFormWorkFlowID,t3.SectionName,t1.DynamicFormWorkFlowSectionID,t1.DynamicFormSectionID,t2.DynamicFormID,t2.SequenceNo,t4.UserName,t2.UserID,t2.UserGroupID,t2.LevelID,t2.Type," +
-                    "(SELECT (Count(*)) from DynamicFormWorkFlowForm t3 WHERE t3.DynamicFormWorkFlowSectionID=t1.DynamicFormWorkFlowSectionID AND t3.DynamicFormDataID=@dynamicFormDataId) as IsWorkFlowDone\r\n" +
-                    "from DynamicFormWorkFlowSection t1 \r\n" +
-                    "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID  \r\n" +
-                    "JOIN DynamicFormWorkFlow t2 ON t2.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID \r\n" +
-                     "JOIN ApplicationUser t4 ON t4.UserID=t2.UserID  \r\n" +
-                    "Where  t2.DynamicFormID=@DynamicFormId order by t2.SequenceNo asc";
+                var query = string.Empty;
+                if (dynamicFormDataId > 0)
+                {
+                    query = "select t1.DynamicFormWorkFlowFormID as DynamicFormWorkFlowID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as IsWorkFlowDone,t2.UserID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as FlowStatusID,t3.SectionName,t1.DynamicFormWorkFlowSectionFormID as DynamicFormWorkFlowSectionID,t2.DynamicFormDataId,t1.DynamicFormSectionID,t3.DynamicFormID,t2.SequenceNo,t4.UserName,t1.DynamicFormWorkFlowFormID\r\n" +
+                        "from DynamicFormWorkFlowSectionForm t1 \r\n" +
+                        "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID  \r\n" +
+                        "JOIN DynamicFormWorkFlowForm t2 ON t2.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID \r\n" +
+                        "JOIN ApplicationUser t4 ON t4.UserID=t2.UserID  \r\nWhere  t2.DynamicFormDataID=@dynamicFormDataId order by t2.SequenceNo asc";
+                }
+                else
+                {
+                    query = "select t1.DynamicFormWorkFlowID,t3.SectionName,t1.DynamicFormWorkFlowSectionID,t1.DynamicFormSectionID,t2.DynamicFormID,t2.SequenceNo,t4.UserName,t2.UserID,t2.UserGroupID,t2.LevelID,t2.Type," +
+                        "(SELECT (Count(*)) from DynamicFormWorkFlowForm t3 WHERE t3.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID AND t3.FlowStatusID=1 AND t3.DynamicFormDataID=@dynamicFormDataId) as IsWorkFlowDone,\r\n" +
+                        "(SELECT tt3.DynamicFormWorkFlowFormID from DynamicFormWorkFlowForm tt3 WHERE tt3.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID AND tt3.UserID=t2.UserID AND tt3.DynamicFormDataID=@dynamicFormDataId) as DynamicFormWorkFlowFormID\r\n \r\n" +
+                        "from DynamicFormWorkFlowSection t1 \r\n" +
+                        "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID  \r\n" +
+                        "JOIN DynamicFormWorkFlow t2 ON t2.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID \r\n" +
+                         "JOIN ApplicationUser t4 ON t4.UserID=t2.UserID  \r\n" +
+                        "Where  t2.DynamicFormID=@DynamicFormId order by t2.SequenceNo asc";
+                }
                 var result = new List<DynamicFormWorkFlowSection>();
                 using (var connection = CreateConnection())
                 {
@@ -3591,6 +3927,107 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DynamicFormWorkFlowItems> GetDynamicFormWorkFlowLists(long? id, long? dynamicFormDataId)
+        {
+
+            try
+            {
+                DynamicFormWorkFlowItems dynamicFormWorkFlowItems = new DynamicFormWorkFlowItems();
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormId", id);
+                parameters.Add("DynamicFormDataId", dynamicFormDataId);
+                query += "SELECT * FROM DynamicFormWorkFlowForm Where DynamicFormDataId = @DynamicFormDataId;";
+                query += "SELECT * FROM DynamicFormWorkFlow Where DynamicFormId = @DynamicFormId order by SequenceNo asc;";
+                query += "SELECT * FROM DynamicFormWorkFlowSection;";
+                query += "SELECT * FROM DynamicFormWorkFlowApproval;";
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    dynamicFormWorkFlowItems.DynamicFormWorkFlowForm = results.Read<DynamicFormWorkFlowForm>().ToList();
+                    dynamicFormWorkFlowItems.DynamicFormWorkFlow = results.Read<DynamicFormWorkFlow>().ToList();
+                    dynamicFormWorkFlowItems.DynamicFormWorkFlowSection = results.Read<DynamicFormWorkFlowSection>().ToList();
+                    dynamicFormWorkFlowItems.DynamicFormWorkFlowApproval = results.Read<DynamicFormWorkFlowApproval>().ToList();
+
+                }
+                return dynamicFormWorkFlowItems;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        /*public async Task<DynamicFormWorkFlowSection> InsertOrUpdateFormWorkFlowSectionNoWorkFlow(List<DynamicFormWorkFlowSection> dynamicFormWorkFlowSections, long? dynamicFormDataId, long? userId)
+        {
+            DynamicFormWorkFlowSection dynamicFormWorkFlowSection = new DynamicFormWorkFlowSection();
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        if (dynamicFormWorkFlowSections != null && dynamicFormWorkFlowSections.Count > 0)
+                        {
+                            var dynamicFormId = dynamicFormWorkFlowSections[0].DynamicFormId;
+                            var query = string.Empty;
+                            var parameters = new DynamicParameters();
+                            parameters.Add("CompletedDate", DateTime.Now, DbType.DateTime);
+                            var dataList = await GetDynamicFormWorkFlowLists(dynamicFormId, dynamicFormDataId);
+                            var _dynamicFormWorkFlows = dataList.DynamicFormWorkFlow.ToList();
+                            var _dynamicFormWorkFlowForms = dataList.DynamicFormWorkFlowForm.ToList();
+                            dynamicFormWorkFlowSections.ForEach(s =>
+                            {
+                                query = string.Empty;
+                                query += "INSERT INTO [DynamicFormWorkFlowForm](DynamicFormWorkFlowSectionID,UserId,DynamicFormDataID,CompletedDate) OUTPUT INSERTED.DynamicFormWorkFlowFormID " +
+                                                   "VALUES (" + s.DynamicFormWorkFlowSectionId + "," + userId + "," + dynamicFormDataId + ",@CompletedDate);\r\n";
+                                var ids = connection.QuerySingleOrDefault<long>(query, parameters);
+                                var _dynamicFormWorkFlowSections = dataList.DynamicFormWorkFlowSection.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).ToList();
+                                var _dynamicFormWorkFlowApprovals = dataList.DynamicFormWorkFlowApproval.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).OrderBy(o => o.SortBy).ToList();
+                                if (_dynamicFormWorkFlowSections != null && _dynamicFormWorkFlowSections.Count() > 0)
+                                {
+                                    var query1 = string.Empty;
+                                    _dynamicFormWorkFlowSections.ForEach(a =>
+                                    {
+                                        query1 += "INSERT INTO [DynamicFormWorkFlowSectionForm](DynamicFormSectionId,DynamicFormWorkFlowFormID) OUTPUT INSERTED.DynamicFormWorkFlowSectionFormID " +
+                                                  "VALUES (" + a.DynamicFormSectionId + "," + ids + ");\r\n";
+                                    });
+                                    if (!string.IsNullOrEmpty(query1))
+                                    {
+                                        connection.QuerySingleOrDefault<long>(query1, parameters);
+                                    }
+                                }
+                                if (_dynamicFormWorkFlowApprovals != null && _dynamicFormWorkFlowApprovals.Count() > 0)
+                                {
+                                    var query2 = string.Empty;
+                                    _dynamicFormWorkFlowApprovals.ForEach(d =>
+                                    {
+                                        query2 += "INSERT INTO [DynamicFormWorkFlowApprovedForm](DynamicFormWorkFlowFormID,UserID,SortBy) OUTPUT INSERTED.DynamicFormWorkFlowApprovedFormID " +
+                                                  "VALUES (" + ids + "," + d.UserId + "," + d.SortBy + ");\r\n";
+                                    });
+                                    if (!string.IsNullOrEmpty(query2))
+                                    {
+                                        connection.QuerySingleOrDefault<long>(query2, parameters);
+                                    }
+                                }
+                            });
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                //await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                            }
+                        }
+                        return dynamicFormWorkFlowSection;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }*/
         public async Task<DynamicFormWorkFlowSection> InsertOrUpdateFormWorkFlowSectionNoWorkFlow(List<DynamicFormWorkFlowSection> dynamicFormWorkFlowSections, long? dynamicFormDataId, long? userId)
         {
             DynamicFormWorkFlowSection dynamicFormWorkFlowSection = new DynamicFormWorkFlowSection();
@@ -3602,18 +4039,79 @@ namespace Infrastructure.Repository.Query
                     {
                         if (dynamicFormWorkFlowSections != null && dynamicFormWorkFlowSections.Count > 0)
                         {
-                            var query = string.Empty;
+                            var dynamicFormId = dynamicFormWorkFlowSections[0].DynamicFormId;
+
                             var parameters = new DynamicParameters();
                             parameters.Add("CompletedDate", DateTime.Now, DbType.DateTime);
-                            dynamicFormWorkFlowSections.ForEach(s =>
+                            parameters.Add("FlowStatusID", 1);
+                            var dataList = await GetDynamicFormWorkFlowLists(dynamicFormId, dynamicFormDataId);
+                            var _dynamicFormWorkFlows = dataList.DynamicFormWorkFlow.ToList();
+                            var _dynamicFormWorkFlowForms = dataList.DynamicFormWorkFlowForm.ToList();
+                            if (_dynamicFormWorkFlowForms != null && _dynamicFormWorkFlowForms.Count() > 0)
                             {
-                                query += "INSERT INTO [DynamicFormWorkFlowForm](DynamicFormWorkFlowSectionID,UserId,DynamicFormDataID,CompletedDate) OUTPUT INSERTED.DynamicFormWorkFlowFormID " +
-                                                   "VALUES (" + s.DynamicFormWorkFlowSectionId + "," + userId + "," + dynamicFormDataId + ",@CompletedDate);\r\n";
-                            });
-                            if (!string.IsNullOrEmpty(query))
-                            {
-                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                                var exits = _dynamicFormWorkFlowForms.FirstOrDefault(f => f.UserId == userId && f.DynamicFormDataId == dynamicFormDataId);
+                                if (exits != null)
+                                {
+                                    parameters.Add("DynamicFormWorkFlowFormId", exits.DynamicFormWorkFlowFormId);
+                                    var query2 = "UPDATE DynamicFormWorkFlowForm SET CompletedDate=@CompletedDate,FlowStatusID=@FlowStatusID WHERE DynamicFormWorkFlowFormId = @DynamicFormWorkFlowFormId;\r\n";
+                                    if (!string.IsNullOrEmpty(query2))
+                                    {
+                                        await connection.QuerySingleOrDefaultAsync<long>(query2, parameters);
+                                    }
+                                }
                             }
+                            else
+                            {
+                                if (_dynamicFormWorkFlows != null && _dynamicFormWorkFlows.Count() > 0)
+                                {
+                                    int i = 0;
+                                    _dynamicFormWorkFlows.ForEach(s =>
+                                    {
+                                        var query = string.Empty;
+                                        var _dynamicFormWorkFlowSections = dataList.DynamicFormWorkFlowSection.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).ToList();
+                                        if (i == 0)
+                                        {
+                                            query += "INSERT INTO [DynamicFormWorkFlowForm](SequenceNo,UserId,DynamicFormDataID,FlowStatusID,CompletedDate,DynamicFormWorkFlowId) OUTPUT INSERTED.DynamicFormWorkFlowFormID " +
+                                                              "VALUES (" + s.SequenceNo + "," + s.UserId + "," + dynamicFormDataId + ",@FlowStatusID,@CompletedDate," + s.DynamicFormWorkFlowId + ");\r\n";
+                                        }
+                                        else
+                                        {
+                                            query += "INSERT INTO [DynamicFormWorkFlowForm](SequenceNo,UserId,DynamicFormDataID,DynamicFormWorkFlowId) OUTPUT INSERTED.DynamicFormWorkFlowFormID " +
+                                                               "VALUES (" + s.SequenceNo + "," + s.UserId + "," + dynamicFormDataId + "," + s.DynamicFormWorkFlowId + ");\r\n";
+                                        }
+                                        var ids = connection.QuerySingleOrDefault<long>(query, parameters);
+                                        if (_dynamicFormWorkFlowSections != null && _dynamicFormWorkFlowSections.Count() > 0)
+                                        {
+                                            var query1 = string.Empty;
+                                            _dynamicFormWorkFlowSections.ForEach(a =>
+                                            {
+                                                query1 += "INSERT INTO [DynamicFormWorkFlowSectionForm](DynamicFormSectionId,DynamicFormWorkFlowFormID) OUTPUT INSERTED.DynamicFormWorkFlowSectionFormID " +
+                                                          "VALUES (" + a.DynamicFormSectionId + "," + ids + ");\r\n";
+                                            });
+                                            if (!string.IsNullOrEmpty(query1))
+                                            {
+                                                connection.QuerySingleOrDefault<long>(query1, parameters);
+                                            }
+                                        }
+                                        var _dynamicFormWorkFlowApprovals = dataList.DynamicFormWorkFlowApproval.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).OrderBy(o => o.SortBy).ToList();
+                                        if (_dynamicFormWorkFlowApprovals != null && _dynamicFormWorkFlowApprovals.Count() > 0)
+                                        {
+                                            var query2 = string.Empty;
+                                            _dynamicFormWorkFlowApprovals.ForEach(d =>
+                                            {
+                                                query2 += "INSERT INTO [DynamicFormWorkFlowApprovedForm](DynamicFormWorkFlowFormID,UserID,SortBy) OUTPUT INSERTED.DynamicFormWorkFlowApprovedFormID " +
+                                                          "VALUES (" + ids + "," + d.UserId + "," + d.SortBy + ");\r\n";
+                                            });
+                                            if (!string.IsNullOrEmpty(query2))
+                                            {
+                                                connection.QuerySingleOrDefault<long>(query2, parameters);
+                                            }
+                                        }
+                                        i++;
+                                    });
+                                }
+                            }
+
                         }
                         return dynamicFormWorkFlowSection;
                     }
@@ -3635,42 +4133,56 @@ namespace Infrastructure.Repository.Query
             {
                 var rowCount = 0;
                 var listData = await GetDynamicFormWorkFlowExits(dynamicFormId, 0, dynamicFormDataId);
-                var parameters = new DynamicParameters();
-                parameters.Add("DynamicFormDataID", dynamicFormDataId);
-                var query = "select ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t1.DynamicFormDataID,t1.CompletedDate,t1.DynamicFormWorkFlowFormID,t1.DynamicFormWorkFlowSectionID,t1.UserID,t5.UserName as CompletedBy,t4.SequenceNo,\r\nt2.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t4.UserID as DynamicFormWorkFlowUserID,t6.UserName as DynamicFormWorkFlowUser from \n\r" +
-                    "DynamicFormWorkFlowForm t1 \r\n" +
-                    "JOIN DynamicFormWorkFlowSection t2 ON t1.DynamicFormWorkFlowSectionID=t2.DynamicFormWorkFlowSectionID\r\n" +
-                    "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t2.DynamicFormSectionID\r\n" +
-                    "JOIN DynamicFormWorkFlow t4 ON t2.DynamicFormWorkFlowID=t4.DynamicFormWorkFlowID\r\n" +
-                    "JOIN ApplicationUser t5 ON t5.UserID=t1.UserID\r\n" +
-                    "JOIN ApplicationUser t6 ON t6.UserID=t4.UserID Where  t1.DynamicFormDataID=@DynamicFormDataID order by t4.SequenceNo asc";
                 var result = new List<DynamicFormWorkFlowForm>();
-                using (var connection = CreateConnection())
+                var parameters = new DynamicParameters();
+                if (dynamicFormDataId > 0)
                 {
-                    result = (await connection.QueryAsync<DynamicFormWorkFlowForm>(query, parameters)).ToList();
+                    parameters.Add("DynamicFormDataID", dynamicFormDataId);
+                    var query = "select t2.DynamicFormWorkFlowFormID as DynamicFormWorkFlowId,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as FlowStatusID, ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t2.DynamicFormDataID,t2.CompletedDate,t1.DynamicFormWorkFlowFormID,t2.DynamicFormWorkFlowSectionID,t2.UserID,t5.UserName as CompletedBy,t2.SequenceNo,\r\nt1.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t2.UserID as DynamicFormWorkFlowUserID,t5.UserName as DynamicFormWorkFlowUser from \r\n\r\n" +
+                        "DynamicFormWorkFlowSectionForm t1 \r\n " +
+                        "JOIN DynamicFormWorkFlowForm t2 ON t1.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID\r\n  " +
+                        "JOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID\r\n  " +
+                        "JOIN ApplicationUser t5 ON t5.UserID=t2.UserID\r\n  " +
+                        "AND t2.DynamicFormDataID=@DynamicFormDataID order by t2.SequenceNo asc";
+
+                    using (var connection = CreateConnection())
+                    {
+                        result = (await connection.QueryAsync<DynamicFormWorkFlowForm>(query, parameters)).ToList();
+                    }
                 }
                 if (result != null && result.Count > 0)
                 {
                     rowCount = result.Count;
                     dynamicFormWorkFlowSections.AddRange(result);
                 }
-                if (listData != null && listData.Count > 0)
+                if (dynamicFormDataId > 0)
                 {
-                    var notCompleted = listData.Where(w => w.IsWorkFlowDone == 0).ToList();
-                    if (notCompleted != null && notCompleted.Count > 0)
+
+                }
+                else
+                {
+                    if (listData != null && listData.Count > 0)
                     {
-                        notCompleted.ForEach(a =>
+                        var notCompleted = listData.Where(w => w.IsWorkFlowDone == 0).ToList();
+                        if (notCompleted != null && notCompleted.Count > 0)
                         {
-                            DynamicFormWorkFlowForm dynamicFormWorkFlowForm = new DynamicFormWorkFlowForm();
-                            dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = rowCount + 1; ;
-                            dynamicFormWorkFlowForm.SectionName = a.SectionName;
-                            dynamicFormWorkFlowForm.DynamicFormSectionId = a.DynamicFormSectionId;
-                            dynamicFormWorkFlowForm.SequenceNo = a.SequenceNo;
-                            dynamicFormWorkFlowForm.DynamicFormWorkFlowUserId = a.UserId;
-                            dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = a.UserName;
-                            dynamicFormWorkFlowSections.Add(dynamicFormWorkFlowForm);
-                            rowCount++;
-                        });
+                            notCompleted.ForEach(a =>
+                            {
+                                DynamicFormWorkFlowForm dynamicFormWorkFlowForm = new DynamicFormWorkFlowForm();
+                                dynamicFormWorkFlowForm.DynamicFormWorkFlowId = a.DynamicFormWorkFlowId;
+                                //dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = rowCount + 1; ;
+                                long? ids = a.DynamicFormWorkFlowFormId > 0 ? a.DynamicFormWorkFlowFormId : 0;
+                                dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = (long)ids;
+                                dynamicFormWorkFlowForm.SectionName = a.SectionName;
+                                dynamicFormWorkFlowForm.DynamicFormSectionId = a.DynamicFormSectionId;
+                                dynamicFormWorkFlowForm.SequenceNo = a.SequenceNo;
+                                dynamicFormWorkFlowForm.DynamicFormWorkFlowUserId = a.UserId;
+                                dynamicFormWorkFlowForm.UserId = a.UserId;
+                                dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = a.UserName;
+                                dynamicFormWorkFlowSections.Add(dynamicFormWorkFlowForm);
+                                rowCount++;
+                            });
+                        }
                     }
                 }
                 return dynamicFormWorkFlowSections;
@@ -4494,6 +5006,527 @@ namespace Infrastructure.Repository.Query
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormApprovedChanged>> GetDynamicFormApprovedChangedList(long? DynamicFormApprovedID)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormApprovedID", DynamicFormApprovedID);
+                var query = "select  * from DynamicFormApprovedChanged where DynamicFormApprovedID=@DynamicFormApprovedID order by DynamicFormApprovedChangedId desc;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormApprovedChanged>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormApprovedChanged> InsertDynamicFormApprovedChanged(DynamicFormApprovedChanged dynamicFormApprovedChanged)
+        {
+            try
+            {
+                var appList = await GetDynamicFormApprovedChangedList(dynamicFormApprovedChanged.DynamicFormApprovedID);
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("DynamicFormApprovedID", dynamicFormApprovedChanged.DynamicFormApprovedID);
+                    parameters.Add("UserId", dynamicFormApprovedChanged.UserId);
+                    parameters.Add("DynamicFormApprovedChangedId", dynamicFormApprovedChanged.DynamicFormApprovedChangedId);
+                    bool? insert = true;
+                    if (appList != null && appList.Count() > 0)
+                    {
+                        var firstRec = appList.FirstOrDefault();
+                        if (firstRec?.UserId == dynamicFormApprovedChanged.UserId)
+                        {
+                            insert = false;
+                        }
+                    }
+                    if (insert == true)
+                    {
+                        var query = "INSERT INTO DynamicFormApprovedChanged(DynamicFormApprovedID,UserId) OUTPUT INSERTED.DynamicFormApprovedChangedId VALUES " +
+                            "(@DynamicFormApprovedID,@UserId)";
+                        var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        dynamicFormApprovedChanged.DynamicFormApprovedChangedId = rowsAffected;
+                    }
+                    return dynamicFormApprovedChanged;
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<IReadOnlyList<DynamicFormWorkFlowApproval>> GetDynamicFormWorkFlowApprovalList(long? DynamicFormWorkFlowId, long? dynamicFormDataId)
+        {
+            try
+            {
+                List<DynamicFormWorkFlowApproval> dynamicFormWorkFlowApprovals = new List<DynamicFormWorkFlowApproval>();
+                List<DynamicFormWorkFlowApprovedForm> dynamicFormWorkFlowApprovedForms = new List<DynamicFormWorkFlowApprovedForm>();
+                List<DynamicFormWorkFlowApprovedFormChanged> dynamicFormWorkFlowApprovedFormChanged = new List<DynamicFormWorkFlowApprovedFormChanged>();
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormWorkFlowId", DynamicFormWorkFlowId);
+                parameters.Add("DynamicFormDataID", dynamicFormDataId);
+                var query = "select  t1.*,CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) as UserName from DynamicFormWorkFlowApproval t1 " +
+                    "JOIN ApplicationUser t2 ON t1.UserId=t2.UserID JOIN Employee t3 ON t2.UserID=t3.UserID where t1.DynamicFormWorkFlowId=@DynamicFormWorkFlowId order by t1.sortby asc;";
+                query += "select t1.*,CONCAT(case when t4.NickName is NULL then  t4.FirstName ELSE  t4.NickName END,' | ',t4.LastName) as UserName,t2.DynamicFormWorkFlowID,CASE WHEN t1.IsApproved=1  THEN 'Approved' WHEN t1.IsApproved =0 THEN 'Rejected' ELSE 'Pending' END AS ApprovedStatus from DynamicFormWorkFlowApprovedForm t1 \r\n" +
+                    "JOIN DynamicFormWorkFlowForm t2 ON t1.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID\r\n" +
+                    "JOIN ApplicationUser t3 ON t1.UserId=t3.UserID\r\nJOIN Employee t4 ON t3.UserID=t4.UserID " +
+                    "Where t2.DynamicFormWorkFlowFormID=@DynamicFormWorkFlowId AND t2.DynamicFormDataID=@DynamicFormDataID;";
+                query += "select t1.*,CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) as UserName  from DynamicFormWorkFlowApprovedFormChanged t1 JOIN ApplicationUser t2 ON t1.UserID=t2.UserID JOIN Employee t3 ON t2.UserID=t3.UserID\r\n;";
+
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    dynamicFormWorkFlowApprovals = results.Read<DynamicFormWorkFlowApproval>().ToList();
+                    dynamicFormWorkFlowApprovedForms = results.Read<DynamicFormWorkFlowApprovedForm>().ToList();
+                    dynamicFormWorkFlowApprovedFormChanged = results.Read<DynamicFormWorkFlowApprovedFormChanged>().ToList();
+                }
+                if (dynamicFormDataId > 0 && dynamicFormWorkFlowApprovedForms != null && dynamicFormWorkFlowApprovedForms.Count() > 0)
+                {
+                    dynamicFormWorkFlowApprovals = new List<DynamicFormWorkFlowApproval>();
+                    dynamicFormWorkFlowApprovedForms.ForEach(s =>
+                    {
+                        DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval = new DynamicFormWorkFlowApproval();
+                        dynamicFormWorkFlowApproval.DynamicFormWorkFlowId = s.DynamicFormWorkFlowFormID;
+                        dynamicFormWorkFlowApproval.DynamicFormDataId = dynamicFormDataId;
+                        dynamicFormWorkFlowApproval.ApprovedStatus = s.ApprovedStatus;
+                        dynamicFormWorkFlowApproval.IsApproved = s.IsApproved;
+                        dynamicFormWorkFlowApproval.ApprovedDate = s.ApprovedDate;
+                        dynamicFormWorkFlowApproval.ApprovedDescription = s.ApprovedDescription;
+                        dynamicFormWorkFlowApproval.UserId = s.UserID;
+                        dynamicFormWorkFlowApproval.ApprovedUser = s.UserName;
+                        dynamicFormWorkFlowApproval.UserName = s.UserName;
+                        dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovalId = s.DynamicFormWorkFlowApprovedFormID;
+                        dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovedFormID = s.DynamicFormWorkFlowApprovedFormID;
+                        dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovedFormChangeds = dynamicFormWorkFlowApprovedFormChanged.Where(w => w.DynamicFormWorkFlowApprovedFormID == s.DynamicFormWorkFlowApprovedFormID).ToList();
+                        dynamicFormWorkFlowApproval.DelegateApproveAllUserName = s.UserName;
+                        dynamicFormWorkFlowApproval.DelegateApproveAllUserId = s.UserID;
+                        var list = dynamicFormWorkFlowApprovedFormChanged.Where(w => w.DynamicFormWorkFlowApprovedFormID == s.DynamicFormWorkFlowApprovedFormID).OrderByDescending(o => o.DynamicFormWorkFlowApprovedFormChangedID).ToList();
+                        if (list != null && list.Count() > 0)
+                        {
+                            dynamicFormWorkFlowApproval.IsDelegateApproveStatus = list[0].IsApprovedStatus;
+                            dynamicFormWorkFlowApproval.DelegateApprovedChangedId = list[0].DynamicFormWorkFlowApprovedFormChangedID;
+                            dynamicFormWorkFlowApproval.DelegateApproveUserId = list[0].UserId;
+                            dynamicFormWorkFlowApproval.DelegateApproveUserName = list[0].UserName;
+                            dynamicFormWorkFlowApproval.UserId = list[0].UserId;
+                            dynamicFormWorkFlowApproval.ApprovedUser = list[0].UserName;
+                        }
+                        dynamicFormWorkFlowApprovals.Add(dynamicFormWorkFlowApproval);
+                    });
+                }
+                return dynamicFormWorkFlowApprovals;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public int? GeDynamicFormWorkFlowApprovalSort(long? id)
+        {
+            try
+            {
+                int? SortOrderBy = 1;
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormWorkFlowId", id);
+
+                query = "SELECT * FROM DynamicFormWorkFlowApproval Where  DynamicFormWorkFlowId = @DynamicFormWorkFlowId order by  SortBy desc";
+                using (var connection = CreateConnection())
+                {
+                    var result = connection.QueryFirstOrDefault<DynamicFormWorkFlowApproval>(query, parameters);
+                    if (result != null)
+                    {
+                        SortOrderBy = result.SortBy + 1;
+                    }
+                }
+                return SortOrderBy;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowApproval> InsertDynamicFormWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("DynamicFormWorkFlowId", dynamicFormWorkFlowApproval.DynamicFormWorkFlowId);
+                    parameters.Add("UserId", dynamicFormWorkFlowApproval.UserId);
+                    parameters.Add("DynamicFormWorkFlowApprovalId", dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovalId);
+                    if (dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovalId > 0)
+                    {
+                        var query = "update DynamicFormWorkFlowApproval set DynamicFormWorkFlowId=@DynamicFormWorkFlowId,UserId=@UserId where DynamicFormWorkFlowApprovalId=@DynamicFormWorkFlowApprovalId\r\n;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    }
+                    else
+                    {
+                        var sortBy = GeDynamicFormWorkFlowApprovalSort(dynamicFormWorkFlowApproval.DynamicFormWorkFlowId);
+                        parameters.Add("sortBy", sortBy);
+                        var query = "INSERT INTO DynamicFormWorkFlowApproval(DynamicFormWorkFlowId,UserId,sortBy) OUTPUT INSERTED.DynamicFormWorkFlowApprovalId VALUES " +
+                            "(@DynamicFormWorkFlowId,@UserId,@sortBy)";
+                        var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovalId = rowsAffected;
+                    }
+                    return dynamicFormWorkFlowApproval;
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<List<DynamicFormWorkFlowApproval>> UpdateDynamicFormWorkFlowApprovalSort(long? id, int? SortOrderBy)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormWorkFlowId", id);
+                parameters.Add("SortBy", SortOrderBy);
+                query = "SELECT * FROM DynamicFormWorkFlowApproval Where DynamicFormWorkFlowId = @DynamicFormWorkFlowId AND SortBy>@SortBy";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormWorkFlowApproval>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowApproval> DeleteDynamicFormWorkFlowApproval(DynamicFormWorkFlowApproval value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormWorkFlowApprovalId", value.DynamicFormWorkFlowApprovalId);
+                        var query = "Delete from DynamicFormWorkFlowApproval where DynamicFormWorkFlowApprovalId=@DynamicFormWorkFlowApprovalId\r\n;";
+                        var sortby = value.SortBy;
+                        var result = await UpdateDynamicFormWorkFlowApprovalSort(value.DynamicFormWorkFlowId, value.SortBy);
+                        if (result != null)
+                        {
+                            result.ForEach(s =>
+                            {
+                                query += "Update  DynamicFormWorkFlowApproval SET SortOrderBy=" + sortby + "  WHERE DynamicFormWorkFlowApprovalId =" + s.DynamicFormWorkFlowApprovalId + ";";
+                                sortby++;
+                            });
+                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<List<DynamicFormWorkFlowApproval>> GetUpdateDynamicFormWorkFlowApprovalSortOrder(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormWorkFlowId", dynamicFormWorkFlowApproval.DynamicFormWorkFlowId);
+                var from = dynamicFormWorkFlowApproval.SortOrderAnotherBy > dynamicFormWorkFlowApproval.SortBy ? dynamicFormWorkFlowApproval.SortBy : dynamicFormWorkFlowApproval.SortOrderAnotherBy;
+                var to = dynamicFormWorkFlowApproval.SortOrderAnotherBy > dynamicFormWorkFlowApproval.SortBy ? dynamicFormWorkFlowApproval.SortOrderAnotherBy : dynamicFormWorkFlowApproval.SortBy;
+                parameters.Add("SortOrderByFrom", from);
+                parameters.Add("SortOrderByTo", to);
+                query = "SELECT * FROM DynamicFormWorkFlowApproval Where  DynamicFormWorkFlowId = @DynamicFormWorkFlowId  AND SortBy>@SortOrderByFrom and SortBy<=@SortOrderByTo order by SortBy asc";
+
+                if (dynamicFormWorkFlowApproval.SortOrderAnotherBy > dynamicFormWorkFlowApproval.SortBy)
+                {
+                    query = "SELECT* FROM DynamicFormWorkFlowApproval Where DynamicFormWorkFlowId = @DynamicFormWorkFlowId  AND SortBy>=@SortOrderByFrom and SortBy<@SortOrderByTo order by SortBy asc";
+
+                }
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormWorkFlowApproval>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowApproval> UpdateDynamicFormWorkFlowApprovalSortOrder(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var query = string.Empty;
+                        long? SortOrder = dynamicFormWorkFlowApproval.SortOrderAnotherBy > dynamicFormWorkFlowApproval.SortBy ? (dynamicFormWorkFlowApproval.SortBy + 1) : dynamicFormWorkFlowApproval.SortOrderAnotherBy;
+                        query += "Update  DynamicFormWorkFlowApproval SET SortBy=" + dynamicFormWorkFlowApproval.SortBy + "  WHERE DynamicFormWorkFlowApprovalId =" + dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovalId + ";";
+                        if (SortOrder > 0)
+                        {
+                            var result = await GetUpdateDynamicFormWorkFlowApprovalSortOrder(dynamicFormWorkFlowApproval);
+                            if (result != null && result.Count > 0)
+                            {
+
+                                result.ForEach(s =>
+                                {
+
+                                    query += "Update  DynamicFormWorkFlowApproval SET SortBy=" + SortOrder + "  WHERE  DynamicFormWorkFlowApprovalId =" + s.DynamicFormWorkFlowApprovalId + ";";
+                                    SortOrder++;
+                                });
+
+                            }
+                        }
+
+
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            var rowsAffected = await connection.ExecuteAsync(query, null);
+                        }
+                        return dynamicFormWorkFlowApproval;
+                    }
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<DynamicFormWorkFlowApprovedForm> UpdateDynamicFormWorkFlowApprovedFormByUser(DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormWorkFlowApprovedFormID", dynamicFormWorkFlowApprovedForm.DynamicFormWorkFlowApprovedFormID);
+                        parameters.Add("IsApproved", dynamicFormWorkFlowApprovedForm.IsApproved);
+                        parameters.Add("ApprovedDate", dynamicFormWorkFlowApprovedForm.ApprovedDate, DbType.DateTime);
+                        parameters.Add("ApprovedDescription", dynamicFormWorkFlowApprovedForm.ApprovedDescription, DbType.String);
+                        parameters.Add("ApprovedByUserID", dynamicFormWorkFlowApprovedForm.ApprovedByUserID);
+                        var query = "Update DynamicFormWorkFlowApprovedForm set ApprovedByUserID=@ApprovedByUserID,IsApproved=@IsApproved,ApprovedDate=@ApprovedDate,ApprovedDescription=@ApprovedDescription where DynamicFormWorkFlowApprovedFormID=@DynamicFormWorkFlowApprovedFormID\r\n;";
+                        await connection.ExecuteAsync(query, parameters);
+                        return dynamicFormWorkFlowApprovedForm;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormWorkFlowApprovedFormChanged>> GetDynamicFormWorkFlowApprovedFormChangedList(long? DynamicFormWorkFlowApprovedFormID)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormWorkFlowApprovedFormID", DynamicFormWorkFlowApprovedFormID);
+                var query = "select  * from DynamicFormWorkFlowApprovedFormChanged where DynamicFormWorkFlowApprovedFormID=@DynamicFormWorkFlowApprovedFormID order by DynamicFormWorkFlowApprovedFormChangedID desc;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormWorkFlowApprovedFormChanged>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowApprovedFormChanged> InsertDynamicFormWorkFlowApprovedFormChanged(DynamicFormWorkFlowApprovedFormChanged dynamicFormWorkFlowApprovedFormChanged)
+        {
+            try
+            {
+                var appList = await GetDynamicFormWorkFlowApprovedFormChangedList(dynamicFormWorkFlowApprovedFormChanged.DynamicFormWorkFlowApprovedFormID);
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("DynamicFormWorkFlowApprovedFormID", dynamicFormWorkFlowApprovedFormChanged.DynamicFormWorkFlowApprovedFormID);
+                    parameters.Add("UserId", dynamicFormWorkFlowApprovedFormChanged.UserId);
+                    parameters.Add("DynamicFormWorkFlowApprovedFormChangedID", dynamicFormWorkFlowApprovedFormChanged.DynamicFormWorkFlowApprovedFormChangedID);
+                    bool? insert = true;
+                    if (appList != null && appList.Count() > 0)
+                    {
+                        var firstRec = appList.FirstOrDefault();
+                        if (firstRec?.UserId == dynamicFormWorkFlowApprovedFormChanged.UserId)
+                        {
+                            insert = false;
+                        }
+                    }
+                    if (insert == true)
+                    {
+                        var query = "INSERT INTO DynamicFormWorkFlowApprovedFormChanged(DynamicFormWorkFlowApprovedFormID,UserId) OUTPUT INSERTED.DynamicFormWorkFlowApprovedFormChangedID VALUES " +
+                            "(@DynamicFormWorkFlowApprovedFormID,@UserId)";
+                        var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        dynamicFormWorkFlowApprovedFormChanged.DynamicFormWorkFlowApprovedFormChangedID = rowsAffected;
+                    }
+                    return dynamicFormWorkFlowApprovedFormChanged;
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public int? GeDynamicFormDataWorkFlowApprovalSort(long? id)
+        {
+            try
+            {
+                int? SortOrderBy = 1;
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormWorkFlowFormId", id);
+
+                query = "SELECT * FROM DynamicFormWorkFlowApprovedForm Where  DynamicFormWorkFlowFormId = @DynamicFormWorkFlowFormId order by  SortBy desc";
+                using (var connection = CreateConnection())
+                {
+                    var result = connection.QueryFirstOrDefault<DynamicFormWorkFlowApproval>(query, parameters);
+                    if (result != null)
+                    {
+                        SortOrderBy = result.SortBy + 1;
+                    }
+                }
+                return SortOrderBy;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowApproval> InsertDynamicFormDataWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("DynamicFormWorkFlowFormId", dynamicFormWorkFlowApproval.DynamicFormWorkFlowId);
+                    parameters.Add("UserId", dynamicFormWorkFlowApproval.UserId);
+                    parameters.Add("DynamicFormWorkFlowApprovedFormID", dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovalId);
+                    if (dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovalId > 0)
+                    {
+                        var query = "update DynamicFormWorkFlowApprovedForm set DynamicFormWorkFlowFormId=@DynamicFormWorkFlowFormId,UserId=@UserId where DynamicFormWorkFlowApprovedFormID=@DynamicFormWorkFlowApprovedFormID\r\n;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    }
+                    else
+                    {
+                        var sortBy = GeDynamicFormDataWorkFlowApprovalSort(dynamicFormWorkFlowApproval.DynamicFormWorkFlowId);
+                        parameters.Add("sortBy", sortBy);
+                        var query = "INSERT INTO DynamicFormWorkFlowApprovedForm(DynamicFormWorkFlowFormId,UserId,sortBy) OUTPUT INSERTED.DynamicFormWorkFlowApprovedFormID VALUES " +
+                            "(@DynamicFormWorkFlowFormId,@UserId,@sortBy)";
+                        var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        dynamicFormWorkFlowApproval.DynamicFormWorkFlowApprovalId = rowsAffected;
+                    }
+                    return dynamicFormWorkFlowApproval;
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<List<DynamicFormWorkFlowApproval>> UpdateDynamicFormDataWorkFlowApprovalSort(long? id, int? SortOrderBy)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormWorkFlowFormId", id);
+                parameters.Add("SortBy", SortOrderBy);
+                query = "SELECT * FROM DynamicFormWorkFlowApprovedForm Where DynamicFormWorkFlowFormId = @DynamicFormWorkFlowFormId AND SortBy>@SortBy";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormWorkFlowApproval>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowApproval> DeleteDynamicFormDataWorkFlowApproval(DynamicFormWorkFlowApproval value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormWorkFlowApprovedFormID", value.DynamicFormWorkFlowApprovalId);
+                        var query = "Delete from DynamicFormWorkFlowApprovedForm where DynamicFormWorkFlowApprovedFormID=@DynamicFormWorkFlowApprovedFormID\r\n;";
+                        var sortby = value.SortBy;
+                        var result = await UpdateDynamicFormDataWorkFlowApprovalSort(value.DynamicFormWorkFlowId, value.SortBy);
+                        if (result != null)
+                        {
+                            result.ForEach(s =>
+                            {
+                                query += "Update  DynamicFormWorkFlowApprovedForm SET SortOrderBy=" + sortby + "  WHERE DynamicFormWorkFlowApprovedFormID =" + s.DynamicFormWorkFlowApprovedFormID + ";";
+                                sortby++;
+                            });
+                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         return value;
                     }
                     catch (Exception exp)

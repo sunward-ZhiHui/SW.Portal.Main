@@ -15,6 +15,7 @@ namespace Core.Entities
         public long? DynamicFormApprovalId { get; set; }
         public long? DynamicFormDataId { get; set; }
         public bool? IsApproved { get; set; }
+        
         public long? UserId { get; set; }
         public long? ApprovedByUserId { get; set; }
         public DateTime? ApprovedDate { get; set; }
@@ -31,6 +32,15 @@ namespace Core.Entities
         public string? ApprovalUser { get; set; }
         [NotMapped]
         public string? ApprovedByUser { get; set; }
+        public int? ApprovedSortBy { get; set; }
+        public long? DelegateApproveUserId { get; set; }
+        public string? DelegateApproveUserName { get; set; }
+        public bool? IsDelegateApproveStatus { get; set; }
+        public long? DelegateApprovedChangedId { get; set; }
+        public List<DynamicFormApprovedChanged> DynamicFormApprovedChangeds { get; set; } = new List<DynamicFormApprovedChanged>();
+        public string? DelegateApproveAllUserName { get; set; }
+        [Required(ErrorMessage = "User Name is Required")]
+        public long? DelegateApproveAllUserId { get; set; }
     }
 
 }

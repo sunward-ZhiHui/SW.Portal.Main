@@ -1345,6 +1345,7 @@ namespace Infrastructure.Repository.Query
                 }
                 if (!string.IsNullOrEmpty(query))
                 {
+                    query = query.Trim();
                     if (query.EndsWith("AND"))
                     {
                         query = query.Remove(query.Length - 3);

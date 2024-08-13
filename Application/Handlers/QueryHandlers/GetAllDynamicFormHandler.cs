@@ -376,6 +376,35 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class InsertOrUpdateDynamicFormDataApprovedHandler : IRequestHandler<InsertOrUpdateDynamicFormDataApproved, DynamicFormApproved>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertOrUpdateDynamicFormDataApprovedHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormApproved> Handle(InsertOrUpdateDynamicFormDataApproved request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateDynamicFormDataApproved(request);
+
+
+        }
+    }
+    public class DeleteDynamicFormDataApprovedHandler : IRequestHandler<DeleteDynamicFormDataApprovedQuery, DynamicFormApproved>
+    {
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+
+        public DeleteDynamicFormDataApprovedHandler(IDynamicFormQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<DynamicFormApproved> Handle(DeleteDynamicFormDataApprovedQuery request, CancellationToken cancellationToken)
+        {
+            return await _DynamicFormQueryRepository.DeleteDynamicFormDataApproved(request.DynamicFormApproved);
+        }
+    }
     public class DeleteDynamicFormApprovalHandler : IRequestHandler<DeleteDynamicFormApproval, DynamicFormApproval>
     {
         private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
@@ -929,6 +958,153 @@ namespace Application.Handlers.QueryHandlers
         public async Task<DynamicFormData> Handle(UpdateDynamicFormLocked request, CancellationToken cancellationToken)
         {
             return await _queryRepository.UpdateDynamicFormLocked(request.DynamicFormData);
+
+
+        }
+    }
+    public class InsertDynamicFormApprovedChangedHandler : IRequestHandler<InsertDynamicFormApprovedChanged, DynamicFormApprovedChanged>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormApprovedChangedHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormApprovedChanged> Handle(InsertDynamicFormApprovedChanged request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormApprovedChanged(request.DynamicFormApprovedChanged);
+
+
+        }
+    }
+    public class InsertDynamicFormWorkFlowApprovalHandler : IRequestHandler<InsertDynamicFormWorkFlowApproval, DynamicFormWorkFlowApproval>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormWorkFlowApprovalHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowApproval> Handle(InsertDynamicFormWorkFlowApproval request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormWorkFlowApproval(request);
+
+
+        }
+    }
+    public class DeleteDynamicFormWorkFlowApprovalHandler : IRequestHandler<DeleteDynamicFormWorkFlowApproval, DynamicFormWorkFlowApproval>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormWorkFlowApprovalHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowApproval> Handle(DeleteDynamicFormWorkFlowApproval request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormWorkFlowApproval(request.DynamicFormWorkFlowApproval);
+
+
+        }
+    }
+    public class GetDynamicFormWorkFlowApprovalListHandler : IRequestHandler<GetDynamicFormWorkFlowApprovalList, List<DynamicFormWorkFlowApproval>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormWorkFlowApprovalListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowApproval>> Handle(GetDynamicFormWorkFlowApprovalList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowApproval>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowApprovalList(request.DynamicFormWorkFlowId, request.DynamicFormDataId);
+        }
+
+
+    }
+    public class UpdateDynamicFormWorkFlowApprovalSortOrderHandler : IRequestHandler<UpdateDynamicFormWorkFlowApprovalSortOrder, DynamicFormWorkFlowApproval>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormWorkFlowApprovalSortOrderHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowApproval> Handle(UpdateDynamicFormWorkFlowApprovalSortOrder request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormWorkFlowApprovalSortOrder(request.DynamicFormWorkFlowApproval);
+
+        }
+    }
+    public class GetDynamicFormWorkFlowApprovedFormListHandler : IRequestHandler<GetDynamicFormWorkFlowApprovedFormList, List<DynamicFormWorkFlowApprovedForm>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormWorkFlowApprovedFormListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowApprovedForm>> Handle(GetDynamicFormWorkFlowApprovedFormList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowApprovedForm>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowApprovedFormList(request.DynamicFormDataId);
+        }
+
+
+    }
+    public class UpdateDynamicFormWorkFlowApprovedFormByUserHandler : IRequestHandler<UpdateDynamicFormWorkFlowApprovedFormByUser, DynamicFormWorkFlowApprovedForm>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormWorkFlowApprovedFormByUserHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowApprovedForm> Handle(UpdateDynamicFormWorkFlowApprovedFormByUser request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormWorkFlowApprovedFormByUser(request.DynamicFormWorkFlowApprovedForm);
+
+
+        }
+    }
+    public class InsertDynamicFormWorkFlowApprovedFormChangedHandler : IRequestHandler<InsertDynamicFormWorkFlowApprovedFormChanged, DynamicFormWorkFlowApprovedFormChanged>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormWorkFlowApprovedFormChangedHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowApprovedFormChanged> Handle(InsertDynamicFormWorkFlowApprovedFormChanged request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormWorkFlowApprovedFormChanged(request.DynamicFormWorkFlowApprovedFormChanged);
+
+
+        }
+    }
+    public class InsertDynamicFormDataWorkFlowApprovalHandler : IRequestHandler<InsertDynamicFormDataWorkFlowApproval, DynamicFormWorkFlowApproval>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormDataWorkFlowApprovalHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowApproval> Handle(InsertDynamicFormDataWorkFlowApproval request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormDataWorkFlowApproval(request);
+
+
+        }
+    }
+    public class DeleteDynamicFormDataWorkFlowApprovalHandler : IRequestHandler<DeleteDynamicFormDataWorkFlowApproval, DynamicFormWorkFlowApproval>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormDataWorkFlowApprovalHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowApproval> Handle(DeleteDynamicFormDataWorkFlowApproval request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormDataWorkFlowApproval(request.DynamicFormWorkFlowApproval);
 
 
         }

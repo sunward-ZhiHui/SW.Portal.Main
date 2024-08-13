@@ -48,8 +48,9 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
-                <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
                 <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
+                <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
+                <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -225,6 +226,17 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkLock())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@PopupApprovalForm"
+         HeaderText="Approval Form"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="false"
+         Closed="EulaPopupClosed"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormApprovedFormList _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
     private IDisposable? DynamicFormPage5;
     Guid myKey { get; set; } = Guid.NewGuid();
@@ -239,8 +251,8 @@
     private DocumentsModel _documentsDmsData;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicFormData _selectedItems;
-    bool EditEnabled { get; set; } = false; bool PopupUpload { get; set; } = false; bool AddEnabled { get; set; } = false; bool lockpopup { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool PopupUpload { get; set; } = false; bool AddEnabled { get; set; } = false; bool lockpopup { get; set; } = false; bool PopupApprovalForm { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool isApprovalEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     bool fileEnabled { get; set; } = false; bool emailEnabled { get; set; } = false;
     private List<DynamicFormData> _dynamicformDataList;
@@ -318,8 +330,8 @@
     {
         PanelVisible = true;
         _selectedItems = null; FileProfileTypeId = null;
-        dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true; Items = new ObservableCollection<object>();
-        EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false;
+        dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true; Items = new ObservableCollection<object>(); isLocked = false;
+        EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false; isApprovalEnabled = false;
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "SortOrderByNo", Text = "No", Type = "Form" });
@@ -1039,7 +1051,11 @@
         FileProfileTypeId = _selectedItems?.FileProfileTypeId;
         //await DynamicFormOnDms();
         EditEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock";
-        DeleteEnabled = true; fileEnabled = true; emailEnabled = true;
+        DeleteEnabled = true; fileEnabled = true; emailEnabled = true; isApprovalEnabled = false;
+        if (_selectedItems.IsApproval == true)
+        {
+            isApprovalEnabled = true;
+        }
         if (_selectedItems.IsLocked == true && _selectedItems.LockedUserId > 0)
         {
             LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
@@ -1048,6 +1064,10 @@
                 isLocked = false;
                 // EditEnabled = false;
                 DeleteEnabled = false; fileEnabled = false; emailEnabled = false;
+                if (_selectedItems.IsApproval == true)
+                {
+                    isApprovalEnabled = false;
+                }
             }
         }
     }
@@ -1245,15 +1265,26 @@
     {
         Blukdeletepopup = true;
     }
-    
+
     void EulaPopupClosed()
     {
         BackUpload();
+        PopupApprovalForm = false;
         PopupDynamicFormGridLists = false;
         Blukdeletepopup = false;
         createEmailpopup = false;
 
         // await UpdateDataAsync();
+    }
+    void OpenApprovalForm()
+    {
+        PopupApprovalForm = true;
+    }
+    void BackApprovalForm()
+    {
+        InvokeAsync(UpdateDataAsync);
+        PopupApprovalForm = false;
+        StateHasChanged();
     }
     void openFormGridList(DropDownOptionsModel dropDownOptionsModel, object datas)
     {
@@ -1323,6 +1354,7 @@
         }
         StateHasChanged();
     }
+
     private RenderFragment BuildDataColumns()
     {
         RenderFragment columns = b =>

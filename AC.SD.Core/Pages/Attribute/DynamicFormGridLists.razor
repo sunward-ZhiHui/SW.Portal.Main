@@ -49,6 +49,7 @@
                     <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                     <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
+                    <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
                 </Items>
             </DxMenu>
         </div>
@@ -187,7 +188,7 @@
          Closed="EulaPopupClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1500px" MaxHeight="1000px">
     <BodyContentTemplate>
-        <DynamicGridForms DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeId" SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
+        <DynamicGridForms isMainLocked="@isMainLocked" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeId" SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
@@ -220,6 +221,17 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkLock())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@PopupApprovalForm"
+         HeaderText="Approval Form"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         ShowFooter="false"
+         Closed="EulaPopupClosed"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormApprovedFormList _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -233,6 +245,8 @@
     public long? DynamicFormDataGridId { get; set; }
     [Parameter]
     public bool IsShow { get; set; } = true;
+    [Parameter]
+    public bool? isMainLocked { get; set; }
     public Guid? SessionIds { get; set; }
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
@@ -266,6 +280,7 @@
     IJSObjectReference JsModule { get; set; }
     public long? DynamicFormSectionGridAttributeIds { get; set; }
     bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock"; bool lockpopup { get; set; } = false;
+    bool PopupApprovalForm { get; set; } = false; bool isApprovalEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -301,7 +316,7 @@
     {
         PanelVisible = true;
         _selectedItems = null; FileProfileTypeId = null;
-        dataColumnNames = new List<DropDownOptionsModel>();
+        dataColumnNames = new List<DropDownOptionsModel>(); isApprovalEnabled = false; isLocked = false;
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); Items = new ObservableCollection<object>();
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
@@ -857,19 +872,43 @@
                         _selectedItems = _dynamicformDataList.FirstOrDefault();
                         if (IsReadonly == true)
                         {
-                            EditEnabled = true; DeleteEnabled = true; fileEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock";
-                            if (_selectedItems.IsLocked == true && _selectedItems.LockedUserId > 0)
+                            EditEnabled = true; DeleteEnabled = true; fileEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock"; isApprovalEnabled = false;
+                            if (_selectedItems.IsApproval == true)
+                            {
+                                isApprovalEnabled = true;
+                            }
+                            if (isMainLocked == true)
                             {
                                 LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
-                                if (_selectedItems.LockedUserId != applicationUser.UserID)
+                                isLocked = false;
+                                //EditEnabled = false;
+                                DeleteEnabled = false; fileEnabled = false;
+                                if (_selectedItems.IsApproval == true)
                                 {
-                                    isLocked = false;
-                                   // EditEnabled = false;
-                                    DeleteEnabled = false; fileEnabled = false;
+                                    isApprovalEnabled = false;
+                                }
+
+                            }
+                            else
+                            {
+                                if (_selectedItems.IsLocked == true && _selectedItems.LockedUserId > 0)
+                                {
+                                    LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
+                                    if (_selectedItems.LockedUserId != applicationUser.UserID)
+                                    {
+                                        isLocked = false;
+                                        // EditEnabled = false;
+                                        DeleteEnabled = false; fileEnabled = false;
+                                        if (_selectedItems.IsApproval == true)
+                                        {
+                                            isApprovalEnabled = false;
+                                        }
+                                    }
+
                                 }
                             }
                         }
-                       
+
                         FileProfileTypeId = _selectedItems.FileProfileTypeId;
                         // await DynamicFormOnDms();
                         //Grid.SetFocusedRowIndex(0);
@@ -1005,20 +1044,43 @@
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false;
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId"); LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock";
         _selectedItems = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
-        FileProfileTypeId = _selectedItems.FileProfileTypeId; 
+        FileProfileTypeId = _selectedItems.FileProfileTypeId;
         //await DynamicFormOnDms();
         if (IsReadonly == true)
         {
             EditEnabled = true;
-            DeleteEnabled = true; fileEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock";
-            if (_selectedItems.IsLocked == true && _selectedItems.LockedUserId > 0)
+            DeleteEnabled = true; fileEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock"; isApprovalEnabled = false;
+            if (_selectedItems.IsApproval == true)
+            {
+                isApprovalEnabled = true;
+            }
+            if (isMainLocked == true)
             {
                 LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
-                if (_selectedItems.LockedUserId != applicationUser.UserID)
+                isLocked = false;
+                //EditEnabled = false;
+                DeleteEnabled = false; fileEnabled = false;
+                if (_selectedItems.IsApproval == true)
                 {
-                    isLocked = false;
-                    //EditEnabled = false;
-                    DeleteEnabled = false; fileEnabled = false;
+                    isApprovalEnabled = false;
+                }
+
+            }
+            else
+            {
+                if (_selectedItems.IsLocked == true && _selectedItems.LockedUserId > 0)
+                {
+                    LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
+                    if (_selectedItems.LockedUserId != applicationUser.UserID)
+                    {
+                        isLocked = false;
+                        //EditEnabled = false;
+                        DeleteEnabled = false; fileEnabled = false;
+                        if (_selectedItems.IsApproval == true)
+                        {
+                            isApprovalEnabled = false;
+                        }
+                    }
                 }
             }
 
@@ -1109,10 +1171,21 @@
         PopupDynamicFormGridLists = false;
         PopupUpload = false;
         PopupGridForm = false;
+        PopupApprovalForm = false;
         InvokeAsync(UpdateDataAsync);
         Blukdeletepopup = false;
 
         // await UpdateDataAsync();
+    }
+    void OpenApprovalForm()
+    {
+        PopupApprovalForm = true;
+    }
+    void BackApprovalForm()
+    {
+        InvokeAsync(UpdateDataAsync);
+        PopupApprovalForm = false;
+        StateHasChanged();
     }
     void BackUpload()
     {

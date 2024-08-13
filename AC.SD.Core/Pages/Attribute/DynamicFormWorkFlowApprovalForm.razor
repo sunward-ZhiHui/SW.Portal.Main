@@ -1,0 +1,401 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using Newtonsoft.Json.Linq;
+@using System.Collections;
+@using System.Dynamic;
+@using global::Core.AttributeDynamicData;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@inject IMediator Mediator
+@using MediatR
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Auto">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="SMShareGrid" Data="@_dynamicFormWorkFlowApprovalList" EditModelSaving="@OnEditModelSaving" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="DynamicFormWorkFlowApprovalId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+        <Columns>
+            <DxGridDataColumn FieldName="UserName" Caption="User" />
+           @*   <DxGridDataColumn FieldName="SortBy" Caption="Sort By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
+                 <CellDisplayTemplate>
+                     @{
+                         var item = (DynamicFormWorkFlowApproval)context.DataItem;
+                     }
+                     <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.DynamicFormWorkFlowApprovalId}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.SortBy"></i>
+                     @item.SortBy
+                 </CellDisplayTemplate>
+             </DxGridDataColumn> *@
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (DynamicFormWorkFlowApproval)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="User List" ColSpanMd="12">
+                    <DxComboBox Data="@_usersList"
+                                NullText="Select User..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                ValueFieldName="UserID"
+                                TextFieldName="FirstName"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                EditFormat="{0}-{1}"
+                                @bind-Value="@types.UserId">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.UserId)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="UserName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxFlyout @bind-IsOpen=IsSortOrderByOpen
+          PositionTarget=@($"#flyout-overview-target-container-RenameFilename-{_selectedItems?.DynamicFormWorkFlowApprovalId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Update Sort Order"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
+                <DxComboBox Data="@sortOrderList"
+                            @bind-Value="@_selectedDynamicFormSectionItems.SortBy"
+                            TextFieldName="Text"
+                            ValueFieldName="Value" ShowValidationIcon="true" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderBy()) />
+
+
+    </FooterContentTemplate>
+</DxFlyout>
+@code {
+    bool IsSortOrderByOpen { get; set; } = false;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool Blukdeletepopup { get; set; } = false;
+    bool PanelVisible { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    IGrid? SMShareGrid { get; set; }
+    [Parameter]
+    public ApplicationUser _applicationUser { get; set; }
+    [Parameter]
+    public DynamicFormWorkFlow SelectedItems { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    private List<ViewEmployee>? _usersList;
+    private List<ViewEmployee>? _usersAllList;
+    private List<DynamicFormWorkFlowApproval>? _dynamicFormWorkFlowApprovalList;
+    private DynamicFormWorkFlowApproval _selectedItems;
+    private List<DynamicFormSectionSortOrder> sortOrderList { get; set; }
+    DynamicFormWorkFlowApproval _selectedDynamicFormSectionItems = new DynamicFormWorkFlowApproval();
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+        _usersAllList = await Mediator.Send(new GetAllEmployeeQuery());
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true; AddEnabled = false;
+        EditEnabled = false; DeleteEnabled = false;
+        if (SelectedItems != null)
+        {
+            AddEnabled = true;
+            if (SelectedItems.DynamicFormWorkFlowId > 0)
+            {
+                _dynamicFormWorkFlowApprovalList = await Mediator.Send(new GetDynamicFormWorkFlowApprovalList(SelectedItems.DynamicFormWorkFlowId,null));
+                if (_dynamicFormWorkFlowApprovalList.Count > 0)
+                {
+                    _selectedItems = _dynamicFormWorkFlowApprovalList.FirstOrDefault();
+
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+
+                    SMShareGrid.SetFocusedRowIndex(0);
+                }
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void backUrl()
+    {
+        RevokeBack?.Invoke();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        EditEnabled = false; DeleteEnabled = false;
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormWorkFlowApprovalId");
+        _selectedItems = _dynamicFormWorkFlowApprovalList.FirstOrDefault(f => f.DynamicFormWorkFlowApprovalId == (long?)UniqueId);
+
+        EditEnabled = true;
+        DeleteEnabled = true;
+        StateHasChanged();
+
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (DynamicFormWorkFlowApproval)e.EditModel;
+
+        if (e.IsNew)
+        {
+            var createReq = new InsertDynamicFormWorkFlowApproval
+                {
+                    DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
+                    DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowId,
+                    UserId = editModel.UserId,
+                };
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+                errorMessage = eq.Message;
+                PopupVisible = true;
+
+            }
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new InsertDynamicFormWorkFlowApproval
+                {
+                    DynamicFormWorkFlowApprovalId = editModel.DynamicFormWorkFlowApprovalId,
+                    DynamicFormWorkFlowId = SelectedItems.DynamicFormWorkFlowId,
+                    UserId = editModel.UserId,
+                };
+            var result = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (DynamicFormWorkFlowApproval)e.EditModel;
+        navitems.DelegateApproveAllUserId = 0;
+        if (e.IsNew)
+        {
+            if (_usersAllList != null && _usersAllList.Count() > 0)
+            {
+                var userIds = _dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count() > 0 ? _dynamicFormWorkFlowApprovalList.Select(s => s.UserId).ToList() : new List<long?>();
+                _usersList = _usersAllList.Where(w => !userIds.Contains(w.UserID)).ToList();
+            }
+        }
+        else
+        {
+            if (_usersAllList != null && _usersAllList.Count() > 0)
+            {
+                var userIds = _dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count() > 0 ? _dynamicFormWorkFlowApprovalList.Where(w => w.UserId != navitems.UserId).Select(s => s.UserId).ToList() : new List<long?>();
+                _usersList = _usersAllList.Where(w => !userIds.Contains(w.UserID)).ToList();
+            }
+        }
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    void addNew()
+    {
+        SMShareGrid.StartEditNewRowAsync();
+    }
+    void addEdit()
+    {
+
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DynamicFormWorkFlowApproval dataselectItems)
+                    {
+                        var _selectlst = _dynamicFormWorkFlowApprovalList.FirstOrDefault(f => f.DynamicFormWorkFlowApprovalId == dataselectItems.DynamicFormWorkFlowApprovalId);
+                        SMShareGrid.StartEditDataItemAsync(_selectlst);
+                    }
+                }
+
+            }
+            else
+            {
+                SMShareGrid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is DynamicFormWorkFlowApproval selectData)
+                    {
+                        var request = new DeleteDynamicFormWorkFlowApproval(selectData);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        SMShareGrid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+    }
+    async Task OnUpdateSortOrderBy()
+    {
+        await Mediator.Send(new UpdateDynamicFormWorkFlowApprovalSortOrder(_selectedDynamicFormSectionItems));
+        await UpdateDataAsync();
+        SMShareGrid.SortBy("SortBy", GridColumnSortOrder.Ascending, 0);
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsSortOrderByOpen = false;
+    }
+    void OnButtonSortOrderByClick(DynamicFormWorkFlowApproval dynamicFormSection)
+    {
+        _selectedDynamicFormSectionItems = new DynamicFormWorkFlowApproval();
+
+        sortOrderList = new List<DynamicFormSectionSortOrder>();
+        IsSortOrderByOpen = true;
+        if (_dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count > 0)
+        {
+            var count = _dynamicFormWorkFlowApprovalList.Count;
+            for (int i = 1; i <= count; i++)
+            {
+                DynamicFormSectionSortOrder dynamicFormSectionSortOrder = new DynamicFormSectionSortOrder();
+                dynamicFormSectionSortOrder.Text = i.ToString();
+                dynamicFormSectionSortOrder.Value = i;
+                sortOrderList.Add(dynamicFormSectionSortOrder);
+            }
+        }
+        _selectedDynamicFormSectionItems.SortBy = dynamicFormSection.SortBy;
+        _selectedDynamicFormSectionItems.DynamicFormWorkFlowApprovalId = dynamicFormSection.DynamicFormWorkFlowApprovalId;
+        _selectedDynamicFormSectionItems.DynamicFormWorkFlowId = dynamicFormSection.DynamicFormWorkFlowId;
+        _selectedDynamicFormSectionItems.SortOrderAnotherBy = dynamicFormSection.SortBy;
+
+        StateHasChanged();
+    }
+}

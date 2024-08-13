@@ -641,12 +641,12 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpGet("GetIpirAppSectionBList")]
-        public async Task<ActionResult<Services.ResponseModel<List<IPIRReportingInformation>>>> GetIpirAppSectionBList()
+        public async Task<ActionResult<Services.ResponseModel<List<IPIRReportingInformation>>>> GetIpirAppSectionBList(long Ipirappid)
         {
 
             var response = new Services.ResponseModel<IPIRReportingInformationModel>();
 
-            var result = await iIpirAppQueryRepostitory.GetAllIPIRmobileByAsync();
+            var result = await iIpirAppQueryRepostitory.GetAllIPIRmobileByAsync(Ipirappid);
 
 
             var displayResult = result?.Select(topic => new IPIRReportingInformationModel

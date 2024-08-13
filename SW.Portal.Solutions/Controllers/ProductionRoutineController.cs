@@ -644,12 +644,12 @@ namespace SW.Portal.Solutions.Controllers
         public async Task<ActionResult<Services.ResponseModel<List<IPIRReportingInformation>>>> GetIpirAppSectionBList()
         {
 
-            var response = new Services.ResponseModel<IPIRReportingInformation>();
+            var response = new Services.ResponseModel<IPIRReportingInformationModel>();
 
             var result = await iIpirAppQueryRepostitory.GetAllIPIRmobileByAsync();
 
 
-            var displayResult = result?.Select(topic => new IPIRReportingInformation
+            var displayResult = result?.Select(topic => new IPIRReportingInformationModel
             {
 
                 StatusCodeID = topic.StatusCodeID,
@@ -658,8 +658,7 @@ namespace SW.Portal.Solutions.Controllers
                 ModifiedDate = topic.ModifiedDate,
                 SessionId = topic.SessionId,
                 ModifiedByUserID = topic.ModifiedByUserID,               
-                ProfileNo = topic.ProfileNo,               
-                AddedBy = topic.AddedBy,        
+                ProfileNo = topic.ProfileNo,                       
                 UniqueSessionId = topic.UniqueSessionId,
                 FileName = topic.FileName,
                 AssignToIds = topic.AssignToIds,
@@ -668,7 +667,6 @@ namespace SW.Portal.Solutions.Controllers
                 ReportBy = topic.ReportBy,
                 IssueRelatedTo = topic.IssueRelatedTo,
                 IssueRelatedName = topic.IssueRelatedName,
-                FilePath = topic.FilePath,
                 IpirAppID = topic.IpirAppID,
 
             }).ToList();

@@ -55,9 +55,9 @@ namespace SW.Portal.Solutions.ServerSide
             //services.AddTransient<RealtimeService>();
             //services.AddTransient<EmailAutoRefresh>();
 
-            var keys = WebPush.VapidHelper.GenerateVapidKeys();
-            System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
-            System.Diagnostics.Debug.WriteLine(keys.PublicKey);
+            //var keys = WebPush.VapidHelper.GenerateVapidKeys();
+            //System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
+            //System.Diagnostics.Debug.WriteLine(keys.PublicKey);
 
             services.AddControllersWithViews();
             services.AddDemoServices(Configuration, env);
@@ -77,10 +77,10 @@ namespace SW.Portal.Solutions.ServerSide
 
             services.AddHttpContextAccessor();
 
-            services.AddTransient<IFcm>(s => new FcmBuilder()
-               .WithApiKey("Your_API_key")
-               .GetFcm()
-           );
+            //services.AddTransient<IFcm>(s => new FcmBuilder()
+            //   .WithApiKey("Your_API_key")
+            //   .GetFcm()
+            // );
 
 
             //Enable CORS
@@ -153,7 +153,7 @@ namespace SW.Portal.Solutions.ServerSide
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();
-                endpoints.MapHub<NotificationHub>(ApplicationConstants.SignalR.HubUrl);
+                //endpoints.MapHub<NotificationHub>(ApplicationConstants.SignalR.HubUrl);
             });
 
             AppDependencyResolver.Init(app.ApplicationServices);

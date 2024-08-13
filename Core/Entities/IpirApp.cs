@@ -77,10 +77,10 @@ namespace Core.Entities
         public Guid? UniqueSessionId { get; set; }
         public bool? IsNewPath { get; set; }
         public long? ActivityStatusId { get; set; }
-        [NotMapped]
-        public Guid? ReportingSessionID { get; set; }
+       
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
+       
     }
     public class IpirAppIssueDep
     {

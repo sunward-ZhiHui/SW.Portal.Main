@@ -1790,14 +1790,10 @@ else
         ApplicationState.PersistAsJson("myData", _myData);
         return Task.CompletedTask;
     }
-    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        //Logger.LogInformation("URL of new location: {Location}", e.Location);
-    }
+   
     protected override async Task OnInitializedAsync()
     {
-        _subscription = ApplicationState.RegisterOnPersisting(Persist);
-        NavigationManager.LocationChanged += HandleLocationChanged;
+        _subscription = ApplicationState.RegisterOnPersisting(Persist);     
         _editContext = new EditContext(Data);
 
         //var tasks = new List<Task>();
@@ -1877,19 +1873,46 @@ else
 
             //-- Task.Factory.StartNew--//
 
-            var getAllCategoryTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllEmailActivityCatgorys()));
-            var getGroupTagItemsTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122")));
-            var getUserTagListTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)));
-            var getAllEmployeeListTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllEmployeeListQuery()));
+            // var getAllCategoryTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllEmailActivityCatgorys()));
+            // var getGroupTagItemsTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122")));
+            // var getUserTagListTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)));
+            // var getAllEmployeeListTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllEmployeeListQuery()));
+
+            // // Await all tasks concurrently
+            // await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
+
+            // // Assign the results to your variables
+            // _AllCategory = await getAllCategoryTask.Result;
+            // _groupTagItems = await getGroupTagItemsTask.Result;
+            // _UserTagList = await getUserTagListTask.Result;
+            // var plist = await getAllEmployeeListTask.Result;
+
+
+            // Start tasks asynchronously without Task.Run if Mediator.Send is already async
+            var getAllCategoryTask = Mediator.Send(new GetAllEmailActivityCatgorys());
+            var getGroupTagItemsTask = Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
+            var getUserTagListTask = Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
+            var getAllEmployeeListTask = Mediator.Send(new GetAllEmployeeListQuery());
 
             // Await all tasks concurrently
-            await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
+            //await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
+            try
+            {
+                await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
 
-            // Assign the results to your variables
-            _AllCategory = await getAllCategoryTask.Result;
-            _groupTagItems = await getGroupTagItemsTask.Result;
-            _UserTagList = await getUserTagListTask.Result;
-            var plist = await getAllEmployeeListTask.Result;
+
+            // Assign the results to your variables using await directly
+            _AllCategory = await getAllCategoryTask;
+            _groupTagItems = await getGroupTagItemsTask;
+            _UserTagList = await getUserTagListTask;
+            var plist = await getAllEmployeeListTask;
+
 
 
 

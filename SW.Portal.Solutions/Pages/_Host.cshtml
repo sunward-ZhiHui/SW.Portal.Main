@@ -1,10 +1,8 @@
 ﻿@page "/"
 @using AC.SD.Core.Configuration
 @using AC.SD.Core.Shared;
-@namespace AC.ShippingDocument.ServerSide.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject AC.SD.Core.Services.DemoThemeService Themes
-@inject DemoConfiguration DemoConfiguration
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
@@ -15,7 +13,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="@Url.Content("~/")" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
     <link href="https://printjs-4de6.kxcdn.com/print.min.css" />
 
@@ -102,17 +99,6 @@
     <meta property="og:title" content="For all the moments you want to cherish" />
     <link href="_content/AC.SD.Core/css/app.css" rel="stylesheet" />
 
-
-    <link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
-
-    <link href="_content/DevExpress.Blazor.Dashboard/dx.light.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.common.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.light.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/dx-querybuilder.css" rel="stylesheet" />
-    <link href="_content/DevExpress.Blazor.Dashboard/dx-dashboard.light.min.css" rel="stylesheet" />
-
-
    
     <link rel="stylesheet" href="_content/DevExpress.Blazor.Reporting.Viewer/css/dx-blazor-reporting-components.css"> 
     <meta property="og:description" content="Invested in continuous innovation and research for your quality assurance." />
@@ -141,12 +127,7 @@
         };
     </script>
     <environment include="ServerSide">
-        <component type="typeof(DemoStylesheetContainer)" render-mode="ServerPrerendered" param-InitialThemeName="@InitialThemeName" />
-        <script src="_framework/blazor.server.js"></script>
-        <script src="_content/AC.SD.Core/common.js"></script>     
-        <script src="_content/AC.SD.Core/js/scrollEvents.js"></script>
-        <script src="_content/AC.SD.Core/js/todoList.js"></script>  
-         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+        <component type="typeof(DemoStylesheetContainer)" render-mode="Server" param-InitialThemeName="@InitialThemeName" />       
     </environment> 
     
 </head>
@@ -167,28 +148,20 @@
         <div id="app">
             <environment include="ServerSide">
                 <component type="typeof(AC.SD.Core.App)" render-mode="Server" />
-            </environment>
-            <environment include="Wasm.AspNetCoreHosted">
-                <div id="applicationLoadingPanel" class="loading-items-center loading-font" style="height: 100vh; width: 100vw; background-color: #fff;">
-                    <div class="loading-items-center" style="flex-direction: column">
-                        <div class="loading position-relative loading-items-center" style="position: relative">
-                            <div class="loading-border border-secondary" style="position: absolute; border-color: #d9d9d9; height: 100%; width: 100%; border-radius: 50%"></div>
-                            <div class="spinner-border loading-boarder border-primary loading-border-primary" style="position: absolute; height: 100%; width: 100%; border-radius: 50%; border-left-color: transparent !important; border-right-color: transparent !important; border-bottom-color: transparent !important"></div>
-                            <div id="loadingBackground" class="loading-image-wrapper text-white bg-primary loading-items-center" style="color: #fff; border-radius: 50%"></div>
-                        </div>
-                        <div class="loading-caption mt-3">DevExpress UI for Blazor</div>
-                        <div class="loading-sm-text text-body mt-1" style="color: #a1a1a1">Loading...</div>
-                    </div>
-                </div>
-            </environment>
+                <script src="_framework/blazor.server.js"></script>
+                <script src="_content/AC.SD.Core/common.js"></script>
+                <script src="_content/AC.SD.Core/js/scrollEvents.js"></script>
+                <script src="_content/AC.SD.Core/js/todoList.js"></script>
+            </environment>           
         </div>
     }
     <script src="_content/Chronos.Blazor.Cropper/CropHelper.js"></script>
+
+    <script>
+        window.triggerClick = (elt) => elt.click();
+    </script>
+    <script src="_content/BlazorBarcodeScanner.ZXing.JS/zxingjs.index.min.js"></script>
+    <script src="_content/BlazorBarcodeScanner.ZXing.JS/BlazorBarcodeScanner.js"></script>
 </body>
 
-<script>
-    window.triggerClick = (elt) => elt.click();
-</script>
-<script src="_content/BlazorBarcodeScanner.ZXing.JS/zxingjs.index.min.js"></script>
-<script src="_content/BlazorBarcodeScanner.ZXing.JS/BlazorBarcodeScanner.js"></script>
 </html>

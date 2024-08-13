@@ -44,7 +44,7 @@
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
-@implements IDisposable;
+@* @implements IAsyncDisposable; *@
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
 
@@ -5182,15 +5182,111 @@
         //_forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
         //_topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
     }
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+    // public void Dispose()
+    // {
+    //     NavigationManager.LocationChanged -= OnLocationChanged;
 
-        cancellationTokenSource?.Cancel();
-        cancellationTokenSource?.Dispose();
-        System.GC.Collect();
-        GC.SuppressFinalize(this);        
+    //     cancellationTokenSource?.Cancel();
+    //     cancellationTokenSource?.Dispose();
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);        
+    // }
+    // protected virtual void Dispose(bool disposing)
+    // {
+    //     if (disposing)
+    //     {
+    //         // Dispose disposable objects here
+    //         cancellationTokenSource?.Cancel();
+    //         cancellationTokenSource?.Dispose();
+    //         // _treeFilterDocView?.Dispose();
+    //         // richEdit?.Dispose();
+    //         // msgrichEdit?.Dispose();
+    //         // MyUpload?.Dispose();
+
+    //         try
+    //         {
+    //             // Attempt to dispose of components
+    //             (richEdit as IDisposable)?.Dispose();
+    //             (msgrichEdit as IDisposable)?.Dispose();
+    //             (MyUpload as IDisposable)?.Dispose();
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             // Handle any exceptions that might occur during disposal
+    //             Console.WriteLine($"Disposal error: {ex.Message}");
+    //         }
+
+    //         // Dispose of any other objects if necessary
+    //         RefTopicAddPList?.Dispose();
+    //         RefTopicAddGroupPList?.Dispose();
+    //         RefAssignTo?.Dispose();
+    //         RefAssignAll?.Dispose();
+    //         RefTopicTagList?.Dispose();
+    //         RefTopicTodo?.Dispose();
+    //         RefEmailDoc?.Dispose();
+    //         RefMasterSearch?.Dispose();
+    //         RefAdminSearch?.Dispose();
+    //     }
+    // }
+
+    // void IDisposable.Dispose()
+    // {
+    //     Dispose(true);
+    //     GC.SuppressFinalize(this);
+    // }
+
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        if (cancellationTokenSource != null)
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = null;
+        }
+
+        try
+        {
+            // Dispose asynchronously of components
+            if (richEdit is IAsyncDisposable asyncRichEdit)
+                await asyncRichEdit.DisposeAsync();
+            else
+                (richEdit as IDisposable)?.Dispose();
+
+            if (msgrichEdit is IAsyncDisposable asyncMsgrichEdit)
+                await asyncMsgrichEdit.DisposeAsync();
+            else
+                (msgrichEdit as IDisposable)?.Dispose();
+
+            if (MyUpload is IAsyncDisposable asyncMyUpload)
+                await asyncMyUpload.DisposeAsync();
+            else
+                (MyUpload as IDisposable)?.Dispose();
+        }
+        catch (Exception ex)
+        {
+            // Handle any exceptions that might occur during disposal
+            Console.WriteLine($"Disposal error: {ex.Message}");
+        }
+
+        // Dispose of any other objects if necessary
+        RefTopicAddPList?.Dispose();
+        RefTopicAddGroupPList?.Dispose();
+        RefAssignTo?.Dispose();
+        RefAssignAll?.Dispose();
+        RefTopicTagList?.Dispose();
+        RefTopicTodo?.Dispose();
+        RefEmailDoc?.Dispose();
+        RefMasterSearch?.Dispose();
+        RefAdminSearch?.Dispose();
     }
+
+    // public async ValueTask DisposeAsync()
+    // {
+    //     await DisposeAsyncCore();
+
+    //     // Suppress finalization
+    //     GC.SuppressFinalize(this);
+    // }
 
     async Task onloadTwoGrid()
     {

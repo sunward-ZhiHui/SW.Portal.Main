@@ -19,8 +19,37 @@ namespace Core.Entities
         public bool ReportBy {  get; set; }
         public  long? IssueRelatedTo { get; set; }
         [NotMapped]
-        public IEnumerable<long?> AssignToIds { get; set; } = new List<long?>();
+        public IEnumerable<long> AssignToIds { get; set; } = new List<long>();
         [NotMapped]
         public string? Message { get; set; }
+        [NotMapped]
+        public long? DocumentId { get; set; }
+        [NotMapped]
+        public long? FileProfileTypeId { get; set; }
+        [NotMapped]
+        public long? DocumentID { get; set; }
+        public string? FilePath { get; set; }
+        [NotMapped]
+        public Guid? UniqueSessionId { get; set; }
+        [NotMapped]
+        public bool? IsNewPath { get; set; }
+        [NotMapped]
+        public long? DocumentParentId { get; set; }
+        [NotMapped]
+        public string? FileName { get; set; }
+        [NotMapped]
+        public string? ContentType { get; set; }
+        [NotMapped]
+        public bool? IsLocked { get; set; }
+        [NotMapped]
+        public long? LockedByUserId { get; set; }
+        [NotMapped]
+        public string? ModifiedByUser { get; set; }
+        [NotMapped]
+        public string? LockedByUser { get; set; }
+        [NotMapped]
+        public string? ProfileNo { get; set; }
+        [NotMapped]
+        public string?  IssueRelatedName { get; set; }
     }
 }

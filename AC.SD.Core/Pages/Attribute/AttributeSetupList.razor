@@ -8,7 +8,7 @@
 @using Microsoft.Extensions.Configuration;
 @using global::Core.Repositories.Query;
 @inject IJSRuntime JSRuntime;
-@implements IDisposable
+@implements IAsyncDisposable
 @using global::Core.Entities.Views;
 @inject NavigationManager NavigationManager
 
@@ -167,11 +167,24 @@
         return ValueTask.CompletedTask;
     }
 
-    public void Dispose()
-    {
+    // public void Dispose()
+    // {
 
-        DynamicFormPage2?.Dispose();
+    //     DynamicFormPage2?.Dispose();
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);
+    // }
+
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
         System.GC.Collect();
+        DynamicFormPage2?.Dispose();        
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();
+        // Suppress finalization
         GC.SuppressFinalize(this);
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

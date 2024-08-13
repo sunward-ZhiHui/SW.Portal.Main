@@ -133,7 +133,7 @@
     public Action<string>? SubViewToTopicId { get; set; }    
     protected override async Task OnInitializedAsync()
     {
-        PanelVisible = true;
+        PanelVisible = true;      
         StartTimer();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         @if (Page == "AssignTo")
@@ -142,7 +142,7 @@
         }
         StopTimer();
         //NavigationManager.LocationChanged += OnLocationChanged;
-        PanelVisible = false;
+        PanelVisible = false;        
     }
     protected async Task ToLoadMore()
     {
@@ -237,7 +237,11 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
+        GC.WaitForPendingFinalizers();
         timer?.Dispose();
+        _forumTopicTo?.Clear();
+        _forumTopicTo = null;
+        StopTimer();        
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {

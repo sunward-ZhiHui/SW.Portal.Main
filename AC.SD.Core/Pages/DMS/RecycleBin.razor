@@ -4,6 +4,7 @@
 @using Application.Queries;
 @using MediatR;
 @inject IMediator Mediator
+@inject IJSRuntime jsRuntime
 @using global::Core.Entities;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
@@ -186,10 +187,18 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await OnLoadData();
     }
+    async Task onshowLoading()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+    }
+    async Task onhideLoading()
+    {
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
     async Task OnLoadData()
     {
-        PanelVisible = true;
-
+       // PanelVisible = true;
+        await onshowLoading();
          fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         _fileProfileselectedlstItems = await Mediator.Send(new GetAllDocumentDelete());
         fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
@@ -206,7 +215,8 @@
             onRestoreEnabled = true;
             Grid.SetFocusedRowIndex(0);
         }
-        PanelVisible = false;
+        //PanelVisible = false;
+        await onhideLoading();
         StateHasChanged();
     }
     private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)

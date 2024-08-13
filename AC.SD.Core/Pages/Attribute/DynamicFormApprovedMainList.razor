@@ -99,7 +99,14 @@
 
         return ValueTask.CompletedTask;
     }
-
+    async Task onshowLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+    }
+    async Task onhideLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     public void Dispose()
     {
 
@@ -111,14 +118,16 @@
     {
         EditEnabled = false; DeleteEnabled = false;
         _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
-        PanelVisible = true;
+        //PanelVisible = true;
+        await onshowLoading();
         if (_dynamicForm != null && _dynamicForm.Count>0)
         {
             //EditEnabled = true; DeleteEnabled = true;
             _selectedItems = _dynamicForm.FirstOrDefault();
            // Grid.SetFocusedRowIndex(0);
         }
-        PanelVisible = false;
+        await onhideLoading();
+        //PanelVisible = false;
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

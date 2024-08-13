@@ -796,7 +796,8 @@
     public string? SearchText { get; set; } = null;
     protected override async Task OnInitializedAsync()
     {
-        PanelVisible = true;
+        //PanelVisible = true;
+        await onshowLoading();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
@@ -805,14 +806,17 @@
     }
     async Task loadFileProfileTypeAllDatas()
     {
-        PanelVisible = true;
+        //PanelVisible = true;
+        await onshowLoading();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         if (fileProfileTypeDocumentsAll.Count() > 0)
         {
             _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
-            PanelVisible = false;
+            //PanelVisible = false; 
+            await onhideLoading();
         }
-        PanelVisible = false;
+        //PanelVisible = false; 
+        await onhideLoading();
         StateHasChanged();
     }
     async Task OnSearchTextChanged(string? newSearchText)
@@ -860,11 +864,21 @@
             openFileProfileMainLink();
         }
     }
+    async Task onshowLoading()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+    }
+    async Task onhideLoading()
+    {
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
     async Task mainPageLoad()
     {
-        PanelVisible = true;
+        //PanelVisible = true;
+        await onshowLoading();
         searchText = null; SearchText = null;
-        PanelVisible = true; isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
+       // PanelVisible = true;
+        isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
         IsFileProfileTypeInfoOpen = false;
         isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
@@ -908,7 +922,8 @@
             }
         }
         await loadFileProfileData();
-        PanelVisible = false;
+        //PanelVisible = false; 
+        await onhideLoading();
         StateHasChanged();
     }
     async Task loadFileProfileData()
@@ -923,7 +938,8 @@
         }
         else
         {
-            PanelVisible = true;
+            //PanelVisible = true;
+            await onshowLoading();
             _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentSearchModel));
             fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
             if (DocSessionId != null)
@@ -953,7 +969,8 @@
             {
                 await PermiisionMain();
             }
-            PanelVisible = false;
+            //PanelVisible = false;
+             await onhideLoading();
             StateHasChanged();
         }
     }

@@ -159,12 +159,21 @@
             await UpdateDataAsync();
         }
     }
+    async Task onshowLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+    }
+    async Task onhideLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     async Task UpdateDataAsync()
     {
+        await onshowLoading();
         dynamicFormData = new DynamicFormData();
         EditEnabled = false; DeleteEnabled = false; emailEnabled = false; fileEnabled = false; FileProfileTypeId = null;
         _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
-        PanelVisible = true;
+       // PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
             //EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
@@ -198,7 +207,8 @@
             }
 
         }
-        PanelVisible = false;
+        await onhideLoading();
+       // PanelVisible = false;
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

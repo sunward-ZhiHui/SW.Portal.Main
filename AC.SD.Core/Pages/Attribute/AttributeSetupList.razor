@@ -156,7 +156,14 @@
                 NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
     }
-
+    async Task onshowLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+    }
+    async Task onhideLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     private ValueTask OnLocationChanging(LocationChangingContext context)
     {
         if (context.TargetLocation == "/counter")
@@ -240,18 +247,21 @@
     }
     async Task loadData()
     {
-        PanelVisible = true;
+        //PanelVisible = true;
+        await onshowLoading();
         _attributes = await Mediator.Send(new GetAllAttributeNameHeader(null, null, 0));
         if (_attributes != null && _attributes.Count > 0)
         {
             _selectedItems = _attributes.FirstOrDefault();
             //loadSelectedItems();
             //Grid.SetFocusedRowIndex(0);
-            PanelVisible = false;
+            //PanelVisible = false;
+            await onhideLoading();
         }
         else
         {
-            PanelVisible = false;
+            //PanelVisible = false;
+            await onhideLoading();
         }
         StateHasChanged();
     }

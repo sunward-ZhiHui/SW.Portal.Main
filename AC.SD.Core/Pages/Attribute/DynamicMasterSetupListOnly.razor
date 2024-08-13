@@ -105,7 +105,8 @@
     {
         EditEnabled = false; DeleteEnabled = false;
         _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
-        PanelVisible = true;
+        //PanelVisible = true;
+        await onshowLoading();
         if (_dynamicForm != null && _dynamicForm.Count > 0)
         {
             //EditEnabled = true; DeleteEnabled = true;
@@ -113,7 +114,16 @@
             //Grid.SetFocusedRowIndex(0);
         }
         PanelVisible = false;
+        await onhideLoading();
         StateHasChanged();
+    }
+    async Task onshowLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+    }
+    async Task onhideLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     async Task OpenOdataUrl()
     {

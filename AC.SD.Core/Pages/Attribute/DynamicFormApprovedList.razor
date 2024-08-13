@@ -240,7 +240,14 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
 
         return ValueTask.CompletedTask;
     }
-
+    async Task onshowLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+    }
+    async Task onhideLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     public void Dispose()
     {
 
@@ -264,7 +271,8 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
     }
     async Task UpdateDataAsync()
     {
-        PanelVisible = true;
+        //PanelVisible = true;
+        await onshowLoading();
         //var res = await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));
         _selectedItems = null;
         dataColumnNames = new List<DropDownOptionsModel>();
@@ -790,7 +798,8 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
             }
-            PanelVisible = false;
+            //PanelVisible = false;
+            await onhideLoading();
             StateHasChanged();
         }
     }

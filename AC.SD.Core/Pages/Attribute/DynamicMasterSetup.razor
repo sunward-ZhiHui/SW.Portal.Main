@@ -108,7 +108,7 @@
 @code {
     private IDisposable? DynamicFormPage1;
     IGrid? Grid { get; set; }
-    bool PanelVisible { get; set; } = true;
+    bool PanelVisible { get; set; } = false;
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicForm _selectedItems;
@@ -129,7 +129,14 @@
                 NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
     }
-
+    async Task onshowLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+    }
+    async Task onhideLoading()
+    {
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     private ValueTask OnLocationChanging(LocationChangingContext context)
     {
         if (context.TargetLocation == "/counter")
@@ -161,7 +168,8 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelVisible = true;
+        //PanelVisible = true;
+        await onshowLoading();
         EditEnabled = false; DeleteEnabled = false;
         _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
 
@@ -171,7 +179,8 @@
             _selectedItems = _dynamicForm.FirstOrDefault();
             // Grid.SetFocusedRowIndex(0);
         }
-        PanelVisible = false;
+       // PanelVisible = false;
+        await onhideLoading();
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

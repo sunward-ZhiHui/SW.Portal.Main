@@ -34,13 +34,14 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IRoutineQueryRepository _RoutineQueryRepository;
         private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
         private readonly ISoCustomerQueryRepository _SoCustomerQueryRepository;
-        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository)
+        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository, IIpirAppQueryRepostitory ipirAppQueryRepostitory)
         {
             _mediator = mediator;
             _PlantQueryRepository = PlantQueryRepository;
             _ProductionActivityAppQueryRepository = productionActivityAppQueryRepository;
             _RoutineQueryRepository = routineQueryRepository;
             _SoCustomerQueryRepository = soCustomerQueryRepository;
+            iIpirAppQueryRepostitory = ipirAppQueryRepostitory;
         }
         [HttpGet("GetCompanyList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyList()
@@ -630,6 +631,52 @@ namespace SW.Portal.Solutions.Controllers
                 response.ResponseCode = Services.ResponseCode.Success;
 
                 response.Results = displayResult.ToList();
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetIpirAppSectionBList")]
+        public async Task<ActionResult<Services.ResponseModel<List<IPIRReportingInformation>>>> GetIpirAppSectionBList()
+        {
+
+            var response = new Services.ResponseModel<IPIRReportingInformation>();
+
+            var result = await iIpirAppQueryRepostitory.GetAllIPIRmobileByAsync();
+
+
+            var displayResult = result?.Select(topic => new IPIRReportingInformation
+            {
+
+                StatusCodeID = topic.StatusCodeID,
+                AddedByUserID = topic.AddedByUserID,
+                AddedDate = topic.AddedDate,
+                ModifiedDate = topic.ModifiedDate,
+                SessionId = topic.SessionId,
+                ModifiedByUserID = topic.ModifiedByUserID,               
+                ProfileNo = topic.ProfileNo,               
+                AddedBy = topic.AddedBy,        
+                UniqueSessionId = topic.UniqueSessionId,
+                FileName = topic.FileName,
+                AssignToIds = topic.AssignToIds,
+                ReportinginformationID = topic.ReportinginformationID,
+                IssueDescription = topic.IssueDescription,
+                ReportBy = topic.ReportBy,
+                IssueRelatedTo = topic.IssueRelatedTo,
+                IssueRelatedName = topic.IssueRelatedName,
+                FilePath = topic.FilePath,
+                IpirAppID = topic.IpirAppID,
+
+            }).ToList();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                response.Results = displayResult;
             }
             catch (Exception ex)
             {

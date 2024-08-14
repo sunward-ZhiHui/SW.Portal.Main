@@ -135,7 +135,7 @@
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 Enabled="@isApprovedEnabled"
                                 EditFormat="{0}-{1}"
-                    @bind-Value="@types.ApprovalUserId">
+                                @bind-Value="@types.ApprovalUserId">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
@@ -190,7 +190,7 @@
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Level" ColSpanMd="6">
                 <DxComboBox Data="@sortOrderList"
-                @bind-Value="@_selectedDynamicFormSectionItems.SortOrderBy"
+                            @bind-Value="@_selectedDynamicFormSectionItems.SortOrderBy"
                             TextFieldName="Text"
                             ValueFieldName="Value" ShowValidationIcon="true" />
             </DxFormLayoutItem>
@@ -287,33 +287,40 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelVisibleApproval = true; AddEnabledApproval = false; isApprovedEnabled = true;
-        EditEnabledApproval = false; DeleteEnabledApproval = false;
-        if (dynamicFormId > 0)
+        try
         {
-            AddEnabledApproval = true;
-            _dynamicFormApprovalData = await Mediator.Send(new GetDynamicFormApproval(dynamicFormId));
-
-            if (_dynamicFormApprovalData.Count > 0)
+            PanelVisibleApproval = true; AddEnabledApproval = false; isApprovedEnabled = true;
+            EditEnabledApproval = false; DeleteEnabledApproval = false;
+            if (dynamicFormId > 0)
             {
-                _selectedItems = _dynamicFormApprovalData.FirstOrDefault();
-                if (_selectedItems.ApprovedCountUsed > 0)
-                {
-                }
-                else
-                {
-                    EditEnabledApproval = true;
-                    DeleteEnabledApproval = true;
-                }
+                AddEnabledApproval = true;
+                _dynamicFormApprovalData = await Mediator.Send(new GetDynamicFormApproval(dynamicFormId));
 
+                if (_dynamicFormApprovalData.Count > 0)
+                {
+                    _selectedItems = _dynamicFormApprovalData.FirstOrDefault();
+                    if (_selectedItems.ApprovedCountUsed > 0)
+                    {
+                    }
+                    else
+                    {
+                        EditEnabledApproval = true;
+                        DeleteEnabledApproval = true;
+                    }
+
+                }
             }
+            else
+            {
+                _dynamicFormApprovalData = new List<DynamicFormApproval>();
+            }
+            PanelVisibleApproval = false;
+            StateHasChanged();
         }
-        else
+        catch (Exception ex)
         {
-            _dynamicFormApprovalData = new List<DynamicFormApproval>();
+
         }
-        PanelVisibleApproval = false;
-        StateHasChanged();
     }
 
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -407,13 +414,18 @@
     }
     async Task OnDeleteApprovalDataItem(GridDataItemDeletingEventArgs e)
     {
+        try
+        {
+            var editModel = (DynamicFormApproval)e.DataItem;
+            var request = new DeleteDynamicFormApproval(editModel);
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+            SMApprovalGrid.SetFocusedRowIndex(0);
+        }
+        catch (Exception ex)
+        {
 
-        var editModel = (DynamicFormApproval)e.DataItem;
-        var request = new DeleteDynamicFormApproval(editModel);
-        await Mediator.Send(request);
-        await UpdateDataAsync();
-        SMApprovalGrid.SetFocusedRowIndex(0);
-
+        }
     }
     void Grid_CustomizeApprovalElement(GridCustomizeElementEventArgs e)
     {
@@ -544,7 +556,7 @@
         if (_dynamicFormApprovalData != null && _dynamicFormApprovalData.Count > 0)
         {
             var SortOrderWithOutApproved = _dynamicFormApprovalData.Where(w => w.ApprovedCountUsed == 0).OrderBy(o => o.SortOrderBy).FirstOrDefault()?.SortOrderBy;
-            if (SortOrderWithOutApproved == null || SortOrderWithOutApproved==0)
+            if (SortOrderWithOutApproved == null || SortOrderWithOutApproved == 0)
             {
                 SortOrderWithOutApproved = 1;
             }

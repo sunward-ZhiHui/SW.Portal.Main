@@ -77,7 +77,7 @@
             <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
             <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
             <DxGridDataColumn FieldName="DelegateApproveUserName" Caption="Delegate Approver" />
-           @*  <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" /> *@
+            @*  <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" /> *@
             <DxGridDataColumn FieldName="ApprovedDate" Caption="Date" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -215,28 +215,35 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelVisible = true; AddEnabled = false;
-        EditEnabled = false; DeleteEnabled = false;
-        if (_dynamicformData != null)
+        try
         {
-            AddEnabled = true;
-            if (_dynamicformData.DynamicFormDataId > 0)
+            PanelVisible = true; AddEnabled = false;
+            EditEnabled = false; DeleteEnabled = false;
+            if (_dynamicformData != null)
             {
-                _dynamicFormApprovedList = await Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId));
-                if (_dynamicFormApprovedList.Count > 0)
+                AddEnabled = true;
+                if (_dynamicformData.DynamicFormDataId > 0)
                 {
-                    _selectedItems = _dynamicFormApprovedList.FirstOrDefault();
-                    if (_selectedItems.ApprovedStatus == "Pending")
+                    _dynamicFormApprovedList = await Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId));
+                    if (_dynamicFormApprovedList.Count > 0)
                     {
-                        EditEnabled = true;
-                        DeleteEnabled = true;
+                        _selectedItems = _dynamicFormApprovedList.FirstOrDefault();
+                        if (_selectedItems.ApprovedStatus == "Pending")
+                        {
+                            EditEnabled = true;
+                            DeleteEnabled = true;
+                        }
+                        SMShareGrid.SetFocusedRowIndex(0);
                     }
-                    SMShareGrid.SetFocusedRowIndex(0);
                 }
             }
+            PanelVisible = false;
+            StateHasChanged();
         }
-        PanelVisible = false;
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {

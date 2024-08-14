@@ -223,16 +223,23 @@
     }
     async Task UpdateDataAsync()
     {
-        _dynamicFormSectionAttributeSectionParentList = await Mediator.Send(new GetDynamicFormSectionAttributeSectionParent(SelectedItems.DynamicFormSectionAttributeId));
-        EditEnabled = false; DeleteEnabled = false;
-        if (_dynamicFormSectionAttributeSectionParentList != null && _dynamicFormSectionAttributeSectionParentList.Count() > 0)
+        try
         {
-            List<string?> list = _dynamicFormSectionAttributeSectionParentList.SelectMany(s => s.ShowSectionVisibleDataIds).Distinct().ToList();
-            _ShowSectionVisibleDataItems = _ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count > 0 ? _ShowSectionVisibleAllDataItems.Where(w => !list.Contains(w.AttributeDetailNameId)).ToList() : new List<AttributeDetails>();
-            _selectedAttributeItems = _dynamicFormSectionAttributeSectionParentList.FirstOrDefault();
-            EditEnabled = true; DeleteEnabled = true;
+            _dynamicFormSectionAttributeSectionParentList = await Mediator.Send(new GetDynamicFormSectionAttributeSectionParent(SelectedItems.DynamicFormSectionAttributeId));
+            EditEnabled = false; DeleteEnabled = false;
+            if (_dynamicFormSectionAttributeSectionParentList != null && _dynamicFormSectionAttributeSectionParentList.Count() > 0)
+            {
+                List<string?> list = _dynamicFormSectionAttributeSectionParentList.SelectMany(s => s.ShowSectionVisibleDataIds).Distinct().ToList();
+                _ShowSectionVisibleDataItems = _ShowSectionVisibleAllDataItems != null && _ShowSectionVisibleAllDataItems.Count > 0 ? _ShowSectionVisibleAllDataItems.Where(w => !list.Contains(w.AttributeDetailNameId)).ToList() : new List<AttributeDetails>();
+                _selectedAttributeItems = _dynamicFormSectionAttributeSectionParentList.FirstOrDefault();
+                EditEnabled = true; DeleteEnabled = true;
+            }
+            StateHasChanged();
         }
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
@@ -326,15 +333,22 @@
     }
     async Task bulkDelete()
     {
-        var request = new DeleteDynamicFormSectionAttributeParent(_selectedAttributeItems);
-        var result = await Mediator.Send(request);
-        if (result != null)
+        try
         {
-            Blukdeletepopup = false;
-            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();
-            SMAttributeSectionGrid.SetFocusedRowIndex(0);
+            var request = new DeleteDynamicFormSectionAttributeParent(_selectedAttributeItems);
+            var result = await Mediator.Send(request);
+            if (result != null)
+            {
+                Blukdeletepopup = false;
+                toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+                SMAttributeSectionGrid.SetFocusedRowIndex(0);
+            }
+            StateHasChanged();
         }
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
 }

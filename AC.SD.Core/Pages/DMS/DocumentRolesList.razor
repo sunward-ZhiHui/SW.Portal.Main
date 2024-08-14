@@ -31,12 +31,12 @@
                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                     <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                     <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                      <DxMenuItem Text="Permission" Enabled="@EditEnabled">
-                         <Items>
-                             <DxMenuItem Text="Add/Edit Permission" IconCssClass="fa fa-add" Click="onAddPermission" />
-                             <DxMenuItem Text="Delete Permission" IconCssClass="fa fa-remove" Click="onDeletePermission" />
-                         </Items>
-                     </DxMenuItem> 
+                    <DxMenuItem Text="Permission" Enabled="@EditEnabled">
+                        <Items>
+                            <DxMenuItem Text="Add/Edit Permission" IconCssClass="fa fa-add" Click="onAddPermission" />
+                            <DxMenuItem Text="Delete Permission" IconCssClass="fa fa-remove" Click="onDeletePermission" />
+                        </Items>
+                    </DxMenuItem>
                     <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
                 </Items>
             </DxMenu>
@@ -104,7 +104,7 @@
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="CodeValue"
                                     ValueFieldName="CodeId"
-                        @bind-Value="@plant.StatusCodeId"
+                                    @bind-Value="@plant.StatusCodeId"
                                     ShowValidationIcon="true">
                         </DxComboBox>
                         <ValidationMessage For="@(() => plant.StatusCodeId)" />
@@ -206,17 +206,24 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelVisible = true; EditEnabled = false; DeleteEnabled = false; Name = string.Empty;
-        _documentRole = await Mediator.Send(new GetDocumentRoleList());
-        PanelVisible = false;
-        if (_documentRole.Count > 0)
+        try
         {
-            _selectedItems = _documentRole.FirstOrDefault();
-            Name = _selectedItems.DocumentRoleName;
-            EditEnabled = true; DeleteEnabled = true;
-            Grid.SetFocusedRowIndex(0);
-            Grid.ClearSelection();
-            StateHasChanged();
+            PanelVisible = true; EditEnabled = false; DeleteEnabled = false; Name = string.Empty;
+            _documentRole = await Mediator.Send(new GetDocumentRoleList());
+            PanelVisible = false;
+            if (_documentRole.Count > 0)
+            {
+                _selectedItems = _documentRole.FirstOrDefault();
+                Name = _selectedItems.DocumentRoleName;
+                EditEnabled = true; DeleteEnabled = true;
+                Grid.SetFocusedRowIndex(0);
+                Grid.ClearSelection();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+
         }
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)

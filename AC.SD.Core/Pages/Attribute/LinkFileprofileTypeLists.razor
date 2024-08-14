@@ -256,26 +256,33 @@
     }
     async Task loadFileProfileDataLists()
     {
-        PanelVisibleLink = true;
+        try
+        {
+            PanelVisibleLink = true;
 
-        if (FileProfileTypeId > 0)
-        {
-            documentLinkSearchModel.FileProfileTypeId = FileProfileTypeId;
-            documentLinkSearchModel.FileProfileTypeIds.Add(FileProfileTypeId);
+            if (FileProfileTypeId > 0)
+            {
+                documentLinkSearchModel.FileProfileTypeId = FileProfileTypeId;
+                documentLinkSearchModel.FileProfileTypeIds.Add(FileProfileTypeId);
+            }
+            _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentLinkSearchModel));
+            fileProfileTypeDocumentsLink = _fileProfileselectedlstItemsList.DocumentsData;
+            if (fileProfileTypeDocumentsLink.Count > 0 && ParentSelectedFiles != null && ParentSelectedFiles.Type == "Document")
+            {
+                fileProfileTypeDocumentsLink = fileProfileTypeDocumentsLink.Where(w => w.DocumentID != ParentSelectedFiles.DocumentID).ToList();
+            }
+            if (fileProfileTypeDocumentsLink.Count > 0)
+            {
+                _selectedItemsList = fileProfileTypeDocumentsLink.FirstOrDefault();
+                //linkDocGrid.SetFocusedRowIndex(0);
+            }
+            PanelVisibleLink = false;
+            StateHasChanged();
         }
-        _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentLinkSearchModel));
-        fileProfileTypeDocumentsLink = _fileProfileselectedlstItemsList.DocumentsData;
-        if (fileProfileTypeDocumentsLink.Count > 0 && ParentSelectedFiles != null && ParentSelectedFiles.Type == "Document")
+        catch (Exception ex)
         {
-            fileProfileTypeDocumentsLink = fileProfileTypeDocumentsLink.Where(w => w.DocumentID != ParentSelectedFiles.DocumentID).ToList();
+
         }
-        if (fileProfileTypeDocumentsLink.Count > 0)
-        {
-            _selectedItemsList = fileProfileTypeDocumentsLink.FirstOrDefault();
-            //linkDocGrid.SetFocusedRowIndex(0);
-        }
-        PanelVisibleLink = false;
-        StateHasChanged();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
     {
@@ -352,7 +359,7 @@
                     DynamicFormSectionId = documentsUploadModel.DynamicFormSectionId > 0 ? documentsUploadModel.DynamicFormSectionId : null,
                     FileProfileTypeId = documentsUploadModel.FileProfileTypeId,
                     DocumentsModel = _selectedItemsList,
-                    UploadType=documentsUploadModel.TemplateUploadOrReserveNo,
+                    UploadType = documentsUploadModel.TemplateUploadOrReserveNo,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
@@ -364,7 +371,7 @@
             var request = await Mediator.Send(new InsertDmsDocumentDynamicFormData(insertDynamicFormDataUpload));
             if (request.DynamicFormDataId > 0)
             {
-                Blukdeletepopup = false;;
+                Blukdeletepopup = false; ;
                 toastService.ShowToast("Document Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 RevokeBack?.Invoke();
             }

@@ -131,7 +131,7 @@
 @code {
     private IDisposable? DynamicFormPage2;
     IGrid? Grid { get; set; }
-    bool PanelVisible { get; set; }
+    bool PanelVisible { get; set; } = true;
     bool DeleteEnabled { get; set; } = false;
     bool EditEnabled { get; set; } = false;
     bool AddPopup { get; set; } = false;
@@ -185,7 +185,7 @@
     protected virtual async ValueTask DisposeAsyncCore()
     {
         System.GC.Collect();
-        DynamicFormPage2?.Dispose();        
+        DynamicFormPage2?.Dispose();
     }
 
     public async ValueTask DisposeAsync()
@@ -247,23 +247,31 @@
     }
     async Task loadData()
     {
-        //PanelVisible = true;
-        await onshowLoading();
-        _attributes = await Mediator.Send(new GetAllAttributeNameHeader(null, null, 0));
-        if (_attributes != null && _attributes.Count > 0)
+        try
         {
-            _selectedItems = _attributes.FirstOrDefault();
-            //loadSelectedItems();
-            //Grid.SetFocusedRowIndex(0);
-            //PanelVisible = false;
-            await onhideLoading();
+            PanelVisible = true;
+            //await onshowLoading();
+            _attributes = await Mediator.Send(new GetAllAttributeNameHeader(null, null, 0));
+            if (_attributes != null && _attributes.Count > 0)
+            {
+                _selectedItems = _attributes.FirstOrDefault();
+                //loadSelectedItems();
+                //Grid.SetFocusedRowIndex(0);
+                PanelVisible = false;
+                //await onhideLoading();
+            }
+            else
+            {
+                PanelVisible = false;
+                //await onhideLoading();
+            }
+            PanelVisible = false;
+            StateHasChanged();
         }
-        else
+        catch (Exception ex)
         {
-            //PanelVisible = false;
-            await onhideLoading();
+
         }
-        StateHasChanged();
     }
     void addEdit()
     {

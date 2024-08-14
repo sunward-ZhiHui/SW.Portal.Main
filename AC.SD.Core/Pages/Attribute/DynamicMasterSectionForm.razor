@@ -196,7 +196,7 @@
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
                 <DxComboBox Data="@sortOrderList"
-                @bind-Value="@_selectedDynamicFormSectionItems.SortOrderBy"
+                            @bind-Value="@_selectedDynamicFormSectionItems.SortOrderBy"
                             TextFieldName="Text"
                             ValueFieldName="Value" ShowValidationIcon="true" />
             </DxFormLayoutItem>
@@ -237,7 +237,7 @@
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeFilterDocView"
-                @bind-FilterString="FilterDocumentString"
+                            @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
                             AllowSelectNodes="true"
@@ -330,32 +330,39 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelVisible = true; AddEnabled = false;
-        EditEnabled = false; DeleteEnabled = false;
-        if (dynamicFormId > 0)
+        try
         {
-            _attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(-1, -1));
-            AddEnabled = true;
-            _dynamicFormSectionData = await Mediator.Send(new GetDynamicFormSection(dynamicFormId));
-
-            if (_dynamicFormSectionData.Count > 0)
+            PanelVisible = true; AddEnabled = false;
+            EditEnabled = false; DeleteEnabled = false;
+            if (dynamicFormId > 0)
             {
-                _selectedItems = _dynamicFormSectionData.FirstOrDefault();
+                _attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(-1, -1));
+                AddEnabled = true;
+                _dynamicFormSectionData = await Mediator.Send(new GetDynamicFormSection(dynamicFormId));
 
-                EditEnabled = true;
-                DeleteEnabled = true;
-                // if (_selectedItems.FormUsedCount > 0)
-                // {
-                //     DeleteEnabled = false;
-                // }
+                if (_dynamicFormSectionData.Count > 0)
+                {
+                    _selectedItems = _dynamicFormSectionData.FirstOrDefault();
+
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+                    // if (_selectedItems.FormUsedCount > 0)
+                    // {
+                    //     DeleteEnabled = false;
+                    // }
+                }
             }
+            else
+            {
+                _dynamicFormSectionData = new List<DynamicFormSection>();
+            }
+            PanelVisible = false;
+            StateHasChanged();
         }
-        else
+        catch (Exception ex)
         {
-            _dynamicFormSectionData = new List<DynamicFormSection>();
+
         }
-        PanelVisible = false;
-        StateHasChanged();
     }
 
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -468,13 +475,18 @@
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
+        try
+        {
+            var editModel = (DynamicFormSection)e.DataItem;
+            var request = new DeleteDynamicFormSection(editModel);
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+            SMGrid.SetFocusedRowIndex(0);
+        }
+        catch (Exception ex)
+        {
 
-        var editModel = (DynamicFormSection)e.DataItem;
-        var request = new DeleteDynamicFormSection(editModel);
-        await Mediator.Send(request);
-        await UpdateDataAsync();
-        SMGrid.SetFocusedRowIndex(0);
-
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

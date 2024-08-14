@@ -695,40 +695,47 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelAttibuteVisible = true; AddEnabled = false;
-        EditEnabled = false; DeleteEnabled = false; IsDynamicFormAttributeEnabled = false;
-
-        if (DynamicFormSectionId > 0)
+        try
         {
-            _attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(-1, -1));
-            AddEnabled = true;
-            _dynamicFormSectionAttributeData = await Mediator.Send(new GetDynamicFormSectionAttribute(DynamicFormSectionId));
+            PanelAttibuteVisible = true; AddEnabled = false;
+            EditEnabled = false; DeleteEnabled = false; IsDynamicFormAttributeEnabled = false;
 
-            if (_dynamicFormSectionAttributeData.Count > 0)
+            if (DynamicFormSectionId > 0)
             {
-                _selectedAttributeItems = _dynamicFormSectionAttributeData.FirstOrDefault();
+                _attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(-1, -1));
+                AddEnabled = true;
+                _dynamicFormSectionAttributeData = await Mediator.Send(new GetDynamicFormSectionAttribute(DynamicFormSectionId));
 
-                EditEnabled = true;
-                DeleteEnabled = true;
-                // if (_selectedAttributeItems.FormUsedCount > 0)
-                // {
-                //     DeleteEnabled = false;
-                // }
-                if (_selectedAttributeItems.ControlTypeId == 2702 || _selectedAttributeItems.ControlTypeId == 2708)
+                if (_dynamicFormSectionAttributeData.Count > 0)
                 {
-                    if (_selectedAttributeItems.DataSourceTable != "DynamicGrid" && _selectedAttributeItems.DataSourceTable != "ApplicationMaster" && _selectedAttributeItems.DataSourceTable != "ApplicationMasterParent")
+                    _selectedAttributeItems = _dynamicFormSectionAttributeData.FirstOrDefault();
+
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+                    // if (_selectedAttributeItems.FormUsedCount > 0)
+                    // {
+                    //     DeleteEnabled = false;
+                    // }
+                    if (_selectedAttributeItems.ControlTypeId == 2702 || _selectedAttributeItems.ControlTypeId == 2708)
                     {
-                        IsDynamicFormAttributeEnabled = true;
-                    }
-                    if (_selectedAttributeItems.DataSourceTable == "ApplicationMaster" || _selectedAttributeItems.DataSourceTable == "ApplicationMasterParent")
-                    {
-                        IsDynamicFormAttributeEnabled = true;
+                        if (_selectedAttributeItems.DataSourceTable != "DynamicGrid" && _selectedAttributeItems.DataSourceTable != "ApplicationMaster" && _selectedAttributeItems.DataSourceTable != "ApplicationMasterParent")
+                        {
+                            IsDynamicFormAttributeEnabled = true;
+                        }
+                        if (_selectedAttributeItems.DataSourceTable == "ApplicationMaster" || _selectedAttributeItems.DataSourceTable == "ApplicationMasterParent")
+                        {
+                            IsDynamicFormAttributeEnabled = true;
+                        }
                     }
                 }
             }
+            PanelAttibuteVisible = false;
+            StateHasChanged();
         }
-        PanelAttibuteVisible = false;
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
 
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -1008,13 +1015,18 @@
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
+        try
+        {
+            var editModel = (DynamicFormSectionAttribute)e.DataItem;
+            var request = new DeleteDynamicFormSectionAttribute(editModel);
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+            SMAttributeGrid.SetFocusedRowIndex(0);
+        }
+        catch (Exception ex)
+        {
 
-        var editModel = (DynamicFormSectionAttribute)e.DataItem;
-        var request = new DeleteDynamicFormSectionAttribute(editModel);
-        await Mediator.Send(request);
-        await UpdateDataAsync();
-        SMAttributeGrid.SetFocusedRowIndex(0);
-
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

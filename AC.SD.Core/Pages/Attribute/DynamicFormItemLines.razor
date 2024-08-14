@@ -148,9 +148,9 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-        EditContext _editContext;
-        [Parameter]
-        public long? DynamicFormItemids { get; set; }
+    EditContext _editContext;
+    [Parameter]
+    public long? DynamicFormItemids { get; set; }
     [Parameter]
     public DynamicFormItem DynamicFormItemList { get; set; }
     private List<DynamicForm> _dynamicForm;
@@ -188,26 +188,33 @@
     }
     public async Task UpdateDataAsync()
     {
-        PanelVisible = true; AddEnabled = false; EditEnabled = false; DeleteEnabled = false; _dynamicFormItemLine = new List<DynamicFormItemLine>(); AttachmentEnabled = false;
-        if (DynamicFormItemids > 0)
+        try
         {
-            AddEnabled = true;
-            _dynamicFormItemLine = await Mediator.Send(new GetAllDynamicItemFormLineList((long)DynamicFormItemids));
-            if (_dynamicFormItemLine != null && _dynamicFormItemLine.Count > 0)
+            PanelVisible = true; AddEnabled = false; EditEnabled = false; DeleteEnabled = false; _dynamicFormItemLine = new List<DynamicFormItemLine>(); AttachmentEnabled = false;
+            if (DynamicFormItemids > 0)
             {
-                PanelVisible = true;
-                _selectedItems = _dynamicFormItemLine.FirstOrDefault();
-
-                if (_dynamicFormItemLine != null)
+                AddEnabled = true;
+                _dynamicFormItemLine = await Mediator.Send(new GetAllDynamicItemFormLineList((long)DynamicFormItemids));
+                if (_dynamicFormItemLine != null && _dynamicFormItemLine.Count > 0)
                 {
-                    EditEnabled = true; AttachmentEnabled = true;
-                    DeleteEnabled = true;
-                    StateHasChanged();
+                    PanelVisible = true;
+                    _selectedItems = _dynamicFormItemLine.FirstOrDefault();
+
+                    if (_dynamicFormItemLine != null)
+                    {
+                        EditEnabled = true; AttachmentEnabled = true;
+                        DeleteEnabled = true;
+                        StateHasChanged();
+                    }
                 }
             }
+            PanelVisible = false;
+            StateHasChanged();
         }
-        PanelVisible = false;
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
@@ -380,33 +387,33 @@
             List<long?> dynamicFormIds = new List<long?>();
             dynamicFormIds.Add(itemDynamicFormTypeID);
             var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID));
-                if (DynamicFormItemList != null)
+            if (DynamicFormItemList != null)
+            {
+                foreach (var v in (list.ObjectData as IEnumerable<ExpandoObject>))
                 {
-                    foreach (var v in (list.ObjectData as IEnumerable<ExpandoObject>))
+                    long? v1 = null; long? v2 = null; long? v3 = null;
+                    foreach (var item in (dynamic)v)
                     {
-                        long? v1 = null; long? v2 = null; long? v3 = null;
-                        foreach (var item in (dynamic)v)
+                        if (item.Key == "136_AppMasterPar")
                         {
-                            if (item.Key == "136_AppMasterPar")
-                            {
-                                v1 = (long?)item.Value;
-                            }
-                            if (item.Key == "137_AppMasterPar")
-                            {
-                                v2 = (long?)item.Value;
-                            }
-                            if (item.Key == "138_AppMasterPar")
-                            {
-                                v3 = (long?)item.Value;
-                            }
+                            v1 = (long?)item.Value;
                         }
-                        if (DynamicFormItemList.StockGroupAppParentID == v1 && DynamicFormItemList.DepartmentAppParentID == v2 && DynamicFormItemList.ItemGroupAppParentID == v3)
+                        if (item.Key == "137_AppMasterPar")
                         {
-                            _dynamicformObjectDataList.Add(v);
+                            v2 = (long?)item.Value;
+                        }
+                        if (item.Key == "138_AppMasterPar")
+                        {
+                            v3 = (long?)item.Value;
                         }
                     }
+                    if (DynamicFormItemList.StockGroupAppParentID == v1 && DynamicFormItemList.DepartmentAppParentID == v2 && DynamicFormItemList.ItemGroupAppParentID == v3)
+                    {
+                        _dynamicformObjectDataList.Add(v);
+                    }
                 }
-            
+            }
+
             _dynamicFormData = list.DynamicFormListData;
             dropDownOptionsGridListModel = list;
         }
@@ -464,7 +471,7 @@
                         var propertyType = Nullable.GetUnderlyingType(s.PropertyType) ?? s.PropertyType;
                         var access = Expression.Property(Expression.Constant(Data), s.Name);
                         var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.PropertyType), access);
-                       
+
                         if (s.Name == "ItemDynamicFormTypeID")
                         {
                             itemBuilder.OpenComponent<DxFormLayoutItem>(1);

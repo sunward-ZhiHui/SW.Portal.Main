@@ -325,31 +325,38 @@
     }
     async Task UpdateDataAsync()
     {
-        _dynamicFormSectionAllData = await Mediator.Send(new GetDynamicFormSection(dynamicFormId));
-        PanelVisibleApproval = true; AddEnabledApproval = false; isApprovedEnabled = true;
-        EditEnabledApproval = false; DeleteEnabledApproval = false;
-        if (dynamicFormId > 0)
+        try
         {
-            AddEnabledApproval = true;
-            _dynamicFormApprovalData = await Mediator.Send(new GetDynamicFormWorkFlow(dynamicFormId));
-            if (_dynamicFormApprovalData.Count > 0)
+            _dynamicFormSectionAllData = await Mediator.Send(new GetDynamicFormSection(dynamicFormId));
+            PanelVisibleApproval = true; AddEnabledApproval = false; isApprovedEnabled = true;
+            EditEnabledApproval = false; DeleteEnabledApproval = false;
+            if (dynamicFormId > 0)
             {
-                _selectedItems = _dynamicFormApprovalData.FirstOrDefault();
-                List<long?> userIdss = new List<long?>();
-                EditEnabledApproval = true;
-                DeleteEnabledApproval = true;
-                // if (_dynamicFormSectionData != null && _dynamicFormSectionData.Count > 0)
-                // {
-                //     _dynamicFormSectionData = _dynamicFormSectionData.Where(w => !_selectedItems.DynamicFormSectionIdList.Contains(w.DynamicFormSectionId)).ToList();
-                // }
+                AddEnabledApproval = true;
+                _dynamicFormApprovalData = await Mediator.Send(new GetDynamicFormWorkFlow(dynamicFormId));
+                if (_dynamicFormApprovalData.Count > 0)
+                {
+                    _selectedItems = _dynamicFormApprovalData.FirstOrDefault();
+                    List<long?> userIdss = new List<long?>();
+                    EditEnabledApproval = true;
+                    DeleteEnabledApproval = true;
+                    // if (_dynamicFormSectionData != null && _dynamicFormSectionData.Count > 0)
+                    // {
+                    //     _dynamicFormSectionData = _dynamicFormSectionData.Where(w => !_selectedItems.DynamicFormSectionIdList.Contains(w.DynamicFormSectionId)).ToList();
+                    // }
+                }
             }
+            else
+            {
+                _dynamicFormApprovalData = new List<DynamicFormWorkFlow>();
+            }
+            PanelVisibleApproval = false;
+            StateHasChanged();
         }
-        else
+        catch (Exception ex)
         {
-            _dynamicFormApprovalData = new List<DynamicFormWorkFlow>();
+
         }
-        PanelVisibleApproval = false;
-        StateHasChanged();
     }
 
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)

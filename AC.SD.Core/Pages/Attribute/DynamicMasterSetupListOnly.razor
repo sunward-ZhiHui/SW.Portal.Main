@@ -44,7 +44,6 @@
             style="height: calc(100vh - 220px);"
             CssClass="w-100"
             FocusedRowEnabled="true"
-            
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -88,7 +87,7 @@
 @code {
 
     IGrid? Grid { get; set; }
-    bool PanelVisible { get; set; }
+    bool PanelVisible { get; set; } = true;
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicForm _selectedItems;
@@ -103,19 +102,26 @@
     }
     async Task UpdateDataAsync()
     {
-        EditEnabled = false; DeleteEnabled = false;
-        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
-        //PanelVisible = true;
-        await onshowLoading();
-        if (_dynamicForm != null && _dynamicForm.Count > 0)
+        try
         {
-            //EditEnabled = true; DeleteEnabled = true;
-            _selectedItems = _dynamicForm.FirstOrDefault();
-            //Grid.SetFocusedRowIndex(0);
+            EditEnabled = false; DeleteEnabled = false;
+            _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
+            PanelVisible = true;
+           // await onshowLoading();
+            if (_dynamicForm != null && _dynamicForm.Count > 0)
+            {
+                //EditEnabled = true; DeleteEnabled = true;
+                _selectedItems = _dynamicForm.FirstOrDefault();
+                //Grid.SetFocusedRowIndex(0);
+            }
+            PanelVisible = false;
+            //await onhideLoading();
+            StateHasChanged();
         }
-        PanelVisible = false;
-        await onhideLoading();
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     async Task onshowLoading()
     {

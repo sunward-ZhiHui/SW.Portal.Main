@@ -173,7 +173,7 @@
     private List<DocumentsModel> fileProfileTypeDocuments { get; set; }
     private DocumentTypeModel _fileProfileselectedlstItems { get; set; }
     private DocumentsModel _selectedItems;
-    bool PanelVisible { get; set; }
+    bool PanelVisible { get; set; } = true;
     bool onRestoreEnabled { get; set; } = false;
     IGrid Grid { get; set; }
     DxPopup? popup;
@@ -197,27 +197,34 @@
     }
     async Task OnLoadData()
     {
-       // PanelVisible = true;
-        await onshowLoading();
-         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
-        _fileProfileselectedlstItems = await Mediator.Send(new GetAllDocumentDelete());
-        fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
-        onRestoreEnabled = false;
-        if (fileProfileTypeDocuments != null && fileProfileTypeDocuments.Count > 0)
+        try
         {
-            fileProfileTypeDocuments.ForEach(s =>
+            PanelVisible = true;
+            // await onshowLoading();
+            fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+            _fileProfileselectedlstItems = await Mediator.Send(new GetAllDocumentDelete());
+            fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
+            onRestoreEnabled = false;
+            if (fileProfileTypeDocuments != null && fileProfileTypeDocuments.Count > 0)
             {
-                var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.FileProfileTypeId);
-                s.DocumentPath = lists.FirstOrDefault()?.FileProfilePath;
-                s.FileProfileTypeParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
-            });
-            _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
-            onRestoreEnabled = true;
-            Grid.SetFocusedRowIndex(0);
+                fileProfileTypeDocuments.ForEach(s =>
+                {
+                    var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.FileProfileTypeId);
+                    s.DocumentPath = lists.FirstOrDefault()?.FileProfilePath;
+                    s.FileProfileTypeParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
+                });
+                _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
+                onRestoreEnabled = true;
+                Grid.SetFocusedRowIndex(0);
+            }
+            PanelVisible = false;
+            // await onhideLoading();
+            StateHasChanged();
         }
-        //PanelVisible = false;
-        await onhideLoading();
-        StateHasChanged();
+        catch(Exception ex)
+        {
+            
+        }
     }
     private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
     {

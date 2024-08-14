@@ -65,7 +65,7 @@
 @code {
     private IDisposable? DynamicFormPage4;
     IGrid? Grid { get; set; }
-    bool PanelVisible { get; set; }
+    bool PanelVisible { get; set; } = true;
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicForm _selectedItems;
@@ -116,19 +116,26 @@
     }
     async Task UpdateDataAsync()
     {
-        EditEnabled = false; DeleteEnabled = false;
-        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
-        //PanelVisible = true;
-        await onshowLoading();
-        if (_dynamicForm != null && _dynamicForm.Count>0)
+        try
         {
-            //EditEnabled = true; DeleteEnabled = true;
-            _selectedItems = _dynamicForm.FirstOrDefault();
-           // Grid.SetFocusedRowIndex(0);
+            EditEnabled = false; DeleteEnabled = false;
+            _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
+            PanelVisible = true;
+           // await onshowLoading();
+            if (_dynamicForm != null && _dynamicForm.Count > 0)
+            {
+                //EditEnabled = true; DeleteEnabled = true;
+                _selectedItems = _dynamicForm.FirstOrDefault();
+                // Grid.SetFocusedRowIndex(0);
+            }
+            //await onhideLoading();
+            PanelVisible = false;
+            StateHasChanged();
         }
-        await onhideLoading();
-        //PanelVisible = false;
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

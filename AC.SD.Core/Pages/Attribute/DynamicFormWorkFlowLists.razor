@@ -141,7 +141,7 @@
     bool createEmailpopup { get; set; } = false;
     bool emailEnabled { get; set; } = false;
     IGrid? Grid { get; set; }
-    bool PanelVisible { get; set; }
+    bool PanelVisible { get; set; } = true;
     private List<DynamicFormDataWrokFlow> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicFormDataWrokFlow _selectedItems;
@@ -169,47 +169,54 @@
     }
     async Task UpdateDataAsync()
     {
-        await onshowLoading();
-        dynamicFormData = new DynamicFormData();
-        EditEnabled = false; DeleteEnabled = false; emailEnabled = false; fileEnabled = false; FileProfileTypeId = null;
-        _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
-       // PanelVisible = true;
-        if (_dynamicForm != null && _dynamicForm.Count > 0)
+        try
         {
-            //EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
-            if (SessionId != null)
+            //await onshowLoading();
+            dynamicFormData = new DynamicFormData();
+            EditEnabled = false; DeleteEnabled = false; emailEnabled = false; fileEnabled = false; FileProfileTypeId = null;
+            _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
+             PanelVisible = true;
+            if (_dynamicForm != null && _dynamicForm.Count > 0)
             {
-                var items = _dynamicForm.Where(f => f.SessionID == SessionId).ToList();
-                if (items != null && items.Count > 0)
+                //EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
+                if (SessionId != null)
                 {
-                    _dynamicForm = items;
-                    _selectedItems = items.FirstOrDefault();
-                    dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
-                    FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                    dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
-                   // Grid.SetFocusedRowIndex(0);
+                    var items = _dynamicForm.Where(f => f.SessionID == SessionId).ToList();
+                    if (items != null && items.Count > 0)
+                    {
+                        _dynamicForm = items;
+                        _selectedItems = items.FirstOrDefault();
+                        dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                        FileProfileTypeId = _selectedItems.FileProfileTypeId;
+                        dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
+                        // Grid.SetFocusedRowIndex(0);
+                    }
+                    else
+                    {
+                        _selectedItems = _dynamicForm.FirstOrDefault();
+                        dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                        dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
+                        FileProfileTypeId = _selectedItems.FileProfileTypeId;
+                        // Grid.SetFocusedRowIndex(0);
+                    }
                 }
                 else
                 {
                     _selectedItems = _dynamicForm.FirstOrDefault();
                     dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
                     dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
-                    FileProfileTypeId = _selectedItems.FileProfileTypeId;
-                   // Grid.SetFocusedRowIndex(0);
+                    //Grid.SetFocusedRowIndex(0);
                 }
+
             }
-            else
-            {
-                _selectedItems = _dynamicForm.FirstOrDefault();
-                dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
-                dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
-               //Grid.SetFocusedRowIndex(0);
-            }
+            //await onhideLoading();
+             PanelVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
 
         }
-        await onhideLoading();
-       // PanelVisible = false;
-        StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

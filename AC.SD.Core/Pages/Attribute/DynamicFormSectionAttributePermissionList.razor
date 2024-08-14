@@ -103,17 +103,24 @@
     }
     public async Task loadData(long? dynamicFormSectionAttributeId)
     {
-        DeleteEnabled = false;
-        _documentUserRoleLists = new List<DynamicFormSectionAttributeSecurity>();
-        if (dynamicFormSectionAttributeId > 0)
+        try
         {
-            _documentUserRoleLists = await Mediator.Send(new GetDynamicFormSectionAttributeSecurityList(dynamicFormSectionAttributeId));
-            if (_documentUserRoleLists.Count > 0)
+            DeleteEnabled = false;
+            _documentUserRoleLists = new List<DynamicFormSectionAttributeSecurity>();
+            if (dynamicFormSectionAttributeId > 0)
             {
-                DeleteEnabled = true;
+                _documentUserRoleLists = await Mediator.Send(new GetDynamicFormSectionAttributeSecurityList(dynamicFormSectionAttributeId));
+                if (_documentUserRoleLists.Count > 0)
+                {
+                    DeleteEnabled = true;
+                }
             }
+            StateHasChanged();
         }
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {

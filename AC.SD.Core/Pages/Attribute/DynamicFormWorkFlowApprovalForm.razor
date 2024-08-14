@@ -55,15 +55,15 @@
             RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
         <Columns>
             <DxGridDataColumn FieldName="UserName" Caption="User" />
-           @*   <DxGridDataColumn FieldName="SortBy" Caption="Sort By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
-                 <CellDisplayTemplate>
-                     @{
-                         var item = (DynamicFormWorkFlowApproval)context.DataItem;
-                     }
-                     <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.DynamicFormWorkFlowApprovalId}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.SortBy"></i>
-                     @item.SortBy
-                 </CellDisplayTemplate>
-             </DxGridDataColumn> *@
+            @*   <DxGridDataColumn FieldName="SortBy" Caption="Sort By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
+            <CellDisplayTemplate>
+            @{
+            var item = (DynamicFormWorkFlowApproval)context.DataItem;
+            }
+            <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.DynamicFormWorkFlowApprovalId}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.SortBy"></i>
+            @item.SortBy
+            </CellDisplayTemplate>
+            </DxGridDataColumn> *@
         </Columns>
         <EditFormTemplate Context="EditFormContext">
             @{
@@ -172,27 +172,34 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelVisible = true; AddEnabled = false;
-        EditEnabled = false; DeleteEnabled = false;
-        if (SelectedItems != null)
+        try
         {
-            AddEnabled = true;
-            if (SelectedItems.DynamicFormWorkFlowId > 0)
+            PanelVisible = true; AddEnabled = false;
+            EditEnabled = false; DeleteEnabled = false;
+            if (SelectedItems != null)
             {
-                _dynamicFormWorkFlowApprovalList = await Mediator.Send(new GetDynamicFormWorkFlowApprovalList(SelectedItems.DynamicFormWorkFlowId,null));
-                if (_dynamicFormWorkFlowApprovalList.Count > 0)
+                AddEnabled = true;
+                if (SelectedItems.DynamicFormWorkFlowId > 0)
                 {
-                    _selectedItems = _dynamicFormWorkFlowApprovalList.FirstOrDefault();
+                    _dynamicFormWorkFlowApprovalList = await Mediator.Send(new GetDynamicFormWorkFlowApprovalList(SelectedItems.DynamicFormWorkFlowId, null));
+                    if (_dynamicFormWorkFlowApprovalList.Count > 0)
+                    {
+                        _selectedItems = _dynamicFormWorkFlowApprovalList.FirstOrDefault();
 
-                    EditEnabled = true;
-                    DeleteEnabled = true;
+                        EditEnabled = true;
+                        DeleteEnabled = true;
 
-                    SMShareGrid.SetFocusedRowIndex(0);
+                        SMShareGrid.SetFocusedRowIndex(0);
+                    }
                 }
             }
+            PanelVisible = false;
+            StateHasChanged();
         }
-        PanelVisible = false;
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {

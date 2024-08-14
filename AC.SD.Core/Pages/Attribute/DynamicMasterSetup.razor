@@ -27,7 +27,7 @@
                 <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
-                  <DxMenuItem Text="Reports" IconCssClass="fa fa-file" Click="@OpenReports" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Reports" IconCssClass="fa fa-file" Click="@OpenReports" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -46,7 +46,6 @@
             style="height: calc(100vh - 220px);"
             CssClass="w-100"
             FocusedRowEnabled="true"
-            
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -101,14 +100,14 @@
         <DynamicFormReports _dynamicform="@_selectedItems"></DynamicFormReports>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-       
+
     </FooterContentTemplate>
 </DxPopup>
 
 @code {
     private IDisposable? DynamicFormPage1;
     IGrid? Grid { get; set; }
-    bool PanelVisible { get; set; } = false;
+    bool PanelVisible { get; set; } = true;
     private List<DynamicForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicForm _selectedItems;
@@ -168,20 +167,27 @@
     }
     async Task UpdateDataAsync()
     {
-        //PanelVisible = true;
-        await onshowLoading();
-        EditEnabled = false; DeleteEnabled = false;
-        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
-
-        if (_dynamicForm != null && _dynamicForm.Count>0)
+        try
         {
-            // EditEnabled = true; DeleteEnabled = true;
-            _selectedItems = _dynamicForm.FirstOrDefault();
-            // Grid.SetFocusedRowIndex(0);
+            PanelVisible = true;
+           // await onshowLoading();
+            EditEnabled = false; DeleteEnabled = false;
+            _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
+
+            if (_dynamicForm != null && _dynamicForm.Count > 0)
+            {
+                // EditEnabled = true; DeleteEnabled = true;
+                _selectedItems = _dynamicForm.FirstOrDefault();
+                // Grid.SetFocusedRowIndex(0);
+            }
+             PanelVisible = false;
+           // await onhideLoading();
+            StateHasChanged();
         }
-       // PanelVisible = false;
-        await onhideLoading();
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

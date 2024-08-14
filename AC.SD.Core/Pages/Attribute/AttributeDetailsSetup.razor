@@ -146,46 +146,53 @@
     }
     public async Task UpdateLst()
     {
-        EditEnabled = false;
-        DeleteEnabled = false; AddEnabled = false; IsCheckBoxEnabled = false;
-        if (!string.IsNullOrEmpty(ControlType) && selectedAttributeID > 0)
+        try
         {
-            AddEnabled = true;            
-        }
-        _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(selectedAttributeID));
-        if (_attributesDetails != null && _attributesDetails.Count > 0)
-        {
-            _selectedItems = _attributesDetails.FirstOrDefault();
-            AttributeDetailId = _selectedItems?.AttributeDetailID;
-            DetailGrid.SetFocusedRowIndex(0); AddEnabled = true;
+            EditEnabled = false;
+            DeleteEnabled = false; AddEnabled = false; IsCheckBoxEnabled = false;
             if (!string.IsNullOrEmpty(ControlType) && selectedAttributeID > 0)
             {
-
-               
-                if (_selectedItems != null)
+                AddEnabled = true;
+            }
+            _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(selectedAttributeID));
+            if (_attributesDetails != null && _attributesDetails.Count > 0)
+            {
+                _selectedItems = _attributesDetails.FirstOrDefault();
+                AttributeDetailId = _selectedItems?.AttributeDetailID;
+                DetailGrid.SetFocusedRowIndex(0); AddEnabled = true;
+                if (!string.IsNullOrEmpty(ControlType) && selectedAttributeID > 0)
                 {
-                    if (!string.IsNullOrEmpty(ControlType))
+
+
+                    if (_selectedItems != null)
                     {
-                        if (ControlType.ToLower() == "RadioGroup".ToLower() || ControlType.ToLower() == "Radio".ToLower())
+                        if (!string.IsNullOrEmpty(ControlType))
                         {
-                            IsCheckBoxEnabled = true;
+                            if (ControlType.ToLower() == "RadioGroup".ToLower() || ControlType.ToLower() == "Radio".ToLower())
+                            {
+                                IsCheckBoxEnabled = true;
+                            }
+                        }
+                        DeleteEnabled = true;
+                        EditEnabled = true;
+                        if (_selectedItems.FormUsedCount > 0)
+                        {
+                            //  DeleteEnabled = false;
                         }
                     }
-                    DeleteEnabled = true;
-                    EditEnabled = true;
-                    if (_selectedItems.FormUsedCount > 0)
+                    else
                     {
-                        //  DeleteEnabled = false;
+                        DeleteEnabled = false;
+                        EditEnabled = false; IsCheckBoxEnabled = false;
                     }
                 }
-                else
-                {
-                    DeleteEnabled = false;
-                    EditEnabled = false; IsCheckBoxEnabled = false;
-                }
             }
+            StateHasChanged();
         }
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     public async Task Attributeload(long id, string controlType, string? formType)
     {

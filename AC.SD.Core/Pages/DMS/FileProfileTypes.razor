@@ -796,8 +796,8 @@
     public string? SearchText { get; set; } = null;
     protected override async Task OnInitializedAsync()
     {
-        //PanelVisible = true;
-        await onshowLoading();
+        PanelVisible = true;
+        //await onshowLoading();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
@@ -806,17 +806,17 @@
     }
     async Task loadFileProfileTypeAllDatas()
     {
-        //PanelVisible = true;
-        await onshowLoading();
+        PanelVisible = true;
+        // await onshowLoading();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         if (fileProfileTypeDocumentsAll.Count() > 0)
         {
             _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
-            //PanelVisible = false; 
-            await onhideLoading();
+            //PanelVisible = false;
+            //await onhideLoading();
         }
-        //PanelVisible = false; 
-        await onhideLoading();
+        PanelVisible = false;
+        //await onhideLoading();
         StateHasChanged();
     }
     async Task OnSearchTextChanged(string? newSearchText)
@@ -874,10 +874,9 @@
     }
     async Task mainPageLoad()
     {
-        //PanelVisible = true;
-        await onshowLoading();
+        PanelVisible = true;
+        //await onshowLoading();
         searchText = null; SearchText = null;
-       // PanelVisible = true;
         isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
         IsFileProfileTypeInfoOpen = false;
@@ -922,56 +921,63 @@
             }
         }
         await loadFileProfileData();
-        //PanelVisible = false; 
+        //PanelVisible = false;
         await onhideLoading();
         StateHasChanged();
     }
     async Task loadFileProfileData()
     {
-        Grid.ClearFilter(); searchText = null; SearchText = null;
-        IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false; IsFileProfileTypeInfoOpen = false;
-        isFilterMore = "display:none"; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
-        _selectedItems = null;
-        if (FileProfileTypeId == null && MainSessionId != null)
+        try
         {
-            NavigationManager.NavigateTo("fileprofiletype");
-        }
-        else
-        {
-            //PanelVisible = true;
-            await onshowLoading();
-            _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentSearchModel));
-            fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
-            if (DocSessionId != null)
+            Grid.ClearFilter(); searchText = null; SearchText = null;
+            IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false; IsFileProfileTypeInfoOpen = false;
+            isFilterMore = "display:none"; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
+            _selectedItems = null;
+            if (FileProfileTypeId == null && MainSessionId != null)
             {
-                fileProfileTypeDocuments = fileProfileTypeDocuments.Where(w => w.SessionID == DocSessionId).ToList();
-
-            }
-            if (fileProfileTypeDocuments.Count > 0)
-            {
-                if (documentSearchModel.Type == "Search")
-                {
-                    isEnablePath = true;
-                    isFilterMore = "display:none";
-                    fileProfileTypeDocuments.ForEach(s =>
-                    {
-                        var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.FilterProfileTypeId);
-                        s.FullPath = lists.FirstOrDefault()?.FileProfilePath;
-                        s.FileProfileTypeMainParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
-                    });
-                }
-                _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
-
-                await permissionEnabled();
-                Grid.SetFocusedRowIndex(0);
+                NavigationManager.NavigateTo("fileprofiletype");
             }
             else
             {
-                await PermiisionMain();
+                PanelVisible = true;
+                // await onshowLoading();
+                _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentSearchModel));
+                fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
+                if (DocSessionId != null)
+                {
+                    fileProfileTypeDocuments = fileProfileTypeDocuments.Where(w => w.SessionID == DocSessionId).ToList();
+
+                }
+                if (fileProfileTypeDocuments.Count > 0)
+                {
+                    if (documentSearchModel.Type == "Search")
+                    {
+                        isEnablePath = true;
+                        isFilterMore = "display:none";
+                        fileProfileTypeDocuments.ForEach(s =>
+                        {
+                            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.FilterProfileTypeId);
+                            s.FullPath = lists.FirstOrDefault()?.FileProfilePath;
+                            s.FileProfileTypeMainParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
+                        });
+                    }
+                    _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
+
+                    await permissionEnabled();
+                    Grid.SetFocusedRowIndex(0);
+                }
+                else
+                {
+                    await PermiisionMain();
+                }
+                PanelVisible = false;
+                //await onhideLoading();
+                StateHasChanged();
             }
-            //PanelVisible = false;
-             await onhideLoading();
-            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
         }
     }
     async Task PermiisionMain()
@@ -1055,14 +1061,14 @@
     {
         if (fileTypeData != null)
         {
-            moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; 
-            //isCreateSubFolder = false; 
+            moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false;
+            //isCreateSubFolder = false;
             isCreateDynamicDocumentEnabled = false;
-            //isCreateSubFolder = false; 
+            //isCreateSubFolder = false;
             isProfileInfoEnabled = false; isMoveEnabled = "display:none;";
             if (fileTypeData != null)
             {
-                var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID,null));
+                var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID, null));
                 if (documentPermissionModels != null)
                 {
                     if (documentPermissionModels.IsPermissionExits == true)
@@ -1078,7 +1084,7 @@
                                 isVisibleParentMore = "";
                             }
                             moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; isProfileInfoEnabled = true;
-                            //isEdit = true; isDelete = true; isCreateSubFolder = true; 
+                            //isEdit = true; isDelete = true; isCreateSubFolder = true;
                             //  IsGrantAdminPermission = true;
                             if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                             {
@@ -2319,7 +2325,7 @@
 
     public async ValueTask DisposeAsync()
     {
-        await DisposeAsyncCore();        
+        await DisposeAsyncCore();
         // Suppress finalization
         GC.SuppressFinalize(this);
     }

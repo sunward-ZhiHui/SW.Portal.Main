@@ -14,7 +14,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
 @using System.Collections
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -62,7 +62,7 @@
                         <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="PlantValue"
                                        QueryDisplayText="QueryPlantText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -93,7 +93,7 @@
                         <ValidationMessage For="@(() => Data.PlantId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="DivisionValue"
                                        QueryDisplayText="QueryDivisionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -124,7 +124,7 @@
                         <ValidationMessage For="@(() => Data.DivisionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="DepartmentValue"
                                        QueryDisplayText="QueryDepartmentText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -155,7 +155,7 @@
                         <ValidationMessage For="@(() => Data.DepartmentId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="SectionValue"
                                        QueryDisplayText="QuerySectionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -186,7 +186,7 @@
                         <ValidationMessage For="@(() => Data.SectionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="SubSectionValue"
                                        QueryDisplayText="QuerySubSectionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -226,82 +226,82 @@
         </div>
     </div>
 
-<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;padding:5px;">
-    <div class="card-body p-0">
-        <div class="row">
-            <div class="">
-                <DxFormLayout CssClass="w-100">
-                    <DxFormLayoutItem Caption="Select Date:" ColSpanMd="6">
-                        <DxDateEdit NullText="Select a Date..." Date="@StartDate" DateExpression="@(() => StartDate)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" CssClass="cw-320" />
-                    </DxFormLayoutItem>
-                </DxFormLayout>
+    <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;padding:5px;">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="">
+                    <DxFormLayout CssClass="w-100">
+                        <DxFormLayoutItem Caption="Select Date:" ColSpanMd="6">
+                            <DxDateEdit NullText="Select a Date..." Date="@StartDate" DateExpression="@(() => StartDate)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" CssClass="cw-320" />
+                        </DxFormLayoutItem>
+                    </DxFormLayout>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<DxLoadingPanel @bind-Visible="PanelLoadVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
-    <DxGrid Data="docLists" KeyFieldName="DocumentID" ShowSearchBox="true"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            ShowGroupPanel="true" ShowGroupedColumns="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
-            SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            ValidationEnabled="true"
-            AutoExpandAllGroupRows="true"
-            CssClass="ch-360" style="height: calc(100vh - 200px);"
-            FocusedRowEnabled="true"
-            RowClick="OnRowClick"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            AllowSelectRowByClick="true">
-        <Columns>
-            @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
-            <DxGridCommandColumn MinWidth="20">
-                <HeaderTemplate>
-                    <DxCheckBox Checked="@CheckedAll" CheckedExpression="@(() => CheckedAll)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value))"></DxCheckBox>
-                </HeaderTemplate>
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DocumentsModel)context.DataItem;
+    <DxLoadingPanel @bind-Visible="PanelLoadVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid Data="docLists" KeyFieldName="DocumentID" ShowSearchBox="true"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                ValidationEnabled="true"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360" style="height: calc(100vh - 200px);"
+                FocusedRowEnabled="true"
+                RowClick="OnRowClick"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                AllowSelectRowByClick="true">
+            <Columns>
+                @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+                <DxGridCommandColumn MinWidth="20">
+                    <HeaderTemplate>
+                        <DxCheckBox Checked="@CheckedAll" CheckedExpression="@(() => CheckedAll)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value))"></DxCheckBox>
+                    </HeaderTemplate>
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
 
-                        <DxCheckBox Checked="item.Checked" CheckedChanged="@((bool values) => OnCheckedoneValueChanged(values,item))" CheckedExpression="@(() => item.Checked)"></DxCheckBox>
-                    }
-                </CellDisplayTemplate>
-            </DxGridCommandColumn>
-            <DxGridDataColumn FieldName="DocumentID" Visible="false" />
-            <DxGridDataColumn FieldName="FileName" Caption="FileName" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-            <DxGridDataColumn FieldName="FileSizes" Caption="File Size" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-            <DxGridDataColumn FieldName="ContentType" Caption="Type" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-            <DxGridDataColumn FieldName="UploadDate" Caption="Added Date" MinWidth="170">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DocumentsModel)context.DataItem;
-                        var expiryDate = (item.UploadDate != null ? Application.Common.Helper.Helper.FormatDate(item.UploadDate.Value) : null);
-                    }
-                    @expiryDate
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="FileSize" Caption="View File" MinWidth="50">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DocumentsModel)context.DataItem;
-                    }
-                    <DxButton RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" Click="@(() => onView(item))" Text="View" />
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-        </Columns>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
-        </TotalSummary>
-    </DxGrid>
-</DxLoadingPanel>
+                            <DxCheckBox Checked="item.Checked" CheckedChanged="@((bool values) => OnCheckedoneValueChanged(values,item))" CheckedExpression="@(() => item.Checked)"></DxCheckBox>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridCommandColumn>
+                <DxGridDataColumn FieldName="DocumentID" Visible="false" />
+                <DxGridDataColumn FieldName="FileName" Caption="FileName" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+                <DxGridDataColumn FieldName="FileSizes" Caption="File Size" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+                <DxGridDataColumn FieldName="ContentType" Caption="Type" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+                <DxGridDataColumn FieldName="UploadDate" Caption="Added Date" MinWidth="170">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
+                            var expiryDate = (item.UploadDate != null ? Application.Common.Helper.Helper.FormatDate(item.UploadDate.Value) : null);
+                        }
+                        @expiryDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="FileSize" Caption="View File" MinWidth="50">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
+                        }
+                        <DxButton RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" Click="@(() => onView(item))" Text="View" />
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+            </Columns>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
 </div>
 <DxPopup @bind-Visible="@BlukMissingdeleteDocument"
          ShowFooter="true"
@@ -312,7 +312,7 @@
         <p>
             Do you want to delete this Document
         </p>
-        
+
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -451,7 +451,7 @@
         await SelectedItemSectionChanged(0);
         StateHasChanged();
     }
-    void OnCheckedoneValueChanged(bool radioValue,DocumentsModel documentsModel)
+    void OnCheckedoneValueChanged(bool radioValue, DocumentsModel documentsModel)
     {
         loading = false;
         documentsModel.Checked = radioValue;
@@ -490,7 +490,7 @@
         loading = false;
         if (docLists != null && docLists.Count() > 0)
         {
-             loading = true;
+            loading = true;
         }
         StateHasChanged();
     }
@@ -735,6 +735,7 @@
     }
     void backUrl()
     {
+        ClearDAta();
         RevokeBack?.Invoke();
     }
     async void SelectionChanged(TreeViewNodeEventArgs e)
@@ -808,9 +809,31 @@
         }
 
     }
-    public void Dispose()
+    public void ClearDAta()
+    {
+        PlantValue = null;
+        DivisionValue = null;
+        DepartmentValue = null;
+        SectionValue = null;
+        SubSectionValue = null;
+        FolderPathListsItems?.Clear();
+        FolderPathLists = null;
+        selectedFiles = null;
+        Data = new DocumentsUploadModel();
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        documentProfileNoSeriesData = null;
+        fileProfileTypeDocumentsAll?.Clear();
+        docLists?.Clear();
+        _selectedItemss = null;
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearDAta();
         GC.SuppressFinalize(this);
     }
 }

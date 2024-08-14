@@ -4,7 +4,7 @@
 @using Application.Queries;
 @using MediatR;
 @using Newtonsoft.Json;
-@implements IDisposable
+@implements IAsyncDisposable
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IMediator Mediator
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
@@ -51,24 +51,24 @@
                         <ValidationMessage For="@(() => Data.Title)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                       @*  <DxComboBox Data="@_plantItems"
-                                    NullText="Select Company..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="PlantCode"
-                                    ValueFieldName="PlantID"
-                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemLinkDocChanged(plantSelect?.PlantID))"
-                                    Enabled="isPlantLinkDoc"
+                        @*  <DxComboBox Data="@_plantItems"
+                        NullText="Select Company..."
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="PlantCode"
+                        ValueFieldName="PlantID"
+                        SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemLinkDocChanged(plantSelect?.PlantID))"
+                        Enabled="isPlantLinkDoc"
                         @bind-Value="@Data.PlantID" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                                    Caption="Plant Code"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                                    Caption="Description" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-                                                    Caption="Nav Company" />
-                            </Columns>
+                        <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                        Caption="Plant Code"
+                        Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                        Caption="Description" />
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                        Caption="Nav Company" />
+                        </Columns>
                         </DxComboBox> *@
                         <DxDropDownBox @bind-Value="PlantValue"
                                        QueryDisplayText="QueryPlantText"
@@ -101,23 +101,23 @@
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Division" ColSpanMd="6">
                         @* <DxComboBox Data="@_divisionItems"
-                                    NullText="Select Division..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="Name"
-                                    ValueFieldName="DivisionID"
-                                    Enabled="isDivisionLinkDoc"
-                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionLinkDocChanged(plantSelect?.DivisionID))"
+                        NullText="Select Division..."
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Name"
+                        ValueFieldName="DivisionID"
+                        Enabled="isDivisionLinkDoc"
+                        SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionLinkDocChanged(plantSelect?.DivisionID))"
                         @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
-                                                    Caption="Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
-                                                    Caption="Code" />
-                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
-                                                    Caption="Description" />
-                            </Columns>
+                        <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                        Caption="Name"
+                        Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                        Caption="Code" />
+                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                        Caption="Description" />
+                        </Columns>
                         </DxComboBox> *@
                         <DxDropDownBox @bind-Value="DivisionValue"
                                        QueryDisplayText="QueryDivisionText"
@@ -149,24 +149,24 @@
                         <ValidationMessage For="@(() => Data.DivisionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                       @*  <DxComboBox Data="@_departmentItems"
-                                    NullText="Select Department..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="DepartmentName"
-                                    ValueFieldName="DepartmentId"
-                                    Enabled="isDepartmentLinkDoc"
-                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementLinkDocChanged(plantSelect?.DepartmentId))"
+                        @*  <DxComboBox Data="@_departmentItems"
+                        NullText="Select Department..."
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="DepartmentName"
+                        ValueFieldName="DepartmentId"
+                        Enabled="isDepartmentLinkDoc"
+                        SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementLinkDocChanged(plantSelect?.DepartmentId))"
                         @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
-                                                    Caption="Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
-                                                    Caption="Code" />
-                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
-                                                    Caption="Description" />
-                            </Columns>
+                        <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                        Caption="Name"
+                        Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                        Caption="Code" />
+                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                        Caption="Description" />
+                        </Columns>
                         </DxComboBox> *@
                         <DxDropDownBox @bind-Value="DepartmentValue"
                                        QueryDisplayText="QueryDepartmentText"
@@ -198,24 +198,24 @@
                         <ValidationMessage For="@(() => Data.DepartmentId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                       @*  <DxComboBox Data="@_sectionItems"
-                                    NullText="Select Section..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="SectionName"
-                                    ValueFieldName="SectionId"
-                                    Enabled="isSectionLinkDoc"
-                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionLinkDocChanged(plantSelect?.SectionId))"
+                        @*  <DxComboBox Data="@_sectionItems"
+                        NullText="Select Section..."
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="SectionName"
+                        ValueFieldName="SectionId"
+                        Enabled="isSectionLinkDoc"
+                        SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionLinkDocChanged(plantSelect?.SectionId))"
                         @bind-Value="@Data.SectionId" ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
-                                                    Caption="Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
-                                                    Caption="Code" />
-                                <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
-                                                    Caption="Description" />
-                            </Columns>
+                        <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                        Caption="Name"
+                        Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                        Caption="Code" />
+                        <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                        Caption="Description" />
+                        </Columns>
                         </DxComboBox> *@
                         <DxDropDownBox @bind-Value="SectionValue"
                                        QueryDisplayText="QuerySectionText"
@@ -277,8 +277,8 @@
                         <DxSpinEdit @bind-Value="@Data.SubSectionId" ShowValidationIcon="true" style="display:none;" />
                         <ValidationMessage For="@(() => Data.SubSectionId)" />
                     </DxFormLayoutItem>
-                   @*  <DxFormLayoutItem Caption="Profile No" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@Data.DocumentNo" ShowValidationIcon="true" />
+                    @*  <DxFormLayoutItem Caption="Profile No" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@Data.DocumentNo" ShowValidationIcon="true" />
                     </DxFormLayoutItem> *@
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_statusItems"
@@ -288,7 +288,7 @@
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="CodeValue"
                                     ValueFieldName="CodeId"
-                        @bind-Value="@Data.StatusCodeID" ShowValidationIcon="true">
+                                    @bind-Value="@Data.StatusCodeID" ShowValidationIcon="true">
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.StatusCodeID)" />
                     </DxFormLayoutItem>
@@ -342,7 +342,7 @@
         Data.StatusCodeID = 710;
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _statusItems = await Mediator.Send(new GetAllCodeMasterQuery("NoSeriesStatus"));
-        if (selectedItems != null && selectedItems.ProfileID > 0 && FileProfileTypeId>0)
+        if (selectedItems != null && selectedItems.ProfileID > 0 && FileProfileTypeId > 0)
         {
             documentProfileNoSeriesLinkDocData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedItems.ProfileID));
             if (documentProfileNoSeriesLinkDocData != null)
@@ -579,6 +579,7 @@
     }
     void LinkDocbackUrl()
     {
+        ClearData();
         RevokeBack?.Invoke();
     }
     void onsubmitUploadLinkDocFromClick()
@@ -606,9 +607,28 @@
             toastService.ShowToast("Invaild Profile", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
-    public void Dispose()
+    public void ClearData()
+    {
+        selectedItems = null;
+        PlantValue = null;
+        DivisionValue = null;
+        DepartmentValue = null;
+        SectionValue = null;
+        SubSectionValue = null;
+        Data = new DocumentNoSeriesModel();
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        documentProfileNoSeriesLinkDocData = null;
+        _statusItems?.Clear();
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearData();
         GC.SuppressFinalize(this);
     }
 }

@@ -12,7 +12,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -165,7 +165,7 @@
     bool Blukdeletepopup { get; set; } = false;
     string? DeleteerrorMessage;
     private string? FileUrl;
-    public Guid? SessionId{ get; set; }
+    public Guid? SessionId { get; set; }
     public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
@@ -197,7 +197,7 @@
         PanelVisible = false;
         StateHasChanged();
     }
-    void  EulaPopupLinkClosed(PopupClosedEventArgs args)
+    void EulaPopupLinkClosed(PopupClosedEventArgs args)
     {
         InvokeAsync(CloseLinkDocumentPopup);
     }
@@ -231,13 +231,13 @@
     }
     void PermissionEnabled()
     {
-       // uploadEnabled = false; 
+        // uploadEnabled = false;
         DownloadEnabled = false;
         viewEnabled = false; deletelinkEnabled = false;
         ViewParentDocumentsEnabled = false; NotifyEnabled = false;
         if (_selectedItems != null)
         {
-            
+
             DownloadEnabled = true;
             viewEnabled = true; deletelinkEnabled = true;
             ViewParentDocumentsEnabled = true; NotifyEnabled = true;
@@ -367,9 +367,14 @@
         await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
     void onNotify() { }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        //selectedFiles = null;
+        refUploadLinkDoumentFiles?.DisposeAsync();
+        fileProfileTypeDocumentsAll?.Clear();
+        _documentLinkModel?.Clear();
+       // _selectedItems = null;
         GC.SuppressFinalize(this);
     }
 }

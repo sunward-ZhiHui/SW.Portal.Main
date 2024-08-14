@@ -15,7 +15,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 @inject NavigationManager Navigator
-@implements IDisposable
+@implements IAsyncDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -526,6 +526,7 @@
     }
     void backUrl()
     {
+        ClearDAta();
         RevokeBack?.Invoke();
     }
     void OnFileUploadStart(FileUploadStartEventArgs e)
@@ -863,9 +864,35 @@
             toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
         }
     }
-    public void Dispose()
+    public void ClearDAta()
+    {
+        PlantValue = null;
+        DivisionValue = null;
+        DepartmentValue = null;
+        SectionValue = null;
+        SubSectionValue = null;
+        selectedFiles = null;
+        _dynamicformData = null;
+        fileProfileTypeModels = null;
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        Data = new DocumentsUploadModel();
+        TempSetIds?.Clear();
+        documentProfileNoSeriesData = null;
+        SelectedFiles?.Clear();
+        fileProfileTypeDocumentsAll?.Clear();
+        _dynamicFormSectionList?.Clear();
+        _selectedTreeItems = null;
+        dynamicFormSection1 = new DynamicFormSection();
+        AcceptedFileTypes?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearDAta();
         GC.SuppressFinalize(this);
     }
 }

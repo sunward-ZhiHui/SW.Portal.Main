@@ -12,7 +12,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
 @using System.Collections
-@implements IDisposable
+@implements IAsyncDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -35,7 +35,7 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentCheckInSelectButton"  Enabled="@checkInloading" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentCheckInSelectButton" Enabled="@checkInloading" />
                         <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="@onSubmitCheckInUploadFormClick" Enabled="@checkInloading" />
                     </Items>
                 </DxMenu>
@@ -69,7 +69,7 @@
 <div class="" style="margin-left:10px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
-            <EditForm EditContext="this._editContext" Context="EditFormContext"  OnValidSubmit="@HandleValidCheckInSubmit">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@HandleValidCheckInSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
                     <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Visible="@isExpiryDate">
@@ -80,27 +80,27 @@
                     </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
-                   @*  <DxFormLayoutItem Caption="" ColSpanMd="12"> *@
+            @*  <DxFormLayoutItem Caption="" ColSpanMd="12"> *@
 
-                        <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
-                            <DxUpload @ref="uploadCheckInComponent" Name="files"
-                                      Visible="@AttachmentCheckInUploadVisible"
-                                      AcceptedFileTypes=@AcceptedFileTypes
-                                      ChunkSize="200000"
-                                      UploadMode="@UploadMode.OnButtonClick"
-                                      FileUploadStart="OnFileUploadStart"
-                                      AllowMultiFileUpload="false"
-                                      ExternalSelectButtonCssSelector="#attachmentCheckInSelectButton"
-                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                                      FileUploaded="@isUploadSuccess"
-                                      FileUploadProgressChanged="@OnUploadProgressChanged"
-                                      FileUploadStarted="@OnFileUploadStarted"
-                                      FileUploadError="@OnUploadError">
-                            </DxUpload>
+            <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
+                <DxUpload @ref="uploadCheckInComponent" Name="files"
+                          Visible="@AttachmentCheckInUploadVisible"
+                          AcceptedFileTypes=@AcceptedFileTypes
+                          ChunkSize="200000"
+                          UploadMode="@UploadMode.OnButtonClick"
+                          FileUploadStart="OnFileUploadStart"
+                          AllowMultiFileUpload="false"
+                          ExternalSelectButtonCssSelector="#attachmentCheckInSelectButton"
+                          SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                          FileUploaded="@isUploadSuccess"
+                          FileUploadProgressChanged="@OnUploadProgressChanged"
+                          FileUploadStarted="@OnFileUploadStarted"
+                          FileUploadError="@OnUploadError">
+                </DxUpload>
 
-                        </div>
-                   @*  </DxFormLayoutItem> *@
-               
+            </div>
+            @*  </DxFormLayoutItem> *@
+
         </div>
     </div>
 </div>
@@ -320,6 +320,7 @@
     }
     void backUrl()
     {
+        ClearData();
         RevokeBack?.Invoke();
     }
     void onSubmitCheckInUploadFormClick()
@@ -345,9 +346,21 @@
     {
         uploadCheckInComponent.UploadAllFiles();
     }
-    public void Dispose()
+    public void ClearData()
+    {
+        selectedItems = null;
+        FolderPathLists = null;
+        FolderPathListsItems?.Clear();
+        Data = new DocumentsUploadModel();
+        SelectedFiles?.Clear();
+        AcceptedFileTypes?.Clear();
+        documentsFiles?.Clear();
+        TempSetIds?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearData();
         GC.SuppressFinalize(this);
     }
 }

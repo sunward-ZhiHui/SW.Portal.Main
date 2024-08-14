@@ -9,7 +9,7 @@
 @using global::Core.Repositories.Query;
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IDisposable
+@implements IAsyncDisposable
 @inject ClipboardService ClipboardService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
@@ -92,6 +92,7 @@
     }
     void onBack()
     {
+        clearData();
         RevokeBack?.Invoke();
     }
     async void OnCustomizeToolbar(IToolbar toolbar)
@@ -142,9 +143,17 @@
         IBarGroup undoRedoGroup = toolbar.Groups[0];
         undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
     }
-    public void Dispose()
+    public void clearData()
+    {
+        selectedItems = null;
+        fileProfileTypeProfileInfo = null;
+        Data = new FileProfileTypeModel();
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        clearData();
         GC.SuppressFinalize(this);
     }
 }

@@ -12,7 +12,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="demo-breadcrumbs-container theme-blazing-berry">
     <div class="breadcrumb">
         <div class="demo-breadcrumbs sidebar-hidden">
@@ -184,7 +184,7 @@
     public async Task loadFileProfileDataList()
     {
         documentLinkSearchModel.FileProfileTypeId = null;
-        documentLinkSearchModel.FileProfileTypeIds =new List<long?>();
+        documentLinkSearchModel.FileProfileTypeIds = new List<long?>();
         FolderPathLists = new List<DocumentsModel>();
         if (FileProfileTypeId > 0)
         {
@@ -301,9 +301,18 @@
             }
         }
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ParentSelectedFiles = null;
+        LinkProfileSelectedFiles = null;
+        selectedFiles = null;
+        fileProfileTypeDocumentsLink?.Clear();
+        fileProfileTypeDocumentsAllList?.Clear();
+        _fileProfileselectedlstItemsList = null;
+        FolderPathLists?.Clear();
+        _selectedItemsList = null;
+        documentLinkSearchModel = new DocumentSearchModel();
         GC.SuppressFinalize(this);
     }
 }

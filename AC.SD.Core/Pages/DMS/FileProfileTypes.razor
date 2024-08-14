@@ -21,7 +21,7 @@
 @implements IAsyncDisposable;
 @using System;
 @using System.IO;
-@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 <style>
     .dxbl-wait-indicator {
         --dxbl-wait-indicator-color: white;
@@ -309,7 +309,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <LinkDocumentsList selectedFiles="@selectedFiles"></LinkDocumentsList>
+        <LinkDocumentsList @ref="refLinkDocumentsList" selectedFiles="@selectedFiles"></LinkDocumentsList>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkDocumentPopup())" />
@@ -322,7 +322,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <ParentLinkDocuments ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></ParentLinkDocuments>
+        <ParentLinkDocuments @ref="refParentLinkDocuments" ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></ParentLinkDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkParentDocumentPopup())" />
@@ -413,7 +413,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId" selectedItems="@_selectedItems"></FileProfileTypeSecurity>
+        <FileProfileTypeSecurity @ref="refFileProfileTypeSecurity" FileProfileTypeId="@FileProfileTypeId" selectedItems="@_selectedItems"></FileProfileTypeSecurity>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSecurityAccessPopup())" />
@@ -619,7 +619,7 @@
          ShowFooter="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AddFileProfileTypeInfo selectedItems="@_ParentselectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></AddFileProfileTypeInfo>
+        <AddFileProfileTypeInfo @ref="refAddFileProfileTypeInfo" selectedItems="@_ParentselectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></AddFileProfileTypeInfo>
     </BodyContentTemplate>
 </DxPopup>
 <DxFlyout @bind-IsOpen=IsMoveDocumentsOpen
@@ -687,10 +687,14 @@
          ShowFooter="false"
          MinWidth="400" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <MissingUploadFileProfileType FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" RevokeBack="BackUpload"></MissingUploadFileProfileType>
+        <MissingUploadFileProfileType @ref="refMissingUploadFileProfileType" FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" RevokeBack="BackUpload"></MissingUploadFileProfileType>
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private MissingUploadFileProfileType refMissingUploadFileProfileType;
+    private AddFileProfileTypeInfo refAddFileProfileTypeInfo;
+    private FileProfileTypeSecurity refFileProfileTypeSecurity;
+    private ParentLinkDocuments refParentLinkDocuments; private LinkDocumentsList refLinkDocumentsList;
     bool MissingUploadFileProfileTypePopup { get; set; } = false;
     string? MoveDocumentName { get; set; } = string.Empty;
     bool MoveDocumentPopup { get; set; } = false;
@@ -807,6 +811,7 @@
     }
     async Task loadFileProfileTypeAllDatas()
     {
+        fileProfileTypeDocumentsAll=new List<DocumentsModel>();
         PanelVisible = true;
         // await onshowLoading();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
@@ -877,7 +882,7 @@
     {
         PanelVisible = true;
         //await onshowLoading();
-        searchText = null; SearchText = null;
+        searchText = null; SearchText = null;_fileContentList = null;_openAccessUserLink = null;_fileProfileselectedlstItems = null;
         isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
         IsFileProfileTypeInfoOpen = false;
@@ -2318,15 +2323,34 @@
     //     System.GC.Collect();
     //     GC.SuppressFinalize(this);
     // }
-    protected virtual async ValueTask DisposeAsyncCore()
-    {
-        System.GC.Collect();
-        _selectedTreeItems = new List<DocumentsModel>();
-    }
-
     public async ValueTask DisposeAsync()
     {
-        await DisposeAsyncCore();
+        System.GC.Collect();
+        refMissingUploadFileProfileType?.DisposeAsync();
+        refAddFileProfileTypeInfo?.DisposeAsync();
+        refFileProfileTypeSecurity?.DisposeAsync();
+        refParentLinkDocuments?.DisposeAsync();
+        refLinkDocumentsList?.DisposeAsync();
+        refUploadDoumentFiles?.DisposeAsync();
+        refShareDocuments?.DisposeAsync();
+        refUploadDocumentUpdateFiles?.DisposeAsync();
+        selectedFiles = null;
+        fileProfileTypeDocuments?.Clear();
+        fileProfileTypeDocumentsAll?.Clear();
+        _fileProfileselectedlstItems = null;
+        _openAccessUserLink = null;
+        //LinkProfileSelectedFiles = null;
+        FolderPathLists?.Clear();
+        FolderPathListsItems?.Clear();
+        _selectedTreeItems = null;
+        //_selectedItems = null;
+        _ParentselectedItems = null;
+        _selectedDescriptionItems = null;
+        fileProfileTypeProfileInfo = null;
+        documentSearchModel = null;
+        _fileContentList?.Clear();
+        _MoveDocList?.Clear();
+        documentPermissionModel = null;
         // Suppress finalization
         GC.SuppressFinalize(this);
     }

@@ -16,7 +16,7 @@
 @inject NavigationManager Navigator
 @using System.Collections
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
-@implements IDisposable
+@implements IAsyncDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -497,7 +497,6 @@
         FolderPathListsItems = FolderPathLists.Cast<DocumentsModel>().ToList();
         _editContext = new EditContext(Data);
         await loadData(selectedFiles, applicationUser);
-
     }
     public async Task loadData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
     {
@@ -651,6 +650,7 @@
     }
     void backUrl()
     {
+        ClearDAta();
         failedDocumentPopup = false;
         RevokeBack?.Invoke();
     }
@@ -1088,9 +1088,31 @@
     {
         uploadComponent.UploadAllFiles();
     }
-    public void Dispose()
+    public void ClearDAta()
+    {
+        PlantValue = null;
+        DivisionValue = null;
+        DepartmentValue = null;
+        SectionValue = null;
+        SubSectionValue = null;
+        selectedFiles = null;
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        Data = new DocumentsUploadModel();
+        TempSetIds?.Clear();
+        documentProfileNoSeriesData = null;
+        SelectedFiles?.Clear();
+        fileProfileTypeDocumentsAll?.Clear();
+        _selectedTreeItems = null;documentsFiles?.Clear();
+        AcceptedFileTypes?.Clear();FolderPathLists = null;
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearDAta();
         GC.SuppressFinalize(this);
     }
 }

@@ -2880,6 +2880,33 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public DynamicFormWorkFlow GetDynamicFormWorkFlowSequenceNoExitsCheckValidation(long? dynamicFormId, long? dynamicFormWorkFlowId, int? SequenceNo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormId", dynamicFormId);
+                parameters.Add("DynamicFormWorkFlowId", dynamicFormWorkFlowId);
+                parameters.Add("SequenceNo", SequenceNo);
+                query = "select DynamicFormId,DynamicFormWorkFlowId,SequenceNo,UserID from DynamicFormWorkFlow where SequenceNo=@SequenceNo AND DynamicFormId=@DynamicFormId\n\r";
+                if (dynamicFormWorkFlowId > 0)
+                {
+                    query += "\n\rAND dynamicFormWorkFlowId!=@dynamicFormWorkFlowId";
+                }
+                else
+                {
+                }
+                using (var connection = CreateConnection())
+                {
+                    return connection.QueryFirstOrDefault<DynamicFormWorkFlow>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId, long? attributeId)
         {
             try

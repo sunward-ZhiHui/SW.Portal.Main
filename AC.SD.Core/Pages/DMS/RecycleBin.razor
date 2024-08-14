@@ -8,7 +8,7 @@
 @using global::Core.Entities;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IDisposable
+@implements IAsyncDisposable
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
@@ -224,7 +224,7 @@
         }
         catch(Exception ex)
         {
-            
+
         }
     }
     private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
@@ -327,9 +327,14 @@
     {
         SelectedDataItems = SelectedToItems;
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        fileProfileTypeDocumentsAll?.Clear();
+        fileProfileTypeDocuments?.Clear();
+        _fileProfileselectedlstItems = null;
+        _selectedItems = null;
+        SelectedDataItems = null;
         GC.SuppressFinalize(this);
     }
 }

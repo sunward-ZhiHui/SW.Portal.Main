@@ -155,4 +155,32 @@ namespace Core.Entities.CustomValidations
             return ValidationResult.Success;
         }
     }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormWorkFlowSequenceNoCustomValidation : ValidationAttribute
+    {
+        private IServiceProvider serviceProvider;
+
+        public DynamicFormWorkFlowSequenceNoCustomValidation()
+        {
+            serviceProvider = AppDependencyResolver.Current.GetService<IServiceProvider>();
+        }
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var datas = (DynamicFormWorkFlow)validationContext.ObjectInstance;
+
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var service = scope.ServiceProvider.GetService<IDynamicFormQueryRepository>();
+                    var results = service.GetDynamicFormWorkFlowSequenceNoExitsCheckValidation(datas.DynamicFormId, datas.DynamicFormWorkFlowId, datas.SequenceNo);
+                    if (results != null)
+                    {
+                        return new ValidationResult("SequenceNo already exits", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            return ValidationResult.Success;
+        }
+    }
 }

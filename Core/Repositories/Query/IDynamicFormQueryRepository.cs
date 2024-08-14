@@ -100,6 +100,7 @@ namespace Core.Repositories.Query
 
         Task<DynamicFormWorkFlowApproval> InsertDynamicFormDataWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval);
         Task<DynamicFormWorkFlowApproval> DeleteDynamicFormDataWorkFlowApproval(DynamicFormWorkFlowApproval dynamicFormWorkFlowApproval);
+        DynamicFormWorkFlow GetDynamicFormWorkFlowSequenceNoExitsCheckValidation(long? dynamicFormId, long? dynamicFormWorkFlowId, int? SequenceNo);
     }
 
 }

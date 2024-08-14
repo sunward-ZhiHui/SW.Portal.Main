@@ -9,7 +9,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="" style="margin-top: 10px;margin-left: 11px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;padding:10px;">
         <div class="cw-480" style="margin-top:10px;">
@@ -241,9 +241,14 @@
             }
         }
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        _dynamicForm=null;
+        _fileProfileTypeData = null;
+        Data = new FileProfileTypeModel();
+        _shelfLifeDurationItems?.Clear();
+        _documentProfileNoList?.Clear();
         GC.SuppressFinalize(this);
     }
 }

@@ -10,7 +10,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IDisposable
+@implements IAsyncDisposable
 @page "/fileprofiletype/AddFileProfileTypes"
 @page "/fileprofiletype/AddFileProfileTypes/{Type}"
 @page "/fileprofiletype/AddFileProfileTypes/{Type}/{SessionId:guid}"
@@ -59,7 +59,7 @@
                     <AddOrEditFileProfileType @ref="refAddOrEditFileProfileType" SessionId="@SessionId" Type="@Type"></AddOrEditFileProfileType>
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Security Access" Visible=@IsGrantAdminPermission>
-                    <FileProfileTypeSecurity fileProfileTypeDocumentsAlls="@fileProfileTypeDocumentsAll" FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
+                    <FileProfileTypeSecurity @ref="@refFileProfileTypeSecurity" fileProfileTypeDocumentsAlls="@fileProfileTypeDocumentsAll" FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
                 </DxFormLayoutTabPage>
                 @* <DxFormLayoutTabPage Caption="Upload Details Form" Visible=@IsFileProfileTypeId>
                 <UploadDetailsSetUpForm FileProfileTypeId="@FileProfileTypeId"></UploadDetailsSetUpForm>
@@ -156,7 +156,7 @@
     async Task onCheckPermission(DocumentsModel fileType)
     {
         isEditProfileType = false; isSaveEnabled = false; IsGrantAdminPermission = false;
-        var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(FileProfileTypeId, _applicationUser.UserID,null));
+        var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(FileProfileTypeId, _applicationUser.UserID, null));
         if (Type == "Add")
         {
             if (fileType.AddedByUserID == _applicationUser.UserID)
@@ -254,9 +254,19 @@
     {
         NavigationManager.NavigateTo("fileprofiletype");
     }
-    public void Dispose()
+    public async Task ClearData()
+    {
+        refAddOrEditFileProfileType?.DisposeAsync();
+        refFileProfileTypeSecurity?.DisposeAsync();
+        FolderPathLists = new List<DocumentsModel>();
+        fileProfileTypeDocumentsAll?.Clear();
+        _openAccessUserLink = null;
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearData();
         GC.SuppressFinalize(this);
     }
 }

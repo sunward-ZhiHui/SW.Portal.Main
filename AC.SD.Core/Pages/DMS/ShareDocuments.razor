@@ -12,7 +12,7 @@
 @inject ClipboardService ClipboardService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -280,6 +280,7 @@
     }
     void onBack()
     {
+        ClearData();
         RevokeBack?.Invoke();
     }
     private async Task addCopyLink()
@@ -355,9 +356,17 @@
         }
 
     }
-    public void Dispose()
+    public void ClearData()
+    {
+        selectedItems = null;
+        _documentDmsShareList?.Clear();
+        SelectedDataItems = null;
+        _selectedItems = null;
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearData();
         GC.SuppressFinalize(this);
     }
 }

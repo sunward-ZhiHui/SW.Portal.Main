@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities.CustomValidations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,6 +19,7 @@ namespace Core.Entities
         public long? UserGroupId { get; set; }
         public long? LevelId { get; set; }
         [Required(ErrorMessage = "Sequence No is required")]
+        [DynamicFormWorkFlowSequenceNoCustomValidation]
         public int? SequenceNo { get; set; }
         [NotMapped]
         public string? UserGroup { get; set; }

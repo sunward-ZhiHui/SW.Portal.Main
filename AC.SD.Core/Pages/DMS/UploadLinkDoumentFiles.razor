@@ -14,7 +14,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
-@implements IDisposable
+@implements IAsyncDisposable
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 <style>
     .dxuc-file-list-view {
@@ -522,6 +522,7 @@
     }
     void LinkDocbackUrl()
     {
+        ClearData();
         RevokeLinkDocBack?.Invoke();
     }
     void OnFileUploadLinkDocStart(FileUploadStartEventArgs e)
@@ -809,9 +810,31 @@
     {
         LinkDocuploadComponent.UploadAllFiles();
     }
-    public void Dispose()
+    public void ClearData()
+    {
+        PlantValue = null;
+        DivisionValue = null;
+        DepartmentValue = null;
+        SectionValue = null;
+        SubSectionValue = null;
+        selectedFiles = null;
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        Data = new DocumentsUploadModel();
+        TempSetLinkDocIds?.Clear();
+        documentProfileNoSeriesLinkDocData = null;
+        LinkDocSelectedFiles?.Clear();
+        fileProfileTypeLinkDocDocumentsAll?.Clear();
+        _selectedTreeItems = null; documentsFiles?.Clear();
+        linkDocAcceptedFileTypes?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearData();
         GC.SuppressFinalize(this);
     }
 }

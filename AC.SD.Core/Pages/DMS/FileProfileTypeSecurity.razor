@@ -9,7 +9,7 @@
 @using global::Core.Repositories.Query;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IDisposable
+@implements IAsyncDisposable
 @using System.Collections
 <div style="width:100%;">
     <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabSecIndex" TabsPosition="TabsPosition.Top" TabClick="OnTabClick">
@@ -548,7 +548,7 @@
         {
             saveEnabled = true;
             toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId,DocumentId);
+            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId, DocumentId);
         }
         StateHasChanged();
     }
@@ -650,9 +650,20 @@
         }
         return fileProfileTypeModel;
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        refDocumentUserRoleListsUser?.DisposeAsync();
+        _userGroupsList?.Clear();
+        _documentRoleList?.Clear();
+        _levelMasterLists?.Clear();
+        _usersList?.Clear();
+        Data = new DocumentUserRoleModel();
+        documentPermissionData = null;
+        fileProfileTypeDocumentsAll?.Clear();
+        fileProfileTypeDocuments?.Clear();
+        selectedItems = null;
+        fileProfileTypeDocumentsAlls = null;
         GC.SuppressFinalize(this);
     }
 }

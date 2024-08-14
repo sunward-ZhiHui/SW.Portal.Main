@@ -8,7 +8,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IDisposable
+@implements IAsyncDisposable
 <style>
     .alt-item > td {
         background-color: rgba(0, 0, 0, 0.05);
@@ -444,9 +444,15 @@
     {
         await refAddOrEditDocumentPermission.savePermission();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        refAddOrEditDocumentPermission?.DisposeAsync();
+        _documentRole?.Clear();
+        _plantItems?.Clear();
+        SelectedDataItems = null;
+        _selectedItems = null;
+        _stausItems?.Clear();
         GC.SuppressFinalize(this);
     }
 }

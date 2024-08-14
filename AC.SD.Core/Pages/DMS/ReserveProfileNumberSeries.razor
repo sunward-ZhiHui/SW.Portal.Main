@@ -9,7 +9,7 @@
 @inject ClipboardService ClipboardService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@implements IDisposable
+@implements IAsyncDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -93,7 +93,7 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="VersionNo" Caption="Version No" MinWidth="80" />
-            
+
             <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="80" />
             <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="40" />
 
@@ -204,7 +204,7 @@
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Title:" ColSpanMd="12">
-                <DxTextBox @bind-Text="@_selectedDescriptionItems.Title" CssClass="cw-480"  />
+                <DxTextBox @bind-Text="@_selectedDescriptionItems.Title" CssClass="cw-480" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </BodyContentTemplate>
@@ -479,10 +479,17 @@
             await loadReserveNoData();
         }
     }
-    
-    public void Dispose()
+
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        SelectedFiles?.Clear();
+        fileProfileTypeDocumentsAll?.Clear();
+        _reserveProfileNumberSeriesList?.Clear();
+        FolderPathLists?.Clear();
+        _selectedDescriptionItems = new DocumentNoSeriesModel();
+        _ParentselectedItems = null;
+        _selectedItems = null;
         GC.SuppressFinalize(this);
     }
 }

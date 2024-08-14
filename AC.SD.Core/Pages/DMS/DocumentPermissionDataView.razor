@@ -1,5 +1,5 @@
 ﻿@using global::Core.EntityModels;
-@implements IDisposable
+@implements IAsyncDisposable
 @if (documentPermissionData != null)
 {
     <DxFormLayout CssClass="w-100">
@@ -79,8 +79,9 @@ else
 @code {
     [Parameter]
     public DocumentPermissionModel? documentPermissionData { get; set; }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
+        documentPermissionData = null;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

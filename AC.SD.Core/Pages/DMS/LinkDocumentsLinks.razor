@@ -10,7 +10,7 @@
 @inject IConfiguration Configuration
 @inject ClipboardService ClipboardService
 @inject AC.SD.Core.Services.ToastService toastService
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -19,7 +19,7 @@
             <Items>
                 <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="OnDownload" Enabled="@DownloadEnabled" />
                 <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewEnabled" />
-               
+
             </Items>
         </DxMenu>
     </div>
@@ -107,11 +107,11 @@
     void PermissionEnabled()
     {
         DownloadEnabled = false;
-        viewEnabled = false; 
+        viewEnabled = false;
         if (_selectedItems != null)
         {
             DownloadEnabled = true;
-            viewEnabled = true; 
+            viewEnabled = true;
         }
         StateHasChanged();
     }
@@ -203,9 +203,13 @@
             }
         }
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        selectedFiles = null;
+        fileProfileTypeDocumentsAll?.Clear();
+        _documentLinkModel?.Clear();
+        _selectedItems = null;
         GC.SuppressFinalize(this);
     }
 }

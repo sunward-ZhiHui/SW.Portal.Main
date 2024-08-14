@@ -12,7 +12,7 @@
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable;
-
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
 
 <div class="card w-100" style="margin-bottom:10px;">

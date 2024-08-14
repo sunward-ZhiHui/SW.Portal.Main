@@ -18,6 +18,7 @@
 @using Newtonsoft.Json;
 @using System.Dynamic;
 @implements IDisposable
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @*     <DxLoadingPanel @bind-Visible="PanelVisible"
                     IsContentBlocked="true"
                     ApplyBackgroundShading="true"

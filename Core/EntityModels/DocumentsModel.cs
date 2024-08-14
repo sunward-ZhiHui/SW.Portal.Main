@@ -8,8 +8,19 @@ using System.Threading.Tasks;
 
 namespace Core.EntityModels
 {
-    public class DocumentsModel : BaseModel
+    public class DocumentsModel 
     {
+        public long? DeleteByUserID { get; set; }
+        public string? DeleteByUser { get; set; }
+        public DateTime? DeleteByDate { get; set; }
+        public long? AddedByUserID { get; set; }        
+        public string AddedByUser { get; set; }       
+        public DateTime? AddedDate { get; set; }       
+        public string ModifiedByUser { get; set; }
+        public long? ModifiedByUserID { get; set; }       
+        public DateTime? ModifiedDate { get; set; }
+        public int? StatusCodeID { get; set; }
+        public long? DocumentID { get; set; }
         public string Name { get; set; }
         public long UniqueNo { get; set; }
         //public long DocumentID { get; set; }
@@ -117,8 +128,7 @@ namespace Core.EntityModels
         //DocumentUserRole Details
         public long DocumentUserRoleID { get; set; }
         public long? RoleID { get; set; }
-        public long? UserGroupID { get; set; }
-        public long? FolderID { get; set; }
+        public long? UserGroupID { get; set; }        
         public long? ParentFolderID { get; set; }
 
         public bool IsSubTaskDocument { get; set; }

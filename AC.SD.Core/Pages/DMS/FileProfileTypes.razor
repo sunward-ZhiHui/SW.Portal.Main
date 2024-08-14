@@ -21,6 +21,7 @@
 @implements IAsyncDisposable;
 @using System;
 @using System.IO;
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 <style>
     .dxbl-wait-indicator {
         --dxbl-wait-indicator-color: white;

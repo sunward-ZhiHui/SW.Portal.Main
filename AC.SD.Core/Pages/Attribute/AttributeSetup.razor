@@ -12,7 +12,7 @@
 @implements IDisposable
 @using global::Core.Entities.Views;
 @inject NavigationManager NavigationManager
-
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
 <div class="row align-items-end" style="padding: 10px;border: 1px solid #d5d4d4;">
     <div class="cw-480 ch-220" style="margin-top:10px;">

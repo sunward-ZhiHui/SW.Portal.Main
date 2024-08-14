@@ -542,7 +542,7 @@
                     _selectedDocumentItems.DocumentParentId = doclst.DocumentParentId;
                     _selectedDocsItems.DocumentParentId = doclst.DocumentParentId;
                     _selectedDocumentItems.FilterProfileTypeId = doclst.FilterProfileTypeId;
-                    _selectedDocumentItems.SessionId = doclst.SessionId;
+                    _selectedDocumentItems.SessionID = doclst.SessionId;
                     _selectedDocumentItems.ProfileNo = doclst.ProfileNo;
                     _selectedDocumentItems.Description = doclst.FileName;
                     _selectedDocumentItems.FileName = doclst.FileName;
@@ -561,7 +561,7 @@
                                 AddedDate = DateTime.Now,
                                 UploadDate = DateTime.Now
                             };
-                        _activityEmailSessionId = _selectedDocumentItems.SessionId;
+                        _activityEmailSessionId = _selectedDocumentItems.SessionID;
                         var result = await Mediator.Send(creReq);
 
                         DocumentsUploadModel Data = new DocumentsUploadModel();
@@ -576,7 +576,7 @@
                         Data.UserSession = applicationUser.SessionId;
                         Data.UserId = applicationUser.UserID;
                         Data.ProfileId = _selectedDocumentItems.ProfileID;
-                        Data.SessionId = _selectedDocumentItems.SessionId;
+                        Data.SessionId = _selectedDocumentItems.SessionID;
                         Data.ProfileNo = _selectedDocumentItems.ProfileNo;
                         Data.FileProfileTypeId = _selectedDocumentItems.FileProfileTypeId > 0 ? _selectedDocumentItems.FileProfileTypeId : _selectedDocumentItems.FilterProfileTypeId;
                         Data.UserId = applicationUser.UserID;
@@ -923,7 +923,7 @@
             LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             _dataFileProfileType.FileProfileTypeId = nodeName.FileProfileTypeId;
             _dataFileProfileType.ProfileId = nodeName.ProfileID;
-            _dataFileProfileType.sessionId = nodeName.SessionId;
+            _dataFileProfileType.sessionId = nodeName.SessionID;
         }
 
         if (_dataFileProfileType != null && _dataFileProfileType.ProfileId > 0)

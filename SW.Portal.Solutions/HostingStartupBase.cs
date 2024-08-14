@@ -1,41 +1,13 @@
-using System;
-using System.IO;
-using System.Net.Http;
-using AC.SD.Core;
-using AC.SD.Core.Configuration;
-using AC.SD.Core.DataProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
-//using AC.ShippingDocument.DataProviders.Implementation;
-//using AC.ShippingDocument.Wasm.Server.DataProviders;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Blazored.Toast;
 using AC.SD.Core.Services;
 using Application.Common.Helper;
 using Blazored.LocalStorage;
-using DevExpress.DashboardWeb;
-using SW.Portal.Solutions.Code;
-
-
-using DevExpress.AspNetCore;
-using DevExpress.DashboardAspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Google.Cloud.Firestore;
 using SW.Portal.Solutions.Services;
-using Core.EntityModels;
 using Quartz.Impl;
 using Quartz.Spi;
 using Quartz;
@@ -88,16 +60,14 @@ namespace SW.Portal.Solutions.ServerSide
                 provider.Mappings[".razor"] = "text/plain";
                 provider.Mappings[".cshtml"] = "text/plain";
                 provider.Mappings[".cs"] = "text/plain";
-                app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });
-                app.UseWebSockets();
+                app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });                
                 app.UseAuthorization();
 
                 app.UseEndpoints(endpoints =>
                 {
-                    endpoints.MapControllers();
-                    endpoints.MapDashboardRoute("api/dashboard", "DefaultDashboard");
+                    endpoints.MapControllers();                    
                     endpoints.MapFallbackToPage("/_Host");
-                    //endpoints.MapFallbackToPage("/Login"); // Add this line to handle the login route
+                    
                 });
                 // Add your dashboard route mapping here
 
@@ -112,12 +82,7 @@ namespace SW.Portal.Solutions.ServerSide
 
                 // Add the following block to add the DashboardConfigurator service
                 IConfiguration configuration = context.Configuration;
-                IFileProvider fileProvider = context.HostingEnvironment.ContentRootFileProvider;
-
-                services.AddScoped<DashboardConfigurator>((IServiceProvider serviceProvider) =>
-                {
-                    return DashboardUtils.CreateDashboardConfigurator(configuration, fileProvider);
-                });
+                IFileProvider fileProvider = context.HostingEnvironment.ContentRootFileProvider;              
 
                 services.AddHttpClient<HttpClient>(ConfigureHttpClient);
                 services.AddBlazoredLocalStorage();
@@ -143,14 +108,7 @@ namespace SW.Portal.Solutions.ServerSide
                 services.AddScoped<IFirebaseSync, FirebaseSync>();
 
                 services.AddSingleton<IJobFactory, SingletonJobFactory>();
-                services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
-                /*services.AddSingleton<HandfireJob>();
-                services.AddSingleton(new JobScheduleType(
-                    jobType: typeof(HandfireJob),
-                    cronExpression: "0/59 * * * * ?")); // run every 59 seconds
-
-
-                services.AddHostedService<QuartzHostedService>();*/
+                services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();               
 
                 // Configure Firestore
                 ConfigureFirestore(services);
@@ -173,9 +131,8 @@ namespace SW.Portal.Solutions.ServerSide
                             "text/json"
                         };
                 });
-                services.AddControllers().AddJsonOptions(ConfigureJsonOptions);
-                //services.AddTransient<RealtimeService>();
-                //services.AddTransient<EmailAutoRefresh>();
+                services.AddControllers().AddJsonOptions(ConfigureJsonOptions);                
+                
                 //Enable CORS
                 services.AddCors(c =>
                 {

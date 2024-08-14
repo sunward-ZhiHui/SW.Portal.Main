@@ -1,6 +1,6 @@
 ﻿@page "/login"
 @page "/login/{returnUrl}"
-@inject IAlertService AlertService
+@* @inject IAlertService AlertService *@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @layout LoginLayout
@@ -219,7 +219,7 @@
     private async void OnValidSubmit()
     {
         // reset alerts on submit
-        AlertService.Clear();
+        //AlertService.Clear();
 
         loading = true;
 
@@ -291,7 +291,8 @@
         }
         catch(Exception ex)
         {
-            AlertService.Error(ex.Message);
+            onShowPopupMessage(ex.Message, "Username or password is incorrect");
+            //AlertService.Error(ex.Message);
             loading = false;
             StateHasChanged();
 

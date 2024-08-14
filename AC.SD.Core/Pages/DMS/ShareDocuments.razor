@@ -144,7 +144,7 @@
         EditEnabled = false; DeleteEnabled = false;
         if (selectedItems.DocumentID > 0)
         {
-            _documentDmsShareList = await Mediator.Send(new GetDocumentDMSShareList(selectedItems.SessionId));
+            _documentDmsShareList = await Mediator.Send(new GetDocumentDMSShareList(selectedItems.SessionID));
             if (_documentDmsShareList.Count > 0)
             {
                 _selectedItems = _documentDmsShareList.FirstOrDefault();

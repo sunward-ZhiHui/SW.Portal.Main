@@ -9,6 +9,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IDisposable
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
 

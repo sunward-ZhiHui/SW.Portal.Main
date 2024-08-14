@@ -531,7 +531,7 @@ namespace Infrastructure.Repository.Query
                         documentsModel.ContentType = documetsparent.ContentType;
                         documentsModel.FileSize = (long)Math.Round(Convert.ToDouble(documetsparent.FileSize / 1024));
                         documentsModel.UploadDate = documetsparent.UploadDate;
-                        documentsModel.SessionID = documetsparent.SessionId;
+                        documentsModel.SessionID = documetsparent.SessionID;
                         documentsModel.FilterProfileTypeId = documetsparent.FilterProfileTypeId;
                         documentsModel.FileProfileTypeName = fileProfileType?.FirstOrDefault(f => f.FileProfileTypeId == documetsparent.FilterProfileTypeId)?.Name;
                         documentsModel.DocumentParentId = documetsparent.DocumentParentId;
@@ -585,7 +585,7 @@ namespace Infrastructure.Repository.Query
                                     FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024)),
                                     UploadDate = s.UploadDate,
                                     IsNewPath = s.IsNewPath,
-                                    SessionID = s.SessionId,
+                                    SessionID = s.SessionID,
                                     FilterProfileTypeId = s.FilterProfileTypeId,
                                     FileProfileTypeName = fileProfileType.FirstOrDefault(f => f.FileProfileTypeId == s.FilterProfileTypeId)?.Name,
                                     DocumentParentId = s.DocumentParentId,
@@ -824,7 +824,7 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.IsEmailTopics = isemailTopics > 0 ? true : false;
                             }
                             documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
-                            documentsModels.SessionId = s.SessionId;
+                            documentsModels.SessionID = s.SessionId;
                             documentsModels.DocumentID = s.DocumentId;
                             documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
                             documentsModels.OriginalFileName = s.FileName;
@@ -1534,7 +1534,7 @@ namespace Infrastructure.Repository.Query
                                 DocumentsModel documentsModels = new DocumentsModel();
                                 documentsModels.UniqueNo = counts;
                                 documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
-                                documentsModels.SessionId = s.SessionId;
+                                documentsModels.SessionID = s.SessionId;
                                 documentsModels.DocumentID = s.DocumentId;
                                 documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
                                 documentsModels.ContentType = s.ContentType;
@@ -1978,7 +1978,7 @@ namespace Infrastructure.Repository.Query
                             var parametersLink = new DynamicParameters();
                             parametersLink.Add("DocumentId", value.DocumentID);
                             parametersLink.Add("Description", value.Description);
-                            parametersLink.Add("TransactionSessionId", value.SessionId);
+                            parametersLink.Add("TransactionSessionId", value.SessionID);
                             var querys = "Update LinkFileProfileTypeDocument SET Description=@Description WHERE " +
                                 "DocumentId= @DocumentId AND TransactionSessionId=@TransactionSessionId";
                             await connection.QuerySingleOrDefaultAsync<long>(querys, parametersLink);

@@ -44,9 +44,12 @@
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
-@* @implements IAsyncDisposable; *@
+@implements IDisposable;
+@inherits BasePage
+@inject PersistentComponentState ComponentState
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
@@ -1728,6 +1731,7 @@
 
 
 @code {
+    private PersistingComponentStateSubscription? subscription;
     private string elapsedTime;
     private int pageNumber = 1; // Initial page number
     private int pageSize = 15; // Number of records per page
@@ -2027,7 +2031,7 @@
                     _selectedDocumentItems.DocumentParentId = doclst.DocumentParentId;
                     _selectedDescriptionItems.DocumentParentId = doclst.DocumentParentId;
                     _selectedDocumentItems.FilterProfileTypeId = doclst.FilterProfileTypeId;
-                    _selectedDocumentItems.SessionId = doclst.SessionId;
+                    _selectedDocumentItems.SessionID = doclst.SessionId;
                     _selectedDocumentItems.ProfileNo = doclst.ProfileNo;
                     _selectedDocumentItems.Description = doclst.FileName;
                     _selectedDocumentItems.FileName = doclst.FileName;
@@ -2046,7 +2050,7 @@
                                 AddedDate = DateTime.Now,
                                 UploadDate = DateTime.Now
                             };
-                        _activityEmailSessionId = _selectedDocumentItems.SessionId;
+                        _activityEmailSessionId = _selectedDocumentItems.SessionID;
                         var result = await Mediator.Send(creReq);
 
                         DocumentsUploadModel Data = new DocumentsUploadModel();
@@ -2061,7 +2065,7 @@
                         Data.UserSession = applicationUser.SessionId;
                         Data.UserId = applicationUser.UserID;
                         Data.ProfileId = _selectedDocumentItems.ProfileID;
-                        Data.SessionId = _selectedDocumentItems.SessionId;
+                        Data.SessionId = _selectedDocumentItems.SessionID;
                         Data.ProfileNo = _selectedDocumentItems.ProfileNo;
                         Data.FileProfileTypeId = _selectedDocumentItems.FileProfileTypeId > 0 ? _selectedDocumentItems.FileProfileTypeId : _selectedDocumentItems.FilterProfileTypeId;
                         Data.UserId = applicationUser.UserID;
@@ -2400,7 +2404,7 @@
             LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             _dataFileProfileType.FileProfileTypeId = nodeName.FileProfileTypeId;
             _dataFileProfileType.ProfileId = nodeName.ProfileID;
-            _dataFileProfileType.sessionId = nodeName.SessionId;
+            _dataFileProfileType.sessionId = nodeName.SessionID;
         }
 
         if (_dataFileProfileType != null && _dataFileProfileType.ProfileId > 0)
@@ -5182,15 +5186,16 @@
         //_forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
         //_topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
     }
-    // public void Dispose()
-    // {
-    //     NavigationManager.LocationChanged -= OnLocationChanged;
+     public void Dispose()
+     {
+         NavigationManager.LocationChanged -= OnLocationChanged;
 
-    //     cancellationTokenSource?.Cancel();
-    //     cancellationTokenSource?.Dispose();
-    //     System.GC.Collect();
-    //     GC.SuppressFinalize(this);        
-    // }
+         cancellationTokenSource?.Cancel();
+         cancellationTokenSource?.Dispose();
+         System.GC.Collect();
+         GC.SuppressFinalize(this);  
+    subscription?.Dispose();
+     }
     // protected virtual void Dispose(bool disposing)
     // {
     //     if (disposing)

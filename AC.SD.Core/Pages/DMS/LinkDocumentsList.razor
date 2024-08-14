@@ -180,7 +180,7 @@
     {
         PanelVisible = true;
         uploadEnabled = true;
-        SessionId = selectedFiles.SessionId;
+        SessionId = selectedFiles.SessionID;
         _documentLinkModel = await Mediator.Send(new GetFileProfileTypeLinkDocument(selectedFiles.DocumentID));
         if (_documentLinkModel != null && _documentLinkModel.Count > 0)
         {

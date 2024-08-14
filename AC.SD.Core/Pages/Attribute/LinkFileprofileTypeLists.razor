@@ -226,7 +226,7 @@
         documentsUploadModel = _documentsUploadModel;
         dynamicFormData = _dynamicformData;
         ParentSelectedFiles = parentSelectedFiles;
-        documentLinkSearchModel.SessionId = ParentSelectedFiles.SessionID != null ? ParentSelectedFiles.SessionID : ParentSelectedFiles.SessionId;
+        documentLinkSearchModel.SessionId = ParentSelectedFiles.SessionID != null ? ParentSelectedFiles.SessionID : ParentSelectedFiles.SessionID;
         FileProfileTypeId = ParentSelectedFiles.FileProfileTypeId;
         await loadFileProfileDataList();
     }

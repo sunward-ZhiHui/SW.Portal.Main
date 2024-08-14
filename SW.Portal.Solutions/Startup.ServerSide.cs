@@ -1,35 +1,15 @@
-using System;
-using System.IO;
-using System.Net.Http;
 using AC.SD.Core.Configuration;
-using AC.SD.Core.DataProviders;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-using System.Collections.Generic;
-using AC.SD.Core.Services;
 using Infrastructure;
 using Application;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Blazored.Toast;
 using AC.ShippingDocument.Reporting;
-using Application.Constant;
-using SW.Portal.Solutions.Hubs;
-using Core.FCM;
 using Core.Services;
 using SW.Portal.Solutions.Models;
-using DevExpress.DashboardWeb;
-using Microsoft.Extensions.FileProviders;
-using SW.Portal.Solutions.Code;
-using AC.SD.Core;
-using DevExpress.CodeParser;
+using AC.SD.Core.Services;
+using Blazored.SessionStorage;
+using SW.Portal.Solutions.Services;
 namespace SW.Portal.Solutions.ServerSide
 {
-
     partial class Startup
     {
         private IWebHostEnvironment env;
@@ -52,15 +32,8 @@ namespace SW.Portal.Solutions.ServerSide
             });
             services.AddBlazoredToast();
             services.AddDevExpressServerSideBlazorReportViewer();
-            //services.AddTransient<RealtimeService>();
-            //services.AddTransient<EmailAutoRefresh>();
-
-            //var keys = WebPush.VapidHelper.GenerateVapidKeys();
-            //System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
-            //System.Diagnostics.Debug.WriteLine(keys.PublicKey);
-
-            services.AddControllersWithViews();
-            services.AddDemoServices(Configuration, env);
+            
+            services.AddControllersWithViews();           
 
             services.AddSingleton<IDemoVersion, DemoVersion>(x =>
             {
@@ -70,66 +43,50 @@ namespace SW.Portal.Solutions.ServerSide
                 var dxVersion = new Version(AssemblyInfo.Version);
                 return new DemoVersion(new Version(dxVersion.Major, dxVersion.Minor, dxVersion.Build) + customVersion);
             });
-            services.AddTransient<HttpClient>(serviceProvider => serviceProvider.GetService<IHttpClientFactory>().CreateClient());
-            //services.AddInfrastructureServices(Configuration);
+            services.AddTransient<HttpClient>(serviceProvider => serviceProvider.GetService<IHttpClientFactory>().CreateClient());            
             services.AddInfrastructure(Configuration);
             services.AddApplication();
 
             services.AddHttpContextAccessor();
 
-            //services.AddTransient<IFcm>(s => new FcmBuilder()
-            //   .WithApiKey("Your_API_key")
-            //   .GetFcm()
-            // );
+            ////Enable CORS
+            //services.AddCors(c =>
+            //{
+            //    c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            //});
+            //services.Configure<RequestBodyOptions>(options =>
+            //{
+            //    options.MinRequestBodyDataRate = 1024; // 1 kilobyte per second
+            //});
+
+            services.AddRazorComponents(); // Ensure this is called if required
+            services.AddDevExpressBlazor(); // Register DevExpress Blazor services
+            services.AddOptions();
+            services.AddControllers();
+            services.AddHttpContextAccessor();
+            services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
+            services.AddBlazoredSessionStorage();
+            services.AddSingleton<DemoConfiguration>();
+            services.AddScoped<DemoThemeService>();
+            services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();
+            services.AddDevExpressServerSideBlazorReportViewer();
+            services.AddScoped<ClipboardService>();
+            services.AddScoped<FirebaseMessagingService>();
 
 
-            //Enable CORS
-            services.AddCors(c =>
-            {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            });
+            //services.AddControllersWithViews();
+            services.AddHttpClient();
+
+            // Inject IConfiguration to access configuration settings
+            var configuration = context.Configuration;
+
+            // Configure strongly typed settings objects
+            var appSettingsSection = configuration.GetSection("FcmNotification");
+            services.Configure<FcmNotificationSetting>(appSettingsSection);
             services.Configure<RequestBodyOptions>(options =>
             {
                 options.MinRequestBodyDataRate = 1024; // 1 kilobyte per second
             });
-            //services.AddScoped<IContosoRetailDataProvider, ContosoRetailDataProvider>();
-            //services.AddScoped<IRentInfoDataProvider, RentInfoDataProvider>();
-
-            //services.AddDbContextFactory<NorthwindContext>(opt => {
-            //    var connectionString = ConnectionStringUtils.GetNorthwindConnectionString(context.Configuration);
-            //    if(!string.IsNullOrEmpty(connectionString))
-            //        opt.UseSqlServer(connectionString);
-            //    else
-            //        opt.UseSqlite(ConnectionStringUtils.GetNorthwindSqliteConnectionString(context.Configuration));
-            //});
-            //services.AddDbContextFactory<IssuesContext>(opt => {
-            //    var connectionString = ConnectionStringUtils.GetIssuesConnectionString(context.Configuration);
-            //    if(!string.IsNullOrEmpty(connectionString))
-            //        opt.UseSqlServer(connectionString);
-            //    else
-            //        opt.UseSqlite(ConnectionStringUtils.GetIssuesSqliteConnectionString(context.Configuration));
-            //});
-            //services.AddDbContextFactory<WorldcitiesContext>(opt => {
-            //    var connectionString = ConnectionStringUtils.GetWorlcitiesConnectionString(context.Configuration);
-            //    if(!string.IsNullOrEmpty(connectionString))
-            //        opt.UseSqlServer(connectionString);
-            //    else
-            //        opt.UseSqlite(ConnectionStringUtils.GetWorlcitiesSqliteConnectionString(context.Configuration));
-            //});
-            //services.AddDbContextFactory<RentInfoContext>(opt => {
-            //    var connectionString = ConnectionStringUtils.GetGridLargeDataConnectionString(context.Configuration);
-            //    if(!string.IsNullOrEmpty(connectionString))
-            //        opt.UseSqlServer(connectionString);
-            //});
-            //services.AddDbContextFactory<ContosoRetailContext>(opt => {
-            //    var connectionString = ConnectionStringUtils.GetPivotGridLargeDataConnectionString(context.Configuration);
-            //    if(!string.IsNullOrEmpty(connectionString))
-            //        opt.UseSqlServer(connectionString);
-            //});
-            //services.AddSingleton<IStockQuoteService, StockQuoteService>();
-            //services.AddHostedService<StockQuoteChangeTimerService>(
-            //    provider => new StockQuoteChangeTimerService((StockQuoteService)provider.GetRequiredService<IStockQuoteService>())
-            //);
 
         }
         public override void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -140,33 +97,30 @@ namespace SW.Portal.Solutions.ServerSide
             }
             else
             {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseExceptionHandler("/Error");                
                 app.UseHsts();
             }
             app.UseCors("AllowOrigin");
-            app.UseStaticFiles();
-            //app.UseStaticFiles(new StaticFileOptions {
-            //    ServeUnknownFileTypes = true
-            //});
-            app.UseWebSockets();
+            app.UseStaticFiles();            
+            //app.UseWebSockets();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapRazorPages(); // Map Razor Pages
+                endpoints.MapControllers();
                 endpoints.MapBlazorHub();
-                //endpoints.MapHub<NotificationHub>(ApplicationConstants.SignalR.HubUrl);
             });
 
             AppDependencyResolver.Init(app.ApplicationServices);
         }
         public override void Configure(IWebHostBuilder builder)
         {
-            builder.ConfigureAppConfiguration(((context, configurationBuilder) =>
-            {
-                configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
-                {
-                    ["DataSourcesFolder"] = Path.Combine(System.AppContext.BaseDirectory, "DataSources")
-                });
-            }));
+            //builder.ConfigureAppConfiguration(((context, configurationBuilder) =>
+            //{
+            //    configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
+            //    {
+            //        ["DataSourcesFolder"] = Path.Combine(System.AppContext.BaseDirectory, "DataSources")
+            //    });
+            //}));
 
             builder.UseIISIntegration();
             builder.UseIIS();

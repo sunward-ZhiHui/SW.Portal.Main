@@ -417,7 +417,7 @@ namespace SW.Portal.Solutions.Controllers
                 }
 
                  var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
-                var FileSessionID = FileProfileSessionID.SessionId;
+                var FileSessionID = FileProfileSessionID.SessionID;
                 Guid? FileNameSessionID = Guid.NewGuid();
                 if (FileSessionID != null)
                 {

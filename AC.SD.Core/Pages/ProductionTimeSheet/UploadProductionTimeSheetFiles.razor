@@ -437,7 +437,7 @@
             {
                 isExpiryDate = true;
             }
-            DocSessionId = selectedFiles.SessionID == null ? selectedFiles.SessionId : selectedFiles.SessionID;
+            DocSessionId = selectedFiles.SessionID == null ? selectedFiles.SessionID : selectedFiles.SessionID;
             Data.UserSession = _applicationUser.SessionId;
             Data.UserId = _applicationUser.UserID;
             Data.ProfileId = selectedFiles.ProfileID;
@@ -504,7 +504,7 @@
             var nodeName = e.NodeInfo.DataItem as DocumentsModel;
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
             FileProfileTypeId= nodeName.FileProfileTypeId;
-            DocSessionId = nodeName.SessionID == null ? nodeName.SessionId : nodeName.SessionID;
+            DocSessionId = nodeName.SessionID == null ? nodeName.SessionID : nodeName.SessionID;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             await loadData(nodeName, "No");

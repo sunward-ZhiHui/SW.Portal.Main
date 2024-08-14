@@ -3437,7 +3437,7 @@ namespace Infrastructure.Repository.Query
 
                         if (dynamicFormSection.UploadType == "DMS")
                         {
-                            parameters.Add("SessionId", dynamicFormSection.DocumentsModel?.SessionId, DbType.Guid);
+                            parameters.Add("SessionId", dynamicFormSection.DocumentsModel?.SessionID, DbType.Guid);
                             parameters.Add("IsDmsLink", 1);
                         }
                         else

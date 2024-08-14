@@ -504,7 +504,7 @@ namespace SW.Portal.Solutions.Controllers
             DocumentfileType FilterData = new DocumentfileType();
             FilterData.Name = result.Name;
             FilterData.Description = result.Description;
-            FilterData.SessionId = (Guid)result.SessionId;
+            FilterData.SessionId = (Guid)result.SessionID;
             FilterData.FileProfileTypeID = (long)result.FileProfileTypeId;
             FilterData.ProfileID = (long)result.ProfileID;
             try

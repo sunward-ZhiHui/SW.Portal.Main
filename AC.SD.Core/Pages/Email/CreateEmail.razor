@@ -1,4 +1,5 @@
-﻿@using Application.Commands;
+﻿@attribute [StreamRendering]
+@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
 @using System.Text;
@@ -27,7 +28,8 @@
 @page "/CreateEmail"
 @page "/CreateEmail/{ActiveSessionId}"
 @implements IDisposable;
-@inject PersistentComponentState ApplicationState;
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+
 
 @using global::Core.EntityModels;
 <style>
@@ -686,6 +688,7 @@ else
 </DxFlyout>
 
 @code {
+   // private PersistingComponentStateSubscription? subscription;
     IEnumerable<UserGroup> UserGroupValues { get; set; }
     IEnumerable<UserGroup> TogroupValue { get; set; }
     IEnumerable<UserGroup> ccgroupValue { get; set; }
@@ -694,7 +697,7 @@ else
     ApplicationMasterChildModel selectCategory { get; set; }
     IEnumerable<UserGroup> toUserGroupValues { get; set; }
     ViewEmployee selectBehalf {get;set;}
-    private PersistingComponentStateSubscription _subscription;
+    //private PersistingComponentStateSubscription _subscription;
     private string? _myData;
     private int submitCount = 0;
     bool IsUserGroupToOpen { get; set; } = false;
@@ -1787,13 +1790,13 @@ else
     private Task Persist()
     {
         // storing the data
-        ApplicationState.PersistAsJson("myData", _myData);
+        //ApplicationState.PersistAsJson("myData", _myData);
         return Task.CompletedTask;
     }
    
     protected override async Task OnInitializedAsync()
     {
-        _subscription = ApplicationState.RegisterOnPersisting(Persist);     
+        //_subscription = ApplicationState.RegisterOnPersisting(Persist);     
         _editContext = new EditContext(Data);
 
         //var tasks = new List<Task>();
@@ -2550,8 +2553,9 @@ else
         GC.SuppressFinalize(this);
         //System.GC.Collect();
         //GC.SuppressFinalize(this);
-        _subscription.Dispose();        
+        //_subscription.Dispose();        
         NavigationManager.LocationChanged -= OnLocationChanged;
+       // subscription?.Dispose();
     }
 
     //internal async Task OpenUrlInNewTab(string url)

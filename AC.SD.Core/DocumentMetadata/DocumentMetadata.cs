@@ -31,9 +31,7 @@ namespace DevExpress.Blazor.DocumentMetadata {
     public static partial class DocumentMetadataExtensions {
         public static IServiceCollection AddDocumentMetadata(this IServiceCollection services) {
             services.TryAddSingleton<DocumentMetadataSetup>(_ => new DocumentMetadataSetup());
-            services.AddScoped<DocumentMetadataService>();
-            services.AddSingleton<RealtimeService>();
-            services.AddSingleton<EmailAutoRefresh>();
+            services.AddScoped<DocumentMetadataService>();           
             services.AddScoped<IDocumentMetadataService>(sp => sp.GetService<DocumentMetadataService>());
             services.AddScoped<IDocumentMetadataCollection>(sp => sp.GetService<DocumentMetadataService>());
             services.AddScoped<IObservable<Renderer>, DocumentMetadataObserver>();

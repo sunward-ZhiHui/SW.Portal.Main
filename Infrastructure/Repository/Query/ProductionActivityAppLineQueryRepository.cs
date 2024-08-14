@@ -657,7 +657,7 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("SessionId", value.SessionID == null ? value.SessionId : value.SessionID, DbType.Guid);
+                        parameters.Add("SessionId", value.SessionID == null ? value.SessionID : value.SessionID, DbType.Guid);
                         var query = string.Empty;
                         if (value.Type == "Production Activity")
                         {

@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	  <ServerGarbageCollection>false</ServerGarbageCollection>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -23,8 +24,7 @@
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
     <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
-    <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="23.2.4" />
-    <PackageReference Include="DevExpress.Data" Version="23.2.6" />
+    <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="23.2.4" />    
     <PackageReference Include="FluentValidation" Version="11.8.1" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="MediatR" Version="12.2.0" />
@@ -33,11 +33,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="DevExpress.Blazor.v23.2">
-      
-    </Reference>
-  </ItemGroup>
-
 </Project>

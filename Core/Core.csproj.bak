@@ -1,26 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<ServerGarbageCollection>false</ServerGarbageCollection>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
-    <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="23.2.4" />
-    <PackageReference Include="DevExpress.Data" Version="23.2.6" />
     <PackageReference Include="Google.Cloud.Firestore" Version="3.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="DevExpress.Blazor.v23.2">
-      
-    </Reference>
   </ItemGroup>
 
 </Project>

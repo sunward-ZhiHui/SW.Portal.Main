@@ -11,7 +11,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
-
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @implements IAsyncDisposable
 
 

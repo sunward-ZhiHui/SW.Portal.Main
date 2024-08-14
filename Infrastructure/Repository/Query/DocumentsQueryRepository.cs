@@ -1238,7 +1238,7 @@ namespace Infrastructure.Repository.Query
                                 "ProfileNo='" + profileNo + "', " +
                                 "TableName='Document', " +
                                 "IsTemp=0, " +
-                                "SessionId='" + value.SessionId + "' " +
+                                "SessionId='" + value.SessionID + "' " +
                                 "WHERE " +
                                  "DocumentID=" + value.DocumentID + ";\n\r";
 
@@ -1246,7 +1246,7 @@ namespace Infrastructure.Repository.Query
                         query += "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId," +
                                 "SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId,Description) " +
                                 "OUTPUT INSERTED.NumberSeriesId VALUES " +
-                               "(" + values.ProfileId + ",'" + profileNo + "',@AddedDate," + values.UserId + ",710,'" + value.SessionId + "'," + values.UserId + "," +
+                               "(" + values.ProfileId + ",'" + profileNo + "',@AddedDate," + values.UserId + ",710,'" + value.SessionID + "'," + values.UserId + "," +
                                "@ModifiedDate," + values.UserId + "," + values.FileProfileTypeId + ",'" + values.Description + "');\r\n";
                     });
                     if (!string.IsNullOrEmpty(query))

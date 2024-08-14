@@ -1,23 +1,15 @@
-
-using AC.SD.Core;
 using AC.SD.Core.Helpers;
 using AC.SD.Core.ReportProvider;
 using AC.SD.Core.Services;
-using DevExpress.DataAccess.Web;
-using DevExpress.DataAccess.Wizard.Services;
 using DevExpress.XtraReports.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Reporting.Core.Services;
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
-using AC.SD.Core.Code;
-using DevExpress.DashboardWeb;
+
 
 
 namespace AC.ShippingDocument.Reporting

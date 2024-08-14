@@ -22,7 +22,7 @@ namespace AC.SD.Core.Helpers
                         FileProfileTypeId = x.FileProfileTypeId,
                         ProfileID = x.ProfileID,
                         ParentId = x.ParentId,
-                        SessionId = x.SessionID,
+                        SessionID = x.SessionID,
                         FileName = x.FileName,
                         HasChildren = true,
                         Children = build(x.FileProfileTypeId).Count > 0 ? build(x.FileProfileTypeId) : new List<DocumentsModel>(),

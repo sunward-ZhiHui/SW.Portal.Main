@@ -44,7 +44,7 @@
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
-@implements IDisposable;
+@implements IAsyncDisposable;
 @inherits BasePage
 @inject PersistentComponentState ComponentState
 @using System.Text.Json;
@@ -5043,7 +5043,7 @@
     protected override void OnInitialized()
     {
         NavigationManager.LocationChanged += OnLocationChanged;
-        
+
     }    
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -5067,7 +5067,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
         AppUserId = applicationUser.UserID;
-       // await JSRuntime.InvokeAsync<string>("showLoading");
+        // await JSRuntime.InvokeAsync<string>("showLoading");
 
         filterrowname = "";
         if(Page == "Todo")
@@ -5166,7 +5166,7 @@
         }
 
 
-       // await JSRuntime.InvokeAsync<string>("hideLoading");
+        // await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
 
 
@@ -5186,16 +5186,55 @@
         //_forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
         //_topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
     }
-     public void Dispose()
-     {
-         NavigationManager.LocationChanged -= OnLocationChanged;
+    public async ValueTask DisposeAsync()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
 
-         cancellationTokenSource?.Cancel();
-         cancellationTokenSource?.Dispose();
-         System.GC.Collect();
-         GC.SuppressFinalize(this);  
-    subscription?.Dispose();
-     }
+        cancellationTokenSource?.Cancel();
+        cancellationTokenSource?.Dispose();
+
+        if (RefAssignAll is IAsyncDisposable asyncDisposableRefAssignAll)
+        {
+            await asyncDisposableRefAssignAll.DisposeAsync();
+        }
+        else
+        {
+            RefAssignAll?.Dispose();
+        }
+
+        if (RefAssignTo is IAsyncDisposable asyncDisposableRefAssignTo)
+        {
+            await asyncDisposableRefAssignTo.DisposeAsync();
+        }
+        else
+        {
+            RefAssignTo?.Dispose();
+        }
+
+        if (RefMasterSearch is IAsyncDisposable asyncDisposableRefMasterSearch)
+        {
+            await asyncDisposableRefMasterSearch.DisposeAsync();
+        }
+        else
+        {
+            RefMasterSearch?.Dispose();
+        }
+
+        if (RefAdminSearch is IAsyncDisposable asyncDisposableRefAdminSearch)
+        {
+            await asyncDisposableRefAdminSearch.DisposeAsync();
+        }
+        else
+        {
+            RefAdminSearch?.Dispose();
+        }
+
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+
+        subscription?.Dispose();
+    }
+
     // protected virtual void Dispose(bool disposing)
     // {
     //     if (disposing)

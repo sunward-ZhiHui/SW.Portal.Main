@@ -13,6 +13,7 @@
 @using System.Linq.Expressions;
 @using System.Reflection;
 @using System.Dynamic;
+@implements IAsyncDisposable
 @* @page "/DynamicFormItemGridList/AddDynamicFormItemLine"
 @page "/DynamicFormItemGridList/AddDynamicFormItemLine/{DynamicFormItemids:long}" *@
 <div class="card w-100" style="margin-bottom:10px;">
@@ -141,13 +142,14 @@
          ShowCloseButton="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments @ref="refUploadDocuments" SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private AC.SD.Core.Pages.UploadDocuments.UploadDocuments refUploadDocuments{ get; set; }
     EditContext _editContext;
     [Parameter]
     public long? DynamicFormItemids { get; set; }
@@ -438,6 +440,24 @@
         InvokeAsync(UpdateDataAsync);
         AttachmentPopUp = false;
         StateHasChanged();
+    }
+    public void clearData()
+    {
+        refUploadDocuments?.DisposeAsync();
+        _dynamicForm?.Clear();
+        _dynamicFormData?.Clear();
+        _dynamicFormItemLine?.Clear();
+        _selectedItems=null;
+        Data = new DynamicFormItemLine();
+        dropDownOptionsGridListModel = null;
+        _dynamicformObjectDataList = null;
+        _selectedItems = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        clearData();
+        GC.SuppressFinalize(this);
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {

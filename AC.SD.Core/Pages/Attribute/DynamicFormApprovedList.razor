@@ -15,7 +15,7 @@
 @inject NavigationManager NavigationManager
 @using Newtonsoft.Json.Linq;
 @using Newtonsoft.Json;
-@implements IDisposable
+@implements IAsyncDisposable
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -135,7 +135,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
+        <UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@createEmailpopup"
@@ -163,7 +163,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridId" IsShow="false" MainSessionId="@MainSessionId" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
+        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists @ref="refDynamicFormGridLists" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridId" IsShow="false" MainSessionId="@MainSessionId" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@lockpopup"
@@ -184,6 +184,8 @@
 </DxPopup>
 bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock"; bool lockpopup { get; set; } = false;
 @code {
+    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
+    private DynamicFormGridLists refDynamicFormGridLists { get; set; }
     private IDisposable? DynamicFormPage3;
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -248,11 +250,21 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
     {
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-
         DynamicFormPage3?.Dispose();
         System.GC.Collect();
+        refUploadDoumentDynamicFiles?.DisposeAsync();
+        refDynamicFormGridLists?.DisposeAsync();
+        _dynamicForm=null;
+        _documentsDmsData=null;
+        _selectedItems=null;
+        _dynamicformDataList?.Clear();
+        _AttributeHeader=null;
+        dataColumnNames?.Clear();
+        _dynamicformObjectDataList?.Clear();
+        _dynamicFormSectionAttributeList?.Clear();
+        PlantDependencySubAttributeDetails?.Clear();
         GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()

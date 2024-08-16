@@ -12,7 +12,7 @@
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
-@implements IDisposable
+@implements IAsyncDisposable
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -107,11 +107,12 @@
     {
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-
         DynamicFormPage4?.Dispose();
         System.GC.Collect();
+        _dynamicForm?.Clear();
+        _selectedItems=null;
         GC.SuppressFinalize(this);
     }
     async Task UpdateDataAsync()

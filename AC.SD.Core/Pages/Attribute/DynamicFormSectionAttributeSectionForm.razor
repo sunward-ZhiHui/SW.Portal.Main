@@ -10,6 +10,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -350,5 +351,22 @@
         {
 
         }
+    }
+    public void ClearData()
+    {
+        _dynamicFormSectionAttributeSectionParentList?.Clear();
+        _selectedAttributeItems = null;
+        _dynamicFormSectionData?.Clear();
+        _ShowSectionVisibleDataItems?.Clear();
+        _ShowSectionVisibleAllDataItems?.Clear();
+        _applicationMasterItems?.Clear(); _applicationMasterParentItems?.Clear();
+        _dynamicFormSectionAllData?.Clear();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        ClearData();
+        GC.SuppressFinalize(this);
+       
     }
 }

@@ -14,6 +14,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
 @if (SelectedItems.DynamicFormDataId > 0)
 {
     <div class="card w-100" style="margin-bottom:10px;">
@@ -255,13 +257,13 @@
                     if (SelectedItems.DynamicFormDataId > 0 && _selectedItems.DynamicFormWorkFlowApprovedFormID > 0)
                     {
 
-                            if (_selectedItems.IsApproved == null)
-                            {
-                                EditDelegateEnabled = true;
-                                EditEnabled = true;
-                                DeleteEnabled = true;
-                            }
-                        
+                        if (_selectedItems.IsApproved == null)
+                        {
+                            EditDelegateEnabled = true;
+                            EditEnabled = true;
+                            DeleteEnabled = true;
+                        }
+
                     }
                     SMShareGrid.SetFocusedRowIndex(0);
                 }
@@ -297,10 +299,10 @@
             if (SelectedItems.IsNextFlow == true)
             {
 
-                    EditDelegateEnabled = true;
-                    EditEnabled = true;
-                    DeleteEnabled = true;
-                
+                EditDelegateEnabled = true;
+                EditEnabled = true;
+                DeleteEnabled = true;
+
             }
         }
         StateHasChanged();
@@ -517,5 +519,19 @@
             }
         }
         StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        SelectedDataItems = null;
+        _usersList?.Clear();
+        _usersAllList?.Clear();
+        _dynamicFormWorkFlowApprovalList?.Clear();
+        _selectedItems=null;
+        sortOrderList?.Clear();
+        _selectedDynamicFormSectionItems = new DynamicFormWorkFlowApproval();
+        _dynamicFormApprovedChangedList?.Clear();
+        dynamicFormApprovedChanged = new DynamicFormWorkFlowApprovedFormChanged();
+        GC.SuppressFinalize(this);
     }
 }

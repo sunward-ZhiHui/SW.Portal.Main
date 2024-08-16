@@ -7,7 +7,7 @@
 @using Microsoft.Extensions.Configuration;
 @using global::Core.Repositories.Query;
 @inject IJSRuntime JSRuntime;
-@implements IDisposable
+@implements IAsyncDisposable
 @using global::Core.Entities.Views;
 
 <div class="row align-items-end" style="padding: 10px;border: 1px solid #d5d4d4;">
@@ -327,6 +327,7 @@
     }
     void onBack()
     {
+        clearData();
         RevokeBack?.Invoke();
     }
     async Task OnTabClick(TabClickEventArgs e)
@@ -861,9 +862,31 @@
         }
 
     }
-    public void Dispose()
+    public void clearData()
+    {
+        RefDetails?.DisposeAsync();
+        _plantItems?.Clear();
+        Data = new AttributeHeader();
+        _stausItems?.Clear();
+        _applicationUsers?.Clear();
+        codemaster=null;
+        _SaveLst?.Clear();
+        AttributeNamelst = new AttributeHeader();
+        ControlTypeChildData?.Clear();
+        DropDownTypeItems?.Clear();
+        DataSourceItems?.Clear();
+        TemplateUploadOptions = null;
+        RadioButtonOptions = null;
+        _controlTypeData?.Clear();
+        _attributeHeaderDataSource?.Clear();
+        _applicationMasterItems?.Clear();
+        _dynamicForm?.Clear();
+        dynamicFormSectionSpinEdit?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        clearData();
         GC.SuppressFinalize(this);
     }
 }

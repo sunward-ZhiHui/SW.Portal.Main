@@ -14,7 +14,7 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
-
+@implements IAsyncDisposable
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -95,13 +95,14 @@
          ShowCloseButton="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments @ref="refUploadDocuments" SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private AC.SD.Core.Pages.UploadDocuments.UploadDocuments refUploadDocuments{ get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private List<DynamicFormItem> _dynamicformItems;
     bool EditEnabled { get; set; } = false;
@@ -210,5 +211,18 @@
         InvokeAsync(UpdateDataAsync);
         AttachmentPopUp = false;
         StateHasChanged();
+    }
+    public void clearData()
+    {
+        refUploadDocuments?.DisposeAsync();
+        SelectedDataItems=null;
+        _dynamicformItems?.Clear();
+        _selectedItems = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        clearData();
+        GC.SuppressFinalize(this);
     }
 }

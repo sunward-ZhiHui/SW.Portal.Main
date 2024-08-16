@@ -10,7 +10,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IDisposable
+@implements IAsyncDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -221,13 +221,14 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormWorkFlowApprovalForm SelectedItems="@_selectedItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></DynamicFormWorkFlowApprovalForm>
+        <DynamicFormWorkFlowApprovalForm @ref="refDynamicFormWorkFlowApprovalForm" SelectedItems="@_selectedItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></DynamicFormWorkFlowApprovalForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private DynamicFormWorkFlowApprovalForm refDynamicFormWorkFlowApprovalForm{ get; set; }
     IEnumerable<string> TemplateUploadOptions = new[] { "User"/* , "User Group", "Level" */ };
     [Parameter]
     public long? dynamicFormId { get; set; }
@@ -544,9 +545,21 @@
         }
         StateHasChanged();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        refDynamicFormWorkFlowApprovalForm?.DisposeAsync();
+        TemplateUploadOptions = null;
+        SelectedDataItems = null;
+        _dynamicFormApprovalData?.Clear();
+        _selectedItems=null;
+        _selectlst=null;
+        _usersList?.Clear();
+        _userGroupsList?.Clear();
+        _documentRoleList?.Clear();
+        _levelMasterLists?.Clear();
+        _dynamicFormSectionAllData?.Clear(); _dynamicFormSectionData?.Clear();
+        SelectDynamicFormSectionIDs?.Clear();
         GC.SuppressFinalize(this);
     }
 }

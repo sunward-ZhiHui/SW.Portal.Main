@@ -13,7 +13,7 @@
 @inject NavigationManager NavigationManager
 @using Newtonsoft.Json.Linq;
 @using Newtonsoft.Json;
-@implements IDisposable
+@implements IAsyncDisposable
 @using System.Collections.ObjectModel
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript" src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
@@ -177,7 +177,7 @@
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>
-        <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
+        <UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@PopupGridForm"
@@ -188,7 +188,7 @@
          Closed="EulaPopupClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1500px" MaxHeight="1000px">
     <BodyContentTemplate>
-        <DynamicGridForms isMainLocked="@isMainLocked" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeId" SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
+        <DynamicGridForms @ref="refDynamicGridForms" isMainLocked="@isMainLocked" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeId" SessionId="@SessionId" SessionIds="@SessionIds" RevokeGridBack="BackGridForm" DynamicFormDataGridId=@DynamicFormDataGridId></DynamicGridForms>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
@@ -202,7 +202,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridIds" IsShow="false" MainSessionId="@MainSessionIds" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
+        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists @ref="refDynamicFormGridLists" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridIds" IsShow="false" MainSessionId="@MainSessionIds" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@lockpopup"
@@ -229,10 +229,14 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormApprovedFormList _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
+        <DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
+    private DynamicFormApprovedFormList refDynamicFormApprovedFormList{ get; set; }
+    private DynamicGridForms refDynamicGridForms{ get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormGridLists refDynamicFormGridLists { get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
@@ -1208,9 +1212,27 @@
         Blukdeletepopup = false;
         await UpdateDataAsync();
     }
-    public void Dispose()
+    public void clearData()
+    {
+        refUploadDoumentDynamicFiles?.DisposeAsync();
+        refDynamicFormApprovedFormList?.DisposeAsync();
+        refDynamicGridForms?.DisposeAsync();
+        refDynamicFormGridLists?.DisposeAsync();
+        _dynamicForm = null;
+        _documentsDmsData=null;
+        _selectedItems=null;
+        _dynamicformDataList?.Clear();
+        _AttributeHeader = null;
+        dataColumnNames?.Clear();
+        _dynamicformObjectDataList?.Clear();
+        _dynamicFormSectionAttributeList?.Clear();
+        PlantDependencySubAttributeDetails?.Clear();
+        Items?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        clearData();
         GC.SuppressFinalize(this);
     }
     void OpenLock()

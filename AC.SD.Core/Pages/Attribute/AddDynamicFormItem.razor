@@ -16,7 +16,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
 @inject IConfiguration Configuration
-
+@implements IAsyncDisposable;
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -130,7 +130,7 @@
                         <ValidationMessage For="@(() => Data.ItemGroupAppParentID)" />
                     </DxFormLayoutItem>
                     @* <DxFormLayoutItem Caption=" Description :" ColSpanMd="12">
-                        <DxMemo @bind-Text="@Data.Description" />
+                    <DxMemo @bind-Text="@Data.Description" />
                     </DxFormLayoutItem> *@
                 </DxFormLayout>
             </EditForm>
@@ -159,7 +159,7 @@
          ShowCloseButton="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments @ref="refUploadDocuments" SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
@@ -167,6 +167,7 @@
 </DxPopup>
 
 @code {
+    private AC.SD.Core.Pages.UploadDocuments.UploadDocuments refUploadDocuments;
     bool AttachmentPopUp { get; set; } = false;
     DynamicFormItemLines? refDynamicFormItemLines;
     int ActiveSubTabIndex { get; set; } = 0;
@@ -199,7 +200,7 @@
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _TransactionType = await Mediator.Send(new GetAllCodeMasterQuery("DynamicFormTypeItem"));
         _dynamicForm = await Mediator.Send(new GetAllDynamicFormDropdownListQuery());
-        if (_dynamicForm!=null && _dynamicForm.Count()>0)
+        if (_dynamicForm != null && _dynamicForm.Count() > 0)
         {
             var _dynamicFormIds = _dynamicForm.Select(s => (long?)s.ID).ToList();
             _dropDownOptionsGridList = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(_dynamicFormIds, applicationUser.UserID));
@@ -211,7 +212,7 @@
         {
             Company = "";
             TransactionType = "";
-            Data.TransactionDate = DateTime.Now; DynamicFormItemID = 0; _selectedItems = null;AttachmentEnabled = false;
+            Data.TransactionDate = DateTime.Now; DynamicFormItemID = 0; _selectedItems = null; AttachmentEnabled = false;
             if (SessionIds != null)
             {
                 var list = await Mediator.Send(new GetDynamicFormItemBySession(SessionIds));
@@ -260,7 +261,7 @@
     async Task OnParametersSetLoadAsync()
     {
         _editContext = new EditContext(Data); AttachmentEnabled = false;
-        TransactionType = "";DynamicFormItemID = 0;
+        TransactionType = ""; DynamicFormItemID = 0;
         _applicationMasterChildDepartmentItems = new List<ApplicationMasterChildModel>(); _applicationMasterChildItemGroupItems = new List<ApplicationMasterChildModel>();
         Data.TransactionDate = DateTime.Now;
         Data.AutoNumber = null;
@@ -313,7 +314,7 @@
         if (stockGroupAppParentId > 0)
         {
             _applicationMasterChildDepartmentItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(stockGroupAppParentId));
-           
+
         }
     }
     async Task SelectedDepartmentChanged(long? departmentAppParentID)
@@ -410,5 +411,24 @@
     {
         AttachmentPopUp = false;
         StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        refUploadDocuments?.DisposeAsync();
+        refDynamicFormItemLines?.DisposeAsync();
+        Data = new DynamicFormItem();
+        _dynamicFormlistData = null;
+        _plantItems?.Clear();
+        _TransactionType?.Clear();
+        _selectedItems = null;
+        _applicationMasterChildStockGroupItems?.Clear();
+        _applicationMasterChildDepartmentItems?.Clear();
+        _applicationMasterChildItemGroupItems?.Clear();
+        _dynamicForm?.Clear();
+        _dynamicFormData?.Clear();
+        _dropDownOptionsGridList = null;
+        // Suppress finalization
+        GC.SuppressFinalize(this);
     }
 }

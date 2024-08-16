@@ -15,7 +15,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 @inject NavigationManager Navigator
-@implements IDisposable
+@implements IAsyncDisposable
 @using global::Core.Helpers;
 @using System.Dynamic;
 @using System.Reflection;
@@ -161,9 +161,19 @@
     void HandleInvalidSubmit()
     {
     }
-    public void Dispose()
+    public void ClearData()
+    {
+        Data = null;
+        _DynamicFormFilterByItems?.Clear();
+        _AttributeDetailsItems?.Clear();
+        DataSourceItems?.Clear();
+        _andOrSourceItems?.Clear();
+        DataClassTypeList?.Clear(); DataClassObjectNameList?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearData();
         GC.SuppressFinalize(this);
     }
     void OnRadioChangedItem(long? str, PropertyInfo property, DynamicFormFilterBy dynamicFormSectionAttribute)

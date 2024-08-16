@@ -12,7 +12,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
-@implements IDisposable
+@implements IAsyncDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -216,7 +216,7 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <AddPermissionSection SelectedItems="@_selectedItems" applicationUser="@applicationUser"></AddPermissionSection>
+        <AddPermissionSection @ref="refAddPermissionSection" SelectedItems="@_selectedItems" applicationUser="@applicationUser"></AddPermissionSection>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
@@ -264,6 +264,7 @@
 </DxFlyout>
 
 @code {
+    private AddPermissionSection refAddPermissionSection;
     [Parameter]
     public long? dynamicFormId { get; set; }
     bool PanelVisible { get; set; }
@@ -697,9 +698,23 @@
         }
         return fileProfileTypeModel;
     }
-    public void Dispose()
+    public void ClearDAta()
+    {
+        refAddPermissionSection?.DisposeAsync();
+        SelectedDataItems = null;
+        _dynamicFormSectionData?.Clear();
+        _attributeHeaderData?.Clear();
+        _selectedItems=null;
+        _selectlst=null;
+        sortOrderList?.Clear();
+        _selectedDynamicFormSectionItems = new DynamicFormSection();
+        fileProfileTypeDocumentsAll?.Clear();
+        DynamicFormSectionOne = new DynamicFormSection();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearDAta();
         GC.SuppressFinalize(this);
     }
 }

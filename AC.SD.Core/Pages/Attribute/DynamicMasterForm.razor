@@ -17,7 +17,7 @@
 @inject NavigationManager NavigationManager
 @page "/DynamicMasterSetup/DynamicMasterForm"
 @page "/DynamicMasterSetup/DynamicMasterForm/{SessionIds:guid}"
-@implements IDisposable
+@implements IAsyncDisposable
 <style scoped>
     .save_hover_Master_From_1 {
         float: left;
@@ -291,11 +291,19 @@
             Data.ProfileId = country;
         }
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-
         DynamicFormPage7?.Dispose();
         System.GC.Collect();
+        fileProfileTypeDocumentsAll?.Clear();
+        refDynamicFormApproval?.DisposeAsync(); 
+        refDynamicFormWorkFlows?.DisposeAsync();
+        refDynamicMasterSectionForm?.DisposeAsync();
+        Data = new DynamicForm();
+        _salesOrderItem = new View_SalesOrderMasterPricing();
+        _selectedTreeItems = null;
+        _plantItems?.Clear();
+        _documentProfileNoList?.Clear();
         GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()

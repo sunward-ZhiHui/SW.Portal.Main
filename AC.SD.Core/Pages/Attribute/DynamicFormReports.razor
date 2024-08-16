@@ -19,7 +19,7 @@
 @using System;
 @inject NavigationManager NavigationManager
 @inject IJSRuntime jsRuntime
-
+@implements IAsyncDisposable
 <style>
     .dxuc-upload-icon {
         display: none; /* or any other style to disable or hide the icon */
@@ -437,5 +437,20 @@
     {
         _sessionId = SessionID;
         uploadComponent.UploadAllFiles();
+    }
+    public void clearData()
+    {
+        Files = null;
+        Data= new DynamicFormReport();
+        _selectedItems=null;
+        SelectedDataItems = null;
+        _reportdocuments?.Clear();
+        SelectedFiles?.Clear();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        clearData();
+        GC.SuppressFinalize(this);
     }
 }

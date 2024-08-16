@@ -211,6 +211,8 @@
     public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        _dynamicForm?.Clear();
+        _selectedItems=null;
         // Suppress finalization
         GC.SuppressFinalize(this);
     }

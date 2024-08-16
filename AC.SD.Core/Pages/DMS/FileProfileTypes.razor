@@ -296,11 +296,9 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <HistoryPopup selectedFiles="@selectedFiles"></HistoryPopup>
+        <HistoryPopup @ref="refHistoryPopup" selectedFiles="@selectedFiles"></HistoryPopup>
     </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
-    </FooterContentTemplate>
+    
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisibleLinkDocument"
          ShowFooter="false"
@@ -311,9 +309,7 @@
     <BodyContentTemplate>
         <LinkDocumentsList @ref="refLinkDocumentsList" selectedFiles="@selectedFiles"></LinkDocumentsList>
     </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkDocumentPopup())" />
-    </FooterContentTemplate>
+    
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisibleLinkParentDocument"
          ShowFooter="false"
@@ -324,9 +320,7 @@
     <BodyContentTemplate>
         <ParentLinkDocuments @ref="refParentLinkDocuments" ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></ParentLinkDocuments>
     </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkParentDocumentPopup())" />
-    </FooterContentTemplate>
+   
 </DxPopup>
 <DxFlyout @bind-IsOpen=IsDescriptionOpen
           PositionTarget=@($"#flyout-overview-target-container-Description-{_selectedDescriptionItems?.DocumentID}")
@@ -415,9 +409,7 @@
     <BodyContentTemplate>
         <FileProfileTypeSecurity @ref="refFileProfileTypeSecurity" FileProfileTypeId="@FileProfileTypeId" selectedItems="@_selectedItems"></FileProfileTypeSecurity>
     </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSecurityAccessPopup())" />
-    </FooterContentTemplate>
+    
 </DxPopup>
 @* <div style="@onUploadVisible">
  *@
@@ -691,6 +683,7 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private HistoryPopup refHistoryPopup;
     private MissingUploadFileProfileType refMissingUploadFileProfileType;
     private AddFileProfileTypeInfo refAddFileProfileTypeInfo;
     private FileProfileTypeSecurity refFileProfileTypeSecurity;
@@ -821,7 +814,7 @@
             //PanelVisible = false;
             //await onhideLoading();
         }
-        PanelVisible = false;
+        // PanelVisible = false;
         //await onhideLoading();
         StateHasChanged();
     }
@@ -2300,6 +2293,7 @@
         if (res > 0)
         {
             toastService.ShowToast("Documents Moved Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            _MoveDocList = new List<DocumentsModel>();
             MoveDocumentPopup = false;
             await loadFileProfileTypeAllDatas();
             await loadFileProfileData();
@@ -2326,6 +2320,7 @@
     public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        refHistoryPopup?.DisposeAsync();
         refMissingUploadFileProfileType?.DisposeAsync();
         refAddFileProfileTypeInfo?.DisposeAsync();
         refFileProfileTypeSecurity?.DisposeAsync();

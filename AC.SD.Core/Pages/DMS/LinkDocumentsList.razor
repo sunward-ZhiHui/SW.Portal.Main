@@ -91,7 +91,7 @@
          Closed="EulaPopupLinkClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <LinkFileprofileTypeList ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="@LinkType"></LinkFileprofileTypeList>
+        <LinkFileprofileTypeList @ref="refLinkFileprofileTypeList" ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="@LinkType"></LinkFileprofileTypeList>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkDocumentPopup())" />
@@ -105,7 +105,7 @@
          Closed="EulaPopupParentLinkClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <ParentLinkDocuments ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="Link Documents"></ParentLinkDocuments>
+        <ParentLinkDocuments @ref="refParentLinkDocuments" ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="Link Documents"></ParentLinkDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkParentDocumentPopup())" />
@@ -144,6 +144,8 @@
 @code {
     [Parameter]
     public DocumentsModel selectedFiles { get; set; }
+    private ParentLinkDocuments refParentLinkDocuments;
+    private LinkFileprofileTypeList refLinkFileprofileTypeList;
     private UploadLinkDoumentFiles refUploadLinkDoumentFiles;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public List<DocumentLinkModel> _documentLinkModel { get; set; }
@@ -371,6 +373,8 @@
     {
         System.GC.Collect();
         //selectedFiles = null;
+        refParentLinkDocuments?.DisposeAsync();
+        refLinkFileprofileTypeList?.DisposeAsync();
         refUploadLinkDoumentFiles?.DisposeAsync();
         fileProfileTypeDocumentsAll?.Clear();
         _documentLinkModel?.Clear();

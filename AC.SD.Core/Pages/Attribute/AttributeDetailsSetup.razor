@@ -6,7 +6,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Microsoft.Extensions.Configuration;
 @using global::Core.Repositories.Query;
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
     <div class="card-body p-0">
         @if (FormType == "MainForm")
@@ -114,7 +114,7 @@
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
-        <AttributeSubFormSetupList RevokeBack="CloseSubFormPopup" Type="SubAttributeDetailID" SubAttributeDetailId="@AttributeDetailId"></AttributeSubFormSetupList>
+        <AttributeSubFormSetupList @ref="refAttributeSubFormSetupList" RevokeBack="CloseSubFormPopup" Type="SubAttributeDetailID" SubAttributeDetailId="@AttributeDetailId"></AttributeSubFormSetupList>
 
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -122,6 +122,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private AttributeSubFormSetupList refAttributeSubFormSetupList;
     public long? AttributeDetailId { get; set; }
     IGrid? DetailGrid { get; set; }
     bool DeleteEnabled { get; set; } = false;
@@ -129,7 +130,6 @@
     bool EditEnabled { get; set; } = false;
     private List<AttributeDetails>? _attributesDetails;
     bool AddEnabled { get; set; } = false;
-    private List<ApplicationUser> _applicationUsers;
     private CodeMaster? codemaster;
     public ApplicationUser? applicationUser { get; private set; }
     private AttributeDetails _selectedItems;
@@ -314,9 +314,14 @@
         AddPopup = true;
         StateHasChanged();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        refAttributeSubFormSetupList?.DisposeAsync();
+        _attributesDetails?.Clear();
+        codemaster = null;
+        _selectedItems=null;
+        _stausItems?.Clear();
         GC.SuppressFinalize(this);
     }
 }

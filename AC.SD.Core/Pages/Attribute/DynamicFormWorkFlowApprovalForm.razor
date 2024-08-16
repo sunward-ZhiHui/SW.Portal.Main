@@ -14,6 +14,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
+@implements IAsyncDisposable
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -296,6 +297,7 @@
     }
     void onBack()
     {
+        ClearData();
         RevokeBack?.Invoke();
     }
     void addNew()
@@ -404,5 +406,20 @@
         _selectedDynamicFormSectionItems.SortOrderAnotherBy = dynamicFormSection.SortBy;
 
         StateHasChanged();
+    }
+    public void ClearData()
+    {
+        _usersList?.Clear();
+        _usersAllList?.Clear();
+        _dynamicFormWorkFlowApprovalList?.Clear();
+        _selectedItems=null;
+        sortOrderList?.Clear();
+        _selectedDynamicFormSectionItems = new DynamicFormWorkFlowApproval();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        ClearData();
+        GC.SuppressFinalize(this);
     }
 }

@@ -121,7 +121,7 @@
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
-        <AttributeSubFormSetupList RevokeBack="CloseSubFormPopup" Type="SubAttributeID" SubAttributeId="@_selectedItems.AttributeID"></AttributeSubFormSetupList>
+        <AttributeSubFormSetupList @ref="refAttributeSubFormSetupList" RevokeBack="CloseSubFormPopup" Type="SubAttributeID" SubAttributeId="@_selectedItems.AttributeID"></AttributeSubFormSetupList>
 
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -129,6 +129,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private AttributeSubFormSetupList refAttributeSubFormSetupList{ get; set; }
     private IDisposable? DynamicFormPage2;
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = true;
@@ -182,16 +183,13 @@
     //     GC.SuppressFinalize(this);
     // }
 
-    protected virtual async ValueTask DisposeAsyncCore()
-    {
-        System.GC.Collect();
-        DynamicFormPage2?.Dispose();
-    }
-
     public async ValueTask DisposeAsync()
     {
-        await DisposeAsyncCore();
-        // Suppress finalization
+        System.GC.Collect();
+        refAttributeSubFormSetupList?.DisposeAsync();
+        _selectedItems = null;
+        _attributes?.Clear();
+        DynamicFormPage2?.Dispose();
         GC.SuppressFinalize(this);
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

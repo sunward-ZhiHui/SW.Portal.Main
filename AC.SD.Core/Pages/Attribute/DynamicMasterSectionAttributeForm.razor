@@ -10,7 +10,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IDisposable
+@implements IAsyncDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -392,7 +392,7 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormSectionAttributeSecuritys SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSecuritys>
+        <DynamicFormSectionAttributeSecuritys @ref="refDynamicFormSectionAttributeSecuritys" SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSecuritys>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
@@ -405,13 +405,15 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormSectionAttributeSectionForm Items="@Items" SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSectionForm>
+        <DynamicFormSectionAttributeSectionForm @ref="refDynamicFormSectionAttributeSectionForm" Items="@Items" SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser"></DynamicFormSectionAttributeSectionForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private DynamicFormSectionAttributeSectionForm refDynamicFormSectionAttributeSectionForm;
+    private DynamicFormSectionAttributeSecuritys refDynamicFormSectionAttributeSecuritys;
     [Parameter]
     public Action? RevokeBack { get; set; }
     [Parameter]
@@ -1196,9 +1198,27 @@
         addPermissionEnabled = false;
         AddControlSectionPopup = false;
     }
-    public void Dispose()
+    public void ClearDAta()
+    {
+        refDynamicFormSectionAttributeSectionForm?.DisposeAsync();
+        refDynamicFormSectionAttributeSecuritys?.DisposeAsync();
+        SelectedDataItems = null;
+        _dynamicFormSectionAttributeData?.Clear();
+        _selectedAttributeItems=null;
+        TemplateUploadOptions = null;
+        _selectAttributelst=null;
+        sortOrderAttributeSectionList?.Clear();
+        colSpanLists?.Clear();
+        _attributeHeaderData?.Clear(); ; _dynamicForm?.Clear();
+        _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
+        dynamicFormSectionSpinEdit?.Clear();
+        _attributeHeaderDataSource?.Clear();
+        _applicationMasterItems?.Clear();  _applicationMasterParentItems?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearDAta();
         GC.SuppressFinalize(this);
     }
 }

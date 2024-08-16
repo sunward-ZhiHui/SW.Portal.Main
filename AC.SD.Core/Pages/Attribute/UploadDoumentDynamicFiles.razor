@@ -16,7 +16,7 @@
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 @inject NavigationManager Navigator
 @using System.Collections
-@implements IDisposable
+@implements IAsyncDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -932,6 +932,7 @@
     }
     void backUrl()
     {
+        clearData();
         RevokeBack?.Invoke();
     }
     void OnTemplateUploadGroupValueChanged(string? radioValue)
@@ -1487,7 +1488,42 @@
         }
         StateHasChanged();
     }
-    public void Dispose()
+    public void clearData()
+    {
+        PlantValue = null;
+        DivisionValue = null;
+        DepartmentValue = null;
+        SectionValue = null;
+        SubSectionValue = null;
+        CurrentSection = null;
+        CurrentReserveNo = null;
+        refLinkFileprofileTypeLists?.DisposeAsync();
+        TemplateUploadOrReserveNoOptions = null;
+        TemplateUploadOptions = null;
+        refUploadFileImagesToPdf?.Dispose();
+        _reserveProfileNumberSeriesList?.Clear();
+        FolderPathListsItems = new List<DynamicFormDataUploadByPermission>();
+        fileProfileTypeModels = null;
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        Data = new DocumentsUploadModel();
+        TempSetIds?.Clear();
+        documentProfileNoSeriesData = null;
+        SelectedFiles?.Clear();
+        _selectedModelItems = null;
+        fileProfileTypeDocumentsAll?.Clear();
+        _dynamicFormSectionList?.Clear();
+        _selectedTreeItems = null;
+        dynamicFormSection1 = new DynamicFormSection();
+        _dynamicFormSectionListNoUpload?.Clear();
+        _selectedItems = null;
+        _selectedDocumentNoSeriesItems = null;
+        AcceptedFileTypes?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
         GC.SuppressFinalize(this);

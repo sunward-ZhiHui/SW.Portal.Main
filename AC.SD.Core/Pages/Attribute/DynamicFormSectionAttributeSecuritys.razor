@@ -4,7 +4,7 @@
 @using MediatR
 @inject IMediator Mediator
 @inject AC.SD.Core.Services.ToastService toastService
-@implements IDisposable
+@implements IAsyncDisposable
 @* <div class="">
      <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
          <div class="cw-480" style="margin-top:10px;">
@@ -295,9 +295,18 @@
     void HandleInvalidSubmit()
     {
     }
-    public void Dispose()
+    public void ClearData()
+    {
+        refDocumentUserRoleListsLevel?.DisposeAsync();
+        Data = new DynamicFormSectionAttributeSecurity();
+        _usersList?.Clear();
+        _userGroupsList?.Clear();
+        _levelMasterLists?.Clear();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearData();
         GC.SuppressFinalize(this);
     }
 }

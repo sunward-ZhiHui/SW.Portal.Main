@@ -13,7 +13,7 @@
 @inject NavigationManager NavigationManager
 @using Newtonsoft.Json.Linq;
 @using Newtonsoft.Json;
-@implements IDisposable
+@implements IAsyncDisposable
 @using System.Collections.ObjectModel
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
@@ -179,7 +179,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
+        <UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
 
@@ -208,7 +208,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridId" IsShow="false" MainSessionId="@MainSessionId" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
+        <AC.SD.Core.Pages.Attribute.DynamicFormGridLists @ref="refDynamicFormGridLists" DynamicFormSectionGridAttributeId="@DynamicFormSectionGridAttributeIds" DynamicFormDataGridId="@DynamicFormDataGridId" IsShow="false" MainSessionId="@MainSessionId" SessionId="@DynamicFormSessionId"></AC.SD.Core.Pages.Attribute.DynamicFormGridLists>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@lockpopup"
@@ -235,10 +235,13 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormApprovedFormList _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
+        <DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" _applicationUser="@applicationUser" _dynamicformData="@_selectedItems" RevokeBack="BackApprovalForm"></DynamicFormApprovedFormList>
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
+    private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormGridLists refDynamicFormGridLists{ get; set; }
     private IDisposable? DynamicFormPage5;
     Guid myKey { get; set; } = Guid.NewGuid();
     [Parameter]
@@ -290,12 +293,27 @@
 
         return ValueTask.CompletedTask;
     }
-
-    public void Dispose()
+    public void clearData()
     {
-
         DynamicFormPage5?.Dispose();
+        refUploadDoumentDynamicFiles?.DisposeAsync();
+        refDynamicFormApprovedFormList?.DisposeAsync();
+        refDynamicFormGridLists?.DisposeAsync();
+        _dynamicForm = null;
+        _documentsDmsData = null;
+        _selectedItems = null;
+        _dynamicformDataList?.Clear();
+        _AttributeHeader = null;
+        dataColumnNames?.Clear();
+        _dynamicformObjectDataList?.Clear();
+        _dynamicFormSectionAttributeList?.Clear();
+        PlantDependencySubAttributeDetails?.Clear();
+        Items?.Clear();
+    }
+    public async ValueTask DisposeAsync()
+    {
         System.GC.Collect();
+        clearData();
         GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()

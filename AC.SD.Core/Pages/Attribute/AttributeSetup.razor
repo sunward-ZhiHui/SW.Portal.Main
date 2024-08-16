@@ -9,7 +9,7 @@
 @using Microsoft.Extensions.Configuration;
 @using global::Core.Repositories.Query;
 @inject IJSRuntime JSRuntime;
-@implements IDisposable
+@implements IAsyncDisposable
 @using global::Core.Entities.Views;
 @inject NavigationManager NavigationManager
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
@@ -242,7 +242,7 @@
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
-        <AttributeSubFormSetupList RevokeBack="CloseSubFormPopup" Type="SubAttributeID" SubAttributeId="@Data.AttributeID"></AttributeSubFormSetupList>
+        <AttributeSubFormSetupList @ref="refAttributeSubFormSetupList" RevokeBack="CloseSubFormPopup" Type="SubAttributeID" SubAttributeId="@Data.AttributeID"></AttributeSubFormSetupList>
 
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -258,6 +258,7 @@
     public int ActiveTabIndex { get; set; } = 0;
     EditContext _editContext;
     private AttributeDetailsSetup? RefDetails { get; set; }
+    private AttributeSubFormSetupList? refAttributeSubFormSetupList { get; set; }
     bool DeleteEnabled { get; set; } = false; bool IsCheckBoxEnabled { get; set; } = false;
     bool MaskEnabled { get; set; } = false; bool isFilterDataSource { get; set; } = false;
     bool AddPopup { get; set; } = false;
@@ -345,11 +346,30 @@
         return ValueTask.CompletedTask;
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-
-        DynamicFormPage?.Dispose();
         System.GC.Collect();
+        DynamicFormPage?.Dispose();
+        refAttributeSubFormSetupList?.DisposeAsync();
+        RefDetails?.DisposeAsync();
+        _plantItems?.Clear();
+        _attributes?.Clear();
+        Data = new AttributeHeader();
+        _stausItems?.Clear();
+        _applicationUsers?.Clear();
+        codemaster = null;
+        _master = null;
+        _SaveLst?.Clear(); ;
+        AttributeNamelst = new AttributeHeader();
+        ControlTypeChildData?.Clear();
+        DropDownTypeItems?.Clear();
+        DataSourceItems?.Clear();
+        TemplateUploadOptions = null;
+        _attributeHeaderDataSource?.Clear();
+        _dynamicFormFilter?.Clear();
+        dynamicFormSectionSpinEdit?.Clear();
+        _dynamicForm?.Clear(); _dynamicForms?.Clear();
+       
         GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()

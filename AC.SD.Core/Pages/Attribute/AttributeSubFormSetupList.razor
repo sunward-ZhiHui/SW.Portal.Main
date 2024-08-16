@@ -7,7 +7,7 @@
 @using Microsoft.Extensions.Configuration;
 @using global::Core.Repositories.Query;
 @inject IJSRuntime JSRuntime;
-@implements IDisposable
+@implements IAsyncDisposable
 @using global::Core.Entities.Views;
 @inject NavigationManager NavigationManager
 
@@ -106,7 +106,7 @@
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="true">
     <BodyContentTemplate>
-        <AttributeSetupSubForm RevokeBack="CloseSubFormPopup" _selectedItems="@_selectedItems" Type="@Type" SubAttributeDetailId="@SubAttributeDetailId" SubAttributeId="@SubAttributeId"></AttributeSetupSubForm>
+        <AttributeSetupSubForm @ref="refAttributeSetupSubForm" RevokeBack="CloseSubFormPopup" _selectedItems="@_selectedItems" Type="@Type" SubAttributeDetailId="@SubAttributeDetailId" SubAttributeId="@SubAttributeId"></AttributeSetupSubForm>
 
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -142,6 +142,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    private AttributeSetupSubForm refAttributeSetupSubForm{ get; set; }
     [Parameter]
     public long? SubAttributeDetailId { get; set; }
     [Parameter]
@@ -186,6 +187,7 @@
     }
     void onBack()
     {
+        clearData();
         RevokeBack?.Invoke();
     }
 
@@ -332,9 +334,18 @@
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         IsSortOrderByOpen = false;
     }
-    public void Dispose()
+    public void clearData()
+    {
+        refAttributeSetupSubForm?.DisposeAsync();
+        _selectedItems = null;
+        _attributes?.Clear();
+        sortOrderList?.Clear();
+        _selectedDynamicFormSectionItems = new AttributeHeader();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        clearData();
         GC.SuppressFinalize(this);
     }
 }

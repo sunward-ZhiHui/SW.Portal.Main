@@ -12,7 +12,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
-@implements IDisposable
+@implements IAsyncDisposable
 @* <div class="demo-breadcrumbs-container theme-blazing-berry">
      <div class="breadcrumb">
          <div class="demo-breadcrumbs sidebar-hidden">
@@ -401,9 +401,22 @@
             }
         }
     }
-    public void Dispose()
+    public void ClearData()
+    {
+        selectedFiles = null;
+        fileProfileTypeDocumentsLink?.Clear();
+        fileProfileTypeDocumentsAllList?.Clear();
+        _fileProfileselectedlstItemsList=null;
+        FolderPathLists?.Clear();
+        _selectedItemsList=null;
+        documentLinkSearchModel = new DocumentSearchModel();
+        documentsUploadModel = null;
+        dynamicFormData = null;
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearData();
         GC.SuppressFinalize(this);
     }
 }

@@ -450,7 +450,7 @@
             <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
             </Columns>
             </DxGrid> *@
-            <AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList>
+            <AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList>
         </DxTabPage>
         <DxTabPage Text="Work Flow">
             <div class="card w-100" style="margin-bottom:10px;">
@@ -539,7 +539,7 @@
          ShowFooter="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles>
+        <AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@wokrFlowpopup"
@@ -605,7 +605,7 @@
          Closed="EulaPopupDynamicFormFilterByClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm _PlantLoadDependencyId="@_PlantLoadDependencyId" _dynamicform="@_dynamicform" _filterDynamicFormSection="@_filterDynamicFormSection" OnItemSelected="@CloseFilterFormPopup" _dataSourceName="@_dataSourceName" _filterAttrName="@_filterAttrName" _filterDynamicFormSectionAttribute="@_filterDynamicFormSectionAttribute"></AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm>
+        <AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm @ref="refDynamicFormFilterByForm" _PlantLoadDependencyId="@_PlantLoadDependencyId" _dynamicform="@_dynamicform" _filterDynamicFormSection="@_filterDynamicFormSection" OnItemSelected="@CloseFilterFormPopup" _dataSourceName="@_dataSourceName" _filterAttrName="@_filterAttrName" _filterDynamicFormSectionAttribute="@_filterDynamicFormSectionAttribute"></AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="OnWorkFlowNo" />
@@ -635,7 +635,7 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
+        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm @ref="refDynamicFormDataWorkFlowApprovalForm" SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
@@ -666,6 +666,10 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+ private AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm refDynamicFormFilterByForm{ get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm  refDynamicFormDataWorkFlowApprovalForm{get;set;}
     string? workflowStyle { get; set; } = "display:none;";
     private DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); string? ApproveRejectWokFlowName { get; set; } = "Approve";
     public bool IsWorkflowApprovalApproved { get; set; } = false; public bool IsWorkflowApprovalRejected { get; set; } = false; public bool IsWokFlowDescriptionOpen { get; set; } = false;
@@ -3043,6 +3047,10 @@
     public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        refUploadDoumentDynamicFiles?.DisposeAsync();
+        refDynamicFormFilterByForm?.DisposeAsync();
+        refDynamicFormApprovedFormList?.DisposeAsync();
+        refDynamicFormDataWorkFlowApprovalForm?.DisposeAsync();
         dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm();
         _selectedDynamicFormWorkFlowItems = null;
         DynamicFormWorkFlowItems = null;

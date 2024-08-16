@@ -13,7 +13,7 @@
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
-@implements IDisposable
+@implements IAsyncDisposable
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -116,7 +116,7 @@
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>
-        <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@dynamicFormData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
+        <UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" _dynamicformData="@dynamicFormData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@lockpopup"
@@ -136,6 +136,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
     bool createEmailpopup { get; set; } = false;
@@ -175,7 +176,7 @@
             dynamicFormData = new DynamicFormData();
             EditEnabled = false; DeleteEnabled = false; emailEnabled = false; fileEnabled = false; FileProfileTypeId = null;
             _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
-             PanelVisible = true;
+            PanelVisible = true;
             if (_dynamicForm != null && _dynamicForm.Count > 0)
             {
                 //EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
@@ -210,7 +211,7 @@
 
             }
             //await onhideLoading();
-             PanelVisible = false;
+            PanelVisible = false;
             StateHasChanged();
         }
         catch (Exception ex)
@@ -376,9 +377,13 @@
         }
         StateHasChanged();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        refUploadDoumentDynamicFiles?.DisposeAsync();
+        _dynamicForm?.Clear();
+        _selectedItems = null;
+        dynamicFormData = new DynamicFormData();
         GC.SuppressFinalize(this);
     }
 }

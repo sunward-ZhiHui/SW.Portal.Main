@@ -97,7 +97,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormReports _dynamicform="@_selectedItems"></DynamicFormReports>
+        <DynamicFormReports @ref="refDynamicFormReports" _dynamicform="@_selectedItems"></DynamicFormReports>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
 
@@ -105,6 +105,7 @@
 </DxPopup>
 
 @code {
+    private DynamicFormReports refDynamicFormReports;
     private IDisposable? DynamicFormPage1;
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = true;
@@ -153,15 +154,18 @@
     //     System.GC.Collect();
     //     GC.SuppressFinalize(this);
     // }
-    protected virtual async ValueTask DisposeAsyncCore()
+    public void ClearData()
     {
         System.GC.Collect();
+        refDynamicFormReports?.DisposeAsync();
+        _dynamicForm?.Clear();
+        _selectedItems = null;
         DynamicFormPage1?.Dispose();
     }
 
     public async ValueTask DisposeAsync()
     {
-        await DisposeAsyncCore();
+        ClearData();
         // Suppress finalization
         GC.SuppressFinalize(this);
     }

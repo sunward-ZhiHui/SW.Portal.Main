@@ -15,7 +15,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
-@implements IDisposable;
+@implements IAsyncDisposable;
 @using System;
 @using System.IO;
 <style>
@@ -231,7 +231,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.DMS.HistoryPopup selectedFiles="@selectedFiles"></AC.SD.Core.Pages.DMS.HistoryPopup>
+        <AC.SD.Core.Pages.DMS.HistoryPopup @ref="refHistoryPopup" selectedFiles="@selectedFiles"></AC.SD.Core.Pages.DMS.HistoryPopup>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
@@ -243,7 +243,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.DMS.LinkDocumentsList selectedFiles="@selectedFiles"></AC.SD.Core.Pages.DMS.LinkDocumentsList>
+        <AC.SD.Core.Pages.DMS.LinkDocumentsList @ref="refLinkDocumentsList" selectedFiles="@selectedFiles"></AC.SD.Core.Pages.DMS.LinkDocumentsList>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkDocumentPopup())" />
@@ -256,7 +256,7 @@
          ShowCloseButton="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.DMS.ParentLinkDocuments ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></AC.SD.Core.Pages.DMS.ParentLinkDocuments>
+        <AC.SD.Core.Pages.DMS.ParentLinkDocuments @ref="refParentLinkDocuments" ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></AC.SD.Core.Pages.DMS.ParentLinkDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkParentDocumentPopup())" />
@@ -391,6 +391,9 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private AC.SD.Core.Pages.DMS.ParentLinkDocuments refParentLinkDocuments;
+    private AC.SD.Core.Pages.DMS.LinkDocumentsList refLinkDocumentsList;
+    private AC.SD.Core.Pages.DMS.HistoryPopup refHistoryPopup;
     private AC.SD.Core.Pages.DMS.UploadDoumentFiles refUploadDoumentFiles;
     private AC.SD.Core.Pages.DMS.ShareDocuments refShareDocuments;
     private AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles refUploadDocumentUpdateFiles;
@@ -806,6 +809,7 @@
 
     void onBack()
     {
+        clearData();
         RevokeBack.Invoke();       
     }
     private async Task onCopy()
@@ -1325,10 +1329,33 @@
     {
         PopupShareDocuments = true;
     }
-
-    public void Dispose()
+    public void clearData()
+    {
+        refParentLinkDocuments?.DisposeAsync();
+        refLinkDocumentsList?.DisposeAsync();
+        refHistoryPopup?.DisposeAsync();
+        refUploadDoumentFiles?.DisposeAsync();
+        refShareDocuments?.DisposeAsync();
+        refUploadDocumentUpdateFiles?.DisposeAsync();
+        selectedFiles = null;
+        fileProfileTypeDocuments?.Clear();
+        fileProfileTypeDocumentsAll?.Clear();
+        _fileProfileselectedlstItems = null;
+        _openAccessUserLink = null;
+        LinkProfileSelectedFiles = new DocumentLinkModel();
+        FolderPathLists?.Clear();
+        _selectedTreeItems = null;
+        _selectedItems=null;
+        _ParentselectedItems=null;
+        _selectedDescriptionItems = new DocumentsModel();
+        fileProfileTypeProfileInfo = new FileProfileTypeModel();
+        documentSearchModel = new DocumentSearchModel();
+        documentPermissionModel = new DocumentPermissionModel();
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        clearData();
         GC.SuppressFinalize(this);
     }
 }

@@ -17,7 +17,7 @@
 @using System.Linq.Expressions;
 @using Newtonsoft.Json;
 @using System.Dynamic;
-@implements IDisposable
+@implements IAsyncDisposable
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @*     <DxLoadingPanel @bind-Visible="PanelVisible"
                     IsContentBlocked="true"
@@ -430,7 +430,7 @@
             </div>
         </DxTabPage>
         <DxTabPage Text="Approval" Visible="@isApproval">
-            <AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList>
+            <AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList  @ref="refDynamicFormApprovedFormList" isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList>
             @*  <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
             KeyFieldName="DynamicFormApprovedId">
             <Columns>
@@ -533,7 +533,7 @@
          Closed="EulaPopupClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
+        <UploadDoumentDynamicFiles @ref="refUploadDoumentDynamicFiles" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
     </BodyContentTemplate>
 </DxPopup>
 
@@ -601,7 +601,7 @@
          Closed="EulaPopupDynamicFormFilterByClosed"
          Width="1000px">
     <BodyContentTemplate>
-        <DynamicFormFilterByForm _PlantLoadDependencyId="@_PlantLoadDependencyId" _dynamicform="@_dynamicform" _filterDynamicFormSection="@_filterDynamicFormSection" OnItemSelected="@CloseFilterFormPopup" _dataSourceName="@_dataSourceName" _filterAttrName="@_filterAttrName" _filterDynamicFormSectionAttribute="@_filterDynamicFormSectionAttribute"></DynamicFormFilterByForm>
+        <DynamicFormFilterByForm @ref="refDynamicFormFilterByForm" _PlantLoadDependencyId="@_PlantLoadDependencyId" _dynamicform="@_dynamicform" _filterDynamicFormSection="@_filterDynamicFormSection" OnItemSelected="@CloseFilterFormPopup" _dataSourceName="@_dataSourceName" _filterAttrName="@_filterAttrName" _filterDynamicFormSectionAttribute="@_filterDynamicFormSectionAttribute"></DynamicFormFilterByForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="OnWorkFlowNo" />
@@ -631,7 +631,7 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
+        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm @ref="refDynamicFormDataWorkFlowApprovalForm" SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
@@ -662,6 +662,10 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
+    private DynamicFormFilterByForm refDynamicFormFilterByForm{ get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm  refDynamicFormDataWorkFlowApprovalForm{get;set;}
+    private AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList  refDynamicFormApprovedFormList; 
     string? workflowStyle { get; set; } = "display:none;";
     private DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); string? ApproveRejectWokFlowName { get; set; } = "Approve";
     public bool IsWorkflowApprovalApproved { get; set; } = false; public bool IsWorkflowApprovalRejected { get; set; } = false; public bool IsWokFlowDescriptionOpen { get; set; } = false;
@@ -1024,6 +1028,7 @@
                                                 dynamicFormWorkFlowSectionDatas.DynamicFormSectionId = n.DynamicFormSectionId;
                                                 dynamicFormWorkFlowSectionDatas.UserId = n.DynamicFormWorkFlowUserId;
                                                 dynamicFormWorkFlowSectionDatas.SectionName = n.SectionName;
+                                                _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
                                                 _dynamicFormWorkFlowSectionNoWorkFlow.Add(dynamicFormWorkFlowSectionDatas);
                                             });
                                             break;
@@ -2529,6 +2534,7 @@
     }
     void backUrl()
     {
+        ClearGridData();
         RevokeGridBack.Invoke();
     }
     void ResetForm()
@@ -2947,9 +2953,59 @@
         StateHasChanged();
 
     }
-    public void Dispose()
+    public void ClearGridData()
+    {
+        refUploadDoumentDynamicFiles?.DisposeAsync();
+        refDynamicFormFilterByForm?.DisposeAsync();
+        refDynamicFormApprovedFormList?.DisposeAsync();
+        refDynamicFormDataWorkFlowApprovalForm?.DisposeAsync();
+        dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm();
+        _selectedDynamicFormWorkFlowItems = null;
+        DynamicFormWorkFlowItems = null;
+        _dynamicform = null;
+        _dynamicformData = null;
+        _AttributeHeader = null;
+        Data = null; SpinData = null;
+        dynamicFormData = new DynamicFormData();
+        dynamicFormApproval = new DynamicFormApproved();
+        _dynamicFormApprovedList?.Clear();
+        dic = new Dictionary<string, string>();
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        documentProfileNoSeriesData = null;
+        Datas = new DynamicFormProfile();
+        _dynamicFormWorkFlowSection?.Clear();
+        _dynamicFormWorkFlowSectionNoWorkFlow?.Clear();
+        _sequenceNoList?.Clear();
+        _dynamicFormWorkFlowFormList?.Clear();
+        _dynamicFormSectionList?.Clear();
+        DynamicFormInfoSection = new DynamicFormSection();
+        _dynamicFormDropDown?.Clear();
+        DataClassTypeList?.Clear(); DataClassObjectNameList?.Clear();
+        addTempSectionAttributes?.Clear();
+        DynamicFormDataUploadByPermissions?.Clear();
+        jsonObjs = null;
+        plantNames?.Clear(); plantIds?.Clear();
+        PlantDependencySubAttributeDetails?.Clear();
+        ApplicationMasterParentDetails?.Clear();
+        soCustomerType?.Clear();
+        _userEmployee = null;
+        _filterDynamicFormSection = null;
+        _filterDynamicFormSectionAttribute = null;
+        _attributeFilterDetailsList?.Clear();
+        _DynamicFormSectionIds?.Clear();
+        dynamicFormSectionAttributeSectionSelected?.Clear();
+        _dynamicFormWorkFlowFormListItems?.Clear();
+        _dynamicFormWorkFlowApprovedFormList?.Clear();
+        _dynamicFormWorkFlowApprovedFormOne = null;
+    }
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        ClearGridData();
         GC.SuppressFinalize(this);
     }
     void EulaPopupWorkFlowClosed()

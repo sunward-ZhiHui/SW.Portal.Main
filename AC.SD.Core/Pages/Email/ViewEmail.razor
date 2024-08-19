@@ -4072,6 +4072,7 @@
     private async void onViewEmailToClick(string ToTopicId)
     {
         SelectedGroup = ToTopicId;
+        ClearDiscussionList();
         await LoadData();
         StateHasChanged();
     } 
@@ -6315,4 +6316,17 @@
     {
 
     } 
+    private void ClearDiscussionList()
+    {
+        if (_discussionList != null)
+        {
+            _discussionList.Clear();
+            _discussionList = null;
+
+            // Optionally, force garbage collection
+             GC.Collect();
+             GC.WaitForPendingFinalizers();
+             GC.Collect();
+        }
+    }
 }

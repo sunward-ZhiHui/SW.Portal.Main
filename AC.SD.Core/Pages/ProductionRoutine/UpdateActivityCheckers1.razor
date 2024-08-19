@@ -9,7 +9,6 @@
 @inject NavigationManager NavigationManager
 @using global::Core.Entities.Views;
 @inject IJSRuntime jsRuntime
- @implements IDisposable
 @using System.IO;
 @implements IAsyncDisposable
 <style scoped>
@@ -180,13 +179,14 @@
          CloseOnEscape="false"
          MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <RoutineEmails selectedFiles="@selectedFiles" applicationUser="@applicationUser" RevokeBack="CloseUploadPopup"></RoutineEmails>
+        <RoutineEmails @ref="refRoutineEmails" selectedFiles="@selectedFiles" applicationUser="@applicationUser" RevokeBack="CloseUploadPopup"></RoutineEmails>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseUploadPopup())" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private RoutineEmails refRoutineEmails;
     ElementReference dropZoneElement;
     InputFile inputFile;
 
@@ -437,10 +437,13 @@
         {
             await _module.DisposeAsync();
         }
-    }
-    public void Dispose()
-    {
         System.GC.Collect();
+        refRoutineEmails?.DisposeAsync();
+        _ActivityStatusItem?.Clear();
+        _ActivityResult?.Clear();
+        Data = new ProductionActivityRoutineCheckedDetailsModel();
+        _supportDocselectedFile = null;
+        _selectedItems = null;
         GC.SuppressFinalize(this);
     }
 }

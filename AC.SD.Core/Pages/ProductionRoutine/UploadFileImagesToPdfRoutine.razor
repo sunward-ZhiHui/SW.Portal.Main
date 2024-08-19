@@ -15,7 +15,7 @@
 @inject HttpClient Http
 @using System.IO
 @using Microsoft.AspNetCore.Http;
-@implements IDisposable
+@implements IAsyncDisposable
 <style scoped>
     .unSelectAble {
         height: 600px;
@@ -102,7 +102,7 @@
                                     @if (cropper != null)
                                     {
                                         <input type="range" min="@(cropper.MinRatio*100)" max="@(200)" value="@(ratio*100)"
-                                        @oninput="OnRatioChange" />
+                                               @oninput="OnRatioChange" />
                                     }
                                 </DxFormLayoutItem>
                             </DxFormLayout>
@@ -446,9 +446,12 @@
         }
         return "Done";
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        FilesBase64?.Clear();
+        _selectedItems = null;
+        SelectedDataItems = null;
         GC.SuppressFinalize(this);
     }
 }

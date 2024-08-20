@@ -15,7 +15,8 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime jsRuntime
 @inject ClipboardService ClipboardService
-@implements IDisposable
+@implements IAsyncDisposable
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 <style scoped>
     .zxing-video-container > video {
         width: 100%;
@@ -176,7 +177,7 @@
          CloseOnEscape="false"
          MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
     <BodyContentTemplate>
-        <UploadProductionRoutineFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionRoutineFiles>
+        <UploadProductionRoutineFiles @ref="refUploadProductionRoutineFiles" _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionRoutineFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxFlyout @bind-IsOpen=IsDescriptionOpen
@@ -210,7 +211,7 @@
          ShowFooter="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles FolderPathLists="@FolderPathLists" selectedItems="@_selectedDocItems" applicationUser="@applicationUser" FileProfileSessionId="@FileProfileSessionId" RevokeBack="CloseUploadPopup"></AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles>
+        <AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles" FolderPathLists="@FolderPathLists" selectedItems="@_selectedDocItems" applicationUser="@applicationUser" FileProfileSessionId="@FileProfileSessionId" RevokeBack="CloseUploadPopup"></AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisible"
@@ -248,7 +249,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <RoutineSupportingDocuments selectedFiles="@_selectedItems"></RoutineSupportingDocuments>
+        <RoutineSupportingDocuments @ref="refRoutineSupportingDocuments" selectedFiles="@_selectedItems"></RoutineSupportingDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
@@ -260,7 +261,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <RoutineOpeartors Type="Production Routine" ActionType="@ActionType" selectedFiles="@_selectedItems"></RoutineOpeartors>
+        <RoutineOpeartors  @ref="refRoutineOpeartors" Type="Production Routine" ActionType="@ActionType" selectedFiles="@_selectedItems"></RoutineOpeartors>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
@@ -274,7 +275,7 @@
          CloseOnEscape="false"
          MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <RoutineEmails selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseHistoryPopup"></RoutineEmails>
+        <RoutineEmails @ref="refRoutineEmails" selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseHistoryPopup"></RoutineEmails>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
@@ -493,7 +494,7 @@
          CloseOnEscape="false"
          MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <ProductRoutineEmailActivitySubjects selectedFiles="@_selectedItems" ActivityType="Production Routine" applicationUser="@applicationUser"></ProductRoutineEmailActivitySubjects>
+        <ProductRoutineEmailActivitySubjects @ref="refProductRoutineEmailActivitySubjects" selectedFiles="@_selectedItems" ActivityType="Production Routine" applicationUser="@applicationUser"></ProductRoutineEmailActivitySubjects>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
@@ -507,13 +508,20 @@
          CloseOnEscape="false"
          MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <UpdateActivityCheckers1 selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseUploadPopup"></UpdateActivityCheckers1>
+        <UpdateActivityCheckers1 @ref="refUpdateActivityCheckers1" selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseUploadPopup"></UpdateActivityCheckers1>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseUploadPopup())" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private UpdateActivityCheckers1 refUpdateActivityCheckers1;
+    private ProductRoutineEmailActivitySubjects refProductRoutineEmailActivitySubjects;
+    private RoutineEmails refRoutineEmails;
+    private RoutineSupportingDocuments refRoutineSupportingDocuments;
+    private RoutineOpeartors refRoutineOpeartors;
+    private AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles refUploadDocumentUpdateFiles;
+    private UploadProductionRoutineFiles refUploadProductionRoutineFiles;
     [Parameter]
     public Guid? MainSessionId { get; set; }
     bool IsFilterOpen { get; set; } = false;
@@ -1298,9 +1306,39 @@
     {
         IsCheckerPopUp = true;
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        _selectedDocItems=null;
+        _plantItems?.Clear();
+        _productionActivities?.Clear();
+        _ponumberActivities?.Clear();
+        _poOrderDetails?.Clear();
+        _poOrderPassDetails?.Clear();
+        _AppLines?.Clear();
+        RefAddRoutinePopupApp?.DisposeAsync();
+        _selectedItems=null;
+        _selectedEditItems=null;
+        _selectedDescriptionItems = new ProductionActivityRoutineAppModel();
+        _documentsItems = new DocumentsModel();
+        selectedFiles = new DocumentsModel();
+        fileProfileTypeDocumentsAll?.Clear();
+        FolderPathLists?.Clear();
+        _ActivityStatusItem?.Clear();
+        _ActivityMaster?.Clear();
+        _ActivityResult?.Clear();
+        _categoryItems?.Clear();
+        _actionItems?.Clear();
+        _ManuFactureProcessLines?.Clear();
+        FilterData = new ProductionActivityRoutineAppModel();
+        Data = new ProductionActivityModel();
+        refUpdateActivityCheckers1?.DisposeAsync();
+        refProductRoutineEmailActivitySubjects?.DisposeAsync();
+        refRoutineEmails?.DisposeAsync();
+        refRoutineSupportingDocuments?.DisposeAsync();
+        refRoutineOpeartors?.DisposeAsync();
+        refUploadDocumentUpdateFiles?.DisposeAsync();
+        refUploadProductionRoutineFiles?.DisposeAsync();
         GC.SuppressFinalize(this);
     }
 }

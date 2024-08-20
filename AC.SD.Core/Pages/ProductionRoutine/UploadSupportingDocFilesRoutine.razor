@@ -14,7 +14,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
-@implements IDisposable
+@implements IAsyncDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -522,6 +522,7 @@
     }
     void backUploadFilesUrl()
     {
+        DisposeAsync();
         RevokeUploadBack?.Invoke();
     }
     void OnFileUploadStart(FileUploadStartEventArgs e)
@@ -728,9 +729,22 @@
         }
         StateHasChanged();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        fileProfileTypeModels = null;
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        Data = new DocumentsUploadModel();
+        TempSetIds?.Clear();
+        documentProfileNoSeriesData = null;
+        SelectedFiles?.Clear();
+        fileProfileTypeDocumentsAll?.Clear();
+        documentsFiles?.Clear();
+        refUploadFileImagesToPdfRoutine?.DisposeAsync();
         GC.SuppressFinalize(this);
     }
 }

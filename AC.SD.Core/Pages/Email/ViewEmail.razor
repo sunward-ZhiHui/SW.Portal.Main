@@ -3695,8 +3695,11 @@
 
     async void SubmitSubjectDueDate()
     {       
-
-        if((applicationUser.UserID != CurrentEmailConversations.UserId) || _openAccessUserLink != null)
+        if(_openAccessUserLink != null)
+        {
+            await updateDueDate();
+        }
+        else if(applicationUser.UserID != CurrentEmailConversations.UserId)
         {
             if (CurrentEmailConversations.DueDate.HasValue)
             {
@@ -3727,7 +3730,7 @@
                 await updateDueDate();
             }
 
-        }
+        }       
         else
         {
             await updateDueDate();

@@ -186,7 +186,8 @@ namespace Application.Handlers.QueryHandlers
                 var t1 = ToIds;
                 var t2 = CcIds;
                 t3 = t1.Concat(t2).ToList();
-                t3.Add(request.UserId);
+                //vk
+               // t3.Add(request.UserId);
             }
             else
             {

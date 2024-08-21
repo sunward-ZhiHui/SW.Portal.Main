@@ -44,13 +44,14 @@ namespace SW.Portal.Solutions.Controllers
         [HttpGet("GetDynamicFormDataList")]
         public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
+
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
             var response = new Services.ResponseModel<DynamicFormData>();
             var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl));
 
             response.ResponseCode = Services.ResponseCode.Success;
             response.Results = result;
-            if (result.Count > 0)
+            /*if (result.Count > 0)
             {
                 result.ForEach(s =>
                 {
@@ -116,7 +117,7 @@ namespace SW.Portal.Solutions.Controllers
                         });
                     }
                 });
-            }
+            }*/
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;

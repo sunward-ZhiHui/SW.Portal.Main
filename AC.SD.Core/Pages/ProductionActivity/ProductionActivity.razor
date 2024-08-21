@@ -14,7 +14,8 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime jsRuntime
 @inject ClipboardService ClipboardService
-@implements IDisposable
+@implements IAsyncDisposable
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 <style scoped>
     .zxing-video-container > video {
         width: 100%;
@@ -314,7 +315,7 @@
          CloseOnEscape="false"
          MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
     <BodyContentTemplate>
-        <UploadProductionActivityFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionActivityFiles>
+        <UploadProductionActivityFiles @ref="refUploadProductionActivityFiles" _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionActivityFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxFlyout @bind-IsOpen=IsDescriptionOpen
@@ -348,7 +349,7 @@
          ShowFooter="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles FolderPathLists="@FolderPathLists" selectedItems="@_selectedDocItems" applicationUser="@applicationUser" FileProfileSessionId="@FileProfileSessionId" RevokeBack="CloseUploadPopup"></AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles>
+        <AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles" FolderPathLists="@FolderPathLists" selectedItems="@_selectedDocItems" applicationUser="@applicationUser" FileProfileSessionId="@FileProfileSessionId" RevokeBack="CloseUploadPopup"></AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisible"
@@ -357,7 +358,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.DMS.HistoryPopup selectedFiles="@selectedFiles"></AC.SD.Core.Pages.DMS.HistoryPopup>
+        <AC.SD.Core.Pages.DMS.HistoryPopup @ref="refHistoryPopup" selectedFiles="@selectedFiles"></AC.SD.Core.Pages.DMS.HistoryPopup>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
@@ -386,7 +387,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <SupportingDocuments selectedFiles="@_selectedItems"></SupportingDocuments>
+        <SupportingDocuments @ref="refSupportingDocuments" selectedFiles="@_selectedItems"></SupportingDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
@@ -398,7 +399,7 @@
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <ActivityOpeartors Type="Production Activity" ActionType="@ActionType" selectedFiles="@_selectedItems"></ActivityOpeartors>
+        <ActivityOpeartors @ref="refActivityOpeartors" Type="Production Activity" ActionType="@ActionType" selectedFiles="@_selectedItems"></ActivityOpeartors>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
@@ -412,13 +413,19 @@
          CloseOnEscape="false"
          MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
     <BodyContentTemplate>
-        <ActivityEmails selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseHistoryPopup"></ActivityEmails>
+        <ActivityEmails @ref="refRoutineEmails" selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseHistoryPopup"></ActivityEmails>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private AC.SD.Core.Pages.DMS.UploadDocumentUpdateFiles refUploadDocumentUpdateFiles;
+    private ActivityEmails refRoutineEmails;
+    private ActivityOpeartors refActivityOpeartors;
+    private SupportingDocuments refSupportingDocuments;
+    private AC.SD.Core.Pages.DMS.HistoryPopup refHistoryPopup;
+    private UploadProductionActivityFiles refUploadProductionActivityFiles;
     bool ActivityEmailPopup { get; set; } = false;
     bool OperatorsPopup { get; set; } = false;
     bool BlukdeleteDocument { get; set; } = false;
@@ -1069,9 +1076,31 @@
             }
         }
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        _selectedDocItems=null;
+        _plantItems?.Clear();
+        _productionActivities?.Clear();
+        _ponumberActivities?.Clear();
+        _poOrderDetails?.Clear();
+        Data = new ProductionActivityModel();
+        _AppLines?.Clear();
+        _selectedItems=null;
+        _selectedEditItems=null;
+        _selectedDescriptionItems = new ProductActivityAppModel();
+        _documentsItems = null;
+        selectedFiles = null;
+        fileProfileTypeDocumentsAll?.Clear();
+        FolderPathLists?.Clear();
+        FilterData = null;
+        RefToDoLeftNotes?.DisposeAsync();
+        refUploadDocumentUpdateFiles?.DisposeAsync();
+        refRoutineEmails?.DisposeAsync();
+        refActivityOpeartors?.DisposeAsync();
+        refSupportingDocuments?.DisposeAsync();
+        refHistoryPopup?.DisposeAsync();
+        refUploadProductionActivityFiles?.DisposeAsync();
         GC.SuppressFinalize(this);
     }
 }

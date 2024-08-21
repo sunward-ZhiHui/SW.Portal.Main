@@ -15,7 +15,7 @@
 @inject HttpClient Http
 @using System.IO
 @using Microsoft.AspNetCore.Http;
-@implements IDisposable
+@implements IAsyncDisposable
 <style scoped>
     .unSelectAble {
         height: 600px;
@@ -446,7 +446,7 @@
         }
         return "Done";
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
         GC.SuppressFinalize(this);

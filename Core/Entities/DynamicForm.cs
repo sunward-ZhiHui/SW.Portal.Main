@@ -47,6 +47,7 @@ namespace Core.Entities
         [NotMapped]
         public string? ProfileName { get; set; }
         public bool? IsGridForm { get; set; } = false;
+        public int? FormDataCount { get; set; }
     }
     public class AddTempSectionAttribute
     {

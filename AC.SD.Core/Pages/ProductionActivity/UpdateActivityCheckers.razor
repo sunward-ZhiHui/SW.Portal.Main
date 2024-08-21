@@ -9,7 +9,6 @@
 @inject NavigationManager NavigationManager
 @using global::Core.Entities.Views;
 @inject IJSRuntime jsRuntime
- @implements IDisposable
 @using System.IO;
 @implements IAsyncDisposable
 <style scoped>
@@ -262,6 +261,16 @@
         {
             await _module.DisposeAsync();
         }
+        System.GC.Collect();
+        _ManuFactureProcessLines?.Clear();
+        _categoryItems?.Clear();
+        _actionItems?.Clear();
+        _ActivityStatusItem?.Clear();
+        _ActivityResult?.Clear();
+        Data = new ProductionActivityCheckedDetailsModel();
+        _supportDocselectedFile?.Clear();
+        _selectedItems = null;
+        GC.SuppressFinalize(this);
     }
     async Task onCopyPasteFileclick()
     {
@@ -442,6 +451,7 @@
     {
         if (string.IsNullOrEmpty(onShowMain))
         {
+            DisposeAsync();
             RevokeBack?.Invoke();
         }
         else
@@ -473,10 +483,5 @@
                 await loadSupportingDocFiles();
             }
         }
-    }
-    public void Dispose()
-    {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
     }
 }

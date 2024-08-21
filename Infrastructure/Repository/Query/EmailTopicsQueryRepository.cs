@@ -785,11 +785,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", searchTxt);
                         parameters.Add("PageNumber", pageNumber);
                         parameters.Add("PageSize", pageSize);
-                        parameters.Add("Option", "SELECT_ASSIGN_TO");
-                        
+                        parameters.Add("Option", "SELECT_ASSIGN_TO");                        
 
-                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
-                        connection.Close();
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);                        
                         return result.ToList();
                     }
                     catch (Exception exp)

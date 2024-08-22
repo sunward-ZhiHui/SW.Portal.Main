@@ -80,8 +80,6 @@ namespace Core.Entities
         public List<ApplicationMaster> SubApplicationMaster { get; set; } = new List<ApplicationMaster>();
         public int? AttributeSortBy { get; set; }
         public int? SortOrderAnotherBy { get; set; }
-        public string? FilterDataSourceTableName { get; set; }
-        public string? FilterDataSourceDisplayName { get; set; }
         public string? DropDownTypeIds { get; set; } = null;
     }
     public class AttributeHeaderListModel

@@ -142,14 +142,6 @@
                 NavigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
     }
-    async Task onshowLoading()
-    {
-        await JSRuntime.InvokeAsync<string>("showLoading");
-    }
-    async Task onhideLoading()
-    {
-        await JSRuntime.InvokeAsync<string>("hideLoading");
-    }
     private ValueTask OnLocationChanging(LocationChangingContext context)
     {
         if (context.TargetLocation == "/counter")
@@ -159,17 +151,9 @@
 
         return ValueTask.CompletedTask;
     }
-
-    // public void Dispose()
-    // {
-
-    //     DynamicFormPage1?.Dispose();
-    //     System.GC.Collect();
-    //     GC.SuppressFinalize(this);
-    // }
     public void ClearData()
     {
-        System.GC.Collect();
+        
         refDynamicFormReports?.DisposeAsync();
         _dynamicForm?.Clear();
         _selectedItems = null;
@@ -178,6 +162,7 @@
 
     public async ValueTask DisposeAsync()
     {
+        System.GC.Collect();
         ClearData();
         // Suppress finalization
         GC.SuppressFinalize(this);
@@ -187,18 +172,14 @@
         try
         {
             PanelVisible = true;
-            // await onshowLoading();
             EditEnabled = false; DeleteEnabled = false;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
 
             if (_dynamicForm != null && _dynamicForm.Count > 0)
             {
-                // EditEnabled = true; DeleteEnabled = true;
                 _selectedItems = _dynamicForm.FirstOrDefault();
-                // Grid.SetFocusedRowIndex(0);
             }
             PanelVisible = false;
-            // await onhideLoading();
             StateHasChanged();
         }
         catch (Exception ex)
@@ -244,14 +225,7 @@
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        // if (_selectedItems != null && _selectedItems.IsGridForm != true)
-        // {
         NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
-        // }
-        // else
-        // {
-        //     toastService.ShowToast("This form is GridForm", AC.SD.Core.Services.ToastLevel.Error);
-        // }
     }
     void addNew()
     {
@@ -287,7 +261,6 @@
             Blukdeletepopup = false;
             toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
-        // await UpdateDataAsync();
     }
     void OpenReports()
     {

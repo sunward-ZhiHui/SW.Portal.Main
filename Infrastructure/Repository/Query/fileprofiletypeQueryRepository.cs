@@ -42,24 +42,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                /* var query = "select ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,*,Name as Filename,\r\n" +
-                     "FileProfileTypeID as DocumentID,\r\n" +
-                     "AddedBy as AddedByUser,\r\n" +
-                     "ModifiedBy as ModifiedByUser,\r\n" +
-                     "ModifiedDate,\r\n" +
-                     "AddedDate,\r\n" +
-                     "Profile as ProfileNo,\r\n" +
-                     "CONCAT('>',Name) as BreadcumName,\r\n" +
-                     //"CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
-                     //"CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
-                     "CONCAT((select count(FileProfileTypeID) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
-                     "CONCAT((Select COUNT(DocumentID) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\n" +
-                     "AND IsLatest=1  \r\n" +
-                     "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\n" +
-                     "OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
-                     "from view_FileProfileTypeDocument t2";*/
-                // var query = "select \r\n Name,\r\nCASE WHEN  IsExpiryDate IS NULL THEN 0 ELSE  IsExpiryDate END AS IsExpiryDate,\r\nCASE WHEN  IsDuplicateUpload IS NULL THEN 0 ELSE  IsDuplicateUpload END AS IsDuplicateUpload,\r\n IsExpiryDate as IsExpiryDates,\r\n ProfileID,\r\n FileProfileTypeID,\r\n StatusCodeID,\r\n AddedByUserID,\r\n AddedDate,\r\n Description,\r\n ModifiedByUserID,\r\n ModifiedDate,\r\n ParentID,\r\n SessionID,\r\n IsDelete,\r\n DeleteByUserID,\r\n DeleteByDate,\r\n DynamicFormID,\r\nROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename, \r\nFileProfileTypeID as DocumentID, \r\nModifiedDate, \r\nAddedDate, \r\nCONCAT('>',Name) as BreadcumName, \r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate\r\nfrom FileProfileType where (IsDelete = 0 or IsDelete is null)";
-                var query = "select     Name,   CASE WHEN  IsExpiryDate IS NULL THEN 0 ELSE  IsExpiryDate END AS IsExpiryDate,   CASE WHEN  IsDuplicateUpload IS NULL THEN 0 ELSE  IsDuplicateUpload END AS IsDuplicateUpload,     ProfileID,    FileProfileTypeID,     ParentID,    SessionID,    IsDelete,    DeleteByUserID,    DeleteByDate,    DynamicFormID,   ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,    FileProfileTypeID as DocumentID  from FileProfileType where (IsDelete = 0 or IsDelete is null)";
+                var query = "select     Name,   CASE WHEN  IsExpiryDate IS NULL THEN 0 ELSE  IsExpiryDate END AS IsExpiryDate,   CASE WHEN  IsDuplicateUpload IS NULL THEN 0 ELSE  IsDuplicateUpload END AS IsDuplicateUpload,     ProfileID,    FileProfileTypeID,     ParentID,    SessionID,    IsDelete,    DeleteByUserID,    DeleteByDate,    DynamicFormID,Name as Filename,    FileProfileTypeID as DocumentID  from FileProfileType where (IsDelete = 0 or IsDelete is null)";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentsModel>(query)).ToList();
@@ -94,19 +77,23 @@ namespace Infrastructure.Repository.Query
             List<DocumentsModel> DocumentsModel = new List<DocumentsModel>();
             try
             {
-                var query = "select  *,SessionId as FileProfileTypeSessionId,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\nFileProfileTypeID as DocumentID,\r\nProfile as ProfileNo,\r\n--CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n--CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\nCONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','Folders') as FileSizes\r\n";
+                var query = "select \r\nt5.Name as Profile,\r\nt1.Name,\r\nCASE WHEN t1.IsExpiryDate IS NULL THEN 0 ELSE t1.IsExpiryDate END AS IsExpiryDate,\r\nt1.IsExpiryDate as IsExpiryDates,\r\nt1.ProfileID,\r\nt1.FileProfileTypeID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.Description,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt3.UserName as AddedBy,\r\nt4.UserName as ModifiedBy,\r\nt1.ParentID,\r\nt1.SessionID,\r\nt1.IsDelete,\r\nt1.DynamicFormID,\r\nt1.SessionId as FileProfileTypeSessionId,\r\nROW_NUMBER() OVER(ORDER BY t1.FileProfileTypeID) AS UniqueNo,\r\nt1.Name as Filename,\r\nt1.FileProfileTypeID as DocumentID,\r\nt5.Name as ProfileNo,\n\r" +
+                    "CONCAT((select count(tt.FileProfileTypeID) as counts from FileProfileType tt where tt.parentId=t1.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','Folders') as FileSizes\r\n";
                 if (selectedFileProfileTypeID == null)
                 {
-                    query += ",CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID AND IsLatest=1 AND  (isDelete is null or isDelete=0) AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n";
+                    query += ",CONCAT((Select COUNT(tt1.DocumentID) as DocCount from Documents tt1 where tt1.FilterProfileTypeId=t1.FileProfileTypeID AND tt1.IsLatest=1 AND  (tt1.isDelete is null or tt1.isDelete=0) AND (tt1.ArchiveStatusId != 2562 OR tt1.ArchiveStatusId  IS NULL) OR (tt1.DocumentID in(select tt2.DocumentID from LinkFileProfileTypeDocument tt2 where tt2.FileProfileTypeID=t1.FileProfileTypeID ) AND tt1.IsLatest=1)),' ','files') as FileCounts\r\n";
                 }
-                query += "from view_FileProfileTypeDocument t2 ";
+                    query += "from FileProfileType t1   \r\n" +
+                    "LEFT JOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\n" +
+                    "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedByUserID\r\n" +
+                    "LEFT JOIN DocumentProfileNoSeries t5 ON t5.ProfileID = t1.ProfileID";
                 if (selectedFileProfileTypeID == null)
                 {
-                    query += "\r\nWhere parentid is null AND IsDelete is null or IsDelete=0 order by Filename asc";
+                    query += "\r\nWhere t1.parentid is null AND t1.IsDelete is null or IsDelete=0 order by t1.Name asc";
                 }
                 else
                 {
-                    query += "\r\nwhere parentid=" + selectedFileProfileTypeID + " AND IsDelete is null or IsDelete = 0 order by Filename asc";
+                    query += "\r\nwhere t1.parentid=" + selectedFileProfileTypeID + " AND t1.IsDelete is null or t1.IsDelete = 0 order by t1.Name asc";
                 }
                 using (var connection = CreateConnection())
                 {
@@ -350,7 +337,6 @@ namespace Infrastructure.Repository.Query
             try
             {
                 fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
-                //var query = "select  * from DocumentUserRole where FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
                 var query = "select  t1.* from DocumentUserRole t1\r\n" +
                     "JOIN Employee t2 ON t2.UserID=t1.UserID\r\n" +
                     "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
@@ -780,8 +766,8 @@ namespace Infrastructure.Repository.Query
                         userIds.AddRange(documents.Where(a => a.ModifiedByUserId > 0).Select(a => a.ModifiedByUserId).ToList());
                         userIds.AddRange(documents.Where(a => a.LockedByUserId > 0).Select(a => a.LockedByUserId).ToList());
 
-                        var sessionIds = documents.Where(a => a.SessionId != null).Select(a => a.SessionId).ToList();
-                        var filterProfileTypeIds = documents.Where(w => w.FilterProfileTypeId > 0).Select(a => a.FilterProfileTypeId).ToList();
+                        var sessionIds = documents.Where(a => a.SessionId != null).Select(a => a.SessionId).Distinct().ToList();
+                        var filterProfileTypeIds = documents.Where(w => w.FilterProfileTypeId > 0).Select(a => a.FilterProfileTypeId).Distinct().ToList();
                         var multipleData = await GetMultipleFileProfileTypeQueryAsync(sessionIds, filterProfileTypeIds, userIds.Distinct().ToList());
                         var docShares = multipleData.DocumentDmsShare;
                         var dynamicFormData = multipleData.DynamicFormDataUpload;
@@ -1539,22 +1525,22 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.DocumentID = s.DocumentId;
                                 documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
                                 documentsModels.ContentType = s.ContentType;
-                                documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                                //documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
                                 documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
                                 documentsModels.UploadDate = s.UploadDate;
                                 documentsModels.SessionID = s.SessionId;
-                                documentsModels.FileProfileTypeId = s.FilterProfileTypeId;
-                                documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
-                                documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
-                                documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
-                                documentsModels.DocumentParentId = s.DocumentParentId;
-                                documentsModels.TableName = s.TableName;
-                                documentsModels.IsMobileUpload = s.IsMobileUpload;
+                               // documentsModels.FileProfileTypeId = s.FilterProfileTypeId;
+                               // documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
+                               // documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
+                               // documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
+                              //  documentsModels.DocumentParentId = s.DocumentParentId;
+                               // documentsModels.TableName = s.TableName;
+                               // documentsModels.IsMobileUpload = s.IsMobileUpload;
                                 documentsModels.Type = "Document";
                                 documentsModels.ExpiryDate = s.ExpiryDate;
                                 documentsModels.FileIndex = s.FileIndex;
-                                documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
-                                documentsModels.UploadedByUserId = s.AddedByUserId;
+                               // documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
+                               // documentsModels.UploadedByUserId = s.AddedByUserId;
                                 documentsModels.ModifiedByUserID = s.ModifiedByUserId;
                                 documentsModels.AddedDate = s.UploadDate;
                                 documentsModels.ModifiedDate = s.ModifiedDate;
@@ -1562,23 +1548,23 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
                                 documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
                                 documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                                documentsModels.IsLocked = s.IsLocked;
-                                documentsModels.LockedByUserId = s.LockedByUserId;
-                                documentsModels.LockedDate = s.LockedDate;
-                                documentsModels.IsNewPath = s.IsNewPath;
+                               // documentsModels.IsLocked = s.IsLocked;
+                               // documentsModels.LockedByUserId = s.LockedByUserId;
+                               // documentsModels.LockedDate = s.LockedDate;
+                               // documentsModels.IsNewPath = s.IsNewPath;
                                 documentsModels.AddedByUserID = s.AddedByUserId;
-                                documentsModels.IsCompressed = s.IsCompressed;
-                                documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
-                                documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
-                                documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
-                                documentsModels.CloseDocumentId = s.CloseDocumentId;
-                                documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
+                              //  documentsModels.IsCompressed = s.IsCompressed;
+                               // documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
+                              //  documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
+                               // documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
+                               // documentsModels.CloseDocumentId = s.CloseDocumentId;
+                               // documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
                                 documentsModels.ProfileNo = s.ProfileNo;
                                 documentsModels.FilePath = s.FilePath;
                                 documentsModels.DeleteByDate = s.DeleteByDate;
                                 documentsModels.DeleteByUserID = s.DeleteByUserID;
                                 documentsModels.DeleteByUser = appUsers.FirstOrDefault(f => f.UserID == s.DeleteByUserID)?.UserName;
-                                documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
+                               // documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
 
                                 documentsModel.Add(documentsModels);
 

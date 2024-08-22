@@ -7,7 +7,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
-@implements IDisposable
+@implements IAsyncDisposable
 @using global::Core.Entities.Views;
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -208,9 +208,13 @@
         IsDescriptionOpen = false;
         await loadSupportingDocFiles();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        _supportDocselectedFile?.Clear();
+        productionActivityNonCompliance = null;
+        _selectedItems = null;
+        Data = null;
         GC.SuppressFinalize(this);
     }
 }

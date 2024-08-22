@@ -14,7 +14,11 @@
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @implements IAsyncDisposable
 
-
+<style scoped>
+    .formCountClass {
+        color: red;
+    }
+</style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -55,7 +59,16 @@
 
         <Columns>
             <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
-            <DxGridDataColumn FieldName="Name" Caption="Form Name" MinWidth="50" />
+            <DxGridDataColumn FieldName="Name" MinWidth="50" Caption="Form Name">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicForm)context.DataItem;
+                        var Names = item.Name;
+                        Names += "<span class='formCountClass'>(" + item.FormDataCount + ")</span>";
+                    }
+                    @((MarkupString)Names)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
         </Columns>

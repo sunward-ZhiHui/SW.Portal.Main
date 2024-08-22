@@ -146,6 +146,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+       
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await loadData();
     }

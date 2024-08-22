@@ -1500,7 +1500,7 @@
         refLinkFileprofileTypeLists?.DisposeAsync();
         TemplateUploadOrReserveNoOptions = null;
         TemplateUploadOptions = null;
-        refUploadFileImagesToPdf?.Dispose();
+        refUploadFileImagesToPdf?.DisposeAsync();
         _reserveProfileNumberSeriesList?.Clear();
         FolderPathListsItems = new List<DynamicFormDataUploadByPermission>();
         fileProfileTypeModels = null;

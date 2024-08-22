@@ -6,7 +6,7 @@
 @inject IMediator Mediator
 @using Microsoft.Extensions.Configuration;
 @inject AC.SD.Core.Services.ToastService toastService
-@implements IDisposable
+@implements IAsyncDisposable
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -81,9 +81,11 @@
         StateHasChanged();
 
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         System.GC.Collect();
+        _ActivityEmailSubjectsList?.Clear();
+        _selectedItems = null;
         GC.SuppressFinalize(this);
     }
 }

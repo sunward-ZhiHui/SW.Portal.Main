@@ -14,7 +14,11 @@
 @implements IAsyncDisposable;
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
-
+<style scoped>
+    .formCountClass{
+        color:red;
+    }
+</style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -58,7 +62,16 @@
         <Columns>
             <DxGridDataColumn FieldName="IsGridForm" Caption="Grid Form" MinWidth="20" />
             <DxGridDataColumn FieldName="ProfileName" MinWidth="50" Caption="Profile" />
-            <DxGridDataColumn FieldName="Name" MinWidth="50" Caption="Form Name" />
+            <DxGridDataColumn FieldName="Name" MinWidth="50" Caption="Form Name">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicForm)context.DataItem;
+                        var Names = item.Name;
+                        Names += "<span class='formCountClass'>(" + item.FormDataCount + ")</span>";
+                    }
+                    @((MarkupString)Names)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
             <DxGridDataColumn FieldName="CompanyName" Caption="Company Name" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
@@ -174,7 +187,7 @@
         try
         {
             PanelVisible = true;
-           // await onshowLoading();
+            // await onshowLoading();
             EditEnabled = false; DeleteEnabled = false;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
 
@@ -184,8 +197,8 @@
                 _selectedItems = _dynamicForm.FirstOrDefault();
                 // Grid.SetFocusedRowIndex(0);
             }
-             PanelVisible = false;
-           // await onhideLoading();
+            PanelVisible = false;
+            // await onhideLoading();
             StateHasChanged();
         }
         catch (Exception ex)

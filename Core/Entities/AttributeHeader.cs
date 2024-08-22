@@ -94,6 +94,7 @@ namespace Core.Entities
         public List<AttributeHeaderDataSource> AttributeHeaderDataSource { get; set; } = new List<AttributeHeaderDataSource>();
         public List<ApplicationMasterParent> ApplicationMasterParent { get; set; } = new List<ApplicationMasterParent>();
         public List<DynamicFormSectionAttributeSection> DynamicFormSectionAttributeSections = new List<DynamicFormSectionAttributeSection>();
+        public List<DynamicForm> DynamicFormAll = new List<DynamicForm>();
     }
     public class DynamicFormGridModel
     {

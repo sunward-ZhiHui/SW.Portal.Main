@@ -921,9 +921,9 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpPost("DeleteIPIRReportingInformation")]
-        public async Task<ActionResult<Services.ResponseModel<IEnumerable<IPIRReportingInformation>>>> DeleteIPIRReportingInformation(IPIRReportingInformation value)
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<ReportingInformationModel>>>> DeleteIPIRReportingInformation(ReportingInformationModel value)
         {
-            var response = new Services.ResponseModel<IPIRReportingInformation>();
+            var response = new Services.ResponseModel<ReportingInformationModel>();
             IPIRReportingInformation Data = new IPIRReportingInformation();
             Data.ReportinginformationID = (long)value.ReportinginformationID;
             var result = await _mediator.Send(new DeleteIpirReportingInformation(Data));
@@ -932,7 +932,7 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = Services.ResponseCode.Success;
 
-                var emailconversations = new IPIRReportingInformation
+                var emailconversations = new ReportingInformationModel
                 {
 
                     Message = "Delete Successfully"

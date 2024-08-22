@@ -666,10 +666,10 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
- private AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
-    private AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm refDynamicFormFilterByForm{ get; set; }
+    private AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm refDynamicFormFilterByForm { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
-    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm  refDynamicFormDataWorkFlowApprovalForm{get;set;}
+    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm refDynamicFormDataWorkFlowApprovalForm { get; set; }
     string? workflowStyle { get; set; } = "display:none;";
     private DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); string? ApproveRejectWokFlowName { get; set; } = "Approve";
     public bool IsWorkflowApprovalApproved { get; set; } = false; public bool IsWorkflowApprovalRejected { get; set; } = false; public bool IsWokFlowDescriptionOpen { get; set; } = false;
@@ -3059,7 +3059,14 @@
         _dynamicform = null;
         _dynamicformData = null;
         _AttributeHeader = null;
-        Data = null; SpinData = null;
+        if (Data != null)
+        {
+            Data = null;
+        }
+        if (SpinData != null)
+        {
+            SpinData = null;
+        }
         dynamicFormData = new DynamicFormData();
         dynamicFormApproval = new DynamicFormApproved();
         _dynamicFormApprovedList?.Clear();
@@ -3659,6 +3666,8 @@
           //PanelVisible = true;
           isRequiredCount = 0;
           var _AttributeHeaders = _AttributeHeader;
+          if (Data != null)
+          {
           var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0;
           if (_AttributeHeader != null && _AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
           {
@@ -6167,7 +6176,8 @@
       });
 
           }
-          //PanelVisible = false;
+      }
+      //PanelVisible = false;
           InvokeAsync(onhideLoading);
       };
     void loadDynamicGridDropDownForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)

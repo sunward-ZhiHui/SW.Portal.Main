@@ -870,10 +870,10 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpPost("InsertIpirReportingInformation")]
-        public async Task<ActionResult<Services.ResponseModel<List<IPIRReportingInformation>>>> InsertIpirReportingInformation(IPIRReportingInformation IPIRReportingInformationmodel)
+        public async Task<ActionResult<Services.ResponseModel<List<ReportingInformationModel>>>> InsertIpirReportingInformation(ReportingInformationModel IPIRReportingInformationmodel)
         {
             var message = new List<string>();
-            var response = new Services.ResponseModel<IPIRReportingInformation>();
+            var response = new Services.ResponseModel<ReportingInformationModel>();
             if (IPIRReportingInformationmodel.IssueRelatedTo > 0 && IPIRReportingInformationmodel.AssignToIds != null)
             {
 
@@ -898,7 +898,7 @@ namespace SW.Portal.Solutions.Controllers
                     try
                     {
                         response.ResponseCode = Services.ResponseCode.Success;
-                        var display = new IPIRReportingInformation
+                        var display = new ReportingInformationModel
                         {
                             ReportinginformationID = result.ReportinginformationID,
                             SessionId = result.SessionId

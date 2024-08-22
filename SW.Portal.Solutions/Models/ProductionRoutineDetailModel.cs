@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Core.Entities.Base;
+using System.ComponentModel;
 
 namespace SW.Portal.Solutions.Models
 {
@@ -45,5 +46,19 @@ namespace SW.Portal.Solutions.Models
         public string? OthersOptions { get; set; }
         public string? RoutineStatus { get; set; }
         public IEnumerable<long?> RoutineInfoIds { get; set; } = new List<long?>();
+    }
+    public class ReportingInformationModel : BaseEntity
+    {
+
+        public long ReportinginformationID { get; set; }
+        public long IpirAppID { get; set; }
+        public string? IssueDescription { get; set; }
+        public bool ReportBy { get; set; }
+        public long? IssueRelatedTo { get; set; }
+
+        public IEnumerable<long> AssignToIds { get; set; } = new List<long>();
+
+        public string? Message { get; set; }
+
     }
 }

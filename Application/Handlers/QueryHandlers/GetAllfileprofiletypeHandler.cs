@@ -55,6 +55,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetAllWithouDeletefileprofiletypeListQueryHandler : IRequestHandler<GetAllWithouDeletefileprofiletypeListQuery, List<DocumentsModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetAllWithouDeletefileprofiletypeListQueryHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<DocumentsModel>> Handle(GetAllWithouDeletefileprofiletypeListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<DocumentsModel>)await _fileprofileQueryRepository.GetAllWithoutDeleteFileProfileDocumentAsync();
+        }
+
+    }
     public class GetAllfileprofiletypeDropdownQueryHandler : IRequestHandler<GetAllfileprofiletypeDrodownQuery, List<FileProfileTypeModel>>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;

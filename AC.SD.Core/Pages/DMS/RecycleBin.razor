@@ -114,7 +114,7 @@
                     @item.FileName
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="DocumentPath" FixedPosition="GridColumnFixedPosition.Left" Caption="Path" MinWidth="270" />
+               <DxGridDataColumn FieldName="DocumentPath" FixedPosition="GridColumnFixedPosition.Left" Caption="Path" MinWidth="270" /> 
             <DxGridDataColumn FieldName="ProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Profile" MinWidth="170" />
             <DxGridDataColumn FieldName="FileSizes" FixedPosition="GridColumnFixedPosition.Left" Caption="File Size" MinWidth="170">
                 <CellDisplayTemplate>
@@ -193,7 +193,7 @@
         {
             PanelVisible = true;
             // await onshowLoading();
-            fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+            fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllWithouDeletefileprofiletypeListQuery());
             _fileProfileselectedlstItems = await Mediator.Send(new GetAllDocumentDelete());
             fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
             onRestoreEnabled = false;

@@ -2072,7 +2072,7 @@ else
 
 
 
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
 
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
@@ -2554,7 +2554,7 @@ else
         //System.GC.Collect();
         //GC.SuppressFinalize(this);
         //_subscription.Dispose();        
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
        // subscription?.Dispose();
     }
 

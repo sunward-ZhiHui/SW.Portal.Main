@@ -889,7 +889,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
         PanelVisible = false;
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
     } 
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -1894,7 +1894,7 @@
     {
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
     async Task onloadTwoGrid()

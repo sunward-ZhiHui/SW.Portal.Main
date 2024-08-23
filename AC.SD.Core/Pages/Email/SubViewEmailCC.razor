@@ -76,7 +76,7 @@
         
         PanelVisible = false;
 
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -91,7 +91,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

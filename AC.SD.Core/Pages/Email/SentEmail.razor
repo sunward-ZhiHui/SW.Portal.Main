@@ -73,7 +73,7 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID,"NULL"));
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -109,7 +109,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

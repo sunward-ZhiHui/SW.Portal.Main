@@ -42,7 +42,7 @@
 
     protected override void OnInitialized()
     {
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
 
         TopicTid = Tid;
         if (Tid > 0)
@@ -80,7 +80,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

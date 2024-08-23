@@ -6,7 +6,7 @@
 @using MediatR
 @inject IMediator Mediator
 @using System.Linq;
-@implements IDisposable;
+@implements IAsyncDisposable;
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
 @using System.Timers
@@ -162,11 +162,7 @@
         StateHasChanged();
         PanelVisible = false;
         StopTimer();
-    }
-    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
-    {
-        StateHasChanged();
-    }
+    }   
     void OnItemClick(ContextMenuItemClickEventArgs args)
     {
         //ClickedItem = args.ItemInfo.Text;
@@ -232,16 +228,15 @@
         //await LoadReplyData();
         StateHasChanged();
     }
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
-        GC.WaitForPendingFinalizers();
-        timer?.Dispose();
-        _forumTopicTo?.Clear();
-        _forumTopicTo = null;
-        StopTimer();        
+    public async ValueTask DisposeAsync()
+    {        
+        // System.GC.Collect();
+        // GC.SuppressFinalize(this);
+        // GC.WaitForPendingFinalizers();
+        // timer?.Dispose();
+        // _forumTopicTo?.Clear();
+        // _forumTopicTo = null;
+        // StopTimer();        
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {

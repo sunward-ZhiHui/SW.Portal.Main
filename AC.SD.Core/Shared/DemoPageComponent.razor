@@ -21,13 +21,13 @@
     public bool HasPageNavigation { get; set; }
 
     protected override void OnInitialized() {
-        NavigationManager.LocationChanged += OnLocationChanged;       
+        //NavigationManager.LocationChanged += OnLocationChanged;       
     }
     void OnLocationChanged(object sender, LocationChangedEventArgs args) {   
         InvokeAsync(StateHasChanged);
     }
     
     public void Dispose() {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

@@ -6,6 +6,7 @@
 @inject IMediator Mediator
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService;
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
 
 <DxTreeView @ref="treeView"
@@ -39,7 +40,7 @@
     string segmentcurrentUri = "";
     protected override void OnInitialized()
     {
-        NavigationManager.LocationChanged += HandleLocationChanged;
+        //NavigationManager.LocationChanged += HandleLocationChanged;
     }
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
@@ -54,7 +55,7 @@
             portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
         }
 
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
         await InvokeAsync(StateHasChanged);
     }
 
@@ -79,7 +80,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
     }   
     void UpdateSelection(string currentUri, bool expandNodesToSelection)
     {

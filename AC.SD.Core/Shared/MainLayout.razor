@@ -14,6 +14,7 @@
 @using global::Core.Entities.Views;
 @using Microsoft.AspNetCore.SignalR.Client;
 @inject AC.SD.Core.Services.ToastService toastService
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
  
 <Toast />
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
@@ -434,7 +435,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
     }
     internal async void logout()
     {

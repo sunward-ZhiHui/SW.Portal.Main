@@ -29,7 +29,7 @@
     {
         BaseUrl = NavigationManager.BaseUri;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
         JSRuntime.InvokeVoidAsync("registerBlazorComponent", DotNetObjectReference.Create(this));
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
@@ -79,7 +79,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
         dotNetRef?.Dispose();
         System.GC.Collect();
         GC.SuppressFinalize(this);

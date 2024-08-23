@@ -263,7 +263,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
 
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
 
@@ -639,7 +639,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

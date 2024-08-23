@@ -155,7 +155,7 @@
     
     protected override async Task OnInitializedAsync()
     {
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
         await jsRuntime.InvokeAsync<string>("showLoading");      
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _topicToDolist = await Mediator.Send(new GetAllTopicToDoList(applicationUser.UserID));
@@ -185,7 +185,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

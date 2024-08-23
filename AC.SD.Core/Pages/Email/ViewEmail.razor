@@ -64,25 +64,25 @@
                     <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">                     
                         <div class="card-body p-0">
                             <DxTabs ScrollMode="TabsScrollMode.NavButtons" @bind-ActiveTabIndex="@ActiveTabIndex">
-                                <DxTabPage Text="All" CssClass="@((isLeftMenuvisible == "All" ? "tActive": "tall"))" Click="@(() => OnLeftMenuItemClick("All"))">
+                                 <DxTabPage Text="All" CssClass="@((isLeftMenuvisible == "All" ? "tActive": "tall"))" Click="@(() => OnLeftMenuItemClick("All"))">
                                    
-                                </DxTabPage>
+                                </DxTabPage> 
                                 <DxTabPage Text="Assign To" CssClass="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" Click="@(() => OnLeftMenuItemClick("AssignTo"))">
                                    
                                 </DxTabPage>
                                @*  <DxTabPage Text="CC" CssClass="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" Click="@(() => OnLeftMenuItemClick("AssignCC"))">
                                    
                                 </DxTabPage> *@
-                                <DxTabPage Text="Sent" CssClass="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" Click="@(() => OnLeftMenuItemClick("Sent"))">
+                                 <DxTabPage Text="Sent" CssClass="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" Click="@(() => OnLeftMenuItemClick("Sent"))">
 
                                 </DxTabPage>
-                                <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))">
+                                 <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))">
 
-                                </DxTabPage>
+                                </DxTabPage> 
                                 @if(_openAccessUserLink != null)
                                 {
                                     <DxTabPage Text="Administrator" CssClass="@((isLeftMenuvisible == "Administrator" ? "tActive": "administrator"))" Click="@(() => OnLeftMenuItemClick("Administrator"))"></DxTabPage>   
-                                }
+                                } 
                                 
                               </DxTabs>                          
                         </div>
@@ -5046,7 +5046,7 @@
     }
     protected override void OnInitialized()
     {
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
 
     }    
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
@@ -5192,7 +5192,6 @@
     }
     public async ValueTask DisposeAsync()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
 
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
@@ -5212,7 +5211,7 @@
         }
         else
         {
-            RefAssignTo?.Dispose();
+            RefAssignTo?.DisposeAsync();
         }
 
         if (RefMasterSearch is IAsyncDisposable asyncDisposableRefMasterSearch)
@@ -5319,7 +5318,7 @@
         // Dispose of any other objects if necessary
         RefTopicAddPList?.Dispose();
         RefTopicAddGroupPList?.Dispose();
-        RefAssignTo?.Dispose();
+        RefAssignTo?.DisposeAsync();
         RefAssignAll?.Dispose();
         RefTopicTagList?.Dispose();
         RefTopicTodo?.Dispose();

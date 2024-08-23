@@ -12,7 +12,7 @@
     public string HeaderStateCssClass { get; set; } = "collapse";
 
     protected override void OnInitialized() {
-        NavigationManager.LocationChanged += OnLocationChanged;        
+        //NavigationManager.LocationChanged += OnLocationChanged;        
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
@@ -37,6 +37,6 @@
    
 
     public void Dispose() {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

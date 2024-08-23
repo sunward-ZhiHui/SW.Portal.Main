@@ -181,7 +181,7 @@
     }
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        //NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
         timer?.Dispose();

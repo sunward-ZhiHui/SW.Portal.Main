@@ -161,12 +161,12 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select t1.*,t9.Name as DynamicFormName,(CASE WHEN t1.AttributeIsVisible is null  THEN 1  ELSE t1.AttributeIsVisible END) AS AttributeIsVisible,t6. UserName as AddedBy,t7. UserName as ModifiedBy,t2.CodeValue as ControlType,t2.CodeValue as ControlTypes,t5.Plantcode as AttributeCompany,t4.DisplayName as DataSourceDisplayName,t4.DataSourceTable,t8.TableName as FilterDataSourceTableName,t8.DisplayName as FilterDataSourceDisplayName from AttributeHeader t1  JOIN CodeMaster t2 ON t2.CodeID=t1.ControlTypeId\n\r" +
+                var query = "select t1.*,t9.Name as DynamicFormName,(CASE WHEN t1.AttributeIsVisible is null  THEN 1  ELSE t1.AttributeIsVisible END) AS AttributeIsVisible,t6. UserName as AddedBy,t7. UserName as ModifiedBy,t2.CodeValue as ControlType,t2.CodeValue as ControlTypes,t5.Plantcode as AttributeCompany,t4.DisplayName as DataSourceDisplayName,t4.DataSourceTable from AttributeHeader t1  " +
+                    "JOIN CodeMaster t2 ON t2.CodeID=t1.ControlTypeId\n\r" +
                     "LEFT JOIN AttributeHeaderDataSource t4 ON t4.AttributeHeaderDataSourceID=t1.DataSourceId\n\r" +
-                    "LEFT JOIN ApplicationUSer t6 ON t6.UserId=t1.AddedbyuserId\n\r" +
+                    "JOIN ApplicationUSer t6 ON t6.UserId=t1.AddedbyuserId\n\r" +
                     "LEFT JOIN ApplicationUSer t7 ON t7.UserId=t1.ModifiedByUserID\n\r" +
                     "LEFT JOIN DynamicForm t9 ON t9.ID=t1.DynamicFormID\n\r" +
-                    "LEFT JOIN DynamicFormFilter t8 ON t8.DynamicFilterId = t1.FilterDataSocurceID\n\r" +
                     "LEFT JOIN Plant t5 ON t5.PlantID=t1.AttributeCompanyId\r\n";
                 if (IsSubForm == true)
                 {

@@ -1,6 +1,5 @@
 ﻿@page "/DynamicMasterSetupList"
 @using global::Core.Entities.Views;
-
 @inject IMediator Mediator
 @using Application.Queries;
 @using MediatR
@@ -120,29 +119,17 @@
             EditEnabled = false; DeleteEnabled = false;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
             PanelVisible = true;
-           // await onshowLoading();
             if (_dynamicForm != null && _dynamicForm.Count > 0)
             {
-                //EditEnabled = true; DeleteEnabled = true;
                 _selectedItems = _dynamicForm.FirstOrDefault();
-                //Grid.SetFocusedRowIndex(0);
             }
             PanelVisible = false;
-            //await onhideLoading();
             StateHasChanged();
         }
         catch (Exception ex)
         {
 
         }
-    }
-    async Task onshowLoading()
-    {
-        await JSRuntime.InvokeAsync<string>("showLoading");
-    }
-    async Task onhideLoading()
-    {
-        await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     async Task OpenOdataUrl()
     {
@@ -216,11 +203,6 @@
 
 
     }
-    // public void Dispose()
-    // {
-    //     System.GC.Collect();
-    //     GC.SuppressFinalize(this);
-    // }
     public async ValueTask DisposeAsync()
     {
         System.GC.Collect();

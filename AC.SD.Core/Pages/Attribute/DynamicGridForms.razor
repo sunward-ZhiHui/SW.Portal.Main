@@ -430,7 +430,7 @@
             </div>
         </DxTabPage>
         <DxTabPage Text="Approval" Visible="@isApproval">
-            <AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList  @ref="refDynamicFormApprovedFormList" isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList>
+            <AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList>
             @*  <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
             KeyFieldName="DynamicFormApprovedId">
             <Columns>
@@ -662,10 +662,10 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
-    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
-    private DynamicFormFilterByForm refDynamicFormFilterByForm{ get; set; }
-    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm  refDynamicFormDataWorkFlowApprovalForm{get;set;}
-    private AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList  refDynamicFormApprovedFormList; 
+    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
+    private DynamicFormFilterByForm refDynamicFormFilterByForm { get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm refDynamicFormDataWorkFlowApprovalForm { get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList refDynamicFormApprovedFormList;
     string? workflowStyle { get; set; } = "display:none;";
     private DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); string? ApproveRejectWokFlowName { get; set; } = "Approve";
     public bool IsWorkflowApprovalApproved { get; set; } = false; public bool IsWorkflowApprovalRejected { get; set; } = false; public bool IsWokFlowDescriptionOpen { get; set; } = false;
@@ -2965,7 +2965,14 @@
         _dynamicform = null;
         _dynamicformData = null;
         _AttributeHeader = null;
-       // Data = null; SpinData = null;
+        if (Data != null)
+        {
+            Data = null;
+        }
+        if (SpinData != null)
+        {
+            SpinData = null;
+        }
         dynamicFormData = new DynamicFormData();
         dynamicFormApproval = new DynamicFormApproved();
         _dynamicFormApprovedList?.Clear();
@@ -3563,11 +3570,13 @@
            //PanelVisible = true;
            isRequiredCount = 0;
            var _AttributeHeaders = _AttributeHeader;
-           var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0;
-           if (_AttributeHeader != null && _AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+           if (Data != null)
            {
+               var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0;
+               if (_AttributeHeader != null && _AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+               {
 
-               _AttributeHeader.DynamicFormSection.ForEach(a =>
+                   _AttributeHeader.DynamicFormSection.ForEach(a =>
        {
            //PanelVisible = true;
            var isReadonly = false;
@@ -6070,6 +6079,7 @@
            //PanelVisible = false;
        });
 
+               }
            }
            //PanelVisible = false;
            InvokeAsync(onhideLoading);

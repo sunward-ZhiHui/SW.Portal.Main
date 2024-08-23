@@ -76,7 +76,7 @@
         
        
 
-        //NavigationManager.LocationChanged += OnLocationChanged;
+        NavigationManager.LocationChanged += OnLocationChanged;
         //UpdateItems(NavigationManager.Uri)dashboard;
 
     }
@@ -149,6 +149,6 @@
 
     public void Dispose()
     {
-        //NavigationManager.LocationChanged -= OnLocationChanged;
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

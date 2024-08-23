@@ -15,7 +15,7 @@
 @inject NavigationManager NavigationManager
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration;
-
+@implements IAsyncDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -26,7 +26,7 @@
                 @* <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Reload" IconCssClass="fa fa-refresh" Click="@onRefresh" />
                 <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onReset" /> *@
-                
+
             </Items>
         </DxMenu>
     </div>
@@ -53,17 +53,17 @@
         TextWrapEnabled="false"
         RowClick="OnRowClick"
         RowDoubleClick="OnDueRowClick"
-        ColumnResizeMode="GridColumnResizeMode.NextColumn"       
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="DynamicFormApprovalId" Visible="false" />
         <DxGridDataColumn FieldName="ProfileNo" MinWidth="40" />
         <DxGridDataColumn FieldName="DynamicFormName" Caption="Name" MinWidth="240" />
         <DxGridDataColumn FieldName="PendingUser" MinWidth="40" />
-        
+
         <DxGridDataColumn FieldName="StatusName" FixedPosition="GridColumnFixedPosition.Left" MinWidth="40" />
 
-        <DxGridDataColumn FieldName="ApprovedUser" MinWidth="40" />       
+        <DxGridDataColumn FieldName="ApprovedUser" MinWidth="40" />
         <DxGridDataColumn FieldName="ApprovedDate" MinWidth="180">
             <CellDisplayTemplate>
                 @{
@@ -74,8 +74,8 @@
         </DxGridDataColumn>
 
 
-        <DxGridDataColumn FieldName="RejectedUser" MinWidth="40" />       
-        
+        <DxGridDataColumn FieldName="RejectedUser" MinWidth="40" />
+
         <DxGridDataColumn FieldName="RejectedDate" MinWidth="180">
             <CellDisplayTemplate>
                 @{
@@ -96,16 +96,16 @@
 
     async Task onRefresh()
     {
-        await JSRuntime.InvokeAsync<string>("showLoading");        
-        _dynamicFormDataApproval =  await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        _dynamicFormDataApproval = await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));
         await JSRuntime.InvokeAsync<string>("hideLoading");
         DFDataApprovalGrid.Reload();
     }
     protected override async Task OnInitializedAsync()
-    {        
+    {
         await JSRuntime.InvokeAsync<string>("showLoading");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _dynamicFormDataApproval = await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));        
+        _dynamicFormDataApproval = await Mediator.Send(new GetDynamicFormDataApprovalList(applicationUser.UserID));
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     void OnRowClick(GridRowClickEventArgs e)
@@ -113,7 +113,7 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
         _selectedItems = _dynamicFormDataApproval.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
         //ReplyMsgEnabled = true;
-        //EditEnabled = true;      
+        //EditEnabled = true;
 
         StateHasChanged();
     }
@@ -132,5 +132,12 @@
             e.CssClass = "alt-item";
             e.CssClass += "non-selectable-row";
         }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        _dynamicFormDataApproval?.Clear();
+        _selectedItems = null;
+        GC.SuppressFinalize(this);
     }
 }

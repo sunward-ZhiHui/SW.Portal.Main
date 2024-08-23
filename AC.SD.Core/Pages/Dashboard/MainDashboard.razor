@@ -16,14 +16,15 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @page "/Dashboard"
 @page "/Dashboard/{ActiveIndex:int}"
-
+@implements IAsyncDisposable
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
 <div class="">
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
             <div>
                 <DxFormLayoutTabPage Caption="Dynamic Form Approval" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
-                        <DynamicFormPendingApproval></DynamicFormPendingApproval>
+                        <DynamicFormPendingApproval @ref="refDynamicFormPendingApproval"></DynamicFormPendingApproval>
                     </div>
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Scheduler" Click="OnTabClick">
@@ -33,7 +34,7 @@
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Approved Status" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
-                        <ApprovalDynamicDataForm></ApprovalDynamicDataForm>
+                        <ApprovalDynamicDataForm @ref="refApprovalDynamicDataForm"></ApprovalDynamicDataForm>
                     </div>
                 </DxFormLayoutTabPage>
             </div>
@@ -41,6 +42,8 @@
     </DxFormLayout>
 </div>
 @code {
+    private DynamicFormPendingApproval refDynamicFormPendingApproval;
+    private ApprovalDynamicDataForm refApprovalDynamicDataForm;
     [Parameter]
     public int ActiveIndex { get; set; } = 0;    
     public int ActiveTabIndex { get; set; } = 0;
@@ -57,5 +60,12 @@
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         // StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        refDynamicFormPendingApproval?.DisposeAsync();
+        refApprovalDynamicDataForm?.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 }

@@ -23,6 +23,10 @@ namespace Application.Queries
     {
 
     }
+    public class GetAllWithouDeletefileprofiletypeListQuery : PagedRequest, IRequest<List<DocumentsModel>>
+    {
+
+    }
     public class GetAllfileprofiletypeDrodownQuery : PagedRequest, IRequest<List<FileProfileTypeModel>>
     {
 

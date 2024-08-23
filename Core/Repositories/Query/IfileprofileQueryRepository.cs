@@ -22,6 +22,7 @@ namespace Core.Repositories.Query
         Task<DocumentsModel> GetFileProfileTypeDocumentDelete(DocumentsModel documentsModel);
         Task<DocumentsModel> GetFileProfileTypeCheckOut(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDocumentAsync();
+        Task<IReadOnlyList<DocumentsModel>> GetAllWithoutDeleteFileProfileDocumentAsync();
         Task<IReadOnlyList<DocumentLinkModel>> GetDocumentLinkByDocumentId(long? id);
         Task<DocumentLink> InsertDocumentLink(DocumentLink documentLink);
         Task<DocumentLinkModel> DeleteDocumentLink(DocumentLinkModel documentLink);

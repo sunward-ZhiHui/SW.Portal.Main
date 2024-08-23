@@ -6,7 +6,7 @@
 @inject IMediator Mediator;
 @using MediatR
 
-
+@implements IAsyncDisposable
 
 
 
@@ -67,5 +67,11 @@
         SelectedReplyId = RId;
        
         StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        System.GC.Collect();
+        _dynamicFormdata?.Clear();
+        GC.SuppressFinalize(this);
     }
 }

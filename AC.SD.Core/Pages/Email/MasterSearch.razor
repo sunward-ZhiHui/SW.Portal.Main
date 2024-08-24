@@ -216,7 +216,7 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.Name)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
+                   @*  <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
                         <DxComboBox Data="@_UserTagList"
                                     AllowUserInput="true"
                                     NullText="Select User Tag..."
@@ -230,7 +230,7 @@
                                     @bind-Text="@Data.UserTag" ShowValidationIcon="true">
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.UserTag)" />
-                    </DxFormLayoutItem>
+                    </DxFormLayoutItem> *@
 
                     <DxFormLayoutItem Caption="From" ColSpanMd="12">                        
                         @*<DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>*@
@@ -316,12 +316,15 @@
     void selectedGroupTagChangeddd(ApplicationMasterChildModel applicationMasterChildModel)
     {
         selectGroupItem = applicationMasterChildModel;
+
         if (applicationMasterChildModel != null)
         {
+            Data.GroupTag = applicationMasterChildModel.Value;
             GroupTagChangedd(applicationMasterChildModel.ApplicationMasterChildId);            
         }
         else
         {
+            Data.GroupTag = null;
             GroupTagChangedd(-1);
             CategoryTagChanges(-1);
         }
@@ -331,8 +334,8 @@
     async void GroupTagChangedd(long? ApplicationMasterChildId)
     {
         if (ApplicationMasterChildId != null)
-        {
-            _categoryTagItemss = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        {            
+            _categoryTagItemss = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));           
         }
 
         StateHasChanged();
@@ -340,12 +343,15 @@
     void selectedCategoryChangedd(ApplicationMasterChildModel applicationMasterChildModel)
     {
         selectCategory = applicationMasterChildModel;
+
         if (applicationMasterChildModel != null)
-        {            
+        {     
+            Data.CategoryTag = applicationMasterChildModel.Value;
             CategoryTagChanges(applicationMasterChildModel.ApplicationMasterChildId);
         }
         else
         {
+            Data.CategoryTag = null;
             CategoryTagChanges(-1);
         }
 

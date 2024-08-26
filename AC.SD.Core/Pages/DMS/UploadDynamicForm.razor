@@ -893,11 +893,11 @@
     }
     async Task onshowLoading()
     {
-        await JSRuntime.InvokeAsync<string>("showLoading");
+       // await JSRuntime.InvokeAsync<string>("showLoading");
     }
     async Task onhideLoading()
     {
-        await JSRuntime.InvokeAsync<string>("hideLoading");
+       // await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     void addSectionApproval()
     {
@@ -999,7 +999,7 @@
                                     isLocked = true; isUserLocked = false;
                                 }
                             }
-                            _longInAddedBy = _dynamicformData.AddedBy; _longInDateTime = _dynamicformData.AddedDate;
+                            _longInAddedBy = _dynamicformData?.AddedBy; _longInDateTime = _dynamicformData?.AddedDate;
                             var _dynamicFormWorkFlowFormListss = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicformData.DynamicFormId, _dynamicformData.DynamicFormDataId)));
                             var _dynamicFormApprovedLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId)));
                             var _dynamicFormWorkFlowSections = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowExits(_dynamicform.ID, applicationUser.UserID, _dynamicformData?.DynamicFormDataId)));
@@ -1011,13 +1011,9 @@
                             _dynamicFormWorkFlowSection = await _dynamicFormWorkFlowSections.Result;
                             _dynamicFormSectionList = await _dynamicFormSectionLists.Result;
                             _dynamicFormWorkFlowApprovedFormList = await _dynamicFormWorkFlowApprovedFormLists.Result;
-                            Datas.ProfileNo = _dynamicformData.ProfileNo;
+                            Datas.ProfileNo = _dynamicformData?.ProfileNo;
                             IsUploadEnabled = true;
-                            if (_dynamicformData.isDocuments > 0)
-                            {
-                                // IsUploadEnabled = false;
-                            }
-
+                            
                             CheckedApprovalData();
 
                         }

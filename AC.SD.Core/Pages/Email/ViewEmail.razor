@@ -1737,7 +1737,7 @@
     private int pageSize = 15; // Number of records per page
     private int submitCount = 0;
     bool IsUserGroupToOpen { get; set; } = false;
-    bool IsUserGroupCCOpen { get; set; } = false;
+    bool IsUserGroupCCOpen { get; set; } = false;    
     async Task OnButtonUserGroupToClick()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -3035,6 +3035,7 @@
     EmailParticipant? _participantLst { get; set; }
     Documents? _documents { get; set; }
     private List<ViewEmployee>? _allparticipant;
+    private List<ViewEmployee> plist;
 
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
@@ -5024,9 +5025,12 @@
         await LoadData();
         StateHasChanged();
     }   
-
+    async Task OnDocumentLoaded1()
+    {        
+        await JSRuntime.InvokeVoidAsync("setFontSize", "editor-box-height", 24);
+    }
     async Task OnDocumentLoaded(DevExpress.Blazor.RichEdit.Document document)
-    {
+    {        
         await document.ChangeDefaultCharacterPropertiesAsync(properties =>
         {
             // properties.FontName = "Times New Roman";
@@ -5039,13 +5043,36 @@
         //msgrichEdit.NewDocumentAsync();
     }
 
-    async Task onRichTxtChangeFontsize()
+    async Task onRichTxtChangeFontsizeold()
     {
         await msgrichEdit.NewDocumentAsync();
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
-    protected override void OnInitialized()
+    async Task onRichTxtChangeFontsize()
     {
+        if (msgrichEdit == null)
+        {
+            // Handle or log null reference error
+            return;
+        }
+
+        await msgrichEdit.NewDocumentAsync();
+
+        if (JSRuntime != null)
+        {
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+        }
+        else
+        {
+            // Handle or log null reference error
+        }
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+
+    protected override async void OnInitialized()
+    {
+        plist = await Mediator.Send(new GetAllEmployeeListQuery());
         //NavigationManager.LocationChanged += OnLocationChanged;
 
     }    
@@ -5390,7 +5417,7 @@
                 //if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
                 if (true)
                 {
-                    var plist = await Mediator.Send(new GetAllEmployeeListQuery());
+                    //var plist = await Mediator.Send(new GetAllEmployeeListQuery());
                     //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
                     var allplist = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
@@ -5562,8 +5589,9 @@
         Data.EmailFormSectionSessionID = null;        
 
         StateHasChanged(); // Force a UI update
-        await Task.Delay(2700);
-        await onRichTxtChangeFontsize(); // Call your other function here
+        //await Task.Delay(2700);
+        //await onRichTxtChangeFontsize(); // Call your other function here
+        await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     async void onBackFileProfileType(string url)
     {
@@ -5608,7 +5636,7 @@
                 if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
                 {
                     isCheckAllowParticipant = true;
-                    var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
+                    //var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
                     var allplist = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
                     //_allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
 
@@ -5780,9 +5808,11 @@
             Data.EmailFormSectionSessionID = null;  
 
             StateHasChanged(); // Force a UI update
-            await Task.Delay(2700);
-            await onRichTxtChangeFontsize(); // Call your other function here
+            //await Task.Delay(2700);
+            //await onRichTxtChangeFontsize(); // Call your other function here
             submitCount = 0;
+
+            await JSRuntime.InvokeAsync<string>("hideLoading");
 
         }        
     }  

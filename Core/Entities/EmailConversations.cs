@@ -25,6 +25,7 @@ namespace Core.Entities
         public DateTime? ReplyDateTime { get; set; }
         public string? ReplyUserName { get; set; }
         public List<EmailConversations>? ReplyConversation { get; set; }
+        public int ReplyConversationCount { get; set; }
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

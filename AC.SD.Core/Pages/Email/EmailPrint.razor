@@ -427,7 +427,7 @@
             if (lsts.Count > 0)
             {
                 await JSRuntime.InvokeAsync<string>("showLoading");                
-                _discussionList = await Mediator.Send(new GetEmailDiscussionList(lsts[0].ID, applicationUser.UserID,Page));
+                _discussionList = await Mediator.Send(new GetEmailPrintAllDiscussionList(lsts[0].ID, applicationUser.UserID, Page));
                 await JSRuntime.InvokeAsync<string>("hideLoading");
             }
         }
@@ -438,7 +438,7 @@
             if (lsts.Count > 0)
             {
                 await JSRuntime.InvokeAsync<string>("showLoading");
-                _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(lsts[0].ID, applicationUser.UserID));               
+                _discussionList = await Mediator.Send(new GetEmailPrintReplyDiscussionList(lsts[0].ID, applicationUser.UserID));
                 await JSRuntime.InvokeAsync<string>("hideLoading");
             }
         }

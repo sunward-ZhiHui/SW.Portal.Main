@@ -75,6 +75,30 @@ namespace Application.Queries
             this.Option = option;
         }
     }
+    public class GetEmailPrintAllDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public string Option { get; private set; }
+        public GetEmailPrintAllDiscussionList(long TopicId, long UserId, string option)
+        {
+            this.TopicId = TopicId;
+            this.UserId = UserId;
+            this.Option = option;
+        }
+    }
+    public class GetOnReplyDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long ReplyId { get; private set; }
+        public long UserId { get; private set; }
+        
+        public GetOnReplyDiscussionList(long ReplyId, long UserId)
+        {
+            this.ReplyId = ReplyId;
+            this.UserId = UserId;
+            
+        }
+    }
     public class GetReplyDiscussionList : IRequest<List<EmailConversations>>
     {
         public long ReplyId { get; private set; }
@@ -158,6 +182,16 @@ namespace Application.Queries
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
         public GetEmailReplyDiscussionList(long TopicId,long UserId)
+        {
+            this.TopicId = TopicId;
+            this.UserId = UserId;
+        }
+    }
+    public class GetEmailPrintReplyDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public GetEmailPrintReplyDiscussionList(long TopicId, long UserId)
         {
             this.TopicId = TopicId;
             this.UserId = UserId;

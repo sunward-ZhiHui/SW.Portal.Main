@@ -1,6 +1,7 @@
 ﻿@using Application.Command.ApplicationMasterDetails;
 @using Application.Queries;
 @using MediatR
+@using System.Threading
 @using global::Core.Entities;
 @inject IMediator Mediator
 @using DevExpress.Export
@@ -11,6 +12,8 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/applicationmaster"
+@implements IAsyncDisposable;
+
 <div class="main-container">
 
     <div class="content-container row">
@@ -323,6 +326,7 @@
     }
     async Task UpdateDataAsync()
     {
+        ClearList();
         EditEnabled = false;
         DeleteEnabled = false;
         PanelVisibleMastersDetails = true;
@@ -350,6 +354,7 @@
                 DeleteEnabled = true; AddEnabled = true;
             }
         }
+       
         StateHasChanged();
 
     }
@@ -579,5 +584,30 @@
     {
         await loadMAsterItems();
         addPermissionEnabled = false;
+    }
+    public async ValueTask DisposeAsync()
+    {
+       if(_applicationMasterItems != null)
+       {
+            _applicationMasterItems.Clear();
+            _applicationMasterItems = null;
+          //  GC.Collect();
+          //GC.SuppressFinalize(this);
+       }
+
+       
+    }
+    private void ClearList()
+    {
+        if (_applicationMasterDetails != null)
+        {
+            _applicationMasterDetails.Clear();
+            _applicationMasterDetails = null;
+
+            // Optionally, force garbage collection
+            // GC.Collect();
+            // GC.WaitForPendingFinalizers();
+            // GC.Collect();
+        }
     }
 }

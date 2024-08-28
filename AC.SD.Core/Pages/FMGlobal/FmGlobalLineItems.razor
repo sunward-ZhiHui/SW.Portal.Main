@@ -12,6 +12,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable;
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -600,5 +601,17 @@
             }
         }
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_fmGlobalLineItems != null)
+        {
+            _fmGlobalLineItems.Clear();
+            _fmGlobalLineItems = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
     }
 }

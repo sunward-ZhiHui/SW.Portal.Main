@@ -9,7 +9,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
+@implements IAsyncDisposable;
 
     <div class="card w-100" style="margin-bottom:10px;">
         <div class="card-body p-0">
@@ -377,11 +377,11 @@
     //async  Task LoadRoleLst(long RoleID)
     //{
     //  //  await jsRuntime.InvokeAsync<string>("showLoading");
-       // Data = await Mediator.Send(new GetAllRolePermissionSelectedLst(RoleID));
+    // Data = await Mediator.Send(new GetAllRolePermissionSelectedLst(RoleID));
 
     //  //  await jsRuntime.InvokeAsync<string>("hideLoading");
 
-  // }
+    // }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
 
@@ -461,6 +461,7 @@
     }
     async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
+        ClearList();
         SelectedDataItems = SelectedToItems;
         if (SelectedDataItems != null)
         {
@@ -496,7 +497,35 @@
         PopupVisible = false;
        // UpdateDataAsync();
     }
-      
+    public async ValueTask DisposeAsync()
+    {
+        if (_rolePermission != null)
+        {
+            _rolePermission.Clear();
+            _rolePermission = null;
+
+
+            GC.Collect();
+            GC.SuppressFinalize(this);
+        }
+    }
+    private void ClearList()
+    {
+        if (_TreeData != null)
+        {
+            _TreeData.Clear();
+            _TreeData = null;
+
+            // Optionally, force garbage collection
+          //  GC.Collect();
+           // GC.WaitForPendingFinalizers();
+           // GC.Collect();
+
+        }
+        
+
+        
+    }
     //async void ClosePopup()
     //{
     //    SelectedDataItems = null;

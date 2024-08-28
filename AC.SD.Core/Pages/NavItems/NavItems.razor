@@ -5,6 +5,8 @@
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
 @using DevExpress.Export
+@implements IAsyncDisposable;
+
 <style>
     .alt-item > td {
         background-color: rgba(0, 0, 0, 0.05);
@@ -209,5 +211,17 @@
             e.CssClass = "alt-item";
         }
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_navItems != null)
+        {
+            _navItems.Clear();
+            _navItems = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
     }
 }

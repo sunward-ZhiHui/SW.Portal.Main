@@ -10,6 +10,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable;
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -511,5 +512,17 @@
             EditEnabled = true;
         }
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_soCusterAddress != null)
+        {
+            _soCusterAddress.Clear();
+            _soCusterAddress = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
     }
 }

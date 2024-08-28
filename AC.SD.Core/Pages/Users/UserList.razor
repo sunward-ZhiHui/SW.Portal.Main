@@ -10,6 +10,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject AC.SD.Core.Services.IFirebaseSync FirebaseSync
+@implements IAsyncDisposable;
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -322,6 +323,18 @@
                 };
             var response = await Mediator.Send(request);
             toastService.ShowToast("Account InActive Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_employeeItems != null)
+        {
+            _employeeItems.Clear();
+            _employeeItems = null;
+
+
+           // GC.Collect();
+           // GC.SuppressFinalize(this);
         }
     }
     //private void EditPerson(ViewEmployee context)

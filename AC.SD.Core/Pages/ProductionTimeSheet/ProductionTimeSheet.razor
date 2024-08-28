@@ -14,7 +14,7 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime jsRuntime
 @inject ClipboardService ClipboardService
-@implements IDisposable
+@implements IAsyncDisposable
 <style scoped>
     .zxing-video-container > video {
         width: 100%;
@@ -1119,11 +1119,24 @@
             }
         }
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if(_AppLines != null)
+        {
+            _AppLines.Clear();
+            _AppLines = null;
+        }
+        if (_poOrderDetails != null)
+        {
+            _poOrderDetails.Clear();
+            _poOrderDetails = null;
+        }
     }
+    // public void Dispose()
+    // {
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);
+    // }
 }
 
 

@@ -257,7 +257,7 @@ namespace SW.Portal.Solutions.Controllers
         public async Task<ActionResult<ResponseModel<IEnumerable<EmailConversationViewModel>>>> GetEmailDiscussionList(long Id, long UserId)
         {
             var response = new ResponseModel<EmailConversationViewModel>();
-            var result = await _mediator.Send(new GetEmailReplyDiscussionList(Id, UserId));
+            var result = await _mediator.Send(new GetEmailPrintReplyDiscussionList(Id, UserId));
 
             var displayResult = result?.Select(conversations => new EmailConversationViewModel
             {

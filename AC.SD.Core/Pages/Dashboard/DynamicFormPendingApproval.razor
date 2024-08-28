@@ -135,9 +135,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         _dynamicFormDataApproval?.Clear();
         _selectedItems = null;
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

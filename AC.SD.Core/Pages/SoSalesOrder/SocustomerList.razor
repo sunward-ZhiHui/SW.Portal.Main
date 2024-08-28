@@ -9,6 +9,7 @@
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
 @inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable;
 
 <style>
     .dxbl-loading-panel {
@@ -278,6 +279,18 @@
 
 
 
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_AllSoCustomer != null)
+        {
+            _AllSoCustomer.Clear();
+            _AllSoCustomer = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
         }
     }
 }

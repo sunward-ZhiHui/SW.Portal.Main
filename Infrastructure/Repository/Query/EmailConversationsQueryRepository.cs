@@ -497,6 +497,69 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }        
+        public async Task<List<EmailConversations>> GetEmailPrintAllDiscussionListAsync(long TopicId, long UserId, string Option)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId, DbType.Int64);
+                parameters.Add("UserId", UserId, DbType.Int64);
+                parameters.Add("Option", Option);
+                var res = new List<EmailConversations>();
+
+                using (var connection = CreateConnection())
+                {
+                    res = (await connection.QueryAsync<EmailConversations>("sp_Select_GetEmailDiscussionList", parameters, commandType: CommandType.StoredProcedure)).ToList();
+
+                }
+                if (res != null && res.Count > 0)
+                {
+                    var replyIds = res.Select(s => s.ID).Distinct().ToList();
+                    var sessionids = res.Select(c => c.SessionId).Distinct().ToList();
+
+                    await Task.WhenAll(res.Select(async topic =>
+                    {                        
+                        topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
+                        topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
+
+
+                        if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
+                        {
+                            topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCList(new List<int> { topic.ID });
+                        }
+                        else
+                        {
+                            //topic.AssignToList = await GetAssignToUserGroupList(new List<int> { topic.ID });
+                            //topic.AssignCCList = await GetAssignCCUserGroupList(new List<int> { topic.ID });
+                        }
+
+
+                        await Task.WhenAll(topic.ReplyConversation.Select(async conversation =>
+                        {
+                            conversation.documents = await GetDocumentList(new List<Guid?> { conversation.SessionId });
+                            if (string.IsNullOrEmpty(conversation.UserType) || conversation.UserType == "Users")
+                            {
+                                conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
+                                conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
+                            }
+                            else
+                            {
+                                conversation.AssignToList = await GetAssignToUserGroupList(new List<int> { conversation.ID });
+                                conversation.AssignCCList = await GetAssignCCUserGroupList(new List<int> { conversation.ID });
+                            }
+
+
+                        }));
+                    }));
+                }
+                return res;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId, long UserId, string Option)
         {
@@ -520,7 +583,9 @@ namespace Infrastructure.Repository.Query
 
                     await Task.WhenAll(res.Select(async topic =>
                     {
-                        topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
+                        var replyCount = await GetReplyCount(new List<int> { topic.ID }, UserId);
+                        topic.ReplyConversationCount = replyCount;
+                        //topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
                         topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
 
                         
@@ -531,27 +596,27 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            topic.AssignToList = await GetAssignToUserGroupList(new List<int> { topic.ID });
-                            topic.AssignCCList = await GetAssignCCUserGroupList(new List<int> { topic.ID });
+                            //topic.AssignToList = await GetAssignToUserGroupList(new List<int> { topic.ID });
+                            //topic.AssignCCList = await GetAssignCCUserGroupList(new List<int> { topic.ID });
                         }
                        
 
-                        await Task.WhenAll(topic.ReplyConversation.Select(async conversation =>
-                        {
-                            conversation.documents = await GetDocumentList(new List<Guid?> { conversation.SessionId });
-                            if (string.IsNullOrEmpty(conversation.UserType) || conversation.UserType == "Users")
-                            {
-                                conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
-                                conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
-                            }
-                            else
-                            {
-                                conversation.AssignToList = await GetAssignToUserGroupList(new List<int> { conversation.ID });
-                                conversation.AssignCCList = await GetAssignCCUserGroupList(new List<int> { conversation.ID });
-                            }
+                        //await Task.WhenAll(topic.ReplyConversation.Select(async conversation =>
+                        //{
+                        //    conversation.documents = await GetDocumentList(new List<Guid?> { conversation.SessionId });
+                        //    if (string.IsNullOrEmpty(conversation.UserType) || conversation.UserType == "Users")
+                        //    {
+                        //        conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
+                        //        conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
+                        //    }
+                        //    else
+                        //    {
+                        //        conversation.AssignToList = await GetAssignToUserGroupList(new List<int> { conversation.ID });
+                        //        conversation.AssignCCList = await GetAssignCCUserGroupList(new List<int> { conversation.ID });
+                        //    }
 
                             
-                        }));
+                        //}));
                     }));                  
                 }
                 return res;
@@ -1041,6 +1106,72 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<EmailConversations>> GetPrintReplyDiscussionListAsync(long TopicId, long UserId)
+        {
+            try
+            {
+
+                var Exists = await GetActivityEmailExitsAsync(TopicId);
+
+                var res = new List<EmailConversations>();
+
+                if (Exists > 0)
+                {
+                    res = await GetReplyQuery1ListAsync(TopicId, UserId);
+                }
+                else
+                {
+                    res = await GetReplyQuery2ListAsync(TopicId, UserId);
+                }
+
+                if (res != null && res.Count > 0)
+                {
+                    var replyIds = res.Select(s => s.ID).Distinct().ToList();
+                    var sessionids = res.Select(c => c.SessionId).Distinct().ToList();
+
+                    await Task.WhenAll(res.Select(async topic =>
+                    {                       
+                        topic.ReplyConversationCount = await GetReplyCount(new List<int> { topic.ID }, UserId);
+                        topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
+                        topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
+
+                        if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
+                        {
+                            topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCList(new List<int> { topic.ID });
+                        }
+                        else
+                        {
+                            topic.AssignToList = await GetAssignToUserGroupList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCUserGroupList(new List<int> { topic.ID });
+                        }
+
+
+                        await Task.WhenAll(topic.ReplyConversation.Select(async conversation =>
+                        {
+                            conversation.documents = await GetDocumentList(new List<Guid?> { conversation.SessionId });
+                            if (string.IsNullOrEmpty(conversation.UserType) || conversation.UserType == "Users")
+                            {
+                                conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
+                                conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
+                            }
+                            else
+                            {
+                                conversation.AssignToList = await GetAssignToUserGroupList(new List<int> { conversation.ID });
+                                conversation.AssignCCList = await GetAssignCCUserGroupList(new List<int> { conversation.ID });
+                            }
+
+                        }));
+                    }));
+                }
+                return res;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<List<EmailConversations>> GetReplyDiscussionListAsync(long TopicId, long UserId)
         {
@@ -1067,7 +1198,10 @@ namespace Infrastructure.Repository.Query
 
                     await Task.WhenAll(res.Select(async topic =>
                     {
-                        topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
+                        var replyCount = await GetReplyCount(new List<int> { topic.ID }, UserId);
+                        topic.ReplyConversationCount = replyCount;
+                        //topic.ReplyConversationCount = await GetReplyCount(new List<int> { topic.ID }, UserId);
+                        //topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
                         topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
 
                         if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
@@ -1082,21 +1216,21 @@ namespace Infrastructure.Repository.Query
                         }
                             
 
-                        await Task.WhenAll(topic.ReplyConversation.Select(async conversation =>
-                        {
-                            conversation.documents = await GetDocumentList(new List<Guid?> { conversation.SessionId });
-                            if (string.IsNullOrEmpty(conversation.UserType) || conversation.UserType == "Users")
-                            {
-                                conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
-                                conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
-                            }
-                            else
-                            {
-                                conversation.AssignToList = await GetAssignToUserGroupList(new List<int> { conversation.ID });
-                                conversation.AssignCCList = await GetAssignCCUserGroupList(new List<int> { conversation.ID });
-                            }
+                        //await Task.WhenAll(topic.ReplyConversation.Select(async conversation =>
+                        //{
+                        //    conversation.documents = await GetDocumentList(new List<Guid?> { conversation.SessionId });
+                        //    if (string.IsNullOrEmpty(conversation.UserType) || conversation.UserType == "Users")
+                        //    {
+                        //        conversation.AssignToList = await GetAssignToList(new List<int> { conversation.ID });
+                        //        conversation.AssignCCList = await GetAssignCCList(new List<int> { conversation.ID });
+                        //    }
+                        //    else
+                        //    {
+                        //        conversation.AssignToList = await GetAssignToUserGroupList(new List<int> { conversation.ID });
+                        //        conversation.AssignCCList = await GetAssignCCUserGroupList(new List<int> { conversation.ID });
+                        //    }
                             
-                        }));
+                        //}));
                     }));
 
 
@@ -1132,6 +1266,42 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<List<EmailConversations>> GetOnDiscussionListAsync(long ReplyId, long UserId)
+        {
+
+            try
+            {
+                var res = new List<EmailConversations>();
+                    res = await GetonReplyList(ReplyId, UserId);
+
+
+                if (res != null && res.Count > 0)
+                {                   
+
+                    await Task.WhenAll(res.Select(async topic =>
+                    {                        
+                        topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
+
+                        if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
+                        {
+                            topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
+                            topic.AssignCCList = await GetAssignCCList(new List<int> { topic.ID });
+                        }
+                        else
+                        {                           
+                      
+                        }
+
+                    }));
+
+                }
+                return res;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailConversations>> GetReplyDiscussionListAsync_vijay(long TopicId, long UserId)
         {
             try
@@ -1420,12 +1590,33 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-            
+
+        private async Task<int> GetReplyCount(List<int> replyIds, long userId)
+        {
+            try
+            {                
+                var query = @"SELECT COUNT(FC.ID) FROM EmailConversations FC
+                            INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
+                            LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+                            WHERE FC.ReplyId IN @ReplyIds";
+                
+                using (var connection = CreateConnection())
+                {
+                    var result = await connection.QuerySingleAsync<int>(query, new { UserId = userId, ReplyIds = replyIds });
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<List<EmailConversations>> GetReplyList(List<int> replyIds,long UserId)
         {
             try
             {
-                var query = "SELECT FC.Name,FC.ID, FC.AddedDate,FC.Message,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,FC.ReplyId,FC.SessionId,FC.FileData,EN.IsRead,EN.ID as EmailNotificationId,ISNULL(FC.IsMobile, 0) AS IsMobile,FC.UserType FROM EmailConversations FC \r\n";
+                var query = "SELECT FC.Name,FC.ID, FC.AddedDate,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,FC.ReplyId,FC.SessionId,FC.FileData,EN.IsRead,EN.ID as EmailNotificationId,ISNULL(FC.IsMobile, 0) AS IsMobile,FC.UserType FROM EmailConversations FC \r\n";
                     query += "INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId \r\n";
                     query += "LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId =" + UserId + " \r\n";
                     query += "WHERE FC.ReplyId in(" + string.Join(',', replyIds) + ") ORDER BY FC.AddedDate DESC \r\n";
@@ -1441,7 +1632,31 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private async Task<List<EmailConversations>> GetonReplyList(long replyId, long UserId)
+        {
+            try
+            {
+                var query = @"
+            SELECT FC.Name, FC.ID, FC.AddedDate, CONCAT(AU.FirstName, '-', AU.NickName) as UserName, 
+                   AU.UserID, FC.ReplyId, FC.SessionId, FC.FileData, EN.IsRead, 
+                   EN.ID as EmailNotificationId, ISNULL(FC.IsMobile, 0) AS IsMobile, FC.UserType 
+            FROM EmailConversations FC
+            INNER JOIN Employee AU ON AU.UserID = FC.ParticipantId
+            LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+            WHERE FC.ReplyId = @ReplyId
+            ORDER BY FC.AddedDate DESC";
 
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<EmailConversations>(query, new { UserId, ReplyId = replyId })).ToList();
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailConversations>> GetByReplyDiscussionList(long replyId)
         {
             try

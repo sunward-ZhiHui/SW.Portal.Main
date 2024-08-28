@@ -640,8 +640,8 @@
     public void Dispose()
     {
         //NavigationManager.LocationChanged -= OnLocationChanged;
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        //System.GC.Collect();
+        //GC.SuppressFinalize(this);
     }
     
     async void GroupTagChangedEdit(long? ApplicationMasterChildId)

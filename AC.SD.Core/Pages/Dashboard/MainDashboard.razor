@@ -63,9 +63,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         refDynamicFormPendingApproval?.DisposeAsync();
         refApprovalDynamicDataForm?.DisposeAsync();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

@@ -13,6 +13,7 @@
 @inject NavigationManager NavigationManager
 @page "/FmGlobal"
 @inject IJSRuntime jsRuntime
+@implements IAsyncDisposable;
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -199,5 +200,17 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_fmglobalDatas != null)
+        {
+            _fmglobalDatas.Clear();
+            _fmglobalDatas = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
     }
 }

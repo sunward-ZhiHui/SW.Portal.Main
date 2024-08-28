@@ -5,6 +5,7 @@
 @using MediatR
 @inject IMediator Mediator
 @using global::Core.EntityModels;
+@implements IAsyncDisposable
 
 
 <div class="card-body">
@@ -159,5 +160,17 @@
     {
         tabIndex = e.TabIndex;
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_usersFromList != null)
+        {
+            _usersFromList.Clear();
+            _usersFromList = null;
+
+
+           // GC.Collect();
+            //GC.SuppressFinalize(this);
+        }
     }
 }

@@ -12,6 +12,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable;
 
 <style scoped>
 
@@ -877,5 +878,17 @@
             DeleteEnabled = true;
         }
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_salesOrderLine != null)
+        {
+            _salesOrderLine.Clear();
+            _salesOrderLine = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
     }
 }

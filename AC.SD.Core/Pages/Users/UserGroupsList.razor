@@ -8,7 +8,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@implements IDisposable
+@implements IAsyncDisposable
 @using System;
 @using System.IO;
 
@@ -409,9 +409,21 @@
         }
 
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if (_userGroupLists != null)
+        {
+            _userGroupLists.Clear();
+            _userGroupLists = null;
+
+
+           // GC.Collect();
+            //GC.SuppressFinalize(this);
+        }
     }
+    // public void Dispose()
+    // {
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);
+    // }
 }

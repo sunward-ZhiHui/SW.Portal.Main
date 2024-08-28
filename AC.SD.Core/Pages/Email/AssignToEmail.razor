@@ -229,7 +229,10 @@
         StateHasChanged();
     }
     public async ValueTask DisposeAsync()
-    {        
+    {       
+        //GC.Collect();
+        //GC.WaitForPendingFinalizers();
+        //GC.Collect();
         // System.GC.Collect();
         // GC.SuppressFinalize(this);
         // GC.WaitForPendingFinalizers();

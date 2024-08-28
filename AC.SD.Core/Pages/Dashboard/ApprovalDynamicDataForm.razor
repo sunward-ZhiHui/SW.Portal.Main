@@ -70,8 +70,8 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         _dynamicFormdata?.Clear();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

@@ -2550,8 +2550,10 @@ else
 
         Console.WriteLine("Component Disposed");
         
-        GC.SuppressFinalize(this);
-        //System.GC.Collect();
+        //GC.SuppressFinalize(this);
+        //GC.Collect();
+        //GC.WaitForPendingFinalizers();
+        //GC.Collect();
         //GC.SuppressFinalize(this);
         //_subscription.Dispose();        
         //NavigationManager.LocationChanged -= OnLocationChanged;

@@ -12,6 +12,8 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/applicationmasterparent"
+@implements IAsyncDisposable;
+
 <div class="main-container">
 
     <div class="content-container row">
@@ -506,7 +508,7 @@
     bool AddMasterEnabled { get; set; } = false;
     bool EditMasterEnabled { get; set; } = false;
     private List<OpenAccessUserLink> _openAccessUserLink { get; set; }
-     bool addPermissionEnabled { get; set; } = false;
+    bool addPermissionEnabled { get; set; } = false;
     private List<ApplicationMasterAccess> _applicationMasterAccess { get; set; }
     bool EditPermissionEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
@@ -600,18 +602,18 @@
                 if (item is ApplicationMasterParent masterData)
                 {
                     AddEnabled = true; EditMasterEnabled = true;
-                   // if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
+                    // if (_openAccessUserLink != null && _openAccessUserLink.Count() > 0)
                     //{
-                       // EditMasterEnabled = false;
-                       // var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
-                       // if (userExits != null)
-                       // {
-                           // if (userExits.IsEdit == true)
-                           // {
-                           //     EditMasterEnabled = true;
-                           //}
-                        //}
-                   // }
+                    // EditMasterEnabled = false;
+                    // var userExits = _openAccessUserLink.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+                    // if (userExits != null)
+                    // {
+                    // if (userExits.IsEdit == true)
+                    // {
+                    //     EditMasterEnabled = true;
+                    //}
+                    //}
+                    // }
                     _applicationMasterAccess = await Mediator.Send(new GetApplicationMasterAccessSecurityByMaster(masterData.ApplicationMasterParentCodeId, "AppMasterParent"));
                     _selectItems = masterData;
                     var nameList = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == masterData.ApplicationMasterParentCodeId);
@@ -633,6 +635,7 @@
     }
     async Task UpdateDataAsync()
     {
+        ClearList();
         EditEnabled = false;
         EditNewChildEnabled = false;
         DeleteEnabled = false;
@@ -950,6 +953,7 @@
     }
     async Task UpdateDataChildAsync()
     {
+       
         _applicationChildItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedItems.ApplicationMasterChildId));
 
         if (_applicationChildItems.Count > 0)
@@ -1122,6 +1126,7 @@
     }
     async Task UpdateDataChildChildAsync()
     {
+       
         _applicationChildChildItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedChildItems.ApplicationMasterChildId));
 
         if (_applicationChildChildItems.Count > 0)
@@ -1280,5 +1285,43 @@
             await loadMAsterItems();
         }
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_applicationMasterItems != null)
+        {
+            _applicationMasterItems.Clear();
+            _applicationMasterItems = null;
+
+
+           // GC.Collect();
+           // GC.SuppressFinalize(this);
+        }
+    }
+    private void ClearList()
+    {
+        if (_applicationMasterDetails != null)
+        {
+            _applicationMasterDetails.Clear();
+            _applicationMasterDetails = null;
+
+            // Optionally, force garbage collection
+           
+        }
+        if(_applicationChildItems != null)
+        {
+            _applicationChildItems.Clear();
+            _applicationChildItems = null;
+            
+        }
+        if(_applicationChildChildItems != null)
+        {
+                _applicationChildChildItems.Clear();
+                _applicationChildChildItems = null;
+        }
+       
+       // GC.Collect();
+       // GC.WaitForPendingFinalizers();
+       // GC.Collect();
     }
 }

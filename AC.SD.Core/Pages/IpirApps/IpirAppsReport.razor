@@ -16,7 +16,7 @@
 @inject IConfiguration Configuration
 @inject ClipboardService ClipboardService
 @inject IJSRuntime jsRuntime
-@implements IDisposable
+@implements IAsyncDisposable
 
 
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
@@ -492,9 +492,18 @@
         }
         return foldersModel;
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if (_dynamicForm != null)
+        {
+            _dynamicForm.Clear();
+            _dynamicForm = null;
+        }
+        
     }
+    // public void Dispose()
+    // {
+    //     System.GC.Collect();
+    //     GC.SuppressFinalize(this);
+    // }
 }

@@ -35,13 +35,17 @@ namespace Core.Repositories.Query
         Task<EmailConversations> GetByIdAsync(Int64 id);        
         Task<List<EmailConversations>> GetFullDiscussionListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId,string Option);
+        Task<List<EmailConversations>> GetEmailPrintAllDiscussionListAsync(Int64 TopicId, Int64 UserId, string Option);
+        
         Task<List<EmailConversations>> GetByReplyDiscussionList(long replyId);
+        Task<List<EmailConversations>> GetOnDiscussionListAsync(long replyId,long UserId);
         Task<List<EmailConversations>> GetDemoEmailFileDataListAsync();
         Task<long> GetDemoUpdateEmailFileDataListAsync(long id, Byte[] fileData);
         Task<List<EmailConversations>> GetValidUserListAsync(Int64 TopicId, Int64 UserId);        
         Task<List<EmailConversations>> GetConversationListAsync(Int64 Id);
         Task<List<EmailConversations>> GetTopConversationListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetReplyDiscussionListAsync(Int64 TopicId,long UserId);
+        Task<List<EmailConversations>> GetPrintReplyDiscussionListAsync(Int64 TopicId, long UserId);
         Task<List<Documents>> GetTopicDocListAsync(long TopicId,long UserId,string option);
         Task<List<Documents>> GetSubTopicDocListAsync(long TopicId);
         Task<List<EmailAssignToList>> GetAllAssignToListAsync(long TopicId);

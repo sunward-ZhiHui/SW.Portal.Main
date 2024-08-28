@@ -5502,7 +5502,7 @@
         Data.EmailFormSectionSessionID = null;        
 
         StateHasChanged(); // Force a UI update
-        await Task.Delay(1000);
+        //await Task.Delay(1000);
         await onRichTxtChangeFontsize(); // Call your other function here
         //await JSRuntime.InvokeAsync<string>("hideLoading");
     }
@@ -5722,7 +5722,7 @@
             Data.EmailFormSectionSessionID = null;  
             
           
-            //await Task.Delay(2700);           
+            await Task.Delay(1000);           
             submitCount = 0;
             await onRichTxtChangeFontsize(); 
             //await JSRuntime.InvokeAsync<string>("hideLoading");

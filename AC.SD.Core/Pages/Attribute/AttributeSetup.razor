@@ -348,7 +348,7 @@
 
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         DynamicFormPage?.Dispose();
         refAttributeSubFormSetupList?.DisposeAsync();
         RefDetails?.DisposeAsync();
@@ -370,7 +370,7 @@
         dynamicFormSectionSpinEdit?.Clear();
         _dynamicForm?.Clear(); _dynamicForms?.Clear();
        
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {

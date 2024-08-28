@@ -19,6 +19,14 @@ namespace Application.Queries
             this.FileProfileTypeID = FileProfileTypeID;
         }
     }
+    public class GetFileProfileTypeFoldersFilesCount : PagedRequest, IRequest<List<DocumentsModel>>
+    {
+        public long? FileProfileTypeID { get; private set; }
+        public GetFileProfileTypeFoldersFilesCount(long? FileProfileTypeID)
+        {
+            this.FileProfileTypeID = FileProfileTypeID;
+        }
+    }
     public class GetAllfileprofiletypeListQuery : PagedRequest, IRequest<List<DocumentsModel>>
     {
 

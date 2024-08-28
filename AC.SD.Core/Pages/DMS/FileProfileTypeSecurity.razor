@@ -652,7 +652,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         refDocumentUserRoleListsUser?.DisposeAsync();
         _userGroupsList?.Clear();
         _documentRoleList?.Clear();
@@ -664,6 +664,6 @@
         fileProfileTypeDocuments?.Clear();
         selectedItems = null;
         fileProfileTypeDocumentsAlls = null;
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

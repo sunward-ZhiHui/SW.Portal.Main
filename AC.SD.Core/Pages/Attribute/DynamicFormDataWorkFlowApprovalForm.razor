@@ -522,7 +522,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         SelectedDataItems = null;
         _usersList?.Clear();
         _usersAllList?.Clear();
@@ -532,6 +532,6 @@
         _selectedDynamicFormSectionItems = new DynamicFormWorkFlowApproval();
         _dynamicFormApprovedChangedList?.Clear();
         dynamicFormApprovedChanged = new DynamicFormWorkFlowApprovedFormChanged();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

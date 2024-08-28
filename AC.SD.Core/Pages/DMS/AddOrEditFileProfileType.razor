@@ -243,12 +243,12 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         _dynamicForm=null;
         _fileProfileTypeData = null;
         Data = new FileProfileTypeModel();
         _shelfLifeDurationItems?.Clear();
         _documentProfileNoList?.Clear();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

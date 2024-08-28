@@ -196,11 +196,11 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         selectedFiles = null;
         _historyLst = null;
         _histryselectedFile?.Clear();
         _selectedItems = null;
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }

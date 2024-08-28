@@ -312,9 +312,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         clearData();
-        GC.SuppressFinalize(this);
+      //  GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {

@@ -148,8 +148,8 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //ystem.GC.Collect();
         ClearData();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

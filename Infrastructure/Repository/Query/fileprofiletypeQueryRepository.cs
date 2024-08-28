@@ -145,7 +145,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DocumentsModel>> GetFileProfileTypeFoldersFilesCount(long? selectedFileProfileTypeID)
+        {
+            try
+            {
+                  var query = "select \r\nt1.FileProfileTypeID,\r\nCONCAT((select count(tt.FileProfileTypeID) as counts from FileProfileType tt where tt.parentId=t1.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','Folders') as FileSizes,\r\nCONCAT((Select COUNT(tt1.DocumentID) as DocCount from Documents tt1 where tt1.FilterProfileTypeId=t1.FileProfileTypeID AND tt1.IsLatest=1 AND  (tt1.isDelete is null or tt1.isDelete=0) AND (tt1.ArchiveStatusId != 2562 OR tt1.ArchiveStatusId  IS NULL) OR (tt1.DocumentID in(select tt2.DocumentID from LinkFileProfileTypeDocument tt2 where tt2.FileProfileTypeID=t1.FileProfileTypeID ) AND tt1.IsLatest=1)),' ','files') as FileCounts from FileProfileType t1 \r\n";
+                if (selectedFileProfileTypeID == null)
+                {
+                    query += "\r\nWhere t1.parentid is null AND t1.IsDelete is null or IsDelete=0 order by t1.Name asc";
+                }
+                else
+                {
+                    query += "\r\nwhere t1.parentid=" + selectedFileProfileTypeID + " AND t1.IsDelete is null or t1.IsDelete = 0 order by t1.Name asc";
+                }
+                using (var connection = CreateConnection())
+                {
 
+                    return (await connection.QueryAsync<DocumentsModel>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public static string FormatSize(Int64 bytes)
         {
             string[] suffixes = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
@@ -1454,7 +1477,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDeleteAsync(ApplicationUser userData)
         {
-           // List<DocumentsModel> documentsModel = new List<DocumentsModel>();
+            // List<DocumentsModel> documentsModel = new List<DocumentsModel>();
             try
             {
                 //var query = "select  *,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\n" +
@@ -1549,26 +1572,26 @@ namespace Infrastructure.Repository.Query
                         documents.ForEach(s =>
                         {
                             var isPerAccess = 0;
-                        var exits = roleItemsList.Where(f => f.FileProfileTypeId == s.FilterProfileTypeId).ToList();
-                        if (exits.Count > 0)
-                        {
-                            var userExits = exits.FirstOrDefault(f => f.UserId == userData.UserID);
-                            if (userExits != null)
+                            var exits = roleItemsList.Where(f => f.FileProfileTypeId == s.FilterProfileTypeId).ToList();
+                            if (exits.Count > 0)
                             {
-                                var per = documentPermission.FirstOrDefault(d => d.DocumentRoleID == userExits.RoleId);
-                                if (per != null && per.IsDelete == true)
+                                var userExits = exits.FirstOrDefault(f => f.UserId == userData.UserID);
+                                if (userExits != null)
                                 {
-                                    isPerAccess = 1;
+                                    var per = documentPermission.FirstOrDefault(d => d.DocumentRoleID == userExits.RoleId);
+                                    if (per != null && per.IsDelete == true)
+                                    {
+                                        isPerAccess = 1;
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            isPerAccess = 1;
-                        }
-                        if (isPerAccess == 1 || s.AddedByUserId == userData.UserID)
-                        {
-                            var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
+                            else
+                            {
+                                isPerAccess = 1;
+                            }
+                            if (isPerAccess == 1 || s.AddedByUserId == userData.UserID)
+                            {
+                                var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
                                 var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
                                 lastIndex = lastIndex > 0 ? lastIndex : 0;
                                 var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
@@ -1584,7 +1607,7 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
                                 documentsModels.UploadDate = s.UploadDate;
                                 documentsModels.SessionID = s.SessionId;
-                                 documentsModels.FileProfileTypeId = s.FilterProfileTypeId;
+                                documentsModels.FileProfileTypeId = s.FilterProfileTypeId;
                                 documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
                                 // documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
                                 // documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
@@ -1624,7 +1647,7 @@ namespace Infrastructure.Repository.Query
                                 documentsModel.Add(documentsModels);
 
                                 counts++;
-                           }
+                            }
                         });
                     }
                     DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());

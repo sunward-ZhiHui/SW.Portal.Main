@@ -414,7 +414,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         refUploadDocuments?.DisposeAsync();
         refDynamicFormItemLines?.DisposeAsync();
         Data = new DynamicFormItem();
@@ -429,6 +429,6 @@
         _dynamicFormData?.Clear();
         _dropDownOptionsGridList = null;
         // Suppress finalization
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

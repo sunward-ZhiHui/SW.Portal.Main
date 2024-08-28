@@ -7,7 +7,7 @@
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @using global::Core.EntityModels;
-@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
+@* @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive *@
 @inject IJSRuntime jsRuntime
 @inject NavigationManager NavigationManager
 @using Microsoft.Extensions.Configuration;
@@ -144,6 +144,8 @@
                 CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
                 SelectionMode="GridSelectionMode.Single"
                 AutoExpandAllGroupRows="true"
+                VirtualScrollingEnabled="false"
+                ShowAllRows="true"
                 CssClass="w-100 table-hover-OnFileProfile"
                 style="height: calc(100vh - 250px);">
             <Columns>
@@ -298,7 +300,7 @@
     <BodyContentTemplate>
         <HistoryPopup @ref="refHistoryPopup" selectedFiles="@selectedFiles"></HistoryPopup>
     </BodyContentTemplate>
-    
+
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisibleLinkDocument"
          ShowFooter="false"
@@ -309,7 +311,7 @@
     <BodyContentTemplate>
         <LinkDocumentsList @ref="refLinkDocumentsList" selectedFiles="@selectedFiles"></LinkDocumentsList>
     </BodyContentTemplate>
-    
+
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisibleLinkParentDocument"
          ShowFooter="false"
@@ -320,7 +322,7 @@
     <BodyContentTemplate>
         <ParentLinkDocuments @ref="refParentLinkDocuments" ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></ParentLinkDocuments>
     </BodyContentTemplate>
-   
+
 </DxPopup>
 <DxFlyout @bind-IsOpen=IsDescriptionOpen
           PositionTarget=@($"#flyout-overview-target-container-Description-{_selectedDescriptionItems?.DocumentID}")
@@ -409,7 +411,7 @@
     <BodyContentTemplate>
         <FileProfileTypeSecurity @ref="refFileProfileTypeSecurity" FileProfileTypeId="@FileProfileTypeId" selectedItems="@_selectedItems"></FileProfileTypeSecurity>
     </BodyContentTemplate>
-    
+
 </DxPopup>
 @* <div style="@onUploadVisible">
  *@
@@ -488,11 +490,11 @@
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
 
-            <DxFormLayoutItem Caption="Sunward Libraries" ColSpanMd="12">
-                <DxTextBox NullText="Select Sunward Libraries..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+            <DxFormLayoutItem Caption="SW Libraries" ColSpanMd="12">
+                <DxTextBox NullText="Select SW Libraries..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
                     <Buttons>
                         <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
-                                        Tooltip="Select Sunward Libraries"
+                                        Tooltip="Select SW Libraries"
                                         Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
                     </Buttons>
                 </DxTextBox>
@@ -536,29 +538,51 @@
           RestrictionTarget="#Navigation-Flyout-Customization"
           AnimationType="FlyoutAnimationType.Fade"
           HeaderVisible="true"
-          HeaderText="Select Sunward Libraries"
+          HeaderText="Select SW Libraries"
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
           MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
-          CloseOnOutsideClick="false"
+          CloseOnOutsideClick="true"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-            <DxFormLayoutItem Caption="">
-                <DxTreeView @ref="_treeFilterDocView"
-                            @bind-FilterString="FilterDocumentString"
-                            ShowFilterPanel="true"
-                            FilterMode="NavigationFilterMode.EntireBranch"
-                            AllowSelectNodes="true"
-                            SelectionChanged="@SelectionChanged"
-                            Data="@_selectedTreeItems"
-                            LoadChildNodesOnDemand="true">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Text="FileName"
-                                               HasChildren="HasChildren"
-                                               Children="Children" />
-                    </DataMappings>
-                </DxTreeView>
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                @* <DxTreeView @ref="_treeFilterDocView"
+                @bind-FilterString="FilterDocumentString"
+                ShowFilterPanel="true"
+                FilterMode="NavigationFilterMode.EntireBranch"
+                AllowSelectNodes="true"
+                SelectionChanged="@SelectionChanged"
+                Data="@_selectedTreeItems"
+                LoadChildNodesOnDemand="true">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                HasChildren="HasChildren"
+                Children="Children" />
+                </DataMappings>
+                </DxTreeView> *@
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            @ref="TreeList"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeClick"
+                            SelectionMode="TreeListSelectionMode.Single"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
             </DxFormLayoutItem>
 
         </DxFormLayout>
@@ -619,7 +643,7 @@
           RestrictionTarget="#Navigation-Flyout-Customization"
           AnimationType="FlyoutAnimationType.Fade"
           HeaderVisible="true"
-          HeaderText="Select Sunward Libraries"
+          HeaderText="Select SW Libraries"
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
           MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
@@ -627,21 +651,41 @@
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-            <DxFormLayoutItem Caption="">
-                <DxTreeView @ref="_treeFilterMoveDocView"
-                            @bind-FilterString="FilterMoveDocumentString"
-                            ShowFilterPanel="true"
-                            FilterMode="NavigationFilterMode.EntireBranch"
-                            AllowSelectNodes="true"
-                            SelectionChanged="@SelectionMoveChanged"
-                            Data="@_selectedTreeItems"
-                            LoadChildNodesOnDemand="true">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Text="FileName"
-                                               HasChildren="HasChildren"
-                                               Children="Children" />
-                    </DataMappings>
-                </DxTreeView>
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                @*  <DxTreeView @ref="_treeFilterMoveDocView"
+                @bind-FilterString="FilterMoveDocumentString"
+                ShowFilterPanel="true"
+                FilterMode="NavigationFilterMode.EntireBranch"
+                AllowSelectNodes="true"
+                SelectionChanged="@SelectionMoveChanged"
+                Data="@_selectedTreeItems"
+                LoadChildNodesOnDemand="true">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                HasChildren="HasChildren"
+                Children="Children" />
+                </DataMappings>
+                </DxTreeView> *@
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeMoveClick"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
             </DxFormLayoutItem>
 
         </DxFormLayout>
@@ -778,7 +822,7 @@
     string? LinkFilterFileprofiletypeName { get; set; } = null;
     string? LinkFilterFileprofiletypeFileName { get; set; } = null;
     string? LinkFilterFileprofiletypeProfileNo { get; set; } = null;
-    long? LinkFilterFileprofiletypeId { get; set; } = null;
+    long? LinkFilterFileprofiletypeId { get; set; } = null; int? LinkFilterFileprofiletypeRowIndexId { get; set; } = null;
     Guid? LinkFilterFileprofiletypeSessionId { get; set; } = null;
     string? LinkFilterFileprofiletypeExtension { get; set; } = null;
     DateTime? LinkFilterFileprofiletypeFrom { get; set; } = null;
@@ -792,6 +836,7 @@
     bool IsGrantAdminPermission { get; set; } = false; bool isDelete { get; set; } = false; bool isCreateFolder { get; set; } = false; bool isCreateSubFolder { get; set; } = false;
     bool isEnablePath { get; set; } = false;
     public string? SearchText { get; set; } = null;
+    ITreeList TreeList { get; set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
@@ -804,19 +849,25 @@
     }
     async Task loadFileProfileTypeAllDatas()
     {
-        fileProfileTypeDocumentsAll=new List<DocumentsModel>();
+        fileProfileTypeDocumentsAll = new List<DocumentsModel>();
         PanelVisible = true;
         // await onshowLoading();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
-        if (fileProfileTypeDocumentsAll.Count() > 0)
-        {
-            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        //if (fileProfileTypeDocumentsAll.Count() > 0)
+       // {
+            //_selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
             //PanelVisible = false;
             //await onhideLoading();
-        }
+        //}
         // PanelVisible = false;
         //await onhideLoading();
         StateHasChanged();
+    }
+    Task TreeList_ChildrenLoadingOnDemand(TreeListChildrenLoadingOnDemandEventArgs e)
+    {
+        var item = e.Parent as DocumentsModel;
+        e.Children = item?.Children;
+        return Task.CompletedTask;
     }
     async Task OnSearchTextChanged(string? newSearchText)
     {
@@ -873,62 +924,71 @@
     }
     async Task mainPageLoad()
     {
-        PanelVisible = true;
-        //await onshowLoading();
-        searchText = null; SearchText = null;_fileContentList = null;_openAccessUserLink = null;_fileProfileselectedlstItems = null;
-        isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
-        _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
-        IsFileProfileTypeInfoOpen = false;
-        isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
-        documentPermissionModel = new DocumentPermissionModel();
-        Grid.ClearFilter();
-        _fileContentList = await Mediator.Send(new GetFileContetTypes());
-        isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
-        moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateDynamicDocumentEnabled = false; isProfileInfoEnabled = false;
-        DocumentsModel dc = new DocumentsModel();
-        dc.FileName = "Main";
-        FolderPathLists = new List<DocumentsModel>(); FolderPathListsItems = new List<DocumentsModel>();
-        FolderPathListsItems.Add(dc);
-        documentSearchModel.SessionId = MainSessionId;
-        if (MainSessionId != null)
+        try
         {
-            isMoveEnabled = "";
-            isCheckAllEnabled = true;
-        }
-        FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
-        if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true && MainSessionId != null)
-        {
-            isCreateFolder = true;
-        }
-        if (FileProfileTypeId > 0)
-        {
-            documentSearchModel.FileProfileTypeId = FileProfileTypeId;
-            OnFileProfiltefilter(null);
-            var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
-            if (fileType != null)
+            PanelVisible = true;
+            //await onshowLoading();
+            searchText = null; SearchText = null; _fileContentList = null; _openAccessUserLink = null; _fileProfileselectedlstItems = null;
+            isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
+            _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
+            IsFileProfileTypeInfoOpen = false;
+            isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
+            documentPermissionModel = new DocumentPermissionModel();
+            Grid.ClearFilter();
+            _fileContentList = await Mediator.Send(new GetFileContetTypes());
+            isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
+            moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateDynamicDocumentEnabled = false; isProfileInfoEnabled = false;
+            DocumentsModel dc = new DocumentsModel();
+            dc.FileName = "Main";
+            FolderPathLists = new List<DocumentsModel>(); FolderPathListsItems = new List<DocumentsModel>();
+            FolderPathListsItems.Add(dc);
+            documentSearchModel.SessionId = MainSessionId;
+            if (MainSessionId != null)
             {
-
-                _ParentselectedItems = fileType;
+                isMoveEnabled = "";
+                isCheckAllEnabled = true;
+            }
+            FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
+            if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true && MainSessionId != null)
+            {
+                isCreateFolder = true;
+            }
+            if (FileProfileTypeId > 0)
+            {
+                documentSearchModel.FileProfileTypeId = FileProfileTypeId;
+                OnFileProfiltefilter(null);
+                var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
                 if (fileType != null)
                 {
-                    isExpiryDateVisible = _ParentselectedItems.IsExpiryDate == null ? false : _ParentselectedItems.IsExpiryDate;
-                    Name = fileType?.FileName;
-                    FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
-                    FolderPathLists.Add(fileType);
-                    FolderPathListsItems.AddRange(FolderPathLists);
+
+                    _ParentselectedItems = fileType;
+                    if (fileType != null)
+                    {
+                        isExpiryDateVisible = _ParentselectedItems.IsExpiryDate == null ? false : _ParentselectedItems.IsExpiryDate;
+                        Name = fileType?.FileName;
+                        FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
+                        FolderPathLists.Add(fileType);
+                        FolderPathListsItems.AddRange(FolderPathLists);
+                    }
                 }
             }
+            await loadFileProfileData();
+            //PanelVisible = false;
+            await onhideLoading();
+            StateHasChanged();
         }
-        await loadFileProfileData();
-        //PanelVisible = false;
-        await onhideLoading();
-        StateHasChanged();
+        catch (Exception ex)
+        {
+
+        }
     }
     async Task loadFileProfileData()
     {
         try
         {
-            Grid.ClearFilter(); searchText = null; SearchText = null;
+            // Grid?.MakeRowVisible(0);
+            //  Grid?.SetFocusedRowIndex(0);
+            Grid.ClearFilter(); Grid.ClearSelection(); searchText = null; SearchText = null;
             IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false; IsFileProfileTypeInfoOpen = false;
             isFilterMore = "display:none"; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
             _selectedItems = null;
@@ -963,14 +1023,38 @@
                     _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
 
                     await permissionEnabled();
+                    //Grid.MakeRowVisible(0);
                     Grid.SetFocusedRowIndex(0);
+                    StateHasChanged();
                 }
                 else
                 {
                     await PermiisionMain();
                 }
                 PanelVisible = false;
-                //await onhideLoading();
+                StateHasChanged();
+                if (fileProfileTypeDocuments.Count > 0)
+                {
+                    var isfolderscount = fileProfileTypeDocuments.Where(w => w.FileProfileTypeId > 0).Count();
+                    if (isfolderscount > 0)
+                    {
+                        var FileProfileTypeIds = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
+                        var res = await Mediator.Send(new GetFileProfileTypeFoldersFilesCount(FileProfileTypeIds));
+                        if (res != null && res.Count > 0)
+                        {
+                            fileProfileTypeDocuments.ForEach(s =>
+                            {
+                                if (s.FileProfileTypeId > 0)
+                                {
+                                    var lists = res.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId);
+                                    s.FileSizes = lists?.FileSizes;
+                                    s.FileCounts = lists?.FileCounts;
+                                }
+                            });
+                        }
+                    }
+
+                }
                 StateHasChanged();
             }
         }
@@ -1341,7 +1425,7 @@
         LinkFilterFileprofiletypeFrom = null; LinkFilterFileprofiletypeTo = null;
         LinkFilterFileprofiletypeFileName = null;
         LinkFilterFileprofiletypeProfileNo = null;
-        LinkFilterFileprofiletypeId = null;
+        LinkFilterFileprofiletypeId = null; LinkFilterFileprofiletypeRowIndexId = null;
         LinkFilterFileprofiletypeName = null;
         LinkFilterFileprofiletypeSessionId = null;
         isEnablePath = false;
@@ -1361,7 +1445,7 @@
         LinkFilterFileprofiletypeFrom = null; LinkFilterFileprofiletypeTo = null;
         LinkFilterFileprofiletypeFileName = null;
         LinkFilterFileprofiletypeProfileNo = null;
-        LinkFilterFileprofiletypeId = null;
+        LinkFilterFileprofiletypeId = null; LinkFilterFileprofiletypeRowIndexId = null;
         LinkFilterFileprofiletypeSessionId = null;
         LinkFilterFileprofiletypeName = null;
         isEnablePath = false;
@@ -2147,7 +2231,36 @@
     }
     void OnButtonFileProfileTypeLinDocClick()
     {
-        IsFileProfileTypeFilterDocOpen = true; IsFileProfileTypeInfoOpen = false;
+
+        IsFileProfileTypeFilterDocOpen = true;
+        IsFileProfileTypeInfoOpen = false;
+        if (LinkFilterFileprofiletypeRowIndexId > 0)
+        {
+
+        }
+    }
+    void TreeList_FocusedRowChanged(TreeListFocusedRowChangedEventArgs e)
+    {
+        if (LinkFilterFileprofiletypeRowIndexId > 0)
+        {
+           // TreeList?.SetFocusedRowIndex((int)LinkFilterFileprofiletypeRowIndexId - 1); 
+        }
+        // LinkFilterFileprofiletypeRowIndexId = TreeList?.GetFocusedRowIndex();
+    }
+    void OnRowTreeClick(TreeListRowClickEventArgs e)
+    {
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            LinkFilterFileprofiletypeId = nodeName.FileProfileTypeId;
+            LinkFilterFileprofiletypeSessionId = nodeName.SessionID;
+            
+        }
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
     }
     protected void SelectionChanged(TreeViewNodeEventArgs e)
     {
@@ -2262,6 +2375,29 @@
         }
 
     }
+    void OnRowTreeMoveClick(TreeListRowClickEventArgs e)
+    {
+        MoveFileprofiletypeId = null;
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            var fileType = fileProfileTypeDocumentsAll.Where(w => w.SessionID == MainSessionId).FirstOrDefault();
+            MoveFileprofiletypeId = nodeName.FileProfileTypeId;
+            _MoveDocList = fileProfileTypeDocuments.Where(w => w.Checked == true).Select(s => new DocumentsModel { SessionID = s.SessionID, DocumentID = s.DocumentID, FilterProfileTypeId = s.FilterProfileTypeId, Type = s.Type, FileProfileTypeId = s.FileProfileTypeId }).ToList();
+            if (_MoveDocList.Count() > 0)
+            {
+                MoveDocumentName = "From <b>" + fileType?.FileName + "</b> To <b>" + nodeName.FileName + "</b>";
+                MoveDocumentPopup = true;
+            }
+            else
+            {
+                toastService.ShowToast("Must Select Document", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        IsMoveDocumentsOpen = false;
+        StateHasChanged();
+    }
     protected void SelectionMoveChanged(TreeViewNodeEventArgs e)
     {
         MoveFileprofiletypeId = null;
@@ -2319,7 +2455,7 @@
     // }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         refHistoryPopup?.DisposeAsync();
         refMissingUploadFileProfileType?.DisposeAsync();
         refAddFileProfileTypeInfo?.DisposeAsync();
@@ -2347,7 +2483,7 @@
         _MoveDocList?.Clear();
         documentPermissionModel = null;
         // Suppress finalization
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 
 }

@@ -1231,9 +1231,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         clearData();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
     void OpenLock()
     {

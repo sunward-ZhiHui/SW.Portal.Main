@@ -192,13 +192,16 @@
         try
         {
             PanelVisible = true;
-            // await onshowLoading();
             fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllWithouDeletefileprofiletypeListQuery());
             _fileProfileselectedlstItems = await Mediator.Send(new GetAllDocumentDelete());
             fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
             onRestoreEnabled = false;
+            PanelVisible = false;
+            StateHasChanged();
             if (fileProfileTypeDocuments != null && fileProfileTypeDocuments.Count > 0)
             {
+                onRestoreEnabled = true;
+                StateHasChanged();
                 fileProfileTypeDocuments.ForEach(s =>
                 {
                     var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.FileProfileTypeId);
@@ -208,10 +211,9 @@
                 _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
                 onRestoreEnabled = true;
                 Grid.SetFocusedRowIndex(0);
+                StateHasChanged();
             }
-            PanelVisible = false;
-            // await onhideLoading();
-            StateHasChanged();
+            
         }
         catch(Exception ex)
         {
@@ -320,12 +322,12 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         fileProfileTypeDocumentsAll?.Clear();
         fileProfileTypeDocuments?.Clear();
         _fileProfileselectedlstItems = null;
         _selectedItems = null;
         SelectedDataItems = null;
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

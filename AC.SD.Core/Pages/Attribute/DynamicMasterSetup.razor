@@ -162,10 +162,10 @@
 
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         ClearData();
         // Suppress finalization
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
     async Task UpdateDataAsync()
     {

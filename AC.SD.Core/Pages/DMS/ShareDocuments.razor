@@ -365,8 +365,8 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         ClearData();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

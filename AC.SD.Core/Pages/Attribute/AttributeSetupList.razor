@@ -157,12 +157,12 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         refAttributeSubFormSetupList?.DisposeAsync();
         _selectedItems = null;
         _attributes?.Clear();
         DynamicFormPage2?.Dispose();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

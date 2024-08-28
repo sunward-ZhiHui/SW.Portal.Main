@@ -547,7 +547,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         refDynamicFormWorkFlowApprovalForm?.DisposeAsync();
         TemplateUploadOptions = null;
         SelectedDataItems = null;
@@ -560,6 +560,6 @@
         _levelMasterLists?.Clear();
         _dynamicFormSectionAllData?.Clear(); _dynamicFormSectionData?.Clear();
         SelectDynamicFormSectionIDs?.Clear();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

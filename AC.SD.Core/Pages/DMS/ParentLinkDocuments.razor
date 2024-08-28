@@ -236,12 +236,12 @@
     void onNotify() { }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         ParentSelectedFiles = null;
         //LinkProfileSelectedFiles = null;
         fileProfileTypeDocumentsAll?.Clear();
         _documentLinkModel?.Clear();
         _selectedItems = null;
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

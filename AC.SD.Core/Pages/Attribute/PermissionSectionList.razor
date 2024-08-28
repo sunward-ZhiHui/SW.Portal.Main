@@ -172,9 +172,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         _documentUserRoleLists?.Clear();
         SelectedDataItems = null;
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }

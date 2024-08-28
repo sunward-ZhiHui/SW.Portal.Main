@@ -256,12 +256,12 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         _documentUserRoleLists?.Clear();
         SelectedDataItems = null;
         _selectedItems = null;
         documentUserRoleModel = new DocumentUserRoleModel();
         _documentRoleList?.Clear();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

@@ -82,7 +82,7 @@ else
     public async ValueTask DisposeAsync()
     {
         documentPermissionData = null;
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        //System.GC.Collect();
+       // GC.SuppressFinalize(this);
     }
 }

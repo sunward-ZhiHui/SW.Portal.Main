@@ -371,7 +371,7 @@
     void onNotify() { }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         //selectedFiles = null;
         refParentLinkDocuments?.DisposeAsync();
         refLinkFileprofileTypeList?.DisposeAsync();
@@ -379,6 +379,6 @@
         fileProfileTypeDocumentsAll?.Clear();
         _documentLinkModel?.Clear();
        // _selectedItems = null;
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

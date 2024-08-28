@@ -11,7 +11,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
+@* @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive *@
 @implements IAsyncDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -210,7 +210,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 <DxPopup @bind-Visible="@addPermissionEnabled"
-         ShowFooter="true"
+         ShowFooter="false"
          HeaderText="Add Permission"
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
@@ -218,9 +218,6 @@
     <BodyContentTemplate>
         <AddPermissionSection @ref="refAddPermissionSection" SelectedItems="@_selectedItems" applicationUser="@applicationUser"></AddPermissionSection>
     </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
-    </FooterContentTemplate>
 </DxPopup>
 <DxFlyout @bind-IsOpen=IsFileProfileTypeFilterDocOpen
           PositionTarget=@($"#flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpendata")
@@ -235,8 +232,8 @@
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-            <DxFormLayoutItem Caption="">
-                <DxTreeView @ref="_treeFilterDocView"
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                @* <DxTreeView @ref="_treeFilterDocView"
                             @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
@@ -249,7 +246,28 @@
                                                HasChildren="HasChildren"
                                                Children="Children" />
                     </DataMappings>
-                </DxTreeView>
+                </DxTreeView> *@
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeClick"
+                            SelectionMode="TreeListSelectionMode.Single"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
             </DxFormLayoutItem>
 
         </DxFormLayout>
@@ -306,10 +324,10 @@
     {
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        if (fileProfileTypeDocumentsAll.Count() > 0)
-        {
-            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
-        }
+        // if (fileProfileTypeDocumentsAll.Count() > 0)
+        // {
+        //     _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        // }
         await UpdateDataAsync();
     }
     public async Task loadChildData(long? dynamicFormIds)
@@ -465,14 +483,14 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        await UpdateDataAsync();
+        //await UpdateDataAsync();
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+      //  UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
@@ -638,15 +656,28 @@
         RevokeBack?.Invoke(true);
         addPermissionEnabled = true;
     }
-    async Task CloseAddPermissionEnabled()
+   void CloseAddPermissionEnabled(PopupClosedEventArgs args)
     {
-        RevokeBack?.Invoke(false);
-        await UpdateDataAsync();
+       // RevokeBack?.Invoke(false);
+       // await UpdateDataAsync();
         addPermissionEnabled = false;
     }
     void OnButtonFileProfileTypeLinDocClick()
     {
         IsFileProfileTypeFilterDocOpen = true;
+    }
+    void OnRowTreeClick(TreeListRowClickEventArgs e)
+    {
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            DynamicFormSectionOne.SectionFileProfileTypeName = lists.FirstOrDefault()?.FileProfilePath;
+            DynamicFormSectionOne.SectionFileProfileTypeId = nodeName.FileProfileTypeId;
+        }
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
     }
     protected void SelectionChanged(TreeViewNodeEventArgs e)
     {
@@ -713,8 +744,8 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         ClearDAta();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }

@@ -53,9 +53,9 @@ namespace AC.SD.Core.Pages
         private void TriggerGarbageCollection()
         {
             // Force garbage collection
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-            GC.Collect();
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+            //GC.Collect();
         }
     }
 }

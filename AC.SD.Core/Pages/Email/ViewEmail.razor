@@ -5171,8 +5171,8 @@
             RefAdminSearch?.Dispose();
         }
 
-        GC.Collect();
-        GC.SuppressFinalize(this);
+        //GC.Collect();
+        //GC.SuppressFinalize(this);
 
         //subscription?.Dispose();
     }
@@ -6269,9 +6269,9 @@
             _discussionList = null;
 
             // Optionally, force garbage collection
-             GC.Collect();
-             GC.WaitForPendingFinalizers();
-             GC.Collect();
+             //GC.Collect();
+             //GC.WaitForPendingFinalizers();
+             //GC.Collect();
         }
     }
 }

@@ -183,9 +183,9 @@
     {
         //NavigationManager.LocationChanged -= OnLocationChanged;
        
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
+        //GC.Collect();
+        //GC.WaitForPendingFinalizers();
+        //GC.Collect();
         timer?.Dispose();
     }
 

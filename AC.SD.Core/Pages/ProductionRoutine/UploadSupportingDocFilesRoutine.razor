@@ -731,7 +731,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         fileProfileTypeModels = null;
         _plantItems?.Clear();
         _divisionItems?.Clear();
@@ -745,6 +745,6 @@
         fileProfileTypeDocumentsAll?.Clear();
         documentsFiles?.Clear();
         refUploadFileImagesToPdfRoutine?.DisposeAsync();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }

@@ -448,7 +448,12 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if(FilesBase64 != null)
+        {
+            FilesBase64.Clear();
+            FilesBase64 = null;
+        }
+        // System.GC.Collect();
+       // GC.SuppressFinalize(this);
     }
 }

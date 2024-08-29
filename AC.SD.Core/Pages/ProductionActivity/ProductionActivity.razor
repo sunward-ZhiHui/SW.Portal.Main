@@ -1078,7 +1078,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         _selectedDocItems=null;
         _plantItems?.Clear();
         _productionActivities?.Clear();
@@ -1101,7 +1101,7 @@
         refSupportingDocuments?.DisposeAsync();
         refHistoryPopup?.DisposeAsync();
         refUploadProductionActivityFiles?.DisposeAsync();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }
 

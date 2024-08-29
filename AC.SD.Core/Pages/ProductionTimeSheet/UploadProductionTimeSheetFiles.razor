@@ -15,7 +15,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
-@implements IDisposable
+@implements IAsyncDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -693,9 +693,38 @@
         }
         StateHasChanged();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if(_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+
+        if (_divisionItems != null)
+        {
+            _divisionItems.Clear();
+            _divisionItems = null;
+        }
+
+        if (_departmentItems != null)
+        {
+            _departmentItems.Clear();
+            _departmentItems = null;
+        }
+        
+        if(_sectionItems != null)
+        {
+            _sectionItems.Clear();
+            _sectionItems = null;
+        }
+
+        if (_subSectionItems != null)
+        {
+            _subSectionItems.Clear();
+            _subSectionItems = null;
+        }
+        // System.GC.Collect();
+       // GC.SuppressFinalize(this);
     }
 }

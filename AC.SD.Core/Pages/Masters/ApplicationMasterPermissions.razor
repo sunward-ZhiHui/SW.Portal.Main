@@ -4,7 +4,7 @@
 @using MediatR
 @inject IMediator Mediator
 @inject AC.SD.Core.Services.ToastService toastService
-@implements IDisposable
+@implements IAsyncDisposable
 <div style="width:100%;">
     <DxTabs RenderMode="TabsRenderMode.AllTabs" @bind-ActiveTabIndex="@ActiveTabSecIndex" TabsPosition="TabsPosition.Top" TabClick="OnTabClick">
         <DxTabPage Text="User" TabIconCssClass="tabs-icon-home tabs-icon">
@@ -234,9 +234,24 @@
     void HandleInvalidSubmit()
     {
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if (_usersList != null)
+        {
+            _usersList.Clear();
+            _usersList = null;
+        }
+        if (_userGroupsList != null)
+        {
+            _userGroupsList.Clear();
+            _userGroupsList = null;
+        }
+        if (_levelMasterLists != null)
+        {
+            _levelMasterLists.Clear();
+            _levelMasterLists = null;
+        }
+        // System.GC.Collect();
+        // GC.SuppressFinalize(this);
     }
 }

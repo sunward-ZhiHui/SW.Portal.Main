@@ -250,10 +250,10 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         _supportDocselectedFile?.Clear();
         _selectedItems = null;
         refUploadSupportingDocFilesRoutine?.DisposeAsync();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }

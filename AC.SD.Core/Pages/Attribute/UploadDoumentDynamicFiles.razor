@@ -13,7 +13,7 @@
 @inject ClipboardService ClipboardService
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
-@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
+@* @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive *@
 @inject NavigationManager Navigator
 @using System.Collections
 @implements IAsyncDisposable
@@ -501,8 +501,8 @@
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-            <DxFormLayoutItem Caption="">
-                @if (FileProfileTypeId > 0)
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+               @*  @if (FileProfileTypeId > 0)
                 {
                     <DxTreeView @ref="_treeView"
                                 @bind-FilterString="FilterString"
@@ -530,8 +530,28 @@
                                                    Children="Children" />
                         </DataMappings>
                     </DxTreeView>
-                }
-
+                } *@
+                <DxTreeList Data="fileProfileTypeDocumentsTreeAll"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeClick"
+                            SelectionMode="TreeListSelectionMode.Single"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
             </DxFormLayoutItem>
 
         </DxFormLayout>
@@ -611,6 +631,7 @@
     int CurrentUplodCount { get; set; }
     public DocumentsModel _selectedModelItems { get; set; }
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsTreeAll{ get; set; }
     public List<DynamicFormSection> _dynamicFormSectionList { get; set; }
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     DynamicFormSection dynamicFormSection1 = new DynamicFormSection();
@@ -657,11 +678,12 @@
 
             if (fileProfileTypeDocumentsAll != null && fileProfileTypeDocumentsAll.Count() > 0)
             {
+                fileProfileTypeDocumentsTreeAll = new List<DocumentsModel>();
                 if (FileProfileTypeId > 0)
                 {
-
                     var childLists = GetChild(FileProfileTypeId).ToList();
-                    _selectedTreeItems = childLists;
+                    fileProfileTypeDocumentsTreeAll = childLists;
+                    //_selectedTreeItems = childLists;
                     // var _selectedTreeItemss = GetCategoryTreeFromFlattenedCollection(childLists, FileProfileTypeId);
                     var Datas = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == FileProfileTypeId);
                     if (Datas != null)
@@ -671,7 +693,8 @@
                 }
                 else
                 {
-                    _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+                    fileProfileTypeDocumentsTreeAll = fileProfileTypeDocumentsAll;
+                    // _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
                 }
             }
             _dynamicFormSectionListNoUpload = new List<DynamicFormSection>();
@@ -925,6 +948,22 @@
 
         StateHasChanged();
     }
+    async void OnRowTreeClick(TreeListRowClickEventArgs e)
+    {
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
+            FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            _selectedModelItems = nodeName;
+            await loadData(nodeName);
+            await refLinkFileprofileTypeLists.loadTreeItems(nodeName, Data, _dynamicformData);
+            IsFileProfileTypeOpen = false;
+        }
+        StateHasChanged();
+    }
     void OnButtonFileProfileTypeClick()
     {
         //_treeView.CollapseAll();
@@ -1080,7 +1119,8 @@
 
                         FileProfileTypeId = dynamicFormSection.SectionFileProfileTypeId;
                         var childLists = GetChild(dynamicFormSection.SectionFileProfileTypeId).ToList();
-                        _selectedTreeItems = childLists;
+                        fileProfileTypeDocumentsTreeAll = childLists;
+                        //_selectedTreeItems = childLists;
                         await loadData(datas);
                         await refLinkFileprofileTypeLists.loadTreeItems(datas, Data, _dynamicformData);
                         _editContext = new EditContext(Data);
@@ -1099,7 +1139,8 @@
                         {
                             FileProfileTypeId = OldFileProfileTypeId;
                             var childLists = GetChild(OldFileProfileTypeId).ToList();
-                            _selectedTreeItems = childLists;
+                            fileProfileTypeDocumentsTreeAll = childLists;
+                            //_selectedTreeItems = childLists;
                             await loadData(datas);
                             await refLinkFileprofileTypeLists.loadTreeItems(datas, Data, _dynamicformData);
                             _editContext = new EditContext(Data);
@@ -1119,7 +1160,9 @@
                         Data.TemplateUploadOrReserveNo = "New Upload";
                         fileUploadStyle1 = ""; fileUploadStyle2 = "display:none;";
                         _editContext = new EditContext(Data);
-                        _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+                        fileProfileTypeDocumentsTreeAll = new List<DocumentsModel>();
+                        fileProfileTypeDocumentsTreeAll = fileProfileTypeDocumentsAll;
+                        //_selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
                     }
                     // }
                 }

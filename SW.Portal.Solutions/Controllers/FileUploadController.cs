@@ -1,31 +1,15 @@
 ﻿using Core.Entities;
 using Core.EntityModels;
 using Core.Repositories.Query;
-using DevExpress.DocumentServices.ServiceModel.DataContracts;
-using DevExpress.Xpo;
-using DevExpress.XtraReports;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Edm;
-using System.Diagnostics;
-using System.Drawing.Imaging;
-using System.Web;
 using System.Text.Json;
 using iText.IO.Image;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
-using AC.SD.Core.Data;
-using Microsoft.AspNetCore.SignalR;
-using Plugin.Firebase.Firestore;
-using System.IO;
 using SW.Portal.Solutions.Models;
-using AC.SD.Core.Pages.Masters;
-using Grpc.Core;
-using AC.SD.Core.Pages.DMS;
 using Application.Queries;
 using MediatR;
-using Google.Cloud.Firestore;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -104,8 +88,10 @@ namespace SW.Portal.Solutions.Controllers
                         documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                         var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
                         documentId = response.DocumentId;
-                        System.GC.Collect();
-                        GC.SuppressFinalize(this);
+                        //files = null;
+                        //chunkMetadata = null;
+                        // System.GC.Collect();
+                        //GC.SuppressFinalize(this);
                     }
                 }
             }
@@ -242,8 +228,8 @@ namespace SW.Portal.Solutions.Controllers
                         documents.FilePath = serverPath.Replace(Path.Combine(BaseDirectory, "Reports"), "");
                         var response = await _fileuploadqueryRepository.InsertCreateReportDocumentBySession(documents);
                         ReportdocumentId = response.ReportDocumentID;
-                        System.GC.Collect();
-                        GC.SuppressFinalize(this);
+                        //System.GC.Collect();
+                        //GC.SuppressFinalize(this);
                     }
                 }
             }
@@ -311,8 +297,8 @@ namespace SW.Portal.Solutions.Controllers
                     documents.SourceFrom = SourceFrom;
                     documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                     var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                    System.GC.Collect();
-                    GC.SuppressFinalize(this);
+                    //System.GC.Collect();
+                    //GC.SuppressFinalize(this);
                 }
             }
             catch (Exception e)
@@ -535,8 +521,8 @@ namespace SW.Portal.Solutions.Controllers
                         documents.SessionId = SessionId;
                         documents.FilePath = serverPath.Replace(Path.Combine(BaseDirectory, "Reports"), "");
                        var response = await _fileuploadqueryRepository.UpdateDynamicFormReportBySession(documents);
-                        System.GC.Collect();
-                        GC.SuppressFinalize(this);
+                        //System.GC.Collect();
+                        //GC.SuppressFinalize(this);
                     }
                 }
             }
@@ -637,8 +623,8 @@ namespace SW.Portal.Solutions.Controllers
                         documents.ProfileNo = profileNo;
                         documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                         var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                        System.GC.Collect();
-                        GC.SuppressFinalize(this);
+                        //System.GC.Collect();
+                        //GC.SuppressFinalize(this);
                         response.IsSuccess = true;
                         //response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
                         return response;

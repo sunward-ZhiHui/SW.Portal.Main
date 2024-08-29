@@ -24,7 +24,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT DISTINCT Name FROM EmailActivityCatgorys where Name IS NOT NULL";
+                var query = "SELECT DISTINCT Name FROM EmailActivityCatgorys WHERE Name IS NOT NULL AND Name != ''";
 
                 using (var connection = CreateConnection())
                 {
@@ -223,7 +223,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", UserID);
-                var query = "SELECT DISTINCT UserTag FROM EmailTopicUserTags where AddedByUserID = @UserID and UserTag IS NOT NULL";
+                var query = "SELECT DISTINCT UserTag FROM EmailTopicUserTags where AddedByUserID = @UserID and UserTag IS NOT NULL AND UserTag != ''";
 
                 using (var connection = CreateConnection())
                 {

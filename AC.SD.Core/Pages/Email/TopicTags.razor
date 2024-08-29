@@ -139,12 +139,12 @@
                                 NullText="Select Others Tag..."
                                 ListRenderMode="ListRenderMode.Virtual"
                                 SearchMode="ListSearchMode.AutoSearch"
-                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Name"
                                 ValueFieldName="Name"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.Name"
-                                @bind-Text="@types.Name" ShowValidationIcon="true">
+                                @bind-Text="@othersTagName" ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.Name)" />
                 </DxFormLayoutItem>
@@ -174,6 +174,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    string othersTagName { get; set; }
     ApplicationMasterChildModel selectGroupItems {get; set;}
     ApplicationMasterChildModel selectcategory { get; set; }
     bool PanelVisible { get; set; }
@@ -367,8 +368,7 @@
 
 
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-
+    {       
         var editModel = (EmailActivityCatgorys)e.EditModel;
         if(selectGroupItems != null)
         {
@@ -398,7 +398,8 @@
                         GroupTag = editModel.GroupTag,
                         CategoryTag = editModel.CategoryTag,
                         ActionTag = editModel.ActionTag,
-                        Name = editModel.Name,
+                        //Name = editModel.Name,
+                        Name = othersTagName,
                         TopicId = TopicId,
                         Description = editModel.Description,
                         StatusCodeID = 1,
@@ -435,7 +436,8 @@
                     {
                         ID = editModel.ID,
                         TopicId = TopicId,
-                        Name = editModel.Name,
+                        //Name = editModel.Name,
+                        Name = othersTagName,
                         GroupTag = editModel.GroupTag,
                         CategoryTag = editModel.CategoryTag,
                         ActionTag = editModel.ActionTag,
@@ -556,8 +558,9 @@
         }
 
     }
-    void addEdit()
+    async Task addEdit()
     {        
+        _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
 
         if (Grid != null)
         {
@@ -664,11 +667,8 @@
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
             if (_actionTagItems.Count > 0)
             {
-                _selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
-               
+                _selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;               
             }
-
-
         }
 
         StateHasChanged();

@@ -316,12 +316,12 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         refAttributeSubFormSetupList?.DisposeAsync();
         _attributesDetails?.Clear();
         codemaster = null;
         _selectedItems=null;
         _stausItems?.Clear();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

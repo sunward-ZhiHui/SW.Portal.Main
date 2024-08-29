@@ -482,7 +482,7 @@
 
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         SelectedFiles?.Clear();
         fileProfileTypeDocumentsAll?.Clear();
         _reserveProfileNumberSeriesList?.Clear();
@@ -490,6 +490,6 @@
         _selectedDescriptionItems = new DocumentNoSeriesModel();
         _ParentselectedItems = null;
         _selectedItems = null;
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

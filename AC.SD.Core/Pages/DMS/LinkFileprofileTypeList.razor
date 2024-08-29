@@ -303,7 +303,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         ParentSelectedFiles = null;
         LinkProfileSelectedFiles = null;
         selectedFiles = null;
@@ -313,6 +313,6 @@
         FolderPathLists?.Clear();
         _selectedItemsList = null;
         documentLinkSearchModel = new DocumentSearchModel();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

@@ -81,7 +81,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    
+    public class GetFileProfileTypeFoldersFilesCountQueryHandler : IRequestHandler<GetFileProfileTypeFoldersFilesCount, List<DocumentsModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetFileProfileTypeFoldersFilesCountQueryHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<DocumentsModel>> Handle(GetFileProfileTypeFoldersFilesCount request, CancellationToken cancellationToken)
+        {
+            return (List<DocumentsModel>)await _fileprofileQueryRepository.GetFileProfileTypeFoldersFilesCount(request.FileProfileTypeID);
+        }
+
+    }
+
     public class GetAllselectedfileprofiletypeHandler : IRequestHandler<GetAllSelectedfileprofiletypeQuery, DocumentTypeModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;

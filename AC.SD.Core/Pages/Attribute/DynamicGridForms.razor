@@ -37,7 +37,7 @@
         text-align: right;
     }
 </style>
-<div class="card cw-480" style=" height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;">
+
     <div class="card-header text-center py-3">
         <h4>@_dynamicform?.Name</h4>
         @*  <p class="tm-8 mb-0 fw-normal fs-825">
@@ -135,14 +135,14 @@
             </div>
         </div>
     </div>
-
+<div class="card cw-480" style=" height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;">
     <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
         <DxTabPage Text="Form">
             <div class="card-body" style="margin-top:5px;">
                 <DxFormLayout CssClass="w-100">
                     <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
-                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="true" AnimationType="LayoutAnimationType.Slide">
+                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="false" AnimationType="LayoutAnimationType.Slide">
 
                             <HeaderContentTemplate>
                                 <div>
@@ -838,11 +838,11 @@
     }
     async Task onshowLoading()
     {
-       // await JSRuntime.InvokeAsync<string>("showLoading");
+        // await JSRuntime.InvokeAsync<string>("showLoading");
     }
     async Task onhideLoading()
     {
-       // await JSRuntime.InvokeAsync<string>("hideLoading");
+        // await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     async Task loadDynamicForm()
     {
@@ -908,7 +908,7 @@
                             _dynamicFormWorkFlowApprovedFormList = await _dynamicFormWorkFlowApprovedFormLists.Result;
                             Datas.ProfileNo = _dynamicformData?.ProfileNo;
                             IsUploadEnabled = true;
-                            
+
 
                             CheckedApprovalData();
 
@@ -3008,9 +3008,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        // System.GC.Collect();
         ClearGridData();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
     void EulaPopupWorkFlowClosed()
     {
@@ -3569,7 +3569,7 @@
            var _AttributeHeaders = _AttributeHeader;
            if (Data != null)
            {
-               var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0;
+               var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0;int sec = 0;
                if (_AttributeHeader != null && _AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                {
 
@@ -3744,6 +3744,10 @@
            }
            if (_DynamicFormSectionIds != null && _DynamicFormSectionIds.Count() > 0)
            {
+               if (sec > 1)
+                {
+                    isVisible = false;
+                }
                var sectionExits = _DynamicFormSectionIds.Where(g => g == a.DynamicFormSectionId).Count();
                if (sectionExits > 0)
                {
@@ -6073,6 +6077,7 @@
        }));
 
            formLayoutBuilder.CloseComponent();
+            sec++;
            //PanelVisible = false;
        });
 
@@ -7565,6 +7570,7 @@
     }
     void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
+        var appcount=s.ApplicationMaster.Count();
         s.ApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -7584,7 +7590,14 @@
             {
                 editor11.OpenElement(i + 1, "div");
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                if (appcount == 1)
+                {
+                    editor11.AddContent(i + 1,s.DisplayName);
+                }
+                else
+                {
+                    editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                }
                 if (s.IsRequired == true)
                 {
                     editor11.OpenElement(i + 1, "span");
@@ -8189,6 +8202,7 @@
 
     void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
+        var appcount = q.SubApplicationMaster.Count();
         q.SubApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -8207,7 +8221,14 @@
             {
                 editor11.OpenElement(i + 1, "div");
                 editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                if (appcount == 1)
+                {
+                    editor11.AddContent(i + 1, q.Description);
+                }
+                else
+                {
+                    editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                }
                 editor11.CloseElement();
                 if (q.ControlType == "ComboBox")
                 {

@@ -253,7 +253,7 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
     public async ValueTask DisposeAsync()
     {
         DynamicFormPage3?.Dispose();
-        System.GC.Collect();
+       // System.GC.Collect();
         refUploadDoumentDynamicFiles?.DisposeAsync();
         refDynamicFormGridLists?.DisposeAsync();
         _dynamicForm=null;
@@ -265,7 +265,7 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
         _dynamicformObjectDataList?.Clear();
         _dynamicFormSectionAttributeList?.Clear();
         PlantDependencySubAttributeDetails?.Clear();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {

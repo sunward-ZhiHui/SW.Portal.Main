@@ -67,7 +67,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentsModel>> GetNoProfileNo(long? UserId,DateTime? StartDate);
         Task<DocumentsUploadModel> GetDocumentDeleteForNoProfileNo(DocumentsUploadModel documentsModel);
 
-        Task<IReadOnlyList<FileProfileTypeModel>> GetAllFileProfileDropdownAsync(); 
+        Task<IReadOnlyList<FileProfileTypeModel>> GetAllFileProfileDropdownAsync();
+        Task<IReadOnlyList<DocumentsModel>> GetFileProfileTypeFoldersFilesCount(long? selectedFileProfileTypeID);
 
     }
 }

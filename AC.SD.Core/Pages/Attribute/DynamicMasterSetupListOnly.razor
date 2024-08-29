@@ -205,10 +205,10 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         _dynamicForm?.Clear();
         _selectedItems=null;
         // Suppress finalization
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

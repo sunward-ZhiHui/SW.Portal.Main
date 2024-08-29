@@ -205,11 +205,11 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         selectedFiles = null;
         fileProfileTypeDocumentsAll?.Clear();
         _documentLinkModel?.Clear();
         _selectedItems = null;
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

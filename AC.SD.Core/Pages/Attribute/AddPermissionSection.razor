@@ -310,7 +310,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         refDocumentUserRoleListsUser?.DisposeAsync();
         refDocumentUserRoleListsUserGroup?.DisposeAsync();
         refDocumentUserRoleListsLevel?.DisposeAsync();
@@ -318,6 +318,6 @@
         _usersList?.Clear();
         _userGroupsList?.Clear();
         _levelMasterLists?.Clear();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

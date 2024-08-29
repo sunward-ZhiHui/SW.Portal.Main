@@ -110,10 +110,10 @@
     public async ValueTask DisposeAsync()
     {
         DynamicFormPage4?.Dispose();
-        System.GC.Collect();
+       // System.GC.Collect();
         _dynamicForm?.Clear();
         _selectedItems=null;
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
     async Task UpdateDataAsync()
     {

@@ -379,11 +379,11 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         refUploadDoumentDynamicFiles?.DisposeAsync();
         _dynamicForm?.Clear();
         _selectedItems = null;
         dynamicFormData = new DynamicFormData();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }

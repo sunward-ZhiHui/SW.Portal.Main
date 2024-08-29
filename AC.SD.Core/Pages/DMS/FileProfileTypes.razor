@@ -144,8 +144,6 @@
                 CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
                 SelectionMode="GridSelectionMode.Single"
                 AutoExpandAllGroupRows="true"
-                VirtualScrollingEnabled="false"
-                ShowAllRows="true"
                 CssClass="w-100 table-hover-OnFileProfile"
                 style="height: calc(100vh - 250px);">
             <Columns>
@@ -1023,7 +1021,7 @@
                     _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
 
                     await permissionEnabled();
-                    //Grid.MakeRowVisible(0);
+                   // Grid.MakeRowVisible(Grid.GetVisibleRowCount() - 1);
                     Grid.SetFocusedRowIndex(0);
                     StateHasChanged();
                 }
@@ -1052,10 +1050,11 @@
                                 }
                             });
                         }
+                        StateHasChanged();
                     }
-
+                    
                 }
-                StateHasChanged();
+                
             }
         }
         catch (Exception ex)

@@ -13,7 +13,7 @@
 @using System.Text.Json;
 @using System.IO;
 @using System.Dynamic;
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -642,9 +642,44 @@
             toastService.ShowToast("Invalid QrCode Format", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if(_ManuFactureProcessLines != null)
+        {
+            _ManuFactureProcessLines.Clear();
+            _ManuFactureProcessLines = null;
+        }
+        if (_categoryItems != null)
+        {
+            _categoryItems.Clear();
+            _categoryItems = null;
+        }
+        if (_actionItems != null)
+        {
+            _actionItems.Clear();
+            _actionItems = null;
+        }
+        if (_templateItems != null)
+        {
+            _templateItems.Clear();
+            _templateItems = null;
+        }
+        if (_ActivityResult != null)
+        {
+            _ActivityResult.Clear();
+            _ActivityResult = null;
+        }
+         if (_ActivityStatusItem != null)
+        {
+            _ActivityStatusItem.Clear();
+            _ActivityStatusItem = null;
+        }
+        if (_ActivityMaster != null)
+        {
+            _ActivityMaster.Clear();
+            _ActivityMaster = null;
+        }
+        //System.GC.Collect();
+       // GC.SuppressFinalize(this);
     }
 }

@@ -210,11 +210,11 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         _supportDocselectedFile?.Clear();
         productionActivityNonCompliance = null;
         _selectedItems = null;
         Data = null;
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

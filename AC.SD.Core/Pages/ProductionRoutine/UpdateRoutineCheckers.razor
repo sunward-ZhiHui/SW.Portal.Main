@@ -101,11 +101,11 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+        //System.GC.Collect();
         _ManuFactureProcessLines?.Clear();
         _categoryItems?.Clear();
         _actionItems?.Clear();
         Data = new ProductionActivityRoutineAppModel();
-        GC.SuppressFinalize(this);
+        //GC.SuppressFinalize(this);
     }
 }

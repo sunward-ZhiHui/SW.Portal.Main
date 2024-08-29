@@ -440,7 +440,10 @@
     }
     public void Dispose()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if (_supportDocselectedFile != null)
+        {
+            _supportDocselectedFile.Clear();
+            _supportDocselectedFile = null;
+        }
     }
 }

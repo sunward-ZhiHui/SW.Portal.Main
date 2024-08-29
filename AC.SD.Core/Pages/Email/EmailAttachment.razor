@@ -355,8 +355,8 @@
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-            <DxFormLayoutItem Caption="">
-                <DxTreeView @ref="_treeFilterDocView"
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+               @*  <DxTreeView @ref="_treeFilterDocView"
                             @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
@@ -369,7 +369,29 @@
                                                HasChildren="HasChildren"
                                                Children="Children" />
                     </DataMappings>
-                </DxTreeView>
+                </DxTreeView> *@
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            @ref="TreeList"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeClick"
+                            SelectionMode="TreeListSelectionMode.Single"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
             </DxFormLayoutItem>
 
         </DxFormLayout>
@@ -444,6 +466,7 @@
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     EditContext _editContext;
     internal DxTreeView _treeFilterDocView;
+    ITreeList TreeList { get; set; }
     string? FilterDocumentString { get; set; }
     internal Guid? _activityEmailSessionId { get; set; }
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
@@ -451,6 +474,7 @@
     Documents _selectedDocsItems = new Documents();
     public ApplicationUser applicationUser { get; internal set; }
     public long RTopicId = 0;
+    bool PanelVisible { get; set; }
     string SelectedReplyId = "none";
     internal bool loading;
     bool MessageVisible { get; set; }
@@ -467,7 +491,7 @@
     void OnButtonFileProfileTypeLinDocClick()
     {
         IsFileProfileTypeFilterDocOpen = true;
-    }
+    }  
 
     async Task HandleValidSubmit_FileProfileType()
     {
@@ -908,6 +932,66 @@
                 SessionId = Guid.NewGuid(),
             };
         await Mediator.Send(request);
+    }
+    async Task OnRowTreeClick(TreeListRowClickEventArgs e)
+    {
+        _dataFileProfileType.PlantId = 0; _dataFileProfileType.DepartmentId = 0;
+        _dataFileProfileType.DivisionId = 0; _dataFileProfileType.SectionId = 0; _dataFileProfileType.SubSectionId = 0;
+
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            _dataFileProfileType.FileProfileTypeId = nodeName.FileProfileTypeId;
+            _dataFileProfileType.ProfileId = nodeName.ProfileID;
+            _dataFileProfileType.sessionId = nodeName.SessionID;
+
+        }
+         if (_dataFileProfileType != null && _dataFileProfileType.ProfileId > 0)
+        {
+            _dataFileProfileType = _dataFileProfileType;
+
+            documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(_dataFileProfileType.ProfileId));
+
+            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+            if (abbreviation != null)
+            {
+                foreach (var item in abbreviation)
+                {
+                    var itemsId = item.Id;
+                    if (itemsId == 1)
+                    {
+                        isPlant = true;
+                        _dataFileProfileType.PlantId = null;
+                    }
+                    if (itemsId == 2)
+                    {
+                        isDepartment = true; isDivision = true;
+                        _dataFileProfileType.DepartmentId = null;
+                        _dataFileProfileType.DivisionId = null;
+                    }
+                    if (itemsId == 3)
+                    {
+                        isSection = true;
+                        _dataFileProfileType.SectionId = null;
+                    }
+                    if (itemsId == 4)
+                    {
+                        isSubSection = true;
+                        _dataFileProfileType.SubSectionId = null;
+                    }
+                }
+            }
+            if (_dataFileProfileType.IsExpiryDate == true)
+            {
+                isExpiryDate = true;
+            }
+        }
+
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
     }
     protected async Task FileProfileTypeSelectionChanged(TreeViewNodeEventArgs e)
     {
@@ -1498,11 +1582,14 @@
         _selectedDocsItems.ModifiedDate = DateTime.Now;
         _selectedDocsItems.ModifiedByUserId = applicationUser.UserID;
 
+        fileProfileTypeDocumentsAll = new List<DocumentsModel>();
+        PanelVisible = true;
+
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
-        if (fileProfileTypeDocumentsAll.Count() > 0)
-        {
-            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
-        }
+        // if (fileProfileTypeDocumentsAll.Count() > 0)
+        // {
+        //     _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        // }
 
         IsDescriptionOpen = true;
 

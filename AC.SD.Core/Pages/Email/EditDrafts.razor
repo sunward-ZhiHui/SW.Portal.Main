@@ -365,12 +365,11 @@ else
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     AllowUserInput = "true"
                                             TextFieldName="Name"
-                                            ValueFieldName="Name"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            ValueFieldName="Name"                                           
                                 @bind-Value="@CategoryData.Name"
-                                @bind-Text="@CategoryData.Name" ShowValidationIcon="true">
+                                @bind-Text="@OthersTagName" >
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => CategoryData.Name)" />
+                                @* <ValidationMessage For="@(() => CategoryData.Name)" /> *@
                             </DxFormLayoutItem>
 
                              <DxFormLayoutItem Caption="Follow" ColSpanMd="3">
@@ -424,15 +423,14 @@ else
                                             NullText="Select User Tag..."
                                            AllowUserInput = "true"
                                            ListRenderMode="ListRenderMode.Virtual"
-                                    SearchMode="ListSearchMode.AutoSearch"
-                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="UserTag"
-                                            ValueFieldName="UserTag"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@CategoryData.UserTag"
-                                @bind-Text="@CategoryData.UserTag" ShowValidationIcon="true">
+                                            ValueFieldName="UserTag"                                            
+                                            @bind-Value="@CategoryData.UserTag"
+                                            @bind-Text="@UserTagName">
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => CategoryData.UserTag)" />
+                                @* <ValidationMessage For="@(() => CategoryData.UserTag)" /> *@
                             </DxFormLayoutItem>
 
 
@@ -609,6 +607,8 @@ else
 </DxFlyout>
 
 @code {
+    string UserTagName { get; set; }
+    string OthersTagName { get; set; }
     IEnumerable<UserGroup> TogroupValue { get; set; }
     IEnumerable<UserGroup> TousergroupValue { get; set; }
     IEnumerable<UserGroup>   selectCCUserGroup   { get; set; }
@@ -1710,11 +1710,13 @@ else
                     OnDraft = draftId,
                     IsAllowParticipants = Data.IsAllowParticipants,
                     NotifyUser = Data.NotifyUser,
-                    actName =CategoryData.Name,
+                    //actName =CategoryData.Name,
                     GroupTag = CategoryData.GroupTag,
                     ActionTag = CategoryData.ActionTag,
                     CategoryTag = CategoryData.CategoryTag,
-                    UserTag = CategoryData.UserTag,
+                    //UserTag = CategoryData.UserTag,
+                actName = OthersTagName,
+                UserTag = UserTagName,
                     UserTagId = CategoryData.UserTagId,
                 UserType = Data.UserType,
                 ToUserGroup = sToUserGroup,

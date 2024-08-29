@@ -1,5 +1,4 @@
-﻿@attribute [StreamRendering]
-@using Application.Commands;
+﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
 @using System.Text;
@@ -27,7 +26,7 @@
 @using System.Linq;
 @page "/CreateEmail"
 @page "/CreateEmail/{ActiveSessionId}"
-@implements IDisposable;
+@implements IAsyncDisposable;
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
 
@@ -372,15 +371,15 @@ else
                                             NullText="Select Others Tag..."
                                             ListRenderMode="ListRenderMode.Virtual"
                                             AllowUserInput ="true"
-                                    SearchMode="ListSearchMode.AutoSearch"
-                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="Name"
                                             ValueFieldName="Name"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                             @bind-Value="@CategoryData.Name"
-                                            @bind-Text="@CategoryData.Name" ShowValidationIcon="true">
+                                            @bind-Text="@OthersTagName">
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => CategoryData.Name)" />
+                                @* <ValidationMessage For="@(() => CategoryData.Name)" /> *@
                             </DxFormLayoutItem>
 
 
@@ -443,9 +442,9 @@ else
                                             ValueFieldName="UserTag"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                             @bind-Value="@CategoryData.UserTag"
-                                            @bind-Text="@CategoryData.UserTag" ShowValidationIcon="true">
+                                            @bind-Text="@UserTagName">
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => CategoryData.UserTag)" />
+                                @* <ValidationMessage For="@(() => CategoryData.UserTag)" /> *@
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
@@ -688,7 +687,9 @@ else
 </DxFlyout>
 
 @code {
-   // private PersistingComponentStateSubscription? subscription;
+    string UserTagName {get;set;}
+    string OthersTagName { get; set; }
+    // private PersistingComponentStateSubscription? subscription;
     IEnumerable<UserGroup> UserGroupValues { get; set; }
     IEnumerable<UserGroup> TogroupValue { get; set; }
     IEnumerable<UserGroup> ccgroupValue { get; set; }
@@ -830,7 +831,7 @@ else
     }
     void onSelectedToItemsChanged(IEnumerable<long>? values)
     {
-       
+
         if (values != null)
         {
             Data.ToIds = values;
@@ -852,7 +853,7 @@ else
     }
     void onSelectedToItemsChangedold(IEnumerable<ViewEmployee> values)
     {
-       
+
         if (values != null)
         {
             Data.ToIds = values.Select(s => s.UserID.Value).ToList();
@@ -870,7 +871,7 @@ else
     }
     void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
     {
-       
+
         if (values != null)
         {
             Data.ToUserGroupIds = values.Select(s => s.UserGroupId).ToList();
@@ -1027,7 +1028,7 @@ else
     }
     void onSelectedToUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
-       
+
 
         if (values != null)
         {
@@ -1045,7 +1046,7 @@ else
 
     void onSelectedCCItemsChanged(IEnumerable<long>? values)
     {
-       
+
         if (values != null)
         {
             Data.CCIds = values;
@@ -1067,10 +1068,10 @@ else
     }
     void onSelectedCCItemsChangedold(IEnumerable<ViewEmployee> values)
     {
-      
+
         if (values != null)
         {
-              Data.CCIds = values.Select(s=>s.UserID.Value).ToList();
+            Data.CCIds = values.Select(s=>s.UserID.Value).ToList();
             // Update _Toparticipant based on selected values from _CCparticipant
             _Toparticipant = _participant.Except(values).ToList();
         }
@@ -1086,7 +1087,7 @@ else
 
     void onSelectedCCUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
-       
+
         if (values != null)
         {
             Data.CCUserGroupIds = values.Select(s => s.UserGroupId).ToList();
@@ -1500,7 +1501,7 @@ else
 
     void OnSelectedToDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
-      
+
         if (SelectedToItems != null)
         {
             SelectedToDataItems = SelectedToItems;
@@ -1517,7 +1518,7 @@ else
 
     void OnSelectedCCDataItemsChanged(IReadOnlyList<object> SelectedCCItems)
     {
-       
+
         if (SelectedCCItems != null)
         {
             SelectedCCDataItems = SelectedCCItems;
@@ -1535,7 +1536,7 @@ else
 
     internal void OnSelectionChanged(object args)
     {
-      
+
 
         if (args != null)
         {
@@ -1599,6 +1600,8 @@ else
             CategoryData.CategoryTag = null;
             CategoryData.Name = null;
             CategoryData.UserTag = null;
+            OthersTagName = null;
+            UserTagName = null;
         }
 
 
@@ -1673,7 +1676,8 @@ else
             CategoryData.CategoryTag = null;
             CategoryData.Name = null;
             CategoryData.UserTag = null;
-
+            OthersTagName = null;
+            UserTagName = null;
         }
 
 
@@ -1747,6 +1751,8 @@ else
             CategoryData.CategoryTag = null;
             CategoryData.Name = null;
             CategoryData.UserTag = null;
+            OthersTagName = null;
+            UserTagName = null;
         }
 
 
@@ -2314,10 +2320,12 @@ else
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                     GroupTag = CategoryData.GroupTag,
-                    UserTag = CategoryData.UserTag,
+                    //UserTag = CategoryData.UserTag,
                     CategoryTag = CategoryData.CategoryTag,
                     ActionTag = CategoryData.ActionTag,
-                    actName = CategoryData.Name,
+                    //actName = CategoryData.Name,
+                    actName = OthersTagName,
+                    UserTag = UserTagName,
                     ActivityType = ActivityType,
                     UserType = Data.UserType,
                     ToUserGroup = sToUserGroup,
@@ -2521,7 +2529,7 @@ else
         }
         StateHasChanged();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         // Dispose of each list and clear the references
         _AllCategory?.Clear();

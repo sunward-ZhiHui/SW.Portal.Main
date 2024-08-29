@@ -1085,16 +1085,14 @@
                                 <DxComboBox Data="@_UserTagList"
                                     AllowUserInput="true"
                                     NullText="Select User Tag..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    ListRenderMode="ListRenderMode.Virtual"                                  
                                     TextFieldName="UserTag"
                                     ValueFieldName="UserTag"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@dataUserTag.UserTag"
-                                    @bind-Text="@dataUserTag.UserTag" 
-                                    ShowValidationIcon="true">
+                                    @bind-Text="@UserTagTxt">
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => dataUserTag.UserTag)" />
+                                @* <ValidationMessage For="@(() => dataUserTag.UserTag)" /> *@
                             </DxFormLayoutItem>
                     </DxFormLayout>
                     </div>
@@ -1595,6 +1593,7 @@
 
 
 @code {
+    string UserTagTxt { get; set; }    
     private PersistingComponentStateSubscription? subscription;
     private string elapsedTime;
     private int pageNumber = 1; // Initial page number
@@ -3439,6 +3438,7 @@
     async void onUserTagPop()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
+        UserTagTxt = null;
         _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)); 
 
         var _getUserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup), applicationUser.UserID));
@@ -3524,7 +3524,8 @@
             var UpdateReq = new UpdateUserTag
             {                
                 UserTagId = dataUserTag.UserTagId,
-                UserTag = dataUserTag.UserTag,
+                //UserTag = dataUserTag.UserTag,
+                UserTag = UserTagTxt,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now
             };
@@ -3541,7 +3542,8 @@
             var UpdateReq = new CreateUserTag
                 {
                     TopicId = long.Parse(@SelectedGroup),
-                    UserTag = dataUserTag.UserTag,
+                    //UserTag = dataUserTag.UserTag,
+                    UserTag = UserTagTxt,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now
                 };

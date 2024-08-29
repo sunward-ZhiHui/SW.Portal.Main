@@ -1093,7 +1093,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+       // System.GC.Collect();
         CurrentPlant=null;
         CurrentActivity=null;
         CurrentTicket = null;
@@ -1118,7 +1118,7 @@
      refRoutineSupportingDocuments?.DisposeAsync();
      refHistoryPopup?.DisposeAsync();
     refUploadProductionRoutineFiles?.DisposeAsync();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }
 

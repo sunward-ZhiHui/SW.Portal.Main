@@ -543,7 +543,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
+     //   System.GC.Collect();
         _productionActivities?.Clear();
         _ponumberActivities?.Clear();
         _ActivityResult?.Clear();
@@ -556,6 +556,6 @@
         _ManuFactureProcessLines?.Clear();
         _categoryItems?.Clear();
         _actionItems?.Clear(); refUploadProductionRoutineFiles?.DisposeAsync();
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }

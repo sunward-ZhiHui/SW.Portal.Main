@@ -437,13 +437,13 @@
         {
             await _module.DisposeAsync();
         }
-        System.GC.Collect();
+       // System.GC.Collect();
         refRoutineEmails?.DisposeAsync();
         _ActivityStatusItem?.Clear();
         _ActivityResult?.Clear();
         Data = new ProductionActivityRoutineCheckedDetailsModel();
         _supportDocselectedFile = null;
         _selectedItems = null;
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
 }

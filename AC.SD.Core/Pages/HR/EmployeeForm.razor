@@ -15,6 +15,9 @@
 @inject NavigationManager NavigationManager
 @page "/Employees/EmployeeForm/{SessionIds:guid}"
 @page "/Employees/EmployeeForm"
+@implements IAsyncDisposable
+
+
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -541,5 +544,72 @@
             e.Style = "background-color: rgba(0, 0, 0, 0.08)";
             e.CssClass = "header-bold";
         }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_employeeItems != null)
+        {
+            _employeeItems.Clear();
+            _employeeItems = null;
+        }
+        if (_languageMasterItems != null)
+        {
+            _languageMasterItems.Clear();
+            _languageMasterItems = null;
+        }
+        if (_employmentTypeItems != null)
+        {
+            _employmentTypeItems.Clear();
+            _employmentTypeItems = null;
+        }
+        if (_roles != null)
+        {
+            _roles.Clear();
+            _roles = null;
+        }
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+
+        }
+        if (_stausItems != null)
+        {
+            _stausItems.Clear();
+            _stausItems = null;
+        }
+        if (_departmentItems != null)
+        {
+            _departmentItems.Clear();
+            _departmentItems = null;
+        }
+        if (_divisionsItems != null)
+        {
+            _divisionsItems.Clear();
+            _divisionsItems = null;
+        }
+        if (_designationItems != null)
+        {
+            _designationItems.Clear();
+            _designationItems = null;
+        }
+        if (_sectionItems != null)
+        {
+            _sectionItems.Clear();
+            _sectionItems = null;
+        }
+        if (_subSectionItems != null)
+        {
+            _subSectionItems.Clear();
+            _subSectionItems = null;
+        }
+        if (_leveMasterItems != null)
+        {
+            _leveMasterItems.Clear();
+            _leveMasterItems = null;
+        }
+        _view_mainEmployeeStatusItems = null;
+        employee = null;
+        _employeeData = null;
     }
 }

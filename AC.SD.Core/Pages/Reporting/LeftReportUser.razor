@@ -19,6 +19,7 @@
 @using System;
 @inject NavigationManager NavigationManager
 @inject IJSRuntime jsRuntime
+@implements IAsyncDisposable
 
 
 <DxLoadingPanel @bind-Visible="PanelVisible"
@@ -82,5 +83,16 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReportDocumentID");
         _selectedItems = _reportdocuments.FirstOrDefault(f => f.ReportDocumentID == (long?)UniqueId);
         ReportName?.Invoke(_selectedItems.FileName);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_reportdocuments != null)
+        {
+            _reportdocuments.Clear();
+            _reportdocuments = null;
+        }
+       
+        _selectedItems = null;
+
     }
 }

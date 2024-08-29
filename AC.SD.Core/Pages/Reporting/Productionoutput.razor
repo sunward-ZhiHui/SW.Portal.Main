@@ -5,6 +5,8 @@
 @using MediatR;
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
+@implements IAsyncDisposable
+
 <style>
     .dxbl-loading-panel {
         display: initial !important;
@@ -123,5 +125,15 @@
 
 
     }
+    public async ValueTask DisposeAsync()
+    {
+        if (_productionOutput != null)
+        {
+            _productionOutput.Clear();
+            _productionOutput = null;
+        }
 
+        SelectedDataItems = null;
+
+    }
 }

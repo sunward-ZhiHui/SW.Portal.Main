@@ -8,6 +8,8 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable;
+
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -207,5 +209,38 @@
             toastService.ShowToast("Item SerialNo already exits", AC.SD.Core.Services.ToastLevel.Warning);
         }
         StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
+        if (_view_ApplicationMasterDetailsUom != null)
+        {
+            _view_ApplicationMasterDetailsUom.Clear();
+            _view_ApplicationMasterDetailsUom = null;
+
+        }
+        if (_view_ApplicationMasterDetailsPackSize != null)
+        {
+            _view_ApplicationMasterDetailsPackSize.Clear();
+            _view_ApplicationMasterDetailsPackSize = null;
+
+        }
+        if (_view_ApplicationMasterDetailsSupplyTo != null)
+        {
+            _view_ApplicationMasterDetailsSupplyTo.Clear();
+            _view_ApplicationMasterDetailsSupplyTo = null;
+
+        }
+        _navItems = null;
+        refCrossRefrence?.DisposeAsync();
+        refProductionInformation?.DisposeAsync();
     }
 }

@@ -11,6 +11,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
+@implements IAsyncDisposable
 
 
 
@@ -423,5 +424,21 @@
     void AddDivision()
     {
         NavigationManager.NavigateTo("masters/1/Plants/" + _selectedItems.PlantID);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_plants != null)
+        {
+            _plants.Clear();
+            _plants = null;
+        }
+        if (_stausItems != null)
+        {
+            _stausItems.Clear();
+            _stausItems = null;
+        }
+        SelectedDataItems = null;
+        _selectedItems = null;
+        _selectlst = null;
     }
 }

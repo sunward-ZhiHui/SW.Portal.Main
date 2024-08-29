@@ -18,6 +18,8 @@
 @inject HttpClient httpClient;
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
+@implements IAsyncDisposable
+
 <style>
     .TxtRed {
         color: red;
@@ -264,7 +266,7 @@
             AssignccIdss = ToOnlyList[0].CcIds != null ? ToOnlyList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
         }
 
-       
+
 
 
         var emailconlist = new EmailConversations
@@ -490,7 +492,7 @@
                     await updateDueDate(editModel);
                 }
 
-               
+
             }
             else
             {
@@ -502,7 +504,7 @@
         {
             await updateDueDate(editModel);
         }
-      
+
     }
     async Task updateDueDate(EmailTopics emailTopics)
     {
@@ -522,5 +524,22 @@
         var result = await Mediator.Send(UpdateReq);
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await onRefresh();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        //System.GC.Collect();
+        if (_emailTopicDueDate != null)
+        {
+            _emailTopicDueDate?.Clear();
+            _emailTopicDueDate = null;
+        }
+        if (_dataEditEamilTopics != null)
+        {
+
+            _dataEditEamilTopics = null;
+        }
+        _selectedItems = null;
+        RefSubAssignAll.DisposeAsync();
+        //GC.SuppressFinalize(this);
     }
 }

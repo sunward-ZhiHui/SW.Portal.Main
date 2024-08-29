@@ -6,6 +6,7 @@
 @using MediatR
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
+@implements IAsyncDisposable
 
 <style scoped>
     .subviewEmail .dxbl-grid-header-row {
@@ -104,5 +105,18 @@
         //await LoadData();
         // functionService.onSubViewEmailClick(rid);
         StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        //System.GC.Collect();
+        if (_forumTopicTo != null)
+        {
+            _forumTopicTo?.Clear();
+            _forumTopicTo = null;
+        }
+      
+        SubViewAllTopicId = null;
+      
+      //GC.SuppressFinalize(this);
     }
 }

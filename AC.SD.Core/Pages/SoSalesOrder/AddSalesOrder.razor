@@ -17,6 +17,8 @@
 @inject NavigationManager NavigationManager
 @page "/SalesOrder/AddSalesOrder"
 @page "/SalesOrder/AddSalesOrder/{SessionIds:guid}"
+@implements IAsyncDisposable;
+
 <style scoped>
 
     #customers {
@@ -451,5 +453,31 @@
         {
             e.CssClass = "alt-item";
         }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_salesOrderItems != null)
+        {
+            _salesOrderItems.Clear();
+            _salesOrderItems = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        if (_AllSoCustomer != null)
+        {
+            _AllSoCustomer.Clear();
+            _AllSoCustomer = null;
+        }
+        AccodianData = null;
+        soCustomer1 = null;
+        Data = null;
+        RefSalesOrderLine?.DisposeAsync();
     }
 }

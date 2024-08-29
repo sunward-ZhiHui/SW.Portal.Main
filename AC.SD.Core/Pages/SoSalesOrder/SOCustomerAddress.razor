@@ -8,6 +8,8 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IMediator Mediator
+@implements IAsyncDisposable;
+
 <div>
     <div class="row" style="text-align:center; margin-top: 10px;">
         <div class="col-md-6">
@@ -320,5 +322,32 @@
         BillingChecked = value;
         BillingEnabled = value;
     }
+    public async ValueTask DisposeAsync()
+    {
+        if (_addressItems != null)
+        {
+            _addressItems.Clear();
+            _addressItems = null;
 
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
+        if (_addressBillingItems != null)
+        {
+            _addressBillingItems.Clear();
+            _addressBillingItems = null;
+        }
+        if (_addressShippingItems != null)
+        {
+            _addressShippingItems.Clear();
+            _addressShippingItems = null;
+        }
+
+        CurrentShipping = null;
+        CurrentBilling= null;
+        _salesOrderItems = null;
+        _soBillingCusterAddress = null;
+        _soShippingCusterAddress = null;
+    }
 }

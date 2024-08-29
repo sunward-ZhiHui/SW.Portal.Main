@@ -16,6 +16,7 @@
 @inject IConfiguration Configuration
 @inject NavigationManager NavigationManager
 @using System.Text.Json
+@implements IAsyncDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -349,7 +350,7 @@
         var ststusupdate = await Mediator.Send(new StatusChangedQuery(id));
 
         await UpdateDataAsync();
-     //   _MyToDoList = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
+        //   _MyToDoList = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
 
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -357,5 +358,26 @@
         //var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         //var list = _MyToDoList.FirstOrDefault(f => f.ID == (long?)UniqueId);              
         //NavigationManager.NavigateTo($"ViewEmail/{list.SessionId}/Todo");
-    }   
+    }  
+    public async ValueTask DisposeAsync()
+    {
+        //System.GC.Collect();
+        if (_MyToDoList != null)
+        {
+            _MyToDoList?.Clear();
+            _MyToDoList = null;
+        }
+        if (_participant != null)
+        {
+            _participant?.Clear();
+            _participant = null;
+        }
+        _documents = null;
+        _DocumentsList = null;
+        _selectedItems = null;
+        CurrentTodoNotes = null;
+        
+
+        //GC.SuppressFinalize(this);
+    }
 }

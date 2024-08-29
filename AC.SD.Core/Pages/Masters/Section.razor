@@ -11,6 +11,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
 
 @inject NavigationManager NavigationManager
 
@@ -522,5 +523,34 @@
     void AddSubSection()
     {
         NavigationManager.NavigateTo("masters/4/section/" + _selectedItems.SectionId);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_departmentItems != null)
+        {
+            _departmentItems.Clear();
+            _departmentItems = null;
+        }
+        if (_stausItems != null)
+        {
+            _stausItems.Clear();
+            _stausItems = null;
+        }
+        if (_sectionItems != null)
+        {
+            _sectionItems.Clear();
+            _sectionItems = null;
+        }
+        if (_divisionsItems != null)
+        {
+            _divisionsItems.Clear();
+            _divisionsItems = null;
+        }
+       
+        SelectedDataItems = null;
+        _selectedItems = null;
+        _selectlst = null;
+        _selectdep = null;
+        _selectdivision = null;
     }
 }

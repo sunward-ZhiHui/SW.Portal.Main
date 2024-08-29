@@ -195,7 +195,7 @@
         }
         catch (Exception eq)
         {
-           // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+            // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
     public async ValueTask DisposeAsync()
@@ -206,8 +206,10 @@
             userGroupUsers = null;
 
 
-           // GC.Collect();
-           // GC.SuppressFinalize(this);
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
         }
+        SelectedUserGroupDataItems = null;
+        _selectedItems = null;
     }
 }

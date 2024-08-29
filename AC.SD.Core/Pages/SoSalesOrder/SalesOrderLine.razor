@@ -890,5 +890,25 @@
             // GC.Collect();
             // GC.SuppressFinalize(this);
         }
+        if (View_SalesOrderMasterPricingLineByItems != null)
+        {
+            View_SalesOrderMasterPricingLineByItems.Clear();
+            View_SalesOrderMasterPricingLineByItems = null;
+        }
+        if (_AllNavitems != null)
+        {
+            _AllNavitems.Clear();
+            _AllNavitems = null;
+        }
+        if(_viewSellingMethodItems != null)
+        {
+            _viewSellingMethodItems.Clear();
+            _viewSellingMethodItems = null;
+        }
+        salesOrderMasterPricingFromSalesModel = null;
+        SoSalesOrderItems = null;
+        SelectedDataItems = null;  
+        _selectedItems = null;
+        _selectedItems = null;
     }
 }

@@ -80,7 +80,7 @@
 
 
 @code {
-    
+
     [Parameter]
     public ResetPermissionModel? Data { get; set; }
     public List<DocumentUserRoleModel> DocumentUserRoleUsers { get; set; }
@@ -90,7 +90,7 @@
     bool DeleteDocumentUserRoleEnabled { get; set; } = false;
     bool UpdateDocumentUserRoleEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedDocumentUserRoleDataItems { get; set; }
-    
+
     private DocumentUserRoleModel _selectedItems;
     protected override async Task OnInitializedAsync()
     {
@@ -211,8 +211,10 @@
             DocumentUserRoleUsers = null;
 
 
-           // GC.Collect();
-           // GC.SuppressFinalize(this);
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
         }
+        SelectedDocumentUserRoleDataItems = null;
+        _selectedItems = null;
     }
 }

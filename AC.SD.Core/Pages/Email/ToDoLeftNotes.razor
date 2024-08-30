@@ -21,7 +21,10 @@
             <Items>
                 <DxMenuItem Text="@AddText" IconCssClass="fa fa-add" Click="@addNew"/>
                 <DxMenuItem Text="@EditText" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="@deleteText" IconCssClass="fa fa-remove" Click="@addLeftDelete" Enabled="@LeftDeleteEnabled" />
                 <DxMenu Visible="@Complete">
+             
+
                     <Items>
                        
                         <DxMenuItem Text="@CompleteText" IconCssClass="fa fa-check" Click="@addDelete" style="@CompeleteStyle" />
@@ -169,6 +172,22 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+
+<DxPopup @bind-Visible="@deletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     string NotesName { get; set; }
     string styleTreeDisplay = "width:100%";
@@ -181,6 +200,7 @@
     private string CompeleteStyle = "float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999;";
     private string AddText = "Add";
     private string EditText = "Edit";
+    private string deleteText = "Delete";
     private string CompleteText = "Complete";
     private string ReopenText = "Re-Open";
     private List<ToDoNotes>? _toDoNotes; 
@@ -193,9 +213,11 @@
     string? DeleteerrorMessage;
     string styleClass = "";
     private bool loading;
+    bool deletepopup { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
-    bool EditEnabled { get; set; } = false;   
+    bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    bool LeftDeleteEnabled { get; set; } = false;
     string SelectedGroup = "none";
     [Parameter]
     public Action<long> NotesId { get; set; }
@@ -225,9 +247,10 @@
             gridHeight = "height: calc(100vh - 350px);";
             AddText= "";
             EditText = "";
+            deleteText = "";
             CompleteText = "";
             ReopenText = "";
-            CompeleteStyle = "float: left; margin-bottom: -41px;  margin-left:100px; z-index: 9999;";
+            CompeleteStyle = "float: left; margin-bottom: -41px;  margin-left:140px; z-index: 9999;";
             //styleTreeDisplay = "width:10%";
         }
 
@@ -248,7 +271,7 @@
         PanelVisible = true;
 
         _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
-
+        _NotesLst = await Mediator.Send(new GetAllToDoNotes(applicationUser.UserID));
 
 
         PanelVisible = false;
@@ -341,7 +364,8 @@
                         TopicId = Topicid,
                         AddedDate = DateTime.Now,
                         ModifiedDate = DateTime.Now,
-                        SessionId = Guid.NewGuid()
+                        SessionId = Guid.NewGuid(),
+                        IsDelete = false
                     };
 
             try
@@ -377,6 +401,7 @@
                         ModifiedDate = DateTime.Now,
                         AddedDate = editModel.AddedDate,
                         SessionId = editModel.SessionId,
+                        IsDelete = false
 
                     };
 
@@ -391,6 +416,7 @@
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
+        deletepopup = false;
         PopupVisible = false;
         await UpdateDataAsync();
     }
@@ -398,6 +424,7 @@
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
+        deletepopup = false;
         IncompletePopup = false;
         PopupVisible = false;
         await UpdateDataAsync();
@@ -445,6 +472,7 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _toDoNotes.FirstOrDefault(f => f.ID == (long?)UniqueId);
         DeleteEnabled = true;
+        LeftDeleteEnabled = true;
         NotesId?.Invoke((long)UniqueId);
         if (_selectedItems.Completed == "Completed" )
         {
@@ -468,6 +496,7 @@
     {
         if (Grid != null)
         {
+            NotesName = "";
             Grid.StartEditNewRowAsync();
         }
 
@@ -481,13 +510,28 @@
         }
 
     }
+    void addDelete()
+    {
+        deletepopup = true;
+
+    }
+    public async void OnDelete()
+    {
+
+        var request = new GetAllDelete(_selectedItems.ID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        deletepopup = false;
+        StateHasChanged();
+    }
     void  onIncomplete()
     {
         IncompletePopup = true;
     }
-    void addDelete()
+    void addLeftDelete()
     {
-        Blukdeletepopup = true;
+        deletepopup = true;
     }
     async Task onInCompleteAction(long Id)
     {

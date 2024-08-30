@@ -47,6 +47,16 @@ namespace Application.Queries
             this.ID = ID;
         }
     }
+    public class GetAllDelete: PagedRequest, IRequest<long>
+    {
+        public long ID { get; set; }
+
+        public GetAllDelete(long ID)
+        {
+            this.ID =  ID;
+
+        }
+    }
     public class IncompleteTodoNoteQuery : PagedRequest, IRequest<long>
     {
         public long incompleteID { get; set; }

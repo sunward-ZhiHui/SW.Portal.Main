@@ -90,8 +90,8 @@ namespace SW.Portal.Solutions.Controllers
                         documentId = response.DocumentId;
                         //files = null;
                         //chunkMetadata = null;
-                        // System.GC.Collect();
-                        //GC.SuppressFinalize(this);
+                         System.GC.Collect();
+                        GC.SuppressFinalize(this);
                     }
                 }
             }
@@ -297,8 +297,8 @@ namespace SW.Portal.Solutions.Controllers
                     documents.SourceFrom = SourceFrom;
                     documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                     var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                    //System.GC.Collect();
-                    //GC.SuppressFinalize(this);
+                    System.GC.Collect();
+                    GC.SuppressFinalize(this);
                 }
             }
             catch (Exception e)
@@ -521,8 +521,8 @@ namespace SW.Portal.Solutions.Controllers
                         documents.SessionId = SessionId;
                         documents.FilePath = serverPath.Replace(Path.Combine(BaseDirectory, "Reports"), "");
                        var response = await _fileuploadqueryRepository.UpdateDynamicFormReportBySession(documents);
-                        //System.GC.Collect();
-                        //GC.SuppressFinalize(this);
+                        System.GC.Collect();
+                        GC.SuppressFinalize(this);
                     }
                 }
             }
@@ -623,8 +623,8 @@ namespace SW.Portal.Solutions.Controllers
                         documents.ProfileNo = profileNo;
                         documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                         var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                        //System.GC.Collect();
-                        //GC.SuppressFinalize(this);
+                        System.GC.Collect();
+                        GC.SuppressFinalize(this);
                         response.IsSuccess = true;
                         //response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
                         return response;

@@ -261,7 +261,7 @@
         {
             await _module.DisposeAsync();
         }
-        System.GC.Collect();
+       // System.GC.Collect();
         _ManuFactureProcessLines?.Clear();
         _categoryItems?.Clear();
         _actionItems?.Clear();
@@ -270,7 +270,7 @@
         Data = new ProductionActivityCheckedDetailsModel();
         _supportDocselectedFile?.Clear();
         _selectedItems = null;
-        GC.SuppressFinalize(this);
+       // GC.SuppressFinalize(this);
     }
     async Task onCopyPasteFileclick()
     {
@@ -451,7 +451,7 @@
     {
         if (string.IsNullOrEmpty(onShowMain))
         {
-            DisposeAsync();
+           // DisposeAsync();
             RevokeBack?.Invoke();
         }
         else

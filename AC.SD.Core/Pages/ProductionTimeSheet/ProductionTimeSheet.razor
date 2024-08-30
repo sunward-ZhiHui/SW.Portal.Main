@@ -1131,6 +1131,37 @@
             _poOrderDetails.Clear();
             _poOrderDetails = null;
         }
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        if (_productionActivities != null)
+        {
+            _productionActivities.Clear();
+            _productionActivities = null;
+        }
+        if (_ponumberActivities != null)
+        {
+            _ponumberActivities.Clear();
+            _ponumberActivities = null;
+        }
+        if (fileProfileTypeDocumentsAll != null)
+        {
+            fileProfileTypeDocumentsAll.Clear();
+            fileProfileTypeDocumentsAll = null;
+        }
+        FilterData = null;
+        FolderPathLists = null;
+        selectedFiles = null;
+        _documentsItems = null;
+        _selectedEditItems = null;
+        _selectedItems = null;
+        _selectedDocItems = null;
+        Data = new ProductionActivityRoutineAppModel();
+        _selectedDescriptionItems = new ProductionActivityRoutineAppModel();
+
+        RefToDoLeftNotes?.DisposeAsync();
     }
     // public void Dispose()
     // {

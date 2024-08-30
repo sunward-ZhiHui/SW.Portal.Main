@@ -8,6 +8,8 @@
 @using global::Core.EntityModels;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/simulationMidMonth"
+@implements IAsyncDisposable
+
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
 
@@ -710,5 +712,18 @@
             e.CssClass = "alt-item";
         }
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        _plantItems?.Clear();
+        _navMethodCodeModeltems?.Clear();
+        _simulationItems = null;
+        _versionItems  = null;
+    _salesCategoryItems  = null;
+        dateRangeModel = null;
+
+
+        //System.GC.Collect();
+        //GC.SuppressFinalize(this);
     }
 }

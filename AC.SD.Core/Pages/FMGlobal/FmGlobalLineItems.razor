@@ -613,5 +613,25 @@
             // GC.Collect();
             // GC.SuppressFinalize(this);
         }
+        if (navItemBatchNoItems != null)
+        {
+            navItemBatchNoItems.Clear();
+            navItemBatchNoItems = null;
+        }
+        if (_AllNavitems != null)
+        {
+            _AllNavitems.Clear();
+            _AllNavitems = null;
+        }
+        if (_viewCartonPackingItems != null)
+        {
+            _viewCartonPackingItems.Clear();
+            _viewCartonPackingItems = null;
+        }
+
+        SelectedDataItems = null;
+        SoSalesOrderItems = null;
+        _selectedItems = null;
+        _selectlst = null;
     }
 }

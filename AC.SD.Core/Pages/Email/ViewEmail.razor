@@ -145,7 +145,7 @@
                                                 
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />                                                    
                                                    
-                                                <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                    <DxMenuItem Text="Tags" Enabled="@isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                             </Items>
@@ -167,7 +167,7 @@
                                                 <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
 
                                                 <DxMenuItem Text="Group List" Enabled="@isEnabled" class="@((isMenuvisible == "AddGroupParticipants" ? "tActive": "taddgroupparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddGroupParticipants"))" />
-                                                <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                    <DxMenuItem Text="Tags" Enabled="@isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                 @*  <DxMenuItem>
@@ -2877,6 +2877,7 @@
     bool isUserGroup { get; set; } = false;
     bool isPage { get; set; } = false;
     bool isTodoEnabled { get; set; } = false;
+    bool isTagEnabled { get; set; } = false;
     bool isAddParticipant = false;
     bool isTags = false;
     bool isCommand = false;
@@ -3897,6 +3898,7 @@
         RTopicId = conversationList[0].TopicID;
         SelectedGroup = conversationList[0].TopicID.ToString();
         //await Task.Delay(1000); // Example asynchronous operation
+        onloadTagsList();
         await LoadReplyData();
         StateHasChanged();
     }    
@@ -4480,7 +4482,7 @@
                 _replyDiscussionList = null;
             }
 
-           await JSRuntime.InvokeAsync<string>("showLoading");
+            await JSRuntime.InvokeAsync<string>("showLoading");
             _replyDiscussionList = await Mediator.Send(new GetOnReplyDiscussionList(id, applicationUser.UserID));
             await JSRuntime.InvokeAsync<string>("hideLoading");
 
@@ -4724,6 +4726,7 @@
 
             isEnabled = true;
             isTodoEnabled = false;
+            isTagEnabled = true;
             isEllipsis = true;
             isCommand = true;
             IsConHistory = true;            
@@ -4738,7 +4741,7 @@
         IsFileValidUser = true;        
         Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
-       
+
 
         await OnMenuItemClick(isMenuvisible);
 
@@ -4801,6 +4804,7 @@
 
         isEnabled = true;
         isTodoEnabled = true;
+        isTagEnabled = false;
         isEllipsis = true;
         isCommand = true;
         // _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
@@ -4907,6 +4911,7 @@
 
         isEnabled = true;
         isTodoEnabled = true;
+        isTagEnabled = false;
         isEllipsis = true;
         isCommand = true;
         //_participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));

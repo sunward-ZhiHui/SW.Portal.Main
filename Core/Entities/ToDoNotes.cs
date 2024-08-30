@@ -12,8 +12,7 @@ namespace Core.Entities
     public class ToDoNotes : BaseEntity
     {
         [Key]
-        public long ID { get; set; }
-        [Required(ErrorMessage = "Please Enter Notes.")]
+        public long ID { get; set; }       
         public string? Notes { get; set; }  
         public string? Completed { get; set; }
         public long? TopicId { get; set; }

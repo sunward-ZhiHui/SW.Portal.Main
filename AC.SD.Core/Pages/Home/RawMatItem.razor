@@ -13,6 +13,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using System.ComponentModel.DataAnnotations
 @page "/RawItem"
+@implements IAsyncDisposable;
 
 @* <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
@@ -242,5 +243,14 @@
         await jsRuntime.InvokeAsync<string>("showLoading");
         var result = await Mediator.Send(new NavCompanyItemQuery(DataItem.PlantID));
         await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if(_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+            Types = null;
     }
 }

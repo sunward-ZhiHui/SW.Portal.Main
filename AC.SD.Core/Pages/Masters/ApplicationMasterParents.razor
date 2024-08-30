@@ -953,7 +953,7 @@
     }
     async Task UpdateDataChildAsync()
     {
-       
+
         _applicationChildItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedItems.ApplicationMasterChildId));
 
         if (_applicationChildItems.Count > 0)
@@ -1126,7 +1126,7 @@
     }
     async Task UpdateDataChildChildAsync()
     {
-       
+
         _applicationChildChildItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedChildItems.ApplicationMasterChildId));
 
         if (_applicationChildChildItems.Count > 0)
@@ -1292,11 +1292,33 @@
         {
             _applicationMasterItems.Clear();
             _applicationMasterItems = null;
-
-
-           // GC.Collect();
-           // GC.SuppressFinalize(this);
         }
+        if (_applicationMasterAllItems != null)
+        {
+            _applicationMasterAllItems.Clear();
+            _applicationMasterAllItems = null;
+        }
+        if (_openAccessUserLink != null)
+        {
+            _openAccessUserLink.Clear();
+            _openAccessUserLink = null;
+        }
+
+        if (_applicationMasterAccess != null)
+        {
+            _applicationMasterAccess.Clear();
+            _applicationMasterAccess = null;
+        }
+
+        _selectedItems = null;
+        SelectedDataItems = null;
+        _selectItems = null;
+        _selectedChildItems = null;
+        SelectedMasterDataItems = null;
+        SelectedMasterChildDataItems = null;
+        _selectedChildChildItems = null;
+        SelectedMasterChildChildDataItems = null;
+
     }
     private void ClearList()
     {
@@ -1305,22 +1327,21 @@
             _applicationMasterDetails.Clear();
             _applicationMasterDetails = null;
 
-            // Optionally, force garbage collection
-           
         }
         if(_applicationChildItems != null)
         {
             _applicationChildItems.Clear();
             _applicationChildItems = null;
-            
+
         }
         if(_applicationChildChildItems != null)
         {
-                _applicationChildChildItems.Clear();
-                _applicationChildChildItems = null;
+            _applicationChildChildItems.Clear();
+            _applicationChildChildItems = null;
         }
        
-       // GC.Collect();
+      
+        // GC.Collect();
        // GC.WaitForPendingFinalizers();
        // GC.Collect();
     }

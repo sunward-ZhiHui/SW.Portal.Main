@@ -24,6 +24,7 @@
 @using System;
 @inject NavigationManager NavigationManager
 @inject IJSRuntime jsRuntime
+@implements IAsyncDisposable
 
 <style>
     .dxuc-upload-icon {
@@ -384,7 +385,7 @@
         EnableUpload = true;
     }
 
-   
+
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
@@ -484,7 +485,7 @@
                     };
                 try
                 {
-                   
+
                     var ans = await Mediator.Send(UpdateReq);
                     if (UpdateReq != null)
                     {
@@ -507,7 +508,7 @@
 
         }
         await UpdateDataAsync();
-       
+
         await jsRuntime.InvokeAsync<string>("ReloadUrl");
 
 
@@ -518,7 +519,7 @@
         //NavigationManager.NavigateTo("ReportViewer/" + fileName + "");
         await jsRuntime.InvokeVoidAsync("window.open", "reportFileUploads/ReportViewer/" + fileName + "", "_blank");
     }
-  
+
 
     void EditFile()
     {
@@ -577,5 +578,17 @@
     {
         _sessionId = SessionID;
         uploadComponent.UploadAllFiles();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_reportdocuments != null)
+        {
+            _reportdocuments.Clear();
+            _reportdocuments = null;
+        }
+        SelectedFiles = null;
+        SelectedDataItems = null;
+        _selectedItems = null;
+
     }
 }

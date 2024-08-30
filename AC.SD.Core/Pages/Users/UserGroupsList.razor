@@ -415,11 +415,19 @@
         {
             _userGroupLists.Clear();
             _userGroupLists = null;
-
-
-           // GC.Collect();
-            //GC.SuppressFinalize(this);
         }
+        if (_usersList != null)
+        {
+            _usersList.Clear();
+            _usersList = null;
+        }
+        if (_stausItems != null)
+        {
+            _stausItems.Clear();
+            _stausItems = null;
+        }
+        SelectedDataItems = null;
+        _selectedItems = null;
     }
     // public void Dispose()
     // {

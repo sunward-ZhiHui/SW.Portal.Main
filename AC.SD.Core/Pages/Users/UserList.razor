@@ -182,10 +182,10 @@
         if (_employeeItems.Count > 0)
         {
             await jsRuntime.InvokeAsync<string>("showLoading");
-                foreach (var employee in _employeeItems)
-                {
-                    var result = await FirebaseSync.CheckAddAsync(employee.UserCode, employee.FirstName);
-                }
+            foreach (var employee in _employeeItems)
+            {
+                var result = await FirebaseSync.CheckAddAsync(employee.UserCode, employee.FirstName);
+            }
             await jsRuntime.InvokeAsync<string>("hideLoading");
             toastService.ShowToast("User Details Sync Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
@@ -213,7 +213,7 @@
                 toastService.ShowToast("Account Locked Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 await UpdateDataAsync();
             }
-            
+
         }
     }
     private async void ResetPasswords(long? UserID)
@@ -333,9 +333,10 @@
             _employeeItems = null;
 
 
-           // GC.Collect();
-           // GC.SuppressFinalize(this);
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
         }
+        _selectedItems = null;
     }
     //private void EditPerson(ViewEmployee context)
     //{

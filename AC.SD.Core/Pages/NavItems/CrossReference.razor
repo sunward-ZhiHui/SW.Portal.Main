@@ -10,6 +10,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable;
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -498,5 +499,30 @@
             DeleteEnabled = true;
         }
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_navCrossReferenceItems != null)
+        {
+            _navCrossReferenceItems.Clear();
+            _navCrossReferenceItems = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
+        if (_AllSoCustomer != null)
+        {
+            _AllSoCustomer.Clear();
+            _AllSoCustomer = null;
+        }
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        SelectedDataItems = null;
+        _selectedItems = null;
+        _selectlst = null;
     }
 }

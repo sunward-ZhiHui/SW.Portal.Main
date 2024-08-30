@@ -7,6 +7,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@implements IAsyncDisposable
 
 @inject IJSRuntime jsRuntime
 @using global::Core.Repositories.Query;
@@ -534,5 +535,34 @@
     void AddDesignation()
     {
         NavigationManager.NavigateTo("masters/5/subsection/" + _selectedItems.SubSectionId);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_departmentItems != null)
+        {
+            _departmentItems.Clear();
+            _departmentItems = null;
+        }
+        if (_stausItems != null)
+        {
+            _stausItems.Clear();
+            _stausItems = null;
+        }
+        if (_sectionItems != null)
+        {
+            _sectionItems.Clear();
+            _sectionItems = null;
+        }
+        if (_subsectionItems != null)
+        {
+            _subsectionItems.Clear();
+            _subsectionItems = null;
+        }
+
+        SelectedDataItems = null;
+        _selectedItems = null;
+        _selectlst = null;
+        _selectdep = null;
+        _selectsec = null;
     }
 }

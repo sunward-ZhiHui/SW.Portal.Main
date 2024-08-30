@@ -43,7 +43,7 @@
 </DxGrid> 
 @code {
     private List<DynamicForm>? _dynamicFormdata;
-  
+
     IGrid? refDynamicData { get; set; }
     string SelectedReplyId = "none";
     public ApplicationUser? applicationUser { get; private set; }
@@ -53,7 +53,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _dynamicFormdata = await Mediator.Send(new DynamicApprovalListOne());
     }
-  
+
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -65,13 +65,14 @@
     private async void onSubViewEmailClick(string RId)
     {
         SelectedReplyId = RId;
-       
+
         StateHasChanged();
     }
     public async ValueTask DisposeAsync()
     {
         //System.GC.Collect();
         _dynamicFormdata?.Clear();
+        _dynamicFormdata = null;
         //GC.SuppressFinalize(this);
     }
 }

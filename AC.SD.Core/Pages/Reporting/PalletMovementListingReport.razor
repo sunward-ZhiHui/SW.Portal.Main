@@ -9,6 +9,8 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
+@implements IAsyncDisposable
+
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -111,6 +113,18 @@
         args.Handled = true;
 
 
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_viewFmglobalLineItem != null)
+        {
+            _viewFmglobalLineItem.Clear();
+            _viewFmglobalLineItem = null;
+        }
+        
+        SelectedDataItems = null;
+       
 
     }
 }

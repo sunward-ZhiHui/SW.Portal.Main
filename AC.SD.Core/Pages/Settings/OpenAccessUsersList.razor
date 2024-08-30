@@ -4,6 +4,7 @@
 @inject IMediator Mediator
 @using Application.Queries;
 @inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable;
 
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
@@ -206,5 +207,16 @@
             Blukdeletepopup = false;
             toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_documentUserRoleLists != null)
+        {
+            _documentUserRoleLists.Clear();
+            _documentUserRoleLists = null;
+        }
+        SelectedDataItems = null;
+        _selectedItems = null;
+        documentUserRoleModel = null;
     }
 }

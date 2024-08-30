@@ -9,7 +9,9 @@
 @using global::Core.Repositories.Query;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable;
 <div style="width:100%;">
+
     <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabSecIndex" TabsPosition="TabsPosition.Top" TabClick="OnTabClick">
         <DxTabPage Text="User" TabIconCssClass="tabs-icon-home tabs-icon">
             <div class="card-body">
@@ -316,5 +318,27 @@
     }
     void HandleInvalidSubmit()
     {
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_usersList != null)
+        {
+            _usersList.Clear();
+            _usersList = null;
+        }
+        if (_userGroupsList != null)
+        {
+            _userGroupsList.Clear();
+            _userGroupsList = null;
+        }
+        if (_levelMasterLists != null)
+        {
+            _levelMasterLists.Clear();
+            _levelMasterLists = null;
+        }
+        _openAccessUser = null;
+        documentPermissionData = null;
+        Data = null;
+        refDocumentUserRoleListsUser?.DisposeAsync();
     }
 }

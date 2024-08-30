@@ -10,6 +10,7 @@
 @inject IJSRuntime jsRuntime
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
 
 
 <div class="">
@@ -547,5 +548,49 @@
         _ComAssetCatalogMaster = _selectedItems;
         PopupForwardToVisible = true;
         StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        if (_applicationMasterChildListItems != null)
+        {
+            _applicationMasterChildListItems.Clear();
+            _applicationMasterChildListItems = null;
+        }
+        if (_applicationMasterChildItems != null)
+        {
+            _applicationMasterChildItems.Clear();
+            _applicationMasterChildItems = null;
+        }
+        if (_applicationMasterChildSectionItems != null)
+        {
+            _applicationMasterChildSectionItems.Clear();
+            _applicationMasterChildSectionItems = null;
+        }
+        if (_assetCatalogMasters != null)
+        {
+            _assetCatalogMasters.Clear();
+            _assetCatalogMasters = null;
+        }
+        if (_assetModelItems != null)
+        {
+            _assetModelItems.Clear();
+            _assetModelItems = null;
+        }
+        if (_assetUomItems != null)
+        {
+            _assetUomItems.Clear();
+            _assetUomItems = null;
+        }
+        _ComAssetCatalogMaster = null;
+        _applicationMasterChildSelectItems = null;
+        _applicationMasterChildChildSelectItems = null;
+        _selectedItems = null;
+        SelectedDataItems = null;
+        _selectlst = null;
     }
 }

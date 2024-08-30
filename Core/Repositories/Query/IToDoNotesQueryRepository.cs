@@ -16,6 +16,7 @@ namespace Core.Repositories.Query
         Task<long> Insert(ToDoNotes ToDoNotes);
         Task<long> UpdateAsync(ToDoNotes ToDoNotes);
         Task<long> DeleteAsync(long id);
+        Task<long> Delete(long id);
         Task <long> IncompleteAsync( long incompleteid);
     }
 }

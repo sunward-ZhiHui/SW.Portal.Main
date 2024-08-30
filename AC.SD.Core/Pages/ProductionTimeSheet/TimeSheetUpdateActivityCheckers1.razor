@@ -445,5 +445,17 @@
             _supportDocselectedFile.Clear();
             _supportDocselectedFile = null;
         }
+        if (_ActivityStatusItem != null)
+        {
+            _ActivityStatusItem.Clear();
+            _ActivityStatusItem = null;
+        }
+        if (_ActivityResult != null)
+        {
+            _ActivityResult.Clear();
+            _ActivityResult = null;
+        }
+        _selectedItems = null;
+        Data = null;
     }
 }

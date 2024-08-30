@@ -101,6 +101,21 @@
     }
     public async ValueTask DisposeAsync()
     {
-       
+        if (_ManuFactureProcessLines != null)
+        {
+            _ManuFactureProcessLines.Clear();
+            _ManuFactureProcessLines = null;
+        }
+        if (_categoryItems != null)
+        {
+            _categoryItems.Clear();
+            _categoryItems = null;
+        }
+        if (_actionItems != null)
+        {
+            _actionItems.Clear();
+            _actionItems = null;
+        }
+        Data = null;
     }
 }

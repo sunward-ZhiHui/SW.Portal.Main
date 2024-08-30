@@ -935,12 +935,23 @@
     }
     public async ValueTask DisposeAsync()
     {
-        _subSectionItems.Clear();
-        _plantItems.Clear();
-        _divisionItems.Clear();
-        _divisionItems.Clear();
-        _departmentItems.Clear();
-        _sectionItems.Clear();     
+        _subSectionItems?.Clear();
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        fileProfileTypeDocumentsAll?.Clear();
+
+        fileProfileTypeModels = null;
+        Data = null;
+        TempSetIds = null;
+        SuccessFiles = null;
+        FailedFiles = null;
+        documentProfileNoSeriesData = null;
+        SelectedFiles = null;
+
+        refUploadFileImagesToPdf?.DisposeAsync();
         // System.GC.Collect();
        // GC.SuppressFinalize(this);
     }

@@ -1306,6 +1306,27 @@
             _AppLines.Clear();
             _AppLines = null;
         }
+        _productionActivities.Clear();
+        _ponumberActivities.Clear();
+        _poOrderDetails.Clear();
+        _poOrderPassDetails.Clear();
+
+        fileProfileTypeDocumentsAll.Clear();
+        _ActivityStatusItem.Clear();
+        _ActivityMaster.Clear();
+        _ActivityResult.Clear();
+        _categoryItems.Clear();
+        _actionItems.Clear();
+        _ManuFactureProcessLines.Clear();
+        _selectedItems = null;
+        _selectedEditItems = null;
+        _selectedDescriptionItems = null;
+        _documentsItems = null;
+        selectedFiles = null;
+        FolderPathLists = null;
+        FilterData = null;
+        Data = null;
+        RefAddRoutinePopupApp?.DisposeAsync();
         // System.GC.Collect();
        // GC.SuppressFinalize(this);
     }

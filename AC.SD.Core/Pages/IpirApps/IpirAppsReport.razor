@@ -499,7 +499,18 @@
             _dynamicForm.Clear();
             _dynamicForm = null;
         }
-        
+        if (fileProfileTypeDocumentsAll != null)
+        {
+            fileProfileTypeDocumentsAll.Clear();
+            fileProfileTypeDocumentsAll = null;
+        }
+        FolderPathLists = null;
+        _selectedDocItems = null;
+        _documentsItems = null;
+        selectedFiles = null;
+        _selectedItems =  null;
+        _selectedEditItems = null;
+        RefToDoLeftNotes?.DisposeAsync();
     }
     // public void Dispose()
     // {

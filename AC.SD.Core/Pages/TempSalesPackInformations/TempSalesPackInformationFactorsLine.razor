@@ -9,7 +9,7 @@
 @inject ClipboardService ClipboardService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
-@implements IDisposable
+@implements IAsyncDisposable
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         @if (isMainGrid == true)
@@ -303,8 +303,25 @@
         }
 
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
+
+        if (tempSalesPackInformationFactorItems != null)
+        {
+            tempSalesPackInformationFactorItems.Clear();
+            tempSalesPackInformationFactorItems = null;
+        }
+        if (_documentProfileNoList != null)
+        {
+            _documentProfileNoList.Clear();
+            _documentProfileNoList = null;
+        }
+        if (_navItemLists != null)
+        {
+            _navItemLists.Clear();
+            _navItemLists = null;
+        }
+        _selectedItems = null;
         //System.GC.Collect();
 //GC.SuppressFinalize(this);
     }

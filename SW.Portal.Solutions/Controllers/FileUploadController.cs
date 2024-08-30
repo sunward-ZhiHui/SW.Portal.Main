@@ -1,15 +1,31 @@
 ﻿using Core.Entities;
 using Core.EntityModels;
 using Core.Repositories.Query;
+using DevExpress.DocumentServices.ServiceModel.DataContracts;
+using DevExpress.Xpo;
+using DevExpress.XtraReports;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Edm;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Web;
 using System.Text.Json;
 using iText.IO.Image;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
+using AC.SD.Core.Data;
+using Microsoft.AspNetCore.SignalR;
+using Plugin.Firebase.Firestore;
+using System.IO;
 using SW.Portal.Solutions.Models;
+using AC.SD.Core.Pages.Masters;
+using Grpc.Core;
+using AC.SD.Core.Pages.DMS;
 using Application.Queries;
 using MediatR;
+using Google.Cloud.Firestore;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -22,7 +38,7 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IReportFileUploadsQueryRepository _fileuploadqueryRepository;
         private readonly IMediator _mediator;
         private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
-        public FileUploadController(IWebHostEnvironment host, IDocumentsQueryRepository documentsqueryrepository, IReportFileUploadsQueryRepository fileuploadqueryRepository,  IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository, IMediator mediator)
+        public FileUploadController(IWebHostEnvironment host, IDocumentsQueryRepository documentsqueryrepository, IReportFileUploadsQueryRepository fileuploadqueryRepository, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository, IMediator mediator)
         {
             _hostingEnvironment = host;
             _documentsqueryrepository = documentsqueryrepository;
@@ -32,7 +48,7 @@ namespace SW.Portal.Solutions.Controllers
         }
         [HttpPost]
         [Route("UploadDocumentsBySession")]
-        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId, bool? IsFileSession, string? SourceFrom,long? FileProfileId)
+        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId, bool? IsFileSession, string? SourceFrom, long? FileProfileId)
         {
             long documentId = 0;
             // Handling Upload with Chunks
@@ -82,7 +98,7 @@ namespace SW.Portal.Solutions.Controllers
                         documents.IsTemp = true;
                         documents.FileName = metaDataObject.FileName;
                         documents.ContentType = ext.ToLower() == "msg" ? "application/octet-stream" : metaDataObject.FileType;
-                        documents.FileSize =  metaDataObject.FileSize;
+                        documents.FileSize = metaDataObject.FileSize;
                         documents.SourceFrom = SourceFrom;
                         documents.SwProfileTypeId = FileProfileId;
                         documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
@@ -90,8 +106,8 @@ namespace SW.Portal.Solutions.Controllers
                         documentId = response.DocumentId;
                         //files = null;
                         //chunkMetadata = null;
-                        // System.GC.Collect();
-                        //GC.SuppressFinalize(this);
+                        System.GC.Collect();
+                        GC.SuppressFinalize(this);
                     }
                 }
             }
@@ -228,8 +244,8 @@ namespace SW.Portal.Solutions.Controllers
                         documents.FilePath = serverPath.Replace(Path.Combine(BaseDirectory, "Reports"), "");
                         var response = await _fileuploadqueryRepository.InsertCreateReportDocumentBySession(documents);
                         ReportdocumentId = response.ReportDocumentID;
-                        //System.GC.Collect();
-                        //GC.SuppressFinalize(this);
+                        System.GC.Collect();
+                        GC.SuppressFinalize(this);
                     }
                 }
             }
@@ -263,10 +279,10 @@ namespace SW.Portal.Solutions.Controllers
                     Document document = new Document(pdfDocument);
                     int i = 0;
                     foreach (var f in files.Files)
-                    {                        
+                    {
                         var file = f;
                         var fs = file.OpenReadStream();
-                        var br = new BinaryReader(fs);                        
+                        var br = new BinaryReader(fs);
                         var filePath = Path.Combine(serverPaths, file.FileName);
                         Byte[] documentByte = br.ReadBytes((Int32)fs.Length);
                         var image = new Image(ImageDataFactory.Create(documentByte));
@@ -297,8 +313,8 @@ namespace SW.Portal.Solutions.Controllers
                     documents.SourceFrom = SourceFrom;
                     documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                     var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                    //System.GC.Collect();
-                    //GC.SuppressFinalize(this);
+                    System.GC.Collect();
+                    GC.SuppressFinalize(this);
                 }
             }
             catch (Exception e)
@@ -327,7 +343,7 @@ namespace SW.Portal.Solutions.Controllers
                     response.Message = "No file uploaded.";
                     return response;
                 }
-                
+
                 var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", SessionId.ToString());
                 if (!Directory.Exists(serverPaths))
                 {
@@ -372,7 +388,7 @@ namespace SW.Portal.Solutions.Controllers
             }
         }
         [HttpPost("MobileFileProfileType")]
-      
+
         public async Task<ResponseModel> MobileFileProfileType([FromForm] Models.FileProfileTypeModel value)
         {
             ResponseModel response = new ResponseModel();
@@ -396,13 +412,13 @@ namespace SW.Portal.Solutions.Controllers
 
                 // var serverPaths = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString());
 
-                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\"+ value.SessionId.ToString();
+                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + value.SessionId.ToString();
                 if (!Directory.Exists(serverPaths))
                 {
                     Directory.CreateDirectory(serverPaths);
                 }
 
-                 var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
+                var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
                 var FileSessionID = FileProfileSessionID.SessionID;
                 Guid? FileNameSessionID = Guid.NewGuid();
                 if (FileSessionID != null)
@@ -425,22 +441,22 @@ namespace SW.Portal.Solutions.Controllers
 
 
                 // var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString(), @"\", FileSessionID, ".", fileExtension);
-                var serverPath = serverPaths+@"\" + FileSessionID.ToString()+fileExtension; 
+                var serverPath = serverPaths + @"\" + FileSessionID.ToString() + fileExtension;
 
-              //  var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString(), FileSessionID.ToString(), fileExtension);
+                //  var serverPath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppUpload", "Documents", value.SessionId.ToString(), FileSessionID.ToString(), fileExtension);
                 var documentNoSeriesModel = new DocumentNoSeriesModel
                 {
                     AddedByUserID = value.UserID,
                     StatusCodeID = 710,
-                ProfileID = value.ProfileId,
-                PlantID = value.PlantId,
-                DepartmentId = value.DepartmentId,
-                SectionId = value.SectionId,
-                SubSectionId = value.SubSectionId,
-                DivisionId = value.DivisionId,
+                    ProfileID = value.ProfileId,
+                    PlantID = value.PlantId,
+                    DepartmentId = value.DepartmentId,
+                    SectionId = value.SectionId,
+                    SubSectionId = value.SubSectionId,
+                    DivisionId = value.DivisionId,
 
-            };
-            var  profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
+                };
+                var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
                 Documents documents = new Documents();
                 documents.UploadDate = DateTime.Now;
                 documents.AddedByUserId = value.addedByUserId;
@@ -520,9 +536,9 @@ namespace SW.Portal.Solutions.Controllers
                         documents.FileSize = files.Length;
                         documents.SessionId = SessionId;
                         documents.FilePath = serverPath.Replace(Path.Combine(BaseDirectory, "Reports"), "");
-                       var response = await _fileuploadqueryRepository.UpdateDynamicFormReportBySession(documents);
-                        //System.GC.Collect();
-                        //GC.SuppressFinalize(this);
+                        var response = await _fileuploadqueryRepository.UpdateDynamicFormReportBySession(documents);
+                        System.GC.Collect();
+                        GC.SuppressFinalize(this);
                     }
                 }
             }
@@ -549,88 +565,88 @@ namespace SW.Portal.Solutions.Controllers
                 }
 
                 var file = Request.Form.Files;
-                if (file == null )
+                if (file == null)
                 {
                     response.IsSuccess = false;
                     response.Message = "No file uploaded.";
                     return response;
                 }
 
-              
-                    var sessionID = value.SessionId;
-                    var addedByUserId = value.UserID;
-                    var SourceFrom = "FileProfile";
-                    var ChangeNewFileName = value.NewFilename;
-                    var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + sessionID + @"\";
-                    string fileName = sessionID + ".pdf";
-                    var serverFilePath = serverPaths + fileName;
-                    if (!System.IO.Directory.Exists(serverPaths))
+
+                var sessionID = value.SessionId;
+                var addedByUserId = value.UserID;
+                var SourceFrom = "FileProfile";
+                var ChangeNewFileName = value.NewFilename;
+                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + sessionID + @"\";
+                string fileName = sessionID + ".pdf";
+                var serverFilePath = serverPaths + fileName;
+                if (!System.IO.Directory.Exists(serverPaths))
+                {
+                    System.IO.Directory.CreateDirectory(serverPaths);
+                }
+                using (var memoryStream = new MemoryStream())
+                {
+
+                    PdfDocument pdfDocument = new PdfDocument(new PdfWriter(memoryStream));
+                    Document document = new Document(pdfDocument);
+                    int i = 0;
+                    foreach (var f in file)
                     {
-                        System.IO.Directory.CreateDirectory(serverPaths);
+                        var files = f;
+                        var fs = files.OpenReadStream();
+                        var br = new BinaryReader(fs);
+                        var filePath = Path.Combine(serverPaths, files.FileName);
+                        Byte[] documentByte = br.ReadBytes((Int32)fs.Length);
+                        var image = new Image(ImageDataFactory.Create(documentByte));
+                        pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
+                        image.SetFixedPosition(i + 1, 0, 0);
+                        document.Add(image);
+                        i++;
+
+                        //using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        //{
+                        //    await file.CopyToAsync(fileStream);
+                        //}
                     }
-                    using (var memoryStream = new MemoryStream())
+                    pdfDocument.Close();
+                    byte[] fileData = memoryStream.ToArray();
+                    var fileSize = fileData.Length;
+                    await System.IO.File.WriteAllBytesAsync(serverFilePath, fileData);
+                    var documentNoSeriesModel = new DocumentNoSeriesModel
                     {
+                        AddedByUserID = value.UserID,
+                        StatusCodeID = 710,
+                        ProfileID = value.ProfileId,
+                        PlantID = value.PlantId,
+                        DepartmentId = value.DepartmentId,
+                        SectionId = value.SectionId,
+                        SubSectionId = value.SubSectionId,
+                        DivisionId = value.DivisionId,
 
-                        PdfDocument pdfDocument = new PdfDocument(new PdfWriter(memoryStream));
-                        Document document = new Document(pdfDocument);
-                        int i = 0;
-                        foreach (var f in file)
-                        {
-                            var files = f;
-                            var fs = files.OpenReadStream();
-                            var br = new BinaryReader(fs);
-                            var filePath = Path.Combine(serverPaths, files.FileName);
-                            Byte[] documentByte = br.ReadBytes((Int32)fs.Length);
-                            var image = new Image(ImageDataFactory.Create(documentByte));
-                            pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
-                            image.SetFixedPosition(i + 1, 0, 0);
-                            document.Add(image);
-                            i++;
-
-                            //using (var fileStream = new FileStream(filePath, FileMode.Create))
-                            //{
-                            //    await file.CopyToAsync(fileStream);
-                            //}
-                        }
-                        pdfDocument.Close();
-                        byte[] fileData = memoryStream.ToArray();
-                        var fileSize = fileData.Length;
-                        await System.IO.File.WriteAllBytesAsync(serverFilePath, fileData);
-                        var documentNoSeriesModel = new DocumentNoSeriesModel
-                        {
-                            AddedByUserID = value.UserID,
-                            StatusCodeID = 710,
-                            ProfileID = value.ProfileId,
-                            PlantID = value.PlantId,
-                            DepartmentId = value.DepartmentId,
-                            SectionId = value.SectionId,
-                            SubSectionId = value.SubSectionId,
-                            DivisionId = value.DivisionId,
-
-                        };
+                    };
                     var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
                     Documents documents = new Documents();
-                        documents.UploadDate = DateTime.Now;
-                        documents.AddedByUserId = addedByUserId;
-                        documents.AddedDate = DateTime.Now;
-                        documents.SessionId = sessionID;
-                        documents.IsLatest = true;
-                        documents.IsTemp = true;
-                        documents.FileName = ChangeNewFileName + ".pdf";
-                        documents.ContentType = "application/pdf";
-                        documents.FileSize = fileSize;
-                        documents.SourceFrom = SourceFrom;
-                        documents.ProfileNo = profileNo;
-                        documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
-                        var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-                        //System.GC.Collect();
-                        //GC.SuppressFinalize(this);
-                        response.IsSuccess = true;
-                        //response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
-                        return response;
-                    }
-                
-                
+                    documents.UploadDate = DateTime.Now;
+                    documents.AddedByUserId = addedByUserId;
+                    documents.AddedDate = DateTime.Now;
+                    documents.SessionId = sessionID;
+                    documents.IsLatest = true;
+                    documents.IsTemp = true;
+                    documents.FileName = ChangeNewFileName + ".pdf";
+                    documents.ContentType = "application/pdf";
+                    documents.FileSize = fileSize;
+                    documents.SourceFrom = SourceFrom;
+                    documents.ProfileNo = profileNo;
+                    documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                    var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+                    System.GC.Collect();
+                    GC.SuppressFinalize(this);
+                    response.IsSuccess = true;
+                    //response.Message = $"File uploaded successfully. Content Type: {contentType}, File size: {fileSize} bytes, File extension: {fileExtension}";
+                    return response;
+                }
+
+
             }
             catch (Exception ex)
             {

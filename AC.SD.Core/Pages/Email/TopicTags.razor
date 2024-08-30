@@ -83,14 +83,13 @@
                     <DxComboBox Data="@_groupTagItems"
                                 NullText="Select Group..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                    SearchMode="ListSearchMode.AutoSearch"
-                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterChildId"
                                 Enabled="@isEnabled"
-                                 Value="@selectGroupItems"
-                                    ValueExpression="@(() => selectGroupItems )"
-                              AllowUserInput = "true"
+                                Value="@selectGroupItems"
+                                ValueExpression="@(() => selectGroupItems )"                             
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
                                 ShowValidationIcon="true">
@@ -226,14 +225,19 @@
     }
     async void GroupTagChanged(long? ApplicationMasterChildId)
     {
-        if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1)
+        if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1 && ApplicationMasterChildId != 0)
         {
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
         }
         else
         {
+            selectGroupItems = null;
+            _categoryTagItems = null;
             selectcategory = null;
+            _actionTagItems = null;
         }
+
+        StateHasChanged();
     }
     void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
@@ -248,6 +252,8 @@
         {
             CategoryTagChange(-1);
         }
+
+        StateHasChanged();
     }
     async void CategoryTagChange(long? ApplicationMasterChildID)
     {
@@ -257,8 +263,13 @@
         }
         else
         {
-            _selectedItems.ActionTag = null;
+            selectcategory = null;
+            _selectedItems.CategoryTag = null;
+            _actionTagItems = null;
+            //_selectedItems.ActionTag = null;
         }
+
+        StateHasChanged();
     }
 
 
@@ -289,7 +300,7 @@
         if (_topicCategorys.Count > 0)
         {
             _selectedItems = _topicCategorys.FirstOrDefault();
-            EditEnabled = true;            
+            EditEnabled = false;            
             AddEnabled = false;
             StateHasChanged();
         }
@@ -374,9 +385,18 @@
         {
             editModel.GroupTag = selectGroupItems.ApplicationMasterChildId;
         }
+        else
+        {
+            editModel.GroupTag = null;
+        }
+
         if (selectcategory != null)
         {
             editModel.CategoryTag = selectcategory.ApplicationMasterChildId;
+        }
+        else
+        {
+            editModel.CategoryTag = null;
         }
         if (e.IsNew)
         {
@@ -529,7 +549,7 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _topicCategorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
-      
+
 
         if (_selectedItems.IsTagDelete.GetValueOrDefault(false))
         {
@@ -550,7 +570,13 @@
 
     }
     void addNew()
-    {        
+    {
+        _selectedItems = null;
+        selectcategory = null;
+        selectGroupItems = null;
+        _categoryTagItems = null;    
+        _actionTagItems = null;
+        othersTagName = "";
 
         if (Grid != null)
         {
@@ -564,7 +590,7 @@
 
         if (Grid != null)
         {
-            if (_selectedItems.GroupTag != null)
+            if (_selectedItems.GroupTag != null && _selectedItems.GroupTag != 0)
             {
                 var tag = new ApplicationMasterChildModel();
                 tag.ApplicationMasterChildId = _selectedItems.GroupTag.Value;
@@ -572,13 +598,21 @@
 
 
                 // selectgrouptagItems = _TagEmailList[0];
-                GroupTagChangedEdit(_selectedItems.GroupTag);
-                CategoryTagChangeEdit(_selectedItems.CategoryTag);
+                if (_selectedItems.GroupTag != null && _selectedItems.GroupTag != 0)
+                {
+                    GroupTagChangedEdit(_selectedItems.GroupTag);
+                }
+
+                if (_selectedItems.CategoryTag != null && _selectedItems.CategoryTag !=0)
+                {
+                    CategoryTagChangeEdit(_selectedItems.CategoryTag);
+                }
+
             }
-          
+
             Grid.StartEditDataItemAsync(_selectedItems);
-           
-           
+
+
         }
         StateHasChanged();
 
@@ -605,7 +639,7 @@
                         DeleteEnabled=false;
                         EditEnabled = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        
+
                         if (Grid != null)
                         {
                             Grid.SetFocusedRowIndex(0);
@@ -632,12 +666,12 @@
         if (SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
-            
+
         }
         else
         {
             EditEnabled = true;
-            
+
         }
     }
     public void Dispose()
@@ -646,7 +680,7 @@
         //System.GC.Collect();
         //GC.SuppressFinalize(this);
     }
-    
+
     async void GroupTagChangedEdit(long? ApplicationMasterChildId)
     {
         if (ApplicationMasterChildId != null)
@@ -654,7 +688,11 @@
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
             if (_categoryTagItems.Count > 0)
             {
-                selectcategory = _categoryTagItems[0];
+                if(_selectedItems.CategoryTag != null)
+                {
+                    selectcategory = _categoryTagItems[0];                    
+                }
+                
             }
         }
 
@@ -664,13 +702,17 @@
     {
         if (ApplicationMasterChildID != null)
         {
-            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));            
             if (_actionTagItems.Count > 0)
             {
-                _selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;               
+                if(_selectedItems.ActionTag != null)
+                {
+                    _selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
+                }
+                           
             }
         }
-
+        
         StateHasChanged();
     }
 }

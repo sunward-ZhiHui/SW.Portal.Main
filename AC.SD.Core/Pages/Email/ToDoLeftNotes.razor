@@ -123,15 +123,14 @@
                                 ListRenderMode="ListRenderMode.Virtual"
                                 AllowUserInput = "true"
                                 SearchMode="ListSearchMode.AutoSearch"
-                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
                                 TextFieldName="Notes"
                                 ValueFieldName="Notes"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                     @bind-Value="types.Notes"
-                    @bind-Text="@types.Notes" ShowValidationIcon="true"
-                            >
+                    @bind-Text="@NotesName" ShowValidationIcon="true">
                     </DxComboBox>
-                    <ValidationMessage For="@(() => types.Notes)" />
+                    <ValidationMessage For="@(() => NotesName)" />
                 </DxFormLayoutItem>               
                 <ValidationSummary />
             </DxFormLayout>
@@ -171,6 +170,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    string NotesName { get; set; }
     string styleTreeDisplay = "width:100%";
     bool IncompletePopup { get; set; } = false;
     bool Complete { get; set; } = false;
@@ -315,6 +315,13 @@
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
+        if (string.IsNullOrEmpty(NotesName))
+        {
+            toastService.ShowToast("Please Enter or Select Notes", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+
+
         var editModel = (ToDoNotes)e.EditModel;
 
         if (e.IsNew)
@@ -327,7 +334,7 @@
 
             var createReq = new CreateToDoNotesQuery
                     {                        
-                        Notes = editModel.Notes,
+                        Notes = NotesName,
                         StatusCodeID = 1,
                         AddedByUserID = applicationUser.UserID,
                         ModifiedByUserID = applicationUser.UserID,
@@ -362,7 +369,7 @@
             var UpdateReq = new EditToDoNotesQuery
                     {
                         ID = editModel.ID,                       
-                        Notes = editModel.Notes,                       
+                        Notes = NotesName,
                         AddedByUserID = editModel.AddedByUserID,
                         StatusCodeID = editModel.StatusCodeID,
                         TopicId=Topicid,
@@ -376,9 +383,6 @@
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
-
-
-
         }
 
     }

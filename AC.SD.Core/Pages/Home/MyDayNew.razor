@@ -16,6 +16,7 @@
 @inject IConfiguration Configuration
 @inject NavigationManager NavigationManager
 @using System.Text.Json
+@implements IAsyncDisposable
 
  <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -387,5 +388,23 @@
         var list = _ToDoNotesHistory.FirstOrDefault(f => f.ID == (long?)UniqueId);
         //NavigationManager.NavigateTo($"ViewEmail/" + list.SessionId + "/Todo");
         NavigationManager.NavigateTo($"ViewEmail/{list.SessionId}/Todo");
-    }    
+    }
+    public async ValueTask DisposeAsync()
+    {
+        //System.GC.Collect();
+        if (_ToDoNotesHistory != null)
+        {
+            _ToDoNotesHistory?.Clear();
+            _ToDoNotesHistory = null;
+        }
+        if (_participant != null)
+        {
+            _participant.Clear();
+            _participant = null;
+        }
+        _selectedItems = null;
+        _documents = null;
+        CurrentTodoNotes = null;
+        //GC.SuppressFinalize(this);
+    }
 }

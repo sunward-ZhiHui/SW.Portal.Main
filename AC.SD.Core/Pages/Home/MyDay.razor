@@ -13,6 +13,7 @@
 @page "/MyDay"
 @page "/MyDay/{ActiveIndex:int}"
 @inject NavigationManager NavigationManager
+@implements IAsyncDisposable
 
 
 <div class="">
@@ -61,7 +62,7 @@
     public int ActiveTabIndex { get; set; } = 0;
     private MyRemainderTodo? RefMyRemainderTodo { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
-    private List<ToDoNotesHistory>? _ToDoNotesHistory;
+  //  private List<ToDoNotesHistory>? _ToDoNotesHistory;
     string leftTodoDisplay = "col-md-6";
     string RighttodoDisplay = "col-md-6";
     string styleTreeDisplay = "height: calc(100vh - 190px); padding:10px";
@@ -81,5 +82,12 @@
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
         // StateHasChanged();
     }
-
+    public async ValueTask DisposeAsync()
+    {
+        //System.GC.Collect();
+      
+        RefMyRemainderTodo?.DisposeAsync();
+        
+        //GC.SuppressFinalize(this);
+    }
 }

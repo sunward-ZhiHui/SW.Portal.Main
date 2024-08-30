@@ -354,7 +354,7 @@
                 DeleteEnabled = true; AddEnabled = true;
             }
         }
-       
+
         StateHasChanged();
 
     }
@@ -587,15 +587,15 @@
     }
     public async ValueTask DisposeAsync()
     {
-       if(_applicationMasterItems != null)
-       {
+        if(_applicationMasterItems != null)
+        {
             _applicationMasterItems.Clear();
             _applicationMasterItems = null;
-          //  GC.Collect();
-          //GC.SuppressFinalize(this);
-       }
+            //  GC.Collect();
+            //GC.SuppressFinalize(this);
+        }
 
-       
+
     }
     private void ClearList()
     {
@@ -603,11 +603,30 @@
         {
             _applicationMasterDetails.Clear();
             _applicationMasterDetails = null;
-
-            // Optionally, force garbage collection
-            // GC.Collect();
-            // GC.WaitForPendingFinalizers();
-            // GC.Collect();
         }
+        if(_applicationMasterItems != null)
+        {
+            _applicationMasterItems.Clear();
+            _applicationMasterItems = null;
+        }
+        if (_openAccessUserLink != null)
+        {
+            _openAccessUserLink.Clear();
+            _openAccessUserLink = null;
+        }
+        if (_applicationMasterAccess != null)
+        {
+            _applicationMasterAccess.Clear();
+            _applicationMasterAccess = null;
+        }
+        
+        _selectlst = null;
+        _selectedItems = null;
+        _selectItems = null;
+        SelectedDataItems = null;
+        // Optionally, force garbage collection
+        // GC.Collect();
+        // GC.WaitForPendingFinalizers();
+        // GC.Collect();
     }
 }

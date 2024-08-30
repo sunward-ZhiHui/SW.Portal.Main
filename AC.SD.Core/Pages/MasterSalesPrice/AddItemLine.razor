@@ -711,5 +711,34 @@
             // GC.Collect();
             // GC.SuppressFinalize(this);
         }
+        if (View_SalesOrderMasterPricingLineByItems != null)
+        {
+            View_SalesOrderMasterPricingLineByItems.Clear();
+            View_SalesOrderMasterPricingLineByItems = null;
+        }
+        if (_viewSalesPricingAllowItems != null)
+        {
+            _viewSalesPricingAllowItems.Clear();
+            _viewSalesPricingAllowItems = null;
+        }
+        if (_viewSellingMethodItems != null)
+        {
+            _viewSellingMethodItems.Clear();
+            _viewSellingMethodItems = null;
+        }
+        if (_AllNavitems != null)
+        {
+            _AllNavitems.Clear();
+            _AllNavitems = null;
+        }
+        if (_addIitemPriceLine != null)
+        {
+            _addIitemPriceLine.Clear();
+            _addIitemPriceLine = null;
+        }
+        _salesOrdersData = null;
+        _selectedItems = null;
+        _selectlst = null;
+        SelectedDataItems = null;
     }
 }

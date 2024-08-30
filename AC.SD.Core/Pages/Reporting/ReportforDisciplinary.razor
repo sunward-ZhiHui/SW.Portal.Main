@@ -10,6 +10,7 @@
 @inject IConfiguration Configuration
 @using MediatR
 @inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -283,6 +284,23 @@
         {
             toastService.ShowToast("No Screenshot Available", AC.SD.Core.Services.ToastLevel.Info);
         }
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_productionAppLine != null)
+        {
+            _productionAppLine.Clear();
+            _productionAppLine = null;
+        }
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        SelectedDataItems = null;
+        _selectedItems = null;
+        Data = null;
 
     }
 

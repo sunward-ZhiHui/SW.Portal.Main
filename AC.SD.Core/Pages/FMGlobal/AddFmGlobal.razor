@@ -16,6 +16,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
 @page "/FmGlobal/AddFmGlobal"
+@implements IAsyncDisposable;
+
 <style scoped>
 
     #customers {
@@ -368,7 +370,7 @@
     }
     async Task SelectedItemPlantChanged(long? companyId)
     {
-         Data.CompanyId = null;
+        Data.CompanyId = null;
         if (companyId > 0)
         {
             Data.CompanyId = companyId;
@@ -497,5 +499,41 @@
         {
             e.CssClass = "alt-item";
         }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_AllSoCustomer != null)
+        {
+            _AllSoCustomer.Clear();
+            _AllSoCustomer = null;
+
+
+            // GC.Collect();
+            // GC.SuppressFinalize(this);
+        }
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        if (_AllICTMasterFrom != null)
+        {
+            _AllICTMasterFrom.Clear();
+            _AllICTMasterFrom = null;
+        }
+        if (_AllICTMasterTo != null)
+        {
+            _AllICTMasterTo.Clear();
+            _AllICTMasterTo = null;
+        }
+        if (_statusListItems != null)
+        {
+            _statusListItems.Clear();
+            _statusListItems = null;
+        }
+        PlantsData = null;
+        soCustomer1 = null;
+        Data = null;
+        RefFmGlobalLine?.DisposeAsync();
     }
 }

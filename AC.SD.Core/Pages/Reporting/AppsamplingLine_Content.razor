@@ -10,6 +10,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
+@implements IAsyncDisposable
 
 
 <DxLoadingPanel @bind-Visible="PanelVisible"
@@ -64,6 +65,17 @@
             e.CssClass = "alt-item";
         }
        
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_samplingLineItems != null)
+        {
+            _samplingLineItems.Clear();
+            _samplingLineItems = null;
+        }
+
+        sampling = null;
+
     }
 }
 

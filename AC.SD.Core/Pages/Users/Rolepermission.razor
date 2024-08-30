@@ -479,15 +479,15 @@
                     _TreeData = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
                     StateHasChanged();
 
-                   
+
                 }
 
             }
         }
-       
-      
 
-      
+
+
+
 
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
@@ -495,7 +495,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-       // UpdateDataAsync();
+        // UpdateDataAsync();
     }
     public async ValueTask DisposeAsync()
     {
@@ -505,9 +505,16 @@
             _rolePermission = null;
 
 
-           // GC.Collect();
+            // GC.Collect();
             //GC.SuppressFinalize(this);
         }
+
+        SelectedDataItems = null;
+        checkedEmployees = null;
+        permissionids = null;
+        _selecteItems = null;
+        _selectedItems = null;
+        _selectlst = null;
     }
     private void ClearList()
     {

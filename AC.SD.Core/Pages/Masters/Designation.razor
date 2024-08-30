@@ -12,6 +12,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
+@implements IAsyncDisposable
 
 
 
@@ -625,5 +626,51 @@
     void AddLevelmaster()
     {
         NavigationManager.NavigateTo("masters/6/designation/" + _selectedItems.DesignationID);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_sections != null)
+        {
+            _sections.Clear();
+            _sections = null;
+        }
+        if (_stausItems != null)
+        {
+            _stausItems.Clear();
+            _stausItems = null;
+        }
+        if (_departments != null)
+        {
+            _departments.Clear();
+            _departments = null;
+        }
+        if (_divisions != null)
+        {
+            _divisions.Clear();
+            _divisions = null;
+        }
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        if (_designationItems != null)
+        {
+            _designationItems.Clear();
+            _designationItems = null;
+        }
+        if (levelItems != null)
+        {
+            levelItems.Clear();
+            levelItems = null;
+        }
+        _levelListItems .Clear();
+        _subsectionListItems.Clear();
+        _divisionsItems.Clear();
+        SelectedDataItems = null;
+        _selectedItems = null;
+        _selectlst = null;
+        _selectedsubsec = null;
+        _selectsec = null;
     }
 }

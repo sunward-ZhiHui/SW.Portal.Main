@@ -13,6 +13,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
+@implements IAsyncDisposable
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -561,6 +562,38 @@
 
         NavigationManager.NavigateTo("ictMaster/3/Location/" + _selectedItems.IctmasterId);
         // await LoadDetailhistory();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_plantItems != null)
+        {
+            _plantItems.Clear();
+            _plantItems = null;
+        }
+        if (_ictmaster != null)
+        {
+            _ictmaster.Clear();
+            _ictmaster = null;
+        }
+        if (_masterSite != null)
+        {
+            _masterSite.Clear();
+            _masterSite = null;
+        }
+        if (_ictmasterList != null)
+        {
+            _ictmasterList.Clear();
+            _ictmasterList = null;
+        }
+        if (_masterCompany != null)
+        {
+            _masterCompany.Clear();
+            _masterCompany = null;
+        }
+        _selectplant = null;
+        _selectedItems = null;
+        SelectedDataItems = null;
+        _selectlst = null;
     }
 }
 

@@ -14,6 +14,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
+@implements IAsyncDisposable
 
 
 <style scoped>
@@ -754,5 +755,25 @@
     private async Task OpenDocumentPreview(string url)
     {
         await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    public async ValueTask DisposeAsync()
+    {
+        //System.GC.Collect();
+        if (_ToDoNotesHistory != null)
+        {
+            _ToDoNotesHistory?.Clear();
+            _ToDoNotesHistory = null;
+        }
+        if(_participant != null)
+        {
+            _participant.Clear();
+            _participant = null;
+        }    
+            _selectedItems = null;
+            _selectlst = null;
+            _documents = null;
+        SelectedDataItems = null;
+        CurrentTodoNotes = null;
+        //GC.SuppressFinalize(this);
     }
 }

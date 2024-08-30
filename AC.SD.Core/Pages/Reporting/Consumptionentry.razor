@@ -6,6 +6,7 @@
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
 @using MediatR
+@implements IAsyncDisposable
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -112,5 +113,16 @@
 
 
 
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_consumptionEntry != null)
+        {
+            _consumptionEntry.Clear();
+            _consumptionEntry = null;
+        }
+
+        SelectedDataItems = null;
+       
     }
 }

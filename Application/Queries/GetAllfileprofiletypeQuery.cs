@@ -181,7 +181,17 @@ namespace Application.Queries
     public class GetAllUserGroups : PagedRequest, IRequest<List<UserGroup>>
     {
 
-    }    
+    }
+    public class GetUserByFilterUserGroups : PagedRequest, IRequest<List<UserGroup>>
+    {
+        public List<long?> userids { get; private set; }
+
+        public GetUserByFilterUserGroups(List<long?> userIds)
+        {
+            this.userids = userIds;
+        }
+    }
+    
     public class GetDocumentRoles : PagedRequest, IRequest<List<DocumentRole>>
     {
 

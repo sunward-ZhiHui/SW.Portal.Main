@@ -28,8 +28,6 @@
 @page "/CreateEmail/{ActiveSessionId}"
 @implements IAsyncDisposable;
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
-
-
 @using global::Core.EntityModels;
 <style>
     .zero-width-label label {
@@ -330,12 +328,11 @@ else
                             <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="3">
                                 <DxComboBox Data="@_OnBehalfparticipant"
                                             NullText="Select OnBehalf..."
-                                              ListRenderMode="ListRenderMode.Virtual"
-                                    SearchMode="ListSearchMode.AutoSearch"
-                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                    AllowUserInput ="true"
-                                     Value="@selectBehalf"
-                                    ValueExpression="@(() => selectBehalf )"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"                                    
+                                            Value="@selectBehalf"
+                                            ValueExpression="@(() => selectBehalf )"
                                             TextFieldName="Name"
                                             ValueFieldName="UserID"
                                             ValueChanged="@((ViewEmployee viewEmployee) => onSelectedOnBehalfItemsChanged(viewEmployee))"
@@ -707,7 +704,18 @@ else
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
 
-        _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        var toids = Data.ToIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+        var ids = Data.CCIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+
+        ids.Add(applicationUser.UserID);
+        ids.AddRange(toids);
+        if (selectBehalf != null)
+        {
+            ids.Add(selectBehalf.UserID);
+        }
+
+        //_participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
         _ToUserGroup = _participantUserGroup;
         //_CCUserGroup = _participantUserGroup;
 
@@ -723,7 +731,18 @@ else
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
 
-        _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        var toids = Data.ToIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+        var ids = Data.CCIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+
+        ids.Add(applicationUser.UserID);
+        ids.AddRange(toids);
+        if (selectBehalf != null)
+        {
+            ids.Add(selectBehalf.UserID);
+        }
+
+        //_participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
         //_ToUserGroup = _participantUserGroup;
         _CCUserGroup = _participantUserGroup;
 
@@ -1101,8 +1120,7 @@ else
     }
 
     void UpdateOnBehalfParticipant()
-    {
-
+    {       
         IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
         IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
 
@@ -1119,28 +1137,45 @@ else
             Data.OnBehalf = values.UserID;
             selectBehalf = values;
         }
-        //if (values != null)
-        //{
-        //    var onbehalfitem = _participant.Where(c => c.UserID != values.UserID).ToList();
+        if (values != null)
+        {
+            var onbehalfitem = _participant.Where(c => c.UserID != values.UserID).ToList();
 
-        //    IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
-        //    IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+            IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+            IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
 
-        //    _Toparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
-        //    _CCparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
-
-
-        //}
-        //else
-        //{
-
-        //    IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
-        //    IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+            _Toparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+            _CCparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
 
 
-        //    _Toparticipant = _participant.Except(selectedCCParticipants).ToList();
-        //    _CCparticipant = _participant.Except(selectedTopParticipants).ToList();
-        //}
+        }
+        else
+        {
+            if(Data.OnBehalf != null)
+            {
+                var onbehalfitem = _participant.Where(c => c.UserID != Data.OnBehalf).ToList();
+
+                IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+                IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+
+                _Toparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+                _CCparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+            }
+            else
+            {
+                Data.OnBehalf = null;
+                selectBehalf = null;
+                IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+                IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+
+
+                _Toparticipant = _participant.Except(selectedCCParticipants).ToList();
+                _CCparticipant = _participant.Except(selectedTopParticipants).ToList();
+
+            }
+
+          
+        }
 
 
 

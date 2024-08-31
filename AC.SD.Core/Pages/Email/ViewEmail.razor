@@ -1605,7 +1605,12 @@
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
 
-        _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        var toids = Data.AssigntoIds.Select(id => (long?)id).ToList() ?? new List<long?>();
+        var ids = Data.AssignccIds.Select(id => (long?)id).ToList() ?? new List<long?>();
+        ids.Add(applicationUser.UserID);
+        ids.AddRange(toids);
+        //_participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+         _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
         _ToUserGroup = _participantUserGroup;
         //_CCUserGroup = _participantUserGroup;
 
@@ -1619,8 +1624,8 @@
 
     async Task OnButtonUserGroupCCClick()
     {       
-        var toids = Data.AssigntoIds.Select(id => (long?)id).ToList();
-        var ids = Data.AssignccIds.Select(id => (long?)id).ToList();
+        var toids = Data.AssigntoIds.Select(id => (long?)id).ToList() ?? new List<long?>();
+        var ids = Data.AssignccIds.Select(id => (long?)id).ToList() ?? new List<long?>();
         ids.Add(applicationUser.UserID);
         ids.AddRange(toids);
 

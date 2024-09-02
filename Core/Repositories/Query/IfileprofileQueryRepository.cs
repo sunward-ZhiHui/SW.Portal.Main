@@ -32,7 +32,8 @@ namespace Core.Repositories.Query
         Task<DocumentsModel> UpdateDocumentRename(DocumentsModel value);
         Task<IReadOnlyList<UserGroup>> GetUserGroups();
         Task<List<ViewEmployee>> GetGroupByUsers(long id);
-        Task<List<UserGroup>> GetAllUserGroups();        
+        Task<List<UserGroup>> GetAllUserGroups();
+        Task<List<UserGroup>> GetFilterUserGroups(List<long?> userIds);
         Task<IReadOnlyList<DocumentRole>> GetDocumentRole();
         Task<DocumentProfileNoSeriesModel> GetDocumentProfileNoSeriesById(long? Id);
         Task<Fileprofiletype> GetByFileprofiletypeIdAsync(long? Id);        

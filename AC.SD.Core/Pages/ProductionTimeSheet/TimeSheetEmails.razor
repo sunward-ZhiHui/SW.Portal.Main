@@ -255,12 +255,12 @@
             _ManuFactureProcessLines.Clear();
             _ManuFactureProcessLines = null;
         }
-          if (_categoryItems != null)
+        if (_categoryItems != null)
         {
             _categoryItems.Clear();
             _categoryItems = null;
         }
-          if (_actionItems != null)
+        if (_actionItems != null)
         {
             _actionItems.Clear();
             _actionItems = null;
@@ -270,6 +270,17 @@
             _TousersList.Clear();
             _TousersList = null;
         }
+        if (_AllusersList != null)
+        {
+            _AllusersList.Clear();
+            _AllusersList = null;
+        }
+        if (_CcusersList != null)
+        {
+            _CcusersList.Clear();
+            _CcusersList = null;
+        }
+        Data = null;
         // System.GC.Collect();
         //GC.SuppressFinalize(this);
     }

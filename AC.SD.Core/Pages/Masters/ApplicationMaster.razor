@@ -594,7 +594,10 @@
             //  GC.Collect();
             //GC.SuppressFinalize(this);
         }
-
+        _selectlst = null;
+        _selectedItems = null;
+        _selectItems = null;
+        SelectedDataItems = null;
 
     }
     private void ClearList()
@@ -604,11 +607,7 @@
             _applicationMasterDetails.Clear();
             _applicationMasterDetails = null;
         }
-        if(_applicationMasterItems != null)
-        {
-            _applicationMasterItems.Clear();
-            _applicationMasterItems = null;
-        }
+      
         if (_openAccessUserLink != null)
         {
             _openAccessUserLink.Clear();
@@ -620,10 +619,7 @@
             _applicationMasterAccess = null;
         }
         
-        _selectlst = null;
-        _selectedItems = null;
-        _selectItems = null;
-        SelectedDataItems = null;
+      
         // Optionally, force garbage collection
         // GC.Collect();
         // GC.WaitForPendingFinalizers();

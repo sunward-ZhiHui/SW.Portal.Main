@@ -247,6 +247,41 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<UserGroup>> GetFilterUserGroups(List<long?> userIds)
+        {
+            try
+            {
+                if (userIds == null || !userIds.Any())
+                {
+                    return await GetAllUserGroups();
+                }
+
+                var userIdsArray = userIds.Where(id => id.HasValue).Select(id => id.Value).ToArray();
+                var query = $@"SELECT ug.* FROM UserGroup ug
+                                CROSS APPLY (
+                                    SELECT DISTINCT UG.UserGroupID 
+                                    FROM UserGroupUser UG
+                                    WHERE NOT EXISTS (
+                                        SELECT * 
+                                        FROM dbo.SplitString(@userIdsString, ',') S 
+                                        WHERE S.Value = UG.UserID
+                                    )
+                                ) CP
+                                WHERE ug.UserGroupID = CP.UserGroupID 
+                                AND ug.StatusCodeID = 1";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<UserGroup>(query, new { userIdsString = string.Join(",", userIdsArray) })).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
         public async Task<IReadOnlyList<DocumentProfileNoSeriesModel>> GetDocumentProfiles()
         {
             try

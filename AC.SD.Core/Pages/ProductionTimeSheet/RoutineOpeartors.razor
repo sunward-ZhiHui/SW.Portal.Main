@@ -215,7 +215,17 @@
             _supportDocselectedFile.Clear();
             _supportDocselectedFile = null;
         }
-        // System.GC.Collect();
+        if (_usersList != null)
+        {
+            _usersList.Clear();
+            _usersList = null;
+        }
+        productionActivityNonCompliance = null;
+        _selectedItems = null;
+        Data = null;
+
+
+    // System.GC.Collect();
        // GC.SuppressFinalize(this);
     }
 }

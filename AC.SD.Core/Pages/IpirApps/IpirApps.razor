@@ -13,7 +13,7 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime jsRuntime
 @inject ClipboardService ClipboardService
-@implements IDisposable
+@implements IAsyncDisposable
 <style scoped>
     .zxing-video-container > video {
         width: 100%;
@@ -587,10 +587,62 @@
         InvokeAsync(getBySessionId);
         StateHasChanged();
     }
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        System.GC.Collect();
-        GC.SuppressFinalize(this);
+        if(_plantItems != null)
+        {
+            _plantItems.Clear();
+
+        }
+        if (_productionActivities != null)
+        {
+            _productionActivities.Clear();
+
+        }
+        if (_departmentItems != null)
+        {
+            _departmentItems.Clear();
+
+        }
+        if (_ponumberActivities != null)
+        {
+            _ponumberActivities.Clear();
+
+        }
+        if (_poOrderDetails != null)
+        {
+            _poOrderDetails.Clear();
+
+        }
+        if (_AppLines != null)
+        {
+            _AppLines.Clear();
+
+        }
+        if (_documentProfileNoList != null)
+        {
+            _documentProfileNoList.Clear();
+
+        }
+        if (_ActivityStatusItem != null)
+        {
+            _ActivityStatusItem.Clear();
+
+        }
+        if (_ActivityMaster != null)
+        {
+            _ActivityMaster.Clear();
+
+        }
+        if (_usersList != null)
+        {
+            _usersList.Clear();
+
+        }
+      
+
+    //System.GC.Collect();
+        //GC.SuppressFinalize(this);
     }
 }
 

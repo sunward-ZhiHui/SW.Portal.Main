@@ -16,6 +16,7 @@ namespace Core.Entities
         public string? Notes { get; set; }  
         public string? Completed { get; set; }
         public long? TopicId { get; set; }
+        public bool? IsDelete {  get; set; } = false;
         [NotMapped]
         public string ModifiedBy { get; set; }
         [NotMapped]

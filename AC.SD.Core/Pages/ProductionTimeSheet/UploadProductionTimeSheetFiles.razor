@@ -712,7 +712,7 @@
             _departmentItems.Clear();
             _departmentItems = null;
         }
-        
+
         if(_sectionItems != null)
         {
             _sectionItems.Clear();
@@ -724,6 +724,15 @@
             _subSectionItems.Clear();
             _subSectionItems = null;
         }
+        selectedFiles = null;
+        fileProfileTypeModels = null;
+        Data = null;
+        TempSetIds = null;
+        documentProfileNoSeriesData = null;
+        SelectedFiles = null;
+        fileProfileTypeDocumentsAll = null;
+        _selectedTreeItems = null;
+        refUploadFileImagesToPdfRoutine?.DisposeAsync();
         // System.GC.Collect();
        // GC.SuppressFinalize(this);
     }

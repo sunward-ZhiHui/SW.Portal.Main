@@ -669,7 +669,7 @@
             _ActivityResult.Clear();
             _ActivityResult = null;
         }
-         if (_ActivityStatusItem != null)
+        if (_ActivityStatusItem != null)
         {
             _ActivityStatusItem.Clear();
             _ActivityStatusItem = null;
@@ -679,7 +679,26 @@
             _ActivityMaster.Clear();
             _ActivityMaster = null;
         }
-        //System.GC.Collect();
+        if (_ponumberActivities != null)
+        {
+            _ponumberActivities.Clear();
+            _ponumberActivities = null;
+        }
+        if (_productionActivities != null)
+        {
+            _productionActivities.Clear();
+            _productionActivities = null;
+        }
+        if (_AppLines != null)
+        {
+            _AppLines.Clear();
+            _AppLines = null;
+        }
+        _selectedEditItems = null;
+        Data = null;
+        DataLine = null;
+
+    //System.GC.Collect();
        // GC.SuppressFinalize(this);
     }
 }

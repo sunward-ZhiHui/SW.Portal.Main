@@ -725,7 +725,7 @@
         }
         StateHasChanged();
     }
-   
+
     public async ValueTask DisposeAsync()
     {
         if (_plantItems != null)
@@ -757,6 +757,15 @@
             _subSectionItems.Clear();
             _subSectionItems = null;
         }
+        if (fileProfileTypeDocumentsAll != null)
+        {
+            fileProfileTypeDocumentsAll.Clear();
+            fileProfileTypeDocumentsAll = null;
+        }
+        Data = null;
+        TempSetIds = null;
+        documentProfileNoSeriesData = null;
+        SelectedFiles = null;
         // System.GC.Collect();
         // GC.SuppressFinalize(this);
     }

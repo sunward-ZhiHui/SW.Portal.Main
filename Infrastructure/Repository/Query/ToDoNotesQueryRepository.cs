@@ -25,7 +25,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("userId", userId);
-                var query = "SELECT DISTINCT Notes FROM ToDoNotes where AddedByUserID = @userId";
+                var query = "SELECT DISTINCT Notes FROM ToDoNotes where AddedByUserID = @userId and IsDelete = 0";
 
                 using (var connection = CreateConnection())
                 {
@@ -46,7 +46,7 @@ namespace Infrastructure.Repository.Query
                             SELECT * 
                             FROM ToDoNotes
                             WHERE (@TopicId = 0 AND ( TopicId = 0 OR TopicId IS NULL ) AND AddedByUserID = @UserID)
-                               OR (@TopicId > 0 AND  TopicId = @TopicId AND TopicId IS NOT NULL AND AddedByUserID = @UserID) ORDER BY Completed DESC";
+                            OR (@TopicId > 0 AND  TopicId = @TopicId AND TopicId IS NOT NULL AND AddedByUserID = @UserID) and (IsDelete = 0) ORDER BY Completed DESC";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", UserID);
                 parameters.Add("TopicId", TopicId);
@@ -79,8 +79,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", ToDoNotes.AddedDate);
                             parameters.Add("ModifiedDate", ToDoNotes.ModifiedDate);
                             parameters.Add("SessionId", ToDoNotes.SessionId);
+                        parameters.Add("IsDelete", ToDoNotes.IsDelete);
 
-                            var query = "INSERT INTO ToDoNotes(TopicId,Notes,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Completed) VALUES (@TopicId,@Notes,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,'Open')";
+                        var query = "INSERT INTO ToDoNotes(TopicId,Notes,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Completed,IsDelete) VALUES (@TopicId,@Notes,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,'Open',@IsDelete)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -118,9 +119,10 @@ namespace Infrastructure.Repository.Query
                            
                             parameters.Add("Notes", ToDoNotes.Notes);
                             parameters.Add("ModifiedByUserID", ToDoNotes.ModifiedByUserID);
-                            parameters.Add("ModifiedDate", ToDoNotes.ModifiedDate);                           
+                            parameters.Add("ModifiedDate", ToDoNotes.ModifiedDate);
+                            parameters.Add("IsDelete", ToDoNotes.IsDelete);
 
-                            var query = @"Update ToDoNotes SET Notes = @Notes,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate WHERE ID = @ID";
+                        var query = @"Update ToDoNotes SET Notes = @Notes,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsDelete = @IsDelete WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters);
                             
@@ -168,6 +170,39 @@ namespace Infrastructure.Repository.Query
                             
                             throw new Exception(exp.Message, exp);
                         }                    
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> Delete(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", id);
+
+                        var query = "UPDATE ToDoNotes SET IsDelete = 1 WHERE ID = @id";
+
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
                 }
 
             }

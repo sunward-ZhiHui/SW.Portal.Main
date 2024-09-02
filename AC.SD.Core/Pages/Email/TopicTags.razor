@@ -570,7 +570,13 @@
 
     }
     void addNew()
-    {        
+    {
+        _selectedItems = null;
+        selectcategory = null;
+        selectGroupItems = null;
+        _categoryTagItems = null;    
+        _actionTagItems = null;
+        othersTagName = "";
 
         if (Grid != null)
         {
@@ -594,12 +600,12 @@
                 // selectgrouptagItems = _TagEmailList[0];
                 if (_selectedItems.GroupTag != null && _selectedItems.GroupTag != 0)
                 {
-                    GroupTagChangedEdit(_selectedItems.GroupTag);
+                    await  GroupTagChangedEdit(_selectedItems.GroupTag);
                 }
 
                 if (_selectedItems.CategoryTag != null && _selectedItems.CategoryTag !=0)
                 {
-                    CategoryTagChangeEdit(_selectedItems.CategoryTag);
+                     await CategoryTagChangeEdit(_selectedItems.CategoryTag);
                 }
 
             }
@@ -675,7 +681,7 @@
         //GC.SuppressFinalize(this);
     }
 
-    async void GroupTagChangedEdit(long? ApplicationMasterChildId)
+    async Task GroupTagChangedEdit(long? ApplicationMasterChildId)
     {
         if (ApplicationMasterChildId != null)
         {
@@ -692,7 +698,7 @@
 
         StateHasChanged();
     }
-    async void CategoryTagChangeEdit(long? ApplicationMasterChildID)
+    async Task CategoryTagChangeEdit(long? ApplicationMasterChildID)
     {
         if (ApplicationMasterChildID != null)
         {

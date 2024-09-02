@@ -82,6 +82,20 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+    public class DeleteAllToDoNotesHandler : IRequestHandler<GetAllDelete, long>
+    {
+        private readonly IToDoNotesQueryRepository _toDoNotesQueryRepository;
+        public DeleteAllToDoNotesHandler(IToDoNotesQueryRepository toDoNotesQueryRepository)
+        {
+            _toDoNotesQueryRepository = toDoNotesQueryRepository;
+        }
+
+        public async Task<long> Handle(GetAllDelete request, CancellationToken cancellationToken)
+        {
+            var newlist = await _toDoNotesQueryRepository.Delete(request.ID);
+            return newlist;
+        }
+    }
     public class IncompleteToDoNotesHandler : IRequestHandler<IncompleteTodoNoteQuery, long>
     {
         private readonly IToDoNotesQueryRepository _toDoNotesQueryRepository;

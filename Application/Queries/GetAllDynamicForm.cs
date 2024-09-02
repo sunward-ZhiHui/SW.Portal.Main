@@ -642,5 +642,16 @@ namespace Application.Queries
             this.DynamicFormWorkFlowApproval = dynamicFormWorkFlowApproval;
         }
     }
+    public class GetDynamicFormWorkFlowApprovedFormByList : PagedRequest, IRequest<List<DynamicFormWorkFlowApprovedForm>>
+    {
+        public long? UserId { get; set; }
+        public int? FlowStatusID { get; set; }
+        public GetDynamicFormWorkFlowApprovedFormByList(long? userId, int? flowStatusID)
+        {
+            this.UserId = userId;
+            this.FlowStatusID = flowStatusID;
+        }
+    }
+    
 }
 

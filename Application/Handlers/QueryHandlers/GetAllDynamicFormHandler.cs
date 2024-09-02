@@ -1109,4 +1109,18 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetDynamicFormWorkFlowApprovedFormByListHandler : IRequestHandler<GetDynamicFormWorkFlowApprovedFormByList, List<DynamicFormWorkFlowApprovedForm>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormWorkFlowApprovedFormByListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowApprovedForm>> Handle(GetDynamicFormWorkFlowApprovedFormByList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowApprovedForm>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowApprovedFormByList(request.UserId,request.FlowStatusID);
+        }
+
+
+    }
 }

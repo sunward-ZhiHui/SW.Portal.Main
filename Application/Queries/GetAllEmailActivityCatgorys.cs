@@ -29,7 +29,26 @@ namespace Application.Queries
     public class EditTopicCategoryQery : EmailActivityCatgorys, IRequest<long>
     {
     }
-
+    public class EditOtherTagQery : PagedRequest, IRequest<string>
+    {
+        public string otherTag { get; set; }
+        public string Name { get; set; }
+        public EditOtherTagQery(string otherTag, string Name)
+        {
+            this.otherTag = otherTag;
+            this.Name = Name;
+        }
+    }
+    public class EditUserTagQery : PagedRequest, IRequest<string>
+    {
+        public string userTag { get; set; }
+        public string Name { get; set; }
+        public EditUserTagQery(string userTag, string name)
+        {
+            this.userTag = userTag;
+            this.Name = name;
+        }
+    }
     public class DeleteTopicCategoryQery : PagedRequest, IRequest<long>
     {
         public long ID { get; set; }

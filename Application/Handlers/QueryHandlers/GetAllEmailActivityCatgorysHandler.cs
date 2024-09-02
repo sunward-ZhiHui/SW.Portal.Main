@@ -124,5 +124,33 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetByUserTagAsync(request.TopicID,request.UserID);
         }
     }
-    
+    public class EditOtherQeryHandler : IRequestHandler<EditOtherTagQery, string>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public EditOtherQeryHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+
+        public async Task<string> Handle(EditOtherTagQery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.UpdateOtherAsync(request.otherTag,request.Name);
+            return newlist;
+        }
+    }
+    public class EditUsertagQeryHandler : IRequestHandler<EditUserTagQery, string>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public EditUsertagQeryHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+
+        public async Task<string> Handle(EditUserTagQery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.UpdateuserAsync(request.userTag, request.Name);
+            return newlist;
+        }
+    }
+
 }

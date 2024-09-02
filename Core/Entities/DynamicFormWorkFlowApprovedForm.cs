@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,9 +24,27 @@ namespace Core.Entities
         public string? ApprovedStatus { get; set; }
         public long? DynamicFormWorkFlowID { get; set; }
         public long? DelegateUserId { get; set; }
+        public long? DelegateUserIds { get; set; }
         public string? DelegateUserName { get; set; }
         public long? ActualUserId { get; set; }
         public string? ActualUserName { get; set; }
+        public string? DynamicFormName { get; set; }
+        public string? ProfileNo { get; set; }
+        public string? LockedUser { get; set; }
+        public long? LockedUserId { get; set; }
+        public bool? IsLocked { get; set; }
+        public Guid? EmailTopicSessionId { get; set; }
+        public bool? IsDraft { get; set; }
+        [NotMapped]
+        public int? IsFileprofileTypeDocument { get; set; } = 0;
+        public Guid? DynamicFormSessionID { get; set; }
+        public Guid? DynamicFormDataSessionID { get; set; }
+        public long? FileProfileTypeId { get; set; }
+        public long? DynamicFormId { get; set; }
+        public int? DynamicFormWorkFlowFormTotalCount { get; set; } 
+        public int? DynamicFormWorkFlowFormCount { get; set; }
+        public string? WorkFlowStatus{ get; set; }
+        public int? FlowStatusID { get; set; }
     }
     public class DynamicFormWorkFlowApprovedFormChanged
     {

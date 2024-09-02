@@ -969,8 +969,8 @@
                                 }
                                 // if (isGoWorkFlow == true)
                                 //{
-                                _sequenceNoList = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
-                                var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
+                                _sequenceNoList = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowFormDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
+                                var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowFormDone == 0).OrderBy(x => x.SequenceNo).ToList();
                                 if (_sequenceNoList.Count() > 0)
                                 {
                                     foreach (var itemss in _sequenceNoList)
@@ -989,7 +989,7 @@
                                 {
                                     var firsts = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault();
                                     var notapprovalExits = _dynamicFormWorkFlowApprovedFormList.FirstOrDefault(f => f.IsApproved != true);
-                                    if (notapprovalExits != null)
+                                    if (notapprovalExits != null && notapprovalExits.FlowStatusID == 1)
                                     {
                                         _dynamicFormWorkFlowApprovedFormOne = notapprovalExits;
                                         if (notapprovalExits.UserID == applicationUser.UserID)

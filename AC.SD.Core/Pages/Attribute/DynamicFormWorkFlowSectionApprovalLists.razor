@@ -1,5 +1,5 @@
-﻿@page "/DynamicFormWorkFlowList"
-@page "/DynamicFormWorkFlowList/{SessionId:guid}"
+﻿@page "/DynamicFormWorkFlowSectionApprovalLists"
+@page "/DynamicFormWorkFlowSectionApprovalLists/{SessionId:guid}"
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -43,7 +43,7 @@
             style="height: calc(100vh - 220px);"
             CssClass="w-100"
             FocusedRowEnabled="true"
-            KeyFieldName="DynamicFormDataId"
+            KeyFieldName="DynamicFormWorkFlowApprovedFormID"
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -57,7 +57,7 @@
             <DxGridDataColumn Caption="" MinWidth="30">
                 <CellDisplayTemplate>
                     @{
-                        var item = (DynamicFormDataWrokFlow)context.DataItem;
+                        var item = (DynamicFormWorkFlowApprovedForm)context.DataItem;
                         var items = item.IsFileprofileTypeDocument;
                         var isDraft = item.IsDraft;
                         var isLocked = item.IsLocked;
@@ -78,16 +78,14 @@
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-           @*  <DxGridDataColumn FieldName="SortOrderByNo" MinWidth="50" Caption="No" /> *@
             <DxGridDataColumn FieldName="ProfileNo" MinWidth="50" Caption="Profile No" />
-            <DxGridDataColumn FieldName="Name" Caption="Form Name" MinWidth="50" />
-            @* <DxGridDataColumn FieldName="IsDynamicFormDataGrid" MinWidth="20" Caption="Is Grid" /> *@
-            <DxGridDataColumn FieldName="StatusName" Caption="Status" MinWidth="50" />
-            <DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="50" />
-            <DxGridDataColumn FieldName="UserNames" Caption="Release Users" MinWidth="50" />
+            <DxGridDataColumn FieldName="DynamicFormName" Caption="Form Name" MinWidth="50" />
+             @* <DxGridDataColumn FieldName="ApprovedStatus" Caption="Approved Status" MinWidth="50" />
+             <DxGridDataColumn FieldName="WorkFlowStatus" Caption="WorkFlow Status" MinWidth="50" /> *@
+            <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" MinWidth="50" />
         </Columns>
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DynamicFormName" />
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
@@ -143,9 +141,9 @@
     bool emailEnabled { get; set; } = false;
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = true;
-    private List<DynamicFormDataWrokFlow> _dynamicForm;
+    private List<DynamicFormWorkFlowApprovedForm> _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
-    private DynamicFormDataWrokFlow _selectedItems;
+    private DynamicFormWorkFlowApprovedForm _selectedItems;
     bool EditEnabled { get; set; } = false; public long? FileProfileTypeId { get; set; }
     bool DeleteEnabled { get; set; } = false; bool PopupUpload { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false; bool fileEnabled { get; set; } = false;
@@ -160,34 +158,25 @@
             await UpdateDataAsync();
         }
     }
-    async Task onshowLoading()
-    {
-        await JSRuntime.InvokeAsync<string>("showLoading");
-    }
-    async Task onhideLoading()
-    {
-        await JSRuntime.InvokeAsync<string>("hideLoading");
-    }
     async Task UpdateDataAsync()
     {
         try
         {
-            //await onshowLoading();
             dynamicFormData = new DynamicFormData();
             EditEnabled = false; DeleteEnabled = false; emailEnabled = false; fileEnabled = false; FileProfileTypeId = null;
-            _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
+            _dynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowApprovedFormByList(applicationUser.UserID,null));
             PanelVisible = true;
             if (_dynamicForm != null && _dynamicForm.Count > 0)
             {
                 //EditEnabled = true; DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
                 if (SessionId != null)
                 {
-                    var items = _dynamicForm.Where(f => f.SessionID == SessionId).ToList();
+                    var items = _dynamicForm.Where(f => f.DynamicFormDataSessionID == SessionId).ToList();
                     if (items != null && items.Count > 0)
                     {
                         _dynamicForm = items;
                         _selectedItems = items.FirstOrDefault();
-                        dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                        dynamicFormData.DynamicFormDataId = (long)_selectedItems.DynamicFormDataID;
                         FileProfileTypeId = _selectedItems.FileProfileTypeId;
                         dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
                         // Grid.SetFocusedRowIndex(0);
@@ -195,7 +184,7 @@
                     else
                     {
                         _selectedItems = _dynamicForm.FirstOrDefault();
-                        dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                        dynamicFormData.DynamicFormDataId = (long)_selectedItems.DynamicFormDataID;
                         dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
                         FileProfileTypeId = _selectedItems.FileProfileTypeId;
                         // Grid.SetFocusedRowIndex(0);
@@ -204,13 +193,12 @@
                 else
                 {
                     _selectedItems = _dynamicForm.FirstOrDefault();
-                    dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+                    dynamicFormData.DynamicFormDataId = (long)_selectedItems.DynamicFormDataID;
                     dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
                     //Grid.SetFocusedRowIndex(0);
                 }
 
             }
-            //await onhideLoading();
             PanelVisible = false;
             StateHasChanged();
         }
@@ -229,11 +217,11 @@
     void OnRowclick(GridRowClickEventArgs e)
     {
         dynamicFormData = new DynamicFormData();
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
-        _selectedItems = _dynamicForm.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormWorkFlowApprovedFormID");
+        _selectedItems = _dynamicForm.FirstOrDefault(f => f.DynamicFormWorkFlowApprovedFormID == (long?)UniqueId);
         EditEnabled = true;
         DeleteEnabled = true; emailEnabled = true; fileEnabled = true;
-        dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+        dynamicFormData.DynamicFormDataId = (long)_selectedItems.DynamicFormDataID;
         dynamicFormData.DynamicFormId = _selectedItems.DynamicFormId;
         FileProfileTypeId = _selectedItems.FileProfileTypeId; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock";
         if (_selectedItems.IsLocked == true && _selectedItems.LockedUserId > 0)
@@ -251,13 +239,13 @@
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowclick(e);
-        NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
+        NavigationManager.NavigateTo("DynamicFormWorkFlowSectionApprovalLists/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.DynamicFormDataSessionID);
     }
     void OpenNewForm()
     {
         if (_selectedItems != null)
         {
-            NavigationManager.NavigateTo("DynamicFormWorkFlowList/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.SessionID);
+            NavigationManager.NavigateTo("DynamicFormWorkFlowSectionApprovalLists/dynamicForms/" + _selectedItems.DynamicFormSessionID + "/" + _selectedItems.DynamicFormDataSessionID);
         }
     }
     void addDetailFile()
@@ -303,7 +291,7 @@
     {
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string backurl = rep1 + "/" + _selectedItems.SessionID;
+        string backurl = rep1 + "/" + _selectedItems.DynamicFormDataSessionID;
         if (_selectedItems != null)
         {
             var insertData = new DynamicFormData
@@ -312,10 +300,10 @@
                     ModifiedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
-                    SessionId = _selectedItems.SessionID,
+                    SessionId = _selectedItems.DynamicFormDataSessionID,
                     ProfileNo = _selectedItems.ProfileNo,
                     StatusCodeID = 1,
-                    DynamicFormDataId = _selectedItems.DynamicFormDataId,
+                    DynamicFormDataId = (long)_selectedItems.DynamicFormDataID,
                     BackUrl = backurl
                 };
             var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
@@ -323,7 +311,7 @@
             {
                 toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
                 createEmailpopup = false;
-                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionID;
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.DynamicFormDataSessionID;
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
                 await UpdateDataAsync();
             }
@@ -345,7 +333,7 @@
         if (_selectedItems != null)
         {
             DynamicFormData dynamicFormData = new DynamicFormData();
-            dynamicFormData.DynamicFormDataId = _selectedItems.DynamicFormDataId;
+            dynamicFormData.DynamicFormDataId = (long)_selectedItems.DynamicFormDataID;
             dynamicFormData.IsLocked = _selectedItems.IsLocked == true ? null : true;
             if (dynamicFormData.IsLocked == true)
             {

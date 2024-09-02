@@ -39,532 +39,532 @@
     }
 </style>
 
-    <div class="card-header text-center py-3">
-        <h4>@_dynamicform?.Name</h4>
-        @*  <p class="tm-8 mb-0 fw-normal fs-825">
-        Create a new account to see it in action
-        </p> *@
-    </div>
-    <div class="card" style="margin-top: 5px;padding: 5px;">
-        <div class="card-body p-0">
-            <div class="row" style="padding-bottom:10px;">
-                <div class="">
-                    @if (isLocked == true)
+<div class="card-header text-center py-3">
+    <h4>@_dynamicform?.Name</h4>
+    @*  <p class="tm-8 mb-0 fw-normal fs-825">
+    Create a new account to see it in action
+    </p> *@
+</div>
+<div class="card" style="margin-top: 5px;padding: 5px;">
+    <div class="card-body p-0">
+        <div class="row" style="padding-bottom:10px;">
+            <div class="">
+                @if (isLocked == true)
+                {
+                    @if (isApprovalEnabled == true)
                     {
-                        @if (isApprovalEnabled == true)
+                        if (AddButtonnEnabled == true)
                         {
-                            if (AddButtonnEnabled == true)
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                                    </Items>
-                                </DxMenu>
-                            }
-                            else
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    </Items>
-                                </DxMenu>
-                            }
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                </Items>
+                            </DxMenu>
                         }
                         else
                         {
-                            if (AddButtonnEnabled == true)
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                                    </Items>
-                                </DxMenu>
-                            }
-                            else
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                    </Items>
-                                </DxMenu>
-                            }
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                </Items>
+                            </DxMenu>
                         }
                     }
                     else
                     {
-                        @if (isApprovalEnabled == true)
+                        if (AddButtonnEnabled == true)
                         {
-                            if (AddButtonnEnabled == true)
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-
-                                        <DxMenuItem Text="Save">
-                                            <Items>
-                                                <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
-                                                <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
-                                            </Items>
-                                        </DxMenuItem>
-                                        <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
-                                            <Items>
-                                                <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
-                                                <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="onClickReject" Enabled="IsApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                        <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                                        <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
-                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
-                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
-                                            <Items>
-                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
-                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                    </Items>
-                                </DxMenu>
-                            }
-                            else
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                        <DxMenuItem Text="Save">
-                                            <Items>
-                                                <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
-                                                <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
-                                            </Items>
-                                        </DxMenuItem>
-                                        <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
-                                            <Items>
-                                                <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
-                                                <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="onClickReject" Enabled="IsApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                        <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                                        <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
-                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
-                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
-                                            <Items>
-                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
-                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                    </Items>
-                                </DxMenu>
-                            }
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                </Items>
+                            </DxMenu>
                         }
                         else
                         {
-                            if (AddButtonnEnabled == true)
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
-                                        <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                                        <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
-                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
-                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
-                                            <Items>
-                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
-                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                    </Items>
-                                </DxMenu>
-                            }
-                            else
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
-                                        <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                                        <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
-                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
-                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
-                                            <Items>
-                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
-                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                    </Items>
-                                </DxMenu>
-                            }
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                </Items>
+                            </DxMenu>
                         }
                     }
-                </div>
+                }
+                else
+                {
+                    @if (isApprovalEnabled == true)
+                    {
+                        if (AddButtonnEnabled == true)
+                        {
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
 
+                                    <DxMenuItem Text="Save">
+                                        <Items>
+                                            <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
+                                            <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
+                                        </Items>
+                                    </DxMenuItem>
+                                    <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
+                                        <Items>
+                                            <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
+                                            <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="onClickReject" Enabled="IsApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                        <Items>
+                                            <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                            <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                </Items>
+                            </DxMenu>
+                        }
+                        else
+                        {
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Save">
+                                        <Items>
+                                            <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
+                                            <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
+                                        </Items>
+                                    </DxMenuItem>
+                                    <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
+                                        <Items>
+                                            <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
+                                            <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="onClickReject" Enabled="IsApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                        <Items>
+                                            <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                            <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                </Items>
+                            </DxMenu>
+                        }
+                    }
+                    else
+                    {
+                        if (AddButtonnEnabled == true)
+                        {
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
+                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                        <Items>
+                                            <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                            <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                </Items>
+                            </DxMenu>
+                        }
+                        else
+                        {
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
+                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                        <Items>
+                                            <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                            <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                </Items>
+                            </DxMenu>
+                        }
+                    }
+                }
             </div>
+
         </div>
-   
+    </div>
+
     <div class="card cw-480" style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 270px);">
-    <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
-        <DxTabPage Text="Form">
-            <div class="card-body" style="margin-top:5px;">
-                <DxFormLayout CssClass="w-100">
-                    <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
-                        <DataAnnotationsValidator />
-                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="false" AnimationType="LayoutAnimationType.Slide">
-                            <HeaderContentTemplate>
-                                <div>
-                                    Profile No
-                                </div>
-                                @if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null)
-                                {
-                                    var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == -1);
-                                    if (_dynamicSecAttach != null)
+        <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
+            <DxTabPage Text="Form">
+                <div class="card-body" style="margin-top:5px;">
+                    <DxFormLayout CssClass="w-100">
+                        <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+                                <HeaderContentTemplate>
+                                    <div>
+                                        Profile No
+                                    </div>
+                                    @if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null)
                                     {
-                                        <div style="margin-left:auto;">
-                                            <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick(_dynamicSecAttach))" title="@_dynamicSecAttach.FileName"></i>
-                                        </div>
+                                        var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == -1);
+                                        if (_dynamicSecAttach != null)
+                                        {
+                                            <div style="margin-left:auto;">
+                                                <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick(_dynamicSecAttach))" title="@_dynamicSecAttach.FileName"></i>
+                                            </div>
+                                        }
                                     }
-                                }
-                            </HeaderContentTemplate>
-                            <Items>
-                                <DxFormLayoutItem Caption="Login From" ColSpanMd="3">
-                                    <DxTextBox @bind-Text="@_longInUser" Enabled="false" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Login Company" ColSpanMd="3">
-                                    <DxTextBox @bind-Text="@_longInCompany" Enabled="false" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Added By" ColSpanMd="3">
-                                    <DxTextBox NullText="Added By" @bind-Text="@_longInAddedBy" Enabled="false" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Added Date" ColSpanMd="3">
-                                    <DxDateEdit NullText="Date" @bind-Date="@_longInDateTime" Enabled="false" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Profile No" ColSpanMd="12">
-                                    <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                                    <DxDropDownBox @bind-Value="PlantValue"
-                                                   QueryDisplayText="QueryPlantText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Company..."
-                                                   Enabled="isPlant"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_plantItems"
-                                                    KeyFieldName="@nameof(ViewPlants.PlantID)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewPlants)"
-                                                    SelectedDataItemChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="PlantCode" />
-                                                    <DxGridDataColumn FieldName="Description" />
-                                                    <DxGridDataColumn FieldName="NavCompanyName" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.PlantId" ShowValidationIcon="true" style="display:none;" />
-                                    @*  <DxComboBox Data="@_plantItems"
-                                    NullText="Select Company..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="PlantCode"
-                                    ValueFieldName="PlantID"
-                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
-                                    Enabled="isPlant"
-                                    @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
-                                    <Columns>
-                                    <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                    Caption="Plant Code"
-                                    Width="180px" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                    Caption="Description" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-                                    Caption="Nav Company" />
-                                    </Columns>
-                                    </DxComboBox>*@
-                                    <ValidationMessage For="@(() => Datas.PlantId)" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                                    @*   <DxComboBox Data="@_divisionItems"
-                                    NullText="Select Division..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="Name"
-                                    ValueFieldName="DivisionID"
-                                    Enabled="isDivision"
-                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
-                                    @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
-                                    <Columns>
-                                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
-                                    Caption="Name"
-                                    Width="180px" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
-                                    Caption="Code" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
-                                    Caption="Description" />
-                                    </Columns>
-                                    </DxComboBox> *@
-                                    <DxDropDownBox @bind-Value="DivisionValue"
-                                                   QueryDisplayText="QueryDivisionText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Division..."
-                                                   Enabled="isDivision"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_divisionItems"
-                                                    KeyFieldName="@nameof(ViewDivision.DivisionID)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDivision)"
-                                                    SelectedDataItemChanged="item => GridDivisionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Name)" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Code)" Caption="Code" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Description)" Caption="Description" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.DivisionId" ShowValidationIcon="true" style="display:none;" />
-                                    <ValidationMessage For="@(() => Datas.DivisionId)" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                                    @*  <DxComboBox Data="@_departmentItems"
-                                    NullText="Select Department..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="DepartmentName"
-                                    ValueFieldName="DepartmentId"
-                                    Enabled="isDepartment"
-                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
-                                    @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
-                                    <Columns>
-                                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
-                                    Caption="Name"
-                                    Width="180px" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
-                                    Caption="Code" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
-                                    Caption="Description" />
-                                    </Columns>
-                                    </DxComboBox> *@
-                                    <DxDropDownBox @bind-Value="DepartmentValue"
-                                                   QueryDisplayText="QueryDepartmentText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Department..."
-                                                   Enabled="isDepartment"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_departmentItems"
-                                                    KeyFieldName="@nameof(ViewDepartment.DepartmentId)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDepartment)"
-                                                    SelectedDataItemChanged="item => GridDepartmentSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentName)" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentCode)" Caption="Code" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.Description)" Caption="Description" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true" style="display:none;" />
-                                    <ValidationMessage For="@(() => Datas.DepartmentId)" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                                    @* <DxComboBox Data="@_sectionItems"
-                                    NullText="Select Section..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="SectionName"
-                                    ValueFieldName="SectionId"
-                                    Enabled="isSection"
-                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
-                                    @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
-                                    <Columns>
-                                    <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
-                                    Caption="Name"
-                                    Width="180px" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
-                                    Caption="Code" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
-                                    Caption="Description" />
-                                    </Columns>
-                                    </DxComboBox> *@
-                                    <DxDropDownBox @bind-Value="SectionValue"
-                                                   QueryDisplayText="QuerySectionText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Section..."
-                                                   Enabled="isSection"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_sectionItems"
-                                                    KeyFieldName="@nameof(ViewSection.SectionId)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSection)"
-                                                    SelectedDataItemChanged="item => GridSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.SectionName)" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.SectionCode)" Caption="Code" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.Description)" Caption="Description" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.SectionId" ShowValidationIcon="true" style="display:none;" />
-                                    <ValidationMessage For="@(() => Datas.SectionId)" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-                                    @* <DxComboBox Data="@_subSectionItems"
-                                    NullText="Select SubSection..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="SubSectionName"
-                                    ValueFieldName="SubSectionId"
-                                    Enabled="isSubSection"
-                                    @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
-                                    <Columns>
-                                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
-                                    Caption="Name"
-                                    Width="180px" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
-                                    Caption="Code" />
-                                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
-                                    Caption="Description" />
-                                    </Columns>
-                                    </DxComboBox> *@
-                                    <DxDropDownBox @bind-Value="SubSectionValue"
-                                                   QueryDisplayText="QuerySubSectionText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Sub Section..."
-                                                   Enabled="isSubSection"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_subSectionItems"
-                                                    KeyFieldName="@nameof(ViewSubSection.SubSectionId)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSubSection)"
-                                                    SelectedDataItemChanged="item => GridSubSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionName)" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionCode)" Caption="Code" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.Description)" Caption="Description" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true" style="display:none;" />
-                                    <ValidationMessage For="@(() => Datas.SubSectionId)" />
-                                </DxFormLayoutItem>
-                            </Items>
-                        </DxFormLayoutGroup>
+                                </HeaderContentTemplate>
+                                <Items>
+                                    <DxFormLayoutItem Caption="Login From" ColSpanMd="3">
+                                        <DxTextBox @bind-Text="@_longInUser" Enabled="false" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Login Company" ColSpanMd="3">
+                                        <DxTextBox @bind-Text="@_longInCompany" Enabled="false" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Added By" ColSpanMd="3">
+                                        <DxTextBox NullText="Added By" @bind-Text="@_longInAddedBy" Enabled="false" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Added Date" ColSpanMd="3">
+                                        <DxDateEdit NullText="Date" @bind-Date="@_longInDateTime" Enabled="false" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Profile No" ColSpanMd="12">
+                                        <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                                        <DxDropDownBox @bind-Value="PlantValue"
+                                                       QueryDisplayText="QueryPlantText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Company..."
+                                                       Enabled="isPlant"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_plantItems"
+                                                        KeyFieldName="@nameof(ViewPlants.PlantID)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewPlants)"
+                                                        SelectedDataItemChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="PlantCode" />
+                                                        <DxGridDataColumn FieldName="Description" />
+                                                        <DxGridDataColumn FieldName="NavCompanyName" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.PlantId" ShowValidationIcon="true" style="display:none;" />
+                                        @*  <DxComboBox Data="@_plantItems"
+                                        NullText="Select Company..."
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="PlantCode"
+                                        ValueFieldName="PlantID"
+                                        SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                        Enabled="isPlant"
+                                        @bind-Value="@Datas.PlantId" ShowValidationIcon="true">
+                                        <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                        Caption="Plant Code"
+                                        Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                        Caption="Description" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                        Caption="Nav Company" />
+                                        </Columns>
+                                        </DxComboBox>*@
+                                        <ValidationMessage For="@(() => Datas.PlantId)" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                                        @*   <DxComboBox Data="@_divisionItems"
+                                        NullText="Select Division..."
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="Name"
+                                        ValueFieldName="DivisionID"
+                                        Enabled="isDivision"
+                                        SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
+                                        @bind-Value="@Datas.DivisionId" ShowValidationIcon="true">
+                                        <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                        Caption="Name"
+                                        Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                        Caption="Code" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                        Caption="Description" />
+                                        </Columns>
+                                        </DxComboBox> *@
+                                        <DxDropDownBox @bind-Value="DivisionValue"
+                                                       QueryDisplayText="QueryDivisionText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Division..."
+                                                       Enabled="isDivision"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_divisionItems"
+                                                        KeyFieldName="@nameof(ViewDivision.DivisionID)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDivision)"
+                                                        SelectedDataItemChanged="item => GridDivisionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Name)" Caption="Name" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Code)" Caption="Code" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Description)" Caption="Description" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.DivisionId" ShowValidationIcon="true" style="display:none;" />
+                                        <ValidationMessage For="@(() => Datas.DivisionId)" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                                        @*  <DxComboBox Data="@_departmentItems"
+                                        NullText="Select Department..."
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="DepartmentName"
+                                        ValueFieldName="DepartmentId"
+                                        Enabled="isDepartment"
+                                        SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
+                                        @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true">
+                                        <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                        Caption="Name"
+                                        Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                        Caption="Code" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                        Caption="Description" />
+                                        </Columns>
+                                        </DxComboBox> *@
+                                        <DxDropDownBox @bind-Value="DepartmentValue"
+                                                       QueryDisplayText="QueryDepartmentText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Department..."
+                                                       Enabled="isDepartment"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_departmentItems"
+                                                        KeyFieldName="@nameof(ViewDepartment.DepartmentId)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDepartment)"
+                                                        SelectedDataItemChanged="item => GridDepartmentSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentName)" Caption="Name" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentCode)" Caption="Code" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.Description)" Caption="Description" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true" style="display:none;" />
+                                        <ValidationMessage For="@(() => Datas.DepartmentId)" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                                        @* <DxComboBox Data="@_sectionItems"
+                                        NullText="Select Section..."
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="SectionName"
+                                        ValueFieldName="SectionId"
+                                        Enabled="isSection"
+                                        SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                                        @bind-Value="@Datas.SectionId" ShowValidationIcon="true">
+                                        <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                        Caption="Name"
+                                        Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                        Caption="Code" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                        Caption="Description" />
+                                        </Columns>
+                                        </DxComboBox> *@
+                                        <DxDropDownBox @bind-Value="SectionValue"
+                                                       QueryDisplayText="QuerySectionText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Section..."
+                                                       Enabled="isSection"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_sectionItems"
+                                                        KeyFieldName="@nameof(ViewSection.SectionId)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSection)"
+                                                        SelectedDataItemChanged="item => GridSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSection.SectionName)" Caption="Name" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSection.SectionCode)" Caption="Code" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSection.Description)" Caption="Description" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.SectionId" ShowValidationIcon="true" style="display:none;" />
+                                        <ValidationMessage For="@(() => Datas.SectionId)" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                                        @* <DxComboBox Data="@_subSectionItems"
+                                        NullText="Select SubSection..."
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="SubSectionName"
+                                        ValueFieldName="SubSectionId"
+                                        Enabled="isSubSection"
+                                        @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true">
+                                        <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                        Caption="Name"
+                                        Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                        Caption="Code" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                        Caption="Description" />
+                                        </Columns>
+                                        </DxComboBox> *@
+                                        <DxDropDownBox @bind-Value="SubSectionValue"
+                                                       QueryDisplayText="QuerySubSectionText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Sub Section..."
+                                                       Enabled="isSubSection"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_subSectionItems"
+                                                        KeyFieldName="@nameof(ViewSubSection.SubSectionId)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSubSection)"
+                                                        SelectedDataItemChanged="item => GridSubSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionName)" Caption="Name" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionCode)" Caption="Code" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.Description)" Caption="Description" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true" style="display:none;" />
+                                        <ValidationMessage For="@(() => Datas.SubSectionId)" />
+                                    </DxFormLayoutItem>
+                                </Items>
+                            </DxFormLayoutGroup>
+                        </EditForm>
+                    </DxFormLayout>
+                    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+
+                        @CreateEditFormFields()
                     </EditForm>
-                </DxFormLayout>
-                <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
-
-                    @CreateEditFormFields()
-                </EditForm>
-            </div>
-        </DxTabPage>
-        <DxTabPage Text="Approval" Visible="@isApproval">
-            <DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></DynamicFormApprovedFormList>
-            @*  <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
-            KeyFieldName="DynamicFormApprovedId">
-            <Columns>
-            <DxGridDataColumn FieldName="ApprovalUser" Caption="User" />
-            <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
-            <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
-            <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" />
-            <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
-            </Columns>
-            </DxGrid> *@
-        </DxTabPage>
-        <DxTabPage Text="Work Flow">
-            <div class="card w-100" style="margin-bottom:10px;">
-                <div class="card-body p-0">
-                    <DxMenu CollapseItemsToHamburgerMenu="true"
-                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                            DisplayMode="MenuDisplayMode.Auto">
-                        <Items>
-                            <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@EditEnabledApproval" />
-                        </Items>
-                    </DxMenu>
-
                 </div>
-            </div>
-            <DxGrid Data="_dynamicFormWorkFlowFormListItems" style="padding:10px;"
-                    KeyFieldName="DynamicFormWorkFlowId"
-                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                    PageSizeSelectorVisible="true"
-                    PageSizeSelectorAllRowsItemVisible="true"
-                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                    PageSize="20"
-                    CssClass="ch-360"
-                    FocusedRowEnabled="true"
-                    AllowSelectRowByClick="true"
-                    CustomizeElement="Grid_CustomizeElement"
-                    RowClick="OnRowApprovalClick"
-                    AutoExpandAllGroupRows="true"
-                    SelectionMode="GridSelectionMode.Single">
+            </DxTabPage>
+            <DxTabPage Text="Approval" Visible="@isApproval">
+                <DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></DynamicFormApprovedFormList>
+                @*  <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
+                KeyFieldName="DynamicFormApprovedId">
                 <Columns>
-                    <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
-                    <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
-                    <DxGridDataColumn FieldName="DynamicFormWorkFlowUser" Caption="Assigned User" />
-                    <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
-                    <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" />
+                <DxGridDataColumn FieldName="ApprovalUser" Caption="User" />
+                <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
+                <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
+                <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" />
+                <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
                 </Columns>
-            </DxGrid>
-        </DxTabPage>
-    </DxTabs>
+                </DxGrid> *@
+            </DxTabPage>
+            <DxTabPage Text="Work Flow">
+                <div class="card w-100" style="margin-bottom:10px;">
+                    <div class="card-body p-0">
+                        <DxMenu CollapseItemsToHamburgerMenu="true"
+                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                DisplayMode="MenuDisplayMode.Auto">
+                            <Items>
+                                <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@EditEnabledApproval" />
+                            </Items>
+                        </DxMenu>
+
+                    </div>
+                </div>
+                <DxGrid Data="_dynamicFormWorkFlowFormListItems" style="padding:10px;"
+                        KeyFieldName="DynamicFormWorkFlowId"
+                        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                        PageSizeSelectorVisible="true"
+                        PageSizeSelectorAllRowsItemVisible="true"
+                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                        PageSize="20"
+                        CssClass="ch-360"
+                        FocusedRowEnabled="true"
+                        AllowSelectRowByClick="true"
+                        CustomizeElement="Grid_CustomizeElement"
+                        RowClick="OnRowApprovalClick"
+                        AutoExpandAllGroupRows="true"
+                        SelectionMode="GridSelectionMode.Single">
+                    <Columns>
+                        <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
+                        <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
+                        <DxGridDataColumn FieldName="DynamicFormWorkFlowUser" Caption="Assigned User" />
+                        <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
+                        <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" />
+                    </Columns>
+                </DxGrid>
+            </DxTabPage>
+        </DxTabs>
     </div>
 
 </div>
@@ -717,7 +717,7 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm  @ref="refDynamicFormDataWorkFlowApprovalForm" SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
+        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm @ref="refDynamicFormDataWorkFlowApprovalForm" SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
@@ -748,10 +748,10 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
-    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
-    private DynamicFormFilterByForm refDynamicFormFilterByForm{ get; set; }
-    private DynamicFormApprovedFormList refDynamicFormApprovedFormList {get;set;}
-    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm  refDynamicFormDataWorkFlowApprovalForm{get;set;}
+    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
+    private DynamicFormFilterByForm refDynamicFormFilterByForm { get; set; }
+    private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm refDynamicFormDataWorkFlowApprovalForm { get; set; }
     string? workflowStyle { get; set; } = "display:none;";
     private DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); string? ApproveRejectWokFlowName { get; set; } = "Approve";
     public bool IsWorkflowApprovalApproved { get; set; } = false; public bool IsWorkflowApprovalRejected { get; set; } = false; public bool IsWokFlowDescriptionOpen { get; set; } = false;
@@ -1165,8 +1165,8 @@
                                 }
                                 // if (isGoWorkFlow == true)
                                 //{
-                                _sequenceNoList = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
-                                var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowDone == 0).OrderBy(x => x.SequenceNo).ToList();
+                                _sequenceNoList = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowFormDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
+                                var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowFormDone == 0).OrderBy(x => x.SequenceNo).ToList();
                                 if (_sequenceNoList.Count() > 0)
                                 {
                                     foreach (var itemss in _sequenceNoList)
@@ -1174,8 +1174,12 @@
                                         var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
                                         if (notdata != null && notdata.Count > 0)
                                         {
-                                            _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
-                                            break;
+                                            //var dones=notdata.Where(w => w.IsWorkFlowDone == 1).ToList();
+                                           // if(dones!=null && dones.Count()>0)
+                                           // {
+                                                _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
+                                                break;
+                                           // }
                                         }
                                     }
                                 }
@@ -1185,7 +1189,7 @@
                                 {
                                     var firsts = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault();
                                     var notapprovalExits = _dynamicFormWorkFlowApprovedFormList.FirstOrDefault(f => f.IsApproved != true);
-                                    if (notapprovalExits != null)
+                                    if (notapprovalExits != null && notapprovalExits.FlowStatusID == 1)
                                     {
                                         _dynamicFormWorkFlowApprovedFormOne = notapprovalExits;
                                         if (notapprovalExits.UserID == applicationUser.UserID)
@@ -1244,8 +1248,8 @@
                                     dynamicFormWorkFlowForm.DynamicFormWorkFlowId = listsItems[0].DynamicFormWorkFlowId;
                                     dynamicFormWorkFlowForm.SequenceNo = listsItems[0].SequenceNo;
                                     dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = listsItems[0].DynamicFormWorkFlowUser;
-                                    dynamicFormWorkFlowForm.CompletedDate = listsItems[0].FlowStatusID ==1 ? listsItems[0].CompletedDate : null;
-                                    dynamicFormWorkFlowForm.CompletedBy = listsItems[0].FlowStatusID == 1? listsItems[0].CompletedBy : null;
+                                    dynamicFormWorkFlowForm.CompletedDate = listsItems[0].FlowStatusID == 1 ? listsItems[0].CompletedDate : null;
+                                    dynamicFormWorkFlowForm.CompletedBy = listsItems[0].FlowStatusID == 1 ? listsItems[0].CompletedBy : null;
                                     dynamicFormWorkFlowForm.FlowStatusID = listsItems[0].FlowStatusID;
                                     dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = listsItems[0].DynamicFormWorkFlowFormId;
                                     _dynamicFormWorkFlowFormListItems.Add(dynamicFormWorkFlowForm);
@@ -2754,6 +2758,10 @@
         {
             NavigationManager.NavigateTo("DynamicFormApprovedMainList/DynamicFormApprovedList/" + SessionId);
         }
+        else if (UrlList[0].ToLower() == "DynamicFormWorkFlowSectionApprovalLists".ToLower())
+        {
+            NavigationManager.NavigateTo("DynamicFormWorkFlowSectionApprovalLists");
+        }
         else
         {
             if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
@@ -3774,7 +3782,7 @@
         var _AttributeHeaders = _AttributeHeader;
         if (Data != null)
         {
-            var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0;int sec = 0;
+            var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0; int sec = 0;
             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
             {
 
@@ -7811,7 +7819,7 @@
     }
     void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
-        var appcount= s.ApplicationMaster.Count();
+        var appcount = s.ApplicationMaster.Count();
         s.ApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -7831,7 +7839,7 @@
             {
                 editor11.OpenElement(i + 1, "div");
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                if(appcount==1)
+                if (appcount == 1)
                 {
                     editor11.AddContent(i + 1, s.DisplayName);
                 }
@@ -8443,7 +8451,7 @@
 
     void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
-        var appcount=q.SubApplicationMaster.Count();
+        var appcount = q.SubApplicationMaster.Count();
         q.SubApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -8464,7 +8472,7 @@
                 editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1,q.Description);
+                    editor11.AddContent(i + 1, q.Description);
                 }
                 else
                 {

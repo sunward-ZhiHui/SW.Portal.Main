@@ -76,6 +76,9 @@ namespace Core.Entities
         public string? UserName { get; set; }
         public long? DynamicFormDataId { get; set; }
         public long? DynamicFormWorkFlowFormId { get; set; }
+        public int? IsWorkFlowFormDone { get; set; } = 0;
+        public int? DynamicFormWorkFlowFormTotalCount { get; set; }
+        public int? DynamicFormWorkFlowFormCount { get; set; }
     }
     public class DynamicFormWorkFlowForm
     {

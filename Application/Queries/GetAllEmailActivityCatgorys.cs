@@ -22,6 +22,15 @@ namespace Application.Queries
             this.TopicId = TopicId;
         }
     }
+    public class GetTagLockInfo : IRequest<bool>
+    {
+        public long TopicId { get; set; }
+        public GetTagLockInfo(long TopicId)
+        {
+            this.TopicId = TopicId;
+        }
+    }
+    
 
     public class CreateEmailActivityCatgorysQuery : EmailActivityCatgorys, IRequest<long>
     {

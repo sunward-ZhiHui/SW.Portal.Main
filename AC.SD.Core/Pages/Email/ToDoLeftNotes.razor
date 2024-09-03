@@ -180,7 +180,7 @@
          Width="300px">
     <BodyContentTemplate>
         <p>
-            Do you want to Delete
+            Deleting this record will remove all associated data.
         </p>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -365,7 +365,7 @@
                         AddedDate = DateTime.Now,
                         ModifiedDate = DateTime.Now,
                         SessionId = Guid.NewGuid(),
-                        IsDelete = false
+                      
                     };
 
             try
@@ -401,8 +401,7 @@
                         ModifiedDate = DateTime.Now,
                         AddedDate = editModel.AddedDate,
                         SessionId = editModel.SessionId,
-                        IsDelete = false
-
+                       
                     };
 
             var ans = await Mediator.Send(UpdateReq);
@@ -521,6 +520,7 @@
         var request = new GetAllDelete(_selectedItems.ID);
         await Mediator.Send(request);
         await UpdateDataAsync();
+        NotesId?.Invoke((long)_selectedItems.ID);
         toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
         deletepopup = false;
         StateHasChanged();

@@ -37,11 +37,17 @@
                         <ApprovalDynamicDataForm @ref="refApprovalDynamicDataForm"></ApprovalDynamicDataForm>
                     </div>
                 </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Dynamic Form Section Approval" Click="OnTabClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <DynamicFormSectionApprovedPage @ref="refDynamicFormWorkFlowSectionApprovals"></DynamicFormSectionApprovedPage>
+                    </div>
+                </DxFormLayoutTabPage>
             </div>
         </DxFormLayoutTabPages>
     </DxFormLayout>
 </div>
 @code {
+    private DynamicFormSectionApprovedPage refDynamicFormWorkFlowSectionApprovals;
     private DynamicFormPendingApproval refDynamicFormPendingApproval;
     private ApprovalDynamicDataForm refApprovalDynamicDataForm;
     [Parameter]
@@ -88,6 +94,7 @@
         //System.GC.Collect();
         refDynamicFormPendingApproval?.DisposeAsync();
         refApprovalDynamicDataForm?.DisposeAsync();
+        refDynamicFormWorkFlowSectionApprovals?.DisposeAsync();
         //GC.SuppressFinalize(this);
     }
 }

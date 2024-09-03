@@ -1,0 +1,156 @@
+﻿@using Application.Queries
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@inject IJSRuntime JSRuntime;
+@using System.Collections.Generic
+@using System.Reflection;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+@inject HttpClient httpClient;
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.IO;
+@using System.ComponentModel;
+@using System;
+@using System.Linq;
+@using global::Core.Repositories.Query
+@implements IAsyncDisposable;
+
+
+<div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+    <div class="card w-100" style="margin-bottom:10px;">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Enabled ="@EditEnabled" Click="@addUseredit"/>
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Visible="false" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="UserGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_userTags"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                KeyFieldName="ID"
+                EditModelSaving="Grid_EditModelSaving"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Single"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+              
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
+            <Columns>
+              
+                <DxGridDataColumn FieldName="UserTag" MinWidth="80" />
+               
+              
+            </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var plant = (EmailActivityCatgorys)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+
+                    <DxFormLayoutItem Caption="UserTag Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.UserTag" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.UserTag)" />
+                    </DxFormLayoutItem>
+                   
+                 
+                </DxFormLayout>
+            </EditFormTemplate>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+@code {
+
+    bool PanelVisible { get; set; }
+    IGrid? UserGrid { get; set; }
+  
+    internal List<EmailActivityCatgorys>? _userTags;
+    public ApplicationUser? applicationUser { get; private set; }
+    bool EditEnabled { get; set; } = false;
+    private EmailActivityCatgorys _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _userTags = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
+        PanelVisible = false;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserTag");
+        _selectedItems = _userTags.FirstOrDefault(f => f.UserTag == UniqueId);
+        EditEnabled = true;
+        StateHasChanged();
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editmodel = (EmailActivityCatgorys)e.EditModel;
+        if (e.IsNew)
+        {
+        }
+        else
+        {
+            var request = await Mediator.Send(new EditUserTagQery(_selectedItems.UserTag, editmodel.UserTag));
+
+
+
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+    }
+    void addUseredit()
+    {
+        UserGrid?.StartEditDataItemAsync(_selectedItems);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_userTags != null)
+        {
+            _userTags.Clear();
+            _userTags = null;
+        }
+        _selectedItems = null;
+    }
+}

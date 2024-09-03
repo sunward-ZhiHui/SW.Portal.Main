@@ -11,6 +11,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace Infrastructure.Repository.Query
 {
@@ -24,7 +25,8 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT DISTINCT Name FROM EmailActivityCatgorys WHERE Name IS NOT NULL AND Name != ''";
+                //var query = "SELECT DISTINCT Name FROM EmailActivityCatgorys WHERE Name IS NOT NULL AND Name != ''";
+                var query = "SELECT DISTINCT Name,Min(ID)  as ID FROM EmailActivityCatgorys WHERE Name IS NOT NULL AND Name != '' Group By Name";
 
                 using (var connection = CreateConnection())
                 {
@@ -223,12 +225,71 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", UserID);
-                var query = "SELECT DISTINCT UserTag FROM EmailTopicUserTags where AddedByUserID = @UserID and UserTag IS NOT NULL AND UserTag != ''";
-
+                //  var query = "SELECT DISTINCT UserTag FROM EmailTopicUserTags where AddedByUserID = @UserID and UserTag IS NOT NULL AND UserTag != ''";
+                var query = @"SELECT DISTINCT UserTag ,Min(ID)  as ID FROM EmailTopicUserTags where AddedByUserID = @UserID and UserTag IS NOT NULL AND UserTag != ''Group By UserTag";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public  async Task<string> UpdateOtherAsync(string othertag,string Name)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("othertag", othertag);
+                        parameters.Add("Name", Name);
+                        var query = "Update EmailActivityCatgorys Set Name = @Name where Name = @othertag";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected.ToString();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<string> UpdateuserAsync(string userTag, string Name)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("userTag", userTag);
+                        parameters.Add("Name", Name);
+
+                        var query = "Update EmailTopicUserTags Set UserTag = @Name where UserTag = @userTag";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected.ToString();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
             }
             catch (Exception exp)
             {

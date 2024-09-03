@@ -1807,11 +1807,12 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("actName", EmailTopics.actName);
                         parameterss.Add("UserTag", EmailTopics.UserTag);
                         parameterss.Add("UserTagId", EmailTopics.UserTagId);
-
+                        parameterss.Add("TagLock", EmailTopics.TagLock);
                         parameterss.Add("UserType", EmailTopics.UserType);
                         parameterss.Add("ToUserGroup", EmailTopics.ToUserGroup);
                         parameterss.Add("CCUserGroup", EmailTopics.CCUserGroup);
                         parameterss.Add("ParticipantsUserGroup", EmailTopics.ParticipantsUserGroup);
+                        parameterss.Add("NoOfDays", EmailTopics.NoOfDays);
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
@@ -1854,14 +1855,15 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("OnDraft", EmailTopics.OnDraft);
                         parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
                         parameterss.Add("NotifyUser", EmailTopics.NotifyUser);
-
+                        parameterss.Add("TagLock", EmailTopics.TagLock);                        
                         parameterss.Add("Follow", EmailTopics.Follow);
                         parameterss.Add("OnBehalf", EmailTopics.OnBehalf);
                         parameterss.Add("Urgent", EmailTopics.Urgent);
                         parameterss.Add("OverDue", EmailTopics.OverDue);
                         parameterss.Add("DueDate", EmailTopics.DueDate);
+                      
 
-                        
+
 
                         parameterss.Add("To", EmailTopics.To);
                         parameterss.Add("CC", EmailTopics.CC);

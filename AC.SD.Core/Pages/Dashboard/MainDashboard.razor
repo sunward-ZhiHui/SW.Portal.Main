@@ -59,6 +59,28 @@
     {
         ActiveTabIndex = ActiveIndex;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        var pushToken = await _localStorageService.GetItemOne("PushToken");
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+
+
+        if (checkauthorize == null)
+        {
+            NavigationManager.NavigateTo($"Login");
+        }
+        else
+        {
+            if (pushToken != null)
+            {
+                var rstdata = await Mediator.Send(new AddPushTokenID(applicationUser.LoginID, "Web", pushToken));
+            }
+            // NavigationManager.NavigateTo("/hrms/Dashboard");
+        }
+
     }
 
     void OnTabClick(TabClickEventArgs e)

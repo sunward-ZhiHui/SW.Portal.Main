@@ -62,7 +62,7 @@
         <Columns>
            @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="SoSalesOrderId" Caption="Date" MinWidth="80" Visible="false" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Date" Width="180">
+            <DxGridDataColumn FieldName="AddedDate" Caption="Date" Width="180">
                 <CellDisplayTemplate>
                     @{
                         var item = (View_SoSalesOrder)context.DataItem;

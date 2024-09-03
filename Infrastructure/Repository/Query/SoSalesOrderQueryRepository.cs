@@ -23,7 +23,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from view_SoSalesOrder Order By ModifiedDate Desc ";
+                var query = "select  * from view_SoSalesOrder Order By AddedDate Desc ";
 
                 using (var connection = CreateConnection())
                 {

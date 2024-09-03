@@ -22,6 +22,9 @@
                     DisplayMode="MenuDisplayMode.Auto">
 
                 <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                    @*  <DxMenuItem Position="ItemPosition.End" title="Export to XLS" IconCssClass="fa fa-filter" Click="ExportXls_Click" /> *@
+                    <DxMenuItem Position="ItemPosition.End" title="Export to CSV" IconCssClass="fas fa-file-csv" Click="ExportCsv_Click" />
                     <DxMenuItem Position="ItemPosition.End" title="Search And Filter" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter())" id=@($"flyout-overview-target-container-FilterDocuments") />
                 </Items>
             </DxMenu>
@@ -407,14 +410,6 @@
             </DxGridBandColumn>
             <DxGridDataColumn FieldName="Remarks" Caption="Remarks" Width="300" />
         </Columns>
-        <ToolbarTemplate>
-            <DxToolbar>
-                <DxToolbarItem Text="Export to XLSX" Click="ExportXlsx_Click" BeginGroup="true" />
-                <DxToolbarItem Text="Export to XLS" Click="ExportXls_Click" BeginGroup="true" />
-                <DxToolbarItem Text="Export to CSV" Click="ExportCsv_Click" BeginGroup="true" />
-
-            </DxToolbar>
-        </ToolbarTemplate>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ItemNo" />
         </TotalSummary>
@@ -511,7 +506,7 @@
     private List<ViewPlants>? _plantItems;
     private List<NavMethodCodeModel>? _navMethodCodeModeltems;
     bool IsFilterOpen { get; set; } = false;
-    bool PanelVisible { get; set; }
+    bool PanelVisible { get; set; } = true;
     private List<INPCalendarPivotModel> _simulationItems = new List<INPCalendarPivotModel>();
     private List<DropDownOptionsModel> _versionItems = new List<DropDownOptionsModel>();
     private List<DropDownOptionsModel> _salesCategoryItems = new List<DropDownOptionsModel>();
@@ -527,6 +522,7 @@
     public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
+        PanelVisible = true;
         dateRangeModel.StockMonth = DateTime.Now;
         dateRangeModel.CompanyId = 1; dateRangeModel.VersionId = null;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -672,7 +668,7 @@
     }
     void CheckedReadWriteChanged(bool value)
     {
-        dateRangeModel.IsSteroid = true;
+        dateRangeModel.IsSteroid = false;
         dateRangeModel.IsSteroids = false;
         dateRangeModel.IsNonSteroids = value;
         if (dateRangeModel.IsNonSteroids == false)

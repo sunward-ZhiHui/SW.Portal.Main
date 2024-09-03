@@ -50,6 +50,7 @@ namespace Core.Entities
         public string? OnBehalfName { get; set; }
         public bool? Urgent { get; set; }
         public bool? NotifyUser { get; set; }
+        public bool? TagLock { get; set; }
         public bool? OverDue { get; set; }
         public bool? IsArchive { get; set; }
         [NotMapped]

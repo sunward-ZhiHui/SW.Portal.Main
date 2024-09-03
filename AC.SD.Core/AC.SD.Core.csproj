@@ -73,6 +73,7 @@
 	  <PackageReference Include="Quick.AspNetCore.Components.Web.Extensions" Version="6.0.2" />
 	  <PackageReference Include="RtfPipe" Version="2.0.7677.4303" />
 	  <PackageReference Include="Solutaris.InfoWARE.ProtectedBrowserStorage" Version="1.0.1" />
+	  <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
 	  <PackageReference Include="Toast.Blazor" Version="1.0.2" />
 	  <PackageReference Include="ViewerJsBlazor" Version="1.0.0" />
 	  <PackageReference Include="WebPush" Version="1.0.12" />

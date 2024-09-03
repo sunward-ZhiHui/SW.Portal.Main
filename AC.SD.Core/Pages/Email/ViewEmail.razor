@@ -1593,6 +1593,7 @@
 
 
 @code {
+    long reply_id = 0;
     string UserTagTxt { get; set; }    
     private PersistingComponentStateSubscription? subscription;
     private string elapsedTime;
@@ -1603,6 +1604,7 @@
     bool IsUserGroupCCOpen { get; set; } = false;    
     async Task OnButtonUserGroupToClick()
     {
+        IsUserGroupToOpen = false;
         await JSRuntime.InvokeAsync<string>("showLoading");
 
         var toids = Data.AssigntoIds.Select(id => (long?)id).ToList() ?? new List<long?>();
@@ -1610,7 +1612,7 @@
         ids.Add(applicationUser.UserID);
         ids.AddRange(toids);
         //_participantUserGroup = await Mediator.Send(new GetAllUserGroups());
-         _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
+        _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
         _ToUserGroup = _participantUserGroup;
         //_CCUserGroup = _participantUserGroup;
 
@@ -1620,10 +1622,12 @@
         await JSRuntime.InvokeAsync<string>("hideLoading");
 
         IsUserGroupToOpen = true;
+        StateHasChanged();
     }
 
     async Task OnButtonUserGroupCCClick()
     {       
+        IsUserGroupCCOpen = false;
         var toids = Data.AssigntoIds.Select(id => (long?)id).ToList() ?? new List<long?>();
         var ids = Data.AssignccIds.Select(id => (long?)id).ToList() ?? new List<long?>();
         ids.Add(applicationUser.UserID);
@@ -1645,6 +1649,7 @@
         await JSRuntime.InvokeAsync<string>("hideLoading");
 
         IsUserGroupCCOpen = true;
+        StateHasChanged();
     }
 
     async Task HandleValidUserGroupTo()
@@ -2750,6 +2755,8 @@
         MyHeight =  $"{args.Size.Height}px";
         string setHeight = $"{args.Size.Height - 320}";
         string selector = ".editor-box-height";
+        IsUserGroupCCOpen = false;
+        IsUserGroupToOpen = false;
 
         //await JSRuntime.InvokeVoidAsync("adjustHeight", setHeight);
         await JSRuntime.InvokeVoidAsync("setHeight", selector, setHeight);
@@ -2764,11 +2771,13 @@
 
         if (RTopicId == 0)
         {
-            await LoadData();
+            //await LoadData();
+            await replyslst();
         }
         else
         {
-            await LoadReplyData();
+            //await LoadReplyData();
+            await replyslst();
         }
 
         if(isLeftMenuvisible == "AssignTo")
@@ -2788,11 +2797,13 @@
 
         if (RTopicId == 0)
         {
-            await LoadData();
+            //await LoadData();
+            await replyslst();
         }
         else
         {
-            await LoadReplyData();
+            //await LoadReplyData();
+            await replyslst();
         }
 
         if (isLeftMenuvisible == "AssignTo")
@@ -2813,6 +2824,18 @@
         }
 
 
+    }
+    private async Task replyslst()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+          if (_replyDiscussionList != null)
+          {
+              _replyDiscussionList.Clear();
+              _replyDiscussionList = null;
+          }
+
+        _replyDiscussionList = await Mediator.Send(new GetOnReplyDiscussionList(reply_id, applicationUser.UserID));
+        await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     private async Task GoBack()
     {
@@ -4476,6 +4499,7 @@
     }
     private async Task ToggleItemVisibility(int id)
     {
+        reply_id = id;
         // Check if the clicked item is already open
         if (itemVisibility.ContainsKey(id) && itemVisibility[id])
         {
@@ -4965,6 +4989,8 @@
     {
         // Handle drag completed event if needed
         //msgrichEdit.NewDocumentAsync();
+         IsUserGroupCCOpen = false;
+         IsUserGroupToOpen = false;
     }
 
     async Task onRichTxtChangeFontsize()
@@ -5774,6 +5800,8 @@
         Data.Name = null;
         IsReadOnly = true;
         WindowVisible = false;
+        IsUserGroupCCOpen = false;
+        IsUserGroupToOpen = false;
     }
     void OnLeftMenuItemClick(string text)
     {

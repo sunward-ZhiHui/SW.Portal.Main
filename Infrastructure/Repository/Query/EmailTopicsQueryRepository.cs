@@ -1854,7 +1854,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("OnDraft", EmailTopics.OnDraft);
                         parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
                         parameterss.Add("NotifyUser", EmailTopics.NotifyUser);
-
+                        parameterss.Add("TagLock", EmailTopics.TagLock);                        
                         parameterss.Add("Follow", EmailTopics.Follow);
                         parameterss.Add("OnBehalf", EmailTopics.OnBehalf);
                         parameterss.Add("Urgent", EmailTopics.Urgent);

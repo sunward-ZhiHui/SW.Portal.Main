@@ -37,6 +37,13 @@ using System.Dynamic;
 using System.Text.Json;
 using static iText.Svg.SvgConstants;
 using System.Text.Json.Nodes;
+using System.Net.Http;
+using System.Threading.Tasks;
+using static Duende.IdentityServer.IdentityServerConstants;
+using FirebaseNet.Messaging;
+using Google.Apis.Auth.OAuth2;
+using DevExpress.CodeParser;
+using System.Drawing;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -50,7 +57,9 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
         private readonly FirestoreDb _db;
-        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration, IDocumentsQueryRepository documentsqueryrepository, FirestoreDb db)
+        private readonly HttpClient _httpClient;
+        
+        public EmailController(IWebHostEnvironment host,IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration, IDocumentsQueryRepository documentsqueryrepository, FirestoreDb db, HttpClient httpClient)
         {
             _hostingEnvironment = host;
             _mediator = mediator;
@@ -58,6 +67,7 @@ namespace SW.Portal.Solutions.Controllers
             _configuration = configuration;
             _documentsqueryrepository = documentsqueryrepository;
             _db = db ?? throw new ArgumentNullException(nameof(db));
+            _httpClient = httpClient;
         }
 
         
@@ -499,7 +509,7 @@ namespace SW.Portal.Solutions.Controllers
                     {
                         //tokenStringList.Add(lst.TokenID.ToString());
 
-                        await PushNotification(lst.TokenID.ToString(), title, bodymsg,lst.DeviceType == "Mobile"? "" :hosturls);
+                       await PushNotification(lst.TokenID.ToString(), title, bodymsg,lst.DeviceType == "Mobile"? "" :hosturls);
                     }
 
                 }
@@ -509,38 +519,111 @@ namespace SW.Portal.Solutions.Controllers
 
             return "ok";
         }
+
+        //[HttpGet("PushNotification")]
+        //public async Task<string> PushNotification(string token, string title, string message, string hosturl)
+        //{
+        //    var serverToken = _configuration["FcmNotification:ServerKey"];
+        //    var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+        //    var pushNotificationRequest = new
+        //    {
+        //        notification = new
+        //        {
+        //            title = title,
+        //            body = message,
+        //            icon = baseurl + "_content/AC.SD.Core/images/SWLogo.png",
+        //            click_action = hosturl
+        //        },
+        //        //data = new Dictionary<string, string>
+        //        //{
+        //        //    { "url", hosturl}
+        //        //},              
+        //        registration_ids = new List<string> { token }
+        //        //registration_ids = token
+        //    };
+
+        //    string url = "https://fcm.googleapis.com/fcm/send";
+        //    using (var client = new HttpClient())
+        //    {
+        //        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=" + serverToken);
+
+        //        string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
+        //        var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
+        //    }
+        //    return "ok";
+        //}
+
         [HttpGet("PushNotification")]
-        public async Task<string> PushNotification(string token, string title, string message, string hosturl)
+        public async Task<string> PushNotification(string tokens, string titles, string message, string hosturl)
         {
-            var serverToken = _configuration["FcmNotification:ServerKey"];
             var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+            var projectId = _configuration["FcmNotification:ProjectId"];
+            var oauthToken = await GetAccessTokenAsync(_hostingEnvironment);
+            var iconUrl = baseurl + "_content/AC.SD.Core/images/SWLogo.png";
+
             var pushNotificationRequest = new
             {
-                notification = new
+                message = new
                 {
-                    title = title,
-                    body = message,
-                    icon = baseurl + "_content/AC.SD.Core/images/SWLogo.png",
-                    click_action = hosturl
-                },
-                //data = new Dictionary<string, string>
-                //{
-                //    { "url", hosturl}
-                //},              
-                registration_ids = new List<string> { token }
-                //registration_ids = token
+                    token = tokens,
+                    notification = new
+                    {
+                        title = titles,
+                        body = message
+                    },
+                    webpush = new
+                    {
+                        fcm_options = new
+                        {
+                            link = hosturl
+                        }
+                    }
+                }
             };
 
-            string url = "https://fcm.googleapis.com/fcm/send";
+            string url = $"https://fcm.googleapis.com/v1/projects/{projectId}/messages:send";
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=" + serverToken);
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", oauthToken);
 
-                string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
-                var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
+                try
+                {
+                    string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
+                    var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    // Log response content for debugging
+                    Console.WriteLine(responseContent);
+
+                    return responseContent; // Return response or analyze as needed
+                }
+                catch (Exception ex)
+                {
+                    // Log exceptions for further analysis
+                    Console.WriteLine($"Error sending notification: {ex.Message}");
+                    return $"Error: {ex.Message}";
+                }
             }
-            return "ok";
         }
+
+        private async Task<string> GetAccessTokenAsync(IWebHostEnvironment env)
+        {
+            string relativePath = _configuration["FcmNotification:FilePath"];
+
+            string path = Path.Combine(env.ContentRootPath, relativePath);
+
+            GoogleCredential credential = await GoogleCredential.FromFileAsync(path, CancellationToken.None);
+
+            credential = credential.CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
+
+            var token = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+            return token;
+        }
+
+
+
+
+
 
         [HttpGet("GetDocumentList")]
         public async Task<ActionResult<ResponseModel<List<DocumentsView>>>> GetDocumentList(long id)
@@ -766,4 +849,17 @@ namespace SW.Portal.Solutions.Controllers
         }
 
     }
+
+    public class FCMResponse
+    {
+        public int Success { get; set; }
+        public int Failure { get; set; }
+        public List<FCMResult> Results { get; set; }
+    }
+
+    public class FCMResult
+    {
+        public string Error { get; set; }
+    }
+
 }

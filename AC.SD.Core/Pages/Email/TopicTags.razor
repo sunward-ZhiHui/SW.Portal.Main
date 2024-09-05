@@ -206,6 +206,7 @@
     private List<ApplicationMasterChildModel>? _groupTagItems;
     private List<ApplicationMasterChildModel>? _categoryTagItems;
     private List<ApplicationMasterChildModel>? _actionTagItems;
+    bool isTagLock { get; set; }
 
 
     void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
@@ -284,6 +285,8 @@
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
+
+        isTagLock = await Mediator.Send(new GetTagLockInfo(TopicId));
 
         if(_topicCategorys.Count > 0)
         {
@@ -550,23 +553,43 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _topicCategorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
 
-
-        if (_selectedItems.IsTagDelete.GetValueOrDefault(false))
+        if(isTagLock)
         {
-            DeleteEnabled = false;
+            EditEnabled = false;
+            AddEnabled = false;
+            DeleteEnabled = false;            
         }
         else
         {
-            DeleteEnabled = true;
+            if (_selectedItems.IsTagDelete.GetValueOrDefault(false))
+            {
+                DeleteEnabled = false;
+            }
+            else
+            {
+                DeleteEnabled = true;
+            }
+
+            EditEnabled = true;
+            
         }
 
-        EditEnabled = true;
+       
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        OnRowClick(e);
-        addEdit();
+        if (isTagLock)
+        {
+            EditEnabled = false;
+            AddEnabled = false;
+            DeleteEnabled = false;
+        }   
+        else
+        {
+            OnRowClick(e);
+            addEdit();
+        }
 
     }
     void addNew()
@@ -605,7 +628,7 @@
 
                 if (_selectedItems.CategoryTag != null && _selectedItems.CategoryTag !=0)
                 {
-                     await CategoryTagChangeEdit(_selectedItems.CategoryTag);
+                    await CategoryTagChangeEdit(_selectedItems.CategoryTag);
                 }
 
             }
@@ -662,17 +685,29 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
-
-        if (SelectedDataItems.Count > 1)
+        if(isTagLock)
         {
             EditEnabled = false;
-
+            AddEnabled = false;
+            DeleteEnabled = false;
+            
         }
         else
         {
-            EditEnabled = true;
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false;
 
+            }
+            else
+            {
+                EditEnabled = true;
+
+            }
         }
+       
+
+      
     }
     public void Dispose()
     {

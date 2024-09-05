@@ -257,18 +257,35 @@ namespace Infrastructure.Repository.Query
                 }
 
                 var userIdsArray = userIds.Where(id => id.HasValue).Select(id => id.Value).ToArray();
+                //var query1 = $@"SELECT ug.* FROM UserGroup ug
+                //                CROSS APPLY (
+                //                    SELECT DISTINCT UG.UserGroupID 
+                //                    FROM UserGroupUser UG
+                //                    WHERE NOT EXISTS (
+                //                        SELECT * 
+                //                        FROM dbo.SplitString(@userIdsString, ',') S 
+                //                        WHERE S.Value = UG.UserID
+                //                    )
+                //                ) CP
+                //                WHERE ug.UserGroupID = CP.UserGroupID 
+                //                AND ug.StatusCodeID = 1";
+
+
                 var query = $@"SELECT ug.* FROM UserGroup ug
                                 CROSS APPLY (
                                     SELECT DISTINCT UG.UserGroupID 
                                     FROM UserGroupUser UG
-                                    WHERE NOT EXISTS (
+									CROSS APPLY (SELECT E.UserID FROM Employee E
+										left join ApplicationMasterDetail AMD ON AMD.ApplicationMasterDetailID = E.AcceptanceStatus WHERE AMD.Value !='Resign' or AMD.Value is null
+										)C
+                                    WHERE C.UserID = UG.UserID AND NOT EXISTS (
                                         SELECT * 
                                         FROM dbo.SplitString(@userIdsString, ',') S 
                                         WHERE S.Value = UG.UserID
                                     )
                                 ) CP
                                 WHERE ug.UserGroupID = CP.UserGroupID 
-                                AND ug.StatusCodeID = 1";
+                                AND ug.StatusCodeID = 1 ";
 
                 using (var connection = CreateConnection())
                 {

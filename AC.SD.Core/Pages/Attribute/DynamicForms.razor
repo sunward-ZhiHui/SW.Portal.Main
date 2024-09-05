@@ -226,7 +226,7 @@
                     <DxFormLayout CssClass="w-100">
                         <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                             <DataAnnotationsValidator />
-                            <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+                            <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="@isPlant" AnimationType="LayoutAnimationType.Slide">
                                 <HeaderContentTemplate>
                                     <div>
                                         Profile No
@@ -1175,11 +1175,11 @@
                                         if (notdata != null && notdata.Count > 0)
                                         {
                                             //var dones=notdata.Where(w => w.IsWorkFlowDone == 1).ToList();
-                                           // if(dones!=null && dones.Count()>0)
-                                           // {
-                                                _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
-                                                break;
-                                           // }
+                                            // if(dones!=null && dones.Count()>0)
+                                            // {
+                                            _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
+                                            break;
+                                            // }
                                         }
                                     }
                                 }
@@ -2147,12 +2147,15 @@
         {
             plantDepIds.Add((long?)values);
             var plantDatas = _plantItems.FirstOrDefault(p => p.PlantID == values);
-            if (!string.IsNullOrEmpty(plantDatas.PlantCode) && plantDatas.PlantCode.ToLower() == "SWGP".ToLower())
+            if (plantDatas != null)
             {
-                plantDepIds = new List<long?>();
-                if (_plantItems != null && _plantItems.Count() > 0)
+                if (!string.IsNullOrEmpty(plantDatas.PlantCode) && plantDatas.PlantCode.ToLower() == "SWGP".ToLower())
                 {
-                    plantDepIds = _plantItems.Where(w => plantNames.Contains(w.PlantCode)).Select(s => (long?)s.PlantID).ToList();
+                    plantDepIds = new List<long?>();
+                    if (_plantItems != null && _plantItems.Count() > 0)
+                    {
+                        plantDepIds = _plantItems.Where(w => plantNames.Contains(w.PlantCode)).Select(s => (long?)s.PlantID).ToList();
+                    }
                 }
             }
             if (PlantDependencySubAttributeDetails != null && DataSourceTableIdss.Count > 0)
@@ -2287,17 +2290,20 @@
     {
         if (_dynamicform.IsApproval == true)
         {
-            IsSendApproval = _dynamicformData.IsSendApproval == true ? true : false;
-            if (_dynamicformData.IsApproval == true)
+            if (_dynamicformData != null)
             {
-                if (_dynamicformData.IsSendApproval == true)
+                IsSendApproval = _dynamicformData.IsSendApproval == true ? true : false;
+                if (_dynamicformData.IsApproval == true)
                 {
-                    IsSendApprovalVisible = false; IsApprovalSave = false;
-                    isVisibleButton = false; IsSave = false; //IsUploadEnabled = false;
-                }
-                else
-                {
-                    IsSendApprovalVisible = true; IsApprovalSave = true;
+                    if (_dynamicformData.IsSendApproval == true)
+                    {
+                        IsSendApprovalVisible = false; IsApprovalSave = false;
+                        isVisibleButton = false; IsSave = false; //IsUploadEnabled = false;
+                    }
+                    else
+                    {
+                        IsSendApprovalVisible = true; IsApprovalSave = true;
+                    }
                 }
             }
 

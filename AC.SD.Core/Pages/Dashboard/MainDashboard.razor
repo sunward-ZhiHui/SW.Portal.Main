@@ -42,11 +42,17 @@
                         <DynamicFormSectionApprovedPage @ref="refDynamicFormWorkFlowSectionApprovals"></DynamicFormSectionApprovedPage>
                     </div>
                 </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Memo" Click="OnTabClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <MemoLists @ref="refMemoLists"></MemoLists>
+                    </div>
+                </DxFormLayoutTabPage>
             </div>
         </DxFormLayoutTabPages>
     </DxFormLayout>
 </div>
 @code {
+    private MemoLists refMemoLists;
     private DynamicFormSectionApprovedPage refDynamicFormWorkFlowSectionApprovals;
     private DynamicFormPendingApproval refDynamicFormPendingApproval;
     private ApprovalDynamicDataForm refApprovalDynamicDataForm;
@@ -95,6 +101,7 @@
         refDynamicFormPendingApproval?.DisposeAsync();
         refApprovalDynamicDataForm?.DisposeAsync();
         refDynamicFormWorkFlowSectionApprovals?.DisposeAsync();
+        refMemoLists?.DisposeAsync();
         //GC.SuppressFinalize(this);
     }
 }

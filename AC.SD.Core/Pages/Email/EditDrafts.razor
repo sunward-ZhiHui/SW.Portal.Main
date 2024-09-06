@@ -1461,7 +1461,7 @@ else
 
 
                 Data.NoOfDays = actItem[0].NoOfDays;
-                Data.TagLock = actItem[0].TagLock;
+                Data.TagLock = actItem[0].TagLock ?? false;
                 Data.TopicName = actItem[0].TopicName;
                 Data.OnBehalf = actItem[0].OnBehalf;
                 Data.Urgent = actItem[0].Urgent;

@@ -286,7 +286,28 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
 
-        isTagLock = await Mediator.Send(new GetTagLockInfo(TopicId));
+
+        var _isTagLock = await Mediator.Send(new GetTagLockInfo(TopicId));
+
+        if (_isTagLock)
+        {
+            if (_topicCategorys[0].AddedByUserID == applicationUser.UserID)
+            {
+                isTagLock = false;
+            }
+            else
+            {
+                isTagLock = _isTagLock;
+            }
+
+        }
+        else
+        {
+            isTagLock = _isTagLock;
+        }
+       
+
+
 
         if(_topicCategorys.Count > 0)
         {

@@ -64,7 +64,7 @@
          ShowCloseButton="true"
          Width="1000px">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm @ref="refDynamicFormDataWorkFlowApprovalForm" SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
+        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm @ref="refDynamicFormDataWorkFlowApprovalForm" EditEnabledApproval="@EditEnabledApproval" SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
@@ -155,12 +155,15 @@
             {
                 var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems.Select(s => s.IsAllowDelegateUser == true).Count();
                 _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault();
-                if (iIsAllowDelegateUserss > 0)
+                if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
                 {
-                    var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
-                    if (exits > 0)
+                    if (iIsAllowDelegateUserss > 0)
                     {
-                        EditEnabledApproval = true;
+                        var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
+                        if (exits > 0)
+                        {
+                            EditEnabledApproval = true;
+                        }
                     }
                 }
             }
@@ -172,12 +175,15 @@
         _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault(f => f.DynamicFormWorkFlowId == (long?)UniqueId);
         EditEnabledApproval = false;
         var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems.Select(s => s.IsAllowDelegateUser == true).Count();
-        if (iIsAllowDelegateUserss > 0)
+        if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
         {
-            var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
-            if (exits > 0)
+            if (iIsAllowDelegateUserss > 0)
             {
-                EditEnabledApproval = true;
+                var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
+                if (exits > 0)
+                {
+                    EditEnabledApproval = true;
+                }
             }
         }
     }
@@ -198,13 +204,13 @@
             DynamicFormWorkFlowItems.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
             DynamicFormWorkFlowItems.DynamicFormWorkFlowFormId = _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowFormId;
             DynamicFormWorkFlowItems.DynamicFormWorkFlowId = (long)_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowId;
-            if (_selectedDynamicFormWorkFlowItems.IsAllowDelegateUser == true)
-            {
-                if (_selectedDynamicFormWorkFlowItems.ActualUserId == applicationUser.UserID)
-                {
-                    DynamicFormWorkFlowItems.IsAllowDelegateUser = true;
-                }
-            }
+            // if (_selectedDynamicFormWorkFlowItems.IsAllowDelegateUser == true)
+            // {
+            //     if (_selectedDynamicFormWorkFlowItems.ActualUserId == applicationUser.UserID)
+            //     {
+            //         DynamicFormWorkFlowItems.IsAllowDelegateUser = true;
+            //     }
+            // }
             DynamicFormWorkFlowItems.IsNextFlow = true;
             if (sortbyy != null && sortbyy.FlowStatusID == 1)
             {

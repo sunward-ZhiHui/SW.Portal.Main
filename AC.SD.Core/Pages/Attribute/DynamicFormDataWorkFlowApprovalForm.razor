@@ -16,7 +16,7 @@
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
-@if (SelectedItems.DynamicFormDataId > 0 && SelectedItems.IsAllowDelegateUser==true)
+@if (SelectedItems.DynamicFormDataId > 0 && EditEnabledApproval == true)
 {
     <div class="card w-100" style="margin-bottom:10px;">
         <div class="card-body p-0">
@@ -219,6 +219,8 @@
     public DynamicFormWorkFlow SelectedItems { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
+    [Parameter]
+    public bool EditEnabledApproval { get; set; } = false;
     private List<ViewEmployee>? _usersList;
     private List<ViewEmployee>? _usersAllList;
     private List<DynamicFormWorkFlowApproval>? _dynamicFormWorkFlowApprovalList;
@@ -296,16 +298,15 @@
         _selectedItems = _dynamicFormWorkFlowApprovalList.FirstOrDefault(f => f.DynamicFormWorkFlowApprovalId == (long?)UniqueId);
         if (SelectedItems.DynamicFormDataId > 0 && _selectedItems.DynamicFormWorkFlowApprovedFormID > 0)
         {
-            if (SelectedItems.IsAllowDelegateUser == true)
+            // if (SelectedItems.IsAllowDelegateUser == true)
+            // {
+            if (SelectedItems.IsNextFlow == true)
             {
-                if (SelectedItems.IsNextFlow == true)
-                {
-
-                    EditDelegateEnabled = true;
-                    EditEnabled = true;
-                    DeleteEnabled = true;
-                }
+                EditDelegateEnabled = true;
+                EditEnabled = true;
+                DeleteEnabled = true;
             }
+            // }
         }
         StateHasChanged();
 
@@ -524,12 +525,12 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         SelectedDataItems = null;
         _usersList?.Clear();
         _usersAllList?.Clear();
         _dynamicFormWorkFlowApprovalList?.Clear();
-        _selectedItems=null;
+        _selectedItems = null;
         sortOrderList?.Clear();
         _selectedDynamicFormSectionItems = new DynamicFormWorkFlowApproval();
         _dynamicFormApprovedChangedList?.Clear();

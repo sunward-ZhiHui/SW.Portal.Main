@@ -117,6 +117,9 @@ namespace Core.Entities
         public long? ActualUserId { get; set; }
         public long? DelegateSectionUserId { get; set; }
         public string? DelegateSectionUserName { get; set; }
+        public int? DynamicFormWorkFlowFormTotalCount { get; set; }
+        public int? DynamicFormWorkFlowFormCount { get; set; }
+        public bool? DynamicFormWorkFlowApprovalFormCompleted { get; set; } = false;
     }
     public class DynamicFormDataUploadByPermission
     {

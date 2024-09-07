@@ -4301,6 +4301,7 @@ namespace Infrastructure.Repository.Query
                 {
                     parameters.Add("DynamicFormDataID", dynamicFormDataId);
                     var query = "select t2.IsAllowDelegateUserForm as IsAllowDelegateUser,t2.DynamicFormWorkFlowFormID as DynamicFormWorkFlowId,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as FlowStatusID, ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t2.DynamicFormDataID,t2.CompletedDate,t1.DynamicFormWorkFlowFormID,t2.DynamicFormWorkFlowSectionID,t2.UserID,t5.UserName as CompletedBy,t2.SequenceNo," +
+                         "(select  count(tt5.DynamicFormWorkFlowApprovedFormID) from DynamicFormWorkFlowApprovedForm tt5 where  tt5.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID) as DynamicFormWorkFlowFormTotalCount,\r\n(select  count(tt6.DynamicFormWorkFlowApprovedFormID) from DynamicFormWorkFlowApprovedForm tt6 where  tt6.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID AND tt6.IsApproved=1) as DynamicFormWorkFlowFormCount,\n\r" +
                         "\r\nt1.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,t5.UserName as DynamicFormWorkFlowUser from \r\n\r\n" +
                         "DynamicFormWorkFlowSectionForm t1 \r\n " +
                         "JOIN DynamicFormWorkFlowForm t2 ON t1.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID\r\n  " +
@@ -4327,6 +4328,13 @@ namespace Infrastructure.Repository.Query
                 {
                     result.ForEach(s =>
                     {
+                        if(s.DynamicFormWorkFlowFormTotalCount>0)
+                        {
+                            if(s.DynamicFormWorkFlowFormTotalCount== s.DynamicFormWorkFlowFormCount)
+                            {
+                                s.DynamicFormWorkFlowApprovalFormCompleted = true;
+                            }
+                        }
                         s.ActualUserId = s.UserId;
                         s.ActualUserName = s.DynamicFormWorkFlowUser;
                         var dynamicFormWorkFlowFormDelegateData = dynamicFormWorkFlowFormDelegates.OrderByDescending(o => o.DynamicFormWorkFlowFormDelegateID).Where(w => w.DynamicFormWorkFlowFormID == s.DynamicFormWorkFlowId).FirstOrDefault();

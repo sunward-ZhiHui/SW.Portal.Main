@@ -16,7 +16,7 @@
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
-@if (SelectedItems.DynamicFormDataId > 0)
+@if (SelectedItems.DynamicFormDataId > 0 && SelectedItems.IsAllowDelegateUser==true)
 {
     <div class="card w-100" style="margin-bottom:10px;">
         <div class="card-body p-0">
@@ -296,13 +296,15 @@
         _selectedItems = _dynamicFormWorkFlowApprovalList.FirstOrDefault(f => f.DynamicFormWorkFlowApprovalId == (long?)UniqueId);
         if (SelectedItems.DynamicFormDataId > 0 && _selectedItems.DynamicFormWorkFlowApprovedFormID > 0)
         {
-            if (SelectedItems.IsNextFlow == true)
+            if (SelectedItems.IsAllowDelegateUser == true)
             {
+                if (SelectedItems.IsNextFlow == true)
+                {
 
-                EditDelegateEnabled = true;
-                EditEnabled = true;
-                DeleteEnabled = true;
-
+                    EditDelegateEnabled = true;
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+                }
             }
         }
         StateHasChanged();

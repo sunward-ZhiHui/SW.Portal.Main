@@ -27,4 +27,12 @@ namespace Application.Queries
     {
 
     }
+    public class UpdateMemoUserAcknowledgement : MemoUser, IRequest<MemoUser>
+    {
+        public MemoUser MemoUser { get; set; }
+        public UpdateMemoUserAcknowledgement(MemoUser memoUser)
+        {
+            this.MemoUser = memoUser;
+        }
+    }
 }

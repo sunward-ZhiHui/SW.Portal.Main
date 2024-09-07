@@ -38,17 +38,30 @@
     }
 </style>
 
-    <div class="card-header text-center py-3">
-        <h4>@_dynamicform?.Name</h4>
-        @*  <p class="tm-8 mb-0 fw-normal fs-825">
-        Create a new account to see it in action
-        </p> *@
-    </div>
-    <div class="card" style="margin-top: 5px;padding: 5px;">
-        <div class="card-body p-0">
+<div class="card-header text-center py-3">
+    <h4>@_dynamicform?.Name</h4>
+    @*  <p class="tm-8 mb-0 fw-normal fs-825">
+    Create a new account to see it in action
+    </p> *@
+</div>
+<div class="card" style="margin-top: 5px;padding: 5px;">
+    <div class="card-body p-0">
         <div class="row" style="padding-bottom:10px;">
-                <div class="">
-                    @if (isMainLocked == true)
+            <div class="">
+                @if (isMainLocked == true)
+                {
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Desktop">
+                        <Items>
+                            <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                            <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                        </Items>
+                    </DxMenu>
+                }
+                else
+                {
+                    @if (isLocked == true)
                     {
                         <DxMenu CollapseItemsToHamburgerMenu="true"
                                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
@@ -61,7 +74,7 @@
                     }
                     else
                     {
-                        @if (isLocked == true)
+                        @if (isApprovalEnabled == true)
                         {
                             <DxMenu CollapseItemsToHamburgerMenu="true"
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
@@ -69,72 +82,59 @@
                                 <Items>
                                     <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+
+                                    <DxMenuItem Text="Save">
+                                        <Items>
+                                            <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
+                                            <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
+                                        </Items>
+                                    </DxMenuItem>
+                                    <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
+                                        <Items>
+                                            <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
+                                            <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="onClickReject" Enabled="IsApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                        <Items>
+                                            <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                            <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
                                 </Items>
                             </DxMenu>
                         }
                         else
                         {
-                            @if (isApprovalEnabled == true)
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-
-                                        <DxMenuItem Text="Save">
-                                            <Items>
-                                                <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
-                                                <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
-                                            </Items>
-                                        </DxMenuItem>
-                                        <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
-                                            <Items>
-                                                <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
-                                                <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="onClickReject" Enabled="IsApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                        <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                                        <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
-                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
-                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
-                                            <Items>
-                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
-                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                    </Items>
-                                </DxMenu>
-                            }
-                            else
-                            {
-                                <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
-                                        <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                                        <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
-                                        <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
-                                        <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
-                                            <Items>
-                                                <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
-                                                <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
-                                            </Items>
-                                        </DxMenuItem>
-                                    </Items>
-                                </DxMenu>
-                            }
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
+                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                    <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
+                                    <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
+                                    <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
+                                        <Items>
+                                            <DxMenuItem Text="Approve" IconCssClass="fa fa-check" Click="onClickWorkFlowApprove" Enabled=@IsWorkflowApprovalApproved />
+                                            <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                </Items>
+                            </DxMenu>
                         }
                     }
-                </div>
-
+                }
             </div>
+
         </div>
     </div>
+</div>
 <div class="card cw-480" style=" height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;">
     <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
         <DxTabPage Text="Form">
@@ -431,55 +431,10 @@
         </DxTabPage>
         <DxTabPage Text="Approval" Visible="@isApproval">
             <AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList>
-            @*  <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
-            KeyFieldName="DynamicFormApprovedId">
-            <Columns>
-            <DxGridDataColumn FieldName="ApprovalUser" Caption="User" />
-            <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
-            <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
-            <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" />
-            <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
-            </Columns>
-            </DxGrid> *@
+           
         </DxTabPage>
         <DxTabPage Text="Work Flow">
-            <div class="card w-100" style="margin-bottom:10px;">
-                <div class="card-body p-0">
-                    <DxMenu CollapseItemsToHamburgerMenu="true"
-                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                            DisplayMode="MenuDisplayMode.Auto">
-                        <Items>
-                            <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@EditEnabledApproval" />
-                        </Items>
-                    </DxMenu>
-
-                </div>
-            </div>
-            <DxGrid Data="_dynamicFormWorkFlowFormListItems" style="padding:10px;"
-                    KeyFieldName="DynamicFormWorkFlowId"
-                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                    PageSizeSelectorVisible="true"
-                    PageSizeSelectorAllRowsItemVisible="true"
-                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                    PageSize="20"
-                    CssClass="ch-360"
-                    FocusedRowEnabled="true"
-                    AllowSelectRowByClick="true"
-                    CustomizeElement="Grid_CustomizeElement"
-                    RowClick="OnRowApprovalClick"
-                    AutoExpandAllGroupRows="true"
-                    SelectionMode="GridSelectionMode.Single">
-                <Columns>
-                    <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
-                    <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
-                    <DxGridDataColumn FieldName="DynamicFormWorkFlowUser" Caption="Assigned User" />
-                    <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
-                    <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" />
-                </Columns>
-            </DxGrid>
+            <DynamicFormDataWorkFlowFormList @ref="refDynamicFormDataWorkFlowFormList" FolderPathLists="@_dynamicFormWorkFlowFormListItems" _dynamicformData="@_dynamicformData" applicationUser="@applicationUser" EditEnabledApproval="@EditEnabledApproval"></DynamicFormDataWorkFlowFormList>
         </DxTabPage>
     </DxTabs>
 
@@ -624,19 +579,6 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkLock())" />
     </FooterContentTemplate>
 </DxPopup>
-<DxPopup @bind-Visible="@SectionApprovalPopup"
-         ShowFooter="false"
-         HeaderText="Section Approval"
-         CloseOnOutsideClick="false"
-         ShowCloseButton="true"
-         Width="1000px">
-    <BodyContentTemplate>
-        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm @ref="refDynamicFormDataWorkFlowApprovalForm" SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
-    </FooterContentTemplate>
-</DxPopup>
 <DxFlyout @bind-IsOpen=IsWokFlowDescriptionOpen
           PositionTarget=@($"#flyout-overview-target-container-WorkFlowApproval")
           RestrictionTarget="#Navigation-Flyout-Customization"
@@ -662,9 +604,9 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    private DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList{get;set;}
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormFilterByForm refDynamicFormFilterByForm { get; set; }
-    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm refDynamicFormDataWorkFlowApprovalForm { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList refDynamicFormApprovedFormList;
     string? workflowStyle { get; set; } = "display:none;";
     private DynamicFormWorkFlowApprovedForm dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); string? ApproveRejectWokFlowName { get; set; } = "Approve";
@@ -762,7 +704,7 @@
     private List<long?> _DynamicFormSectionIds = new List<long?>();
     private List<DynamicFormSectionAttributeSection?> dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>();
     bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock"; bool isUserLocked { get; set; } = false; bool lockpopup { get; set; } = false;
-    private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormListItems;
+    public List<DynamicFormWorkFlowForm> _dynamicFormWorkFlowFormListItems=new List<DynamicFormWorkFlowForm>();
     bool EditEnabledApproval { get; set; } = false; public List<DynamicFormWorkFlowApprovedForm> _dynamicFormWorkFlowApprovedFormList { get; set; }
     public DynamicFormWorkFlowApprovedForm _dynamicFormWorkFlowApprovedFormOne { get; set; }
     protected override async Task OnInitializedAsync()
@@ -785,28 +727,6 @@
             await loadDynamicForm();
         }
         base.OnParametersSet();
-    }
-    void addSectionApproval()
-    {
-        if (_selectedDynamicFormWorkFlowItems != null && _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowId > 0)
-        {
-            DynamicFormWorkFlowItems = new DynamicFormWorkFlow();
-            DynamicFormWorkFlowItems.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
-            DynamicFormWorkFlowItems.DynamicFormWorkFlowFormId = _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowFormId;
-            DynamicFormWorkFlowItems.DynamicFormWorkFlowId = (long)_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowId;
-            SectionApprovalPopup = true;
-        }
-    }
-    void CloseSectionApprovalEnabled()
-    {
-        SectionApprovalPopup = false;
-        StateHasChanged();
-    }
-    void OnRowApprovalClick(GridRowClickEventArgs e)
-    {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormWorkFlowId");
-        _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault(f => f.DynamicFormWorkFlowId == (long?)UniqueId);
-        EditEnabledApproval = true;
     }
     void onClickWorkFlowApprove()
     {
@@ -1051,7 +971,14 @@
                                     dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = listsItems[0].DynamicFormWorkFlowUser;
                                     dynamicFormWorkFlowForm.CompletedDate = listsItems[0].CompletedDate;
                                     dynamicFormWorkFlowForm.CompletedBy = listsItems[0].CompletedBy;
+                                    dynamicFormWorkFlowForm.FlowStatusID = listsItems[0].FlowStatusID;
+                                    dynamicFormWorkFlowForm.UserId = listsItems[0].UserId;
+                                    dynamicFormWorkFlowForm.IsAllowDelegateUser = listsItems[0].IsAllowDelegateUser;
                                     dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = listsItems[0].DynamicFormWorkFlowFormId;
+                                    dynamicFormWorkFlowForm.DelegateSectionUserId = listsItems[0].DelegateSectionUserId;
+                                    dynamicFormWorkFlowForm.DelegateSectionUserName = listsItems[0].DelegateSectionUserName;
+                                    dynamicFormWorkFlowForm.ActualUserId = listsItems[0].ActualUserId;
+                                    dynamicFormWorkFlowForm.ActualUserName = listsItems[0].ActualUserName;
                                     _dynamicFormWorkFlowFormListItems.Add(dynamicFormWorkFlowForm);
                                 });
                             }
@@ -1584,6 +1511,7 @@
         {
             AddEnabled = false;
         }
+        refDynamicFormDataWorkFlowFormList?.loadDatas();
         StateHasChanged();
     }
     void OpenLock()
@@ -2960,7 +2888,7 @@
         refUploadDoumentDynamicFiles?.DisposeAsync();
         refDynamicFormFilterByForm?.DisposeAsync();
         refDynamicFormApprovedFormList?.DisposeAsync();
-        refDynamicFormDataWorkFlowApprovalForm?.DisposeAsync();
+        refDynamicFormDataWorkFlowFormList?.DisposeAsync();
         dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm();
         _selectedDynamicFormWorkFlowItems = null;
         DynamicFormWorkFlowItems = null;
@@ -3094,13 +3022,6 @@
         else
         {
             StateHasChanged();
-        }
-    }
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
         }
     }
     async Task OnSectionUploadInfoClick(DynamicFormSection dynamicFormSection1)
@@ -3574,7 +3495,7 @@
            var _AttributeHeaders = _AttributeHeader;
            if (Data != null)
            {
-               var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0;int sec = 0;
+               var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0; int sec = 0;
                if (_AttributeHeader != null && _AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                {
 
@@ -3750,9 +3671,9 @@
            if (_DynamicFormSectionIds != null && _DynamicFormSectionIds.Count() > 0)
            {
                if (sec > 1)
-                {
-                    isVisible = false;
-                }
+               {
+                   isVisible = false;
+               }
                var sectionExits = _DynamicFormSectionIds.Where(g => g == a.DynamicFormSectionId).Count();
                if (sectionExits > 0)
                {
@@ -6082,7 +6003,7 @@
        }));
 
            formLayoutBuilder.CloseComponent();
-            sec++;
+           sec++;
            //PanelVisible = false;
        });
 
@@ -7575,7 +7496,7 @@
     }
     void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
-        var appcount=s.ApplicationMaster.Count();
+        var appcount = s.ApplicationMaster.Count();
         s.ApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -7597,7 +7518,7 @@
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1,s.DisplayName);
+                    editor11.AddContent(i + 1, s.DisplayName);
                 }
                 else
                 {

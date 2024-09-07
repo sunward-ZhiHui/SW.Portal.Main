@@ -16,6 +16,7 @@ namespace Core.Entities
         public long? DynamicFormId { get; set; }
         [Required(ErrorMessage = "User Name is required")]
         public long? UserId { get; set; }
+        public bool? IsAllowDelegateUser { get; set; } = false;
         public long? UserGroupId { get; set; }
         public long? LevelId { get; set; }
         [Required(ErrorMessage = "Sequence No is required")]
@@ -49,7 +50,7 @@ namespace Core.Entities
         [NotMapped]
         [Required(ErrorMessage = "Section Name is required")]
         public IEnumerable<long>? SelectDynamicFormSectionIDs { get; set; } = new List<long>();
-        public List<long> DynamicFormSectionIDs { get; set; } = new List<long>(); 
+        public List<long> DynamicFormSectionIDs { get; set; } = new List<long>();
         public List<long> DynamicFormSectionAllIDs { get; set; } = new List<long>();
         public List<long> DynamicFormSectionIdList { get; set; } = new List<long>();
         public string? Type { get; set; }
@@ -79,6 +80,12 @@ namespace Core.Entities
         public int? IsWorkFlowFormDone { get; set; } = 0;
         public int? DynamicFormWorkFlowFormTotalCount { get; set; }
         public int? DynamicFormWorkFlowFormCount { get; set; }
+        public bool? IsAllowDelegateUser { get; set; } = false;
+        public bool? IsAllowDelegateUserForm { get; set; } = false;
+        public string? ActualUserName { get; set; }
+        public long? ActualUserId { get; set; }
+        public long? DelegateSectionUserId { get; set; }
+        public string? DelegateSectionUserName { get; set; }
     }
     public class DynamicFormWorkFlowForm
     {
@@ -104,6 +111,12 @@ namespace Core.Entities
         public string? DynamicFormWorkFlowUser { get; set; }
         public int? RowID { get; set; }
         public int? FlowStatusID { get; set; }
+        public bool? IsAllowDelegateUser { get; set; } = false;
+        public bool? IsAllowDelegateUserForm { get; set; } = false;
+        public string? ActualUserName { get; set; }
+        public long? ActualUserId { get; set; }
+        public long? DelegateSectionUserId { get; set; }
+        public string? DelegateSectionUserName { get; set; }
     }
     public class DynamicFormDataUploadByPermission
     {
@@ -126,5 +139,13 @@ namespace Core.Entities
         public List<DynamicFormWorkFlowApproval> DynamicFormWorkFlowApproval { get; set; } = new List<DynamicFormWorkFlowApproval>();
 
 
+    }
+    public class DynamicFormWorkFlowFormDelegate
+    {
+        public long DynamicFormWorkFlowFormDelegateID { get; set; }
+        public long? DynamicFormWorkFlowFormID { get; set; }
+        [Required(ErrorMessage = "User Name is required")]
+        public long? UserID { get; set; }
+        public string? UserName { get; set; }
     }
 }

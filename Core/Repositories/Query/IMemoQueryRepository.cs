@@ -16,5 +16,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<Memo>> GetAllByAsync();
         Task<Memo> DeleteMemo(Memo memo);
         Task<Memo> InsertOrUpdateMemo(Memo memo);
+        Task<MemoUser> UpdateMemoUserAcknowledgement(MemoUser memoUser);
     }
 }

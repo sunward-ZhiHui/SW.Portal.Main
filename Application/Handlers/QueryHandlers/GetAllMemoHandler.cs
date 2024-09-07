@@ -52,4 +52,18 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class UpdateMemoUserAcknowledgementHandler : IRequestHandler<UpdateMemoUserAcknowledgement, MemoUser>
+    {
+        private readonly IMemoQueryRepository _queryRepository;
+
+        public UpdateMemoUserAcknowledgementHandler(IMemoQueryRepository QueryRepository)
+        {
+            _queryRepository = QueryRepository;
+        }
+
+        public async Task<MemoUser> Handle(UpdateMemoUserAcknowledgement request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateMemoUserAcknowledgement(request.MemoUser);
+        }
+    }
 }

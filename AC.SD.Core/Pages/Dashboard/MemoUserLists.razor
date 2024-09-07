@@ -1,0 +1,60 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using global::Core.Entities.Views;
+@* @implements IAsyncDisposable *@
+<link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
+<div class="menu-bar-content-container-content msgOpen">
+    <div id="tableData">
+        <div>
+            @if (_MemoList != null && _MemoList.Any())
+            {
+                @foreach (var item in _MemoList)
+                {
+                    <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto  markasunread_border" style="margin-right: 10px;">
+                        <div class="uk-card-header">
+                            <div class="container-header" style="margin-left: -9px;">
+                                <div class="left-column">
+                                    <div style="font-size: 20px; margin: 0;">@item.Subject</div><!--!-->
+                                    <p style="font-size:12px; line-height: 1.1; margin: 0;    padding: 5px 0 0 0;">
+                                        <!--!-->
+                                        Users:@item.UserNameLists<br>
+                                    </p>
+                                </div><!--!-->
+
+                                <div class="right-column" style="width: 37%;">
+                                    <div class="shared-div">
+                                        <div class="date-and-notes">
+                                            <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Start Date</span> @Application.Common.Helper.Helper.FormatDate(@item.StartDate)</div>
+                                            <button type="button" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" class="">
+                                                <!--!--><i class="fa fa-reply"></i> Acknowledgement
+                                            </button>
+                                        </div><!--!-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div><div class="uk-card-body">
+                            <div>
+                                @((MarkupString)item.MemoContent)
+                            </div>
+                        </div><div class="uk-card-footer">
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+@code {
+    private List<Memo> _MemoList;
+    protected override async Task OnInitializedAsync()
+    {
+        _MemoList = await Mediator.Send(new GetAllMemoQuery());
+    }
+}

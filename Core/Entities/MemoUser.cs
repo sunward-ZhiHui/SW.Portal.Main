@@ -14,6 +14,7 @@ namespace Core.Entities
         public long? UserId { get; set; }
         public long? UserGroupId { get; set; }
         public long? LevelId { get; set; }
+        public bool? IsAcknowledgement { get; set; } = false;
         public string? UserType { get; set; }
         [NotMapped]
         public string? UserGroup { get; set; }

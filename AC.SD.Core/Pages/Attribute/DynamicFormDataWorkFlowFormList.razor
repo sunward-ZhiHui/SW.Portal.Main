@@ -1,0 +1,290 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using Newtonsoft.Json.Linq;
+@using System.Collections;
+@using System.Dynamic;
+@using global::Core.AttributeDynamicData;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@inject IMediator Mediator
+@using MediatR
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Auto">
+            <Items>
+                <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@EditEnabledApproval" />
+                <DxMenuItem Text="Delegate User" IconCssClass="fa fa-link" Click="@addDelegate" Enabled="@EditEnabledApproval" />
+            </Items>
+        </DxMenu>
+
+    </div>
+</div>
+<DxGrid Data="_dynamicFormWorkFlowFormListItems"
+        KeyFieldName="DynamicFormWorkFlowId"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        CssClass="ch-360"
+        FocusedRowEnabled="true"
+        AllowSelectRowByClick="true"
+        CustomizeElement="Grid_CustomizeElement"
+        RowClick="OnRowApprovalClick"
+        style="padding:10px;height: calc(100vh - 500px);"
+        AutoExpandAllGroupRows="true"
+        SelectionMode="GridSelectionMode.Single">
+    <Columns>
+        <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
+        <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
+        <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
+        <DxGridDataColumn FieldName="ActualUserName" Caption="Assigned User" />
+        <DxGridDataColumn FieldName="DelegateSectionUserName" Caption="Delegate User" />
+        <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
+        <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" />
+    </Columns>
+</DxGrid>
+<DxPopup @bind-Visible="@SectionApprovalPopup"
+         ShowFooter="false"
+         HeaderText="Section Approval"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm @ref="refDynamicFormDataWorkFlowApprovalForm" EditEnabledApproval="@EditEnabledApproval" SelectedItems="@DynamicFormWorkFlowItems" _applicationUser="@applicationUser" RevokeBack="CloseSectionApprovalEnabled"></AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSectionApprovalEnabled())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@updateApprovepopup"
+         ShowFooter="true"
+         HeaderText="Delegate"
+         Closed="EulaPopupClosed"
+         Width="500px">
+    <BodyContentTemplate Context="authContext">
+
+        <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+            <DxFormLayout CssClass="w-100">
+                <DataAnnotationsValidator />
+                <DxFormLayoutItem Caption="Update Delegate User" ColSpanMd="12">
+                    <DxComboBox Data="@_usersAllList"
+                                NullText="Select User..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                ValueFieldName="UserID"
+                                TextFieldName="FirstName"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                EditFormat="{0}-{1}"
+                                @bind-Value="@dynamicFormApprovedChanged.UserID">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dynamicFormApprovedChanged.UserID)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="User List" ColSpanMd="12">
+                    <DxGrid Data="_dynamicFormApprovedChangedList" style="padding:10px;height: calc(100vh - 620px);"
+                            KeyFieldName="DynamicFormApprovedChangedId">
+                        <Columns>
+                            <DxGridDataColumn FieldName="UserName" Caption="User" />
+                        </Columns>
+                    </DxGrid>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="CloseCallbacks" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Save" Click="SubmitFormExternally" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool updateApprovepopup { get; set; } = false;
+    private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm refDynamicFormDataWorkFlowApprovalForm;
+    [Parameter]
+    public IEnumerable FolderPathLists { get; set; }
+    [Parameter]
+    public DynamicFormData _dynamicformData { get; set; }
+    bool SectionApprovalPopup { get; set; } = false;
+    [Parameter]
+    public bool EditEnabledApproval { get; set; } = false;
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormListItems;
+    public DynamicFormWorkFlowForm _selectedDynamicFormWorkFlowItems { get; set; }
+    public DynamicFormWorkFlow DynamicFormWorkFlowItems { get; set; }
+    private List<ViewEmployee>? _usersList;
+    private List<ViewEmployee>? _usersAllList;
+    EditContext _editContext;
+    private List<DynamicFormWorkFlowFormDelegate>? _dynamicFormApprovedChangedList;
+    DynamicFormWorkFlowFormDelegate dynamicFormApprovedChanged = new DynamicFormWorkFlowFormDelegate();
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(dynamicFormApprovedChanged);
+        _usersAllList = await Mediator.Send(new GetAllEmployeeQuery());
+        loadDatas();
+    }
+    public void loadDatas()
+    {
+        EditEnabledApproval = false;
+        if (FolderPathLists != null)
+        {
+            _dynamicFormWorkFlowFormListItems = FolderPathLists.Cast<DynamicFormWorkFlowForm>().ToList();
+            if (_dynamicFormWorkFlowFormListItems != null && _dynamicFormWorkFlowFormListItems.Count() > 0)
+            {
+                var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems.Select(s => s.IsAllowDelegateUser == true).Count();
+                _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault();
+                if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
+                {
+                    if (iIsAllowDelegateUserss > 0)
+                    {
+                        var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
+                        if (exits > 0)
+                        {
+                            EditEnabledApproval = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    void OnRowApprovalClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormWorkFlowId");
+        _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault(f => f.DynamicFormWorkFlowId == (long?)UniqueId);
+        EditEnabledApproval = false;
+        var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems.Select(s => s.IsAllowDelegateUser == true).Count();
+        if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
+        {
+            if (iIsAllowDelegateUserss > 0)
+            {
+                var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
+                if (exits > 0)
+                {
+                    EditEnabledApproval = true;
+                }
+            }
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void addSectionApproval()
+    {
+        if (_selectedDynamicFormWorkFlowItems != null && _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowId > 0)
+        {
+            var sortbyy = _dynamicFormWorkFlowFormListItems.Where(w => w.SequenceNo > _selectedDynamicFormWorkFlowItems.SequenceNo).OrderBy(o => o.SequenceNo).FirstOrDefault();
+
+            DynamicFormWorkFlowItems = new DynamicFormWorkFlow();
+            DynamicFormWorkFlowItems.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
+            DynamicFormWorkFlowItems.DynamicFormWorkFlowFormId = _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowFormId;
+            DynamicFormWorkFlowItems.DynamicFormWorkFlowId = (long)_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowId;
+            // if (_selectedDynamicFormWorkFlowItems.IsAllowDelegateUser == true)
+            // {
+            //     if (_selectedDynamicFormWorkFlowItems.ActualUserId == applicationUser.UserID)
+            //     {
+            //         DynamicFormWorkFlowItems.IsAllowDelegateUser = true;
+            //     }
+            // }
+            DynamicFormWorkFlowItems.IsNextFlow = true;
+            if (sortbyy != null && sortbyy.FlowStatusID == 1)
+            {
+                DynamicFormWorkFlowItems.IsNextFlow = false;
+            }
+            SectionApprovalPopup = true;
+        }
+    }
+    void CloseSectionApprovalEnabled()
+    {
+        SectionApprovalPopup = false;
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        // System.GC.Collect();
+        refDynamicFormDataWorkFlowApprovalForm?.DisposeAsync();
+        _dynamicFormWorkFlowFormListItems?.Clear();
+        _selectedDynamicFormWorkFlowItems = null; DynamicFormWorkFlowItems = null;
+        //GC.SuppressFinalize(this);
+    }
+    public async Task addDelegate()
+    {
+        _dynamicFormApprovedChangedList = new List<DynamicFormWorkFlowFormDelegate>();
+        updateApprovepopup = true;
+        await UpdateDataAsync();
+
+    }
+    async Task UpdateDataAsync()
+    {
+        dynamicFormApprovedChanged.UserID = null;
+        _dynamicFormApprovedChangedList = await Mediator.Send(new GetDynamicFormWorkFlowFormDelegateList(_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowFormId));
+        if (_dynamicFormApprovedChangedList != null && _dynamicFormApprovedChangedList.Count() > 0)
+        {
+            _dynamicFormApprovedChangedList = _dynamicFormApprovedChangedList.OrderByDescending(o => o.DynamicFormWorkFlowFormDelegateID).ToList();
+            dynamicFormApprovedChanged.UserID = _dynamicFormApprovedChangedList.FirstOrDefault()?.UserID;
+        }
+        StateHasChanged();
+    }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit();
+        }
+    }
+    async Task HandleValidSubmit()
+    {
+        dynamicFormApprovedChanged.DynamicFormWorkFlowFormID = _selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowFormId;
+        var request = new InsertDynamicFormWorkFlowFormDelegate(dynamicFormApprovedChanged);
+        var result = await Mediator.Send(request);
+        if (result.DynamicFormWorkFlowFormDelegateID > 0)
+        {
+            // updateApprovepopup = false;
+            if (dynamicFormApprovedChanged.DynamicFormWorkFlowFormDelegateID > 0)
+            {
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            else
+            {
+                toastService.ShowToast("Record Saved Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+        }
+        StateHasChanged();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        RevokeBack?.Invoke();
+    }
+    void CloseCallbacks()
+    {
+        updateApprovepopup = false;
+        RevokeBack?.Invoke();
+    }
+}

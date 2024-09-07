@@ -117,21 +117,21 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                  
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ItemSerialNo", todolist.ItemSerialNo);
-                            parameters.Add("ItemId", todolist.ItemId, DbType.Int64);
-                            parameters.Add("ModifiedDate", todolist.ModifiedDate, DbType.DateTime);
-                            parameters.Add("ModifiedByUserId", todolist.ModifiedByUserId, DbType.Int64);
-                            parameters.Add("UomId", todolist.UomId, DbType.Int64);
-                            parameters.Add("SupplyToId", todolist.SupplyToId, DbType.Int64);
-                            parameters.Add("PackSizeId", todolist.PackSizeId, DbType.Int64);
-                            parameters.Add("CompanyId", todolist.CompanyId, DbType.Int64);
-                            var query = " UPDATE Navitems SET ItemSerialNo = @ItemSerialNo,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,UomId=@UomId,SupplyToId=@SupplyToId,PackSizeId=@PackSizeId,CompanyId=@CompanyId WHERE ItemId = @ItemId";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
-                            return rowsAffected;
-                       
+                    var parameters = new DynamicParameters();
+                    parameters.Add("ItemSerialNo", todolist.ItemSerialNo);
+                    parameters.Add("ItemId", todolist.ItemId, DbType.Int64);
+                    parameters.Add("ModifiedDate", todolist.ModifiedDate, DbType.DateTime);
+                    parameters.Add("ModifiedByUserId", todolist.ModifiedByUserId, DbType.Int64);
+                    parameters.Add("UomId", todolist.UomId, DbType.Int64);
+                    parameters.Add("SupplyToId", todolist.SupplyToId, DbType.Int64);
+                    parameters.Add("PackSizeId", todolist.PackSizeId, DbType.Int64);
+                    parameters.Add("CompanyId", todolist.CompanyId, DbType.Int64);
+                    var query = " UPDATE Navitems SET ItemSerialNo = @ItemSerialNo,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,UomId=@UomId,SupplyToId=@SupplyToId,PackSizeId=@PackSizeId,CompanyId=@CompanyId WHERE ItemId = @ItemId";
+
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                    return rowsAffected;
+
                 }
 
             }
@@ -245,15 +245,15 @@ namespace Infrastructure.Repository.Query
             try
             {
                 using (var connection = CreateConnection())
-                {  
+                {
                     var parameters = new DynamicParameters();
                     parameters.Add("ItemId", ItemId);
                     parameters.Add("CompanyId", CompanyId);
                     parameters.Add("LocationCode", itemBatchInfo.LocationCode);
                     parameters.Add("BatchNo", itemBatchInfo.BatchNo);
                     parameters.Add("LotNo", itemBatchInfo.LotNo);
-                    parameters.Add("ExpiryDate", itemBatchInfo.ExpiryDate, DbType.Date);
-                    parameters.Add("ManufacturingDate", itemBatchInfo.ManufacturingDate, DbType.Date);
+                    parameters.Add("ExpiryDate", itemBatchInfo.ExpiryDate == DateTime.MinValue ? null : itemBatchInfo.ExpiryDate, DbType.DateTime);
+                    parameters.Add("ManufacturingDate", itemBatchInfo.ManufacturingDate == DateTime.MinValue ? null : itemBatchInfo.ManufacturingDate, DbType.DateTime);
                     parameters.Add("QuantityOnHand", itemBatchInfo.QuantityOnHand, DbType.Decimal);
                     parameters.Add("NavQuantity", itemBatchInfo.NavQuantity, DbType.Decimal);
                     parameters.Add("IssueQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
@@ -266,7 +266,7 @@ namespace Infrastructure.Repository.Query
 
                     var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     return lastInsertedRecordId;
-                        
+
                 }
 
             }

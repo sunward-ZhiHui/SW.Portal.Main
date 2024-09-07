@@ -154,12 +154,13 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-
+                List<MemoUser> memoUsers = new List<MemoUser>();
                 var query = "select  * from MemoUser where  MemoId =" + MemoId + "";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<MemoUser>(query, null)).ToList();
+                    memoUsers = (await connection.QueryAsync<MemoUser>(query, null)).ToList();
                 }
+                return memoUsers != null ? memoUsers : new List<MemoUser>();
             }
             catch (Exception exp)
             {
@@ -172,8 +173,6 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-
                     try
                     {
                         var parameters = new DynamicParameters();
@@ -203,9 +202,29 @@ namespace Infrastructure.Repository.Query
                             memo.MemoId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
                         var query1 = string.Empty;
-                        query1 += "DELETE  FROM MemoUser WHERE MemoId = " + memo.MemoId + ";";
-                        // var userExitsByRoles = await GetMemoUsersync(memo.MemoId);
+                        List<long> MemoUserIds = new List<long>();
+                        //var userExitsByRoles = await GetMemoUsersync(memo.MemoId);
                         var userExitsByRoles = new List<MemoUser>();
+                        if (userExitsByRoles != null && userExitsByRoles.Count() > 0 && memo.SelectUserIDs != null && memo.SelectUserIDs.Count() > 0)
+                        {
+                            userExitsByRoles.ToList().ForEach(s =>
+                            {
+                                var exits = memo.SelectUserIDs.Where(w => w == s.UserId).Count();
+                                if (exits > 0)
+                                {
+
+                                }
+                                else
+                                {
+                                    MemoUserIds.Add(s.MemoUserId);
+                                }
+                            });
+                        }
+                        query1 += "DELETE  FROM MemoUser WHERE MemoId=" + memo.MemoId + ";";
+                        if (MemoUserIds != null && MemoUserIds.Count() > 0)
+                        {
+                            // query1 += "DELETE  FROM MemoUser WHERE MemoUserId in(" + string.Join(',', MemoUserIds) + ");";
+                        }
                         var UserType = memo.UserType;
                         if (memo.UserType == "User")
                         {
@@ -294,6 +313,35 @@ namespace Infrastructure.Repository.Query
                 throw new NotImplementedException();
             }
         }
-    }
 
+        public async Task<MemoUser> UpdateMemoUserAcknowledgement(MemoUser memoUser)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("MemoUserId", memoUser.MemoUserId);
+                        parameters.Add("IsAcknowledgement", memoUser.IsAcknowledgement == true ? true : null);
+                        var query = "Update MemoUser set  IsAcknowledgement=@IsAcknowledgement where MemoUserId=@MemoUserId)\r\n;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return memoUser;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+    }
 }

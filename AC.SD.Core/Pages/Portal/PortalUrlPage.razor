@@ -15,9 +15,14 @@
 @page "/PortalUrl/{TSessionId:guid}"
 @implements IAsyncDisposable
 
-<iframe id="contentFrame" src="@iframeUrl" width="100%" style="height: calc(100vh - 152px);"></iframe>
+@if (_isLoading)
+{
+    <div>Loading...</div>
+}
+<iframe id="contentFrame" src="@iframeUrl" onload="IframeLoaded()" width="100%" style="height: calc(100vh - 152px);"></iframe>
 
 @code {
+    private bool _isLoading = true;
     [Parameter]
     public Guid TSessionId { get; set; }
     private string iframeUrl="";
@@ -31,6 +36,11 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         //NavigationManager.LocationChanged += OnLocationChanged;
         JSRuntime.InvokeVoidAsync("registerBlazorComponent", DotNetObjectReference.Create(this));
+    }
+    private void IframeLoaded()
+    {
+        _isLoading = false;
+        StateHasChanged();
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -71,6 +81,11 @@
         iframeUrl = string.IsNullOrEmpty(url) ? $"{BaseUrl}404url" : url;
         dotNetRef = DotNetObjectReference.Create(this);
         JSRuntime.InvokeVoidAsync("registerIframeOnload", "contentFrame", dotNetRef);
+        _isLoading = false;        
+        //await JSRuntime.InvokeVoidAsync("registerIframeOnload", "contentFrame", dotNetRef);
+        //_isLoading = false;
+        //await JSRuntime.InvokeVoidAsync("hideLoading");
+        StateHasChanged();
     }
     [JSInvokable]
     public async Task HideIframeLoading()

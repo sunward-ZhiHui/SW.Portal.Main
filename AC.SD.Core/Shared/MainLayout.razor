@@ -15,7 +15,20 @@
 @using Microsoft.AspNetCore.SignalR.Client;
 @inject AC.SD.Core.Services.ToastService toastService
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
- 
+@inject DataRefreshService RefreshService
+<style>
+    .notifcationcount
+    {
+        position: absolute;
+        inset: 2px 42px auto auto;
+        font-weight: normal;
+        font-size: 12px;
+        padding: 7px 7px;
+        background: #0000004f;
+        border-radius: 4px;
+        letter-spacing: 2px;
+    }
+</style>
 <Toast />
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
 <link href="_content/AC.SD.Core/lib/font-awesome/css/all.css" rel="stylesheet" />
@@ -29,9 +42,11 @@
                 <span class="logo-img"></span>
             </a>           
         </div>
+       
         <div class="demo-btn-container d-flex">
-           
-
+            <span class="fas fa-bell" @onclick="() => GoViewEmail()" style="display:none; cursor: pointer; font-size: 17px; margin-right: 10px; margin-left: 10px; color: white;    margin-top: 5px;">
+                <span class="notifcationcount">@_emailNotificationCount</span>
+            </span>
             <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
                       RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="menu-icon-user-profile menu-icon"></DxButton>
 
@@ -135,7 +150,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await InitializeFirebaseAsync();
+        await InitializeFirebaseAsync();        
     }
 }
 
@@ -164,6 +179,7 @@
     public RenderFragment<Exception>? ErrorContent { get; set; }
     internal bool loading;
     public ApplicationUser? applicationUser { get; internal set; }
+    long _emailNotificationCount { get; set; }
     protected string ThemeName
     {
         get { return _themeName; }
@@ -186,6 +202,16 @@
         //await JSRuntime.InvokeVoidAsync("registerServiceWorker");
         //await JSRuntime.InvokeVoidAsync("initializeFirebase");
               
+    }      
+    private async Task RefreshDataAsync()
+    {
+        _emailNotificationCount = await Mediator.Send(new GetEmailNotificationCount(applicationUser.UserID));
+        await InvokeAsync(StateHasChanged);
+    }
+    private async Task GoViewEmail()
+    {
+        NavigationManager.NavigateTo($"ViewEmail");
+        await InvokeAsync(StateHasChanged);
     }
     protected override async void OnInitialized()
     {
@@ -193,6 +219,10 @@
         ThemeName = Themes.ActiveTheme.Name;
         //NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        RefreshService.OnRefreshRequested += RefreshDataAsync;
+        await RefreshDataAsync();
+
         await InvokeAsync(StateHasChanged);
     }
     internal async void ResetPassword()
@@ -435,6 +465,7 @@
     }
     public void Dispose()
     {
+        RefreshService.OnRefreshRequested -= RefreshDataAsync;
         //NavigationManager.LocationChanged -= OnLocationChanged;
     }
     internal async void logout()

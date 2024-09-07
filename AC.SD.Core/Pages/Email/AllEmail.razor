@@ -98,8 +98,8 @@
         PanelVisible = true;
         StartTimer();
         pageNumber++; // Increment page number
-        //var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));
-       // await JSRuntime.InvokeAsync<string>("showLoading");
+                      //var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));
+                      // await JSRuntime.InvokeAsync<string>("showLoading");
         var additionalTopics = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL",pageNumber,pageSize));
         _emailTopicAll.AddRange(additionalTopics); // Add additional records to the list
         AllEmailGrid.Reload();
@@ -128,10 +128,10 @@
         StartTimer();
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-       // await JSRuntime.InvokeAsync<string>("showLoading");
+        // await JSRuntime.InvokeAsync<string>("showLoading");
 
         _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID,"NULL",pageNumber,pageSize));
-       // await JSRuntime.InvokeAsync<string>("hideLoading");
+        // await JSRuntime.InvokeAsync<string>("hideLoading");
         StopTimer();
         PanelVisible = false;
         //NavigationManager.LocationChanged += OnLocationChanged;
@@ -159,7 +159,22 @@
     {
         if(applicationUser != null)
         {
-            _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL",pageNumber,pageSize));
+            PanelVisible = true;
+
+            if (pageNumber > 1)
+            {
+                var pnumber = 1;
+                var psize = pageSize * pageNumber;                
+                _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pnumber, psize));
+               
+            }
+            else
+            {
+                _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL", pageNumber, pageSize));
+
+            }
+
+            PanelVisible = false;
         }
         
         if(RefSubAssignAll != null)

@@ -45,6 +45,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetEmailPrintAllDiscussionListAsync(request.TopicId, request.UserId, request.Option);
         }
     }
+    public class GetNotificationCountHandler : IRequestHandler<GetEmailNotificationCount, long>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetNotificationCountHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<long> Handle(GetEmailNotificationCount request, CancellationToken cancellationToken)
+        {
+            return (long)await _emailConversationsQueryRepository.GetTotalNotificationCountAsync(request.UserId);
+        }
+    }
+    
     //Get discussion list
     public class GetEmailDiscussionListHandler : IRequestHandler<GetEmailDiscussionList, List<EmailConversations>>
     {

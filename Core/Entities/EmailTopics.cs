@@ -115,6 +115,7 @@ namespace Core.Entities
         public string? ActivityType { get; set;}
         [NotMapped]
         public string? UserTag { get; set; }
+        public string? OtherTag { get; set; }
         [NotMapped]
         public long? UserTagId { get; set; }
         [NotMapped]

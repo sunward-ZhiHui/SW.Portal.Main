@@ -15,6 +15,41 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 
+<style scoped>
+    .dxbl-sc-table.dxbl-sc-vertical-view tr:first-of-type {
+        display: none;
+    }
+
+</style>
+
+<div class="row" style="margin-bottom: 10px; display:none;">
+    <div class="col-md-6">
+       
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-6">
+                <DxComboBox NullText="Select a UserTag..."
+                            Data="@userTagList"
+                            Value="@SelectedUserTag"
+                            ValueChanged="@((string tag) => SelectedUserTagChanged(tag))"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            CssClass="cw-480"
+                            InputId="cbUserTag" />
+            </div>
+            <div class="col-md-6">
+                <DxComboBox NullText="Select an OtherTag..."
+                            Data="@otherTagList"
+                            Value="@SelectedOtherTag"
+                            ValueChanged="@((string tag) => SelectedOtherTagChanged(tag))"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            CssClass="cw-480"
+                            InputId="cbOtherTag" />
+            </div>
+        </div>
+       
+    </div>
+</div>
 
 @* <DxScheduler DataStorage="@DataStorage"
              AppointmentInserting="AppointmentInserting"
@@ -26,14 +61,17 @@
 </DxScheduler> *@ 
 
 <DxScheduler DataStorage="@DataStorage"
-             GroupType="SchedulerGroupType.Date"            
+             GroupType="SchedulerGroupType.Resource"
+             ResourceColorInHeaderVisible = "true"                       
              CssClass="w-100"
+             AppointmentFormShowing="OnAppointmentFormShowing"
              AllowEditAppointment="@AllowEditAppointment"
              AppointmentInserting="AppointmentInserting"
              AppointmentRemoving="AppointmentRemoving"
              AppointmentUpdating="AppointmentUpdating">
     <Views>
-        <DxSchedulerDayView ShowWorkTimeOnly="true">
+        <DxSchedulerDayView ShowWorkTimeOnly="false" TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.Never" 
+        VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))">
             @* <HorizontalAppointmentTemplate>
                 @{
                     string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
@@ -61,8 +99,9 @@
                     </div>
                 </div>
             </VerticalAppointmentTemplate> *@
+            
         </DxSchedulerDayView>
-        <DxSchedulerWeekView ShowWorkTimeOnly="true" />
+        <DxSchedulerWeekView VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))" />
         <DxSchedulerMonthView />
     </Views>
     <AppointmentTooltipHeaderTemplate>
@@ -133,6 +172,13 @@
 </DxScheduler>
 
 @code {
+
+    private List<string> userTagList;
+    private List<string> otherTagList;
+    private string SelectedUserTag { get; set; }
+    private string SelectedOtherTag { get; set; }
+    private List<Appointment>? _data { get; set; }
+
     bool AllowEditAppointment { get; set; } = true;
     public ApplicationUser? applicationUser { get; private set; }
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
@@ -150,11 +196,20 @@
                 Location = "Location",
                 Description = "Description",
                 RecurrenceInfo = "Recurrence",
+                ResourceId = "ResourceId",
                 CustomFieldMappings = new List<DxSchedulerCustomFieldMapping> {
                 new DxSchedulerCustomFieldMapping{ Name = "Accepted", Mapping = "Accepted" },
                 new DxSchedulerCustomFieldMapping{ Name = "SessionId", Mapping = "SessionId" },
                 new DxSchedulerCustomFieldMapping{ Name = "StatusType", Mapping = "StatusType" }
                 }
+            },
+            ResourcesSource = ResourceCollection.GetResourcesForGrouping(),
+            ResourceMappings = new DxSchedulerResourceMappings()
+            {
+                Id = "Id",
+                Caption = "Name",
+                BackgroundCssClass = "BackgroundCss",
+                TextCssClass = "TextCss"
             }
         };
 
@@ -166,8 +221,59 @@
     protected override async void OnInitialized()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        var data1 = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
-        DataStorage.AppointmentsSource = data1.ToList();
+        _data = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
+        DataStorage.AppointmentsSource = _data.ToList();
+
+
+        userTagList = _data
+       .Where(a => !string.IsNullOrEmpty(a.UserTag))
+       .Select(a => a.UserTag)
+       .Distinct()
+       .ToList();
+
+        otherTagList = _data
+            .Where(a => !string.IsNullOrEmpty(a.OtherTag))
+            .Select(a => a.OtherTag)
+            .Distinct()
+            .ToList();
+
+
+        StateHasChanged();
+
+    }
+    private void SelectedUserTagChanged(string tag)
+    {
+        SelectedUserTag = tag;
+        ApplyFilters();
+    }
+
+    private void SelectedOtherTagChanged(string tag)
+    {
+        SelectedOtherTag = tag;
+        ApplyFilters();
+    }
+    private void ApplyFilters()
+    {
+        if (_data != null)
+        {
+            var filteredData = _data
+           .Where(a => (string.IsNullOrEmpty(SelectedUserTag) || a.UserTag == SelectedUserTag) &&
+                       (string.IsNullOrEmpty(SelectedOtherTag) || a.OtherTag == SelectedOtherTag))
+           .ToList();
+
+            DataStorage.AppointmentsSource = filteredData;
+        }
+       
+
+        StateHasChanged();
+    }
+
+    void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
+    {
+        if (args.FormType == SchedulerAppointmentFormType.CompactEditForm)
+        {
+            args.Cancel = true;
+        }
     }
 
     async Task AppointmentInserting(SchedulerAppointmentOperationEventArgs e)
@@ -240,4 +346,14 @@
         NavigationManager.NavigateTo($"ViewEmail/{sessionid}/Todo");        
         StateHasChanged();
     }
+    private List<Resource> GetResourcesForGrouping()
+    {        
+        return new List<Resource>
+        {
+            new Resource { Id = 0, Name = "Appointments", BackgroundCss = "resource-bg-appointment", TextCss = "resource-text-appointment" },
+            new Resource { Id = 1, Name = "Emails", BackgroundCss = "resource-bg-email", TextCss = "resource-text-email" },
+            new Resource { Id = 2, Name = "Todos", BackgroundCss = "resource-bg-todo", TextCss = "resource-text-todo" }
+        };
+    }
+
 }

@@ -166,98 +166,111 @@ namespace Infrastructure.Repository.Query
             //                            AND TNH.DueDate IS NOT NULL
             //                            AND TNH.Status = 'Open'";
 
-                var query = @" WITH DistinctTopics AS (
-                                        SELECT DISTINCT ECAT.TopicId
-                                        FROM EmailConversationAssignTo ECAT
-                                        WHERE ECAT.UserId = @UserId
-                                    )
+                var query = @"WITH DistinctTopics AS (
+                                SELECT DISTINCT ECAT.TopicId
+                                FROM EmailConversationAssignTo ECAT
+                                WHERE ECAT.UserId = @UserId
+                            )
 
-                                    -- First SELECT statement
-                                    SELECT 
-                                        A.ID,
-                                        0 AS AppointmentType, 
-                                        A.StartDate,    
-                                        A.EndDate,      
-                                        A.Caption AS Caption,      
-                                        A.Label,
-                                        A.Status,
-                                        A.AllDay,
-                                        A.Recurrence,
-                                        A.Location,
-                                        A.Description,
-                                        A.AddedByUserID,
-                                        A.AddedDate,
-                                        0 AS Accepted,
-                                        NEWID() AS SessionId,
-                                        'Appointment' AS StatusType
-                                    FROM Appointment A
-                                    WHERE A.AddedByUserID = @UserId
+                            -- First SELECT statement
+                            SELECT 
+                                A.ID,
+                                0 AS AppointmentType, 
+                                A.StartDate,    
+                                A.EndDate,      
+                                A.Caption AS Caption,      
+                                A.Label,
+                                A.Status,
+                                A.AllDay,
+                                A.Recurrence,
+                                A.Location,
+                                A.Description,
+                                A.AddedByUserID,
+                                A.AddedDate,
+                                0 AS Accepted,
+                                NEWID() AS SessionId,
+                                'Appointment' AS StatusType,
+                                2 AS ResourceId,
+	                            '' as UserTag,
+	                            '' as OtherTag
+                            FROM Appointment A
+                            WHERE A.AddedByUserID = @UserId
 
-                                    UNION ALL
+                            UNION ALL
 
-                                    -- Second SELECT statement
-                                    SELECT 
-                                        TS.ID,
-                                        0 AS AppointmentType,
-                                        CASE 
-                                            WHEN CAST(TS.DueDate AS TIME) = '00:00:00' THEN DATEADD(HOUR, 9, TS.DueDate)
-                                            ELSE TS.DueDate 
-                                        END AS StartDate,
-                                        CASE 
-                                            WHEN CAST(TS.DueDate AS TIME) = '00:00:00' THEN DATEADD(HOUR, 9, DATEADD(MINUTE, 15, DATEADD(DAY, TS.NoOfDays, TS.DueDate)))
-                                            WHEN CAST(TS.DueDate AS TIME) = CAST(TS.DueDate AS TIME) THEN DATEADD(MINUTE, 15, DATEADD(DAY, TS.NoOfDays, TS.DueDate))
-                                            ELSE DATEADD(DAY, TS.NoOfDays, TS.DueDate) 
-                                        END AS EndDate,
-                                        TS.Name AS Caption,
-                                        1 AS Label,
-                                        3 AS Status,
-                                        0 AS AllDay,
-                                        NULL AS Recurrence,
-                                        NULL AS Location,
-                                        NULL AS Description,
-                                        TS.AddedByUserID,
-                                        TS.AddedDate,
-                                        1 AS Accepted,
-                                        TS.SessionId,
-                                        'EmailDueDate' AS StatusType
-                                    FROM EmailConversations TS
-                                    INNER JOIN DistinctTopics DT ON DT.TopicId = TS.TopicID
-                                    WHERE TS.DueDate IS NOT NULL
+                            -- Second SELECT statement
+                            SELECT 
+                                TS.ID,
+                                0 AS AppointmentType,
+                                CASE 
+                                    WHEN CAST(TS.DueDate AS TIME) = '00:00:00' THEN DATEADD(HOUR, 9, TS.DueDate)
+                                    ELSE TS.DueDate 
+                                END AS StartDate,
+                                CASE 
+                                    WHEN CAST(TS.DueDate AS TIME) = '00:00:00' THEN DATEADD(HOUR, 9, DATEADD(MINUTE, 15, DATEADD(DAY, TS.NoOfDays, TS.DueDate)))
+                                    WHEN CAST(TS.DueDate AS TIME) = CAST(TS.DueDate AS TIME) THEN DATEADD(MINUTE, 15, DATEADD(DAY, TS.NoOfDays, TS.DueDate))
+                                    ELSE DATEADD(DAY, TS.NoOfDays, TS.DueDate) 
+                                END AS EndDate,
+                                TS.Name AS Caption,
+                                1 AS Label,
+                                3 AS Status,
+                                1 AS AllDay,
+                                NULL AS Recurrence,
+                                NULL AS Location,
+                                NULL AS Description,
+                                TS.AddedByUserID,
+                                TS.AddedDate,
+                                1 AS Accepted,
+                                TS.SessionId,
+                                'EmailDueDate' AS StatusType,
+                                0 AS ResourceId,
+	                            ECTUT.UserTag as UserTag,
+	                            EAC.Name as OtherTag
+                            FROM EmailConversations TS
+                            INNER JOIN DistinctTopics DT ON DT.TopicId = TS.TopicID
+                            LEFT JOIN EmailTopicUserTags ECTUT ON ECTUT.TopicId = TS.TopicID AND ECTUT.AddedByUserID = @UserId
+                            LEFT JOIN EmailActivityCatgorys EAC ON EAC.TopicId = TS.TopicID	
+                            WHERE TS.DueDate IS NOT NULL
 
-                                    UNION ALL
+                            UNION ALL
 
-                                    -- Third SELECT statement
-                                    SELECT 
-                                        TNH.ID,
-                                        0 AS AppointmentType,
-                                        TNH.DueDate AS StartDate,
-                                        CASE 
-                                            WHEN TNH.DueDate = TNH.DueDate THEN DATEADD(MINUTE, 15, TNH.DueDate) 
-                                            ELSE TNH.DueDate 
-                                        END AS EndDate,
-                                        CONCAT(EC.Name, '-', ET.TopicName) AS Caption,
-                                        4 AS Label,
-                                        4 AS Status,
-                                        0 AS AllDay,
-                                        NULL AS Recurrence,
-                                        NULL AS Location,
-                                        CONCAT(TNH.Description, '-', TD.Notes) AS Description,
-                                        TNH.AddedByUserID,
-                                        TNH.AddedDate,
-                                        1 AS Accepted,
-                                        TNH.SessionId,
-                                        'TodoDueDate' AS StatusType
-                                    FROM ToDoNotesHistory TNH
-                                    INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
-                                    INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
-                                    INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
-                                    LEFT JOIN TodoNotesUsers TNU ON TNU.NotesHistoryID = TNH.ID
-                                    LEFT JOIN ApplicationUser AP ON AP.UserID = TNU.UserID
-                                    WHERE TNH.AddedByUserID = @UserId
-                                        AND TNH.TopicId IS NOT NULL
-                                        AND TNH.TopicId > 0         
-                                        AND TNH.DueDate IS NOT NULL
-                                        AND TNH.Status = 'Open'";
+                            -- Third SELECT statement
+                            SELECT 
+                                TNH.ID,
+                                0 AS AppointmentType,
+                                TNH.DueDate AS StartDate,
+                                CASE 
+                                    WHEN TNH.DueDate = TNH.DueDate THEN DATEADD(MINUTE, 15, TNH.DueDate) 
+                                    ELSE TNH.DueDate 
+                                END AS EndDate,
+                                CONCAT(EC.Name, '-', ET.TopicName) AS Caption,
+                                4 AS Label,
+                                4 AS Status,
+                                1 AS AllDay,
+                                NULL AS Recurrence,
+                                NULL AS Location,
+                                CONCAT(TNH.Description, '-', TD.Notes) AS Description,
+                                TNH.AddedByUserID,
+                                TNH.AddedDate,
+                                1 AS Accepted,
+                                TNH.SessionId,
+                                'TodoDueDate' AS StatusType,
+                                1 AS ResourceId,
+	                            ECTUT.UserTag as UserTag,
+	                            EAC.Name as OtherTag
+                            FROM ToDoNotesHistory TNH
+                            INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+                            INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
+                            LEFT JOIN EmailTopicUserTags ECTUT ON ECTUT.TopicId = ET.ID AND ECTUT.AddedByUserID = @UserId
+                            LEFT JOIN EmailActivityCatgorys EAC ON EAC.TopicId = ET.ID	
+                            INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
+                            LEFT JOIN TodoNotesUsers TNU ON TNU.NotesHistoryID = TNH.ID
+                            LEFT JOIN ApplicationUser AP ON AP.UserID = TNU.UserID
+                            WHERE TNH.AddedByUserID = @UserId
+                                AND TNH.TopicId IS NOT NULL
+                                AND TNH.TopicId > 0         
+                                AND TNH.DueDate IS NOT NULL
+                                AND TNH.Status = 'Open'";
 
                 using (var connection = CreateConnection())
                 {

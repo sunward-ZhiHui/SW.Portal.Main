@@ -100,9 +100,11 @@ namespace Application.Queries
     public class NavCompanyItemQuery : PagedRequest, IRequest<Navitems>
     {
         public long? CompanyId { get; set; }
-        public NavCompanyItemQuery(long? CompanyId)
+        public long? UserId { get; set; }
+        public NavCompanyItemQuery(long? CompanyId, long? userId)
         {
             this.CompanyId = CompanyId;
+            this.UserId = userId;
         }
     }
     public class GetFinishedProdOrderLineQuery : PagedRequest, IRequest<FinishedProdOrderLine>

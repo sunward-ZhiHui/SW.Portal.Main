@@ -942,7 +942,10 @@
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             _selectedModelItems = nodeName;
             await loadData(nodeName);
-            await refLinkFileprofileTypeLists.loadTreeItems(nodeName, Data, _dynamicformData);
+            if (refLinkFileprofileTypeLists != null)
+            {
+                await refLinkFileprofileTypeLists.loadTreeItems(nodeName, Data, _dynamicformData);
+            }
             IsFileProfileTypeOpen = false;
         }
 
@@ -959,7 +962,10 @@
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             _selectedModelItems = nodeName;
             await loadData(nodeName);
-            await refLinkFileprofileTypeLists.loadTreeItems(nodeName, Data, _dynamicformData);
+            if (refLinkFileprofileTypeLists != null)
+            {
+                await refLinkFileprofileTypeLists.loadTreeItems(nodeName, Data, _dynamicformData);
+            }
             IsFileProfileTypeOpen = false;
         }
         StateHasChanged();
@@ -1122,7 +1128,10 @@
                         fileProfileTypeDocumentsTreeAll = childLists;
                         //_selectedTreeItems = childLists;
                         await loadData(datas);
+if(refLinkFileprofileTypeLists!=null)
+{
                         await refLinkFileprofileTypeLists.loadTreeItems(datas, Data, _dynamicformData);
+}
                         _editContext = new EditContext(Data);
                     }
                 }
@@ -1142,7 +1151,10 @@
                             fileProfileTypeDocumentsTreeAll = childLists;
                             //_selectedTreeItems = childLists;
                             await loadData(datas);
+                            if(refLinkFileprofileTypeLists!=null)
+{
                             await refLinkFileprofileTypeLists.loadTreeItems(datas, Data, _dynamicformData);
+}
                             _editContext = new EditContext(Data);
                         }
                     }
@@ -1526,7 +1538,10 @@
             else
             {
                 fileUploadStyle2 = ""; fileUploadStyle1 = "display:none;";
+                if(refLinkFileprofileTypeLists!=null)
+{
                 await refLinkFileprofileTypeLists.loadTreeItems(selectedFiles, Data, _dynamicformData);
+}
             }
         }
         StateHasChanged();

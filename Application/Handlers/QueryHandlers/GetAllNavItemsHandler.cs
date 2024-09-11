@@ -147,7 +147,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<Navitems> Handle(NavCompanyItemQuery request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.GetNavItemServicesList(request.CompanyId);
+            return await _queryRepository.GetNavItemServicesList(request.CompanyId,request.UserId);
 
         }
     }

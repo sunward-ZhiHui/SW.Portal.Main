@@ -27,12 +27,31 @@ namespace Application.Queries
     {
 
     }
-    public class UpdateMemoUserAcknowledgement : MemoUser, IRequest<MemoUser>
+    public class UpdateMemoUserAcknowledgement : PagedRequest, IRequest<MemoUser>
     {
-        public MemoUser MemoUser { get; set; }
-        public UpdateMemoUserAcknowledgement(MemoUser memoUser)
+        public long? MemoUserId { get; set; }
+        public bool? IsAcknowledgement { get; set; }
+        public UpdateMemoUserAcknowledgement(long? memoUserId, bool? isAcknowledgement)
         {
-            this.MemoUser = memoUser;
+            this.MemoUserId = memoUserId;
+            this.IsAcknowledgement = isAcknowledgement;
+        }
+    }
+    public class GetAllMemoByUserQuery : PagedRequest, IRequest<List<Memo>>
+    {
+        public long? UserId { get; set; }
+        public GetAllMemoByUserQuery(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
+
+    public class GetAllMemoByMemoIdQuery : PagedRequest, IRequest<List<MemoUser>>
+    {
+        public long? MemoId { get; set; }
+        public GetAllMemoByMemoIdQuery(long? memoId)
+        {
+            this.MemoId = memoId;
         }
     }
 }

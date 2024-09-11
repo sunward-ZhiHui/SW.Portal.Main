@@ -668,6 +668,23 @@ namespace Application.Queries
             this.DynamicFormWorkFlowFormDelegate = dynamicFormWorkFlowFormDelegate;
         }
     }
+    public class InsertDynamicFormWorkFlowForm : DynamicFormWorkFlowForm, IRequest<DynamicFormWorkFlowForm>
+    {
+        public DynamicFormWorkFlowForm DynamicFormWorkFlowForm { get; set; }
+        public InsertDynamicFormWorkFlowForm(DynamicFormWorkFlowForm dynamicFormWorkFlowForm)
+        {
+            this.DynamicFormWorkFlowForm = dynamicFormWorkFlowForm;
+        }
+
+    }
+    public class DeleteDynamicFormWorkFlowForm : DynamicFormWorkFlowForm, IRequest<DynamicFormWorkFlowForm>
+    {
+        public DynamicFormWorkFlowForm DynamicFormWorkFlowForm { get; set; }
+        public DeleteDynamicFormWorkFlowForm(DynamicFormWorkFlowForm dynamicFormWorkFlowForm)
+        {
+            this.DynamicFormWorkFlowForm = dynamicFormWorkFlowForm;
+        }
+    }
 
 }
 

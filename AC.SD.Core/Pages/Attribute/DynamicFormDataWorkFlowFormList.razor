@@ -22,14 +22,17 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewWorkFlows" Enabled="@AddNewEnabledApproval" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditApproval" Enabled="@AddEditEnabledApproval" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteApproval" Enabled="@DeleteEnabledApproval" />
                 <DxMenuItem Text="Approval" IconCssClass="fa fa-link" Click="@addSectionApproval" Enabled="@EditEnabledApproval" />
-                <DxMenuItem Text="Delegate User" IconCssClass="fa fa-link" Click="@addDelegate" Enabled="@EditEnabledApproval" />
+                <DxMenuItem Text="Delegate User" IconCssClass="fa fa-link" Click="@addDelegate" Enabled="@DelegateEnabledApproval" />
             </Items>
         </DxMenu>
 
     </div>
 </div>
-<DxGrid Data="_dynamicFormWorkFlowFormListItems"
+<DxGrid @ref="SMWorkFlowGrids" Data="_dynamicFormWorkFlowFormListItems"
         KeyFieldName="DynamicFormWorkFlowId"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
@@ -44,8 +47,11 @@
         AllowSelectRowByClick="true"
         CustomizeElement="Grid_CustomizeElement"
         RowClick="OnRowApprovalClick"
+        EditModelSaving="@OnEditModelApprovalSaving"
+        CustomizeEditModel="Grid_CustomizeApprovalEditModel"
         style="padding:10px;height: calc(100vh - 500px);"
         AutoExpandAllGroupRows="true"
+        RowDoubleClick="OnRowApprovalDoubleClick"
         SelectionMode="GridSelectionMode.Single">
     <Columns>
         <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
@@ -56,6 +62,54 @@
         <DxGridDataColumn FieldName="CompletedBy" Caption="Completed By" />
         <DxGridDataColumn FieldName="CompletedDate" Caption="Completed Date" />
     </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var types = (DynamicFormWorkFlowForm)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Users" ColSpanMd="6">
+                <DxComboBox Data="_usersAllList"
+                            @bind-Value="types.UserId"
+                            NullText="Select User..."
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            ValueFieldName="UserID"
+                            TextFieldName="FirstName"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            EditFormat="{0}-{1}-{3}"
+                            ListRenderMode="ListRenderMode.Virtual">
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                </DxComboBox>
+                <ValidationMessage For="@(() => types.UserId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                <DxTagBox Data="_dynamicFormSectionData"
+                          @bind-Values="types.SelectDynamicFormSectionIDs"
+                          NullText="Select Section..."
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ValueFieldName="DynamicFormSectionId"
+                          TextFieldName="SectionName"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          ListRenderMode="ListRenderMode.Virtual">
+                    <DxListEditorColumn FieldName="@nameof(DynamicFormSection.SectionName)" Caption="Name" />
+                    <DxListEditorColumn FieldName="@nameof(DynamicFormSection.Instruction)" Caption="Instruction" />
+                </DxTagBox>
+                <ValidationMessage For="@(() => types.SelectDynamicFormSectionIDs)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Sequence No" ColSpanMd="6">
+                <DxSpinEdit @bind-Value="@types.SequenceNo" NullText="Type a Sequence No 1,2,3,..." MinValue="1" CssClass="cw-320" InputId="seNullableValue" />
+                <ValidationMessage For="@(() => types.SequenceNo)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
+                <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
 </DxGrid>
 <DxPopup @bind-Visible="@SectionApprovalPopup"
          ShowFooter="false"
@@ -117,7 +171,37 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Save" Click="SubmitFormExternally" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @ref="popup" HeaderText="Delete" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="Delete" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool Blukdeletepopup { get; set; } = false;
+    IGrid? SMWorkFlowGrids { get; set; }
     bool updateApprovepopup { get; set; } = false;
     private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowApprovalForm refDynamicFormDataWorkFlowApprovalForm;
     [Parameter]
@@ -131,58 +215,211 @@
     public ApplicationUser applicationUser { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
+    [Parameter]
+    public long? dynamicFormId { get; set; }
+    public bool AddNewEnabledApproval { get; set; } = false;public bool AddEditEnabledApproval { get; set; } = false;
+    public bool DeleteEnabledApproval { get; set; } = false; public bool DelegateEnabledApproval { get; set; } = false;
     private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormListItems;
     public DynamicFormWorkFlowForm _selectedDynamicFormWorkFlowItems { get; set; }
     public DynamicFormWorkFlow DynamicFormWorkFlowItems { get; set; }
     private List<ViewEmployee>? _usersList;
     private List<ViewEmployee>? _usersAllList;
     EditContext _editContext;
+    private List<DynamicFormWorkFlow>? _dynamicFormApprovalData;
     private List<DynamicFormWorkFlowFormDelegate>? _dynamicFormApprovedChangedList;
     DynamicFormWorkFlowFormDelegate dynamicFormApprovedChanged = new DynamicFormWorkFlowFormDelegate();
+    private List<DynamicFormSection>? _dynamicFormSectionAllData; private List<DynamicFormSection>? _dynamicFormSectionData;
+    private List<DynamicFormWorkFlowForm> _dynamicFormWorkFlowFormList;
+    public List<long?> dynamicFormSectionIds = new List<long?>();
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    string MessageHeader = "Error";
+    string MessageBody = "";
     protected override async Task OnInitializedAsync()
     {
+
+        _dynamicFormSectionAllData = await Mediator.Send(new GetDynamicFormSection(dynamicFormId));
         _editContext = new EditContext(dynamicFormApprovedChanged);
         _usersAllList = await Mediator.Send(new GetAllEmployeeQuery());
-        loadDatas();
+        await loadDatas();
     }
-    public void loadDatas()
+    public async Task loadDatas()
     {
-        EditEnabledApproval = false;
-        if (FolderPathLists != null)
+        AddNewEnabledApproval = false; DeleteEnabledApproval = false;DelegateEnabledApproval = false;AddEditEnabledApproval = false;
+        _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
+        EditEnabledApproval = false; dynamicFormSectionIds = new List<long?>();
+        _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(dynamicFormId, _dynamicformData?.DynamicFormDataId));
+        if (_dynamicFormWorkFlowFormList != null && _dynamicFormWorkFlowFormList.Count() > 0)
         {
-            _dynamicFormWorkFlowFormListItems = FolderPathLists.Cast<DynamicFormWorkFlowForm>().ToList();
-            if (_dynamicFormWorkFlowFormListItems != null && _dynamicFormWorkFlowFormListItems.Count() > 0)
+            dynamicFormSectionIds = _dynamicFormWorkFlowFormList.Select(a => a.DynamicFormSectionId).Distinct().ToList();
+            _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
+            var dynamicFormWorkFlowIds = _dynamicFormWorkFlowFormList.Select(z => z.DynamicFormWorkFlowId).Distinct().ToList();
+            if (dynamicFormWorkFlowIds != null && dynamicFormWorkFlowIds.Count() > 0)
             {
-                var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems.Select(s => s.IsAllowDelegateUser == true).Count();
-                _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault();
-                if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
+                dynamicFormWorkFlowIds.ForEach(e =>
                 {
-                    if (iIsAllowDelegateUserss > 0)
+                    DynamicFormWorkFlowForm dynamicFormWorkFlowForm = new DynamicFormWorkFlowForm();
+                    dynamicFormWorkFlowForm.DynamicFormId = dynamicFormId;
+                    dynamicFormWorkFlowForm.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
+                    var listsItems = _dynamicFormWorkFlowFormList.Where(z => z.DynamicFormWorkFlowId == e).ToList();
+                    dynamicFormWorkFlowForm.DynamicFormSectionIDs = listsItems.Select(e => e.DynamicFormSectionId).ToList();
+                    dynamicFormWorkFlowForm.SelectDynamicFormSectionIDs = listsItems.Select(e => (long)e.DynamicFormSectionId).ToList();
+                    dynamicFormWorkFlowForm.SectionName = string.Join(",", listsItems.Select(aa => aa.SectionName).ToList());
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowId = listsItems[0].DynamicFormWorkFlowId;
+                    dynamicFormWorkFlowForm.SequenceNo = listsItems[0].SequenceNo;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = listsItems[0].DynamicFormWorkFlowUser;
+                    dynamicFormWorkFlowForm.CompletedDate = listsItems[0].FlowStatusID == 1 ? listsItems[0].CompletedDate : null;
+                    dynamicFormWorkFlowForm.CompletedBy = listsItems[0].FlowStatusID == 1 ? listsItems[0].CompletedBy : null;
+                    dynamicFormWorkFlowForm.FlowStatusID = listsItems[0].FlowStatusID;
+                    dynamicFormWorkFlowForm.UserId = listsItems[0].UserId;
+                    dynamicFormWorkFlowForm.IsAllowDelegateUser = listsItems[0].IsAllowDelegateUser;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = listsItems[0].DynamicFormWorkFlowFormId;
+                    dynamicFormWorkFlowForm.DelegateSectionUserId = listsItems[0].DelegateSectionUserId;
+                    dynamicFormWorkFlowForm.DelegateSectionUserName = listsItems[0].DelegateSectionUserName;
+                    dynamicFormWorkFlowForm.ActualUserId = listsItems[0].ActualUserId;
+                    dynamicFormWorkFlowForm.ActualUserName = listsItems[0].ActualUserName;
+                    dynamicFormWorkFlowForm.DynamicFormWorkFlowApprovalFormCompleted = listsItems[0].DynamicFormWorkFlowApprovalFormCompleted;
+                    _dynamicFormWorkFlowFormListItems.Add(dynamicFormWorkFlowForm);
+                });
+            }
+
+
+            var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems.Select(s => s.IsAllowDelegateUser == true).Count();
+            _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault();
+            if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
+            {
+                if (iIsAllowDelegateUserss > 0)
+                {
+                    var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
+                    if (exits > 0)
                     {
-                        var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
-                        if (exits > 0)
+                        EditEnabledApproval = true;
+                        if (_dynamicformData?.DynamicFormDataId > 0)
                         {
-                            EditEnabledApproval = true;
+                            AddNewEnabledApproval = true;  
+                            if (_selectedDynamicFormWorkFlowItems.FlowStatusID==1 )
+                            {
+
+                            }
+                            else
+                            {
+                                DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
+                            }
+
                         }
                     }
                 }
             }
         }
+        StateHasChanged();
+    }
+    void addNewWorkFlows()
+    {
+        SMWorkFlowGrids.StartEditNewRowAsync();
+
+    }
+    void addEditApproval()
+    {
+        SMWorkFlowGrids.StartEditDataItemAsync(_selectedDynamicFormWorkFlowItems);
+
+    }
+    void addDeleteApproval()
+    {
+        Blukdeletepopup = true;
+    }
+    void OnRowApprovalDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowApprovalClick(e);
+        // addEditApproval();
+    }
+    void ClosePopup()
+    {
+        PopupVisible = false;
+        //await UpdateDataAsync();
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+
+            var request = new DeleteDynamicFormWorkFlowForm(_selectedDynamicFormWorkFlowItems);
+            await Mediator.Send(request);
+            if (request.DynamicFormWorkFlowId > 0)
+            {
+                Blukdeletepopup = false;
+                toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                SMWorkFlowGrids.SetFocusedRowIndex(0);
+                await loadDatas();
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await loadDatas();
+
+
+    }
+    async Task OnEditModelApprovalSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (DynamicFormWorkFlowForm)e.EditModel;
+        if (e.IsNew)
+        {
+            try
+            {
+                var result = await Mediator.Send(new InsertDynamicFormWorkFlowForm(editModel));
+                if (result.DynamicFormWorkFlowId > 0)
+                {
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+            }
+            catch (Exception eq)
+            {
+                errorMessage = eq.Message;
+                PopupVisible = true;
+            }
+            await loadDatas();
+        }
+        else
+        {
+            var result = await Mediator.Send(new InsertDynamicFormWorkFlowForm(editModel));
+            if (result.DynamicFormWorkFlowId > 0)
+            {
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            await loadDatas();
+        }
     }
     void OnRowApprovalClick(GridRowClickEventArgs e)
     {
+        EditEnabledApproval = false; AddNewEnabledApproval = false; DeleteEnabledApproval = false; DelegateEnabledApproval = false; AddEditEnabledApproval = false;
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormWorkFlowId");
-        _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault(f => f.DynamicFormWorkFlowId == (long?)UniqueId);
-        EditEnabledApproval = false;
-        var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems.Select(s => s.IsAllowDelegateUser == true).Count();
-        if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
+        if (_dynamicFormWorkFlowFormListItems != null && _dynamicFormWorkFlowFormListItems.Count() > 0)
         {
-            if (iIsAllowDelegateUserss > 0)
+            _selectedDynamicFormWorkFlowItems = _dynamicFormWorkFlowFormListItems.FirstOrDefault(f => f.DynamicFormWorkFlowId == (long?)UniqueId);
+            var iIsAllowDelegateUserss = _dynamicFormWorkFlowFormListItems.Select(s => s.IsAllowDelegateUser == true).Count();
+            if (_selectedDynamicFormWorkFlowItems.DynamicFormWorkFlowApprovalFormCompleted == false)
             {
-                var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
-                if (exits > 0)
+                if (iIsAllowDelegateUserss > 0)
                 {
-                    EditEnabledApproval = true;
+                    var exits = _dynamicFormWorkFlowFormListItems.Where(w => w.ActualUserId == applicationUser.UserID).Count();
+                    if (exits > 0)
+                    {
+                        EditEnabledApproval = true;
+                        if (_dynamicformData?.DynamicFormDataId > 0)
+                        {
+                            AddNewEnabledApproval = true;
+                            if (_selectedDynamicFormWorkFlowItems.FlowStatusID == 0)
+                            {
+                                DeleteEnabledApproval = true; DelegateEnabledApproval = true; AddEditEnabledApproval = true;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -193,6 +430,28 @@
         {
             e.CssClass = "alt-item";
         }
+    }
+    void Grid_CustomizeApprovalEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (DynamicFormWorkFlowForm)e.EditModel;
+        if (e.IsNew)
+        {
+            navitems.DynamicFormDataId = _dynamicformData?.DynamicFormDataId;
+            navitems.DynamicFormId = dynamicFormId;
+            if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
+            {
+                _dynamicFormSectionData = _dynamicFormSectionAllData.Where(w => !dynamicFormSectionIds.Contains(w.DynamicFormSectionId)).ToList();
+            }
+        }
+        else
+        {
+            if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
+            {
+                List<long?> datds = dynamicFormSectionIds.Except(navitems.DynamicFormSectionIDs).ToList();
+                _dynamicFormSectionData = _dynamicFormSectionAllData.Where(w => !datds.Contains(w.DynamicFormSectionId)).ToList();
+            }
+        }
+        StateHasChanged();
     }
     void addSectionApproval()
     {
@@ -278,13 +537,17 @@
         }
         StateHasChanged();
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
     {
-        RevokeBack?.Invoke();
+         Blukdeletepopup  = false;
+        await loadDatas();
+        //RevokeBack?.Invoke();
     }
-    void CloseCallbacks()
+    async Task CloseCallbacks()
     {
         updateApprovepopup = false;
-        RevokeBack?.Invoke();
+        // await loadDatas();
+
+        //RevokeBack?.Invoke();
     }
 }

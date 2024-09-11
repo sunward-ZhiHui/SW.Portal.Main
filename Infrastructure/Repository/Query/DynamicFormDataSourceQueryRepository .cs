@@ -96,6 +96,12 @@ namespace Infrastructure.Repository.Query
                     query += GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds);
                     //dataSourceDropDownList.AddRange(await GetItemBatchInfoDataSource(CompanyId, plantCode, plantIds));
                 }
+                if (dataSourceTableIds.Contains("FinishedProdOrderLine"))
+                {
+                    i++;
+                    query += GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds));
+                }
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
@@ -584,6 +590,43 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private string GetFinishedProdOrderLineDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            //var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select CONCAT('FinishedProdOrderLine_',t1.FinishedProdOrderLineID) as AttributeDetailNameId,'FinishedProdOrderLine' as DropDownTypeId,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ");";
+                    }
+                    else
+                    {
+                        query += "Where t1.CompanyID=" + CompanyId + ";\r\n";
+                    }
+                }
+                else
+                {
+                    query += ";\r\n";
+                }
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
         private string GetSoCustomerDataSource(List<string?> dataSourceTableIds)
         {
             //var attributeDetails = new List<AttributeDetails>();
@@ -1087,6 +1130,11 @@ namespace Infrastructure.Repository.Query
                 else if (DataSource == "ItemBatchInfo")
                 {
                     query += "select 'ItemBatchInfo' as DropDownTypeId,t1.ItemBatchId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.BatchNo as AttributeDetailName,CONCAT(t3.No,'||',t3.Description) as Description from ItemBatchInfo t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID JOIN NavItems t3 ON t3.ItemId=t1.ItemId\r";
+
+                }
+                else if(DataSource== "FinishedProdOrderLine")
+                {
+                    query += "select 'FinishedProdOrderLine' as DropDownTypeId,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
 
                 }
                 else

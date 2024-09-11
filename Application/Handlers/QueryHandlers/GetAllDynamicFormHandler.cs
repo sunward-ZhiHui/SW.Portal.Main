@@ -1152,4 +1152,34 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class InsertDynamicFormWorkFormFlowHandler : IRequestHandler<InsertDynamicFormWorkFlowForm, DynamicFormWorkFlowForm>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormWorkFormFlowHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowForm> Handle(InsertDynamicFormWorkFlowForm request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormWorkFlowForm(request.DynamicFormWorkFlowForm);
+
+
+        }
+    }
+    public class DeleteDynamicFormWorkFlowFormHandler : IRequestHandler<DeleteDynamicFormWorkFlowForm, DynamicFormWorkFlowForm>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormWorkFlowFormHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowForm> Handle(DeleteDynamicFormWorkFlowForm request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormWorkFlowForm(request.DynamicFormWorkFlowForm);
+
+
+        }
+    }
 }

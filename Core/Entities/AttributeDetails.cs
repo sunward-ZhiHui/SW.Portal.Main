@@ -46,6 +46,15 @@ namespace Core.Entities
         public string? AreaName { get; set; }
         public string? AttributeDetailNameId { get; set; }
         public string? DesignationName { get; set; }
+        public string? Description2 { get; set; }
+        public string? ReplanRefNo { get; set; }
+        public string? StartingDate { get; set; }
+        public string? BatchNo { get; set; }
+        public string? ManufacturingDate { get; set; }
+        public string? ExpirationDate { get; set; }
+        public string? ProductCode { get; set; }
+        public string? ProductName { get; set; }
+
     }
     public class DataSourceAttributeDetails
     {

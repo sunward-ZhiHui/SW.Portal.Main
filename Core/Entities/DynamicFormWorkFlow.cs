@@ -48,7 +48,7 @@ namespace Core.Entities
         [NotMapped]
         public IEnumerable<long?> SelectLevelMasterIDs { get; set; } = new List<long?>();
         [NotMapped]
-        [Required(ErrorMessage = "Section Name is required")]
+        [DynamicFormWorkFlowSectionNameCustomValidation]
         public IEnumerable<long>? SelectDynamicFormSectionIDs { get; set; } = new List<long>();
         public List<long> DynamicFormSectionIDs { get; set; } = new List<long>();
         public List<long> DynamicFormSectionAllIDs { get; set; } = new List<long>();
@@ -93,11 +93,14 @@ namespace Core.Entities
         public long DynamicFormWorkFlowFormId { get; set; }
         public long? DynamicFormWorkFlowSectionId { get; set; }
         public long? DynamicFormDataId { get; set; }
+        [Required(ErrorMessage = "User Name is required")]
         public long? UserId { get; set; }
         public DateTime? CompletedDate { get; set; }
         [NotMapped]
         public string? CompletedBy { get; set; }
         [NotMapped]
+        [Required(ErrorMessage = "Sequence No is required")]
+        [DynamicFormWorkFormFlowSequenceNoCustomValidation]
         public int? SequenceNo { get; set; }
         [NotMapped]
         public long? DynamicFormSectionId { get; set; }
@@ -120,6 +123,10 @@ namespace Core.Entities
         public int? DynamicFormWorkFlowFormTotalCount { get; set; }
         public int? DynamicFormWorkFlowFormCount { get; set; }
         public bool? DynamicFormWorkFlowApprovalFormCompleted { get; set; } = false;
+        public long? DynamicFormId { get; set; }
+        public List<long?> DynamicFormSectionIDs { get; set; } = new List<long?>();
+        [DynamicFormWorkFormFlowSectionCustomValidation]
+        public IEnumerable<long>? SelectDynamicFormSectionIDs { get; set; } = new List<long>();
     }
     public class DynamicFormDataUploadByPermission
     {

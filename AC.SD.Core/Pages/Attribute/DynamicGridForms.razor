@@ -431,10 +431,10 @@
         </DxTabPage>
         <DxTabPage Text="Approval" Visible="@isApproval">
             <AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList @ref="refDynamicFormApprovedFormList" isLocked="@isLocked" isBackShow="false" _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData"></AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList>
-           
+
         </DxTabPage>
         <DxTabPage Text="Work Flow">
-            <DynamicFormDataWorkFlowFormList @ref="refDynamicFormDataWorkFlowFormList" FolderPathLists="@_dynamicFormWorkFlowFormListItems" _dynamicformData="@_dynamicformData" applicationUser="@applicationUser" EditEnabledApproval="@EditEnabledApproval"></DynamicFormDataWorkFlowFormList>
+            <DynamicFormDataWorkFlowFormList @ref="refDynamicFormDataWorkFlowFormList" dynamicFormId="@_dynamicform?.ID" FolderPathLists="@_dynamicFormWorkFlowFormListItems" _dynamicformData="@_dynamicformData" applicationUser="@applicationUser" EditEnabledApproval="@EditEnabledApproval" RevokeBack="BackUpload"></DynamicFormDataWorkFlowFormList>
         </DxTabPage>
     </DxTabs>
 
@@ -604,7 +604,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
-    private DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList{get;set;}
+    private DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormFilterByForm refDynamicFormFilterByForm { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormApprovedFormList refDynamicFormApprovedFormList;
@@ -704,7 +704,7 @@
     private List<long?> _DynamicFormSectionIds = new List<long?>();
     private List<DynamicFormSectionAttributeSection?> dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>();
     bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock"; bool isUserLocked { get; set; } = false; bool lockpopup { get; set; } = false;
-    public List<DynamicFormWorkFlowForm> _dynamicFormWorkFlowFormListItems=new List<DynamicFormWorkFlowForm>();
+    public List<DynamicFormWorkFlowForm> _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
     bool EditEnabledApproval { get; set; } = false; public List<DynamicFormWorkFlowApprovedForm> _dynamicFormWorkFlowApprovedFormList { get; set; }
     public DynamicFormWorkFlowApprovedForm _dynamicFormWorkFlowApprovedFormOne { get; set; }
     protected override async Task OnInitializedAsync()
@@ -979,7 +979,7 @@
                                     dynamicFormWorkFlowForm.DelegateSectionUserName = listsItems[0].DelegateSectionUserName;
                                     dynamicFormWorkFlowForm.ActualUserId = listsItems[0].ActualUserId;
                                     dynamicFormWorkFlowForm.ActualUserName = listsItems[0].ActualUserName;
-                                     dynamicFormWorkFlowForm.DynamicFormWorkFlowApprovalFormCompleted= listsItems[0].DynamicFormWorkFlowApprovalFormCompleted;
+                                    dynamicFormWorkFlowForm.DynamicFormWorkFlowApprovalFormCompleted = listsItems[0].DynamicFormWorkFlowApprovalFormCompleted;
                                     _dynamicFormWorkFlowFormListItems.Add(dynamicFormWorkFlowForm);
                                 });
                             }
@@ -1512,7 +1512,10 @@
         {
             AddEnabled = false;
         }
-        refDynamicFormDataWorkFlowFormList?.loadDatas();
+        if (refDynamicFormDataWorkFlowFormList != null)
+        {
+            await refDynamicFormDataWorkFlowFormList?.loadDatas();
+        }
         StateHasChanged();
     }
     void OpenLock()
@@ -2435,6 +2438,10 @@
     }
     void OnTabClick(TabClickEventArgs e)
     {
+        if (e.TabIndex == 0)
+        {
+            InvokeAsync(loadDynamicForm);
+        }
     }
     private static bool IsValidJson(string strInput)
     {
@@ -4456,10 +4463,13 @@
                        layoutItemBuilders.CloseComponent();
                        if (s.DropDownTypeId == "Data Source")
                        {
-                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
-                           layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
-                           layoutItemBuilders.AddAttribute(2, "Caption", "Comapny");
-                           layoutItemBuilders.CloseComponent();
+                           if (s.DataSourceTable != "FinishedProdOrderLine")
+                           {
+                               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                               layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
+                               layoutItemBuilders.AddAttribute(2, "Caption", "Comapny");
+                               layoutItemBuilders.CloseComponent();
+                           }
                        }
                        if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
                        {
@@ -4494,6 +4504,41 @@
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                            layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                            layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                           layoutItemBuilders.CloseComponent();
+                       }
+                       if (s.DataSourceTable == "FinishedProdOrderLine")
+                       {
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                           layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                           layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(10, "FieldName", "StartingDate");
+                           layoutItemBuilders.AddAttribute(10, "Caption", "Starting Date");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(11, "FieldName", "BatchNo");
+                           layoutItemBuilders.AddAttribute(11, "Caption", "BatchNo");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(12, "FieldName", "ManufacturingDate");
+                           layoutItemBuilders.AddAttribute(12, "Caption", "Manufacturing Date");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(13, "FieldName", "ProductCode");
+                           layoutItemBuilders.AddAttribute(13, "Caption", "Product Code");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(14, "FieldName", "ProductName");
+                           layoutItemBuilders.AddAttribute(14, "Caption", "Product Name");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
+                           layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                            layoutItemBuilders.CloseComponent();
                        }
                    }
@@ -4686,10 +4731,13 @@
                    layoutItemBuilders.CloseComponent();
                    if (s.DropDownTypeId == "Data Source")
                    {
-                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
-                       layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
-                       layoutItemBuilders.AddAttribute(2, "Caption", "Company");
-                       layoutItemBuilders.CloseComponent();
+                       if (s.DataSourceTable != "FinishedProdOrderLine")
+                       {
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                           layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
+                           layoutItemBuilders.AddAttribute(2, "Caption", "Company");
+                           layoutItemBuilders.CloseComponent();
+                       }
                    }
                    if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
                    {
@@ -4724,6 +4772,41 @@
                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                       layoutItemBuilders.CloseComponent();
+                   }
+                   if (s.DataSourceTable == "FinishedProdOrderLine")
+                   {
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                       layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                       layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(10, "FieldName", "StartingDate");
+                       layoutItemBuilders.AddAttribute(10, "Caption", "Starting Date");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(11, "FieldName", "BatchNo");
+                       layoutItemBuilders.AddAttribute(11, "Caption", "BatchNo");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(12, "FieldName", "ManufacturingDate");
+                       layoutItemBuilders.AddAttribute(12, "Caption", "Manufacturing Date");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(13, "FieldName", "ProductCode");
+                       layoutItemBuilders.AddAttribute(13, "Caption", "Product Code");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(14, "FieldName", "ProductName");
+                       layoutItemBuilders.AddAttribute(14, "Caption", "Product Name");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
+                       layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                        layoutItemBuilders.CloseComponent();
                    }
                }
@@ -4873,10 +4956,13 @@
            layoutItemBuilders.CloseComponent();
            if (s.DropDownTypeId == "Data Source")
            {
-               layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
-               layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
-               layoutItemBuilders.AddAttribute(2, "Caption", "Company");
-               layoutItemBuilders.CloseComponent();
+               if (s.DataSourceTable != "FinishedProdOrderLine")
+               {
+                   layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                   layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
+                   layoutItemBuilders.AddAttribute(2, "Caption", "Company");
+                   layoutItemBuilders.CloseComponent();
+               }
            }
            if (s.DataSourceTable == "Zone" || s.DataSourceTable == "Location" || s.DataSourceTable == "Area" || s.DataSourceTable == "SpecificArea")
            {
@@ -4911,6 +4997,41 @@
                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+               layoutItemBuilders.CloseComponent();
+           }
+           if (s.DataSourceTable == "FinishedProdOrderLine")
+           {
+               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+               layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+               layoutItemBuilders.CloseComponent();
+               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+               layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+               layoutItemBuilders.CloseComponent();
+               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders.AddAttribute(10, "FieldName", "StartingDate");
+               layoutItemBuilders.AddAttribute(10, "Caption", "Starting Date");
+               layoutItemBuilders.CloseComponent();
+               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders.AddAttribute(11, "FieldName", "BatchNo");
+               layoutItemBuilders.AddAttribute(11, "Caption", "BatchNo");
+               layoutItemBuilders.CloseComponent();
+               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders.AddAttribute(12, "FieldName", "ManufacturingDate");
+               layoutItemBuilders.AddAttribute(12, "Caption", "Manufacturing Date");
+               layoutItemBuilders.CloseComponent();
+               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders.AddAttribute(13, "FieldName", "ProductCode");
+               layoutItemBuilders.AddAttribute(13, "Caption", "Product Code");
+               layoutItemBuilders.CloseComponent();
+               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders.AddAttribute(14, "FieldName", "ProductName");
+               layoutItemBuilders.AddAttribute(14, "Caption", "Product Name");
+               layoutItemBuilders.CloseComponent();
+               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
+               layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                layoutItemBuilders.CloseComponent();
            }
 
@@ -5075,10 +5196,13 @@
            layoutItemBuilders1.CloseComponent();
            if (s.DropDownTypeId == "Data Source")
            {
-               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
-               layoutItemBuilders1.AddAttribute(2, "FieldName", "CompanyName");
-               layoutItemBuilders1.AddAttribute(2, "Caption", "Company");
-               layoutItemBuilders1.CloseComponent();
+               if (s.DataSourceTable != "FinishedProdOrderLine")
+               {
+                   layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
+                   layoutItemBuilders1.AddAttribute(2, "FieldName", "CompanyName");
+                   layoutItemBuilders1.AddAttribute(2, "Caption", "Company");
+                   layoutItemBuilders1.CloseComponent();
+               }
            }
            if (ff.DataSourceTable == "Zone" || ff.DataSourceTable == "Location" || ff.DataSourceTable == "Area" || ff.DataSourceTable == "SpecificArea")
            {
@@ -5113,6 +5237,41 @@
                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                layoutItemBuilders1.AddAttribute(7, "FieldName", "DesignationName");
                layoutItemBuilders1.AddAttribute(7, "Caption", "Designation");
+               layoutItemBuilders1.CloseComponent();
+           }
+           if (ff.DataSourceTable == "FinishedProdOrderLine")
+           {
+               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders1.AddAttribute(8, "FieldName", "Description2");
+               layoutItemBuilders1.AddAttribute(8, "Caption", "Description2");
+               layoutItemBuilders1.CloseComponent();
+               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders1.AddAttribute(9, "FieldName", "ReplanRefNo");
+               layoutItemBuilders1.AddAttribute(9, "Caption", "Replan RefNo");
+               layoutItemBuilders1.CloseComponent();
+               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders1.AddAttribute(10, "FieldName", "StartingDate");
+               layoutItemBuilders1.AddAttribute(10, "Caption", "Starting Date");
+               layoutItemBuilders1.CloseComponent();
+               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders1.AddAttribute(11, "FieldName", "BatchNo");
+               layoutItemBuilders1.AddAttribute(11, "Caption", "BatchNo");
+               layoutItemBuilders1.CloseComponent();
+               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders1.AddAttribute(12, "FieldName", "ManufacturingDate");
+               layoutItemBuilders1.AddAttribute(12, "Caption", "Manufacturing Date");
+               layoutItemBuilders1.CloseComponent();
+               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders1.AddAttribute(13, "FieldName", "ProductCode");
+               layoutItemBuilders1.AddAttribute(13, "Caption", "Product Code");
+               layoutItemBuilders1.CloseComponent();
+               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders1.AddAttribute(14, "FieldName", "ProductName");
+               layoutItemBuilders1.AddAttribute(14, "Caption", "Product Name");
+               layoutItemBuilders1.CloseComponent();
+               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+               layoutItemBuilders1.AddAttribute(15, "FieldName", "CompanyName");
+               layoutItemBuilders1.AddAttribute(15, "Caption", "Comapny");
                layoutItemBuilders1.CloseComponent();
            }
        }));
@@ -5607,10 +5766,13 @@
                    layoutItemBuilders.CloseComponent();
                    if (q.DropDownTypeId == "Data Source")
                    {
-                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
-                       layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
-                       layoutItemBuilders.AddAttribute(2, "Caption", "Company");
-                       layoutItemBuilders.CloseComponent();
+                       if (q.DataSourceTable != "FinishedProdOrderLine")
+                       {
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                           layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
+                           layoutItemBuilders.AddAttribute(2, "Caption", "Company");
+                           layoutItemBuilders.CloseComponent();
+                       }
                    }
                    if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                    {
@@ -5647,6 +5809,42 @@
                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                        layoutItemBuilders.CloseComponent();
                    }
+                   if (q.DataSourceTable == "FinishedProdOrderLine")
+                   {
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                       layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                       layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(10, "FieldName", "StartingDate");
+                       layoutItemBuilders.AddAttribute(10, "Caption", "Starting Date");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(11, "FieldName", "BatchNo");
+                       layoutItemBuilders.AddAttribute(11, "Caption", "BatchNo");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(12, "FieldName", "ManufacturingDate");
+                       layoutItemBuilders.AddAttribute(12, "Caption", "Manufacturing Date");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(13, "FieldName", "ProductCode");
+                       layoutItemBuilders.AddAttribute(13, "Caption", "Product Code");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(14, "FieldName", "ProductName");
+                       layoutItemBuilders.AddAttribute(14, "Caption", "Product Name");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
+                       layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
+                       layoutItemBuilders.CloseComponent();
+                   }
+
                }));
                    if (q.IsRequired == true)
                    {
@@ -5706,10 +5904,13 @@
                    layoutItemBuilders.CloseComponent();
                    if (q.DropDownTypeId == "Data Source")
                    {
-                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
-                       layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
-                       layoutItemBuilders.AddAttribute(2, "Caption", "Company");
-                       layoutItemBuilders.CloseComponent();
+                       if (q.DataSourceTable != "FinishedProdOrderLine")
+                       {
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                           layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
+                           layoutItemBuilders.AddAttribute(2, "Caption", "Company");
+                           layoutItemBuilders.CloseComponent();
+                       }
                    }
                    if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                    {
@@ -5744,6 +5945,41 @@
                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                       layoutItemBuilders.CloseComponent();
+                   }
+                   if (q.DataSourceTable == "FinishedProdOrderLine")
+                   {
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                       layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                       layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(10, "FieldName", "StartingDate");
+                       layoutItemBuilders.AddAttribute(10, "Caption", "Starting Date");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(11, "FieldName", "BatchNo");
+                       layoutItemBuilders.AddAttribute(11, "Caption", "BatchNo");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(12, "FieldName", "ManufacturingDate");
+                       layoutItemBuilders.AddAttribute(12, "Caption", "Manufacturing Date");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(13, "FieldName", "ProductCode");
+                       layoutItemBuilders.AddAttribute(13, "Caption", "Product Code");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(14, "FieldName", "ProductName");
+                       layoutItemBuilders.AddAttribute(14, "Caption", "Product Name");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
+                       layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                        layoutItemBuilders.CloseComponent();
                    }
                }));
@@ -5836,11 +6072,14 @@
                    layoutItemBuilders.CloseComponent();
                    if (q.DropDownTypeId == "Data Source")
                    {
-                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
-                       layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
-                       layoutItemBuilders.AddAttribute(2, "Caption", "Company");
+                       if (q.DataSourceTable != "FinishedProdOrderLine")
+                       {
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
+                           layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
+                           layoutItemBuilders.AddAttribute(2, "Caption", "Company");
 
-                       layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.CloseComponent();
+                       }
                    }
                    if (q.DataSourceTable == "Zone" || q.DataSourceTable == "Location" || q.DataSourceTable == "Area" || q.DataSourceTable == "SpecificArea")
                    {
@@ -5875,6 +6114,41 @@
                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                        layoutItemBuilders.AddAttribute(7, "FieldName", "DesignationName");
                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
+                       layoutItemBuilders.CloseComponent();
+                   }
+                   if (q.DataSourceTable == "FinishedProdOrderLine")
+                   {
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
+                       layoutItemBuilders.AddAttribute(8, "Caption", "Description2");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(9, "FieldName", "ReplanRefNo");
+                       layoutItemBuilders.AddAttribute(9, "Caption", "Replan RefNo");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(10, "FieldName", "StartingDate");
+                       layoutItemBuilders.AddAttribute(10, "Caption", "Starting Date");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(11, "FieldName", "BatchNo");
+                       layoutItemBuilders.AddAttribute(11, "Caption", "BatchNo");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(12, "FieldName", "ManufacturingDate");
+                       layoutItemBuilders.AddAttribute(12, "Caption", "Manufacturing Date");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(13, "FieldName", "ProductCode");
+                       layoutItemBuilders.AddAttribute(13, "Caption", "Product Code");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(14, "FieldName", "ProductName");
+                       layoutItemBuilders.AddAttribute(14, "Caption", "Product Name");
+                       layoutItemBuilders.CloseComponent();
+                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                       layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
+                       layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                        layoutItemBuilders.CloseComponent();
                    }
                }));

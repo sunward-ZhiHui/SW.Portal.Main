@@ -63,7 +63,31 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<MemoUser> Handle(UpdateMemoUserAcknowledgement request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.UpdateMemoUserAcknowledgement(request.MemoUser);
+            return await _queryRepository.UpdateMemoUserAcknowledgement(request.MemoUserId,request.IsAcknowledgement);
+        }
+    }
+    public class GetAllMemoByUserHandler : IRequestHandler<GetAllMemoByUserQuery, List<Memo>>
+    {
+        private readonly IMemoQueryRepository _queryRepository;
+        public GetAllMemoByUserHandler(IMemoQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<Memo>> Handle(GetAllMemoByUserQuery request, CancellationToken cancellationToken)
+        {
+            return (List<Memo>)await _queryRepository.GetAllByUserAsync(request.UserId);
+        }
+    }
+    public class GetAllMemoByMemoIdQueryHandler : IRequestHandler<GetAllMemoByMemoIdQuery, List<MemoUser>>
+    {
+        private readonly IMemoQueryRepository _queryRepository;
+        public GetAllMemoByMemoIdQueryHandler(IMemoQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<MemoUser>> Handle(GetAllMemoByMemoIdQuery request, CancellationToken cancellationToken)
+        {
+            return (List<MemoUser>)await _queryRepository.GetMemoUserByMemoIdync(request.MemoId);
         }
     }
 }

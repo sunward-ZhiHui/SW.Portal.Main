@@ -19,6 +19,19 @@
     .dxbl-sc-table.dxbl-sc-vertical-view tr:first-of-type {
         display: none;
     }
+    .demo-resnavigator-sc-container
+    {
+        overflow:auto;
+    }
+
+    .other_tag .dxbl-treeview-item-content .dxbl-checkbox {
+        display: none;
+    }
+
+    .user_tag .dxbl-treeview-item-content .dxbl-checkbox {
+        display: none;
+    }
+
 
 </style>
 
@@ -59,128 +72,271 @@
     <DxSchedulerWeekView ShowWorkTimeOnly="true" />
     <DxSchedulerMonthView />
 </DxScheduler> *@ 
+<div class="demo-resnavigator">
+    <div class="demo-resnavigator-container card">
+        <div class="demo-resnavigator-title card-body">
+            <DxButton RenderStyle="ButtonRenderStyle.None" Click="@ToggleResourceNavigator" IconCssClass="demo-resnavigator-icon" title="Toggle the resource navigator" />
+            @if(ResourceNavigatorExpanded) {
+                <span style="">Filter</span>
+            }
+        </div>
+        @if(ResourceNavigatorExpanded) {
+            <div class="demo-resnavigator-tree card-body">
+                <DxTreeView AfterCollapse="@(e => UpdateExpandedState(e, false))" AfterExpand="@(e => UpdateExpandedState(e, true))">
+                    <Nodes>
+                        @foreach(Resource group in Groups) {
+                            <DxTreeViewNode Text="@group.Name" Name="@group.Id.ToString()" Expanded="@IsExpanded(group)">
+                                <Nodes>
+                                    @foreach(Resource resource in GetResources(group)) {
+                                        <DxTreeViewNode Text="@resource.Name">
+                                            <Template>
+                                                <div class="demo-resnavigator-item">
+                                                    <DxCheckBox T="bool"
+                                                                Checked="@IsVisible(resource)"
+                                                                CheckedChanged="@(visible => UpdateVisibilty(resource, visible))">
+                                                        @resource.Name
+                                                    </DxCheckBox>
+                                                </div>
+                                            </Template>
+                                        </DxTreeViewNode>
+                                    }
+                                </Nodes>
+                            </DxTreeViewNode>
+                        }
+                    </Nodes>
+                </DxTreeView>               
 
-<DxScheduler DataStorage="@DataStorage"
-             GroupType="SchedulerGroupType.Resource"
-             ResourceColorInHeaderVisible = "true"                       
-             CssClass="w-100"
-             AppointmentFormShowing="OnAppointmentFormShowing"
-             AllowEditAppointment="@AllowEditAppointment"
-             AppointmentInserting="AppointmentInserting"
-             AppointmentRemoving="AppointmentRemoving"
-             AppointmentUpdating="AppointmentUpdating">
-    <Views>
-        <DxSchedulerDayView ShowWorkTimeOnly="false" TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.Never" 
-        VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))">
-            @* <HorizontalAppointmentTemplate>
-                @{
-                    string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
-                }
-                <div class="demo-sc-apt @(IsAccepted(context.Appointment) ? "demo-sc-accepted" : "")" style="width: 100%;">
-                    <div class="card demo-apt-bg @backgroundCss" style="width: 100%;"></div>
-                    <div class="card shadow-sm p-1 demo-sc-apt-content text-white" style="width:100%;">
-                        @context.Appointment.Subject
-                    </div>
-                </div>
-            </HorizontalAppointmentTemplate> *@
-            @* <VerticalAppointmentTemplate>
-                @{
-                    string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
-                }
-                <div class="shadow-sm demo-sc-apt @(IsAccepted(context.Appointment) ? "demo-sc-accepted"  : "")">
-                    <div class="card demo-apt-bg @backgroundCss"></div>
-                    <div class="card demo-sc-apt-content text-white">
-                        <div class="card demo-sc-status-container">
-                            <div class="card demo-apt-status @backgroundCss"></div>
-                        </div>
-                        <div class="demo-apt-subject">
+                <DxTreeView CheckMode="TreeViewCheckMode.Multiple"                           
+                            AnimationType="LayoutAnimationType.Slide"
+                            CssClass="h-300"
+                            @ref="treeview">
+                    <Nodes>
+                        <DxTreeViewNode Text="User Tags" CssClass="user_tag" Name="User Tags" Expanded="false"> 
+                            <Nodes>
+                                @foreach (var userTag in userTagList)
+                                {
+                            
+                                    <DxTreeViewNode Text="@userTag">
+                                        <Template>
+                                            <div class="demo-resnavigator-item">
+                                                <DxCheckBox T="bool"
+                                                            Checked="@IsUserTagSelected(userTag)"
+                                                            CheckedChanged="@(isChecked => OnUserTagCheckedChanged(userTag, isChecked))">
+                                                    @userTag
+                                                </DxCheckBox>
+                                            </div>
+                                        </Template>
+                                    </DxTreeViewNode>
+                           
+                                }
+                            </Nodes>
+                        </DxTreeViewNode>
+                    </Nodes>
+                </DxTreeView>
+                <DxTreeView CheckMode="TreeViewCheckMode.Multiple"
+                    AnimationType="LayoutAnimationType.Slide"
+                    CssClass="h-300">
+                    <Nodes>
+                        @if (otherTagList != null)
+                        {
+                            <DxTreeViewNode Text="Other Tags" CssClass="other_tag" Name="Other Tags" Expanded="false"> 
+                                <Nodes>
+                                    @foreach (var otherTag in otherTagList)
+                                    {
+                                        <DxTreeViewNode Text="@otherTag">
+                                            <Template>
+                                                <div class="demo-resnavigator-item">
+                                                    <DxCheckBox T="bool"
+                                                                Checked="@IsOtherTagSelected(otherTag)"
+                                                                CheckedChanged="@(isChecked => OnOtherTagCheckedChanged(otherTag, isChecked))">
+                                                        @otherTag
+                                                    </DxCheckBox>
+                                                </div>
+                                            </Template>
+                                        </DxTreeViewNode>
+                                    }
+                                </Nodes>                                                               
+                            </DxTreeViewNode>
+                        }
+                    </Nodes>
+                </DxTreeView>
+
+            </div>
+        }
+    </div>
+    <div class="demo-resnavigator-sc-container">
+        <DxScheduler DataStorage="@DataStorage"
+                 VisibleResourcesDataSource="@VisibleResources"
+                 GroupType="SchedulerGroupType.Resource"
+                 ResourceNavigatorVisible="false"                 
+                 ResourceColorInHeaderVisible = "true"                       
+                 CssClass="demo-sc-docked demo-sc-size w-100"
+                 AppointmentFormShowing="OnAppointmentFormShowing"
+                 AllowEditAppointment="@AllowEditAppointment"
+                 AppointmentInserting="AppointmentInserting"
+                 AppointmentRemoving="AppointmentRemoving"
+                 AppointmentUpdating="AppointmentUpdating">
+        <Views>
+            <DxSchedulerDayView ShowWorkTimeOnly="false" TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.Never" 
+            VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))">
+                @* <HorizontalAppointmentTemplate>
+                    @{
+                        string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
+                    }
+                    <div class="demo-sc-apt @(IsAccepted(context.Appointment) ? "demo-sc-accepted" : "")" style="width: 100%;">
+                        <div class="card demo-apt-bg @backgroundCss" style="width: 100%;"></div>
+                        <div class="card shadow-sm p-1 demo-sc-apt-content text-white" style="width:100%;">
                             @context.Appointment.Subject
                         </div>
                     </div>
-                </div>
-            </VerticalAppointmentTemplate> *@
+                </HorizontalAppointmentTemplate> *@
+                @* <VerticalAppointmentTemplate>
+                    @{
+                        string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
+                    }
+                    <div class="shadow-sm demo-sc-apt @(IsAccepted(context.Appointment) ? "demo-sc-accepted"  : "")">
+                        <div class="card demo-apt-bg @backgroundCss"></div>
+                        <div class="card demo-sc-apt-content text-white">
+                            <div class="card demo-sc-status-container">
+                                <div class="card demo-apt-status @backgroundCss"></div>
+                            </div>
+                            <div class="demo-apt-subject">
+                                @context.Appointment.Subject
+                            </div>
+                        </div>
+                    </div>
+                </VerticalAppointmentTemplate> *@
             
-        </DxSchedulerDayView>
-        <DxSchedulerWeekView VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))" />
-        <DxSchedulerMonthView />
-    </Views>
-    <AppointmentTooltipHeaderTemplate>
-        <div class="tooltip-text-header" style="width: 90% !important;">@context.Appointment.Subject</div>
-       @*  @if (IsAccepted(context.Appointment))
-        {
-            <div style="margin-right: .3em;">(Accepted)</div>
-        } *@
+            </DxSchedulerDayView>
+            <DxSchedulerWeekView VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))" />
+            <DxSchedulerMonthView />
+        </Views>
+        <AppointmentTooltipHeaderTemplate>
+            <div class="tooltip-text-header" style="width: 90% !important;">@context.Appointment.Subject</div>
+           @*  @if (IsAccepted(context.Appointment))
+            {
+                <div style="margin-right: .3em;">(Accepted)</div>
+            } *@
 
-        @if (!IsAccepted(context.Appointment))
-        {
-            <DxSchedulerShowAppointmentCompactFormButton></DxSchedulerShowAppointmentCompactFormButton>
-            <DxSchedulerDeleteAppointmentButton></DxSchedulerDeleteAppointmentButton>           
-        }       
-        <DxSchedulerCloseAppointmentButton></DxSchedulerCloseAppointmentButton>
-    </AppointmentTooltipHeaderTemplate>
-    <AppointmentTooltipTemplate>
-        @{
-            string resourceCssClass = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
-            bool accepted = IsAccepted(context.Appointment);
-            string buttonText = accepted ? "View Email" : "Tentative";
-            string iconCssClass = accepted ? "dx-icon-accepted" : "dx-icon-tentative";
-            string startDateTime = $"{context.Appointment.Start.ToString("ddd, MMM dd")}, {context.Appointment.Start.ToShortTimeString()} - {context.Appointment.End.ToShortTimeString()}";
-            Guid sessionId = SessionId(context.Appointment);
-            string statusType = StatusType(context.Appointment);
+            @if (!IsAccepted(context.Appointment))
+            {
+                <DxSchedulerShowAppointmentCompactFormButton></DxSchedulerShowAppointmentCompactFormButton>
+                <DxSchedulerDeleteAppointmentButton></DxSchedulerDeleteAppointmentButton>           
+            }       
+            <DxSchedulerCloseAppointmentButton></DxSchedulerCloseAppointmentButton>
+        </AppointmentTooltipHeaderTemplate>
+        <AppointmentTooltipTemplate>
+            @{
+                string resourceCssClass = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
+                bool accepted = IsAccepted(context.Appointment);
+                string buttonText = accepted ? "View Email" : "Tentative";
+                string iconCssClass = accepted ? "dx-icon-accepted" : "dx-icon-tentative";
+                string startDateTime = $"{context.Appointment.Start.ToString("ddd, MMM dd")}, {context.Appointment.Start.ToShortTimeString()} - {context.Appointment.End.ToShortTimeString()}";
+                Guid sessionId = SessionId(context.Appointment);
+                string statusType = StatusType(context.Appointment);
 
-        }
-        <div class="container">
-            <div class="row mb-3">
-                <div class="col-auto ms-1">
-                   @*  <div class="dxsc-label-item @resourceCssClass"></div> *@
+            }
+            <div class="container">
+                <div class="row mb-3">
+                    <div class="col-auto ms-1">
+                       @*  <div class="dxsc-label-item @resourceCssClass"></div> *@
+                    </div>
+                    <div class="col ps-0">
+                        <span class="dxsc-subject" style="vertical-align: middle;">
+                            @context.Appointment.Subject                     
+                        </span>                  
+                    </div>
                 </div>
-                <div class="col ps-0">
-                    <span class="dxsc-subject" style="vertical-align: middle;">
-                        @context.Appointment.Subject                     
-                    </span>                  
+                <div class="row mb-3">
+                    <div class="col-auto ms-1">
+                        <svg class="dx-icon-time dx-icon" role="img">
+                            <use href="#dxsc-time-icon"></use>
+                        </svg>
+                    </div>
+                    <div class="col ps-0"><span style="vertical-align: middle;">@startDateTime</span></div>
                 </div>
+                 @if (IsAccepted(context.Appointment))
+                 {
+                    <hr />
+                    <div class="sc-tooltip-bottom-container">
+
+                        @if(statusType == "EmailDueDate")
+                        {
+                            <DxButton @onclick="@(() => OnEmailDueClick(sessionId))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
+                                      Text="View Email" IconCssClass="@iconCssClass">
+                            </DxButton>
+                        }
+                        else if(statusType == "TodoDueDate")
+                        {
+                            <DxButton @onclick="@(() => OnTodoDueDateClick(sessionId))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
+                                      Text="View Todo Email" IconCssClass="@iconCssClass">
+                            </DxButton>
+                        }
+                    </div>
+                 }
             </div>
-            <div class="row mb-3">
-                <div class="col-auto ms-1">
-                    <svg class="dx-icon-time dx-icon" role="img">
-                        <use href="#dxsc-time-icon"></use>
-                    </svg>
-                </div>
-                <div class="col ps-0"><span style="vertical-align: middle;">@startDateTime</span></div>
-            </div>
-             @if (IsAccepted(context.Appointment))
-             {
-                <hr />
-                <div class="sc-tooltip-bottom-container">
-
-                    @if(statusType == "EmailDueDate")
-                    {
-                        <DxButton @onclick="@(() => OnEmailDueClick(sessionId))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
-                                  Text="View Email" IconCssClass="@iconCssClass">
-                        </DxButton>
-                    }
-                    else if(statusType == "TodoDueDate")
-                    {
-                        <DxButton @onclick="@(() => OnTodoDueDateClick(sessionId))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
-                                  Text="View Todo Email" IconCssClass="@iconCssClass">
-                        </DxButton>
-                    }
-                </div>
-             }
-        </div>
-    </AppointmentTooltipTemplate>
-</DxScheduler>
-
+        </AppointmentTooltipTemplate>
+    </DxScheduler>
+    </div>
+</div>
 @code {
-
-    private List<string> userTagList;
-    private List<string> otherTagList;
+    DxTreeView treeview;
+    private List<string> selectedUserTags = new List<string>();
+    private List<string> selectedOtherTags = new List<string>();
+    private List<string> userTagList = new List<string>();
+    private List<string> otherTagList = new List<string>();
     private string SelectedUserTag { get; set; }
     private string SelectedOtherTag { get; set; }
     private List<Appointment>? _data { get; set; }
 
+    IReadOnlyList<ITreeViewNodeInfo> checkedEmployees;
+    void CheckingChanged(TreeViewCheckedChangedEventArgs e)
+    {
+        if (e.CheckedItems != null)
+            checkedEmployees = e.CheckedItems;
+    }
+
     bool AllowEditAppointment { get; set; } = true;
     public ApplicationUser? applicationUser { get; private set; }
+
+    Dictionary<int, bool> ExpandedState = new Dictionary<int, bool>();
+    bool IsVisible(Resource resource)
+    {
+        return VisibleResources.Contains(resource);
+    }
+    List<Resource> Groups = ResourceCollection.GetResourceGroups();
+    List<Resource> VisibleResources = ResourceCollection.GetResources().Take(2).ToList();
+    bool ResourceNavigatorExpanded { get; set; } = true;
+    void ToggleResourceNavigator()
+    {
+        ResourceNavigatorExpanded = !ResourceNavigatorExpanded;
+    }
+    void UpdateExpandedState(TreeViewNodeEventArgs args, bool expanded)
+    {
+        int resourceId = int.Parse(args.NodeInfo.Name);
+        ExpandedState[resourceId] = expanded;
+    }  
+    IEnumerable<Resource> GetResources(Resource group)
+    {
+        return ResourceCollection.GetResources()
+            .Where(resource => resource.GroupId == group.Id);
+    }
+    bool IsExpanded(Resource resource) {
+        return ExpandedState.ContainsKey(resource.Id) ? ExpandedState[resource.Id] : true;
+    }
+    void UpdateVisibilty(Resource resource, bool visible)
+    {
+        if (visible)
+            VisibleResources.Add(resource);
+        else
+            VisibleResources.Remove(resource);
+        VisibleResources = VisibleResources.OrderBy(p => p.Id).ToList();
+    }
+
+
+
+
+
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
         {
             AppointmentMappings = new DxSchedulerAppointmentMappings()
@@ -254,19 +410,72 @@
     }
     private void ApplyFilters()
     {
-        if (_data != null)
-        {
-            var filteredData = _data
-           .Where(a => (string.IsNullOrEmpty(SelectedUserTag) || a.UserTag == SelectedUserTag) &&
-                       (string.IsNullOrEmpty(SelectedOtherTag) || a.OtherTag == SelectedOtherTag))
-           .ToList();
+        // if (_data != null)
+        // {
+        //     var filteredData = _data
+        //    .Where(a => (string.IsNullOrEmpty(SelectedUserTag) || a.UserTag == SelectedUserTag) &&
+        //                (string.IsNullOrEmpty(SelectedOtherTag) || a.OtherTag == SelectedOtherTag))
+        //    .ToList();
 
-            DataStorage.AppointmentsSource = filteredData;
-        }
+        //     DataStorage.AppointmentsSource = filteredData;
+        // }
+
+        var filteredData = _data
+       .Where(a => (selectedUserTags.Count == 0 || selectedUserTags.Contains(a.UserTag)) &&
+                   (selectedOtherTags.Count == 0 || selectedOtherTags.Contains(a.OtherTag)))
+       .ToList();
+
+        DataStorage.AppointmentsSource = filteredData;
        
 
         StateHasChanged();
     }
+    private bool IsUserTagSelected(string tag)
+    {
+        return selectedUserTags.Contains(tag);
+    }
+
+    private bool IsOtherTagSelected(string tag)
+    {
+        return selectedOtherTags.Contains(tag);
+    }
+
+
+    private void OnUserTagCheckedChanged(string tag, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!selectedUserTags.Contains(tag))
+            {
+                selectedUserTags.Add(tag);
+            }
+        }
+        else
+        {
+            selectedUserTags.Remove(tag);
+        }
+
+        ApplyFilters();
+    }
+
+    private void OnOtherTagCheckedChanged(string tag, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!selectedOtherTags.Contains(tag))
+            {
+                selectedOtherTags.Add(tag);
+            }
+        }
+        else
+        {
+            selectedOtherTags.Remove(tag);
+        }
+
+        ApplyFilters();
+    }
+
+
 
     void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
     {

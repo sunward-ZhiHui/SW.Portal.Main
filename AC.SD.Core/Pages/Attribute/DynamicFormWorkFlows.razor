@@ -275,8 +275,8 @@
         await UpdateDataAsync();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
-        _userGroupsList = await Mediator.Send(new GetUserGroups());
-        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
+        //_userGroupsList = await Mediator.Send(new GetUserGroups());
+        //_levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
 
     }
     public async Task loadChildData(long? dynamicFormIds)

@@ -33,17 +33,18 @@ namespace Infrastructure.Repository.Query
             {
                 List<Memo> Memolist = new List<Memo>(); List<MemoUser> MemoUser = new List<MemoUser>();
                 var query = "select * from Memo;";
-                query += "select t1.MemoUserId,\r\nt1.MemoId,\r\nt1.UserType,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\n" +
-                    "t5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
-                    "t8.Name as DesignationName,\r\n" +
-                    "CONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\n" +
-                    "from MemoUser t1\r\n" +
-                     "LEFT JOIN Memo t2 ON t1.MemoId=t2.MemoID\r\n" +
-                    "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
-                    "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n" +
-                    "JOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
-                    "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
-                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n;";
+                query += "select * from MemoUser;";
+                /* query += "select t1.MemoUserId,\r\nt1.MemoId,\r\nt1.UserType,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\n" +
+                     "t5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
+                     "t8.Name as DesignationName,\r\n" +
+                     "CONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\n" +
+                     "from MemoUser t1\r\n" +
+                      "LEFT JOIN Memo t2 ON t1.MemoId=t2.MemoID\r\n" +
+                     "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
+                     "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n" +
+                     "JOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
+                     "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
+                     "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n;";*/
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query);
@@ -67,13 +68,36 @@ namespace Infrastructure.Repository.Query
                             s.SelectUserGroupIDs = MemoUsers.Where(w => w.UserGroupId > 0).Select(s => s.UserGroupId).Distinct().ToList();
                             s.SelectLevelMasterIDs = MemoUsers.Where(w => w.LevelId > 0).Select(s => s.LevelId).Distinct().ToList();
                             s.MemoUserList = MemoUsers;
-                            s.UserNameLists = string.Join(',', MemoUsers.Select(z => z.FirstName).ToList());
+                            // s.UserNameLists = string.Join(',', MemoUsers.Select(z => z.FirstName).ToList());
+                            // s.AcknowledgeUserNameLists = string.Join(',', MemoUsers.Where(w => w.IsAcknowledgement == true).Select(z => z.FirstName).ToList());
+                            s.AcknowledgeUserIDs = MemoUsers.Where(w => w.UserId > 0 && w.IsAcknowledgement == true).Select(s => s.UserId).Distinct().ToList();
                         }
                         if (MemoccUsers != null && MemoccUsers.Count() > 0)
                         {
                             s.SelectCCUserIDs = MemoccUsers.Where(w => w.UserId > 0).Select(s => s.UserId).Distinct().ToList();
                         }
                     });
+                }
+                return Memolist;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<Memo>> GetAllByUserAsync(long? userId)
+        {
+            try
+            {
+                List<Memo> Memolist = new List<Memo>();
+                var parameters = new DynamicParameters();
+                parameters.Add("UserID", userId);
+                var query = "select t1.*,t2.IsAcknowledgement,t2.MemoUserId from Memo t1 JOIN MemoUser t2 ON t1.MemoID=t2.MemoID where t2.UserID=@UserID; \r\n";
+
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    Memolist = results.Read<Memo>().ToList();
                 }
                 return Memolist;
             }
@@ -150,12 +174,17 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<MemoUser>> GetMemoUsersync(long? MemoId)
+        public async Task<IReadOnlyList<MemoUser>> GetMemoUserByMemoIdync(long? MemoId)
         {
             try
             {
                 List<MemoUser> memoUsers = new List<MemoUser>();
-                var query = "select  * from MemoUser where  MemoId =" + MemoId + "";
+                var query = "select t1.MemoUserId,\r\nt1.IsAcknowledgement,\r\nt1.MemoId,\r\nt1.UserType,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\nt8.Name as DesignationName,\r\nCONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\nfrom MemoUser t1\r\n" +
+                    "LEFT JOIN Memo t2 ON t1.MemoId=t2.MemoID\r\n" +
+                    "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
+                    "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\nJOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
+                    "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
+                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\nwhere  t1.MemoId =" + MemoId + "";
                 using (var connection = CreateConnection())
                 {
                     memoUsers = (await connection.QueryAsync<MemoUser>(query, null)).ToList();
@@ -203,79 +232,85 @@ namespace Infrastructure.Repository.Query
                         }
                         var query1 = string.Empty;
                         List<long> MemoUserIds = new List<long>();
-                        //var userExitsByRoles = await GetMemoUsersync(memo.MemoId);
                         var userExitsByRoles = new List<MemoUser>();
-                        if (userExitsByRoles != null && userExitsByRoles.Count() > 0 && memo.SelectUserIDs != null && memo.SelectUserIDs.Count() > 0)
+                        if (memo.AcknowledgeUserIDs.Count() > 0)
                         {
-                            userExitsByRoles.ToList().ForEach(s =>
-                            {
-                                var exits = memo.SelectUserIDs.Where(w => w == s.UserId).Count();
-                                if (exits > 0)
-                                {
-
-                                }
-                                else
-                                {
-                                    MemoUserIds.Add(s.MemoUserId);
-                                }
-                            });
                         }
-                        query1 += "DELETE  FROM MemoUser WHERE MemoId=" + memo.MemoId + ";";
-                        if (MemoUserIds != null && MemoUserIds.Count() > 0)
-                        {
-                            // query1 += "DELETE  FROM MemoUser WHERE MemoUserId in(" + string.Join(',', MemoUserIds) + ");";
-                        }
-                        var UserType = memo.UserType;
-                        if (memo.UserType == "User")
-                        {
-                            if (memo.SelectUserIDs != null && memo.SelectUserIDs.Count() > 0)
+                        else
+                        { 
+                            //var userExitsByRoles = await GetMemoUsersync(memo.MemoId);
+                            if (userExitsByRoles != null && userExitsByRoles.Count() > 0 && memo.SelectUserIDs != null && memo.SelectUserIDs.Count() > 0)
                             {
-                                foreach (var item in memo.SelectUserIDs)
+                                userExitsByRoles.ToList().ForEach(s =>
                                 {
-                                    var counts = userExitsByRoles.Where(w => w.UserId == item).Count();
-                                    if (counts == 0)
+                                    var exits = memo.SelectUserIDs.Where(w => w == s.UserId).Count();
+                                    if (exits > 0)
                                     {
-                                        query1 += "INSERT INTO [MemoUser](MemoId,UserId,UserType) OUTPUT INSERTED.MemoUserId " +
-                                           "VALUES (" + memo.MemoId + "," + item + ",'" + UserType + "'" + ");";
+
+                                    }
+                                    else
+                                    {
+                                        MemoUserIds.Add(s.MemoUserId);
+                                    }
+                                });
+                            }
+                            query1 += "DELETE  FROM MemoUser WHERE MemoId=" + memo.MemoId + ";";
+                            if (MemoUserIds != null && MemoUserIds.Count() > 0)
+                            {
+                                // query1 += "DELETE  FROM MemoUser WHERE MemoUserId in(" + string.Join(',', MemoUserIds) + ");";
+                            }
+                            var UserType = memo.UserType;
+                            if (memo.UserType == "User")
+                            {
+                                if (memo.SelectUserIDs != null && memo.SelectUserIDs.Count() > 0)
+                                {
+                                    foreach (var item in memo.SelectUserIDs)
+                                    {
+                                        var counts = userExitsByRoles.Where(w => w.UserId == item).Count();
+                                        if (counts == 0)
+                                        {
+                                            query1 += "INSERT INTO [MemoUser](MemoId,UserId,UserType) OUTPUT INSERTED.MemoUserId " +
+                                               "VALUES (" + memo.MemoId + "," + item + ",'" + UserType + "'" + ");";
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (memo.UserType == "User Group")
-                        {
-
-                            if (memo.SelectUserGroupIDs != null && memo.SelectUserGroupIDs.Count() > 0)
+                            if (memo.UserType == "User Group")
                             {
-                                var userGroupUsers = await GetUserGroupUserList();
-                                var userGropuIds = userGroupUsers.Where(w => memo.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
-                                if (userGropuIds != null && userGropuIds.Count > 0)
+
+                                if (memo.SelectUserGroupIDs != null && memo.SelectUserGroupIDs.Count() > 0)
                                 {
-                                    userGropuIds.ForEach(s =>
+                                    var userGroupUsers = await GetUserGroupUserList();
+                                    var userGropuIds = userGroupUsers.Where(w => memo.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
+                                    if (userGropuIds != null && userGropuIds.Count > 0)
+                                    {
+                                        userGropuIds.ForEach(s =>
+                                        {
+                                            var counts = userExitsByRoles.Where(w => w.UserId == s.UserId).Count();
+                                            if (counts == 0)
+                                            {
+                                                query1 += "INSERT INTO [MemoUser](MemoId,UserId,UserGroupId,UserType) OUTPUT INSERTED.MemoUserId " +
+                                                "VALUES (" + memo.MemoId + "," + s.UserId + "," + s.UserGroupId + ",'" + UserType + "'" + ");";
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                            if (memo.UserType == "Level")
+                            {
+                                var LevelUsers = await GetLeveMasterUsersList(memo.SelectLevelMasterIDs);
+                                if (LevelUsers != null && LevelUsers.Count > 0)
+                                {
+                                    LevelUsers.ToList().ForEach(s =>
                                     {
                                         var counts = userExitsByRoles.Where(w => w.UserId == s.UserId).Count();
                                         if (counts == 0)
                                         {
-                                            query1 += "INSERT INTO [MemoUser](MemoId,UserId,UserGroupId,UserType) OUTPUT INSERTED.MemoUserId " +
-                                            "VALUES (" + memo.MemoId + "," + s.UserId + "," + s.UserGroupId + ",'" + UserType + "'" + ");";
+                                            query1 += "INSERT INTO [MemoUser](MemoId,UserId,LevelId,UserType) OUTPUT INSERTED.MemoUserId " +
+                                               "VALUES (" + memo.MemoId + "," + s.UserId + "," + s.LevelId + ",'" + UserType + "'" + ");";
                                         }
                                     });
                                 }
-                            }
-                        }
-                        if (memo.UserType == "Level")
-                        {
-                            var LevelUsers = await GetLeveMasterUsersList(memo.SelectLevelMasterIDs);
-                            if (LevelUsers != null && LevelUsers.Count > 0)
-                            {
-                                LevelUsers.ToList().ForEach(s =>
-                                {
-                                    var counts = userExitsByRoles.Where(w => w.UserId == s.UserId).Count();
-                                    if (counts == 0)
-                                    {
-                                        query1 += "INSERT INTO [MemoUser](MemoId,UserId,LevelId,UserType) OUTPUT INSERTED.MemoUserId " +
-                                           "VALUES (" + memo.MemoId + "," + s.UserId + "," + s.LevelId + ",'" + UserType + "'" + ");";
-                                    }
-                                });
                             }
                         }
                         if (memo.SelectCCUserIDs != null && memo.SelectCCUserIDs.Count() > 0)
@@ -314,7 +349,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<MemoUser> UpdateMemoUserAcknowledgement(MemoUser memoUser)
+        public async Task<MemoUser> UpdateMemoUserAcknowledgement(long? MemoUserId, bool? IsAcknowledgement)
         {
             try
             {
@@ -323,10 +358,12 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
+                        MemoUser memoUser = new MemoUser();
+                        memoUser.MemoUserId = (long)MemoUserId;
                         var parameters = new DynamicParameters();
-                        parameters.Add("MemoUserId", memoUser.MemoUserId);
-                        parameters.Add("IsAcknowledgement", memoUser.IsAcknowledgement == true ? true : null);
-                        var query = "Update MemoUser set  IsAcknowledgement=@IsAcknowledgement where MemoUserId=@MemoUserId)\r\n;";
+                        parameters.Add("MemoUserId", MemoUserId);
+                        parameters.Add("IsAcknowledgement", IsAcknowledgement == true ? true : null);
+                        var query = "Update MemoUser set  IsAcknowledgement=@IsAcknowledgement where MemoUserId=@MemoUserId;\r\n;";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         return memoUser;
                     }

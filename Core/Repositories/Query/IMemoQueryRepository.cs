@@ -16,6 +16,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<Memo>> GetAllByAsync();
         Task<Memo> DeleteMemo(Memo memo);
         Task<Memo> InsertOrUpdateMemo(Memo memo);
-        Task<MemoUser> UpdateMemoUserAcknowledgement(MemoUser memoUser);
+        Task<MemoUser> UpdateMemoUserAcknowledgement(long? MemoUserId, bool? IsAcknowledgement);
+        Task<IReadOnlyList<Memo>> GetAllByUserAsync(long? userId);
+        Task<IReadOnlyList<MemoUser>> GetMemoUserByMemoIdync(long? MemoId);
     }
 }

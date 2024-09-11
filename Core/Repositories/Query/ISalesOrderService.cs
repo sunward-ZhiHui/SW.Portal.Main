@@ -20,5 +20,6 @@ namespace Core.Repositories.Query
         Task<string> ProcessItemAsync(string companyname, long companyid, string type);
         Task<List<Navitems>> GetNavItemsAdd(ViewPlants company);
         Task<string> GetNAVStockBalance(StockBalanceSearch StockBalanceSearch);
+        Task<List<FinishedProdOrderLine>> FinishedProdOrderLineAsync(string company, long companyid, List<FinishedProdOrderLine> finishedProdOrderLines);
     }
 }

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Core.EntityModels;
 namespace Core.Entities
 {
     public class Memo
@@ -32,6 +32,11 @@ namespace Core.Entities
         public IEnumerable<long?> SelectLevelMasterIDs { get; set; } = new List<long?>();
         public List<MemoUser> MemoUserList { get; set; } = new List<MemoUser>();
         public string? UserNameLists { get; set; }
+        public string? AcknowledgeUserNameLists { get; set; }
+        public IEnumerable<long?> AcknowledgeUserIDs { get; set; } = new List<long?>();
         public IEnumerable<long?> SelectCCUserIDs { get; set; } = new List<long?>();
+        public bool? IsAcknowledgement { get; set; } = false;
+        public long? MemoUserId { get; set; }
+        public List<DocumentsModel> DocumentsData { get; set; } = new List<DocumentsModel>();
     }
 }

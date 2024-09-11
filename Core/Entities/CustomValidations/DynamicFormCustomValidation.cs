@@ -145,7 +145,7 @@ namespace Core.Entities.CustomValidations
                 using (var scope = serviceProvider.CreateScope())
                 {
                     var service = scope.ServiceProvider.GetService<IDynamicFormQueryRepository>();
-                    var results = service.GetDynamicFormSectionAttributeCheckValidation(datas.SelectDynamicFormId,datas.DynamicFormSectionAttributeId,datas.AttributeId);
+                    var results = service.GetDynamicFormSectionAttributeCheckValidation(datas.SelectDynamicFormId, datas.DynamicFormSectionAttributeId, datas.AttributeId);
                     if (results != null)
                     {
                         return new ValidationResult("Gird form already exits", new[] { validationContext.MemberName });
@@ -183,4 +183,95 @@ namespace Core.Entities.CustomValidations
             return ValidationResult.Success;
         }
     }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormWorkFormFlowSequenceNoCustomValidation : ValidationAttribute
+    {
+        private IServiceProvider serviceProvider;
+
+        public DynamicFormWorkFormFlowSequenceNoCustomValidation()
+        {
+            serviceProvider = AppDependencyResolver.Current.GetService<IServiceProvider>();
+        }
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var datas = (DynamicFormWorkFlowForm)validationContext.ObjectInstance;
+
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var service = scope.ServiceProvider.GetService<IDynamicFormQueryRepository>();
+                    var results = service.GetDynamicFormDataWorkFlowSequenceNoExitsCheckValidation(datas.DynamicFormDataId, datas.DynamicFormWorkFlowId, datas.SequenceNo);
+                    if (results != null)
+                    {
+                        return new ValidationResult("SequenceNo already exits", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            return ValidationResult.Success;
+        }
+    }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormWorkFlowSectionNameCustomValidation : ValidationAttribute
+    {
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var datas = (DynamicFormWorkFlow)validationContext.ObjectInstance;
+                if (datas.SelectDynamicFormSectionIDs == null)
+                {
+                    return new ValidationResult("Section Name is Required", new[] { validationContext.MemberName });
+                }
+                else
+                {
+                    if (datas.SelectDynamicFormSectionIDs.Count() > 0)
+                    {
+                        return ValidationResult.Success;
+                    }
+                    else
+                    {
+                        return new ValidationResult("Section Name is Required", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            else
+            {
+                return new ValidationResult("Section Name is Required", new[] { validationContext.MemberName });
+            }
+        }
+    }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormWorkFormFlowSectionCustomValidation : ValidationAttribute
+    {
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var datas = (DynamicFormWorkFlowForm)validationContext.ObjectInstance;
+                if (datas.SelectDynamicFormSectionIDs == null)
+                {
+                    return new ValidationResult("Section Name is Required", new[] { validationContext.MemberName });
+                }
+                else
+                {
+                    if (datas.SelectDynamicFormSectionIDs.Count() > 0)
+                    {
+                        return ValidationResult.Success;
+                    }
+                    else
+                    {
+                        return new ValidationResult("Section Name is Required", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            else
+            {
+                return new ValidationResult("Section Name is Required", new[] { validationContext.MemberName });
+            }
+        }
+    }
+
 }

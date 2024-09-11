@@ -2924,6 +2924,33 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public DynamicFormWorkFlowForm GetDynamicFormDataWorkFlowSequenceNoExitsCheckValidation(long? dynamicFormId, long? dynamicFormWorkFlowId, int? SequenceNo)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DynamicFormDataId", dynamicFormId);
+                parameters.Add("DynamicFormWorkFlowFormId", dynamicFormWorkFlowId);
+                parameters.Add("SequenceNo", SequenceNo);
+                query = "select DynamicFormDataId,DynamicFormWorkFlowFormId,SequenceNo,UserID from DynamicFormWorkFlowForm where SequenceNo=@SequenceNo AND DynamicFormDataId=@DynamicFormDataId\n\r";
+                if (dynamicFormWorkFlowId > 0)
+                {
+                    query += "\n\rAND DynamicFormWorkFlowFormId!=@DynamicFormWorkFlowFormId";
+                }
+                else
+                {
+                }
+                using (var connection = CreateConnection())
+                {
+                    return connection.QueryFirstOrDefault<DynamicFormWorkFlowForm>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public DynamicFormSectionAttribute GetDynamicFormSectionAttributeCheckValidation(long? dynamicFormId, long? dynamicFormSectionAttributeId, long? attributeId)
         {
             try
@@ -3700,7 +3727,7 @@ namespace Infrastructure.Repository.Query
                     "(select COUNT(t6.DocumentID) from DynamicFormDataUpload tt1 JOIN Documents t6 ON tt1.SessionID=t6.SessionID where t1.DynamicFormDataID=tt1.DynamicFormDataID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument,\r\n" +
                     "(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,t1.DynamicFormDataID,t1.SessionID,t1.ProfileID,t1.ProfileNo,t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataGridId,t2.Name,t2.ScreenID,t1.SortOrderByNo from DynamicFormData t1\r\n" +
                     "LEFT JOIN ApplicationUser t33 ON t33.UserID = t1.LockedUserId JOIN DynamicForm t2 ON t2.ID=t1.DynamicFormID WHERE (t2.IsDeleted =0 OR t2.IsDeleted is null) AND (t1.IsDeleted =0 OR t1.IsDeleted is null)\n\r";
-                query+= "\n\rAND t1.DynamicFormDataID in(select a1.DynamicFormDataID from DynamicFormWorkFlowForm a1 where a1.UserID=@UserId UNION select a2.DynamicFormDataID from DynamicFormWorkFlowFormDelegate a11 JOIN DynamicFormWorkFlowForm a2 ON a11.DynamicFormWorkFlowFormID=a2.DynamicFormWorkFlowFormID where a11.UserID=@UserId)\r\n";
+                query += "\n\rAND t1.DynamicFormDataID in(select a1.DynamicFormDataID from DynamicFormWorkFlowForm a1 where a1.UserID=@UserId UNION select a2.DynamicFormDataID from DynamicFormWorkFlowFormDelegate a11 JOIN DynamicFormWorkFlowForm a2 ON a11.DynamicFormWorkFlowFormID=a2.DynamicFormWorkFlowFormID where a11.UserID=@UserId)\r\n";
                 if (dynamicFormDataId > 0)
                 {
                     query += "AND t1.DynamicFormDataID=@DynamicFormDataId";
@@ -3719,7 +3746,7 @@ namespace Infrastructure.Repository.Query
                     var resultsData = await GetDynamicFormWorkFlowIds(DynamicFormDataIds);
                     foreach (var item in result)
                     {
-                        var results = resultsData.Where(w => w.DynamicFormDataId == item.DynamicFormDataId).OrderBy(o=>o.SequenceNo).ToList();
+                        var results = resultsData.Where(w => w.DynamicFormDataId == item.DynamicFormDataId).OrderBy(o => o.SequenceNo).ToList();
                         var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == item.SessionID);
                         if (results != null && results.Count > 0)
                         {
@@ -4328,9 +4355,9 @@ namespace Infrastructure.Repository.Query
                 {
                     result.ForEach(s =>
                     {
-                        if(s.DynamicFormWorkFlowFormTotalCount>0)
+                        if (s.DynamicFormWorkFlowFormTotalCount > 0)
                         {
-                            if(s.DynamicFormWorkFlowFormTotalCount== s.DynamicFormWorkFlowFormCount)
+                            if (s.DynamicFormWorkFlowFormTotalCount == s.DynamicFormWorkFlowFormCount)
                             {
                                 s.DynamicFormWorkFlowApprovalFormCompleted = true;
                             }
@@ -4375,6 +4402,8 @@ namespace Infrastructure.Repository.Query
                                 dynamicFormWorkFlowForm.UserId = a.UserId;
                                 dynamicFormWorkFlowForm.IsAllowDelegateUser = a.IsAllowDelegateUser;
                                 dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = a.UserName;
+                                dynamicFormWorkFlowForm.ActualUserId = a.UserId;
+                                dynamicFormWorkFlowForm.ActualUserName = a.UserName;
                                 dynamicFormWorkFlowSections.Add(dynamicFormWorkFlowForm);
                                 rowCount++;
                             });
@@ -5814,6 +5843,94 @@ namespace Infrastructure.Repository.Query
                 {
                     return (await connection.QueryAsync<DynamicFormWorkFlowFormDelegate>(query, parameters)).ToList();
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowForm> InsertDynamicFormWorkFlowForm(DynamicFormWorkFlowForm value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormWorkFlowFormId", value.DynamicFormWorkFlowId);
+                        parameters.Add("DynamicFormDataId", value.DynamicFormDataId);
+                        parameters.Add("SequenceNo", value.SequenceNo);
+                        parameters.Add("UserId", value.UserId);
+                        parameters.Add("IsAllowDelegateUserForm", value.IsAllowDelegateUser == true ? true : null);
+                        if (value.DynamicFormWorkFlowId > 0)
+                        {
+                            query = "UPDATE DynamicFormWorkFlowForm SET IsAllowDelegateUserForm=@IsAllowDelegateUserForm,DynamicFormDataId=@DynamicFormDataId,UserId=@UserId,SequenceNo=@SequenceNo WHERE DynamicFormWorkFlowFormId = @DynamicFormWorkFlowFormId;\r\n";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        else
+                        {
+                            query = "INSERT INTO [DynamicFormWorkFlowForm](DynamicFormDataId,UserId,SequenceNo,IsAllowDelegateUserForm) OUTPUT INSERTED.DynamicFormWorkFlowFormId " +
+                                               "VALUES (@DynamicFormDataId,@UserId,@SequenceNo,@IsAllowDelegateUserForm);\r\n";
+                            value.DynamicFormWorkFlowId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        if (value.DynamicFormWorkFlowId > 0)
+                        {
+                            var querys = string.Empty;
+                            querys += "DELETE  FROM DynamicFormWorkFlowSectionForm WHERE DynamicFormWorkFlowFormId =" + value.DynamicFormWorkFlowId + ";";
+                            if (value.SelectDynamicFormSectionIDs != null && value.SelectDynamicFormSectionIDs.Count() > 0)
+                            {
+                                foreach (var items in value.SelectDynamicFormSectionIDs)
+                                {
+                                    querys += "INSERT INTO [DynamicFormWorkFlowSectionForm](DynamicFormWorkFlowFormId,DynamicFormSectionId) OUTPUT INSERTED.DynamicFormWorkFlowSectionFormID " +
+                               "VALUES (" + value.DynamicFormWorkFlowId + "," + items + ");\r\n";
+                                }
+                                await connection.QuerySingleOrDefaultAsync<long>(querys);
+                            }
+                        }
+                        return value;
+
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowForm> DeleteDynamicFormWorkFlowForm(DynamicFormWorkFlowForm dynamicFormWorkFlow)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", dynamicFormWorkFlow.DynamicFormWorkFlowId);
+                        var query = string.Empty;
+                        query += "DELETE FROM DynamicFormWorkFlowApprovedFormChanged where DynamicFormWorkFlowApprovedFormID in(select DynamicFormWorkFlowApprovedFormID FROM DynamicFormWorkFlowApprovedForm where DynamicFormWorkFlowFormID=@id);\r\n";
+                        query += "DELETE  FROM DynamicFormWorkFlowFormDelegate WHERE DynamicFormWorkFlowFormId = @id;\n\r";
+                        query += "DELETE  FROM DynamicFormWorkFlowSectionForm WHERE DynamicFormWorkFlowFormId = @id;\n\r";
+                        query += "DELETE  FROM DynamicFormWorkFlowApprovedForm WHERE DynamicFormWorkFlowFormId = @id;\n\r";
+                        query += "DELETE  FROM DynamicFormWorkFlowForm WHERE DynamicFormWorkFlowFormId = @id;\n\r";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return dynamicFormWorkFlow;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
             }
             catch (Exception exp)
             {

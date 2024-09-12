@@ -170,7 +170,7 @@
                                     <DxTextBox NullText="Added By" @bind-Text="@_longInAddedBy" Enabled="false" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Added Date" ColSpanMd="3">
-                                    <DxDateEdit NullText="Date" @bind-Date="@_longInDateTime" Enabled="false" />
+                                    <DxTextBox NullText="Date" @bind-Text="@_longInDateTime" Enabled="false" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Profile No" ColSpanMd="12">
                                     <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
@@ -696,7 +696,7 @@
     private List<AttributeDetails>? PlantDependencySubAttributeDetails { get; set; } = new List<AttributeDetails>();
     private List<AttributeDetails>? ApplicationMasterParentDetails { get; set; } = new List<AttributeDetails>();
     public List<string?> soCustomerType { get; set; } = new List<string?>() { "Clinic", "Vendor", "Customer", "RawMatItem", "PackagingItem", "ProcessItem" };
-    public string? _longInUser { get; set; } = string.Empty; public string? _longInCompany { get; set; } = string.Empty; public DateTime? _longInDateTime { get; set; }
+    public string? _longInUser { get; set; } = string.Empty; public string? _longInCompany { get; set; } = string.Empty; public string? _longInDateTime { get; set; }
     private ViewEmployee _userEmployee; public string? _longInAddedBy { get; set; } = string.Empty;
     private DynamicFormSection _filterDynamicFormSection;
     private DynamicFormSectionAttribute _filterDynamicFormSectionAttribute;
@@ -771,7 +771,7 @@
         IsWorkflowApprovalRejected = false; IsWokFlowDescriptionOpen = false; workflowStyle = "display:none;"; _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
-        _longInUser = applicationUser.UserName; _longInAddedBy = applicationUser.UserName; _longInDateTime = DateTime.Now; _dynamicFormWorkFlowApprovedFormList = new List<DynamicFormWorkFlowApprovedForm>();
+        _longInUser = applicationUser.UserName; _longInAddedBy = applicationUser.UserName; _longInDateTime = Application.Common.Helper.Helper.FormatDateTime(DateTime.Now); _dynamicFormWorkFlowApprovedFormList = new List<DynamicFormWorkFlowApprovedForm>();
         _DynamicFormSectionIds = new List<long?>(); dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>(); _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
         if (_userEmployee != null)
         {
@@ -814,7 +814,7 @@
                                     isLocked = true; isUserLocked = false;
                                 }
                             }
-                            _longInAddedBy = _dynamicformData?.AddedBy; _longInDateTime = _dynamicformData?.AddedDate;
+                            _longInAddedBy = _dynamicformData?.AddedBy; _longInDateTime = Application.Common.Helper.Helper.FormatDateTime(_dynamicformData?.AddedDate == null ? DateTime.Now : _dynamicformData?.AddedDate);
                             var _dynamicFormWorkFlowFormListss = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicformData.DynamicFormId, _dynamicformData.DynamicFormDataId)));
                             var _dynamicFormApprovedLists = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId)));
                             var _dynamicFormWorkFlowSections = Task.Factory.StartNew(() => Mediator.Send(new GetDynamicFormWorkFlowExits(_dynamicform.ID, applicationUser.UserID, _dynamicformData?.DynamicFormDataId)));
@@ -2025,7 +2025,7 @@
     }
     public void CheckedApprovalData()
     {
-        if (_dynamicform.IsApproval == true)
+        if (_dynamicform != null && _dynamicform.IsApproval == true)
         {
             if (_dynamicformData != null)
             {

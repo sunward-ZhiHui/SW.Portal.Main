@@ -217,9 +217,9 @@ namespace Infrastructure.Service
                     {
                         BatchNo = b.Batch_No,
                         //BalanceQuantity = b.Remaining_Quantity,
-                        // ExpiryDate = b.Expiration_Date,
+                        ExpiryDate = b.g_dteExpDate,
                         LocationCode = b.Location_Code,
-                        // ManufacturingDate = b.Manufacturing_Date,
+                        ManufacturingDate = b.g_dteMfgDate,
                         // QuantityOnHand = b.Remaining_Quantity,
                         // NavQuantity = b.Remaining_Quantity,
 
@@ -260,9 +260,9 @@ namespace Infrastructure.Service
                             ItemDescription = b.Description,
                             BatchNo = b.Batch_No,
                             // BalanceQuantity = b.Remaining_Quantity,
-                            // ExpiryDate = b.Expiration_Date,
+                            ExpiryDate = b.g_dteExpDate,
                             LocationCode = b.Location_Code,
-                            // ManufacturingDate = b.Manufacturing_Date,
+                            ManufacturingDate = b.g_dteMfgDate,
                             // QuantityOnHand = b.Remaining_Quantity,
                             //  NavQuantity = b.Remaining_Quantity,
 

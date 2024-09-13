@@ -45,6 +45,8 @@ namespace Core.Entities
         public int? DynamicFormWorkFlowFormCount { get; set; }
         public string? WorkFlowStatus{ get; set; }
         public int? FlowStatusID { get; set; }
+        public long? ApproverUserId { get; set; }
+        public string? ApproverUserName { get; set; }
     }
     public class DynamicFormWorkFlowApprovedFormChanged
     {

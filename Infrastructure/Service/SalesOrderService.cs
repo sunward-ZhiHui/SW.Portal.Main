@@ -216,12 +216,12 @@ namespace Infrastructure.Service
                     ItemBatchInfo.Add(new Core.Entities.ItemBatchInfo
                     {
                         BatchNo = b.Batch_No,
-                        BalanceQuantity = b.Remaining_Quantity,
-                        ExpiryDate = b.Expiration_Date,
+                        //BalanceQuantity = b.Remaining_Quantity,
+                        ExpiryDate = b.g_dteExpDate,
                         LocationCode = b.Location_Code,
-                        ManufacturingDate = b.Manufacturing_Date,
-                        QuantityOnHand = b.Remaining_Quantity,
-                        NavQuantity = b.Remaining_Quantity,
+                        ManufacturingDate = b.g_dteMfgDate,
+                        // QuantityOnHand = b.Remaining_Quantity,
+                        // NavQuantity = b.Remaining_Quantity,
 
                     });
                 });
@@ -259,12 +259,12 @@ namespace Infrastructure.Service
                             ItemNo = b.Item_No,
                             ItemDescription = b.Description,
                             BatchNo = b.Batch_No,
-                            BalanceQuantity = b.Remaining_Quantity,
-                            ExpiryDate = b.Expiration_Date,
+                            // BalanceQuantity = b.Remaining_Quantity,
+                            ExpiryDate = b.g_dteExpDate,
                             LocationCode = b.Location_Code,
-                            ManufacturingDate = b.Manufacturing_Date,
-                            QuantityOnHand = b.Remaining_Quantity,
-                            NavQuantity = b.Remaining_Quantity,
+                            ManufacturingDate = b.g_dteMfgDate,
+                            // QuantityOnHand = b.Remaining_Quantity,
+                            //  NavQuantity = b.Remaining_Quantity,
 
                         });
                     });
@@ -579,7 +579,7 @@ namespace Infrastructure.Service
                 throw ex;
             }
         }
-        public async Task<List<Core.Entities.FinishedProdOrderLine>> FinishedProdOrderLineAsync(string company, long companyid, List<Core.Entities.FinishedProdOrderLine> finishedProdOrderLines)
+        public async Task<List<Core.Entities.FinishedProdOrderLine>> FinishedProdOrderLineAsync(string company, long companyid, List<Core.Entities.FinishedProdOrderLine> finishedProdOrderLines, List<Navitems> navitems)
         {
             List<Core.Entities.FinishedProdOrderLine> finishedProdOrderLine = new List<Core.Entities.FinishedProdOrderLine>();
             try
@@ -601,49 +601,55 @@ namespace Infrastructure.Service
                     {
                         if (b.Line_No > 0)
                         {
-                            var exist = finishedProdOrderLines.Where(p => p.ReplanRefNo == b.Replan_Ref_No && p.CompanyId == companyid && p.ProdOrderNo == b.Prod_Order_No).FirstOrDefault();
-                            if (exist == null)
+                            if (!string.IsNullOrEmpty(b.Item_No))
                             {
-                                finishedProdOrderLine.Add(new Core.Entities.FinishedProdOrderLine
+                                var itemsExits = navitems.FirstOrDefault(f => f.No.Trim().ToLower() == b.Item_No.Trim().ToLower());
+                                var exist = finishedProdOrderLines.Where(p => p.ReplanRefNo == b.Replan_Ref_No && p.CompanyId == companyid && p.ProdOrderNo == b.Prod_Order_No).FirstOrDefault();
+                                if (exist == null)
                                 {
-                                    ItemNo = b.Item_No,
-                                    Status = b.Status,
-                                    ProdOrderNo = b.Prod_Order_No,
-                                    OrderLineNo = b.Line_No,
-                                    Description = b.Description,
-                                    Description2 = b.Description_2,
-                                    ReplanRefNo = b.Replan_Ref_No,
-                                    StartingDate = b.Starting_Date == DateTime.MinValue ? null : b.Starting_Date,
-                                    BatchNo = b.Batch_No,
-                                    ManufacturingDate = b.Manufacturing_Date == DateTime.MinValue ? null : b.Manufacturing_Date,
-                                    ExpirationDate = b.Expiration_Date == DateTime.MinValue ? null : b.Expiration_Date,
-                                    ProductCode = b.Product_Code,
-                                    ProductName = b.Product_Name,
-                                    CompanyId = companyid,
-
-                                });
-                            }
-                            else
-                            {
-                                finishedProdOrderLine.Add(new Core.Entities.FinishedProdOrderLine
+                                    finishedProdOrderLine.Add(new Core.Entities.FinishedProdOrderLine
+                                    {
+                                        ItemNo = b.Item_No,
+                                        Status = b.Status,
+                                        ProdOrderNo = b.Prod_Order_No,
+                                        OrderLineNo = b.Line_No,
+                                        Description = b.Description,
+                                        Description2 = b.Description_2,
+                                        ReplanRefNo = b.Replan_Ref_No,
+                                        StartingDate = b.Starting_Date == DateTime.MinValue ? null : b.Starting_Date,
+                                        BatchNo = b.Batch_No,
+                                        ManufacturingDate = b.Manufacturing_Date == DateTime.MinValue ? null : b.Manufacturing_Date,
+                                        ExpirationDate = b.Expiration_Date == DateTime.MinValue ? null : b.Expiration_Date,
+                                        ProductCode = b.Product_Code,
+                                        ProductName = b.Product_Name,
+                                        CompanyId = companyid,
+                                        OptStatus = b.g_optStatus,
+                                        ItemId = itemsExits?.ItemId,
+                                    });
+                                }
+                                else
                                 {
-                                    FinishedProdOrderLineId = exist.FinishedProdOrderLineId,
-                                    ItemNo = b.Item_No,
-                                    Status = b.Status,
-                                    ProdOrderNo = b.Prod_Order_No,
-                                    OrderLineNo = b.Line_No,
-                                    Description = b.Description,
-                                    Description2 = b.Description_2,
-                                    ReplanRefNo = b.Replan_Ref_No,
-                                    StartingDate = b.Starting_Date == DateTime.MinValue ? null : b.Starting_Date,
-                                    BatchNo = b.Batch_No,
-                                    ManufacturingDate = b.Manufacturing_Date == DateTime.MinValue ? null : b.Manufacturing_Date,
-                                    ExpirationDate = b.Expiration_Date == DateTime.MinValue ? null : b.Expiration_Date,
-                                    ProductCode = b.Product_Code,
-                                    ProductName = b.Product_Name,
-                                    CompanyId = companyid,
-
-                                });
+                                    finishedProdOrderLine.Add(new Core.Entities.FinishedProdOrderLine
+                                    {
+                                        FinishedProdOrderLineId = exist.FinishedProdOrderLineId,
+                                        ItemNo = b.Item_No,
+                                        Status = b.Status,
+                                        ProdOrderNo = b.Prod_Order_No,
+                                        OrderLineNo = b.Line_No,
+                                        Description = b.Description,
+                                        Description2 = b.Description_2,
+                                        ReplanRefNo = b.Replan_Ref_No,
+                                        StartingDate = b.Starting_Date == DateTime.MinValue ? null : b.Starting_Date,
+                                        BatchNo = b.Batch_No,
+                                        ManufacturingDate = b.Manufacturing_Date == DateTime.MinValue ? null : b.Manufacturing_Date,
+                                        ExpirationDate = b.Expiration_Date == DateTime.MinValue ? null : b.Expiration_Date,
+                                        ProductCode = b.Product_Code,
+                                        ProductName = b.Product_Name,
+                                        CompanyId = companyid,
+                                        OptStatus = b.g_optStatus,
+                                        ItemId = itemsExits?.ItemId,
+                                    });
+                                }
                             }
                         }
                     });

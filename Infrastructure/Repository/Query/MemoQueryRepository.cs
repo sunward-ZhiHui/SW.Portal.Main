@@ -118,7 +118,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("MemoId", memo.MemoId);
 
-                        var query = "Delete from MemoUser where MemoId=@MemoId)\r\n;";
+                        var query = "Delete from MemoUser where MemoId=@MemoId\r\n;";
                         query += "DELETE  FROM Memo WHERE MemoId = @MemoId;";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 

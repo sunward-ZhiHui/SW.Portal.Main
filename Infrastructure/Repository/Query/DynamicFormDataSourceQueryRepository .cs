@@ -596,22 +596,22 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('FinishedProdOrderLine_',t1.FinishedProdOrderLineID) as AttributeDetailNameId,'FinishedProdOrderLine' as DropDownTypeId,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
+                query += "select CONCAT('FinishedProdOrderLine_',t1.FinishedProdOrderLineID) as AttributeDetailNameId,'FinishedProdOrderLine' as DropDownTypeId,t1.OptStatus,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ");";
+                        query += "where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.CompanyID=" + CompanyId + ";\r\n";
+                        query += "Where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += ";\r\n";
+                    query += "\n\rWhere (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='');\r\n";
                 }
                 //using (var connection = CreateConnection())
                 //{

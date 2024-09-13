@@ -141,8 +141,23 @@
                         }
                         else
                         {
-                            <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" />
-                            
+                            if (s.Value == "ModifiedDate")
+                            {
+                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
+                                    <CellDisplayTemplate>
+                                        @{
+                                            dynamic item = (ExpandoObject)context.DataItem;
+                                            DateTime? items = (DateTime?)item.ModifiedDate;
+                                        }
+                                        @(items != null ? Application.Common.Helper.Helper.FormatDateTime(items) : null)
+                                    </CellDisplayTemplate>
+                                </DxGridDataColumn>
+                            }
+                            else
+                            {
+                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                            }
+
                         }
                     }
                 }
@@ -242,7 +257,7 @@
 @code {
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
-    private AC.SD.Core.Pages.Attribute.DynamicFormGridLists refDynamicFormGridLists{ get; set; }
+    private AC.SD.Core.Pages.Attribute.DynamicFormGridLists refDynamicFormGridLists { get; set; }
     private IDisposable? DynamicFormPage5;
     Guid myKey { get; set; } = Guid.NewGuid();
     [Parameter]
@@ -313,9 +328,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         clearData();
-      //  GC.SuppressFinalize(this);
+        //  GC.SuppressFinalize(this);
     }
     protected override async Task OnParametersSetAsync()
     {

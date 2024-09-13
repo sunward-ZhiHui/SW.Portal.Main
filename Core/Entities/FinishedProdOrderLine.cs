@@ -23,5 +23,7 @@ namespace Core.Entities
         public string? ProductCode { get; set; }
         public string? ProductName { get; set; }
         public long? CompanyId { get; set; }
+        public string? OptStatus { get; set; }
+        public long? ItemId { get; set; }
     }
 }

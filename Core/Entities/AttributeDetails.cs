@@ -54,6 +54,7 @@ namespace Core.Entities
         public string? ExpirationDate { get; set; }
         public string? ProductCode { get; set; }
         public string? ProductName { get; set; }
+        public string? OptStatus { get; set; }
 
     }
     public class DataSourceAttributeDetails

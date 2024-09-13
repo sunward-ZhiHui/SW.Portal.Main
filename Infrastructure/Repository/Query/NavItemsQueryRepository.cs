@@ -16,6 +16,7 @@ using static Duende.IdentityServer.Models.IdentityResources;
 using static iTextSharp.text.pdf.AcroFields;
 using System.ComponentModel.Design;
 using Google.Protobuf.Collections;
+using Core.EntityModels;
 
 namespace Infrastructure.Repository.Query
 {
@@ -459,7 +460,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<Navitems> GetNavItemServicesList(long? CompanyId)
+        public async Task<Navitems> GetNavItemServicesList(long? CompanyId, long? UserId)
         {
             try
             {
@@ -468,7 +469,7 @@ namespace Infrastructure.Repository.Query
                 var itemLists = await _salesOrderService.GetNavItemsAdd(plantData);
                 if (itemLists != null && itemLists.Count() > 0)
                 {
-                    await SyncAndGetItems(itemLists, plantData.PlantCode, plantData.PlantID);
+                    await SyncAndGetItems(itemLists, plantData.PlantCode, plantData.PlantID, UserId);
                 }
                 return itemBatchInfo;
             }
@@ -477,85 +478,99 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task SyncAndGetItems(List<Navitems> items, string company, long? companyId)
+        private async Task SyncAndGetItems(List<Navitems> items, string company, long? companyId, long? UserId)
         {
 
             List<string> itemsNos = items.Select(s => s.No.Trim().ToLower()).ToList();
             var navItemsData = await GetNavItemItemNosAsync(companyId);
-            List<Navitems> existingNavitems = navItemsData.Where(n => itemsNos.Contains(n.No.Trim().ToLower()) && n.CompanyId == companyId).ToList();
-            List<string> existingNos = existingNavitems.Select(n => n.No.Trim().ToLower()).ToList();
-            List<Navitems> existingItems = items.Where(i => existingNos.Contains(i.No.Trim().ToLower())).ToList();
-            List<Navitems> newItemLists = items.Where(i => !existingNos.Contains(i.No.Trim().ToLower())).ToList();
-            List<Navitems> navItems = GenerateNewItems(newItemLists, company, companyId);
-            List<Navitems> updatedNavItems = UpdateNavItems(existingNavitems, existingItems, company);
-
-            List<Navitems> updatenavitemModelList = new List<Navitems>();
-
-
-            if (updatedNavItems.Count > 0)
+            if (items != null && items.Count() > 0)
             {
-                // SqlBulkUpload objUpdate = new SqlBulkUpload(_context, _config);
-                // objUpdate.BulkUpdateData(updatedNavItemslist, "ItemId", new List<string>() { "AddedByUser" }, "Navitems");
+                foreach (var item in items)
+                {
+                    var exits = navItemsData.FirstOrDefault(f => f.No.Trim().ToLower() == item.No.Trim().ToLower());
+                    if (exits != null)
+                    {
+                        item.ItemId = exits.ItemId;
+                        await InsertOrUpdateNavItems(item, companyId, UserId);
+                    }
+                    else
+                    {
+                        await InsertOrUpdateNavItems(item, companyId, UserId);
+                    }
+                }
             }
 
-            //SqlBulkUpload objInsert = new SqlBulkUpload(_context, _config);
-            // await objInsert.BulkInsertAsync(objnavItems, "Navitems");
         }
-        private List<Navitems> GenerateNewItems(List<Navitems> newItemLists, string company, long? companyId)
+        public async Task<long> InsertOrUpdateNavItems(Navitems navitems, long? companyId, long? UserId)
         {
-            List<Navitems> navitems = new List<Navitems>();
-            newItemLists.ForEach(item =>
+            try
             {
-                if (item.No == "FP-PP-CRM-088")
+                using (var connection = CreateConnection())
                 {
+                    if (navitems.ItemId > 0)
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ItemId", navitems.ItemId);
+                        parameters.Add("No", navitems.No, DbType.String);
+                        parameters.Add("RelatedItemNo", navitems.RelatedItemNo, DbType.String);
+                        parameters.Add("PurchaseUom", navitems.PurchaseUom, DbType.String);
+                        parameters.Add("ShelfLife", navitems.ShelfLife, DbType.String);
+                        parameters.Add("AddedByUserId", navitems.AddedByUserId == null ? UserId : navitems.AddedByUserId);
+                        parameters.Add("ModifiedByUserId", navitems.ModifiedByUserId == null ? UserId : navitems.ModifiedByUserId);
+                        parameters.Add("AddedDate", navitems.AddedDate == null ? DateTime.Now : navitems.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", navitems.ModifiedDate == null ? DateTime.Now : navitems.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeId", navitems.StatusCodeId);
+                        var query1 = "Update  NavItems SET No=@No,RelatedItemNo=@RelatedItemNo,ModifiedDate=@ModifiedDate,AddedDate=@AddedDate,ModifiedByUserId=@ModifiedByUserId,AddedByUserId=@AddedByUserId,ShelfLife=@ShelfLife," +
+                            "PurchaseUom=@PurchaseUom,StatusCodeId=@StatusCodeId  WHERE ItemId =@ItemId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+                        return navitems.ItemId;
+                    }
+                    else
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ItemId", navitems.ItemId);
+                        parameters.Add("No", navitems.No, DbType.String);
+                        parameters.Add("RelatedItemNo", navitems.RelatedItemNo, DbType.String);
+                        parameters.Add("Description", navitems.Description, DbType.String);
+                        parameters.Add("Description2", navitems.Description2, DbType.String);
+                        parameters.Add("ItemType", navitems.ItemType, DbType.String);
+                        parameters.Add("StatusCodeId", navitems.StatusCodeId);
+                        parameters.Add("Inventory", navitems.Inventory);
+                        parameters.Add("InternalRef", navitems.InternalRef, DbType.String);
+                        parameters.Add("ItemRegistration", navitems.ItemRegistration, DbType.String);
+                        parameters.Add("ExpirationCalculation", navitems.ExpirationCalculation, DbType.String);
+                        parameters.Add("BatchNos", navitems.BatchNos, DbType.String);
+                        parameters.Add("ProductionRecipeNo", navitems.ProductionRecipeNo, DbType.String);
+                        parameters.Add("Qcenabled", navitems.Qcenabled);
+                        parameters.Add("ProductionBomno", navitems.ProductionBomno, DbType.String);
+                        parameters.Add("RoutingNo", navitems.RoutingNo, DbType.String);
+                        parameters.Add("BaseUnitofMeasure", navitems.BaseUnitofMeasure, DbType.String);
+                        parameters.Add("UnitCost", navitems.UnitCost);
+                        parameters.Add("UnitPrice", navitems.UnitPrice);
+                        parameters.Add("VendorNo", navitems.VendorNo, DbType.String);
+                        parameters.Add("ItemCategoryCode", navitems.ItemCategoryCode, DbType.String);
+                        parameters.Add("ItemTrackingCode", navitems.ItemTrackingCode, DbType.String);
+                        parameters.Add("Qclocation", navitems.Qclocation, DbType.String);
+                        parameters.Add("CompanyId", companyId);
+                        parameters.Add("PurchaseUom", navitems.PurchaseUom, DbType.String);
+                        parameters.Add("ShelfLife", navitems.ShelfLife, DbType.String);
+                        parameters.Add("AddedByUserId", navitems.AddedByUserId == null ? UserId : navitems.AddedByUserId);
+                        parameters.Add("ModifiedByUserId", navitems.ModifiedByUserId == null ? UserId : navitems.ModifiedByUserId);
+                        parameters.Add("AddedDate", navitems.AddedDate == null ? DateTime.Now : navitems.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", navitems.ModifiedDate == null ? DateTime.Now : navitems.ModifiedDate, DbType.DateTime);
+                        var query = "INSERT INTO [NavItems](ModifiedDate,AddedDate,ModifiedByUserId,AddedByUserId,ShelfLife,PurchaseUom,CompanyId,Qclocation,ItemTrackingCode,ItemCategoryCode,VendorNo,UnitPrice,UnitCost,BaseUnitofMeasure,RoutingNo,ProductionBomno,No,RelatedItemNo,Description,Description2,ItemType,StatusCodeId,Inventory,InternalRef,ItemRegistration,ExpirationCalculation,BatchNos,ProductionRecipeNo,Qcenabled) OUTPUT INSERTED.ItemId VALUES " +
+                            "(@ModifiedDate,@AddedDate,@ModifiedByUserId,@AddedByUserId,@ShelfLife,@PurchaseUom,@CompanyId,@Qclocation,@ItemTrackingCode,@ItemCategoryCode,@VendorNo,@UnitPrice,@UnitCost,@BaseUnitofMeasure,@RoutingNo,@ProductionBomno,@No,@RelatedItemNo,@Description,@Description2,@ItemType,@StatusCodeId,@Inventory,@InternalRef,@ItemRegistration,@ExpirationCalculation,@BatchNos,@ProductionRecipeNo,@Qcenabled)";
+                        var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
+                        return lastInsertedRecordId;
+
+                    }
                 }
-                Navitems newNavItem = new Navitems
-                {
-                    No = item.No,
-                    RelatedItemNo = item.RelatedItemNo,
-                    Description = item.Description,
-                    Description2 = item.Description2,
-                    ItemType = item.ItemType,
-                    StatusCodeId = item.StatusCodeId,
-                    Inventory = item.Inventory,
-                    InternalRef = item.InternalRef,
-                    ItemRegistration = item.ItemRegistration,
-                    ExpirationCalculation = item.ExpirationCalculation,
-                    BatchNos = item.BatchNos,
-                    ProductionRecipeNo = item.ProductionRecipeNo,
-                    Qcenabled = item.Qcenabled,
-                    ProductionBomno = item.ProductionBomno,
-                    RoutingNo = item.RoutingNo,
-                    BaseUnitofMeasure = item.BaseUnitofMeasure,
-                    UnitCost = item.UnitCost,
-                    UnitPrice = item.UnitPrice,
-                    VendorNo = item.VendorNo,
-                    ItemCategoryCode = item.ItemCategoryCode,
-                    ItemTrackingCode = item.ItemTrackingCode,
-                    Qclocation = item.Qclocation,
-                    Company = company,
-                    CompanyId = companyId,
-                    PurchaseUom = item.PurchaseUom,
-                    ShelfLife = item.ShelfLife,
-                };
-                navitems.Add(newNavItem);
-            });
-            return navitems;
-        }
-
-        private List<Navitems> UpdateNavItems(List<Navitems> existingNavitems, List<Navitems> existingItems, string company)
-        {
-            existingNavitems.ForEach(e =>
+            }
+            catch (Exception exp)
             {
-                var item = existingItems.FirstOrDefault(i => i.No.Trim().ToLower() == e.No.Trim().ToLower());
-                e.No = item.No;
-                e.RelatedItemNo = item.RelatedItemNo;
-                e.ShelfLife = item.ShelfLife;
-                e.StatusCodeId = item.StatusCodeId;
-                e.PurchaseUom = item.PurchaseUom;
-            });
-            return existingNavitems;
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<IReadOnlyList<FinishedProdOrderLine>> GetFinishedProdOrderLineByCompanyIdAsync(long? CompanyId)
         {
@@ -583,14 +598,17 @@ namespace Infrastructure.Repository.Query
                 FinishedProdOrderLine finishedProdOrderLine = new FinishedProdOrderLine();
                 var FinishedProdOrderLineData = await GetFinishedProdOrderLineByCompanyIdAsync(CompanyId);
                 var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                var navItemsData = await GetNavItemItemNosAsync(CompanyId);
                 if (plantData != null)
                 {
+                    List<Navitems> navItemsDatas = navItemsData != null && navItemsData.Count() > 0 ? navItemsData.ToList() : new List<Navitems>();
                     List<FinishedProdOrderLine> FinishedProdOrderLineDatas = FinishedProdOrderLineData != null ? FinishedProdOrderLineData.ToList() : new List<FinishedProdOrderLine>();
-                    var lst = await _salesOrderService.FinishedProdOrderLineAsync(plantData.NavCompanyName, plantData.PlantID, FinishedProdOrderLineDatas);
+                    var lst = await _salesOrderService.FinishedProdOrderLineAsync(plantData.NavCompanyName, plantData.PlantID, FinishedProdOrderLineDatas, navItemsDatas);
                     if (lst != null && lst.Count > 0)
                     {
                         foreach (var s in lst)
                         {
+
                             await InsertFinishedProdOrderLine(s);
                         }
                     }
@@ -625,18 +643,20 @@ namespace Infrastructure.Repository.Query
                     parameters.Add("ExpirationDate", finishedProdOrderLine.ExpirationDate, DbType.DateTime);
                     parameters.Add("ProductCode", finishedProdOrderLine.ProductCode, DbType.String);
                     parameters.Add("ProductName", finishedProdOrderLine.ProductName, DbType.String);
+                    parameters.Add("ItemId", finishedProdOrderLine.ItemId);
+                    parameters.Add("OptStatus", finishedProdOrderLine.OptStatus, DbType.String);
                     var lastInsertedRecordId = finishedProdOrderLine.FinishedProdOrderLineId;
                     if (lastInsertedRecordId > 0)
                     {
-                        var query1 = "Update  FinishedProdOrderLine SET ItemNo=@ItemNo,Status=@Status,CompanyId=@CompanyId,ProdOrderNo=@ProdOrderNo,BatchNo=@BatchNo,Description=@Description,Description2=@Description2,ReplanRefNo=@ReplanRefNo,OrderLineNo=@OrderLineNo," +
+                        var query1 = "Update  FinishedProdOrderLine SET OptStatus=@OptStatus,ItemId=@ItemId,ItemNo=@ItemNo,Status=@Status,CompanyId=@CompanyId,ProdOrderNo=@ProdOrderNo,BatchNo=@BatchNo,Description=@Description,Description2=@Description2,ReplanRefNo=@ReplanRefNo,OrderLineNo=@OrderLineNo," +
                             "StartingDate=@StartingDate,ManufacturingDate=@ManufacturingDate,ExpirationDate=@ExpirationDate,ProductCode=@ProductCode,ProductName=@ProductName  WHERE FinishedProdOrderLineId =@FinishedProdOrderLineId;";
                         var rowsAffected = await connection.ExecuteAsync(query1, parameters);
 
                     }
                     else
                     {
-                        var query = "INSERT INTO [FinishedProdOrderLine](ItemNo,CompanyId,Status,ProdOrderNo,Description,Description2,ReplanRefNo,OrderLineNo,StartingDate,ManufacturingDate,ExpirationDate,ProductCode,ProductName) OUTPUT INSERTED.FinishedProdOrderLineId VALUES " +
-                            "(@ItemNo,@CompanyId,@Status,@ProdOrderNo,@Description,@Description2,@ReplanRefNo,@OrderLineNo,@StartingDate,@ManufacturingDate,@ExpirationDate,@ProductCode,@ProductName)";
+                        var query = "INSERT INTO [FinishedProdOrderLine](OptStatus,ItemId,ItemNo,CompanyId,Status,ProdOrderNo,Description,Description2,ReplanRefNo,OrderLineNo,StartingDate,ManufacturingDate,ExpirationDate,ProductCode,ProductName) OUTPUT INSERTED.FinishedProdOrderLineId VALUES " +
+                            "(@OptStatus,@ItemId,@ItemNo,@CompanyId,@Status,@ProdOrderNo,@Description,@Description2,@ReplanRefNo,@OrderLineNo,@StartingDate,@ManufacturingDate,@ExpirationDate,@ProductCode,@ProductName)";
                         lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     }
                     return lastInsertedRecordId;

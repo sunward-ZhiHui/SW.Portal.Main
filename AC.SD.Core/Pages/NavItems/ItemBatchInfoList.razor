@@ -158,6 +158,10 @@
                         <DxSpinEdit @bind-Value="@plant.QuantityOnHand" MinValue="0" CssClass="cw-320" InputId="QuantityOnHand" />
                         <ValidationMessage For="@(() => plant.QuantityOnHand)" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Nav Quantity" ColSpanMd="6">
+                        <DxSpinEdit @bind-Value="@plant.NavQuantity" MinValue="0" CssClass="cw-320" InputId="NavQuantity" />
+                        <ValidationMessage For="@(() => plant.NavQuantity)" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Issue Quantity" ColSpanMd="6">
                         <DxSpinEdit @bind-Value="@plant.IssueQuantity" MinValue="0" CssClass="cw-320" InputId="IssueQuantity" />
                         <ValidationMessage For="@(() => plant.IssueQuantity)" />

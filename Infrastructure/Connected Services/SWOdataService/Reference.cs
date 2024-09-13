@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 // Original file name:
-// Generation date: 10-09-2024 12:03:37 PM
+// Generation date: 12-09-2024 09:20:24 AM
 namespace NAV
 {
     
@@ -3255,3803 +3255,3812 @@ namespace NAV
                 "eTime\" /><Property Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"Manufactu" +
                 "ring_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Expiration_Date\" Type=\"Edm.Date" +
                 "Time\" /><Property Name=\"Product_Code\" Type=\"Edm.String\" /><Property Name=\"Produc" +
-                "t_Name\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyM" +
-                "ode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.Fi" +
-                "nishedProdOrderLine_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"Fi" +
-                "nishedProdOrderLine\" /></EntityType><EntityType Name=\"FP_ItemList\"><Key><Propert" +
-                "yRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" />" +
-                "<Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" " +
-                "Type=\"Edm.String\" /><Property Name=\"Inventory\" Type=\"Edm.Decimal\" /><Property Na" +
-                "me=\"Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"Item_Registration\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Batch_Nos\" Type=\"Edm.String\" /><Property Name=\"PSO_" +
-                "Item_No\" Type=\"Edm.String\" /><Property Name=\"Production_Recipe_No\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Safety_Lead_Time\" Type=\"Edm.String\" /><Property Name=\"Pro" +
-                "duction_BOM_No\" Type=\"Edm.String\" /><Property Name=\"Routing_No\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Base_Unit_of_Measure\" Type=\"Edm.String\" /><Property Name=\"St" +
-                "andard_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" " +
-                "/><Property Name=\"Last_Direct_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Item_Ca" +
-                "tegory_Code\" Type=\"Edm.String\" /><Property Name=\"Product_Group_Code\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Global_Dimension_1_Filter\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Global_Dimension_2_Filter\" Type=\"Edm.String\" /><Property Name=\"Location_" +
-                "Filter\" Type=\"Edm.String\" /><Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.Stri" +
-                "ng\" /><Property Name=\"Variant_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No" +
-                "_Filter\" Type=\"Edm.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"" +
-                "Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Batch_Nos_Link\" " +
-                "Relationship=\"NAV.FP_ItemList_Batch_Nos_Link\" ToRole=\"Batch_Nos_Link\" FromRole=\"" +
-                "FP_ItemList\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relationship" +
-                "=\"NAV.FP_ItemList_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Link\" " +
-                "FromRole=\"FP_ItemList\" /><NavigationProperty Name=\"Item_Category_Code_Link\" Rela" +
-                "tionship=\"NAV.FP_ItemList_Item_Category_Code_Link\" ToRole=\"Item_Category_Code_Li" +
-                "nk\" FromRole=\"FP_ItemList\" /><NavigationProperty Name=\"Location_Filter_Link\" Rel" +
-                "ationship=\"NAV.FP_ItemList_Location_Filter_Link\" ToRole=\"Location_Filter_Link\" F" +
-                "romRole=\"FP_ItemList\" /></EntityType><EntityType Name=\"GenBussPostingGroup\"><Key" +
-                "><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" Nullab" +
-                "le=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"De" +
-                "f_VAT_Bus_Posting_Group\" Type=\"Edm.String\" /><Property Name=\"Auto_Insert_Default" +
-                "\" Type=\"Edm.Boolean\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"" +
-                "Fixed\" /><NavigationProperty Name=\"Def_VAT_Bus_Posting_Group_Link\" Relationship=" +
-                "\"NAV.GenBussPostingGroup_Def_VAT_Bus_Posting_Group_Link\" ToRole=\"Def_VAT_Bus_Pos" +
-                "ting_Group_Link\" FromRole=\"GenBussPostingGroup\" /></EntityType><EntityType Name=" +
-                "\"GroupPlanning\"><Key><PropertyRef Name=\"Batch_Name\" /><Prop";
+                "t_Name\" Type=\"Edm.String\" /><Property Name=\"g_optStatus\" Type=\"Edm.String\" /><Pr" +
+                "operty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProper" +
+                "ty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.FinishedProdOrderLine_Prod_Order_" +
+                "No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"FinishedProdOrderLine\" /></Entity" +
+                "Type><EntityType Name=\"FP_ItemList\"><Key><PropertyRef Name=\"No\" /></Key><Propert" +
+                "y Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Description\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property N" +
+                "ame=\"Inventory\" Type=\"Edm.Decimal\" /><Property Name=\"Internal_Ref\" Type=\"Edm.Str" +
+                "ing\" /><Property Name=\"Item_Registration\" Type=\"Edm.String\" /><Property Name=\"Ba" +
+                "tch_Nos\" Type=\"Edm.String\" /><Property Name=\"PSO_Item_No\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"Production_Recipe_No\" Type=\"Edm.String\" /><Property Name=\"Safety_L" +
+                "ead_Time\" Type=\"Edm.String\" /><Property Name=\"Production_BOM_No\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Base_Unit_o" +
+                "f_Measure\" Type=\"Edm.String\" /><Property Name=\"Standard_Cost\" Type=\"Edm.Decimal\"" +
+                " /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Last_Direct_C" +
+                "ost\" Type=\"Edm.Decimal\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" " +
+                "/><Property Name=\"Product_Group_Code\" Type=\"Edm.String\" /><Property Name=\"Global" +
+                "_Dimension_1_Filter\" Type=\"Edm.String\" /><Property Name=\"Global_Dimension_2_Filt" +
+                "er\" Type=\"Edm.String\" /><Property Name=\"Location_Filter\" Type=\"Edm.String\" /><Pr" +
+                "operty Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\" /><Property Name=\"Variant_F" +
+                "ilter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Filter\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"Serial_No_Filter\" Type=\"Edm.String\" /><Property Name=\"Date_Filter\"" +
+                " Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fi" +
+                "xed\" /><NavigationProperty Name=\"Batch_Nos_Link\" Relationship=\"NAV.FP_ItemList_B" +
+                "atch_Nos_Link\" ToRole=\"Batch_Nos_Link\" FromRole=\"FP_ItemList\" /><NavigationPrope" +
+                "rty Name=\"Base_Unit_of_Measure_Link\" Relationship=\"NAV.FP_ItemList_Base_Unit_of_" +
+                "Measure_Link\" ToRole=\"Base_Unit_of_Measure_Link\" FromRole=\"FP_ItemList\" /><Navig" +
+                "ationProperty Name=\"Item_Category_Code_Link\" Relationship=\"NAV.FP_ItemList_Item_" +
+                "Category_Code_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"FP_ItemList\" /><N" +
+                "avigationProperty Name=\"Location_Filter_Link\" Relationship=\"NAV.FP_ItemList_Loca" +
+                "tion_Filter_Link\" ToRole=\"Location_Filter_Link\" FromRole=\"FP_ItemList\" /></Entit" +
+                "yType><EntityType Name=\"GenBussPostingGroup\"><Key><PropertyRef Name=\"Code\" /></K" +
+                "ey><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"De" +
+                "scription\" Type=\"Edm.String\" /><Property Name=\"Def_VAT_Bus_Posting_Group\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Auto_Insert_Default\" Type=\"Edm.Boolean\" /><Propert" +
+                "y Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Na" +
+                "me=\"Def_VAT_Bus_Posting_Group_Link\" Relationship=\"NAV.GenBussPostingGroup_Def_VA" +
+                "T_Bus_Posting_Group_Link\" ToRole=\"Def_VAT_Bus_Posting_Group_Link\" FromRole=\"GenB" +
+                "ussPostingGroup\" /></EntityType><EntityType Name=\"GroupPlan";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart8 = "ertyRef Name=\"Line_No\" /></Key><Property Name=\"Batch_Name\" Type=\"Edm.String\" Null" +
-                "able=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Pro" +
-                "perty Name=\"Product_Group_Code\" Type=\"Edm.String\" /><Property Name=\"Start_Date\" " +
-                "Type=\"Edm.DateTime\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Batch_Size\" Type=\"Edm.String\" /><Property Name=\"Quantity\"" +
-                " Type=\"Edm.Decimal\" /><Property Name=\"Unit_Of_Measure_Code\" Type=\"Edm.String\" />" +
-                "<Property Name=\"No_of_Ticket\" Type=\"Edm.Int32\" /><Property Name=\"Total_Quantity\"" +
-                " Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"F" +
-                "ixed\" /><NavigationProperty Name=\"Product_Group_Code_Link\" Relationship=\"NAV.Gro" +
-                "upPlanning_Product_Group_Code_Link\" ToRole=\"Product_Group_Code_Link\" FromRole=\"G" +
-                "roupPlanning\" /><NavigationProperty Name=\"Unit_Of_Measure_Code_Link\" Relationshi" +
-                "p=\"NAV.GroupPlanning_Unit_Of_Measure_Code_Link\" ToRole=\"Unit_Of_Measure_Code_Lin" +
-                "k\" FromRole=\"GroupPlanning\" /></EntityType><EntityType Name=\"GroupPlanningSplit\"" +
-                "><Key><PropertyRef Name=\"Batch_Name\" /><PropertyRef Name=\"Item_No\" /><PropertyRe" +
-                "f Name=\"Line_No\" /></Key><Property Name=\"Batch_Name\" Type=\"Edm.String\" Nullable=" +
-                "\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property" +
-                " Name=\"Item_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Product_Gro" +
-                "up_Code\" Type=\"Edm.String\" /><Property Name=\"Start_Date\" Type=\"Edm.DateTime\" /><" +
-                "Property Name=\"No_of_Prod_Order\" Type=\"Edm.Int32\" /><Property Name=\"Description\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Of_Measure_Code\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\"" +
-                " /><NavigationProperty Name=\"Product_Group_Code_Link\" Relationship=\"NAV.GroupPla" +
-                "nningSplit_Product_Group_Code_Link\" ToRole=\"Product_Group_Code_Link\" FromRole=\"G" +
-                "roupPlanningSplit\" /><NavigationProperty Name=\"Unit_Of_Measure_Code_Link\" Relati" +
-                "onship=\"NAV.GroupPlanningSplit_Unit_Of_Measure_Code_Link\" ToRole=\"Unit_Of_Measur" +
-                "e_Code_Link\" FromRole=\"GroupPlanningSplit\" /></EntityType><EntityType Name=\"GSTB" +
-                "usPostingGroup\"><Key><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type" +
-                "=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" " +
-                "/><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType" +
-                "><EntityType Name=\"ItemAdditionalInfo\"><Key><PropertyRef Name=\"Item_No\" /></Key>" +
-                "<Property Name=\"Item_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"De" +
-                "scription\" Type=\"Edm.String\" /><Property Name=\"Packaging_Type\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Batch_Size\" Type=\"Edm.String\" /><Property Name=\"Approved_By\" " +
-                "Type=\"Edm.String\" /><Property Name=\"Approval_Date\" Type=\"Edm.DateTime\" /><Proper" +
-                "ty Name=\"Prepared_By\" Type=\"Edm.String\" /><Property Name=\"Effective_Date\" Type=\"" +
-                "Edm.DateTime\" /><Property Name=\"Version\" Type=\"Edm.String\" /><Property Name=\"Cat" +
-                "egories_Description\" Type=\"Edm.String\" /><Property Name=\"Base_Unit_Of_Measure\" T" +
-                "ype=\"Edm.String\" /><Property Name=\"Categories_Code\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Tablet_Coating_Code\" Type=\"Edm.String\" /><Property Name=\"Tablet_Color_Co" +
-                "de\" Type=\"Edm.String\" /><Property Name=\"Tablet_Shape_Code\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Tablet_Marking\" Type=\"Edm.String\" /><Property Name=\"Tablet_Flavor" +
-                "_Code\" Type=\"Edm.String\" /><Property Name=\"Tablet_Size_Core_Upper\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Tablet_Size_Coated_Upper\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Tablet_Thickness_Core_Upper\" Type=\"Edm.String\" /><Property Name=\"Tablet_Thi" +
-                "ckness_Coated_Upper\" Type=\"Edm.String\" /><Property Name=\"Tablet_Weight_Core_Uppe" +
-                "r\" Type=\"Edm.String\" /><Property Name=\"Tablet_Weight_Coated_Upper\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Tablet_Weight_Variation_Upper\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Syrup_Color_Code\" Type=\"Edm.String\" /><Property Name=\"Syrup_Flavor_Cod" +
-                "e\" Type=\"Edm.String\" /><Property Name=\"Syrup_Clarity_Code\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Syrup_PH_Upper\" Type=\"Edm.String\" /><Property Name=\"Syrup_S_G_Upp" +
-                "er\" Type=\"Edm.String\" /><Property Name=\"Syrup_Viscosity_Upper\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Cream_Color_Code\" Type=\"Edm.String\" /><Property Name=\"Cream_T" +
-                "exture_Code\" Type=\"Edm.String\" /><Property Name=\"Cream_Other_Code\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Cream_PH_Upper\" Type=\"Edm.String\" /><Property Name=\"Cream" +
-                "_S_G_Upper\" Type=\"Edm.String\" /><Property Name=\"Cream_Viscosity_Upper\" Type=\"Edm" +
-                ".String\" /><Property Name=\"Cosmetic_Color_Code\" Type=\"Edm.String\" /><Property Na" +
-                "me=\"Cosmetic_Packing\" Type=\"Edm.String\" /><Property Name=\"HS_Code\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Special_Permit\" Type=\"Edm.Boolean\" /><Property Name=\"Type" +
-                "\" Type=\"Edm.String\" /><Property Name=\"FP_No_of_Carton\" Type=\"Edm.Int32\" /><Prope" +
-                "rty Name=\"FP_No_of_Pallet\" Type=\"Edm.Int32\" /><Property Name=\"Prod_level_of_clea" +
-                "ning\" Type=\"Edm.String\" /><Property Name=\"Lvl_1_No_of_Prod_Order\" Type=\"Edm.Int3" +
-                "2\" /><Property Name=\"Lvl_1_No_of_Manpower\" Type=\"Edm.Int32\" /><Property Name=\"Lv" +
-                "l_1_Total_time_hour\" Type=\"Edm.String\" /><Property Name=\"Lvl_2_No_of_Prod_Order\"" +
-                " Type=\"Edm.Int32\" /><Property Name=\"Lvl_2_No_of_Manpower\" Type=\"Edm.Int32\" /><Pr" +
-                "operty Name=\"Lvl_2_Total_time_hour\" Type=\"Edm.String\" /><Property Name=\"Machine_" +
-                "Name\" Type=\"Edm.String\" /><Property Name=\"Machine_mould\" Type=\"Edm.String\" /><Pr" +
-                "operty Name=\"Machine_Speed_Stroke_Per_Min\" Type=\"Edm.String\" /><Property Name=\"M" +
-                "achine_Cut\" Type=\"Edm.Decimal\" /><Property Name=\"Machine_Blister_Per_Min\" Type=\"" +
-                "Edm.String\" /><Property Name=\"No_of_Blue_Drum\" Type=\"Edm.Int32\" /><Property Name" +
-                "=\"No_of_Grey_Trolley\" Type=\"Edm.Int32\" /><Property Name=\"Ave_Qty_Per_Blue_Drum\" " +
-                "Type=\"Edm.Int32\" /><Property Name=\"No_of_Plastic_Bag\" Type=\"Edm.Int32\" /><Proper" +
-                "ty Name=\"Plastic_Size\" Type=\"Edm.String\" /><Property Name=\"Pro_Storage_Req\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Pro_Storage_Hold_Time\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Production_Condition\" Type=\"Edm.String\" /><Property Name=\"Pro_QC_Test" +
-                "ing_Time\" Type=\"Edm.String\" /><Property Name=\"Manhour\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"No_of_Operator\" Type=\"Edm.Int32\" /><Property Name=\"PKG_Pack_Size\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"GTIN_No\" Type=\"Edm.String\" /><Property Name=\"St" +
-                "atus\" Type=\"Edm.String\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" " +
-                "/><Property Name=\"Tablet_Size_Core_Lower\" Type=\"Edm.String\" /><Property Name=\"Ta" +
-                "blet_Size_Coated_Lower\" Type=\"Edm.String\" /><Property Name=\"Tablet_Thickness_Cor" +
-                "e_Lower\" Type=\"Edm.String\" /><Property Name=\"Tablet_Thickness_Coated_Lower\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Tablet_Weight_Core_Lower\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Tablet_Weight_Coated_Lower\" Type=\"Edm.String\" /><Property Name=\"Ta" +
-                "blet_Weight_Variation_Lower\" Type=\"Edm.String\" /><Property Name=\"Syrup_PH_Lower\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Syrup_S_G_Lower\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Syrup_Viscosity_Lower\" Type=\"Edm.String\" /><Property Name=\"Cream_PH_Lo" +
-                "wer\" Type=\"Edm.String\" /><Property Name=\"Cream_S_G_Lower\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Cream_Viscosity_Lower\" Type=\"Edm.String\" /><Property Name=\"Tablet_" +
-                "Coating_Desc\" Type=\"Edm.String\" /><Property Name=\"Tablet_Color_Desc\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Tablet_Shape_Desc\" Type=\"Edm.String\" /><Property Name=\"" +
-                "Tablet_Flavor_Desc\" Type=\"Edm.String\" /><Property Name=\"Syrup_Color_Desc\" Type=\"" +
-                "Edm.String\" /><Property Name=\"Syrup_Flavor_Desc\" Type=\"Edm.";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart9 = "String\" /><Property Name=\"Syrup_Clarity_Desc\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Cream_Color_Desc\" Type=\"Edm.String\" /><Property Name=\"Cream_Texture_Desc\" Type=" +
-                "\"Edm.String\" /><Property Name=\"Cream_Other_Desc\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Cosmetic_Color_Desc\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.St" +
-                "ring\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"ItemAttributes\"><" +
-                "Key><PropertyRef Name=\"ID\" /></Key><Property Name=\"ID\" Type=\"Edm.Int32\" Nullable" +
-                "=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><Property Name=\"Blocked\" Ty" +
-                "pe=\"Edm.Boolean\" /><Property Name=\"Type\" Type=\"Edm.String\" /><Property Name=\"Uni" +
-                "t_of_Measure\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concur" +
-                "rencyMode=\"Fixed\" /></EntityType><EntityType Name=\"ItemAttributesValues\"><Key><P" +
-                "ropertyRef Name=\"Attribute_ID\" /><PropertyRef Name=\"ID\" /></Key><Property Name=\"" +
-                "Attribute_ID\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"ID\" Type=\"Edm." +
-                "Int32\" Nullable=\"false\" /><Property Name=\"Value\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Numeric_Value\" Type=\"Edm.Decimal\" /><Property Name=\"Blocked\" Type=\"Edm.Bool" +
-                "ean\" /><Property Name=\"Attribute_Name\" Type=\"Edm.String\" /><Property Name=\"ETag\"" +
-                " Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"Item" +
-                "AttributesValuesMapping\"><Key><PropertyRef Name=\"Item_Attribute_ID\" /><PropertyR" +
-                "ef Name=\"No\" /><PropertyRef Name=\"Table_ID\" /></Key><Property Name=\"Table_ID\" Ty" +
-                "pe=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"No\" Type=\"Edm.String\" Nullable" +
-                "=\"false\" /><Property Name=\"Item_Attribute_ID\" Type=\"Edm.Int32\" Nullable=\"false\" " +
-                "/><Property Name=\"Item_Attribute_Value_ID\" Type=\"Edm.Int32\" /><Property Name=\"It" +
-                "em_Attribute_Name\" Type=\"Edm.String\" /><Property Name=\"Item_Attr_Value_Name\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\"" +
-                " /></EntityType><EntityType Name=\"ItemBatchInfo\"><Key><PropertyRef Name=\"Entry_N" +
-                "o\" /></Key><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Proper" +
-                "ty Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Posting_Date\" Type=\"Edm.Da" +
-                "teTime\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Locat" +
-                "ion_Code\" Type=\"Edm.String\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Batch_No\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Prop" +
-                "erty Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"ETag\" Type=\"Ed" +
-                "m.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Location_Code_Link" +
-                "\" Relationship=\"NAV.ItemBatchInfo_Location_Code_Link\" ToRole=\"Location_Code_Link" +
-                "\" FromRole=\"ItemBatchInfo\" /></EntityType><EntityType Name=\"ItemCategories\"><Key" +
-                "><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" Nullab" +
-                "le=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"E_" +
-                "Inv_Classification_Code\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Sell\" Type=\"Edm.Boolean\" /><Property Name=\"Sales_Tax\" Typ" +
-                "e=\"Edm.Boolean\" /><Property Name=\"Disposal_Method\" Type=\"Edm.String\" /><Property" +
-                " Name=\"Active\" Type=\"Edm.Boolean\" /><Property Name=\"Last_Modified_Date\" Type=\"Ed" +
-                "m.DateTime\" /><Property Name=\"Last_Modified_By\" Type=\"Edm.String\" /><Property Na" +
-                "me=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType N" +
-                "ame=\"ItemJournalLines\"><Key><PropertyRef Name=\"Journal_Batch_Name\" /><PropertyRe" +
-                "f Name=\"Journal_Template_Name\" /><PropertyRef Name=\"Line_No\" /></Key><Property N" +
-                "ame=\"Journal_Template_Name\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=" +
-                "\"Journal_Batch_Name\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_N" +
-                "o\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Posting_Date\" Type=\"Edm.D" +
-                "ateTime\" /><Property Name=\"Document_Date\" Type=\"Edm.DateTime\" /><Property Name=\"" +
-                "Entry_Type\" Type=\"Edm.String\" /><Property Name=\"Document_No\" Type=\"Edm.String\" /" +
-                "><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Shortcut_Dimension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimensi" +
-                "on_2_Code\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_3_x005D_\" T" +
-                "ype=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_4_x005D_\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"ShortcutDimCode_x005B_5_x005D_\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"ShortcutDimCode_x005B_6_x005D_\" Type=\"Edm.String\" /><Property Name=\"S" +
-                "hortcutDimCode_x005B_7_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCo" +
-                "de_x005B_8_x005D_\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm." +
-                "String\" /><Property Name=\"Salespers_Purch_Code\" Type=\"Edm.String\" /><Property Na" +
-                "me=\"Gen_Bus_Posting_Group\" Type=\"Edm.String\" /><Property Name=\"Gen_Prod_Posting_" +
-                "Group\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Prope" +
-                "rty Name=\"Reserved_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measur" +
-                "e_Code\" Type=\"Edm.String\" /><Property Name=\"Unit_Amount\" Type=\"Edm.Decimal\" /><P" +
-                "roperty Name=\"Amount\" Type=\"Edm.Decimal\" /><Property Name=\"Indirect_Cost_Percent" +
-                "\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property" +
+            private const string ModelPart8 = "ning\"><Key><PropertyRef Name=\"Batch_Name\" /><PropertyRef Name=\"Line_No\" /></Key><" +
+                "Property Name=\"Batch_Name\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"" +
+                "Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Product_Group_Code\"" +
+                " Type=\"Edm.String\" /><Property Name=\"Start_Date\" Type=\"Edm.DateTime\" /><Property" +
+                " Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Batch_Si" +
+                "ze\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property" +
+                " Name=\"Unit_Of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"No_of_Ticket\" T" +
+                "ype=\"Edm.Int32\" /><Property Name=\"Total_Quantity\" Type=\"Edm.Decimal\" /><Property" +
                 " Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Nam" +
-                "e=\"Location_Code_Link\" Relationship=\"NAV.ItemJournalLines_Location_Code_Link\" To" +
-                "Role=\"Location_Code_Link\" FromRole=\"ItemJournalLines\" /><NavigationProperty Name" +
-                "=\"Gen_Bus_Posting_Group_Link\" Relationship=\"NAV.ItemJournalLines_Gen_Bus_Posting" +
-                "_Group_Link\" ToRole=\"Gen_Bus_Posting_Group_Link\" FromRole=\"ItemJournalLines\" /><" +
-                "NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.ItemJourna" +
-                "lLines_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole=\"I" +
-                "temJournalLines\" /></EntityType><EntityType Name=\"ItemLedgerEntries\"><Key><Prope" +
-                "rtyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullab" +
-                "le=\"false\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=" +
-                "\"Entry_Type\" Type=\"Edm.String\" /><Property Name=\"Document_Type\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Document_No\" Type=\"Edm.String\" /><Property Name=\"Document_Li" +
-                "ne_No\" Type=\"Edm.Int32\" /><Property Name=\"External_Document_No\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" T" +
-                "ype=\"Edm.String\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=" +
-                "\"Edm.String\" /><Property Name=\"g_fnGetIntRef\" Type=\"Edm.String\" /><Property Name" +
-                "=\"Source_No\" Type=\"Edm.String\" /><Property Name=\"fnGetSourceName\" Type=\"Edm.Stri" +
-                "ng\" /><Property Name=\"Return_Reason_Code\" Type=\"Edm.String\" /><Property Name=\"Gl" +
-                "obal_Dimension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Global_Dimension_2_Co" +
-                "de\" Type=\"Edm.String\" /><Property Name=\"Active_Ingredient\" Type=\"Edm.Boolean\" />" +
-                "<Property Name=\"QC_Ref_No\" Type=\"Edm.String\" /><Property Name=\"Production_Batch_" +
-                "No\" Type=\"Edm.String\" /><Property Name=\"g_fnGetCOA\" Type=\"Edm.Boolean\" /><Proper" +
-                "ty Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"g_fnGetReplanNo\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"No_of_Label_Int\" Type=\"Edm.Int32\" /><Property Name=\"" +
-                "No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property Name=\"Total_No_of_Label\" Type=\"Edm" +
-                ".Int32\" /><Property Name=\"g_fnGetMfgName\" Type=\"Edm.String\" /><Property Name=\"Ad" +
-                "ditional_Material\" Type=\"Edm.Boolean\" /><Property Name=\"Reason_Code\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.Date";
+                "e=\"Product_Group_Code_Link\" Relationship=\"NAV.GroupPlanning_Product_Group_Code_L" +
+                "ink\" ToRole=\"Product_Group_Code_Link\" FromRole=\"GroupPlanning\" /><NavigationProp" +
+                "erty Name=\"Unit_Of_Measure_Code_Link\" Relationship=\"NAV.GroupPlanning_Unit_Of_Me" +
+                "asure_Code_Link\" ToRole=\"Unit_Of_Measure_Code_Link\" FromRole=\"GroupPlanning\" /><" +
+                "/EntityType><EntityType Name=\"GroupPlanningSplit\"><Key><PropertyRef Name=\"Batch_" +
+                "Name\" /><PropertyRef Name=\"Item_No\" /><PropertyRef Name=\"Line_No\" /></Key><Prope" +
+                "rty Name=\"Batch_Name\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_" +
+                "No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Item_No\" Type=\"Edm.Strin" +
+                "g\" Nullable=\"false\" /><Property Name=\"Product_Group_Code\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"Start_Date\" Type=\"Edm.DateTime\" /><Property Name=\"No_of_Prod_Order" +
+                "\" Type=\"Edm.Int32\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Dec" +
+                "imal\" /><Property Name=\"Unit_Of_Measure_Code\" Type=\"Edm.String\" /><Property Name" +
+                "=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Pr" +
+                "oduct_Group_Code_Link\" Relationship=\"NAV.GroupPlanningSplit_Product_Group_Code_L" +
+                "ink\" ToRole=\"Product_Group_Code_Link\" FromRole=\"GroupPlanningSplit\" /><Navigatio" +
+                "nProperty Name=\"Unit_Of_Measure_Code_Link\" Relationship=\"NAV.GroupPlanningSplit_" +
+                "Unit_Of_Measure_Code_Link\" ToRole=\"Unit_Of_Measure_Code_Link\" FromRole=\"GroupPla" +
+                "nningSplit\" /></EntityType><EntityType Name=\"GSTBusPostingGroup\"><Key><PropertyR" +
+                "ef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" " +
+                "/><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"E" +
+                "dm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"ItemAddition" +
+                "alInfo\"><Key><PropertyRef Name=\"Item_No\" /></Key><Property Name=\"Item_No\" Type=\"" +
+                "Edm.String\" Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Packaging_Type\" Type=\"Edm.String\" /><Property Name=\"Batch_Size\" " +
+                "Type=\"Edm.String\" /><Property Name=\"Approved_By\" Type=\"Edm.String\" /><Property N" +
+                "ame=\"Approval_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Prepared_By\" Type=\"Edm" +
+                ".String\" /><Property Name=\"Effective_Date\" Type=\"Edm.DateTime\" /><Property Name=" +
+                "\"Version\" Type=\"Edm.String\" /><Property Name=\"Categories_Description\" Type=\"Edm." +
+                "String\" /><Property Name=\"Base_Unit_Of_Measure\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"Categories_Code\" Type=\"Edm.String\" /><Property Name=\"Tablet_Coating_Code\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"Tablet_Color_Code\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Tablet_Shape_Code\" Type=\"Edm.String\" /><Property Name=\"Tablet_Marking\" " +
+                "Type=\"Edm.String\" /><Property Name=\"Tablet_Flavor_Code\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Tablet_Size_Core_Upper\" Type=\"Edm.String\" /><Property Name=\"Tablet_S" +
+                "ize_Coated_Upper\" Type=\"Edm.String\" /><Property Name=\"Tablet_Thickness_Core_Uppe" +
+                "r\" Type=\"Edm.String\" /><Property Name=\"Tablet_Thickness_Coated_Upper\" Type=\"Edm." +
+                "String\" /><Property Name=\"Tablet_Weight_Core_Upper\" Type=\"Edm.String\" /><Propert" +
+                "y Name=\"Tablet_Weight_Coated_Upper\" Type=\"Edm.String\" /><Property Name=\"Tablet_W" +
+                "eight_Variation_Upper\" Type=\"Edm.String\" /><Property Name=\"Syrup_Color_Code\" Typ" +
+                "e=\"Edm.String\" /><Property Name=\"Syrup_Flavor_Code\" Type=\"Edm.String\" /><Propert" +
+                "y Name=\"Syrup_Clarity_Code\" Type=\"Edm.String\" /><Property Name=\"Syrup_PH_Upper\" " +
+                "Type=\"Edm.String\" /><Property Name=\"Syrup_S_G_Upper\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Syrup_Viscosity_Upper\" Type=\"Edm.String\" /><Property Name=\"Cream_Color_" +
+                "Code\" Type=\"Edm.String\" /><Property Name=\"Cream_Texture_Code\" Type=\"Edm.String\" " +
+                "/><Property Name=\"Cream_Other_Code\" Type=\"Edm.String\" /><Property Name=\"Cream_PH" +
+                "_Upper\" Type=\"Edm.String\" /><Property Name=\"Cream_S_G_Upper\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Cream_Viscosity_Upper\" Type=\"Edm.String\" /><Property Name=\"Cosm" +
+                "etic_Color_Code\" Type=\"Edm.String\" /><Property Name=\"Cosmetic_Packing\" Type=\"Edm" +
+                ".String\" /><Property Name=\"HS_Code\" Type=\"Edm.String\" /><Property Name=\"Special_" +
+                "Permit\" Type=\"Edm.Boolean\" /><Property Name=\"Type\" Type=\"Edm.String\" /><Property" +
+                " Name=\"FP_No_of_Carton\" Type=\"Edm.Int32\" /><Property Name=\"FP_No_of_Pallet\" Type" +
+                "=\"Edm.Int32\" /><Property Name=\"Prod_level_of_cleaning\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Lvl_1_No_of_Prod_Order\" Type=\"Edm.Int32\" /><Property Name=\"Lvl_1_No_o" +
+                "f_Manpower\" Type=\"Edm.Int32\" /><Property Name=\"Lvl_1_Total_time_hour\" Type=\"Edm." +
+                "String\" /><Property Name=\"Lvl_2_No_of_Prod_Order\" Type=\"Edm.Int32\" /><Property N" +
+                "ame=\"Lvl_2_No_of_Manpower\" Type=\"Edm.Int32\" /><Property Name=\"Lvl_2_Total_time_h" +
+                "our\" Type=\"Edm.String\" /><Property Name=\"Machine_Name\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Machine_mould\" Type=\"Edm.String\" /><Property Name=\"Machine_Speed_Stro" +
+                "ke_Per_Min\" Type=\"Edm.String\" /><Property Name=\"Machine_Cut\" Type=\"Edm.Decimal\" " +
+                "/><Property Name=\"Machine_Blister_Per_Min\" Type=\"Edm.String\" /><Property Name=\"N" +
+                "o_of_Blue_Drum\" Type=\"Edm.Int32\" /><Property Name=\"No_of_Grey_Trolley\" Type=\"Edm" +
+                ".Int32\" /><Property Name=\"Ave_Qty_Per_Blue_Drum\" Type=\"Edm.Int32\" /><Property Na" +
+                "me=\"No_of_Plastic_Bag\" Type=\"Edm.Int32\" /><Property Name=\"Plastic_Size\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"Pro_Storage_Req\" Type=\"Edm.String\" /><Property Name=" +
+                "\"Pro_Storage_Hold_Time\" Type=\"Edm.String\" /><Property Name=\"Production_Condition" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Pro_QC_Testing_Time\" Type=\"Edm.String\" /><" +
+                "Property Name=\"Manhour\" Type=\"Edm.String\" /><Property Name=\"No_of_Operator\" Type" +
+                "=\"Edm.Int32\" /><Property Name=\"PKG_Pack_Size\" Type=\"Edm.String\" /><Property Name" +
+                "=\"GTIN_No\" Type=\"Edm.String\" /><Property Name=\"Status\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Property Name=\"Tablet_Size_C" +
+                "ore_Lower\" Type=\"Edm.String\" /><Property Name=\"Tablet_Size_Coated_Lower\" Type=\"E" +
+                "dm.String\" /><Property Name=\"Tablet_Thickness_Core_Lower\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"Tablet_Thickness_Coated_Lower\" Type=\"Edm.String\" /><Property Name=" +
+                "\"Tablet_Weight_Core_Lower\" Type=\"Edm.String\" /><Property Name=\"Tablet_Weight_Coa" +
+                "ted_Lower\" Type=\"Edm.String\" /><Property Name=\"Tablet_Weight_Variation_Lower\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"Syrup_PH_Lower\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Syrup_S_G_Lower\" Type=\"Edm.String\" /><Property Name=\"Syrup_Viscosity_Lower" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Cream_PH_Lower\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"Cream_S_G_Lower\" Type=\"Edm.String\" /><Property Name=\"Cream_Viscosity_L" +
+                "ower\" Type=\"Edm.String\" /><Property Name=\"Tablet_Coating_Desc\" Type=\"Edm.String\"" +
+                " /><Property Name=\"Tablet_Color_Desc\" Type=\"Edm.String\" /><Property Name=\"Tablet" +
+                "_Shape_Desc\" Type=\"Edm.String\" /><Property Name=\"Tablet_Flavor_Desc\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Syrup_Color_Desc\" Type=\"Edm.String";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart10 = "Time\" /><Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Se" +
-                "rial_No\" Type=\"Edm.String\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Proper" +
-                "ty Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm." +
-                "Decimal\" /><Property Name=\"Invoiced_Quantity\" Type=\"Edm.Decimal\" /><Property Nam" +
-                "e=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"fnGetUOM\" Type=\"Edm." +
-                "String\" /><Property Name=\"Shipped_Qty_Not_Returned\" Type=\"Edm.Decimal\" /><Proper" +
-                "ty Name=\"Reserved_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Qty_per_Unit_of" +
-                "_Measure\" Type=\"Edm.Decimal\" /><Property Name=\"Sales_Amount_Expected\" Type=\"Edm." +
-                "Decimal\" /><Property Name=\"Sales_Amount_Actual\" Type=\"Edm.Decimal\" /><Property N" +
-                "ame=\"Cost_Amount_Expected\" Type=\"Edm.Decimal\" /><Property Name=\"Cost_Amount_Actu" +
-                "al\" Type=\"Edm.Decimal\" /><Property Name=\"Completely_Invoiced\" Type=\"Edm.Boolean\"" +
-                " /><Property Name=\"Open\" Type=\"Edm.Boolean\" /><Property Name=\"Country_Region_Cod" +
-                "e\" Type=\"Edm.String\" /><Property Name=\"Drop_Shipment\" Type=\"Edm.Boolean\" /><Prop" +
-                "erty Name=\"Order_Type\" Type=\"Edm.String\" /><Property Name=\"Order_No\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Order_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Prod_" +
-                "Order_Comp_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"User_ID\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Date_Time\" Type=\"Edm.DateTime\" /><Property Name=\"Not_for_Sal" +
-                "e\" Type=\"Edm.Boolean\" /><Property Name=\"Prod_Order_Type\" Type=\"Edm.String\" /><Pr" +
-                "operty Name=\"Inspection_Datasheet_No\" Type=\"Edm.String\" /><Property Name=\"QC_Sta" +
-                "tus\" Type=\"Edm.String\" /><Property Name=\"Retest_Date\" Type=\"Edm.DateTime\" /><Pro" +
-                "perty Name=\"Prod_Order_No\" Type=\"Edm.String\" /><Property Name=\"Prod_Order_Line_N" +
-                "o\" Type=\"Edm.Int32\" /><Property Name=\"Session_Type\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Session_User_ID\" Type=\"Edm.String\" /><Property Name=\"Permit_Set_ID\" Type" +
-                "=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" " +
-                "/><NavigationProperty Name=\"Item_Category_Code_Link\" Relationship=\"NAV.ItemLedge" +
-                "rEntries_Item_Category_Code_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"Ite" +
-                "mLedgerEntries\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NA" +
-                "V.ItemLedgerEntries_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"It" +
-                "emLedgerEntries\" /><NavigationProperty Name=\"Country_Region_Code_Link\" Relations" +
-                "hip=\"NAV.ItemLedgerEntries_Country_Region_Code_Link\" ToRole=\"Country_Region_Code" +
-                "_Link\" FromRole=\"ItemLedgerEntries\" /><NavigationProperty Name=\"Prod_Order_Type_" +
-                "Link\" Relationship=\"NAV.ItemLedgerEntries_Prod_Order_Type_Link\" ToRole=\"Prod_Ord" +
-                "er_Type_Link\" FromRole=\"ItemLedgerEntries\" /></EntityType><EntityType Name=\"Item" +
-                "List\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" " +
-                "Nullable=\"false\" /><Property Name=\"Related_Item_No\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"Type\" Type=\"Edm.String\" /><Property Name=\"Inventory\"" +
-                " Type=\"Edm.Decimal\" /><Property Name=\"Internal_Ref\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Item_Registration\" Type=\"Edm.String\" /><Property Name=\"Expiration_Calcul" +
-                "ation\" Type=\"Edm.String\" /><Property Name=\"Batch_Nos\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Production_Recipe_No\" Type=\"Edm.String\" /><Property Name=\"QC_Enabled\" " +
-                "Type=\"Edm.Boolean\" /><Property Name=\"Production_BOM_No\" Type=\"Edm.String\" /><Pro" +
-                "perty Name=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Base_Unit_of_Measure" +
-                "\" Type=\"Edm.String\" /><Property Name=\"Standard_Cost\" Type=\"Edm.Decimal\" /><Prope" +
-                "rty Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Last_Direct_Cost\" Type" +
-                "=\"Edm.Decimal\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name" +
-                "=\"Item_Category_Code\" Type=\"Edm.String\" /><Property Name=\"Product_Group_Code\" Ty" +
-                "pe=\"Edm.String\" /><Property Name=\"Blocked\" Type=\"Edm.Boolean\" /><Property Name=\"" +
-                "Sales_Unit_of_Measure\" Type=\"Edm.String\" /><Property Name=\"Replenishment_System\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Purch_Unit_of_Measure\" Type=\"Edm.String\" />" +
-                "<Property Name=\"Lead_Time_Calculation\" Type=\"Edm.String\" /><Property Name=\"Item_" +
-                "Tracking_Code\" Type=\"Edm.String\" /><Property Name=\"QC_Location\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Global_Dimension_1_Filter\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"Global_Dimension_2_Filter\" Type=\"Edm.String\" /><Property Name=\"Location_Filte" +
-                "r\" Type=\"Edm.String\" /><Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\" /" +
-                "><Property Name=\"Variant_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Filt" +
-                "er\" Type=\"Edm.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.S" +
-                "tring\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Batch_Nos_Link\" Relat" +
-                "ionship=\"NAV.ItemList_Batch_Nos_Link\" ToRole=\"Batch_Nos_Link\" FromRole=\"ItemList" +
-                "\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relationship=\"NAV.ItemL" +
-                "ist_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Link\" FromRole=\"Item" +
-                "List\" /><NavigationProperty Name=\"Item_Category_Code_Link\" Relationship=\"NAV.Ite" +
-                "mList_Item_Category_Code_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"ItemLi" +
-                "st\" /><NavigationProperty Name=\"QC_Location_Link\" Relationship=\"NAV.ItemList_QC_" +
-                "Location_Link\" ToRole=\"QC_Location_Link\" FromRole=\"ItemList\" /><NavigationProper" +
-                "ty Name=\"Location_Filter_Link\" Relationship=\"NAV.ItemList_Location_Filter_Link\" " +
-                "ToRole=\"Location_Filter_Link\" FromRole=\"ItemList\" /></EntityType><EntityType Nam" +
-                "e=\"ItemPicture\"><Key><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_" +
-                "No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Document_Type\" Type=\"Edm" +
-                ".Int32\" /><Property Name=\"Document_No\" Type=\"Edm.String\" /><Property Name=\"Docum" +
-                "ent_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Group_ID\" Type=\"Edm.Guid\" /><Pro" +
-                "perty Name=\"Entry_Type\" Type=\"Edm.String\" /><Property Name=\"Posting_Date\" Type=\"" +
-                "Edm.DateTime\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Property Name=\"Seri" +
-                "al_No\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Prope" +
-                "rty Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Manufacturing_D" +
-                "ate\" Type=\"Edm.DateTime\" /><Property Name=\"No_of_Label_Int\" Type=\"Edm.Int32\" /><" +
-                "Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property Name=\"Batch_No\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Created_on\" Type=\"Edm.DateTime\" /><Property Nam" +
-                "e=\"Created_by\" Type=\"Edm.String\" /><Property Name=\"Posted_on\" Type=\"Edm.DateTime" +
-                "\" /><Property Name=\"Customer_No\" Type=\"Edm.String\" /><Property Name=\"Vendor_No\" " +
-                "Type=\"Edm.String\" /><Property Name=\"External_Document_No\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Currency_Code\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" " +
-                "Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Unit_Price\" Type=\"Edm" +
-                ".Decimal\" /><Property Name=\"Reason_Code\" Type=\"Edm.String\" /><Property Name=\"Jou" +
-                "rnal_Template_Name\" Type=\"Edm.String\" /><Property Name=\"Journal_Batch_Name\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Quality_Control_Type\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Inspection_Datasheet_No\" Type=\"Edm.String\" /><Property Name=\"Sample_Qu" +
-                "antity\" Type=\"Edm.Decimal\" /><Property Name=\"Forfeit_Quantity\" Type=\"Edm.Decimal" +
-                "\" /><Property Name=\"Approve_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Rejec" +
-                "t_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Resample_Quantity\" Type=\"Edm.De" +
-                "cimal\" /><Property Name=\"Rework_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"E" +
-                "Tag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navigatio";
+            private const string ModelPart9 = "\" /><Property Name=\"Syrup_Flavor_Desc\" Type=\"Edm.String\" /><Property Name=\"Syrup_" +
+                "Clarity_Desc\" Type=\"Edm.String\" /><Property Name=\"Cream_Color_Desc\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Cream_Texture_Desc\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Cream_Other_Desc\" Type=\"Edm.String\" /><Property Name=\"Cosmetic_Color_Desc\" Type=" +
+                "\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /" +
+                "></EntityType><EntityType Name=\"ItemAttributes\"><Key><PropertyRef Name=\"ID\" /></" +
+                "Key><Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Name" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Blocked\" Type=\"Edm.Boolean\" /><Property Na" +
+                "me=\"Type\" Type=\"Edm.String\" /><Property Name=\"Unit_of_Measure\" Type=\"Edm.String\"" +
+                " /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityTyp" +
+                "e><EntityType Name=\"ItemAttributesValues\"><Key><PropertyRef Name=\"Attribute_ID\" " +
+                "/><PropertyRef Name=\"ID\" /></Key><Property Name=\"Attribute_ID\" Type=\"Edm.Int32\" " +
+                "Nullable=\"false\" /><Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\" /><Prop" +
+                "erty Name=\"Value\" Type=\"Edm.String\" /><Property Name=\"Numeric_Value\" Type=\"Edm.D" +
+                "ecimal\" /><Property Name=\"Blocked\" Type=\"Edm.Boolean\" /><Property Name=\"Attribut" +
+                "e_Name\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyM" +
+                "ode=\"Fixed\" /></EntityType><EntityType Name=\"ItemAttributesValuesMapping\"><Key><" +
+                "PropertyRef Name=\"Item_Attribute_ID\" /><PropertyRef Name=\"No\" /><PropertyRef Nam" +
+                "e=\"Table_ID\" /></Key><Property Name=\"Table_ID\" Type=\"Edm.Int32\" Nullable=\"false\"" +
+                " /><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Item" +
+                "_Attribute_ID\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Item_Attribut" +
+                "e_Value_ID\" Type=\"Edm.Int32\" /><Property Name=\"Item_Attribute_Name\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Item_Attr_Value_Name\" Type=\"Edm.String\" /><Property Name" +
+                "=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Nam" +
+                "e=\"ItemBatchInfo\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Ord" +
+                "er_No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Status\" Type=\"Edm.St" +
+                "ring\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\" Type=\"Edm.String\" Nullab" +
+                "le=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Prope" +
+                "rty Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Batch" +
+                "_No\" Type=\"Edm.String\" /><Property Name=\"g_dteMfgDate\" Type=\"Edm.DateTime\" /><Pr" +
+                "operty Name=\"g_dteExpDate\" Type=\"Edm.DateTime\" /><Property Name=\"ETag\" Type=\"Edm" +
+                ".String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\"" +
+                " Relationship=\"NAV.ItemBatchInfo_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\"" +
+                " FromRole=\"ItemBatchInfo\" /><NavigationProperty Name=\"Location_Code_Link\" Relati" +
+                "onship=\"NAV.ItemBatchInfo_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRo" +
+                "le=\"ItemBatchInfo\" /></EntityType><EntityType Name=\"ItemCategories\"><Key><Proper" +
+                "tyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"fals" +
+                "e\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"E_Inv_Clas" +
+                "sification_Code\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.String\" /><" +
+                "Property Name=\"Sell\" Type=\"Edm.Boolean\" /><Property Name=\"Sales_Tax\" Type=\"Edm.B" +
+                "oolean\" /><Property Name=\"Disposal_Method\" Type=\"Edm.String\" /><Property Name=\"A" +
+                "ctive\" Type=\"Edm.Boolean\" /><Property Name=\"Last_Modified_Date\" Type=\"Edm.DateTi" +
+                "me\" /><Property Name=\"Last_Modified_By\" Type=\"Edm.String\" /><Property Name=\"ETag" +
+                "\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"Ite" +
+                "mJournalLines\"><Key><PropertyRef Name=\"Journal_Batch_Name\" /><PropertyRef Name=\"" +
+                "Journal_Template_Name\" /><PropertyRef Name=\"Line_No\" /></Key><Property Name=\"Jou" +
+                "rnal_Template_Name\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Journal" +
+                "_Batch_Name\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=" +
+                "\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\"" +
+                " /><Property Name=\"Document_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Entry_Ty" +
+                "pe\" Type=\"Edm.String\" /><Property Name=\"Document_No\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Shortcu" +
+                "t_Dimension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_2_Cod" +
+                "e\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_3_x005D_\" Type=\"Edm" +
+                ".String\" /><Property Name=\"ShortcutDimCode_x005B_4_x005D_\" Type=\"Edm.String\" /><" +
+                "Property Name=\"ShortcutDimCode_x005B_5_x005D_\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"ShortcutDimCode_x005B_6_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutD" +
+                "imCode_x005B_7_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B" +
+                "_8_x005D_\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm.String\" " +
+                "/><Property Name=\"Salespers_Purch_Code\" Type=\"Edm.String\" /><Property Name=\"Gen_" +
+                "Bus_Posting_Group\" Type=\"Edm.String\" /><Property Name=\"Gen_Prod_Posting_Group\" T" +
+                "ype=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name" +
+                "=\"Reserved_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" " +
+                "Type=\"Edm.String\" /><Property Name=\"Unit_Amount\" Type=\"Edm.Decimal\" /><Property " +
+                "Name=\"Amount\" Type=\"Edm.Decimal\" /><Property Name=\"Indirect_Cost_Percent\" Type=\"" +
+                "Edm.Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"E" +
+                "Tag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Locat" +
+                "ion_Code_Link\" Relationship=\"NAV.ItemJournalLines_Location_Code_Link\" ToRole=\"Lo" +
+                "cation_Code_Link\" FromRole=\"ItemJournalLines\" /><NavigationProperty Name=\"Gen_Bu" +
+                "s_Posting_Group_Link\" Relationship=\"NAV.ItemJournalLines_Gen_Bus_Posting_Group_L" +
+                "ink\" ToRole=\"Gen_Bus_Posting_Group_Link\" FromRole=\"ItemJournalLines\" /><Navigati" +
+                "onProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.ItemJournalLines_U" +
+                "nit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole=\"ItemJourn" +
+                "alLines\" /></EntityType><EntityType Name=\"ItemLedgerEntries\"><Key><PropertyRef N" +
+                "ame=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"fals" +
+                "e\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Entry_T" +
+                "ype\" Type=\"Edm.String\" /><Property Name=\"Document_Type\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Document_No\" Type=\"Edm.String\" /><Property Name=\"Document_Line_No\" T" +
+                "ype=\"Edm.Int32\" /><Property Name=\"External_Document_No\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=\"Edm" +
+                ".String\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.Str" +
+                "ing\" /><Property Name=\"g_fnGetIntRef\" Type=\"Edm.String\" /><Property Name=\"Source" +
+                "_No\" Type=\"Edm.String\" /><Property Name=\"fnGetSourceName\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"Return_Reason_Code\" Type=\"Edm.String\" /><Property Name=\"Global_Dim" +
+                "ension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Global_Dimension_2_Code\" Type" +
+                "=\"Edm.String\" /><Property Name=\"Active_Ingredient\" Type=\"Edm.Boolean\" /><Propert" +
+                "y Name=\"QC_Ref_No\" Type=\"Edm.String\" /><Property Name=\"Production_Batch_No\" Type" +
+                "=\"Edm.String\" /><Property Name=\"g_fnGetCOA\" Type=\"Edm.Boolean\" /><Property Name=" +
+                "\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"g_fnGetReplanNo\" Type=\"Edm.String" +
+                "\" /><Property Name=\"No_of_Label_Int\" Type=\"Edm.Int32\" /><Property Name=\"No_of_La" +
+                "bel_Ext\" Type=\"Edm.Int32\" /><Property Name=\"Total_No_of_Lab";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart11 = "nProperty Name=\"Customer_No_Link\" Relationship=\"NAV.ItemPicture_Customer_No_Link\"" +
-                " ToRole=\"Customer_No_Link\" FromRole=\"ItemPicture\" /><NavigationProperty Name=\"Ve" +
-                "ndor_No_Link\" Relationship=\"NAV.ItemPicture_Vendor_No_Link\" ToRole=\"Vendor_No_Li" +
-                "nk\" FromRole=\"ItemPicture\" /><NavigationProperty Name=\"Currency_Code_Link\" Relat" +
-                "ionship=\"NAV.ItemPicture_Currency_Code_Link\" ToRole=\"Currency_Code_Link\" FromRol" +
-                "e=\"ItemPicture\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NA" +
-                "V.ItemPicture_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"ItemPict" +
-                "ure\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.It" +
-                "emPicture_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole" +
-                "=\"ItemPicture\" /><NavigationProperty Name=\"Reason_Code_Link\" Relationship=\"NAV.I" +
-                "temPicture_Reason_Code_Link\" ToRole=\"Reason_Code_Link\" FromRole=\"ItemPicture\" />" +
-                "<NavigationProperty Name=\"Sample_Quantity_Link\" Relationship=\"NAV.ItemPicture_Sa" +
-                "mple_Quantity_Link\" ToRole=\"Sample_Quantity_Link\" FromRole=\"ItemPicture\" /></Ent" +
-                "ityType><EntityType Name=\"ItemUOMList\"><Key><PropertyRef Name=\"Code\" /><Property" +
-                "Ref Name=\"Item_No\" /></Key><Property Name=\"Item_No\" Type=\"Edm.String\" Nullable=\"" +
-                "false\" /><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Na" +
-                "me=\"Qty_per_Unit_of_Measure\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type=\"Ed" +
-                "m.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Code_Link\" Relatio" +
-                "nship=\"NAV.ItemUOMList_Code_Link\" ToRole=\"Code_Link\" FromRole=\"ItemUOMList\" /></" +
-                "EntityType><EntityType Name=\"Location\"><Key><PropertyRef Name=\"Code\" /></Key><Pr" +
-                "operty Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Name\" Ty" +
-                "pe=\"Edm.String\" /><Property Name=\"Report_Name\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Na" +
-                "me=\"MachineCenterList\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" T" +
-                "ype=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Work_Center_No\" Type=\"Edm.String\" /><Property Name=\"Capacity\" Type" +
-                "=\"Edm.Decimal\" /><Property Name=\"Efficiency\" Type=\"Edm.Decimal\" /><Property Name" +
-                "=\"Minimum_Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Maximum_Efficiency\" T" +
-                "ype=\"Edm.Decimal\" /><Property Name=\"Concurrent_Capacities\" Type=\"Edm.Decimal\" />" +
-                "<Property Name=\"Search_Name\" Type=\"Edm.String\" /><Property Name=\"Direct_Unit_Cos" +
-                "t\" Type=\"Edm.Decimal\" /><Property Name=\"Indirect_Cost_Percent\" Type=\"Edm.Decimal" +
-                "\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Overhead_Rat" +
-                "e\" Type=\"Edm.Decimal\" /><Property Name=\"Last_Date_Modified\" Type=\"Edm.DateTime\" " +
-                "/><Property Name=\"Flushing_Method\" Type=\"Edm.String\" /><Property Name=\"ETag\" Typ" +
-                "e=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Work_Center_N" +
-                "o_Link\" Relationship=\"NAV.MachineCenterList_Work_Center_No_Link\" ToRole=\"Work_Ce" +
-                "nter_No_Link\" FromRole=\"MachineCenterList\" /></EntityType><EntityType Name=\"Outp" +
-                "utCorrectionList\"><Key><PropertyRef Name=\"Entry_No\" /><PropertyRef Name=\"Product" +
-                "ion_Entry_No\" /></Key><Property Name=\"Production_Entry_No\" Type=\"Edm.Int32\" Null" +
-                "able=\"false\" /><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Pr" +
-                "operty Name=\"Select\" Type=\"Edm.Boolean\" /><Property Name=\"Item_No\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Descript" +
-                "ion_2\" Type=\"Edm.String\" /><Property Name=\"Posted_by\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Posted_on\" Type=\"Edm.DateTime\" /><Property Name=\"Quantity\" Type=\"Edm.D" +
-                "ecimal\" /><Property Name=\"New_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"No_" +
-                "of_Label_Int\" Type=\"Edm.Int32\" /><Property Name=\"New_No_of_Label_Int\" Type=\"Edm." +
-                "Int32\" /><Property Name=\"No_of_Operator\" Type=\"Edm.Int32\" /><Property Name=\"New_" +
-                "No_of_Operator\" Type=\"Edm.Int32\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Serial_No\" Type=\"Edm.String\" /><Property Name=\"Item_Ledger_Entry_" +
-                "No\" Type=\"Edm.Int32\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"" +
-                "Fixed\" /><NavigationProperty Name=\"Item_Ledger_Entry_No_Link\" Relationship=\"NAV." +
-                "OutputCorrectionList_Item_Ledger_Entry_No_Link\" ToRole=\"Item_Ledger_Entry_No_Lin" +
-                "k\" FromRole=\"OutputCorrectionList\" /></EntityType><EntityType Name=\"OutputJourna" +
-                "l\"><Key><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Edm" +
-                ".Int32\" Nullable=\"false\" /><Property Name=\"ProdOrderNo\" Type=\"Edm.String\" /><Pro" +
-                "perty Name=\"ItemNo\" Type=\"Edm.String\" /><Property Name=\"LocationCode\" Type=\"Edm." +
-                "String\" /><Property Name=\"OperationNo\" Type=\"Edm.String\" /><Property Name=\"Descr" +
-                "iption\" Type=\"Edm.String\" /><Property Name=\"BUOM\" Type=\"Edm.String\" /><Property " +
-                "Name=\"RemainQty\" Type=\"Edm.Decimal\" /><Property Name=\"UOM\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Undefined\" Type=\"Edm.Decimal\" /><Property Name=\"Lot_No\" Type=\"Edm" +
-                ".String\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Q" +
-                "uantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Of_Measure_Code\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Qty_per_Unit_of_Measure\" Type=\"Edm.Decimal\" /><Property " +
-                "Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"QC_Ref_No\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Exp" +
-                "iration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"No_of_Label_Int\" Type=\"Edm.I" +
-                "nt32\" /><Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property Name=\"No_o" +
-                "f_Quarantine_Label\" Type=\"Edm.Int32\" /><Property Name=\"ETag\" Type=\"Edm.String\" C" +
-                "oncurrencyMode=\"Fixed\" /><NavigationProperty Name=\"ProdOrderNo_Link\" Relationshi" +
-                "p=\"NAV.OutputJournal_ProdOrderNo_Link\" ToRole=\"ProdOrderNo_Link\" FromRole=\"Outpu" +
-                "tJournal\" /><NavigationProperty Name=\"LocationCode_Link\" Relationship=\"NAV.Outpu" +
-                "tJournal_LocationCode_Link\" ToRole=\"LocationCode_Link\" FromRole=\"OutputJournal\" " +
-                "/><NavigationProperty Name=\"Unit_Of_Measure_Code_Link\" Relationship=\"NAV.OutputJ" +
-                "ournal_Unit_Of_Measure_Code_Link\" ToRole=\"Unit_Of_Measure_Code_Link\" FromRole=\"O" +
-                "utputJournal\" /></EntityType><EntityType Name=\"OutstandingProdOrderLine\"><Key><P" +
-                "ropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Order_No\" /><PropertyRef Nam" +
-                "e=\"Status\" /></Key><Property Name=\"Status\" Type=\"Edm.String\" Nullable=\"false\" />" +
-                "<Property Name=\"Prod_Order_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Na" +
-                "me=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Item_No\" Type=\"" +
-                "Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"D" +
-                "escription_2\" Type=\"Edm.String\" /><Property Name=\"Completion_Date\" Type=\"Edm.Dat" +
-                "eTime\" /><Property Name=\"g_fnCalcArrivalDate\" Type=\"Edm.DateTime\" /><Property Na" +
-                "me=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Cod" +
-                "e\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"" +
-                "Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.Outstan" +
-                "dingProdOrderLine_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"Outs" +
-                "tandingProdOrderLine\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Rel" +
-                "ationship=\"NAV.OutstandingProdOrderLine_Unit_of_Measure_Code_Link\" ToRole=\"Unit_" +
-                "of_Measure_Code_Link\" FromRole=\"OutstandingProdOrderLine\" /></EntityType><Entity" +
-                "Type Name=\"OutstandingSalesOrderLine\"><Key><PropertyRef Name=\"Document_No\" /><Pr" +
-                "opertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Key><Property N" +
-                "ame=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Documen" +
-                "t_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.In" +
-                "t32\" Nullable=\"false\" /><Property Name=\"Sell_to_Customer_No";
+            private const string ModelPart10 = "el\" Type=\"Edm.Int32\" /><Property Name=\"g_fnGetMfgName\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"Additional_Material\" Type=\"Edm.Boolean\" /><Property Name=\"Reason_Code\"" +
+                " Type=\"Edm.String\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><" +
+                "Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Serial_No\"" +
+                " Type=\"Edm.String\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Property Name=" +
+                "\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\"" +
+                " /><Property Name=\"Invoiced_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Remai" +
+                "ning_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"fnGetUOM\" Type=\"Edm.String\" " +
+                "/><Property Name=\"Shipped_Qty_Not_Returned\" Type=\"Edm.Decimal\" /><Property Name=" +
+                "\"Reserved_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Qty_per_Unit_of_Measure" +
+                "\" Type=\"Edm.Decimal\" /><Property Name=\"Sales_Amount_Expected\" Type=\"Edm.Decimal\"" +
+                " /><Property Name=\"Sales_Amount_Actual\" Type=\"Edm.Decimal\" /><Property Name=\"Cos" +
+                "t_Amount_Expected\" Type=\"Edm.Decimal\" /><Property Name=\"Cost_Amount_Actual\" Type" +
+                "=\"Edm.Decimal\" /><Property Name=\"Completely_Invoiced\" Type=\"Edm.Boolean\" /><Prop" +
+                "erty Name=\"Open\" Type=\"Edm.Boolean\" /><Property Name=\"Country_Region_Code\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Drop_Shipment\" Type=\"Edm.Boolean\" /><Property Nam" +
+                "e=\"Order_Type\" Type=\"Edm.String\" /><Property Name=\"Order_No\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Order_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Prod_Order_Co" +
+                "mp_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"User_ID\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Date_Time\" Type=\"Edm.DateTime\" /><Property Name=\"Not_for_Sale\" Type=" +
+                "\"Edm.Boolean\" /><Property Name=\"Prod_Order_Type\" Type=\"Edm.String\" /><Property N" +
+                "ame=\"Inspection_Datasheet_No\" Type=\"Edm.String\" /><Property Name=\"QC_Status\" Typ" +
+                "e=\"Edm.String\" /><Property Name=\"Retest_Date\" Type=\"Edm.DateTime\" /><Property Na" +
+                "me=\"Prod_Order_No\" Type=\"Edm.String\" /><Property Name=\"Prod_Order_Line_No\" Type=" +
+                "\"Edm.Int32\" /><Property Name=\"Session_Type\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Session_User_ID\" Type=\"Edm.String\" /><Property Name=\"Permit_Set_ID\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navig" +
+                "ationProperty Name=\"Item_Category_Code_Link\" Relationship=\"NAV.ItemLedgerEntries" +
+                "_Item_Category_Code_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"ItemLedgerE" +
+                "ntries\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.ItemLe" +
+                "dgerEntries_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"ItemLedger" +
+                "Entries\" /><NavigationProperty Name=\"Country_Region_Code_Link\" Relationship=\"NAV" +
+                ".ItemLedgerEntries_Country_Region_Code_Link\" ToRole=\"Country_Region_Code_Link\" F" +
+                "romRole=\"ItemLedgerEntries\" /><NavigationProperty Name=\"Prod_Order_Type_Link\" Re" +
+                "lationship=\"NAV.ItemLedgerEntries_Prod_Order_Type_Link\" ToRole=\"Prod_Order_Type_" +
+                "Link\" FromRole=\"ItemLedgerEntries\" /></EntityType><EntityType Name=\"ItemList\"><K" +
+                "ey><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nullable" +
+                "=\"false\" /><Property Name=\"Related_Item_No\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String" +
+                "\" /><Property Name=\"Type\" Type=\"Edm.String\" /><Property Name=\"Inventory\" Type=\"E" +
+                "dm.Decimal\" /><Property Name=\"Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Item_Registration\" Type=\"Edm.String\" /><Property Name=\"Expiration_Calculation\" T" +
+                "ype=\"Edm.String\" /><Property Name=\"Batch_Nos\" Type=\"Edm.String\" /><Property Name" +
+                "=\"Production_Recipe_No\" Type=\"Edm.String\" /><Property Name=\"QC_Enabled\" Type=\"Ed" +
+                "m.Boolean\" /><Property Name=\"Production_BOM_No\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Base_Unit_of_Measure\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Standard_Cost\" Type=\"Edm.Decimal\" /><Property Name" +
+                "=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Last_Direct_Cost\" Type=\"Edm.De" +
+                "cimal\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"Item_C" +
+                "ategory_Code\" Type=\"Edm.String\" /><Property Name=\"Product_Group_Code\" Type=\"Edm." +
+                "String\" /><Property Name=\"Blocked\" Type=\"Edm.Boolean\" /><Property Name=\"Sales_Un" +
+                "it_of_Measure\" Type=\"Edm.String\" /><Property Name=\"Replenishment_System\" Type=\"E" +
+                "dm.String\" /><Property Name=\"Purch_Unit_of_Measure\" Type=\"Edm.String\" /><Propert" +
+                "y Name=\"Lead_Time_Calculation\" Type=\"Edm.String\" /><Property Name=\"Item_Tracking" +
+                "_Code\" Type=\"Edm.String\" /><Property Name=\"QC_Location\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Global_Dimension_1_Filter\" Type=\"Edm.String\" /><Property Name=\"Globa" +
+                "l_Dimension_2_Filter\" Type=\"Edm.String\" /><Property Name=\"Location_Filter\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Variant_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Filter\" Type" +
+                "=\"Edm.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" C" +
+                "oncurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Batch_Nos_Link\" Relationship=" +
+                "\"NAV.ItemList_Batch_Nos_Link\" ToRole=\"Batch_Nos_Link\" FromRole=\"ItemList\" /><Nav" +
+                "igationProperty Name=\"Base_Unit_of_Measure_Link\" Relationship=\"NAV.ItemList_Base" +
+                "_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Link\" FromRole=\"ItemList\" />" +
+                "<NavigationProperty Name=\"Item_Category_Code_Link\" Relationship=\"NAV.ItemList_It" +
+                "em_Category_Code_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"ItemList\" /><N" +
+                "avigationProperty Name=\"QC_Location_Link\" Relationship=\"NAV.ItemList_QC_Location" +
+                "_Link\" ToRole=\"QC_Location_Link\" FromRole=\"ItemList\" /><NavigationProperty Name=" +
+                "\"Location_Filter_Link\" Relationship=\"NAV.ItemList_Location_Filter_Link\" ToRole=\"" +
+                "Location_Filter_Link\" FromRole=\"ItemList\" /></EntityType><EntityType Name=\"ItemP" +
+                "icture\"><Key><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type" +
+                "=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Document_Type\" Type=\"Edm.Int32\" " +
+                "/><Property Name=\"Document_No\" Type=\"Edm.String\" /><Property Name=\"Document_Line" +
+                "_No\" Type=\"Edm.Int32\" /><Property Name=\"Group_ID\" Type=\"Edm.Guid\" /><Property Na" +
+                "me=\"Entry_Type\" Type=\"Edm.String\" /><Property Name=\"Posting_Date\" Type=\"Edm.Date" +
+                "Time\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Property Name=\"Serial_No\" T" +
+                "ype=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name" +
+                "=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Manufacturing_Date\" Typ" +
+                "e=\"Edm.DateTime\" /><Property Name=\"No_of_Label_Int\" Type=\"Edm.Int32\" /><Property" +
+                " Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property Name=\"Batch_No\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Created_on\" Type=\"Edm.DateTime\" /><Property Name=\"Creat" +
+                "ed_by\" Type=\"Edm.String\" /><Property Name=\"Posted_on\" Type=\"Edm.DateTime\" /><Pro" +
+                "perty Name=\"Customer_No\" Type=\"Edm.String\" /><Property Name=\"Vendor_No\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"External_Document_No\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Currency_Code\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Unit_of" +
+                "_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal" +
+                "\" /><Property Name=\"Reason_Code\" Type=\"Edm.String\" /><Property Name=\"Journal_Tem" +
+                "plate_Name\" Type=\"Edm.String\" /><Property Name=\"Journal_Batch_Name\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Quality_Control_Type\" Type=\"Edm.String\" /><Property Name" +
+                "=\"Inspection_Datasheet_No\" Type=\"Edm.String\" /><Property Name=\"Sample_Quantity\" " +
+                "Type=\"Edm.Decimal\" /><Property Name=\"Forfeit_Quantity\" Type=\"Edm.Decimal\" /><Pro" +
+                "perty Name=\"Approve_Quantity\" Type=\"Edm.Decimal\" /><Propert";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart12 = "\" Type=\"Edm.String\" /><Property Name=\"g_fnGetCustName\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Outstandin" +
-                "g_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Promised_Delivery_Date\" Type=\"E" +
-                "dm.DateTime\" /><Property Name=\"Shipment_Date\" Type=\"Edm.DateTime\" /><Property Na" +
-                "me=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"External_Document_" +
-                "No\" Type=\"Edm.String\" /><Property Name=\"PAR_Report\" Type=\"Edm.Boolean\" /><Proper" +
-                "ty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty N" +
-                "ame=\"Sell_to_Customer_No_Link\" Relationship=\"NAV.OutstandingSalesOrderLine_Sell_" +
-                "to_Customer_No_Link\" ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"OutstandingSale" +
-                "sOrderLine\" /></EntityType><EntityType Name=\"PackagingItemList\"><Key><PropertyRe" +
-                "f Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" /><Pr" +
-                "operty Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Inventory\" Type=\"Edm.Decimal\" /><Property Name=" +
-                "\"Base_Unit_of_Measure\" Type=\"Edm.String\" /><Property Name=\"Related_Item_No\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"g_fnRegPictureExist\" T" +
-                "ype=\"Edm.Boolean\" /><Property Name=\"Blocked\" Type=\"Edm.Boolean\" /><Property Name" +
-                "=\"Active\" Type=\"Edm.Boolean\" /><Property Name=\"Intend_to_Block\" Type=\"Edm.Boolea" +
-                "n\" /><Property Name=\"Approved_Intend_to_Block\" Type=\"Edm.Boolean\" /><Property Na" +
-                "me=\"Housekeeping_Complete\" Type=\"Edm.Boolean\" /><Property Name=\"Expected_Approve" +
-                "d_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Date_of_Approval\" Type=\"Edm.DateTi" +
-                "me\" /><Property Name=\"Global_Dimension_1_Filter\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Global_Dimension_2_Filter\" Type=\"Edm.String\" /><Property Name=\"Location_Fil" +
-                "ter\" Type=\"Edm.String\" /><Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Variant_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Fi" +
-                "lter\" Type=\"Edm.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\" />" +
-                "<Property Name=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm" +
-                ".String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Base_Unit_of_Measur" +
-                "e_Link\" Relationship=\"NAV.PackagingItemList_Base_Unit_of_Measure_Link\" ToRole=\"B" +
-                "ase_Unit_of_Measure_Link\" FromRole=\"PackagingItemList\" /><NavigationProperty Nam" +
-                "e=\"Item_Category_Code_Link\" Relationship=\"NAV.PackagingItemList_Item_Category_Co" +
-                "de_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"PackagingItemList\" /><Naviga" +
-                "tionProperty Name=\"Location_Filter_Link\" Relationship=\"NAV.PackagingItemList_Loc" +
-                "ation_Filter_Link\" ToRole=\"Location_Filter_Link\" FromRole=\"PackagingItemList\" />" +
-                "</EntityType><EntityType Name=\"PaymentMethod\"><Key><PropertyRef Name=\"Code\" /></" +
-                "Key><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"D" +
-                "escription\" Type=\"Edm.String\" /><Property Name=\"Bal_Account_Type\" Type=\"Edm.Stri" +
-                "ng\" /><Property Name=\"Bal_Account_No\" Type=\"Edm.String\" /><Property Name=\"Direct" +
-                "_Debit\" Type=\"Edm.Boolean\" /><Property Name=\"Direct_Debit_Pmt_Terms_Code\" Type=\"" +
-                "Edm.String\" /><Property Name=\"Pmt_Export_Line_Definition\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Bank_Data_Conversion_Pmt_Type\" Type=\"Edm.String\" /><Property Name=" +
-                "\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Dir" +
-                "ect_Debit_Pmt_Terms_Code_Link\" Relationship=\"NAV.PaymentMethod_Direct_Debit_Pmt_" +
-                "Terms_Code_Link\" ToRole=\"Direct_Debit_Pmt_Terms_Code_Link\" FromRole=\"PaymentMeth" +
-                "od\" /></EntityType><EntityType Name=\"PaymentTerms\"><Key><PropertyRef Name=\"Code\"" +
-                " /></Key><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Na" +
-                "me=\"Due_Date_Calculation\" Type=\"Edm.String\" /><Property Name=\"Discount_Date_Calc" +
-                "ulation\" Type=\"Edm.String\" /><Property Name=\"Discount_Percent\" Type=\"Edm.Decimal" +
-                "\" /><Property Name=\"Calc_Pmt_Disc_on_Cr_Memos\" Type=\"Edm.Boolean\" /><Property Na" +
-                "me=\"Description\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Con" +
-                "currencyMode=\"Fixed\" /></EntityType><EntityType Name=\"PKGQtyInProd\"><Key><Proper" +
-                "tyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullabl" +
-                "e=\"false\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Descrip" +
-                "tion\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm.String\" /><Pr" +
-                "operty Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Remaining_Quant" +
-                "ity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"QC_Ref_No\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Property Name=\"ETa" +
-                "g\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Locatio" +
-                "n_Code_Link\" Relationship=\"NAV.PKGQtyInProd_Location_Code_Link\" ToRole=\"Location" +
-                "_Code_Link\" FromRole=\"PKGQtyInProd\" /><NavigationProperty Name=\"Unit_of_Measure_" +
-                "Code_Link\" Relationship=\"NAV.PKGQtyInProd_Unit_of_Measure_Code_Link\" ToRole=\"Uni" +
-                "t_of_Measure_Code_Link\" FromRole=\"PKGQtyInProd\" /></EntityType><EntityType Name=" +
-                "\"Postcodes\"><Key><PropertyRef Name=\"City\" /><PropertyRef Name=\"Code\" /></Key><Pr" +
-                "operty Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"City\" Ty" +
-                "pe=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Country_Region_Code\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"County\" Type=\"Edm.String\" /><Property Name=\"ETag\" Ty" +
-                "pe=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Country_Regi" +
-                "on_Code_Link\" Relationship=\"NAV.Postcodes_Country_Region_Code_Link\" ToRole=\"Coun" +
-                "try_Region_Code_Link\" FromRole=\"Postcodes\" /></EntityType><EntityType Name=\"Post" +
-                "edSalesShipmentLines\"><Key><PropertyRef Name=\"Document_No\" /><PropertyRef Name=\"" +
-                "Line_No\" /></Key><Property Name=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\"" +
-                " /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"" +
-                "Sell_to_Customer_No\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.String\"" +
-                " /><Property Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"De" +
-                "scription_2\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><" +
-                "Property Name=\"External_Document_No\" Type=\"Edm.String\" /><Property Name=\"Locatio" +
-                "n_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Prop" +
-                "erty Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Unit_of_Mea" +
-                "sure\" Type=\"Edm.String\" /><Property Name=\"Appl_to_Item_Entry\" Type=\"Edm.Int32\" /" +
-                "><Property Name=\"Job_No\" Type=\"Edm.String\" /><Property Name=\"Shipment_Date\" Type" +
-                "=\"Edm.DateTime\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property " +
-                "Name=\"Quantity_Invoiced\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type=\"Edm.St" +
-                "ring\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Document_No_Link\" Rela" +
-                "tionship=\"NAV.PostedSalesShipmentLines_Document_No_Link\" ToRole=\"Document_No_Lin" +
-                "k\" FromRole=\"PostedSalesShipmentLines\" /><NavigationProperty Name=\"Sell_to_Custo" +
-                "mer_No_Link\" Relationship=\"NAV.PostedSalesShipmentLines_Sell_to_Customer_No_Link" +
-                "\" ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"PostedSalesShipmentLines\" /><Navig" +
-                "ationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.PostedSalesShipmentLin" +
-                "es_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"PostedSalesShipment" +
-                "Lines\" /></EntityType><EntityType Name=\"PostedSalesShipment";
+            private const string ModelPart11 = "y Name=\"Reject_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Resample_Quantity\" " +
+                "Type=\"Edm.Decimal\" /><Property Name=\"Rework_Quantity\" Type=\"Edm.Decimal\" /><Prop" +
+                "erty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty" +
+                " Name=\"Customer_No_Link\" Relationship=\"NAV.ItemPicture_Customer_No_Link\" ToRole=" +
+                "\"Customer_No_Link\" FromRole=\"ItemPicture\" /><NavigationProperty Name=\"Vendor_No_" +
+                "Link\" Relationship=\"NAV.ItemPicture_Vendor_No_Link\" ToRole=\"Vendor_No_Link\" From" +
+                "Role=\"ItemPicture\" /><NavigationProperty Name=\"Currency_Code_Link\" Relationship=" +
+                "\"NAV.ItemPicture_Currency_Code_Link\" ToRole=\"Currency_Code_Link\" FromRole=\"ItemP" +
+                "icture\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.ItemPi" +
+                "cture_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"ItemPicture\" /><" +
+                "NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.ItemPictur" +
+                "e_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole=\"ItemPi" +
+                "cture\" /><NavigationProperty Name=\"Reason_Code_Link\" Relationship=\"NAV.ItemPictu" +
+                "re_Reason_Code_Link\" ToRole=\"Reason_Code_Link\" FromRole=\"ItemPicture\" /><Navigat" +
+                "ionProperty Name=\"Sample_Quantity_Link\" Relationship=\"NAV.ItemPicture_Sample_Qua" +
+                "ntity_Link\" ToRole=\"Sample_Quantity_Link\" FromRole=\"ItemPicture\" /></EntityType>" +
+                "<EntityType Name=\"ItemUOMList\"><Key><PropertyRef Name=\"Code\" /><PropertyRef Name" +
+                "=\"Item_No\" /></Key><Property Name=\"Item_No\" Type=\"Edm.String\" Nullable=\"false\" /" +
+                "><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Qty_" +
+                "per_Unit_of_Measure\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type=\"Edm.String" +
+                "\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Code_Link\" Relationship=\"N" +
+                "AV.ItemUOMList_Code_Link\" ToRole=\"Code_Link\" FromRole=\"ItemUOMList\" /></EntityTy" +
+                "pe><EntityType Name=\"Location\"><Key><PropertyRef Name=\"Code\" /></Key><Property N" +
+                "ame=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm." +
+                "String\" /><Property Name=\"Report_Name\" Type=\"Edm.String\" /><Property Name=\"ETag\"" +
+                " Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"Mach" +
+                "ineCenterList\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm" +
+                ".String\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Work_Center_No\" Type=\"Edm.String\" /><Property Name=\"Capacity\" Type=\"Edm.De" +
+                "cimal\" /><Property Name=\"Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Minimu" +
+                "m_Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Maximum_Efficiency\" Type=\"Edm" +
+                ".Decimal\" /><Property Name=\"Concurrent_Capacities\" Type=\"Edm.Decimal\" /><Propert" +
+                "y Name=\"Search_Name\" Type=\"Edm.String\" /><Property Name=\"Direct_Unit_Cost\" Type=" +
+                "\"Edm.Decimal\" /><Property Name=\"Indirect_Cost_Percent\" Type=\"Edm.Decimal\" /><Pro" +
+                "perty Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Overhead_Rate\" Type=" +
+                "\"Edm.Decimal\" /><Property Name=\"Last_Date_Modified\" Type=\"Edm.DateTime\" /><Prope" +
+                "rty Name=\"Flushing_Method\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.S" +
+                "tring\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Work_Center_No_Link\" " +
+                "Relationship=\"NAV.MachineCenterList_Work_Center_No_Link\" ToRole=\"Work_Center_No_" +
+                "Link\" FromRole=\"MachineCenterList\" /></EntityType><EntityType Name=\"OutputCorrec" +
+                "tionList\"><Key><PropertyRef Name=\"Entry_No\" /><PropertyRef Name=\"Production_Entr" +
+                "y_No\" /></Key><Property Name=\"Production_Entry_No\" Type=\"Edm.Int32\" Nullable=\"fa" +
+                "lse\" /><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property N" +
+                "ame=\"Select\" Type=\"Edm.Boolean\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><" +
+                "Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" T" +
+                "ype=\"Edm.String\" /><Property Name=\"Posted_by\" Type=\"Edm.String\" /><Property Name" +
+                "=\"Posted_on\" Type=\"Edm.DateTime\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" " +
+                "/><Property Name=\"New_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"No_of_Label" +
+                "_Int\" Type=\"Edm.Int32\" /><Property Name=\"New_No_of_Label_Int\" Type=\"Edm.Int32\" /" +
+                "><Property Name=\"No_of_Operator\" Type=\"Edm.Int32\" /><Property Name=\"New_No_of_Op" +
+                "erator\" Type=\"Edm.Int32\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Property" +
+                " Name=\"Serial_No\" Type=\"Edm.String\" /><Property Name=\"Item_Ledger_Entry_No\" Type" +
+                "=\"Edm.Int32\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /" +
+                "><NavigationProperty Name=\"Item_Ledger_Entry_No_Link\" Relationship=\"NAV.OutputCo" +
+                "rrectionList_Item_Ledger_Entry_No_Link\" ToRole=\"Item_Ledger_Entry_No_Link\" FromR" +
+                "ole=\"OutputCorrectionList\" /></EntityType><EntityType Name=\"OutputJournal\"><Key>" +
+                "<PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Edm.Int32\" " +
+                "Nullable=\"false\" /><Property Name=\"ProdOrderNo\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"ItemNo\" Type=\"Edm.String\" /><Property Name=\"LocationCode\" Type=\"Edm.String\" " +
+                "/><Property Name=\"OperationNo\" Type=\"Edm.String\" /><Property Name=\"Description\" " +
+                "Type=\"Edm.String\" /><Property Name=\"BUOM\" Type=\"Edm.String\" /><Property Name=\"Re" +
+                "mainQty\" Type=\"Edm.Decimal\" /><Property Name=\"UOM\" Type=\"Edm.String\" /><Property" +
+                " Name=\"Undefined\" Type=\"Edm.Decimal\" /><Property Name=\"Lot_No\" Type=\"Edm.String\"" +
+                " /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Quantity\"" +
+                " Type=\"Edm.Decimal\" /><Property Name=\"Unit_Of_Measure_Code\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Qty_per_Unit_of_Measure\" Type=\"Edm.Decimal\" /><Property Name=\"Ba" +
+                "tch_No\" Type=\"Edm.String\" /><Property Name=\"QC_Ref_No\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Expiration_" +
+                "Date\" Type=\"Edm.DateTime\" /><Property Name=\"No_of_Label_Int\" Type=\"Edm.Int32\" />" +
+                "<Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property Name=\"No_of_Quaran" +
+                "tine_Label\" Type=\"Edm.Int32\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concurren" +
+                "cyMode=\"Fixed\" /><NavigationProperty Name=\"ProdOrderNo_Link\" Relationship=\"NAV.O" +
+                "utputJournal_ProdOrderNo_Link\" ToRole=\"ProdOrderNo_Link\" FromRole=\"OutputJournal" +
+                "\" /><NavigationProperty Name=\"LocationCode_Link\" Relationship=\"NAV.OutputJournal" +
+                "_LocationCode_Link\" ToRole=\"LocationCode_Link\" FromRole=\"OutputJournal\" /><Navig" +
+                "ationProperty Name=\"Unit_Of_Measure_Code_Link\" Relationship=\"NAV.OutputJournal_U" +
+                "nit_Of_Measure_Code_Link\" ToRole=\"Unit_Of_Measure_Code_Link\" FromRole=\"OutputJou" +
+                "rnal\" /></EntityType><EntityType Name=\"OutstandingProdOrderLine\"><Key><PropertyR" +
+                "ef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Order_No\" /><PropertyRef Name=\"Statu" +
+                "s\" /></Key><Property Name=\"Status\" Type=\"Edm.String\" Nullable=\"false\" /><Propert" +
+                "y Name=\"Prod_Order_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line" +
+                "_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Item_No\" Type=\"Edm.Stri" +
+                "ng\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Descripti" +
+                "on_2\" Type=\"Edm.String\" /><Property Name=\"Completion_Date\" Type=\"Edm.DateTime\" /" +
+                "><Property Name=\"g_fnCalcArrivalDate\" Type=\"Edm.DateTime\" /><Property Name=\"Rema" +
+                "ining_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=" +
+                "\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /" +
+                "><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.OutstandingProd" +
+                "OrderLine_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"OutstandingP" +
+                "rodOrderLine\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationshi" +
+                "p=\"NAV.OutstandingProdOrderLine_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measu" +
+                "re_Code_Link\" FromRole=\"OutstandingProdOrderLine\" /></EntityType><EntityType Nam" +
+                "e=\"OutstandingSalesOrderLine\"><Key><PropertyRef Name=\"Document_No\" /><PropertyRe" +
+                "f Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Ke";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart13 = "s\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Null" +
-                "able=\"false\" /><Property Name=\"Order_No\" Type=\"Edm.String\" /><Property Name=\"Sel" +
-                "l_to_Customer_No\" Type=\"Edm.String\" /><Property Name=\"Sell_to_Customer_Name\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Sell_to_Post_Code\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Sell_to_Country_Region_Code\" Type=\"Edm.String\" /><Property Name=\"Sell_to" +
-                "_Contact\" Type=\"Edm.String\" /><Property Name=\"Bill_to_Customer_No\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Bill_to_Name\" Type=\"Edm.String\" /><Property Name=\"Bill_to" +
-                "_Post_Code\" Type=\"Edm.String\" /><Property Name=\"Bill_to_Country_Region_Code\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Bill_to_Contact\" Type=\"Edm.String\" /><Property " +
-                "Name=\"Ship_to_Code\" Type=\"Edm.String\" /><Property Name=\"Ship_to_Name\" Type=\"Edm." +
-                "String\" /><Property Name=\"Ship_to_Post_Code\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Ship_to_Country_Region_Code\" Type=\"Edm.String\" /><Property Name=\"Ship_to_Contac" +
-                "t\" Type=\"Edm.String\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Prop" +
-                "erty Name=\"External_Document_No\" Type=\"Edm.String\" /><Property Name=\"Your_Refere" +
-                "nce\" Type=\"Edm.String\" /><Property Name=\"Salesperson_Code\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Sh" +
-                "ortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Property Name=\"Currency_Code\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"No_Printed\" Type=\"Edm.Int32\" /><Property Name=\"Document_Date\" Type=\"Edm.DateT" +
-                "ime\" /><Property Name=\"Requested_Delivery_Date\" Type=\"Edm.DateTime\" /><Property " +
-                "Name=\"Shipment_Method_Code\" Type=\"Edm.String\" /><Property Name=\"Shipping_Agent_C" +
-                "ode\" Type=\"Edm.String\" /><Property Name=\"Shipping_Agent_Service_Code\" Type=\"Edm." +
-                "String\" /><Property Name=\"Package_Tracking_No\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"Shipment_Date\" Type=\"Edm.DateTime\" /><Property Name=\"fnGetShptDate\" Type=\"Edm" +
-                ".DateTime\" /><Property Name=\"Doc_Returned\" Type=\"Edm.Boolean\" /><Property Name=\"" +
-                "DO_Remark\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concurren" +
-                "cyMode=\"Fixed\" /><NavigationProperty Name=\"Sell_to_Customer_No_Link\" Relationshi" +
-                "p=\"NAV.PostedSalesShipments_Sell_to_Customer_No_Link\" ToRole=\"Sell_to_Customer_N" +
-                "o_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Sell_to_Post" +
-                "_Code_Link\" Relationship=\"NAV.PostedSalesShipments_Sell_to_Post_Code_Link\" ToRol" +
-                "e=\"Sell_to_Post_Code_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProperty" +
-                " Name=\"Sell_to_Country_Region_Code_Link\" Relationship=\"NAV.PostedSalesShipments_" +
-                "Sell_to_Country_Region_Code_Link\" ToRole=\"Sell_to_Country_Region_Code_Link\" From" +
-                "Role=\"PostedSalesShipments\" /><NavigationProperty Name=\"Bill_to_Customer_No_Link" +
-                "\" Relationship=\"NAV.PostedSalesShipments_Bill_to_Customer_No_Link\" ToRole=\"Bill_" +
-                "to_Customer_No_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=" +
-                "\"Bill_to_Post_Code_Link\" Relationship=\"NAV.PostedSalesShipments_Bill_to_Post_Cod" +
-                "e_Link\" ToRole=\"Bill_to_Post_Code_Link\" FromRole=\"PostedSalesShipments\" /><Navig" +
-                "ationProperty Name=\"Bill_to_Country_Region_Code_Link\" Relationship=\"NAV.PostedSa" +
-                "lesShipments_Bill_to_Country_Region_Code_Link\" ToRole=\"Bill_to_Country_Region_Co" +
-                "de_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Ship_to_Pos" +
-                "t_Code_Link\" Relationship=\"NAV.PostedSalesShipments_Ship_to_Post_Code_Link\" ToRo" +
-                "le=\"Ship_to_Post_Code_Link\" FromRole=\"PostedSalesShipments\" /><NavigationPropert" +
-                "y Name=\"Ship_to_Country_Region_Code_Link\" Relationship=\"NAV.PostedSalesShipments" +
-                "_Ship_to_Country_Region_Code_Link\" ToRole=\"Ship_to_Country_Region_Code_Link\" Fro" +
-                "mRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Currency_Code_Link\" Rel" +
-                "ationship=\"NAV.PostedSalesShipments_Currency_Code_Link\" ToRole=\"Currency_Code_Li" +
-                "nk\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Location_Code_Li" +
-                "nk\" Relationship=\"NAV.PostedSalesShipments_Location_Code_Link\" ToRole=\"Location_" +
-                "Code_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Shipment_" +
-                "Method_Code_Link\" Relationship=\"NAV.PostedSalesShipments_Shipment_Method_Code_Li" +
-                "nk\" ToRole=\"Shipment_Method_Code_Link\" FromRole=\"PostedSalesShipments\" /><Naviga" +
-                "tionProperty Name=\"Shipping_Agent_Code_Link\" Relationship=\"NAV.PostedSalesShipme" +
-                "nts_Shipping_Agent_Code_Link\" ToRole=\"Shipping_Agent_Code_Link\" FromRole=\"Posted" +
-                "SalesShipments\" /><NavigationProperty Name=\"Shipping_Agent_Service_Code_Link\" Re" +
-                "lationship=\"NAV.PostedSalesShipments_Shipping_Agent_Service_Code_Link\" ToRole=\"S" +
-                "hipping_Agent_Service_Code_Link\" FromRole=\"PostedSalesShipments\" /></EntityType>" +
-                "<EntityType Name=\"Process\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"N" +
-                "o\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" " +
-                "/><Property Name=\"Alternate_Work_Center\" Type=\"Edm.String\" /><Property Name=\"Wor" +
-                "k_Center_Group_Code\" Type=\"Edm.String\" /><Property Name=\"Global_Dimension_1_Code" +
-                "\" Type=\"Edm.String\" /><Property Name=\"Global_Dimension_2_Code\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Direct_Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Indire" +
-                "ct_Cost_Percent\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decim" +
-                "al\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"" +
-                "Capacity\" Type=\"Edm.Decimal\" /><Property Name=\"Efficiency\" Type=\"Edm.Decimal\" />" +
-                "<Property Name=\"Maximum_Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Minimum" +
-                "_Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Simulation_Type\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Shop_Calendar_Code\" Type=\"Edm.String\" /><Property Name=\"S" +
-                "earch_Name\" Type=\"Edm.String\" /><Property Name=\"Overhead_Rate\" Type=\"Edm.Decimal" +
-                "\" /><Property Name=\"Last_Date_Modified\" Type=\"Edm.DateTime\" /><Property Name=\"Fl" +
-                "ushing_Method\" Type=\"Edm.String\" /><Property Name=\"Subcontractor_No\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navi" +
-                "gationProperty Name=\"Alternate_Work_Center_Link\" Relationship=\"NAV.Process_Alter" +
-                "nate_Work_Center_Link\" ToRole=\"Alternate_Work_Center_Link\" FromRole=\"Process\" />" +
-                "<NavigationProperty Name=\"Subcontractor_No_Link\" Relationship=\"NAV.Process_Subco" +
-                "ntractor_No_Link\" ToRole=\"Subcontractor_No_Link\" FromRole=\"Process\" /></EntityTy" +
-                "pe><EntityType Name=\"ProcessItemList\"><Key><PropertyRef Name=\"No\" /></Key><Prope" +
-                "rty Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Description\" " +
-                "Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property" +
-                " Name=\"Inventory\" Type=\"Edm.Decimal\" /><Property Name=\"Internal_Ref\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Item_Registration\" Type=\"Edm.String\" /><Property Name=\"" +
-                "Batch_Nos\" Type=\"Edm.String\" /><Property Name=\"PSO_Item_No\" Type=\"Edm.String\" />" +
-                "<Property Name=\"Production_Recipe_No\" Type=\"Edm.String\" /><Property Name=\"Safety" +
-                "_Lead_Time\" Type=\"Edm.String\" /><Property Name=\"Production_BOM_No\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Base_Unit" +
-                "_of_Measure\" Type=\"Edm.String\" /><Property Name=\"Standard_Cost\" Type=\"Edm.Decima" +
-                "l\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Last_Direct" +
-                "_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Product_Group_Code\" Type=\"Edm.String\" /><Property Name=\"Glob" +
-                "al_Dimension_1_Filter\" Type=\"Edm.String\" /><Property Name=\"Global_Dimension_2_Fi" +
-                "lter\" Type=\"Edm.String\" /><Property Name=\"Location_Filter\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\" /><Property Name=\"Variant" +
-                "_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Filter\"";
+            private const string ModelPart12 = "y><Property Name=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property N" +
+                "ame=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" " +
+                "Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Sell_to_Customer_No\" Type=\"E" +
+                "dm.String\" /><Property Name=\"g_fnGetCustName\" Type=\"Edm.String\" /><Property Name" +
+                "=\"No\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Outstanding_Quanti" +
+                "ty\" Type=\"Edm.Decimal\" /><Property Name=\"Promised_Delivery_Date\" Type=\"Edm.DateT" +
+                "ime\" /><Property Name=\"Shipment_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Unit" +
+                "_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"External_Document_No\" Type" +
+                "=\"Edm.String\" /><Property Name=\"PAR_Report\" Type=\"Edm.Boolean\" /><Property Name=" +
+                "\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Sel" +
+                "l_to_Customer_No_Link\" Relationship=\"NAV.OutstandingSalesOrderLine_Sell_to_Custo" +
+                "mer_No_Link\" ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"OutstandingSalesOrderLi" +
+                "ne\" /></EntityType><EntityType Name=\"PackagingItemList\"><Key><PropertyRef Name=\"" +
+                "No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" /><Property N" +
+                "ame=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Inventory\" Type=\"Edm.Decimal\" /><Property Name=\"Base_Un" +
+                "it_of_Measure\" Type=\"Edm.String\" /><Property Name=\"Related_Item_No\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"g_fnRegPictureExist\" Type=\"Edm" +
+                ".Boolean\" /><Property Name=\"Blocked\" Type=\"Edm.Boolean\" /><Property Name=\"Active" +
+                "\" Type=\"Edm.Boolean\" /><Property Name=\"Intend_to_Block\" Type=\"Edm.Boolean\" /><Pr" +
+                "operty Name=\"Approved_Intend_to_Block\" Type=\"Edm.Boolean\" /><Property Name=\"Hous" +
+                "ekeeping_Complete\" Type=\"Edm.Boolean\" /><Property Name=\"Expected_Approved_Date\" " +
+                "Type=\"Edm.DateTime\" /><Property Name=\"Date_of_Approval\" Type=\"Edm.DateTime\" /><P" +
+                "roperty Name=\"Global_Dimension_1_Filter\" Type=\"Edm.String\" /><Property Name=\"Glo" +
+                "bal_Dimension_2_Filter\" Type=\"Edm.String\" /><Property Name=\"Location_Filter\" Typ" +
+                "e=\"Edm.String\" /><Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Variant_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Filter\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\" /><Propert" +
+                "y Name=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\"" +
+                " ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" " +
+                "Relationship=\"NAV.PackagingItemList_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit" +
+                "_of_Measure_Link\" FromRole=\"PackagingItemList\" /><NavigationProperty Name=\"Item_" +
+                "Category_Code_Link\" Relationship=\"NAV.PackagingItemList_Item_Category_Code_Link\"" +
+                " ToRole=\"Item_Category_Code_Link\" FromRole=\"PackagingItemList\" /><NavigationProp" +
+                "erty Name=\"Location_Filter_Link\" Relationship=\"NAV.PackagingItemList_Location_Fi" +
+                "lter_Link\" ToRole=\"Location_Filter_Link\" FromRole=\"PackagingItemList\" /></Entity" +
+                "Type><EntityType Name=\"PaymentMethod\"><Key><PropertyRef Name=\"Code\" /></Key><Pro" +
+                "perty Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Descripti" +
+                "on\" Type=\"Edm.String\" /><Property Name=\"Bal_Account_Type\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"Bal_Account_No\" Type=\"Edm.String\" /><Property Name=\"Direct_Debit\" " +
+                "Type=\"Edm.Boolean\" /><Property Name=\"Direct_Debit_Pmt_Terms_Code\" Type=\"Edm.Stri" +
+                "ng\" /><Property Name=\"Pmt_Export_Line_Definition\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Bank_Data_Conversion_Pmt_Type\" Type=\"Edm.String\" /><Property Name=\"ETag\" T" +
+                "ype=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Direct_Debi" +
+                "t_Pmt_Terms_Code_Link\" Relationship=\"NAV.PaymentMethod_Direct_Debit_Pmt_Terms_Co" +
+                "de_Link\" ToRole=\"Direct_Debit_Pmt_Terms_Code_Link\" FromRole=\"PaymentMethod\" /></" +
+                "EntityType><EntityType Name=\"PaymentTerms\"><Key><PropertyRef Name=\"Code\" /></Key" +
+                "><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Due_" +
+                "Date_Calculation\" Type=\"Edm.String\" /><Property Name=\"Discount_Date_Calculation\"" +
+                " Type=\"Edm.String\" /><Property Name=\"Discount_Percent\" Type=\"Edm.Decimal\" /><Pro" +
+                "perty Name=\"Calc_Pmt_Disc_on_Cr_Memos\" Type=\"Edm.Boolean\" /><Property Name=\"Desc" +
+                "ription\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concurrency" +
+                "Mode=\"Fixed\" /></EntityType><EntityType Name=\"PKGQtyInProd\"><Key><PropertyRef Na" +
+                "me=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"false" +
+                "\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Description\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm.String\" /><Property N" +
+                "ame=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Remaining_Quantity\" Typ" +
+                "e=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"QC_Ref_No\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=" +
+                "\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Location_Code_L" +
+                "ink\" Relationship=\"NAV.PKGQtyInProd_Location_Code_Link\" ToRole=\"Location_Code_Li" +
+                "nk\" FromRole=\"PKGQtyInProd\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Lin" +
+                "k\" Relationship=\"NAV.PKGQtyInProd_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Mea" +
+                "sure_Code_Link\" FromRole=\"PKGQtyInProd\" /></EntityType><EntityType Name=\"Postcod" +
+                "es\"><Key><PropertyRef Name=\"City\" /><PropertyRef Name=\"Code\" /></Key><Property N" +
+                "ame=\"Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"City\" Type=\"Edm." +
+                "String\" Nullable=\"false\" /><Property Name=\"Country_Region_Code\" Type=\"Edm.String" +
+                "\" /><Property Name=\"County\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm." +
+                "String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Country_Region_Code_" +
+                "Link\" Relationship=\"NAV.Postcodes_Country_Region_Code_Link\" ToRole=\"Country_Regi" +
+                "on_Code_Link\" FromRole=\"Postcodes\" /></EntityType><EntityType Name=\"PostedSalesS" +
+                "hipmentLines\"><Key><PropertyRef Name=\"Document_No\" /><PropertyRef Name=\"Line_No\"" +
+                " /></Key><Property Name=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\" /><Prop" +
+                "erty Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Sell_to_" +
+                "Customer_No\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Descriptio" +
+                "n_2\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Property" +
+                " Name=\"External_Document_No\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" " +
+                "Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Nam" +
+                "e=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Unit_of_Measure\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"Appl_to_Item_Entry\" Type=\"Edm.Int32\" /><Proper" +
+                "ty Name=\"Job_No\" Type=\"Edm.String\" /><Property Name=\"Shipment_Date\" Type=\"Edm.Da" +
+                "teTime\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Qu" +
+                "antity_Invoiced\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type=\"Edm.String\" Co" +
+                "ncurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Document_No_Link\" Relationship" +
+                "=\"NAV.PostedSalesShipmentLines_Document_No_Link\" ToRole=\"Document_No_Link\" FromR" +
+                "ole=\"PostedSalesShipmentLines\" /><NavigationProperty Name=\"Sell_to_Customer_No_L" +
+                "ink\" Relationship=\"NAV.PostedSalesShipmentLines_Sell_to_Customer_No_Link\" ToRole" +
+                "=\"Sell_to_Customer_No_Link\" FromRole=\"PostedSalesShipmentLi";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart14 = " Type=\"Edm.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.Strin" +
-                "g\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Batch_Nos_Link\" Relations" +
-                "hip=\"NAV.ProcessItemList_Batch_Nos_Link\" ToRole=\"Batch_Nos_Link\" FromRole=\"Proce" +
-                "ssItemList\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relationship=" +
-                "\"NAV.ProcessItemList_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Lin" +
-                "k\" FromRole=\"ProcessItemList\" /><NavigationProperty Name=\"Item_Category_Code_Lin" +
-                "k\" Relationship=\"NAV.ProcessItemList_Item_Category_Code_Link\" ToRole=\"Item_Categ" +
-                "ory_Code_Link\" FromRole=\"ProcessItemList\" /><NavigationProperty Name=\"Location_F" +
-                "ilter_Link\" Relationship=\"NAV.ProcessItemList_Location_Filter_Link\" ToRole=\"Loca" +
-                "tion_Filter_Link\" FromRole=\"ProcessItemList\" /></EntityType><EntityType Name=\"Pr" +
-                "odOrderComp\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Order_Li" +
-                "ne_No\" /><PropertyRef Name=\"Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key>" +
-                "<Property Name=\"Status\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Pro" +
-                "d_Order_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_Line" +
-                "_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int3" +
-                "2\" Nullable=\"false\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Prop" +
-                "erty Name=\"Prod_Order_Description\" Type=\"Edm.String\" /><Property Name=\"Item_No\" " +
-                "Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=\"Edm.String\" /><Property " +
-                "Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_1_Code" +
-                "\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.Strin" +
-                "g\" /><Property Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity" +
-                "\" Type=\"Edm.Decimal\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Prop" +
-                "erty Name=\"Quantity_per\" Type=\"Edm.Decimal\" /><Property Name=\"Expected_Quantity\"" +
-                " Type=\"Edm.Decimal\" /><Property Name=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><" +
-                "Property Name=\"Remaining_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_" +
-                "Measure_Code\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concur" +
-                "rencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"" +
-                "NAV.ProdOrderComp_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"Prod" +
-                "OrderComp\" /><NavigationProperty Name=\"Prod_Order_Line_No_Link\" Relationship=\"NA" +
-                "V.ProdOrderComp_Prod_Order_Line_No_Link\" ToRole=\"Prod_Order_Line_No_Link\" FromRo" +
-                "le=\"ProdOrderComp\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=" +
-                "\"NAV.ProdOrderComp_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"Pro" +
-                "dOrderComp\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=" +
-                "\"NAV.ProdOrderComp_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\"" +
-                " FromRole=\"ProdOrderComp\" /></EntityType><EntityType Name=\"ProdOrderCompLineList" +
-                "\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Order_Line_No\" /><P" +
+            private const string ModelPart13 = "nes\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.PostedSale" +
+                "sShipmentLines_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"PostedS" +
+                "alesShipmentLines\" /></EntityType><EntityType Name=\"PostedSalesShipments\"><Key><" +
+                "PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"fa" +
+                "lse\" /><Property Name=\"Order_No\" Type=\"Edm.String\" /><Property Name=\"Sell_to_Cus" +
+                "tomer_No\" Type=\"Edm.String\" /><Property Name=\"Sell_to_Customer_Name\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Sell_to_Post_Code\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Sell_to_Country_Region_Code\" Type=\"Edm.String\" /><Property Name=\"Sell_to_Contact" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Bill_to_Customer_No\" Type=\"Edm.String\" /><" +
+                "Property Name=\"Bill_to_Name\" Type=\"Edm.String\" /><Property Name=\"Bill_to_Post_Co" +
+                "de\" Type=\"Edm.String\" /><Property Name=\"Bill_to_Country_Region_Code\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Bill_to_Contact\" Type=\"Edm.String\" /><Property Name=\"Sh" +
+                "ip_to_Code\" Type=\"Edm.String\" /><Property Name=\"Ship_to_Name\" Type=\"Edm.String\" " +
+                "/><Property Name=\"Ship_to_Post_Code\" Type=\"Edm.String\" /><Property Name=\"Ship_to" +
+                "_Country_Region_Code\" Type=\"Edm.String\" /><Property Name=\"Ship_to_Contact\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Nam" +
+                "e=\"External_Document_No\" Type=\"Edm.String\" /><Property Name=\"Your_Reference\" Typ" +
+                "e=\"Edm.String\" /><Property Name=\"Salesperson_Code\" Type=\"Edm.String\" /><Property" +
+                " Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Shortcut_D" +
+                "imension_2_Code\" Type=\"Edm.String\" /><Property Name=\"Currency_Code\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"No_Pr" +
+                "inted\" Type=\"Edm.Int32\" /><Property Name=\"Document_Date\" Type=\"Edm.DateTime\" /><" +
+                "Property Name=\"Requested_Delivery_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Sh" +
+                "ipment_Method_Code\" Type=\"Edm.String\" /><Property Name=\"Shipping_Agent_Code\" Typ" +
+                "e=\"Edm.String\" /><Property Name=\"Shipping_Agent_Service_Code\" Type=\"Edm.String\" " +
+                "/><Property Name=\"Package_Tracking_No\" Type=\"Edm.String\" /><Property Name=\"Shipm" +
+                "ent_Date\" Type=\"Edm.DateTime\" /><Property Name=\"fnGetShptDate\" Type=\"Edm.DateTim" +
+                "e\" /><Property Name=\"Doc_Returned\" Type=\"Edm.Boolean\" /><Property Name=\"DO_Remar" +
+                "k\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"" +
+                "Fixed\" /><NavigationProperty Name=\"Sell_to_Customer_No_Link\" Relationship=\"NAV.P" +
+                "ostedSalesShipments_Sell_to_Customer_No_Link\" ToRole=\"Sell_to_Customer_No_Link\" " +
+                "FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Sell_to_Post_Code_Li" +
+                "nk\" Relationship=\"NAV.PostedSalesShipments_Sell_to_Post_Code_Link\" ToRole=\"Sell_" +
+                "to_Post_Code_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"S" +
+                "ell_to_Country_Region_Code_Link\" Relationship=\"NAV.PostedSalesShipments_Sell_to_" +
+                "Country_Region_Code_Link\" ToRole=\"Sell_to_Country_Region_Code_Link\" FromRole=\"Po" +
+                "stedSalesShipments\" /><NavigationProperty Name=\"Bill_to_Customer_No_Link\" Relati" +
+                "onship=\"NAV.PostedSalesShipments_Bill_to_Customer_No_Link\" ToRole=\"Bill_to_Custo" +
+                "mer_No_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Bill_to" +
+                "_Post_Code_Link\" Relationship=\"NAV.PostedSalesShipments_Bill_to_Post_Code_Link\" " +
+                "ToRole=\"Bill_to_Post_Code_Link\" FromRole=\"PostedSalesShipments\" /><NavigationPro" +
+                "perty Name=\"Bill_to_Country_Region_Code_Link\" Relationship=\"NAV.PostedSalesShipm" +
+                "ents_Bill_to_Country_Region_Code_Link\" ToRole=\"Bill_to_Country_Region_Code_Link\"" +
+                " FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Ship_to_Post_Code_L" +
+                "ink\" Relationship=\"NAV.PostedSalesShipments_Ship_to_Post_Code_Link\" ToRole=\"Ship" +
+                "_to_Post_Code_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"" +
+                "Ship_to_Country_Region_Code_Link\" Relationship=\"NAV.PostedSalesShipments_Ship_to" +
+                "_Country_Region_Code_Link\" ToRole=\"Ship_to_Country_Region_Code_Link\" FromRole=\"P" +
+                "ostedSalesShipments\" /><NavigationProperty Name=\"Currency_Code_Link\" Relationshi" +
+                "p=\"NAV.PostedSalesShipments_Currency_Code_Link\" ToRole=\"Currency_Code_Link\" From" +
+                "Role=\"PostedSalesShipments\" /><NavigationProperty Name=\"Location_Code_Link\" Rela" +
+                "tionship=\"NAV.PostedSalesShipments_Location_Code_Link\" ToRole=\"Location_Code_Lin" +
+                "k\" FromRole=\"PostedSalesShipments\" /><NavigationProperty Name=\"Shipment_Method_C" +
+                "ode_Link\" Relationship=\"NAV.PostedSalesShipments_Shipment_Method_Code_Link\" ToRo" +
+                "le=\"Shipment_Method_Code_Link\" FromRole=\"PostedSalesShipments\" /><NavigationProp" +
+                "erty Name=\"Shipping_Agent_Code_Link\" Relationship=\"NAV.PostedSalesShipments_Ship" +
+                "ping_Agent_Code_Link\" ToRole=\"Shipping_Agent_Code_Link\" FromRole=\"PostedSalesShi" +
+                "pments\" /><NavigationProperty Name=\"Shipping_Agent_Service_Code_Link\" Relationsh" +
+                "ip=\"NAV.PostedSalesShipments_Shipping_Agent_Service_Code_Link\" ToRole=\"Shipping_" +
+                "Agent_Service_Code_Link\" FromRole=\"PostedSalesShipments\" /></EntityType><EntityT" +
+                "ype Name=\"Process\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=" +
+                "\"Edm.String\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"Alternate_Work_Center\" Type=\"Edm.String\" /><Property Name=\"Work_Center" +
+                "_Group_Code\" Type=\"Edm.String\" /><Property Name=\"Global_Dimension_1_Code\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Global_Dimension_2_Code\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Direct_Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Indirect_Cost_" +
+                "Percent\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><P" +
+                "roperty Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Capacity" +
+                "\" Type=\"Edm.Decimal\" /><Property Name=\"Efficiency\" Type=\"Edm.Decimal\" /><Propert" +
+                "y Name=\"Maximum_Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Minimum_Efficie" +
+                "ncy\" Type=\"Edm.Decimal\" /><Property Name=\"Simulation_Type\" Type=\"Edm.String\" /><" +
+                "Property Name=\"Shop_Calendar_Code\" Type=\"Edm.String\" /><Property Name=\"Search_Na" +
+                "me\" Type=\"Edm.String\" /><Property Name=\"Overhead_Rate\" Type=\"Edm.Decimal\" /><Pro" +
+                "perty Name=\"Last_Date_Modified\" Type=\"Edm.DateTime\" /><Property Name=\"Flushing_M" +
+                "ethod\" Type=\"Edm.String\" /><Property Name=\"Subcontractor_No\" Type=\"Edm.String\" /" +
+                "><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationPr" +
+                "operty Name=\"Alternate_Work_Center_Link\" Relationship=\"NAV.Process_Alternate_Wor" +
+                "k_Center_Link\" ToRole=\"Alternate_Work_Center_Link\" FromRole=\"Process\" /><Navigat" +
+                "ionProperty Name=\"Subcontractor_No_Link\" Relationship=\"NAV.Process_Subcontractor" +
+                "_No_Link\" ToRole=\"Subcontractor_No_Link\" FromRole=\"Process\" /></EntityType><Enti" +
+                "tyType Name=\"ProcessItemList\"><Key><PropertyRef Name=\"No\" /></Key><Property Name" +
+                "=\"No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Description\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"I" +
+                "nventory\" Type=\"Edm.Decimal\" /><Property Name=\"Internal_Ref\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Item_Registration\" Type=\"Edm.String\" /><Property Name=\"Batch_No" +
+                "s\" Type=\"Edm.String\" /><Property Name=\"PSO_Item_No\" Type=\"Edm.String\" /><Propert" +
+                "y Name=\"Production_Recipe_No\" Type=\"Edm.String\" /><Property Name=\"Safety_Lead_Ti" +
+                "me\" Type=\"Edm.String\" /><Property Name=\"Production_BOM_No\" Type=\"Edm.String\" /><" +
+                "Property Name=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Base_Unit_of_Meas" +
+                "ure\" Type=\"Edm.String\" /><Property Name=\"Standard_Cost\" Type=\"Edm.Decimal\" /><Pr" +
+                "operty Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Last_Direct_Cost\" T" +
+                "ype=\"Edm.Decimal\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Product_Group_Code\" Type=\"Edm.String\" /><Property Name=\"Global_Dimen" +
+                "sion_1_Filter\" Type=\"Edm.String\" /><Property Name=\"Global_D";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart14 = "imension_2_Filter\" Type=\"Edm.String\" /><Property Name=\"Location_Filter\" Type=\"Edm" +
+                ".String\" /><Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\" /><Property N" +
+                "ame=\"Variant_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Filter\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\" /><Property Name" +
+                "=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concu" +
+                "rrencyMode=\"Fixed\" /><NavigationProperty Name=\"Batch_Nos_Link\" Relationship=\"NAV" +
+                ".ProcessItemList_Batch_Nos_Link\" ToRole=\"Batch_Nos_Link\" FromRole=\"ProcessItemLi" +
+                "st\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relationship=\"NAV.Pro" +
+                "cessItemList_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Link\" FromR" +
+                "ole=\"ProcessItemList\" /><NavigationProperty Name=\"Item_Category_Code_Link\" Relat" +
+                "ionship=\"NAV.ProcessItemList_Item_Category_Code_Link\" ToRole=\"Item_Category_Code" +
+                "_Link\" FromRole=\"ProcessItemList\" /><NavigationProperty Name=\"Location_Filter_Li" +
+                "nk\" Relationship=\"NAV.ProcessItemList_Location_Filter_Link\" ToRole=\"Location_Fil" +
+                "ter_Link\" FromRole=\"ProcessItemList\" /></EntityType><EntityType Name=\"ProdOrderC" +
+                "omp\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Order_Line_No\" /" +
+                "><PropertyRef Name=\"Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Propert" +
+                "y Name=\"Status\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_" +
+                "No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_Line_No\" Typ" +
+                "e=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nulla" +
+                "ble=\"false\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property Nam" +
+                "e=\"Prod_Order_Description\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"Variant_Code\" Type=\"Edm.String\" /><Property Name=\"De" +
+                "scription\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Pr" +
+                "operty Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"" +
+                "Edm.Decimal\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Nam" +
+                "e=\"Quantity_per\" Type=\"Edm.Decimal\" /><Property Name=\"Expected_Quantity\" Type=\"E" +
+                "dm.Decimal\" /><Property Name=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><Property" +
+                " Name=\"Remaining_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_" +
+                "Code\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMod" +
+                "e=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.Prod" +
+                "OrderComp_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"ProdOrderCom" +
+                "p\" /><NavigationProperty Name=\"Prod_Order_Line_No_Link\" Relationship=\"NAV.ProdOr" +
+                "derComp_Prod_Order_Line_No_Link\" ToRole=\"Prod_Order_Line_No_Link\" FromRole=\"Prod" +
+                "OrderComp\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.Pro" +
+                "dOrderComp_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"ProdOrderCo" +
+                "mp\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.Pro" +
+                "dOrderComp_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRol" +
+                "e=\"ProdOrderComp\" /></EntityType><EntityType Name=\"ProdOrderCompLineList\"><Key><" +
+                "PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Order_Line_No\" /><PropertyR" +
+                "ef Name=\"Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Sta" +
+                "tus\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\" Type=\"E" +
+                "dm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_Line_No\" Type=\"Edm.Int3" +
+                "2\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\"" +
+                " /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Prod_Ord" +
+                "er_Description\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Variant_Code\" Type=\"Edm.String\" /><Property Name=\"Description\" " +
+                "Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.String\"" +
+                " /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Property Name" +
+                "=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal" +
+                "\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Quantity" +
+                "_per\" Type=\"Edm.Decimal\" /><Property Name=\"Expected_Quantity\" Type=\"Edm.Decimal\"" +
+                " /><Property Name=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Rema" +
+                "ining_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=" +
+                "\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /" +
+                "><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.ProdOrderCompLi" +
+                "neList_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"ProdOrderCompLi" +
+                "neList\" /><NavigationProperty Name=\"Prod_Order_Line_No_Link\" Relationship=\"NAV.P" +
+                "rodOrderCompLineList_Prod_Order_Line_No_Link\" ToRole=\"Prod_Order_Line_No_Link\" F" +
+                "romRole=\"ProdOrderCompLineList\" /><NavigationProperty Name=\"Location_Code_Link\" " +
+                "Relationship=\"NAV.ProdOrderCompLineList_Location_Code_Link\" ToRole=\"Location_Cod" +
+                "e_Link\" FromRole=\"ProdOrderCompLineList\" /><NavigationProperty Name=\"Unit_of_Mea" +
+                "sure_Code_Link\" Relationship=\"NAV.ProdOrderCompLineList_Unit_of_Measure_Code_Lin" +
+                "k\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole=\"ProdOrderCompLineList\" /></Entit" +
+                "yType><EntityType Name=\"ProdOrderLineList\"><Key><PropertyRef Name=\"Line_No\" /><P" +
                 "ropertyRef Name=\"Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Property N" +
                 "ame=\"Status\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\"" +
-                " Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_Line_No\" Type=\"" +
-                "Edm.Int32\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable" +
-                "=\"false\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"" +
-                "Prod_Order_Description\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Variant_Code\" Type=\"Edm.String\" /><Property Name=\"Descr" +
-                "iption\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm" +
-                ".String\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm" +
-                ".Decimal\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Name=\"" +
-                "Quantity_per\" Type=\"Edm.Decimal\" /><Property Name=\"Expected_Quantity\" Type=\"Edm." +
-                "Decimal\" /><Property Name=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><Property Na" +
-                "me=\"Remaining_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Cod" +
-                "e\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"" +
-                "Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.ProdOrd" +
-                "erCompLineList_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"ProdOrd" +
-                "erCompLineList\" /><NavigationProperty Name=\"Prod_Order_Line_No_Link\" Relationshi" +
-                "p=\"NAV.ProdOrderCompLineList_Prod_Order_Line_No_Link\" ToRole=\"Prod_Order_Line_No" +
-                "_Link\" FromRole=\"ProdOrderCompLineList\" /><NavigationProperty Name=\"Location_Cod" +
-                "e_Link\" Relationship=\"NAV.ProdOrderCompLineList_Location_Code_Link\" ToRole=\"Loca" +
-                "tion_Code_Link\" FromRole=\"ProdOrderCompLineList\" /><NavigationProperty Name=\"Uni" +
-                "t_of_Measure_Code_Link\" Relationship=\"NAV.ProdOrderCompLineList_Unit_of_Measure_" +
-                "Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole=\"ProdOrderCompLineList\" /" +
-                "></EntityType><EntityType Name=\"ProdOrderLineList\"><Key><PropertyRef Name=\"Line_" +
-                "No\" /><PropertyRef Name=\"Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Pr" +
-                "operty Name=\"Status\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_O" +
-                "rder_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm" +
-                ".Int32\" Nullable=\"false\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Variant_Code\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm" +
-                ".String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Sh" +
-                "ortcut_Dimension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_" +
-                "2_Code\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_3_x005D_\" Type" +
-                "=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_4_x005D_\" Type=\"Edm.String" +
-                "\" /><Property Name=\"ShortcutDimCode_x005B_5_x005D_\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"ShortcutDimCode_x005B_6_x005D_\" Type=\"Edm.String\" /><Property Name=\"Shor" +
-                "tcutDimCode_x005B_7_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_" +
-                "x005B_8_x005D_\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Quantity_B" +
-                "ase\" Type=\"Edm.Decimal\" /><Property Name=\"Finished_Quantity\" Type=\"Edm.Decimal\" " +
-                "/><Property Name=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Remai" +
-                "ning_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Batch_No\" Type=\"Edm.String\" " +
-                "/><Property Name=\"Scrap_Percent\" Type=\"Edm.Decimal\" /><Property Name=\"Due_Date\" " +
-                "Type=\"Edm.DateTime\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Prop" +
-                "erty Name=\"Starting_Time\" Type=\"Edm.String\" /><Property Name=\"Actual_Start_Date\"" +
-                " Type=\"Edm.DateTime\" /><Property Name=\"Ending_Date\" Type=\"Edm.DateTime\" /><Prope" +
-                "rty Name=\"Ending_Time\" Type=\"Edm.String\" /><Property Name=\"Completion_Date\" Type" +
-                "=\"Edm.DateTime\" /><Property Name=\"ETD\" Type=\"Edm.DateTime\" /><Property Name=\"Pro" +
-                "duction_BOM_No\" Type=\"Edm.String\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal" +
-                "\" /><Property Name=\"Cost_Amount\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type" +
-                "=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_" +
-                "Link\" Relationship=\"NAV.ProdOrderLineList_Prod_Order_No_Link\" ToRole=\"Prod_Order" +
-                "_No_Link\" FromRole=\"ProdOrderLineList\" /><NavigationProperty Name=\"Location_Code" +
-                "_Link\" Relationship=\"NAV.ProdOrderLineList_Location_Code_Link\" ToRole=\"Location_" +
-                "Code_Link\" FromRole=\"ProdOrderLineList\" /></EntityType><EntityType Name=\"ProdOrd" +
-                "erOutputLine\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Order_N" +
-                "o\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Sta";
+                " Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" " +
+                "Nullable=\"false\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Variant_Code\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\"" +
+                " /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Shortcut_D" +
+                "imension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_2_Code\" " +
+                "Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_3_x005D_\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"ShortcutDimCode_x005B_4_x005D_\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"ShortcutDimCode_x005B_5_x005D_\" Type=\"Edm.String\" /><Property Name=\"" +
+                "ShortcutDimCode_x005B_6_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimC" +
+                "ode_x005B_7_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_8_" +
+                "x005D_\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm.String\" /><" +
+                "Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Quantity_Base\" Typ" +
+                "e=\"Edm.Decimal\" /><Property Name=\"Finished_Quantity\" Type=\"Edm.Decimal\" /><Prope" +
+                "rty Name=\"Remaining_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Remaining_Qty" +
+                "_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Batch_No\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"Scrap_Percent\" Type=\"Edm.Decimal\" /><Property Name=\"Due_Date\" Type=\"Ed" +
+                "m.DateTime\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property Nam" +
+                "e=\"Starting_Time\" Type=\"Edm.String\" /><Property Name=\"Actual_Start_Date\" Type=\"E" +
+                "dm.DateTime\" /><Property Name=\"Ending_Date\" Type=\"Edm.DateTime\" /><Property Name" +
+                "=\"Ending_Time\" Type=\"Edm.String\" /><Property Name=\"Completion_Date\" Type=\"Edm.Da" +
+                "teTime\" /><Property Name=\"ETD\" Type=\"Edm.DateTime\" /><Property Name=\"Production_" +
+                "BOM_No\" Type=\"Edm.String\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Pro" +
+                "perty Name=\"Cost_Amount\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type=\"Edm.St" +
+                "ring\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Re" +
+                "lationship=\"NAV.ProdOrderLineList_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link" +
+                "\" FromRole=\"ProdOrderLineList\" /><NavigationProperty Name=\"Location_Code_Link\" R" +
+                "elationship=\"NAV.ProdOrderLineList_Location_Code_Link\" ToRo";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart15 = "tus\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\" Type=\"Ed" +
-                "m.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=" +
-                "\"false\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Descripti" +
-                "on\" Type=\"Edm.String\" /><Property Name=\"g_cdePackSize\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Finished_Quantity\" Typ" +
-                "e=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Pro" +
-                "perty Name=\"g_decSmallQty\" Type=\"Edm.Decimal\" /><Property Name=\"g_cdeSmallQtyUOM" +
-                "\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type=\"Edm.String\" /><Property Na" +
-                "me=\"g_dteOutputDate\" Type=\"Edm.DateTime\" /><Property Name=\"g_intMth\" Type=\"Edm.I" +
-                "nt32\" /><Property Name=\"g_intYr\" Type=\"Edm.Int32\" /><Property Name=\"ETag\" Type=\"" +
-                "Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Li" +
-                "nk\" Relationship=\"NAV.ProdOrderOutputLine_Prod_Order_No_Link\" ToRole=\"Prod_Order" +
-                "_No_Link\" FromRole=\"ProdOrderOutputLine\" /><NavigationProperty Name=\"Unit_of_Mea" +
-                "sure_Code_Link\" Relationship=\"NAV.ProdOrderOutputLine_Unit_of_Measure_Code_Link\"" +
-                " ToRole=\"Unit_of_Measure_Code_Link\" FromRole=\"ProdOrderOutputLine\" /></EntityTyp" +
-                "e><EntityType Name=\"ProdPlanningLine\"><Key><PropertyRef Name=\"Line_No\" /><Proper" +
+            private const string ModelPart15 = "le=\"Location_Code_Link\" FromRole=\"ProdOrderLineList\" /></EntityType><EntityType N" +
+                "ame=\"ProdOrderOutputLine\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"" +
+                "Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Status\" Type" +
+                "=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\" Type=\"Edm.String" +
+                "\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" " +
+                "/><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Description\" Type" +
+                "=\"Edm.String\" /><Property Name=\"g_cdePackSize\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Finished_Quantity\" Type=\"Edm.D" +
+                "ecimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"g_decSmallQty\" Type=\"Edm.Decimal\" /><Property Name=\"g_cdeSmallQtyUOM\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"g_dt" +
+                "eOutputDate\" Type=\"Edm.DateTime\" /><Property Name=\"g_intMth\" Type=\"Edm.Int32\" />" +
+                "<Property Name=\"g_intYr\" Type=\"Edm.Int32\" /><Property Name=\"ETag\" Type=\"Edm.Stri" +
+                "ng\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Rela" +
+                "tionship=\"NAV.ProdOrderOutputLine_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link" +
+                "\" FromRole=\"ProdOrderOutputLine\" /><NavigationProperty Name=\"Unit_of_Measure_Cod" +
+                "e_Link\" Relationship=\"NAV.ProdOrderOutputLine_Unit_of_Measure_Code_Link\" ToRole=" +
+                "\"Unit_of_Measure_Code_Link\" FromRole=\"ProdOrderOutputLine\" /></EntityType><Entit" +
+                "yType Name=\"ProdPlanningLine\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Na" +
+                "me=\"Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Status\" " +
+                "Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\" Type=\"Edm.St" +
+                "ring\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"fal" +
+                "se\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Description\" " +
+                "Type=\"Edm.String\" /><Property Name=\"g_cdePackSize\" Type=\"Edm.String\" /><Property" +
+                " Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type" +
+                "=\"Edm.String\" /><Property Name=\"g_decSmallQty\" Type=\"Edm.Decimal\" /><Property Na" +
+                "me=\"g_cdeSmallQtyUOM\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"g_i" +
+                "ntMth\" Type=\"Edm.Int32\" /><Property Name=\"g_intYr\" Type=\"Edm.Int32\" /><Property " +
+                "Name=\"g_dte1stProcessDate\" Type=\"Edm.DateTime\" /><Property Name=\"Dispensed\" Type" +
+                "=\"Edm.Boolean\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\"" +
+                " /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.ProdPlanningL" +
+                "ine_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"ProdPlanningLine\" " +
+                "/><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.ProdPla" +
+                "nningLine_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole" +
+                "=\"ProdPlanningLine\" /></EntityType><EntityType Name=\"ProductCodeList\"><Key><Prop" +
+                "ertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"fa" +
+                "lse\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"No_Serie" +
+                "s\" Type=\"Edm.String\" /><Property Name=\"Item_Prefix_Description\" Type=\"Edm.String" +
+                "\" /><Property Name=\"Simulation_Name\" Type=\"Edm.String\" /><Property Name=\"ETag\" T" +
+                "ype=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"No_Series_L" +
+                "ink\" Relationship=\"NAV.ProductCodeList_No_Series_Link\" ToRole=\"No_Series_Link\" F" +
+                "romRole=\"ProductCodeList\" /></EntityType><EntityType Name=\"ProductionEntry\"><Key" +
+                "><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Edm.Int32\"" +
+                " Nullable=\"false\" /><Property Name=\"Production_Order_No\" Type=\"Edm.String\" /><Pr" +
+                "operty Name=\"Production_Status\" Type=\"Edm.String\" /><Property Name=\"Location_Cod" +
+                "e\" Type=\"Edm.String\" /><Property Name=\"Operation_No\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"E" +
+                "dm.String\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Property Name=\"Serial_" +
+                "No\" Type=\"Edm.String\" /><Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><" +
+                "Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Base_Unit_of_Measure" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Prope" +
+                "rty Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Qty_per_Unit_of_Measure" +
+                "\" Type=\"Edm.Decimal\" /><Property Name=\"Prod_Order_Line_No\" Type=\"Edm.Int32\" /><P" +
+                "roperty Name=\"Reason_Code\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Use" +
+                "r_ID\" Type=\"Edm.String\" /><Property Name=\"Start_Time\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"End_Time\" Type=\"Edm.String\" /><Property Name=\"Start_Date\" Type=\"Edm.Da" +
+                "teTime\" /><Property Name=\"End_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Start_" +
+                "Hour\" Type=\"Edm.String\" /><Property Name=\"Start_Minute\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Start_AM_PM\" Type=\"Edm.String\" /><Property Name=\"End_Hour\" Type=\"Edm" +
+                ".String\" /><Property Name=\"End_Minute\" Type=\"Edm.String\" /><Property Name=\"End_A" +
+                "M_PM\" Type=\"Edm.String\" /><Property Name=\"Appl_to_Item_Entry\" Type=\"Edm.Int32\" /" +
+                "><Property Name=\"Total_Selected_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"T" +
+                "otal_New_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Selected_Quantity\" Type=" +
+                "\"Edm.Decimal\" /><Property Name=\"New_Quantity\" Type=\"Edm.Decimal\" /><Property Nam" +
+                "e=\"Origin_Entry_No\" Type=\"Edm.Int32\" /><Property Name=\"Batch_No\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property Name=\"N" +
+                "o_of_Label_Int\" Type=\"Edm.Int32\" /><Property Name=\"No_of_Label_Ext\" Type=\"Edm.In" +
+                "t32\" /><Property Name=\"No_of_Quarantine_Label\" Type=\"Edm.Int32\" /><Property Name" +
+                "=\"QC_Ref_No\" Type=\"Edm.String\" /><Property Name=\"Inheritance\" Type=\"Edm.Boolean\"" +
+                " /><Property Name=\"Ref_Item_Ledg_Entry_No\" Type=\"Edm.Int32\" /><Property Name=\"Se" +
+                "ssion_Type\" Type=\"Edm.String\" /><Property Name=\"Session_User_ID\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navigati" +
+                "onProperty Name=\"Production_Order_No_Link\" Relationship=\"NAV.ProductionEntry_Pro" +
+                "duction_Order_No_Link\" ToRole=\"Production_Order_No_Link\" FromRole=\"ProductionEnt" +
+                "ry\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.Production" +
+                "Entry_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"ProductionEntry\"" +
+                " /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relationship=\"NAV.Produc" +
+                "tionEntry_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Link\" FromRole" +
+                "=\"ProductionEntry\" /><NavigationProperty Name=\"Reason_Code_Link\" Relationship=\"N" +
+                "AV.ProductionEntry_Reason_Code_Link\" ToRole=\"Reason_Code_Link\" FromRole=\"Product" +
+                "ionEntry\" /></EntityType><EntityType Name=\"ProductionOrder\"><Key><PropertyRef Na" +
+                "me=\"No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Status\" Type=\"Edm.S" +
+                "tring\" Nullable=\"false\" /><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"false\"" +
+                " /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_" +
+                "2\" Type=\"Edm.String\" /><Property Name=\"Sub_Lot\" Type=\"Edm.Int32\" /><Property Nam" +
+                "e=\"Source_No\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"" +
+                "Edm.Decimal\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Property Name=\"Loc" +
+                "ation_Code\" Type=\"Edm.String\" /><Property Name=\"Starting_Time\" Type=\"Edm.String\"" +
+                " /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Ending_T" +
+                "ime\" Type=\"Edm.String\" /><Property Name=\"Ending_Date\" Type=";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart16 = "\"Edm.DateTime\" /><Property Name=\"Due_Date\" Type=\"Edm.DateTime\" /><Property Name=\"" +
+                "Assigned_User_ID\" Type=\"Edm.String\" /><Property Name=\"Finished_Date\" Type=\"Edm.D" +
+                "ateTime\" /><Property Name=\"Search_Description\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"N" +
+                "o_Link\" Relationship=\"NAV.ProductionOrder_No_Link\" ToRole=\"No_Link\" FromRole=\"Pr" +
+                "oductionOrder\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV" +
+                ".ProductionOrder_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"Produ" +
+                "ctionOrder\" /></EntityType><EntityType Name=\"ProductionOrderList\"><Key><Property" +
+                "Ref Name=\"No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Status\" Type=" +
+                "\"Edm.String\" Nullable=\"false\" /><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"" +
+                "false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Descri" +
+                "ption_2\" Type=\"Edm.String\" /><Property Name=\"Sub_Lot\" Type=\"Edm.Int32\" /><Proper" +
+                "ty Name=\"Source_No\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type=\"Edm.Stri" +
+                "ng\" /><Property Name=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Quantity\" " +
+                "Type=\"Edm.Decimal\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.String" +
+                "\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Starting_Time\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"En" +
+                "ding_Time\" Type=\"Edm.String\" /><Property Name=\"Ending_Date\" Type=\"Edm.DateTime\" " +
+                "/><Property Name=\"Due_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Assigned_User_" +
+                "ID\" Type=\"Edm.String\" /><Property Name=\"Finished_Date\" Type=\"Edm.DateTime\" /><Pr" +
+                "operty Name=\"Search_Description\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=" +
+                "\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"No_Link\" Relati" +
+                "onship=\"NAV.ProductionOrderList_No_Link\" ToRole=\"No_Link\" FromRole=\"ProductionOr" +
+                "derList\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.Produ" +
+                "ctionOrderList_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"Product" +
+                "ionOrderList\" /></EntityType><EntityType Name=\"ProductionRecipe\"><Key><PropertyR" +
+                "ef Name=\"Recipe_No\" /></Key><Property Name=\"Recipe_No\" Type=\"Edm.String\" Nullabl" +
+                "e=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Ite" +
+                "m_No\" Type=\"Edm.String\" /><Property Name=\"Item_Description\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Item_Description_2\" Type=\"Edm.String\" /><Property Name=\"Search_D" +
+                "escription\" Type=\"Edm.String\" /><Property Name=\"Routing_No\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Routing_Version_Code\" Type=\"Edm.String\" /><Property Name=\"Produc" +
+                "tion_BOM_No\" Type=\"Edm.String\" /><Property Name=\"Production_BOM_Version_Code\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"Status\" Type=\"Edm.String\" /><Property Name=\"Re" +
+                "mark\" Type=\"Edm.String\" /><Property Name=\"No_Series\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Preference\" Type=\"Edm.Int32\" /><Property Name=\"Batch_Size\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Machine_Center_Code\" Type=\"Edm.String\" /><Property Name=" +
+                "\"Machine_Center_Name\" Type=\"Edm.String\" /><Property Name=\"Machine_Center_Name_2\"" +
+                " Type=\"Edm.String\" /><Property Name=\"Revision_Series\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"Last_Date_Modified\" Type=\"Edm.DateTime\" /><Property Name=\"Custom_Repor" +
+                "t_Layout_Code\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concu" +
+                "rrencyMode=\"Fixed\" /><NavigationProperty Name=\"No_Series_Link\" Relationship=\"NAV" +
+                ".ProductionRecipe_No_Series_Link\" ToRole=\"No_Series_Link\" FromRole=\"ProductionRe" +
+                "cipe\" /><NavigationProperty Name=\"Machine_Center_Code_Link\" Relationship=\"NAV.Pr" +
+                "oductionRecipe_Machine_Center_Code_Link\" ToRole=\"Machine_Center_Code_Link\" FromR" +
+                "ole=\"ProductionRecipe\" /></EntityType><EntityType Name=\"ProductionRecipeLinkWS\">" +
+                "<Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Recipe_No\" /></Key><P" +
+                "roperty Name=\"Prod_Recipe_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Nam" +
+                "e=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Item_No\" Type=\"E" +
+                "dm.String\" /><Property Name=\"Item_Description\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"Item_Description_2\" Type=\"Edm.String\" /><Property Name=\"Item_Recipe_No_1\" Typ" +
+                "e=\"Edm.String\" /><Property Name=\"Machine_Process_Hour\" Type=\"Edm.Decimal\" /><Pro" +
+                "perty Name=\"Machine_Process_Manpower\" Type=\"Edm.Int32\" /><Property Name=\"Lv_1_Cl" +
+                "eaning_Hour\" Type=\"Edm.Decimal\" /><Property Name=\"Lv_1_Cln_Manpower\" Type=\"Edm.D" +
+                "ecimal\" /><Property Name=\"Lv_2_Cleaning_Hour\" Type=\"Edm.Decimal\" /><Property Nam" +
+                "e=\"Lv_2_Cln_Manpower\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type=\"Edm.Strin" +
+                "g\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"ProductionRecipeWS\">" +
+                "<Key><PropertyRef Name=\"Recipe_No\" /></Key><Property Name=\"Recipe_No\" Type=\"Edm." +
+                "String\" Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Item_Description\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Item_Description_2\" Type=\"Edm.String\" /><Property" +
+                " Name=\"Search_Description\" Type=\"Edm.String\" /><Property Name=\"Routing_No\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Routing_Version_Code\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Production_BOM_No\" Type=\"Edm.String\" /><Property Name=\"Production_BOM_V" +
+                "ersion_Code\" Type=\"Edm.String\" /><Property Name=\"Status\" Type=\"Edm.String\" /><Pr" +
+                "operty Name=\"Remark\" Type=\"Edm.String\" /><Property Name=\"No_Series\" Type=\"Edm.St" +
+                "ring\" /><Property Name=\"Preference\" Type=\"Edm.Int32\" /><Property Name=\"Batch_Siz" +
+                "e\" Type=\"Edm.String\" /><Property Name=\"Machine_Center_Code\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Machine_Center_Name\" Type=\"Edm.String\" /><Property Name=\"Machine" +
+                "_Center_Name_2\" Type=\"Edm.String\" /><Property Name=\"Revision_Series\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Last_Date_Modified\" Type=\"Edm.DateTime\" /><Property Nam" +
+                "e=\"Custom_Report_Layout_Code\" Type=\"Edm.String\" /><Property Name=\"No_Of_Drum\" Ty" +
+                "pe=\"Edm.Int32\" /><Property Name=\"QC_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"A" +
+                "rt_Work_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Manufacturing_Loss_Percent\" T" +
+                "ype=\"Edm.Decimal\" /><Property Name=\"Pack_Size\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"Registration_Status\" Type=\"Edm.String\" /><Property Name=\"Production_Preferere" +
+                "nce\" Type=\"Edm.String\" /><Property Name=\"Company_Preference\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Cleaning_Level\" Type=\"Edm.String\" /><Property Name=\"No_of_Campa" +
+                "ign\" Type=\"Edm.Int32\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty" +
+                " Name=\"No_Series_Link\" Relationship=\"NAV.ProductionRecipeWS_No_Series_Link\" ToRo" +
+                "le=\"No_Series_Link\" FromRole=\"ProductionRecipeWS\" /><NavigationProperty Name=\"Ma" +
+                "chine_Center_Code_Link\" Relationship=\"NAV.ProductionRecipeWS_Machine_Center_Code" +
+                "_Link\" ToRole=\"Machine_Center_Code_Link\" FromRole=\"ProductionRecipeWS\" /></Entit" +
+                "yType><EntityType Name=\"PurchaseLines\"><Key><PropertyRef Name=\"Document_No\" /><P" +
+                "ropertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Key><Property " +
+                "Name=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Docume" +
+                "nt_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.I" +
+                "nt32\" Nullable=\"false\" /><Property Name=\"Buy_from_Vendor_No\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Vendor_Name\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property" +
+                " Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"L";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart17 = "ocation_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" />" +
+                "<Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Original_Qua" +
+                "ntity\" Type=\"Edm.Decimal\" /><Property Name=\"Outstanding_Qty_Base\" Type=\"Edm.Deci" +
+                "mal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=" +
+                "\"Manufacturer_Name\" Type=\"Edm.String\" /><Property Name=\"Currency_Code\" Type=\"Edm" +
+                ".String\" /><Property Name=\"Direct_Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name" +
+                "=\"Indirect_Cost_Percent\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Cost_LCY\" Typ" +
+                "e=\"Edm.Decimal\" /><Property Name=\"Unit_Price_LCY\" Type=\"Edm.Decimal\" /><Property" +
+                " Name=\"Line_Amount\" Type=\"Edm.Decimal\" /><Property Name=\"Shortcut_Dimension_1_Co" +
+                "de\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.Str" +
+                "ing\" /><Property Name=\"Expected_Receipt_Date\" Type=\"Edm.DateTime\" /><Property Na" +
+                "me=\"Outstanding_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Outstanding_Amoun" +
+                "t_LCY\" Type=\"Edm.Decimal\" /><Property Name=\"Amt_Rcd_Not_Invoiced_LCY\" Type=\"Edm." +
+                "Decimal\" /><Property Name=\"Closed\" Type=\"Edm.Boolean\" /><Property Name=\"Closed_R" +
+                "emark\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMo" +
+                "de=\"Fixed\" /><NavigationProperty Name=\"Buy_from_Vendor_No_Link\" Relationship=\"NA" +
+                "V.PurchaseLines_Buy_from_Vendor_No_Link\" ToRole=\"Buy_from_Vendor_No_Link\" FromRo" +
+                "le=\"PurchaseLines\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=" +
+                "\"NAV.PurchaseLines_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"Pur" +
+                "chaseLines\" /><NavigationProperty Name=\"Currency_Code_Link\" Relationship=\"NAV.Pu" +
+                "rchaseLines_Currency_Code_Link\" ToRole=\"Currency_Code_Link\" FromRole=\"PurchaseLi" +
+                "nes\" /></EntityType><EntityType Name=\"RawMatItemList\"><Key><PropertyRef Name=\"No" +
+                "\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Nam" +
+                "e=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.Str" +
+                "ing\" /><Property Name=\"Inventory\" Type=\"Edm.Decimal\" /><Property Name=\"Internal_" +
+                "Ref\" Type=\"Edm.String\" /><Property Name=\"Item_Registration\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Batch_Nos\" Type=\"Edm.String\" /><Property Name=\"PSO_Item_No\" Type" +
+                "=\"Edm.String\" /><Property Name=\"Production_Recipe_No\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"Safety_Lead_Time\" Type=\"Edm.String\" /><Property Name=\"Production_BOM_N" +
+                "o\" Type=\"Edm.String\" /><Property Name=\"Routing_No\" Type=\"Edm.String\" /><Property" +
+                " Name=\"Base_Unit_of_Measure\" Type=\"Edm.String\" /><Property Name=\"Standard_Cost\" " +
+                "Type=\"Edm.Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property N" +
+                "ame=\"Last_Direct_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Item_Category_Code\" " +
+                "Type=\"Edm.String\" /><Property Name=\"Product_Group_Code\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Global_Dimension_1_Filter\" Type=\"Edm.String\" /><Property Name=\"Globa" +
+                "l_Dimension_2_Filter\" Type=\"Edm.String\" /><Property Name=\"Location_Filter\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Variant_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Filter\" Type" +
+                "=\"Edm.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" C" +
+                "oncurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Batch_Nos_Link\" Relationship=" +
+                "\"NAV.RawMatItemList_Batch_Nos_Link\" ToRole=\"Batch_Nos_Link\" FromRole=\"RawMatItem" +
+                "List\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relationship=\"NAV.R" +
+                "awMatItemList_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Link\" From" +
+                "Role=\"RawMatItemList\" /><NavigationProperty Name=\"Item_Category_Code_Link\" Relat" +
+                "ionship=\"NAV.RawMatItemList_Item_Category_Code_Link\" ToRole=\"Item_Category_Code_" +
+                "Link\" FromRole=\"RawMatItemList\" /><NavigationProperty Name=\"Location_Filter_Link" +
+                "\" Relationship=\"NAV.RawMatItemList_Location_Filter_Link\" ToRole=\"Location_Filter" +
+                "_Link\" FromRole=\"RawMatItemList\" /></EntityType><EntityType Name=\"ReasonCodeList" +
+                "\"><Key><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" " +
+                "Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"RND\" Type=\"Edm.Boolean\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concurrenc" +
+                "yMode=\"Fixed\" /></EntityType><EntityType Name=\"RegistrationDetailsLine\"><Key><Pr" +
+                "opertyRef Name=\"Item_No\" /><PropertyRef Name=\"Line_No\" /></Key><Property Name=\"I" +
+                "tem_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm." +
+                "Int32\" Nullable=\"false\" /><Property Name=\"Country_Code\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Country_Name\" Type=\"Edm.String\" /><Property Name=\"Reference_No\" Type" +
+                "=\"Edm.String\" /><Property Name=\"Registration_No\" Type=\"Edm.String\" /><Property N" +
+                "ame=\"Date_Of_Issue\" Type=\"Edm.DateTime\" /><Property Name=\"Expiry_Date\" Type=\"Edm" +
+                ".DateTime\" /><Property Name=\"Shelf_Life\" Type=\"Edm.String\" /><Property Name=\"Pac" +
+                "kaging_Type\" Type=\"Edm.String\" /><Property Name=\"Batch_Size\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Unit_Of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Stora" +
+                "ge_Condition\" Type=\"Edm.String\" /><Property Name=\"Speical_Precaution\" Type=\"Edm." +
+                "String\" /><Property Name=\"Non_Std_Item\" Type=\"Edm.Boolean\" /><Property Name=\"Eff" +
+                "ective_Date\" Type=\"Edm.DateTime\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concu" +
+                "rrencyMode=\"Fixed\" /><NavigationProperty Name=\"Country_Code_Link\" Relationship=\"" +
+                "NAV.RegistrationDetailsLine_Country_Code_Link\" ToRole=\"Country_Code_Link\" FromRo" +
+                "le=\"RegistrationDetailsLine\" /><NavigationProperty Name=\"Unit_Of_Measure_Code_Li" +
+                "nk\" Relationship=\"NAV.RegistrationDetailsLine_Unit_Of_Measure_Code_Link\" ToRole=" +
+                "\"Unit_Of_Measure_Code_Link\" FromRole=\"RegistrationDetailsLine\" /></EntityType><E" +
+                "ntityType Name=\"SalesForecastList\"><Key><PropertyRef Name=\"Item_No\" /><PropertyR" +
+                "ef Name=\"No\" /><PropertyRef Name=\"Version\" /></Key><Property Name=\"No\" Type=\"Edm" +
+                ".String\" Nullable=\"false\" /><Property Name=\"Item_No\" Type=\"Edm.String\" Nullable=" +
+                "\"false\" /><Property Name=\"Version\" Type=\"Edm.String\" Nullable=\"false\" /><Propert" +
+                "y Name=\"Type\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\"" +
+                " /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Pack_Size\"" +
+                " Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Na" +
+                "me=\"Contract_Start\" Type=\"Edm.DateTime\" /><Property Name=\"Contract_End\" Type=\"Ed" +
+                "m.DateTime\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"E" +
+                "xtension_Month\" Type=\"Edm.Int32\" /><Property Name=\"Extension_Quantity\" Type=\"Edm" +
+                ".Decimal\" /><Property Name=\"Committed_Date\" Type=\"Edm.DateTime\" /><Property Name" +
+                "=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Nam" +
+                "e=\"SalesLineNotClosed\"><Key><PropertyRef Name=\"Document_No\" /><PropertyRef Name=" +
+                "\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Key><Property Name=\"Document_T" +
+                "ype\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Document_No\" Type=\"Edm" +
+                ".String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"" +
+                "false\" /><Property Name=\"Sell_to_Customer_No\" Type=\"Edm.String\" /><Property Name" +
+                "=\"Sell_to_Customer_Name\" Type=\"Edm.String\" /><Property Name=\"External_Document_N" +
+                "o\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.String\" /><Property Name=" +
+                "\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Property" +
+                " Name=\"Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" />";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart18 = "<Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Currenc" +
+                "y_Code\" Type=\"Edm.String\" /><Property Name=\"Line_Amount\" Type=\"Edm.Decimal\" /><P" +
+                "roperty Name=\"Job_No\" Type=\"Edm.String\" /><Property Name=\"Work_Type_Code\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.String\" /><Pr" +
+                "operty Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Property Name=\"Shor" +
+                "tcutDimCode_x005B_3_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_" +
+                "x005B_4_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_5_x005" +
+                "D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_6_x005D_\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"ShortcutDimCode_x005B_7_x005D_\" Type=\"Edm.String\" />" +
+                "<Property Name=\"ShortcutDimCode_x005B_8_x005D_\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"Shipment_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Promised_Delivery_Date\"" +
+                " Type=\"Edm.DateTime\" /><Property Name=\"Qty_to_Ship\" Type=\"Edm.Decimal\" /><Proper" +
+                "ty Name=\"Outstanding_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Price\" " +
+                "Type=\"Edm.Decimal\" /><Property Name=\"Outstanding_Amount\" Type=\"Edm.Decimal\" /><P" +
+                "roperty Name=\"Status\" Type=\"Edm.String\" /><Property Name=\"Closed\" Type=\"Edm.Bool" +
+                "ean\" /><Property Name=\"Closed_Remark\" Type=\"Edm.String\" /><Property Name=\"ETag\" " +
+                "Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Sell_to_Cu" +
+                "stomer_No_Link\" Relationship=\"NAV.SalesLineNotClosed_Sell_to_Customer_No_Link\" T" +
+                "oRole=\"Sell_to_Customer_No_Link\" FromRole=\"SalesLineNotClosed\" /><NavigationProp" +
+                "erty Name=\"Item_Category_Code_Link\" Relationship=\"NAV.SalesLineNotClosed_Item_Ca" +
+                "tegory_Code_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"SalesLineNotClosed\"" +
+                " /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.SalesLineNotC" +
+                "losed_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"SalesLineNotClos" +
+                "ed\" /><NavigationProperty Name=\"Currency_Code_Link\" Relationship=\"NAV.SalesLineN" +
+                "otClosed_Currency_Code_Link\" ToRole=\"Currency_Code_Link\" FromRole=\"SalesLineNotC" +
+                "losed\" /></EntityType><EntityType Name=\"SalesLines\"><Key><PropertyRef Name=\"Docu" +
+                "ment_No\" /><PropertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></K" +
+                "ey><Property Name=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property" +
+                " Name=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No" +
+                "\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Tender_No\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Sell_to_Customer_No\" Type=\"Edm.String\" /><Property Name=\"Se" +
+                "ll_to_Customer_Name\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.String\"" +
+                " /><Property Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=\"E" +
+                "dm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"De" +
+                "scription_2\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm.String" +
+                "\" /><Property Name=\"Reserve\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=" +
+                "\"Edm.Decimal\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Na" +
+                "me=\"Reserved_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Outstanding_Qty_Base" +
+                "\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Line_Amount\" Type=\"Edm.Decimal\" /><Property Name=\"Job_No\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Work_Type_Code\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"Shortcut_Dimension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimen" +
+                "sion_2_Code\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_3_x005D_\"" +
+                " Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_4_x005D_\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"ShortcutDimCode_x005B_5_x005D_\" Type=\"Edm.String\" /><Pr" +
+                "operty Name=\"ShortcutDimCode_x005B_6_x005D_\" Type=\"Edm.String\" /><Property Name=" +
+                "\"ShortcutDimCode_x005B_7_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDim" +
+                "Code_x005B_8_x005D_\" Type=\"Edm.String\" /><Property Name=\"Shipment_Date\" Type=\"Ed" +
+                "m.DateTime\" /><Property Name=\"Outstanding_Quantity\" Type=\"Edm.Decimal\" /><Proper" +
+                "ty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty N" +
+                "ame=\"Sell_to_Customer_No_Link\" Relationship=\"NAV.SalesLines_Sell_to_Customer_No_" +
+                "Link\" ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"SalesLines\" /><NavigationPrope" +
+                "rty Name=\"Location_Code_Link\" Relationship=\"NAV.SalesLines_Location_Code_Link\" T" +
+                "oRole=\"Location_Code_Link\" FromRole=\"SalesLines\" /></EntityType><EntityType Name" +
+                "=\"SalesOrderLineKIV\"><Key><PropertyRef Name=\"Document_No\" /><PropertyRef Name=\"D" +
+                "ocument_Type\" /><PropertyRef Name=\"Line_No\" /></Key><Property Name=\"Document_Typ" +
+                "e\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Document_No\" Type=\"Edm.S" +
+                "tring\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"fa" +
+                "lse\" /><Property Name=\"Sell_to_Customer_No\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Sell_to_Customer_Name\" Type=\"Edm.String\" /><Property Name=\"External_Document_No\"" +
+                " Type=\"Edm.String\" /><Property Name=\"Tender_No\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"Type\" Type=\"Edm.String\" /><Property Name=\"No\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Variant_Code\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Ship" +
+                "ment_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"Locat" +
+                "ion_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Pr" +
+                "operty Name=\"Outstanding_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Item_Tac" +
+                "king_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"L" +
+                "ine_Amount\" Type=\"Edm.Decimal\" /><Property Name=\"Last_Modified_Date\" Type=\"Edm.D" +
+                "ateTime\" /><Property Name=\"Checked\" Type=\"Edm.Boolean\" /><Property Name=\"Checked" +
+                "_By\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode" +
+                "=\"Fixed\" /><NavigationProperty Name=\"Sell_to_Customer_No_Link\" Relationship=\"NAV" +
+                ".SalesOrderLineKIV_Sell_to_Customer_No_Link\" ToRole=\"Sell_to_Customer_No_Link\" F" +
+                "romRole=\"SalesOrderLineKIV\" /><NavigationProperty Name=\"Item_Category_Code_Link\"" +
+                " Relationship=\"NAV.SalesOrderLineKIV_Item_Category_Code_Link\" ToRole=\"Item_Categ" +
+                "ory_Code_Link\" FromRole=\"SalesOrderLineKIV\" /><NavigationProperty Name=\"Location" +
+                "_Code_Link\" Relationship=\"NAV.SalesOrderLineKIV_Location_Code_Link\" ToRole=\"Loca" +
+                "tion_Code_Link\" FromRole=\"SalesOrderLineKIV\" /></EntityType><EntityType Name=\"Sa" +
+                "lesPrices\"><Key><PropertyRef Name=\"Currency_Code\" /><PropertyRef Name=\"Item_No\" " +
+                "/><PropertyRef Name=\"Minimum_Quantity\" /><PropertyRef Name=\"Sales_Code\" /><Prope" +
+                "rtyRef Name=\"Sales_Type\" /><PropertyRef Name=\"Starting_Date\" /><PropertyRef Name" +
+                "=\"Unit_of_Measure_Code\" /><PropertyRef Name=\"Variant_Code\" /></Key><Property Nam" +
+                "e=\"Item_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Sales_Type\" Typ" +
+                "e=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Sales_Code\" Type=\"Edm.String\" " +
+                "Nullable=\"false\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" Nullable=\"" +
+                "false\" /><Property Name=\"Currency_Code\" Type=\"Edm.String\" Nullable=\"false\" /><Pr" +
+                "operty Name=\"Variant_Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"" +
+                "Unit_of_Measure_Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Minim" +
+                "um_Quantity\" Type=\"Edm.Decimal\" Nullable=\"false\" /><Property Name=\"SalesTypeFilt" +
+                "er\" Type=\"Edm.String\" /><Property Name=\"SalesCodeFilterCtrl\" Type=\"Edm.String\" /" +
+                "><Property Name=\"ItemNoFilterCtrl\" Type=\"Edm.String\" /><Property Name=\"StartingD" +
+                "ateFilter\" Type=\"Edm.String\" /><Property Name=\"SalesCodeFil";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart19 = "terCtrl2\" Type=\"Edm.String\" /><Property Name=\"GetFilterDescription\" Type=\"Edm.Str" +
+                "ing\" /><Property Name=\"Source_Name\" Type=\"Edm.String\" /><Property Name=\"Descript" +
+                "ion\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Property Name=\"Internal_Ref" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Cost\" Type=\"Edm.Decimal\" /><Property Name=" +
+                "\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"Ending_Date\" Type=\"Edm.DateTim" +
+                "e\" /><Property Name=\"Tender_No\" Type=\"Edm.String\" /><Property Name=\"External_Doc" +
+                "ument_No\" Type=\"Edm.String\" /><Property Name=\"Remark\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty " +
+                "Name=\"Currency_Code_Link\" Relationship=\"NAV.SalesPrices_Currency_Code_Link\" ToRo" +
+                "le=\"Currency_Code_Link\" FromRole=\"SalesPrices\" /><NavigationProperty Name=\"Unit_" +
+                "of_Measure_Code_Link\" Relationship=\"NAV.SalesPrices_Unit_of_Measure_Code_Link\" T" +
+                "oRole=\"Unit_of_Measure_Code_Link\" FromRole=\"SalesPrices\" /><NavigationProperty N" +
+                "ame=\"Source_Name_Link\" Relationship=\"NAV.SalesPrices_Source_Name_Link\" ToRole=\"S" +
+                "ource_Name_Link\" FromRole=\"SalesPrices\" /><NavigationProperty Name=\"Item_Categor" +
+                "y_Code_Link\" Relationship=\"NAV.SalesPrices_Item_Category_Code_Link\" ToRole=\"Item" +
+                "_Category_Code_Link\" FromRole=\"SalesPrices\" /><NavigationProperty Name=\"Tender_N" +
+                "o_Link\" Relationship=\"NAV.SalesPrices_Tender_No_Link\" ToRole=\"Tender_No_Link\" Fr" +
+                "omRole=\"SalesPrices\" /></EntityType><EntityType Name=\"ShipmentMethod\"><Key><Prop" +
+                "ertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" Nullable=\"fa" +
+                "lse\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"ETag\" Ty" +
+                "pe=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"Shippin" +
+                "gAgent\"><Key><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.St" +
+                "ring\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><Property Nam" +
+                "e=\"Internet_Address\" Type=\"Edm.String\" /><Property Name=\"Account_No\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></Ent" +
+                "ityType><EntityType Name=\"ShippingAgentService\"><Key><PropertyRef Name=\"Code\" />" +
+                "<PropertyRef Name=\"Shipping_Agent_Code\" /></Key><Property Name=\"Shipping_Agent_C" +
+                "ode\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Code\" Type=\"Edm.String" +
+                "\" Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Shipping_Time\" Type=\"Edm.String\" /><Property Name=\"Base_Calendar_Code\" Typ" +
+                "e=\"Edm.String\" /><Property Name=\"CalendarMgmt_CustomizedCalendarExistText_Custom" +
+                "izedCalendar_Source_Type_Shipping_Agent__x002C__Shipping_Agent_Code__x002C_Code_" +
+                "x002C__Base_Calendar_Code\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.S" +
+                "tring\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Shipping_Agent_Code_L" +
+                "ink\" Relationship=\"NAV.ShippingAgentService_Shipping_Agent_Code_Link\" ToRole=\"Sh" +
+                "ipping_Agent_Code_Link\" FromRole=\"ShippingAgentService\" /></EntityType><EntityTy" +
+                "pe Name=\"StockAdjustmentOdata\"><Key><PropertyRef Name=\"Entry_No\" /></Key><Proper" +
+                "ty Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Document_" +
+                "Type\" Type=\"Edm.Int32\" /><Property Name=\"Document_No\" Type=\"Edm.String\" /><Prope" +
+                "rty Name=\"Document_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Group_ID\" Type=\"E" +
+                "dm.Guid\" /><Property Name=\"Entry_Type\" Type=\"Edm.String\" /><Property Name=\"Posti" +
+                "ng_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Serial_No\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.De" +
+                "cimal\" /><Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"" +
+                "Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property Name=\"No_of_Label_Int\" Type=" +
+                "\"Edm.Int32\" /><Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property Name" +
+                "=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"Created_on\" Type=\"Edm.DateTime\" " +
+                "/><Property Name=\"Created_by\" Type=\"Edm.String\" /><Property Name=\"Posted_on\" Typ" +
+                "e=\"Edm.DateTime\" /><Property Name=\"Customer_No\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"Vendor_No\" Type=\"Edm.String\" /><Property Name=\"External_Document_No\" Type=\"E" +
+                "dm.String\" /><Property Name=\"Currency_Code\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Location_Code\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Unit_P" +
+                "rice\" Type=\"Edm.Decimal\" /><Property Name=\"Reason_Code\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Journal_Template_Name\" Type=\"Edm.String\" /><Property Name=\"Journal_B" +
+                "atch_Name\" Type=\"Edm.String\" /><Property Name=\"Quality_Control_Type\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Inspection_Datasheet_No\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Sample_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Forfeit_Quantity\" Ty" +
+                "pe=\"Edm.Decimal\" /><Property Name=\"Approve_Quantity\" Type=\"Edm.Decimal\" /><Prope" +
+                "rty Name=\"Reject_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Resample_Quantit" +
+                "y\" Type=\"Edm.Decimal\" /><Property Name=\"Rework_Quantity\" Type=\"Edm.Decimal\" /><P" +
+                "roperty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationPrope" +
+                "rty Name=\"Customer_No_Link\" Relationship=\"NAV.StockAdjustmentOdata_Customer_No_L" +
+                "ink\" ToRole=\"Customer_No_Link\" FromRole=\"StockAdjustmentOdata\" /><NavigationProp" +
+                "erty Name=\"Vendor_No_Link\" Relationship=\"NAV.StockAdjustmentOdata_Vendor_No_Link" +
+                "\" ToRole=\"Vendor_No_Link\" FromRole=\"StockAdjustmentOdata\" /><NavigationProperty " +
+                "Name=\"Currency_Code_Link\" Relationship=\"NAV.StockAdjustmentOdata_Currency_Code_L" +
+                "ink\" ToRole=\"Currency_Code_Link\" FromRole=\"StockAdjustmentOdata\" /><NavigationPr" +
+                "operty Name=\"Location_Code_Link\" Relationship=\"NAV.StockAdjustmentOdata_Location" +
+                "_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"StockAdjustmentOdata\" /><Navig" +
+                "ationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.StockAdjustment" +
+                "Odata_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole=\"St" +
+                "ockAdjustmentOdata\" /><NavigationProperty Name=\"Reason_Code_Link\" Relationship=\"" +
+                "NAV.StockAdjustmentOdata_Reason_Code_Link\" ToRole=\"Reason_Code_Link\" FromRole=\"S" +
+                "tockAdjustmentOdata\" /><NavigationProperty Name=\"Sample_Quantity_Link\" Relations" +
+                "hip=\"NAV.StockAdjustmentOdata_Sample_Quantity_Link\" ToRole=\"Sample_Quantity_Link" +
+                "\" FromRole=\"StockAdjustmentOdata\" /></EntityType><EntityType Name=\"SWD_Consumpti" +
+                "onEntries\"><Key><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" T" +
+                "ype=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Production_Order_No\" Type=\"Ed" +
+                "m.String\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Prod_Ord" +
+                "er_Comp_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Posting_Date\" Type=\"Edm.Date" +
+                "Time\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Location_Co" +
+                "de\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property" +
+                " Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Lot_No\" Type=\"E" +
+                "dm.String\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property" +
+                " Name=\"QC_Ref_No\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type=\"Edm.String" +
+                "\" /><Property Name=\"No_of_Label_Int\" Type=\"Edm.Int32\" /><Property Name=\"No_of_La" +
+                "bel_Ext\" Type=\"Edm.Int32\" /><Property Name=\"No_of_Quarantine_Label\" Type=\"Edm.In" +
+                "t32\" /><Property Name=\"QC_No_Series\" Type=\"Edm.String\" /><Property Name=\"Expirat" +
+                "ion_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Inheritance\" Type=\"Edm.Boolean\" " +
+                "/><Property Name=\"QC_Status\" Type=\"Edm.String\" /><Property Name=\"Retest_Date\" Ty" +
+                "pe=\"Edm.DateTime\" /><Property Name=\"Session_Type\" Type=\"Edm.String\" /><Property " +
+                "Name=\"Session_User_ID\" Type=\"Edm.String\" /><Property Name=\"";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart20 = "ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"" +
+                "SWDAllProdOutputLine\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod" +
+                "_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Status\" Type=\"Ed" +
+                "m.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\" Type=\"Edm.String\" Nu" +
+                "llable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><P" +
+                "roperty Name=\"Replan_Ref_No\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"D" +
+                "escription_2\" Type=\"Edm.String\" /><Property Name=\"Product_Name\" Type=\"Edm.String" +
+                "\" /><Property Name=\"g_cdePackSize\" Type=\"Edm.String\" /><Property Name=\"g_cdeBatc" +
+                "hSize\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Prope" +
+                "rty Name=\"Finished_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measur" +
+                "e_Code\" Type=\"Edm.String\" /><Property Name=\"g_decSmallQty\" Type=\"Edm.Decimal\" />" +
+                "<Property Name=\"g_cdeSmallQtyUOM\" Type=\"Edm.String\" /><Property Name=\"g_cdeBatch" +
+                "No\" Type=\"Edm.String\" /><Property Name=\"g_dteOutputDate\" Type=\"Edm.DateTime\" /><" +
+                "Property Name=\"g_dteMfgDate\" Type=\"Edm.DateTime\" /><Property Name=\"g_dteExpDate\"" +
+                " Type=\"Edm.DateTime\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"" +
+                "Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.SWDAllP" +
+                "rodOutputLine_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"SWDAllPr" +
+                "odOutputLine\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationshi" +
+                "p=\"NAV.SWDAllProdOutputLine_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_C" +
+                "ode_Link\" FromRole=\"SWDAllProdOutputLine\" /></EntityType><EntityType Name=\"SWDPr" +
+                "odOrderSyncPortal\"><Key><PropertyRef Name=\"Guid\" /></Key><Property Name=\"Guid\" T" +
+                "ype=\"Edm.Guid\" Nullable=\"false\" /><Property Name=\"Type\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Status\" Type=\"Edm.String\" /><Property Name=\"Prod_Order_No\" Type=\"Edm" +
+                ".String\" /><Property Name=\"Start_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Com" +
+                "pletion_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Sub_status\" Type=\"Edm.String" +
+                "\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Recipe_No\" Type" +
+                "=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"P" +
+                "rod_Order_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"ETag\" Type=\"Edm.String\" Co" +
+                "ncurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationsh" +
+                "ip=\"NAV.SWDProdOrderSyncPortal_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" F" +
+                "romRole=\"SWDProdOrderSyncPortal\" /><NavigationProperty Name=\"Prod_Order_Line_No_" +
+                "Link\" Relationship=\"NAV.SWDProdOrderSyncPortal_Prod_Order_Line_No_Link\" ToRole=\"" +
+                "Prod_Order_Line_No_Link\" FromRole=\"SWDProdOrderSyncPortal\" /></EntityType><Entit" +
+                "yType Name=\"SWDWebIntegrationEntry\"><Key><PropertyRef Name=\"Entry_No\" /></Key><P" +
+                "roperty Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Docu" +
+                "ment_Type\" Type=\"Edm.Int32\" /><Property Name=\"Document_No\" Type=\"Edm.String\" /><" +
+                "Property Name=\"Document_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Group_ID\" Ty" +
+                "pe=\"Edm.Guid\" /><Property Name=\"Entry_Type\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Serial_No\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"E" +
+                "dm.Decimal\" /><Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property N" +
+                "ame=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property Name=\"No_of_Label_Int\" " +
+                "Type=\"Edm.Int32\" /><Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property" +
+                " Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"Created_on\" Type=\"Edm.DateT" +
+                "ime\" /><Property Name=\"Created_by\" Type=\"Edm.String\" /><Property Name=\"Posted_on" +
+                "\" Type=\"Edm.DateTime\" /><Property Name=\"Customer_No\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Vendor_No\" Type=\"Edm.String\" /><Property Name=\"External_Document_No\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"Currency_Code\" Type=\"Edm.String\" /><Property N" +
+                "ame=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"U" +
+                "nit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"Reason_Code\" Type=\"Edm.String\" /" +
+                "><Property Name=\"Journal_Template_Name\" Type=\"Edm.String\" /><Property Name=\"Jour" +
+                "nal_Batch_Name\" Type=\"Edm.String\" /><Property Name=\"Quality_Control_Type\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Inspection_Datasheet_No\" Type=\"Edm.String\" /><Prop" +
+                "erty Name=\"Sample_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Forfeit_Quantit" +
+                "y\" Type=\"Edm.Decimal\" /><Property Name=\"Approve_Quantity\" Type=\"Edm.Decimal\" /><" +
+                "Property Name=\"Reject_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Resample_Qu" +
+                "antity\" Type=\"Edm.Decimal\" /><Property Name=\"Rework_Quantity\" Type=\"Edm.Decimal\"" +
+                " /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navigation" +
+                "Property Name=\"Customer_No_Link\" Relationship=\"NAV.SWDWebIntegrationEntry_Custom" +
+                "er_No_Link\" ToRole=\"Customer_No_Link\" FromRole=\"SWDWebIntegrationEntry\" /><Navig" +
+                "ationProperty Name=\"Vendor_No_Link\" Relationship=\"NAV.SWDWebIntegrationEntry_Ven" +
+                "dor_No_Link\" ToRole=\"Vendor_No_Link\" FromRole=\"SWDWebIntegrationEntry\" /><Naviga" +
+                "tionProperty Name=\"Currency_Code_Link\" Relationship=\"NAV.SWDWebIntegrationEntry_" +
+                "Currency_Code_Link\" ToRole=\"Currency_Code_Link\" FromRole=\"SWDWebIntegrationEntry" +
+                "\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.SWDWebIntegr" +
+                "ationEntry_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"SWDWebInteg" +
+                "rationEntry\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship" +
+                "=\"NAV.SWDWebIntegrationEntry_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_" +
+                "Code_Link\" FromRole=\"SWDWebIntegrationEntry\" /><NavigationProperty Name=\"Reason_" +
+                "Code_Link\" Relationship=\"NAV.SWDWebIntegrationEntry_Reason_Code_Link\" ToRole=\"Re" +
+                "ason_Code_Link\" FromRole=\"SWDWebIntegrationEntry\" /><NavigationProperty Name=\"Sa" +
+                "mple_Quantity_Link\" Relationship=\"NAV.SWDWebIntegrationEntry_Sample_Quantity_Lin" +
+                "k\" ToRole=\"Sample_Quantity_Link\" FromRole=\"SWDWebIntegrationEntry\" /></EntityTyp" +
+                "e><EntityType Name=\"TenderForSimulation\"><Key><PropertyRef Name=\"Document_No\" />" +
+                "<PropertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Key><Propert" +
+                "y Name=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Docu" +
+                "ment_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm" +
+                ".Int32\" Nullable=\"false\" /><Property Name=\"Sell_to_Customer_No\" Type=\"Edm.String" +
+                "\" /><Property Name=\"Sell_to_Customer_Name\" Type=\"Edm.String\" /><Property Name=\"g" +
+                "_txtCategories\" Type=\"Edm.String\" /><Property Name=\"Tender_No\" Type=\"Edm.String\"" +
+                " /><Property Name=\"g_cdeItemNo\" Type=\"Edm.String\" /><Property Name=\"Description\"" +
+                " Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Propert" +
+                "y Name=\"g_decBSOQty\" Type=\"Edm.Decimal\" /><Property Name=\"g_decOutstdQty\" Type=\"" +
+                "Edm.Decimal\" /><Property Name=\"Promised_Delivery_Date\" Type=\"Edm.DateTime\" /><Pr" +
+                "operty Name=\"Shipment_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Unit_of_Measur" +
+                "e_Code\" Type=\"Edm.String\" /><Property Name=\"g_cdeCompany\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationPrope" +
+                "rty Name=\"Sell_to_Customer_No_Link\" Relationship=\"NAV.TenderForSimulation_Sell_t" +
+                "o_Customer_No_Link\" ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"TenderForSimulat" +
+                "ion\" /></EntityType><EntityType Name=\"TenderOrderLines\"><Key><PropertyRef Name=\"" +
+                "Document_No\" /><PropertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /" +
+                "></Key><Property Name=\"Document_Type\" Type=\"Edm.String\" Nul";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart21 = "lable=\"false\" /><Property Name=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\" /" +
+                "><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Se" +
+                "ll_to_Customer_No\" Type=\"Edm.String\" /><Property Name=\"Sell_to_Customer_Name\" Ty" +
+                "pe=\"Edm.String\" /><Property Name=\"External_Document_No\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Tender_No\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Description_2\" Type=\"Edm.String\" /><Property Name=\"Shipment_Date\" Type=\"Edm.Date" +
+                "Time\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"g_fnGetPocke" +
+                "tQty\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type" +
+                "=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Sell_to_Custom" +
+                "er_No_Link\" Relationship=\"NAV.TenderOrderLines_Sell_to_Customer_No_Link\" ToRole=" +
+                "\"Sell_to_Customer_No_Link\" FromRole=\"TenderOrderLines\" /><NavigationProperty Nam" +
+                "e=\"Item_Category_Code_Link\" Relationship=\"NAV.TenderOrderLines_Item_Category_Cod" +
+                "e_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"TenderOrderLines\" /><Navigati" +
+                "onProperty Name=\"Location_Code_Link\" Relationship=\"NAV.TenderOrderLines_Location" +
+                "_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"TenderOrderLines\" /></EntityTy" +
+                "pe><EntityType Name=\"TestActualStart\"><Key><PropertyRef Name=\"Line_No\" /><Proper" +
                 "tyRef Name=\"Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"" +
                 "Status\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\" Type" +
                 "=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nulla" +
-                "ble=\"false\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Descr" +
-                "iption\" Type=\"Edm.String\" /><Property Name=\"g_cdePackSize\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Co" +
-                "de\" Type=\"Edm.String\" /><Property Name=\"g_decSmallQty\" Type=\"Edm.Decimal\" /><Pro" +
-                "perty Name=\"g_cdeSmallQtyUOM\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property N" +
-                "ame=\"g_intMth\" Type=\"Edm.Int32\" /><Property Name=\"g_intYr\" Type=\"Edm.Int32\" /><P" +
-                "roperty Name=\"g_dte1stProcessDate\" Type=\"Edm.DateTime\" /><Property Name=\"Dispens" +
-                "ed\" Type=\"Edm.Boolean\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode" +
-                "=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV.ProdP" +
-                "lanningLine_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"ProdPlanni" +
-                "ngLine\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV" +
-                ".ProdPlanningLine_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" " +
-                "FromRole=\"ProdPlanningLine\" /></EntityType><EntityType Name=\"ProductCodeList\"><K" +
-                "ey><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" Null" +
-                "able=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"" +
-                "No_Series\" Type=\"Edm.String\" /><Property Name=\"Item_Prefix_Description\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"Simulation_Name\" Type=\"Edm.String\" /><Property Name=" +
-                "\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"No_" +
-                "Series_Link\" Relationship=\"NAV.ProductCodeList_No_Series_Link\" ToRole=\"No_Series" +
-                "_Link\" FromRole=\"ProductCodeList\" /></EntityType><EntityType Name=\"ProductionEnt" +
-                "ry\"><Key><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Ed" +
-                "m.Int32\" Nullable=\"false\" /><Property Name=\"Production_Order_No\" Type=\"Edm.Strin" +
-                "g\" /><Property Name=\"Production_Status\" Type=\"Edm.String\" /><Property Name=\"Loca" +
-                "tion_Code\" Type=\"Edm.String\" /><Property Name=\"Operation_No\" Type=\"Edm.String\" /" +
-                "><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Lot_No\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Serial_No\" Type=\"Edm.String\" /><Property Name=\"Expiration_Date\" Type=\"Edm.DateT" +
-                "ime\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Base_Unit_of" +
-                "_Measure\" Type=\"Edm.String\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" " +
-                "/><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Qty_per_Unit_of" +
-                "_Measure\" Type=\"Edm.Decimal\" /><Property Name=\"Prod_Order_Line_No\" Type=\"Edm.Int" +
-                "32\" /><Property Name=\"Reason_Code\" Type=\"Edm.String\" /><Property Name=\"Type\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property N" +
-                "ame=\"User_ID\" Type=\"Edm.String\" /><Property Name=\"Start_Time\" Type=\"Edm.String\" " +
-                "/><Property Name=\"End_Time\" Type=\"Edm.String\" /><Property Name=\"Start_Date\" Type" +
-                "=\"Edm.DateTime\" /><Property Name=\"End_Date\" Type=\"Edm.DateTime\" /><Property Name" +
-                "=\"Start_Hour\" Type=\"Edm.String\" /><Property Name=\"Start_Minute\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Start_AM_PM\" Type=\"Edm.String\" /><Property Name=\"End_Hour\" T" +
-                "ype=\"Edm.String\" /><Property Name=\"End_Minute\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"End_AM_PM\" Type=\"Edm.String\" /><Property Name=\"Appl_to_Item_Entry\" Type=\"Edm." +
-                "Int32\" /><Property Name=\"Total_Selected_Quantity\" Type=\"Edm.Decimal\" /><Property" +
-                " Name=\"Total_New_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Selected_Quantit" +
-                "y\" Type=\"Edm.Decimal\" /><Property Name=\"New_Quantity\" Type=\"Edm.Decimal\" /><Prop" +
-                "erty Name=\"Origin_Entry_No\" Type=\"Edm.Int32\" /><Property Name=\"Batch_No\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property" +
-                " Name=\"No_of_Label_Int\" Type=\"Edm.Int32\" /><Property Name=\"No_of_Label_Ext\" Type" +
-                "=\"Edm.Int32\" /><Property Name=\"No_of_Quarantine_Label\" Type=\"Edm.Int32\" /><Prope" +
-                "rty Name=\"QC_Ref_No\" Type=\"Edm.String\" /><Property Name=\"Inheritance\" Type=\"Edm." +
-                "Boolean\" /><Property Name=\"Ref_Item_Ledg_Entry_No\" Type=\"Edm.Int32\" /><Property " +
-                "Name=\"Session_Type\" Type=\"Edm.String\" /><Property Name=\"Session_User_ID\" Type=\"E" +
-                "dm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><" +
-                "NavigationProperty Name=\"Production_Order_No_Link\" Relationship=\"NAV.ProductionE" +
-                "ntry_Production_Order_No_Link\" ToRole=\"Production_Order_No_Link\" FromRole=\"Produ" +
-                "ctionEntry\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.Pr" +
-                "oductionEntry_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"Producti" +
-                "onEntry\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relationship=\"NA" +
-                "V.ProductionEntry_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Link\" " +
-                "FromRole=\"ProductionEntry\" /><NavigationProperty Name=\"Reason_Code_Link\" Relatio" +
-                "nship=\"NAV.ProductionEntry_Reason_Code_Link\" ToRole=\"Reason_Code_Link\" FromRole=" +
-                "\"ProductionEntry\" /></EntityType><EntityType Name=\"ProductionOrder\"><Key><Proper" +
-                "tyRef Name=\"No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Status\" Typ" +
-                "e=\"Edm.String\" Nullable=\"false\" /><Property Name=\"No\" Type=\"Edm.String\" Nullable" +
-                "=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Desc" +
-                "ription_2\" Type=\"Edm.String\" /><Property Name=\"Sub_Lot\" Type=\"Edm.Int32\" /><Prop" +
-                "erty Name=\"Source_No\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Quantity" +
-                "\" Type=\"Edm.Decimal\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.Stri" +
-                "ng\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Starting_Time\" Type=\"Edm" +
-                ".String\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"" +
-                "Ending_Time\" Type=\"Edm.String\" /><Property Name=\"Ending_Date\" Type=\"Edm.DateTime" +
-                "\" /><Property Name=\"Due_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Assigned_Use" +
-                "r_ID\" Type=\"Edm.String\" /><Property Name=\"Finished_Date\" Type=\"Edm.DateTime\" /><" +
-                "Property Name=\"Search_Description\" Type=\"Edm.String\" /><Pro";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart16 = "perty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty" +
-                " Name=\"No_Link\" Relationship=\"NAV.ProductionOrder_No_Link\" ToRole=\"No_Link\" From" +
-                "Role=\"ProductionOrder\" /><NavigationProperty Name=\"Location_Code_Link\" Relations" +
-                "hip=\"NAV.ProductionOrder_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRol" +
-                "e=\"ProductionOrder\" /></EntityType><EntityType Name=\"ProductionOrderList\"><Key><" +
-                "PropertyRef Name=\"No\" /><PropertyRef Name=\"Status\" /></Key><Property Name=\"Statu" +
-                "s\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"No\" Type=\"Edm.String\" Nu" +
-                "llable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name" +
-                "=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Sub_Lot\" Type=\"Edm.Int32\" /" +
-                "><Property Name=\"Source_No\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type=\"" +
-                "Edm.String\" /><Property Name=\"Routing_No\" Type=\"Edm.String\" /><Property Name=\"Qu" +
-                "antity\" Type=\"Edm.Decimal\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Starting_Time\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" /><Property " +
-                "Name=\"Ending_Time\" Type=\"Edm.String\" /><Property Name=\"Ending_Date\" Type=\"Edm.Da" +
-                "teTime\" /><Property Name=\"Due_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Assign" +
-                "ed_User_ID\" Type=\"Edm.String\" /><Property Name=\"Finished_Date\" Type=\"Edm.DateTim" +
-                "e\" /><Property Name=\"Search_Description\" Type=\"Edm.String\" /><Property Name=\"ETa" +
-                "g\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"No_Link" +
-                "\" Relationship=\"NAV.ProductionOrderList_No_Link\" ToRole=\"No_Link\" FromRole=\"Prod" +
-                "uctionOrderList\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"N" +
-                "AV.ProductionOrderList_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=" +
-                "\"ProductionOrderList\" /></EntityType><EntityType Name=\"ProductionRecipe\"><Key><P" +
-                "ropertyRef Name=\"Recipe_No\" /></Key><Property Name=\"Recipe_No\" Type=\"Edm.String\"" +
-                " Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Item_Description\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Item_Description_2\" Type=\"Edm.String\" /><Property Name=\"" +
-                "Search_Description\" Type=\"Edm.String\" /><Property Name=\"Routing_No\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Routing_Version_Code\" Type=\"Edm.String\" /><Property Name" +
-                "=\"Production_BOM_No\" Type=\"Edm.String\" /><Property Name=\"Production_BOM_Version_" +
-                "Code\" Type=\"Edm.String\" /><Property Name=\"Status\" Type=\"Edm.String\" /><Property " +
-                "Name=\"Remark\" Type=\"Edm.String\" /><Property Name=\"No_Series\" Type=\"Edm.String\" /" +
-                "><Property Name=\"Preference\" Type=\"Edm.Int32\" /><Property Name=\"Batch_Size\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Machine_Center_Code\" Type=\"Edm.String\" /><Proper" +
-                "ty Name=\"Machine_Center_Name\" Type=\"Edm.String\" /><Property Name=\"Machine_Center" +
-                "_Name_2\" Type=\"Edm.String\" /><Property Name=\"Revision_Series\" Type=\"Edm.String\" " +
-                "/><Property Name=\"Last_Date_Modified\" Type=\"Edm.DateTime\" /><Property Name=\"Cust" +
-                "om_Report_Layout_Code\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.Strin" +
-                "g\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"No_Series_Link\" Relations" +
-                "hip=\"NAV.ProductionRecipe_No_Series_Link\" ToRole=\"No_Series_Link\" FromRole=\"Prod" +
-                "uctionRecipe\" /><NavigationProperty Name=\"Machine_Center_Code_Link\" Relationship" +
-                "=\"NAV.ProductionRecipe_Machine_Center_Code_Link\" ToRole=\"Machine_Center_Code_Lin" +
-                "k\" FromRole=\"ProductionRecipe\" /></EntityType><EntityType Name=\"ProductionRecipe" +
-                "LinkWS\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Recipe_No\" />" +
-                "</Key><Property Name=\"Prod_Recipe_No\" Type=\"Edm.String\" Nullable=\"false\" /><Prop" +
-                "erty Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Item_No\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Item_Description\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Item_Description_2\" Type=\"Edm.String\" /><Property Name=\"Item_Recipe_N" +
-                "o_1\" Type=\"Edm.String\" /><Property Name=\"Machine_Process_Hour\" Type=\"Edm.Decimal" +
-                "\" /><Property Name=\"Machine_Process_Manpower\" Type=\"Edm.Int32\" /><Property Name=" +
-                "\"Lv_1_Cleaning_Hour\" Type=\"Edm.Decimal\" /><Property Name=\"Lv_1_Cln_Manpower\" Typ" +
-                "e=\"Edm.Decimal\" /><Property Name=\"Lv_2_Cleaning_Hour\" Type=\"Edm.Decimal\" /><Prop" +
-                "erty Name=\"Lv_2_Cln_Manpower\" Type=\"Edm.Decimal\" /><Property Name=\"ETag\" Type=\"E" +
-                "dm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"ProductionRe" +
-                "cipeWS\"><Key><PropertyRef Name=\"Recipe_No\" /></Key><Property Name=\"Recipe_No\" Ty" +
-                "pe=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Item_Descriptio" +
-                "n\" Type=\"Edm.String\" /><Property Name=\"Item_Description_2\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Search_Description\" Type=\"Edm.String\" /><Property Name=\"Routing_N" +
-                "o\" Type=\"Edm.String\" /><Property Name=\"Routing_Version_Code\" Type=\"Edm.String\" /" +
-                "><Property Name=\"Production_BOM_No\" Type=\"Edm.String\" /><Property Name=\"Producti" +
-                "on_BOM_Version_Code\" Type=\"Edm.String\" /><Property Name=\"Status\" Type=\"Edm.Strin" +
-                "g\" /><Property Name=\"Remark\" Type=\"Edm.String\" /><Property Name=\"No_Series\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Preference\" Type=\"Edm.Int32\" /><Property Name=\"B" +
-                "atch_Size\" Type=\"Edm.String\" /><Property Name=\"Machine_Center_Code\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Machine_Center_Name\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Machine_Center_Name_2\" Type=\"Edm.String\" /><Property Name=\"Revision_Series\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Last_Date_Modified\" Type=\"Edm.DateTime\" /><Prop" +
-                "erty Name=\"Custom_Report_Layout_Code\" Type=\"Edm.String\" /><Property Name=\"No_Of_" +
-                "Drum\" Type=\"Edm.Int32\" /><Property Name=\"QC_Cost\" Type=\"Edm.Decimal\" /><Property" +
-                " Name=\"Art_Work_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Manufacturing_Loss_Pe" +
-                "rcent\" Type=\"Edm.Decimal\" /><Property Name=\"Pack_Size\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Registration_Status\" Type=\"Edm.String\" /><Property Name=\"Production_P" +
-                "refererence\" Type=\"Edm.String\" /><Property Name=\"Company_Preference\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Cleaning_Level\" Type=\"Edm.String\" /><Property Name=\"No_" +
-                "of_Campaign\" Type=\"Edm.Int32\" /><Property Name=\"Description_2\" Type=\"Edm.String\"" +
-                " /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navigation" +
-                "Property Name=\"No_Series_Link\" Relationship=\"NAV.ProductionRecipeWS_No_Series_Li" +
-                "nk\" ToRole=\"No_Series_Link\" FromRole=\"ProductionRecipeWS\" /><NavigationProperty " +
-                "Name=\"Machine_Center_Code_Link\" Relationship=\"NAV.ProductionRecipeWS_Machine_Cen" +
-                "ter_Code_Link\" ToRole=\"Machine_Center_Code_Link\" FromRole=\"ProductionRecipeWS\" /" +
-                "></EntityType><EntityType Name=\"PurchaseLines\"><Key><PropertyRef Name=\"Document_" +
-                "No\" /><PropertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Key><P" +
-                "roperty Name=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name" +
-                "=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Typ" +
-                "e=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Buy_from_Vendor_No\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Vendor_Name\" Type=\"Edm.String\" /><Property Name=\"Type\" " +
-                "Type=\"Edm.String\" /><Property Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Vari" +
-                "ant_Code\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Location_Code\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Na" +
-                "me=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Original_Quantity\" Type=" +
-                "\"Edm.Decimal\" /><Property Name=\"Outstanding_Qty_Base\" Type=";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart17 = "\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Proper" +
-                "ty Name=\"Manufacturer_Name\" Type=\"Edm.String\" /><Property Name=\"Currency_Code\" T" +
-                "ype=\"Edm.String\" /><Property Name=\"Direct_Unit_Cost\" Type=\"Edm.Decimal\" /><Prope" +
-                "rty Name=\"Indirect_Cost_Percent\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Cost_" +
-                "LCY\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Price_LCY\" Type=\"Edm.Decimal\" /><" +
-                "Property Name=\"Line_Amount\" Type=\"Edm.Decimal\" /><Property Name=\"Shortcut_Dimens" +
-                "ion_1_Code\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=" +
-                "\"Edm.String\" /><Property Name=\"Expected_Receipt_Date\" Type=\"Edm.DateTime\" /><Pro" +
-                "perty Name=\"Outstanding_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Outstandi" +
-                "ng_Amount_LCY\" Type=\"Edm.Decimal\" /><Property Name=\"Amt_Rcd_Not_Invoiced_LCY\" Ty" +
-                "pe=\"Edm.Decimal\" /><Property Name=\"Closed\" Type=\"Edm.Boolean\" /><Property Name=\"" +
-                "Closed_Remark\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concu" +
-                "rrencyMode=\"Fixed\" /><NavigationProperty Name=\"Buy_from_Vendor_No_Link\" Relation" +
-                "ship=\"NAV.PurchaseLines_Buy_from_Vendor_No_Link\" ToRole=\"Buy_from_Vendor_No_Link" +
-                "\" FromRole=\"PurchaseLines\" /><NavigationProperty Name=\"Location_Code_Link\" Relat" +
-                "ionship=\"NAV.PurchaseLines_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromR" +
-                "ole=\"PurchaseLines\" /><NavigationProperty Name=\"Currency_Code_Link\" Relationship" +
-                "=\"NAV.PurchaseLines_Currency_Code_Link\" ToRole=\"Currency_Code_Link\" FromRole=\"Pu" +
-                "rchaseLines\" /></EntityType><EntityType Name=\"RawMatItemList\"><Key><PropertyRef " +
-                "Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" /><Prop" +
-                "erty Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=" +
-                "\"Edm.String\" /><Property Name=\"Inventory\" Type=\"Edm.Decimal\" /><Property Name=\"I" +
-                "nternal_Ref\" Type=\"Edm.String\" /><Property Name=\"Item_Registration\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Batch_Nos\" Type=\"Edm.String\" /><Property Name=\"PSO_Item_" +
-                "No\" Type=\"Edm.String\" /><Property Name=\"Production_Recipe_No\" Type=\"Edm.String\" " +
-                "/><Property Name=\"Safety_Lead_Time\" Type=\"Edm.String\" /><Property Name=\"Producti" +
-                "on_BOM_No\" Type=\"Edm.String\" /><Property Name=\"Routing_No\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Base_Unit_of_Measure\" Type=\"Edm.String\" /><Property Name=\"Standar" +
-                "d_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Pr" +
-                "operty Name=\"Last_Direct_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Item_Categor" +
-                "y_Code\" Type=\"Edm.String\" /><Property Name=\"Product_Group_Code\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Global_Dimension_1_Filter\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"Global_Dimension_2_Filter\" Type=\"Edm.String\" /><Property Name=\"Location_Filte" +
-                "r\" Type=\"Edm.String\" /><Property Name=\"Drop_Shipment_Filter\" Type=\"Edm.String\" /" +
-                "><Property Name=\"Variant_Filter\" Type=\"Edm.String\" /><Property Name=\"Lot_No_Filt" +
-                "er\" Type=\"Edm.String\" /><Property Name=\"Serial_No_Filter\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Date_Filter\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.S" +
-                "tring\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Batch_Nos_Link\" Relat" +
-                "ionship=\"NAV.RawMatItemList_Batch_Nos_Link\" ToRole=\"Batch_Nos_Link\" FromRole=\"Ra" +
-                "wMatItemList\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relationshi" +
-                "p=\"NAV.RawMatItemList_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_of_Measure_Li" +
-                "nk\" FromRole=\"RawMatItemList\" /><NavigationProperty Name=\"Item_Category_Code_Lin" +
-                "k\" Relationship=\"NAV.RawMatItemList_Item_Category_Code_Link\" ToRole=\"Item_Catego" +
-                "ry_Code_Link\" FromRole=\"RawMatItemList\" /><NavigationProperty Name=\"Location_Fil" +
-                "ter_Link\" Relationship=\"NAV.RawMatItemList_Location_Filter_Link\" ToRole=\"Locatio" +
-                "n_Filter_Link\" FromRole=\"RawMatItemList\" /></EntityType><EntityType Name=\"Reason" +
-                "CodeList\"><Key><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm." +
-                "String\" Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Pro" +
-                "perty Name=\"RND\" Type=\"Edm.Boolean\" /><Property Name=\"ETag\" Type=\"Edm.String\" Co" +
-                "ncurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"RegistrationDetailsLine\">" +
-                "<Key><PropertyRef Name=\"Item_No\" /><PropertyRef Name=\"Line_No\" /></Key><Property" +
-                " Name=\"Item_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Ty" +
-                "pe=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Country_Code\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Country_Name\" Type=\"Edm.String\" /><Property Name=\"Reference_" +
-                "No\" Type=\"Edm.String\" /><Property Name=\"Registration_No\" Type=\"Edm.String\" /><Pr" +
-                "operty Name=\"Date_Of_Issue\" Type=\"Edm.DateTime\" /><Property Name=\"Expiry_Date\" T" +
-                "ype=\"Edm.DateTime\" /><Property Name=\"Shelf_Life\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Packaging_Type\" Type=\"Edm.String\" /><Property Name=\"Batch_Size\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Unit_Of_Measure_Code\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"Storage_Condition\" Type=\"Edm.String\" /><Property Name=\"Speical_Precaution\" Ty" +
-                "pe=\"Edm.String\" /><Property Name=\"Non_Std_Item\" Type=\"Edm.Boolean\" /><Property N" +
-                "ame=\"Effective_Date\" Type=\"Edm.DateTime\" /><Property Name=\"ETag\" Type=\"Edm.Strin" +
-                "g\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Country_Code_Link\" Relati" +
-                "onship=\"NAV.RegistrationDetailsLine_Country_Code_Link\" ToRole=\"Country_Code_Link" +
-                "\" FromRole=\"RegistrationDetailsLine\" /><NavigationProperty Name=\"Unit_Of_Measure" +
-                "_Code_Link\" Relationship=\"NAV.RegistrationDetailsLine_Unit_Of_Measure_Code_Link\"" +
-                " ToRole=\"Unit_Of_Measure_Code_Link\" FromRole=\"RegistrationDetailsLine\" /></Entit" +
-                "yType><EntityType Name=\"SalesForecastList\"><Key><PropertyRef Name=\"Item_No\" /><P" +
-                "ropertyRef Name=\"No\" /><PropertyRef Name=\"Version\" /></Key><Property Name=\"No\" T" +
-                "ype=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Item_No\" Type=\"Edm.String\" N" +
-                "ullable=\"false\" /><Property Name=\"Version\" Type=\"Edm.String\" Nullable=\"false\" />" +
-                "<Property Name=\"Type\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm" +
-                ".String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Pa" +
-                "ck_Size\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Pro" +
-                "perty Name=\"Contract_Start\" Type=\"Edm.DateTime\" /><Property Name=\"Contract_End\" " +
-                "Type=\"Edm.DateTime\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property" +
-                " Name=\"Extension_Month\" Type=\"Edm.Int32\" /><Property Name=\"Extension_Quantity\" T" +
-                "ype=\"Edm.Decimal\" /><Property Name=\"Committed_Date\" Type=\"Edm.DateTime\" /><Prope" +
-                "rty Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><Entity" +
-                "Type Name=\"SalesLineNotClosed\"><Key><PropertyRef Name=\"Document_No\" /><PropertyR" +
-                "ef Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Key><Property Name=\"Do" +
-                "cument_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Document_No\" T" +
-                "ype=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nu" +
-                "llable=\"false\" /><Property Name=\"Sell_to_Customer_No\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Sell_to_Customer_Name\" Type=\"Edm.String\" /><Property Name=\"External_Do" +
-                "cument_No\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm.String\" /><Proper" +
-                "ty Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"Description_" +
-                "2\" Type=\"Edm.String\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><" +
-                "Property Name=\"Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" " +
-                "Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Nam" +
-                "e=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Currency_Code\" Type" +
-                "=\"Edm.String\" /><Property Name=\"Line_Amount\" Type=\"Edm.Decimal\" /><Property Name" +
-                "=\"Job_No\" Type=\"Edm.String\" /><Property Name=\"Work_Type_Cod";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart18 = "e\" Type=\"Edm.String\" /><Property Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.Strin" +
-                "g\" /><Property Name=\"Shortcut_Dimension_2_Code\" Type=\"Edm.String\" /><Property Na" +
-                "me=\"ShortcutDimCode_x005B_3_x005D_\" Type=\"Edm.String\" /><Property Name=\"Shortcut" +
-                "DimCode_x005B_4_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005" +
-                "B_5_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_6_x005D_\" " +
-                "Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_7_x005D_\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"ShortcutDimCode_x005B_8_x005D_\" Type=\"Edm.String\" /><Pro" +
-                "perty Name=\"Shipment_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Promised_Delive" +
-                "ry_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Qty_to_Ship\" Type=\"Edm.Decimal\" /" +
-                "><Property Name=\"Outstanding_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit" +
-                "_Price\" Type=\"Edm.Decimal\" /><Property Name=\"Outstanding_Amount\" Type=\"Edm.Decim" +
-                "al\" /><Property Name=\"Status\" Type=\"Edm.String\" /><Property Name=\"Closed\" Type=\"" +
-                "Edm.Boolean\" /><Property Name=\"Closed_Remark\" Type=\"Edm.String\" /><Property Name" +
-                "=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Se" +
-                "ll_to_Customer_No_Link\" Relationship=\"NAV.SalesLineNotClosed_Sell_to_Customer_No" +
-                "_Link\" ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"SalesLineNotClosed\" /><Naviga" +
-                "tionProperty Name=\"Item_Category_Code_Link\" Relationship=\"NAV.SalesLineNotClosed" +
-                "_Item_Category_Code_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"SalesLineNo" +
-                "tClosed\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.Sales" +
-                "LineNotClosed_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"SalesLin" +
-                "eNotClosed\" /><NavigationProperty Name=\"Currency_Code_Link\" Relationship=\"NAV.Sa" +
-                "lesLineNotClosed_Currency_Code_Link\" ToRole=\"Currency_Code_Link\" FromRole=\"Sales" +
-                "LineNotClosed\" /></EntityType><EntityType Name=\"SalesLines\"><Key><PropertyRef Na" +
-                "me=\"Document_No\" /><PropertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Line_N" +
-                "o\" /></Key><Property Name=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\" /><" +
-                "Property Name=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=" +
-                "\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Tender_No\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Sell_to_Customer_No\" Type=\"Edm.String\" /><Property " +
-                "Name=\"Sell_to_Customer_Name\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"Edm" +
-                ".String\" /><Property Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Code\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property " +
-                "Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"Reserve\" Type=\"Edm.String\" /><Property Name=\"Quantit" +
-                "y\" Type=\"Edm.Decimal\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Pro" +
-                "perty Name=\"Reserved_Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Outstanding_" +
-                "Qty_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Line_Amount\" Type=\"Edm.Decimal\" /><Property Name=\"Job_N" +
-                "o\" Type=\"Edm.String\" /><Property Name=\"Work_Type_Code\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Shortcut_Dimension_1_Code\" Type=\"Edm.String\" /><Property Name=\"Shortc" +
-                "ut_Dimension_2_Code\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_3" +
-                "_x005D_\" Type=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_4_x005D_\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"ShortcutDimCode_x005B_5_x005D_\" Type=\"Edm.Strin" +
-                "g\" /><Property Name=\"ShortcutDimCode_x005B_6_x005D_\" Type=\"Edm.String\" /><Proper" +
-                "ty Name=\"ShortcutDimCode_x005B_7_x005D_\" Type=\"Edm.String\" /><Property Name=\"Sho" +
-                "rtcutDimCode_x005B_8_x005D_\" Type=\"Edm.String\" /><Property Name=\"Shipment_Date\" " +
-                "Type=\"Edm.DateTime\" /><Property Name=\"Outstanding_Quantity\" Type=\"Edm.Decimal\" /" +
-                "><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationPr" +
-                "operty Name=\"Sell_to_Customer_No_Link\" Relationship=\"NAV.SalesLines_Sell_to_Cust" +
-                "omer_No_Link\" ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"SalesLines\" /><Navigat" +
-                "ionProperty Name=\"Location_Code_Link\" Relationship=\"NAV.SalesLines_Location_Code" +
-                "_Link\" ToRole=\"Location_Code_Link\" FromRole=\"SalesLines\" /></EntityType><EntityT" +
-                "ype Name=\"SalesOrderLineKIV\"><Key><PropertyRef Name=\"Document_No\" /><PropertyRef" +
-                " Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Key><Property Name=\"Docu" +
-                "ment_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Document_No\" Typ" +
-                "e=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Null" +
-                "able=\"false\" /><Property Name=\"Sell_to_Customer_No\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Sell_to_Customer_Name\" Type=\"Edm.String\" /><Property Name=\"External_Docu" +
-                "ment_No\" Type=\"Edm.String\" /><Property Name=\"Tender_No\" Type=\"Edm.String\" /><Pro" +
-                "perty Name=\"Type\" Type=\"Edm.String\" /><Property Name=\"No\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Variant_Code\" Type=\"Edm.String\" /><Property Name=\"Description\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Na" +
-                "me=\"Shipment_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Item_Category_Code\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Internal_Ref\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decima" +
-                "l\" /><Property Name=\"Outstanding_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"" +
-                "Item_Tacking_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code" +
-                "\" Type=\"Edm.String\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property" +
-                " Name=\"Line_Amount\" Type=\"Edm.Decimal\" /><Property Name=\"Last_Modified_Date\" Typ" +
-                "e=\"Edm.DateTime\" /><Property Name=\"Checked\" Type=\"Edm.Boolean\" /><Property Name=" +
-                "\"Checked_By\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concurr" +
-                "encyMode=\"Fixed\" /><NavigationProperty Name=\"Sell_to_Customer_No_Link\" Relations" +
-                "hip=\"NAV.SalesOrderLineKIV_Sell_to_Customer_No_Link\" ToRole=\"Sell_to_Customer_No" +
-                "_Link\" FromRole=\"SalesOrderLineKIV\" /><NavigationProperty Name=\"Item_Category_Co" +
-                "de_Link\" Relationship=\"NAV.SalesOrderLineKIV_Item_Category_Code_Link\" ToRole=\"It" +
-                "em_Category_Code_Link\" FromRole=\"SalesOrderLineKIV\" /><NavigationProperty Name=\"" +
-                "Location_Code_Link\" Relationship=\"NAV.SalesOrderLineKIV_Location_Code_Link\" ToRo" +
-                "le=\"Location_Code_Link\" FromRole=\"SalesOrderLineKIV\" /></EntityType><EntityType " +
-                "Name=\"SalesPrices\"><Key><PropertyRef Name=\"Currency_Code\" /><PropertyRef Name=\"I" +
-                "tem_No\" /><PropertyRef Name=\"Minimum_Quantity\" /><PropertyRef Name=\"Sales_Code\" " +
-                "/><PropertyRef Name=\"Sales_Type\" /><PropertyRef Name=\"Starting_Date\" /><Property" +
-                "Ref Name=\"Unit_of_Measure_Code\" /><PropertyRef Name=\"Variant_Code\" /></Key><Prop" +
-                "erty Name=\"Item_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Sales_T" +
-                "ype\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Sales_Code\" Type=\"Edm." +
-                "String\" Nullable=\"false\" /><Property Name=\"Starting_Date\" Type=\"Edm.DateTime\" Nu" +
-                "llable=\"false\" /><Property Name=\"Currency_Code\" Type=\"Edm.String\" Nullable=\"fals" +
-                "e\" /><Property Name=\"Variant_Code\" Type=\"Edm.String\" Nullable=\"false\" /><Propert" +
-                "y Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Nam" +
-                "e=\"Minimum_Quantity\" Type=\"Edm.Decimal\" Nullable=\"false\" /><Property Name=\"Sales" +
-                "TypeFilter\" Type=\"Edm.String\" /><Property Name=\"SalesCodeFilterCtrl\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"ItemNoFilterCtrl\" Type=\"Edm.String\" /><Property Name=\"S" +
-                "tartingDateFilter\" Type=\"Edm.String\" /><Property Name=\"SalesCodeFilterCtrl2\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"GetFilterDescription\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Source_Name\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Description_2\" Type=\"Edm.Strin";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart19 = "g\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Property Name=\"Inte" +
-                "rnal_Ref\" Type=\"Edm.String\" /><Property Name=\"Cost\" Type=\"Edm.Decimal\" /><Proper" +
-                "ty Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"Ending_Date\" Type=\"Edm" +
-                ".DateTime\" /><Property Name=\"Tender_No\" Type=\"Edm.String\" /><Property Name=\"Exte" +
-                "rnal_Document_No\" Type=\"Edm.String\" /><Property Name=\"Remark\" Type=\"Edm.String\" " +
-                "/><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationP" +
-                "roperty Name=\"Currency_Code_Link\" Relationship=\"NAV.SalesPrices_Currency_Code_Li" +
-                "nk\" ToRole=\"Currency_Code_Link\" FromRole=\"SalesPrices\" /><NavigationProperty Nam" +
-                "e=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.SalesPrices_Unit_of_Measure_Code" +
-                "_Link\" ToRole=\"Unit_of_Measure_Code_Link\" FromRole=\"SalesPrices\" /><NavigationPr" +
-                "operty Name=\"Source_Name_Link\" Relationship=\"NAV.SalesPrices_Source_Name_Link\" T" +
-                "oRole=\"Source_Name_Link\" FromRole=\"SalesPrices\" /><NavigationProperty Name=\"Item" +
-                "_Category_Code_Link\" Relationship=\"NAV.SalesPrices_Item_Category_Code_Link\" ToRo" +
-                "le=\"Item_Category_Code_Link\" FromRole=\"SalesPrices\" /><NavigationProperty Name=\"" +
-                "Tender_No_Link\" Relationship=\"NAV.SalesPrices_Tender_No_Link\" ToRole=\"Tender_No_" +
-                "Link\" FromRole=\"SalesPrices\" /></EntityType><EntityType Name=\"ShipmentMethod\"><K" +
-                "ey><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type=\"Edm.String\" Null" +
-                "able=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property Name=\"" +
-                "ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=" +
-                "\"ShippingAgent\"><Key><PropertyRef Name=\"Code\" /></Key><Property Name=\"Code\" Type" +
-                "=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><Prop" +
-                "erty Name=\"Internet_Address\" Type=\"Edm.String\" /><Property Name=\"Account_No\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\"" +
-                " /></EntityType><EntityType Name=\"ShippingAgentService\"><Key><PropertyRef Name=\"" +
-                "Code\" /><PropertyRef Name=\"Shipping_Agent_Code\" /></Key><Property Name=\"Shipping" +
-                "_Agent_Code\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Code\" Type=\"Ed" +
-                "m.String\" Nullable=\"false\" /><Property Name=\"Description\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Shipping_Time\" Type=\"Edm.String\" /><Property Name=\"Base_Calendar_C" +
-                "ode\" Type=\"Edm.String\" /><Property Name=\"CalendarMgmt_CustomizedCalendarExistTex" +
-                "t_CustomizedCalendar_Source_Type_Shipping_Agent__x002C__Shipping_Agent_Code__x00" +
-                "2C_Code_x002C__Base_Calendar_Code\" Type=\"Edm.String\" /><Property Name=\"ETag\" Typ" +
-                "e=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Shipping_Agen" +
-                "t_Code_Link\" Relationship=\"NAV.ShippingAgentService_Shipping_Agent_Code_Link\" To" +
-                "Role=\"Shipping_Agent_Code_Link\" FromRole=\"ShippingAgentService\" /></EntityType><" +
-                "EntityType Name=\"StockAdjustmentOdata\"><Key><PropertyRef Name=\"Entry_No\" /></Key" +
-                "><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"D" +
-                "ocument_Type\" Type=\"Edm.Int32\" /><Property Name=\"Document_No\" Type=\"Edm.String\" " +
-                "/><Property Name=\"Document_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Group_ID\"" +
-                " Type=\"Edm.Guid\" /><Property Name=\"Entry_Type\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Lot_No\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Serial_No\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type" +
-                "=\"Edm.Decimal\" /><Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Propert" +
-                "y Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property Name=\"No_of_Label_In" +
-                "t\" Type=\"Edm.Int32\" /><Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Prope" +
-                "rty Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"Created_on\" Type=\"Edm.Da" +
-                "teTime\" /><Property Name=\"Created_by\" Type=\"Edm.String\" /><Property Name=\"Posted" +
-                "_on\" Type=\"Edm.DateTime\" /><Property Name=\"Customer_No\" Type=\"Edm.String\" /><Pro" +
-                "perty Name=\"Vendor_No\" Type=\"Edm.String\" /><Property Name=\"External_Document_No\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Currency_Code\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name" +
-                "=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"Reason_Code\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Journal_Template_Name\" Type=\"Edm.String\" /><Property Name=\"J" +
-                "ournal_Batch_Name\" Type=\"Edm.String\" /><Property Name=\"Quality_Control_Type\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Inspection_Datasheet_No\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Sample_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Forfeit_Quan" +
-                "tity\" Type=\"Edm.Decimal\" /><Property Name=\"Approve_Quantity\" Type=\"Edm.Decimal\" " +
-                "/><Property Name=\"Reject_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Resample" +
-                "_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Rework_Quantity\" Type=\"Edm.Decim" +
-                "al\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navigat" +
-                "ionProperty Name=\"Customer_No_Link\" Relationship=\"NAV.StockAdjustmentOdata_Custo" +
-                "mer_No_Link\" ToRole=\"Customer_No_Link\" FromRole=\"StockAdjustmentOdata\" /><Naviga" +
-                "tionProperty Name=\"Vendor_No_Link\" Relationship=\"NAV.StockAdjustmentOdata_Vendor" +
-                "_No_Link\" ToRole=\"Vendor_No_Link\" FromRole=\"StockAdjustmentOdata\" /><NavigationP" +
-                "roperty Name=\"Currency_Code_Link\" Relationship=\"NAV.StockAdjustmentOdata_Currenc" +
-                "y_Code_Link\" ToRole=\"Currency_Code_Link\" FromRole=\"StockAdjustmentOdata\" /><Navi" +
-                "gationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.StockAdjustmentOdata_" +
-                "Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"StockAdjustmentOdata\" " +
-                "/><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Relationship=\"NAV.StockAd" +
-                "justmentOdata_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_Measure_Code_Link\" From" +
-                "Role=\"StockAdjustmentOdata\" /><NavigationProperty Name=\"Reason_Code_Link\" Relati" +
-                "onship=\"NAV.StockAdjustmentOdata_Reason_Code_Link\" ToRole=\"Reason_Code_Link\" Fro" +
-                "mRole=\"StockAdjustmentOdata\" /><NavigationProperty Name=\"Sample_Quantity_Link\" R" +
-                "elationship=\"NAV.StockAdjustmentOdata_Sample_Quantity_Link\" ToRole=\"Sample_Quant" +
-                "ity_Link\" FromRole=\"StockAdjustmentOdata\" /></EntityType><EntityType Name=\"SWD_C" +
-                "onsumptionEntries\"><Key><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Ent" +
-                "ry_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Production_Order_No\" " +
-                "Type=\"Edm.String\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" /><Property Name=\"" +
-                "Prod_Order_Comp_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Posting_Date\" Type=\"" +
-                "Edm.DateTime\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Loc" +
-                "ation_Code\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><" +
-                "Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Lot_No\"" +
-                " Type=\"Edm.String\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><" +
-                "Property Name=\"QC_Ref_No\" Type=\"Edm.String\" /><Property Name=\"Batch_No\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"No_of_Label_Int\" Type=\"Edm.Int32\" /><Property Name=\"" +
-                "No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property Name=\"No_of_Quarantine_Label\" Type" +
-                "=\"Edm.Int32\" /><Property Name=\"QC_No_Series\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Inheritance\" Type=\"Edm.B" +
-                "oolean\" /><Property Name=\"QC_Status\" Type=\"Edm.String\" /><Property Name=\"Retest_" +
-                "Date\" Type=\"Edm.DateTime\" /><Property Name=\"Session_Type\" Type=\"Edm.String\" /><P" +
-                "roperty Name=\"Session_User_ID\" Type=\"Edm.String\" /><Property Name=\"ETag\" Type=\"E" +
-                "dm.String\" ConcurrencyMode=\"Fixed\" /></EntityType><EntityType Name=\"SWDAllProdOu" +
-                "tputLine\"><Key><PropertyRef Name=\"Line_No\" /><PropertyRef Name=\"Prod_Order_No\" /" +
-                "><PropertyRef Name=\"Status\" /></Key><Property Name=\"Status\"";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart20 = " Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_No\" Type=\"Edm.St" +
-                "ring\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"fal" +
-                "se\" /><Property Name=\"Replan_Ref_No\" Type=\"Edm.String\" /><Property Name=\"Item_No" +
-                "\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Property" +
-                " Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Product_Name\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"g_cdePackSize\" Type=\"Edm.String\" /><Property Name=\"g" +
-                "_cdeBatchSize\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" " +
-                "/><Property Name=\"Finished_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_o" +
-                "f_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"g_decSmallQty\" Type=\"Edm.Dec" +
-                "imal\" /><Property Name=\"g_cdeSmallQtyUOM\" Type=\"Edm.String\" /><Property Name=\"g_" +
-                "cdeBatchNo\" Type=\"Edm.String\" /><Property Name=\"g_dteOutputDate\" Type=\"Edm.DateT" +
-                "ime\" /><Property Name=\"g_dteMfgDate\" Type=\"Edm.DateTime\" /><Property Name=\"g_dte" +
-                "ExpDate\" Type=\"Edm.DateTime\" /><Property Name=\"ETag\" Type=\"Edm.String\" Concurren" +
-                "cyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relationship=\"NAV" +
-                ".SWDAllProdOutputLine_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" FromRole=\"" +
-                "SWDAllProdOutputLine\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Rel" +
-                "ationship=\"NAV.SWDAllProdOutputLine_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_M" +
-                "easure_Code_Link\" FromRole=\"SWDAllProdOutputLine\" /></EntityType><EntityType Nam" +
-                "e=\"SWDProdOrderSyncPortal\"><Key><PropertyRef Name=\"Guid\" /></Key><Property Name=" +
-                "\"Guid\" Type=\"Edm.Guid\" Nullable=\"false\" /><Property Name=\"Type\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Status\" Type=\"Edm.String\" /><Property Name=\"Prod_Order_No\" T" +
-                "ype=\"Edm.String\" /><Property Name=\"Start_Date\" Type=\"Edm.DateTime\" /><Property N" +
-                "ame=\"Completion_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Sub_status\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"Item_No\" Type=\"Edm.String\" /><Property Name=\"Recipe_" +
-                "No\" Type=\"Edm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property" +
-                " Name=\"Prod_Order_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"ETag\" Type=\"Edm.St" +
-                "ring\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Re" +
-                "lationship=\"NAV.SWDProdOrderSyncPortal_Prod_Order_No_Link\" ToRole=\"Prod_Order_No" +
-                "_Link\" FromRole=\"SWDProdOrderSyncPortal\" /><NavigationProperty Name=\"Prod_Order_" +
-                "Line_No_Link\" Relationship=\"NAV.SWDProdOrderSyncPortal_Prod_Order_Line_No_Link\" " +
-                "ToRole=\"Prod_Order_Line_No_Link\" FromRole=\"SWDProdOrderSyncPortal\" /></EntityTyp" +
-                "e><EntityType Name=\"SWDWebIntegrationEntry\"><Key><PropertyRef Name=\"Entry_No\" />" +
-                "</Key><Property Name=\"Entry_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Na" +
-                "me=\"Document_Type\" Type=\"Edm.Int32\" /><Property Name=\"Document_No\" Type=\"Edm.Str" +
-                "ing\" /><Property Name=\"Document_Line_No\" Type=\"Edm.Int32\" /><Property Name=\"Grou" +
-                "p_ID\" Type=\"Edm.Guid\" /><Property Name=\"Entry_Type\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Lot_No\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Serial_No\" Type=\"Edm.String\" /><Property Name=\"Quantity\"" +
-                " Type=\"Edm.Decimal\" /><Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Pr" +
-                "operty Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /><Property Name=\"No_of_Lab" +
-                "el_Int\" Type=\"Edm.Int32\" /><Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><" +
-                "Property Name=\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"Created_on\" Type=\"E" +
-                "dm.DateTime\" /><Property Name=\"Created_by\" Type=\"Edm.String\" /><Property Name=\"P" +
-                "osted_on\" Type=\"Edm.DateTime\" /><Property Name=\"Customer_No\" Type=\"Edm.String\" /" +
-                "><Property Name=\"Vendor_No\" Type=\"Edm.String\" /><Property Name=\"External_Documen" +
-                "t_No\" Type=\"Edm.String\" /><Property Name=\"Currency_Code\" Type=\"Edm.String\" /><Pr" +
-                "operty Name=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property" +
-                " Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"Reason_Code\" Type=\"Edm.S" +
-                "tring\" /><Property Name=\"Journal_Template_Name\" Type=\"Edm.String\" /><Property Na" +
-                "me=\"Journal_Batch_Name\" Type=\"Edm.String\" /><Property Name=\"Quality_Control_Type" +
-                "\" Type=\"Edm.String\" /><Property Name=\"Inspection_Datasheet_No\" Type=\"Edm.String\"" +
-                " /><Property Name=\"Sample_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Forfeit" +
-                "_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Approve_Quantity\" Type=\"Edm.Deci" +
-                "mal\" /><Property Name=\"Reject_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Res" +
-                "ample_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Rework_Quantity\" Type=\"Edm." +
-                "Decimal\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Na" +
-                "vigationProperty Name=\"Customer_No_Link\" Relationship=\"NAV.SWDWebIntegrationEntr" +
-                "y_Customer_No_Link\" ToRole=\"Customer_No_Link\" FromRole=\"SWDWebIntegrationEntry\" " +
-                "/><NavigationProperty Name=\"Vendor_No_Link\" Relationship=\"NAV.SWDWebIntegrationE" +
-                "ntry_Vendor_No_Link\" ToRole=\"Vendor_No_Link\" FromRole=\"SWDWebIntegrationEntry\" /" +
-                "><NavigationProperty Name=\"Currency_Code_Link\" Relationship=\"NAV.SWDWebIntegrati" +
-                "onEntry_Currency_Code_Link\" ToRole=\"Currency_Code_Link\" FromRole=\"SWDWebIntegrat" +
-                "ionEntry\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.SWDW" +
-                "ebIntegrationEntry_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"SWD" +
-                "WebIntegrationEntry\" /><NavigationProperty Name=\"Unit_of_Measure_Code_Link\" Rela" +
-                "tionship=\"NAV.SWDWebIntegrationEntry_Unit_of_Measure_Code_Link\" ToRole=\"Unit_of_" +
-                "Measure_Code_Link\" FromRole=\"SWDWebIntegrationEntry\" /><NavigationProperty Name=" +
-                "\"Reason_Code_Link\" Relationship=\"NAV.SWDWebIntegrationEntry_Reason_Code_Link\" To" +
-                "Role=\"Reason_Code_Link\" FromRole=\"SWDWebIntegrationEntry\" /><NavigationProperty " +
-                "Name=\"Sample_Quantity_Link\" Relationship=\"NAV.SWDWebIntegrationEntry_Sample_Quan" +
-                "tity_Link\" ToRole=\"Sample_Quantity_Link\" FromRole=\"SWDWebIntegrationEntry\" /></E" +
-                "ntityType><EntityType Name=\"TenderForSimulation\"><Key><PropertyRef Name=\"Documen" +
-                "t_No\" /><PropertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Line_No\" /></Key>" +
-                "<Property Name=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\" /><Property Na" +
-                "me=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" T" +
-                "ype=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Sell_to_Customer_No\" Type=\"Ed" +
-                "m.String\" /><Property Name=\"Sell_to_Customer_Name\" Type=\"Edm.String\" /><Property" +
-                " Name=\"g_txtCategories\" Type=\"Edm.String\" /><Property Name=\"Tender_No\" Type=\"Edm" +
-                ".String\" /><Property Name=\"g_cdeItemNo\" Type=\"Edm.String\" /><Property Name=\"Desc" +
-                "ription\" Type=\"Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" />" +
-                "<Property Name=\"g_decBSOQty\" Type=\"Edm.Decimal\" /><Property Name=\"g_decOutstdQty" +
-                "\" Type=\"Edm.Decimal\" /><Property Name=\"Promised_Delivery_Date\" Type=\"Edm.DateTim" +
-                "e\" /><Property Name=\"Shipment_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Unit_o" +
-                "f_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"g_cdeCompany\" Type=\"Edm.Stri" +
-                "ng\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navigat" +
-                "ionProperty Name=\"Sell_to_Customer_No_Link\" Relationship=\"NAV.TenderForSimulatio" +
-                "n_Sell_to_Customer_No_Link\" ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"TenderFo" +
-                "rSimulation\" /></EntityType><EntityType Name=\"TenderOrderLines\"><Key><PropertyRe" +
-                "f Name=\"Document_No\" /><PropertyRef Name=\"Document_Type\" /><PropertyRef Name=\"Li" +
-                "ne_No\" /></Key><Property Name=\"Document_Type\" Type=\"Edm.String\" Nullable=\"false\"" +
-                " /><Property Name=\"Document_No\" Type=\"Edm.String\" Nullable=\"false\" /><Property N" +
-                "ame=\"Line_No\" Type=\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Sell_to_Custom" +
-                "er_No\" Type=\"Edm.String\" /><Property Name=\"Sell_to_Customer";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart21 = "_Name\" Type=\"Edm.String\" /><Property Name=\"External_Document_No\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Tender_No\" Type=\"Edm.String\" /><Property Name=\"Type\" Type=\"E" +
-                "dm.String\" /><Property Name=\"No\" Type=\"Edm.String\" /><Property Name=\"Variant_Cod" +
-                "e\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Shipment_Date\" Type=\"" +
-                "Edm.DateTime\" /><Property Name=\"Item_Category_Code\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Internal_Ref\" Type=\"Edm.String\" /><Property Name=\"Location_Code\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"g_fn" +
-                "GetPocketQty\" Type=\"Edm.Decimal\" /><Property Name=\"Unit_of_Measure_Code\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Unit_Price\" Type=\"Edm.Decimal\" /><Property Name=\"ET" +
-                "ag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Sell_t" +
-                "o_Customer_No_Link\" Relationship=\"NAV.TenderOrderLines_Sell_to_Customer_No_Link\"" +
-                " ToRole=\"Sell_to_Customer_No_Link\" FromRole=\"TenderOrderLines\" /><NavigationProp" +
-                "erty Name=\"Item_Category_Code_Link\" Relationship=\"NAV.TenderOrderLines_Item_Cate" +
-                "gory_Code_Link\" ToRole=\"Item_Category_Code_Link\" FromRole=\"TenderOrderLines\" /><" +
-                "NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.TenderOrderLines_" +
-                "Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"TenderOrderLines\" /></" +
-                "EntityType><EntityType Name=\"TestActualStart\"><Key><PropertyRef Name=\"Line_No\" /" +
-                "><PropertyRef Name=\"Prod_Order_No\" /><PropertyRef Name=\"Status\" /></Key><Propert" +
-                "y Name=\"Status\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Prod_Order_" +
-                "No\" Type=\"Edm.String\" Nullable=\"false\" /><Property Name=\"Line_No\" Type=\"Edm.Int3" +
-                "2\" Nullable=\"false\" /><Property Name=\"Replan_Ref_No\" Type=\"Edm.String\" /><Proper" +
-                "ty Name=\"Actual_Start_Date\" Type=\"Edm.DateTime\" /><Property Name=\"ETag\" Type=\"Ed" +
-                "m.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link" +
-                "\" Relationship=\"NAV.TestActualStart_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Li" +
-                "nk\" FromRole=\"TestActualStart\" /></EntityType><EntityType Name=\"TrackingSpecific" +
-                "ation\"><Key><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=" +
-                "\"Edm.Int32\" Nullable=\"false\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\"" +
-                " /><Property Name=\"Production_Order_No\" Type=\"Edm.String\" /><Property Name=\"Item" +
-                "_No\" Type=\"Edm.String\" /><Property Name=\"Prod_Order_Line_No\" Type=\"Edm.Int32\" />" +
-                "<Property Name=\"User_ID\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"" +
-                "Edm.String\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Batch_No\" Type=\"Edm.String\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.Dat" +
-                "eTime\" /><Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"" +
-                "Location_Code\" Type=\"Edm.String\" /><Property Name=\"Prod_Order_Quantity\" Type=\"Ed" +
-                "m.Decimal\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Name=" +
-                "\"Posted_Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Base_Unit_of_Measure\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property N" +
-                "ame=\"No_Of_Operator\" Type=\"Edm.Int32\" /><Property Name=\"Start_Hour\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Start_Minute\" Type=\"Edm.String\" /><Property Name=\"Start_" +
-                "AM_PM\" Type=\"Edm.String\" /><Property Name=\"End_Hour\" Type=\"Edm.String\" /><Proper" +
-                "ty Name=\"End_Minute\" Type=\"Edm.String\" /><Property Name=\"End_AM_PM\" Type=\"Edm.St" +
+                "ble=\"false\" /><Property Name=\"Replan_Ref_No\" Type=\"Edm.String\" /><Property Name=" +
+                "\"Actual_Start_Date\" Type=\"Edm.DateTime\" /><Property Name=\"ETag\" Type=\"Edm.String" +
+                "\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Prod_Order_No_Link\" Relati" +
+                "onship=\"NAV.TestActualStart_Prod_Order_No_Link\" ToRole=\"Prod_Order_No_Link\" From" +
+                "Role=\"TestActualStart\" /></EntityType><EntityType Name=\"TrackingSpecification\"><" +
+                "Key><PropertyRef Name=\"Entry_No\" /></Key><Property Name=\"Entry_No\" Type=\"Edm.Int" +
+                "32\" Nullable=\"false\" /><Property Name=\"Posting_Date\" Type=\"Edm.DateTime\" /><Prop" +
+                "erty Name=\"Production_Order_No\" Type=\"Edm.String\" /><Property Name=\"Item_No\" Typ" +
+                "e=\"Edm.String\" /><Property Name=\"Prod_Order_Line_No\" Type=\"Edm.Int32\" /><Propert" +
+                "y Name=\"User_ID\" Type=\"Edm.String\" /><Property Name=\"Description\" Type=\"Edm.Stri" +
+                "ng\" /><Property Name=\"Description_2\" Type=\"Edm.String\" /><Property Name=\"Batch_N" +
+                "o\" Type=\"Edm.String\" /><Property Name=\"Manufacturing_Date\" Type=\"Edm.DateTime\" /" +
+                "><Property Name=\"Expiration_Date\" Type=\"Edm.DateTime\" /><Property Name=\"Location" +
+                "_Code\" Type=\"Edm.String\" /><Property Name=\"Prod_Order_Quantity\" Type=\"Edm.Decima" +
+                "l\" /><Property Name=\"Quantity_Base\" Type=\"Edm.Decimal\" /><Property Name=\"Posted_" +
+                "Quantity\" Type=\"Edm.Decimal\" /><Property Name=\"Base_Unit_of_Measure\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"No_of_Label_Ext\" Type=\"Edm.Int32\" /><Property Name=\"No_" +
+                "Of_Operator\" Type=\"Edm.Int32\" /><Property Name=\"Start_Hour\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Start_Minute\" Type=\"Edm.String\" /><Property Name=\"Start_AM_PM\" T" +
+                "ype=\"Edm.String\" /><Property Name=\"End_Hour\" Type=\"Edm.String\" /><Property Name=" +
+                "\"End_Minute\" Type=\"Edm.String\" /><Property Name=\"End_AM_PM\" Type=\"Edm.String\" />" +
+                "<Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationPro" +
+                "perty Name=\"Production_Order_No_Link\" Relationship=\"NAV.TrackingSpecification_Pr" +
+                "oduction_Order_No_Link\" ToRole=\"Production_Order_No_Link\" FromRole=\"TrackingSpec" +
+                "ification\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.Tra" +
+                "ckingSpecification_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromRole=\"Tra" +
+                "ckingSpecification\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Link\" Relat" +
+                "ionship=\"NAV.TrackingSpecification_Base_Unit_of_Measure_Link\" ToRole=\"Base_Unit_" +
+                "of_Measure_Link\" FromRole=\"TrackingSpecification\" /></EntityType><EntityType Nam" +
+                "e=\"Vendor\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.Str" +
+                "ing\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><Property Name" +
+                "=\"Address\" Type=\"Edm.String\" /><Property Name=\"Address_2\" Type=\"Edm.String\" /><P" +
+                "roperty Name=\"Post_Code\" Type=\"Edm.String\" /><Property Name=\"Country_Region_Code" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Phone_No\" Type=\"Edm.String\" /><Property Na" +
+                "me=\"Fax_No\" Type=\"Edm.String\" /><Property Name=\"E_Mail\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"City\" Type=\"Edm.String\" /><Property Name=\"County\" Type=\"Edm.String\" " +
+                "/><Property Name=\"Responsibility_Center\" Type=\"Edm.String\" /><Property Name=\"Loc" +
+                "ation_Code\" Type=\"Edm.String\" /><Property Name=\"IC_Partner_Code\" Type=\"Edm.Strin" +
+                "g\" /><Property Name=\"Contact\" Type=\"Edm.String\" /><Property Name=\"Purchaser_Code" +
+                "\" Type=\"Edm.String\" /><Property Name=\"Vendor_Posting_Group\" Type=\"Edm.String\" />" +
+                "<Property Name=\"Gen_Bus_Posting_Group\" Type=\"Edm.String\" /><Property Name=\"VAT_B" +
+                "us_Posting_Group\" Type=\"Edm.String\" /><Property Name=\"Payment_Terms_Code\" Type=\"" +
+                "Edm.String\" /><Property Name=\"Fin_Charge_Terms_Code\" Type=\"Edm.String\" /><Proper" +
+                "ty Name=\"Currency_Code\" Type=\"Edm.String\" /><Property Name=\"Language_Code\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Search_Name\" Type=\"Edm.String\" /><Property Name=\"" +
+                "Blocked\" Type=\"Edm.String\" /><Property Name=\"Last_Date_Modified\" Type=\"Edm.DateT" +
+                "ime\" /><Property Name=\"Application_Method\" Type=\"Edm.String\" /><Property Name=\"S" +
+                "hipment_Method_Code\" Type=\"Edm.String\" /><Property Name=\"Lead_Time_Calculation\" " +
+                "Type=\"Edm.String\" /><Property Name=\"Base_Calendar_Code\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Balance_LCY\" Type=\"Edm.Decimal\" /><Property Name=\"Balance_Due_LCY\" T" +
+                "ype=\"Edm.Decimal\" /><Property Name=\"Global_Dimension_1_Filter\" Type=\"Edm.String\"" +
+                " /><Property Name=\"Global_Dimension_2_Filter\" Type=\"Edm.String\" /><Property Name" +
+                "=\"Currency_Filter\" Type=\"Edm.String\" /><Property Name=\"Date_Filter\" Type=\"Edm.St" +
                 "ring\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><Navig" +
-                "ationProperty Name=\"Production_Order_No_Link\" Relationship=\"NAV.TrackingSpecific" +
-                "ation_Production_Order_No_Link\" ToRole=\"Production_Order_No_Link\" FromRole=\"Trac" +
-                "kingSpecification\" /><NavigationProperty Name=\"Location_Code_Link\" Relationship=" +
-                "\"NAV.TrackingSpecification_Location_Code_Link\" ToRole=\"Location_Code_Link\" FromR" +
-                "ole=\"TrackingSpecification\" /><NavigationProperty Name=\"Base_Unit_of_Measure_Lin" +
-                "k\" Relationship=\"NAV.TrackingSpecification_Base_Unit_of_Measure_Link\" ToRole=\"Ba" +
-                "se_Unit_of_Measure_Link\" FromRole=\"TrackingSpecification\" /></EntityType><Entity" +
-                "Type Name=\"Vendor\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=" +
-                "\"Edm.String\" Nullable=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Address\" Type=\"Edm.String\" /><Property Name=\"Address_2\" Type=\"Edm.Stri" +
-                "ng\" /><Property Name=\"Post_Code\" Type=\"Edm.String\" /><Property Name=\"Country_Reg" +
-                "ion_Code\" Type=\"Edm.String\" /><Property Name=\"Phone_No\" Type=\"Edm.String\" /><Pro" +
-                "perty Name=\"Fax_No\" Type=\"Edm.String\" /><Property Name=\"E_Mail\" Type=\"Edm.String" +
-                "\" /><Property Name=\"City\" Type=\"Edm.String\" /><Property Name=\"County\" Type=\"Edm." +
-                "String\" /><Property Name=\"Responsibility_Center\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Location_Code\" Type=\"Edm.String\" /><Property Name=\"IC_Partner_Code\" Type=\"E" +
-                "dm.String\" /><Property Name=\"Contact\" Type=\"Edm.String\" /><Property Name=\"Purcha" +
-                "ser_Code\" Type=\"Edm.String\" /><Property Name=\"Vendor_Posting_Group\" Type=\"Edm.St" +
-                "ring\" /><Property Name=\"Gen_Bus_Posting_Group\" Type=\"Edm.String\" /><Property Nam" +
-                "e=\"VAT_Bus_Posting_Group\" Type=\"Edm.String\" /><Property Name=\"Payment_Terms_Code" +
-                "\" Type=\"Edm.String\" /><Property Name=\"Fin_Charge_Terms_Code\" Type=\"Edm.String\" /" +
-                "><Property Name=\"Currency_Code\" Type=\"Edm.String\" /><Property Name=\"Language_Cod" +
-                "e\" Type=\"Edm.String\" /><Property Name=\"Search_Name\" Type=\"Edm.String\" /><Propert" +
-                "y Name=\"Blocked\" Type=\"Edm.String\" /><Property Name=\"Last_Date_Modified\" Type=\"E" +
-                "dm.DateTime\" /><Property Name=\"Application_Method\" Type=\"Edm.String\" /><Property" +
-                " Name=\"Shipment_Method_Code\" Type=\"Edm.String\" /><Property Name=\"Lead_Time_Calcu" +
-                "lation\" Type=\"Edm.String\" /><Property Name=\"Base_Calendar_Code\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Balance_LCY\" Type=\"Edm.Decimal\" /><Property Name=\"Balance_Du" +
-                "e_LCY\" Type=\"Edm.Decimal\" /><Property Name=\"Global_Dimension_1_Filter\" Type=\"Edm" +
-                ".String\" /><Property Name=\"Global_Dimension_2_Filter\" Type=\"Edm.String\" /><Prope" +
-                "rty Name=\"Currency_Filter\" Type=\"Edm.String\" /><Property Name=\"Date_Filter\" Type" +
-                "=\"Edm.String\" /><Property Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" " +
-                "/><NavigationProperty Name=\"Country_Region_Code_Link\" Relationship=\"NAV.Vendor_C" +
-                "ountry_Region_Code_Link\" ToRole=\"Country_Region_Code_Link\" FromRole=\"Vendor\" /><" +
-                "NavigationProperty Name=\"Location_Code_Link\" Relationship=\"NAV.Vendor_Location_C" +
-                "ode_Link\" ToRole=\"Location_Code_Link\" FromRole=\"Vendor\" /><NavigationProperty Na" +
-                "me=\"Gen_Bus_Posting_Group_Link\" Relationship=\"NAV.Vendor_Gen_Bus_Posting_Group_L" +
-                "ink\" ToRole=\"Gen_Bus_Posting_Group_Link\" FromRole=\"Vendor\" /><NavigationProperty" +
-                " Name=\"VAT_Bus_Posting_Group_Link\" Relationship=\"NAV.Vendor_VAT_Bus_Posting_Grou" +
-                "p_Link\" ToRole=\"VAT_Bus_Posting_Group_Link\" FromRole=\"Vendor\" /><NavigationPrope" +
-                "rty Name=\"Payment_Terms_Code_Link\" Relationship=\"NAV.Vendor_Payment_Terms_Code_L" +
-                "ink\" ToRole=\"Payment_Terms_Code_Link\" FromRole=\"Vendor\" /><NavigationProperty Na" +
-                "me=\"Currency_Code_Link\" Relationship=\"NAV.Vendor_Currency_Code_Link\" ToRole=\"Cur" +
-                "rency_Code_Link\" FromRole=\"Vendor\" /><NavigationProperty Name=\"Shipment_Method_C" +
-                "ode_Link\" Relationship=\"NAV.Vendor_Shipment_Method_Code_Link\" ToRole=\"Shipment_M" +
-                "ethod_Code_Link\" FromRole=\"Vendor\" /><NavigationProperty Name=\"Currency_Filter_L" +
-                "ink\" Relationship=\"NAV.Vendor_Currency_Filter_Link\" ToRole=\"Currency_Filter_Link" +
-                "\" FromRole=\"Vendor\" /></EntityType><EntityType Name=\"WorkCenterList\"><Key><Prope" +
-                "rtyRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nullable=\"false\" " +
-                "/><Property Name=\"Name\" Type=\"Edm.String\" /><Property Name=\"Alternate_Work_Cente" +
-                "r\" Type=\"Edm.String\" /><Property Name=\"Work_Center_Group_Co";
+                "ationProperty Name=\"Country_Region_Code_Link\" Relationship=\"NAV.Vendor_Country_R" +
+                "egion_Code_Link\" ToRole=\"Country_Region_Code_Link\" FromRole=\"Vendor\" /><Navigati" +
+                "onProperty Name=\"Location_Code_Link\" Relationship=\"NAV.Vendor_Location_Code_Link" +
+                "\" ToRole=\"Location_Code_Link\" FromRole=\"Vendor\" /><NavigationProperty Name=\"Gen_" +
+                "Bus_Posting_Group_Link\" Relationship=\"NAV.Vendor_Gen_Bus_Posting_Group_Link\" ToR" +
+                "ole=\"Gen_Bus_Posting_Group_Link\" FromRole=\"Vendor\" /><NavigationProperty Name=\"V" +
+                "AT_Bus_Posting_Group_Link\" Relationship=\"NAV.Vendor_VAT_Bus_Posting_Group_Link\" " +
+                "ToRole=\"VAT_Bus_Posting_Group_Link\" FromRole=\"Vendor\" /><NavigationProperty Name" +
+                "=\"Payment_Terms_Code_Link\" Relationship=\"NAV.Vendor_Payment_Terms_Code_Link\" ToR" +
+                "ole=\"Payment_Terms_Code_Link\" FromRole=\"Vendor\" /><NavigationProperty Name=\"Curr" +
+                "ency_Code_Link\" Relationship=\"NAV.Vendor_Currency_Code_Link\" ToRole=\"Currency_Co" +
+                "de_Link\" FromRole=\"Vendor\" /><NavigationProperty Name=\"Shipment_Method_Code_Link" +
+                "\" Relationship=\"NAV.Vendor_Shipment_Method_Code_Link\" ToRole=\"Shipment_Method_Co" +
+                "de_Link\" FromRole=\"Vendor\" /><NavigationProperty Name=\"Currency_Filter_Link\" Rel" +
+                "ationship=\"NAV.Vendor_Currency_Filter_Link\" ToRole=\"Currency_Filter_Link\" FromRo" +
+                "le=\"Vendor\" /></EntityType><EntityType Name=\"WorkCenterList";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart22 = "de\" Type=\"Edm.String\" /><Property Name=\"Global_Dimension_1_Code\" Type=\"Edm.String" +
-                "\" /><Property Name=\"Global_Dimension_2_Code\" Type=\"Edm.String\" /><Property Name=" +
-                "\"Direct_Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Indirect_Cost_Percent\" T" +
-                "ype=\"Edm.Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Na" +
-                "me=\"Unit_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Capacity\" Type=\"Ed" +
-                "m.Decimal\" /><Property Name=\"Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Ma" +
-                "ximum_Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Minimum_Efficiency\" Type=" +
-                "\"Edm.Decimal\" /><Property Name=\"Simulation_Type\" Type=\"Edm.String\" /><Property N" +
-                "ame=\"Shop_Calendar_Code\" Type=\"Edm.String\" /><Property Name=\"Search_Name\" Type=\"" +
-                "Edm.String\" /><Property Name=\"Overhead_Rate\" Type=\"Edm.Decimal\" /><Property Name" +
-                "=\"Last_Date_Modified\" Type=\"Edm.DateTime\" /><Property Name=\"Flushing_Method\" Typ" +
-                "e=\"Edm.String\" /><Property Name=\"Subcontractor_No\" Type=\"Edm.String\" /><Property" +
-                " Name=\"ETag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Nam" +
-                "e=\"Alternate_Work_Center_Link\" Relationship=\"NAV.WorkCenterList_Alternate_Work_C" +
-                "enter_Link\" ToRole=\"Alternate_Work_Center_Link\" FromRole=\"WorkCenterList\" /><Nav" +
-                "igationProperty Name=\"Subcontractor_No_Link\" Relationship=\"NAV.WorkCenterList_Su" +
-                "bcontractor_No_Link\" ToRole=\"Subcontractor_No_Link\" FromRole=\"WorkCenterList\" />" +
-                "</EntityType><EntityType Name=\"Company\"><Key><PropertyRef Name=\"Name\" /></Key><P" +
-                "roperty Name=\"Name\" Type=\"Edm.String\" Nullable=\"false\" /><NavigationProperty Nam" +
-                "e=\"BOMOdata\" Relationship=\"NAV.Company_BOMOdata\" ToRole=\"BOMOdata\" FromRole=\"Com" +
-                "pany\" /><NavigationProperty Name=\"ConsumptionJournal\" Relationship=\"NAV.Company_" +
-                "ConsumptionJournal\" ToRole=\"ConsumptionJournal\" FromRole=\"Company\" /><Navigation" +
-                "Property Name=\"CountryRegion\" Relationship=\"NAV.Company_CountryRegion\" ToRole=\"C" +
-                "ountryRegion\" FromRole=\"Company\" /><NavigationProperty Name=\"CPS_CalendarAbsence" +
-                "Entries\" Relationship=\"NAV.Company_CPS_CalendarAbsenceEntries\" ToRole=\"CPS_Calen" +
-                "darAbsenceEntries\" FromRole=\"Company\" /><NavigationProperty Name=\"CPS_ProdOrderL" +
-                "ine\" Relationship=\"NAV.Company_CPS_ProdOrderLine\" ToRole=\"CPS_ProdOrderLine\" Fro" +
-                "mRole=\"Company\" /><NavigationProperty Name=\"CPS_ProdOrderRoutingLine\" Relationsh" +
-                "ip=\"NAV.Company_CPS_ProdOrderRoutingLine\" ToRole=\"CPS_ProdOrderRoutingLine\" From" +
-                "Role=\"Company\" /><NavigationProperty Name=\"CPS_ProductionOrder\" Relationship=\"NA" +
-                "V.Company_CPS_ProductionOrder\" ToRole=\"CPS_ProductionOrder\" FromRole=\"Company\" /" +
-                "><NavigationProperty Name=\"CreateProdOrderEntryWS\" Relationship=\"NAV.Company_Cre" +
-                "ateProdOrderEntryWS\" ToRole=\"CreateProdOrderEntryWS\" FromRole=\"Company\" /><Navig" +
-                "ationProperty Name=\"CreateProdOrderLineEntryWS\" Relationship=\"NAV.Company_Create" +
-                "ProdOrderLineEntryWS\" ToRole=\"CreateProdOrderLineEntryWS\" FromRole=\"Company\" /><" +
-                "NavigationProperty Name=\"CRTIMS_PostedTransferEntry\" Relationship=\"NAV.Company_C" +
-                "RTIMS_PostedTransferEntry\" ToRole=\"CRTIMS_PostedTransferEntry\" FromRole=\"Company" +
-                "\" /><NavigationProperty Name=\"CRTIMS_TransferEntry\" Relationship=\"NAV.Company_CR" +
-                "TIMS_TransferEntry\" ToRole=\"CRTIMS_TransferEntry\" FromRole=\"Company\" /><Navigati" +
-                "onProperty Name=\"CRTIMS_TransferLines\" Relationship=\"NAV.Company_CRTIMS_Transfer" +
-                "Lines\" ToRole=\"CRTIMS_TransferLines\" FromRole=\"Company\" /><NavigationProperty Na" +
-                "me=\"CRTIMS_TransferShipmentHeader\" Relationship=\"NAV.Company_CRTIMS_TransferShip" +
-                "mentHeader\" ToRole=\"CRTIMS_TransferShipmentHeader\" FromRole=\"Company\" /><Navigat" +
-                "ionProperty Name=\"CRTIMS_TransferShipmentLines\" Relationship=\"NAV.Company_CRTIMS" +
-                "_TransferShipmentLines\" ToRole=\"CRTIMS_TransferShipmentLines\" FromRole=\"Company\"" +
-                " /><NavigationProperty Name=\"CRTSHF_BatchSize\" Relationship=\"NAV.Company_CRTSHF_" +
-                "BatchSize\" ToRole=\"CRTSHF_BatchSize\" FromRole=\"Company\" /><NavigationProperty Na" +
-                "me=\"CRTSHF_BOMTypes\" Relationship=\"NAV.Company_CRTSHF_BOMTypes\" ToRole=\"CRTSHF_B" +
-                "OMTypes\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_BOMTypesLines\" Re" +
-                "lationship=\"NAV.Company_CRTSHF_BOMTypesLines\" ToRole=\"CRTSHF_BOMTypesLines\" From" +
-                "Role=\"Company\" /><NavigationProperty Name=\"CRTSHF_ItemUnitOfMeasure\" Relationshi" +
-                "p=\"NAV.Company_CRTSHF_ItemUnitOfMeasure\" ToRole=\"CRTSHF_ItemUnitOfMeasure\" FromR" +
-                "ole=\"Company\" /><NavigationProperty Name=\"CRTSHF_NoSeriesList\" Relationship=\"NAV" +
-                ".Company_CRTSHF_NoSeriesList\" ToRole=\"CRTSHF_NoSeriesList\" FromRole=\"Company\" />" +
-                "<NavigationProperty Name=\"CRTSHF_PackSize\" Relationship=\"NAV.Company_CRTSHF_Pack" +
-                "Size\" ToRole=\"CRTSHF_PackSize\" FromRole=\"Company\" /><NavigationProperty Name=\"CR" +
-                "TSHF_ProdBOMLines\" Relationship=\"NAV.Company_CRTSHF_ProdBOMLines\" ToRole=\"CRTSHF" +
-                "_ProdBOMLines\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_ProductionB" +
-                "OMList\" Relationship=\"NAV.Company_CRTSHF_ProductionBOMList\" ToRole=\"CRTSHF_Produ" +
-                "ctionBOMList\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_ProductionBO" +
-                "MVersion\" Relationship=\"NAV.Company_CRTSHF_ProductionBOMVersion\" ToRole=\"CRTSHF_" +
-                "ProductionBOMVersion\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_Scra" +
-                "pCodes\" Relationship=\"NAV.Company_CRTSHF_ScrapCodes\" ToRole=\"CRTSHF_ScrapCodes\" " +
-                "FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_ScrapItemJnlLine\" Relation" +
-                "ship=\"NAV.Company_CRTSHF_ScrapItemJnlLine\" ToRole=\"CRTSHF_ScrapItemJnlLine\" From" +
-                "Role=\"Company\" /><NavigationProperty Name=\"CRTSHF_UnitOfMeasures\" Relationship=\"" +
-                "NAV.Company_CRTSHF_UnitOfMeasures\" ToRole=\"CRTSHF_UnitOfMeasures\" FromRole=\"Comp" +
-                "any\" /><NavigationProperty Name=\"CurrencyCodes\" Relationship=\"NAV.Company_Curren" +
-                "cyCodes\" ToRole=\"CurrencyCodes\" FromRole=\"Company\" /><NavigationProperty Name=\"C" +
-                "ustomer\" Relationship=\"NAV.Company_Customer\" ToRole=\"Customer\" FromRole=\"Company" +
-                "\" /><NavigationProperty Name=\"CustomerPostingGroup\" Relationship=\"NAV.Company_Cu" +
-                "stomerPostingGroup\" ToRole=\"CustomerPostingGroup\" FromRole=\"Company\" /><Navigati" +
-                "onProperty Name=\"DefaultDimensionList\" Relationship=\"NAV.Company_DefaultDimensio" +
-                "nList\" ToRole=\"DefaultDimensionList\" FromRole=\"Company\" /><NavigationProperty Na" +
-                "me=\"DocumentStorageEntries\" Relationship=\"NAV.Company_DocumentStorageEntries\" To" +
-                "Role=\"DocumentStorageEntries\" FromRole=\"Company\" /><NavigationProperty Name=\"Dru" +
-                "mWeight\" Relationship=\"NAV.Company_DrumWeight\" ToRole=\"DrumWeight\" FromRole=\"Com" +
-                "pany\" /><NavigationProperty Name=\"FinishedProdOrderLine\" Relationship=\"NAV.Compa" +
-                "ny_FinishedProdOrderLine\" ToRole=\"FinishedProdOrderLine\" FromRole=\"Company\" /><N" +
-                "avigationProperty Name=\"FP_ItemList\" Relationship=\"NAV.Company_FP_ItemList\" ToRo" +
-                "le=\"FP_ItemList\" FromRole=\"Company\" /><NavigationProperty Name=\"GenBussPostingGr" +
-                "oup\" Relationship=\"NAV.Company_GenBussPostingGroup\" ToRole=\"GenBussPostingGroup\"" +
-                " FromRole=\"Company\" /><NavigationProperty Name=\"GroupPlanning\" Relationship=\"NAV" +
-                ".Company_GroupPlanning\" ToRole=\"GroupPlanning\" FromRole=\"Company\" /><NavigationP" +
-                "roperty Name=\"GroupPlanningSplit\" Relationship=\"NAV.Company_GroupPlanningSplit\" " +
-                "ToRole=\"GroupPlanningSplit\" FromRole=\"Company\" /><NavigationProperty Name=\"GSTBu" +
-                "sPostingGroup\" Relationship=\"NAV.Company_GSTBusPostingGroup\" ToRole=\"GSTBusPosti" +
-                "ngGroup\" FromRole=\"Company\" /><NavigationProperty Name=\"ItemAdditionalInfo\" Rela" +
-                "tionship=\"NAV.Company_ItemAdditionalInfo\" ToRole=\"ItemAdditionalInfo\" FromRole=\"" +
-                "Company\" /><NavigationProperty Name=\"ItemAttributes\" Relationship=\"NAV.Company_I" +
-                "temAttributes\" ToRole=\"ItemAttributes\" FromRole=\"Company\" /><NavigationProperty " +
-                "Name=\"ItemAttributesValues\" Relationship=\"NAV.Company_ItemAttributesValues\" ToRo" +
-                "le=\"ItemAttributesValues\" FromRole=\"Company\" /><NavigationProperty Name=\"ItemAtt" +
-                "ributesValuesMapping\" Relationship=\"NAV.Company_ItemAttribu";
+            private const string ModelPart22 = "\"><Key><PropertyRef Name=\"No\" /></Key><Property Name=\"No\" Type=\"Edm.String\" Nulla" +
+                "ble=\"false\" /><Property Name=\"Name\" Type=\"Edm.String\" /><Property Name=\"Alternat" +
+                "e_Work_Center\" Type=\"Edm.String\" /><Property Name=\"Work_Center_Group_Code\" Type=" +
+                "\"Edm.String\" /><Property Name=\"Global_Dimension_1_Code\" Type=\"Edm.String\" /><Pro" +
+                "perty Name=\"Global_Dimension_2_Code\" Type=\"Edm.String\" /><Property Name=\"Direct_" +
+                "Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Indirect_Cost_Percent\" Type=\"Edm" +
+                ".Decimal\" /><Property Name=\"Unit_Cost\" Type=\"Edm.Decimal\" /><Property Name=\"Unit" +
+                "_of_Measure_Code\" Type=\"Edm.String\" /><Property Name=\"Capacity\" Type=\"Edm.Decima" +
+                "l\" /><Property Name=\"Efficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Maximum_Ef" +
+                "ficiency\" Type=\"Edm.Decimal\" /><Property Name=\"Minimum_Efficiency\" Type=\"Edm.Dec" +
+                "imal\" /><Property Name=\"Simulation_Type\" Type=\"Edm.String\" /><Property Name=\"Sho" +
+                "p_Calendar_Code\" Type=\"Edm.String\" /><Property Name=\"Search_Name\" Type=\"Edm.Stri" +
+                "ng\" /><Property Name=\"Overhead_Rate\" Type=\"Edm.Decimal\" /><Property Name=\"Last_D" +
+                "ate_Modified\" Type=\"Edm.DateTime\" /><Property Name=\"Flushing_Method\" Type=\"Edm.S" +
+                "tring\" /><Property Name=\"Subcontractor_No\" Type=\"Edm.String\" /><Property Name=\"E" +
+                "Tag\" Type=\"Edm.String\" ConcurrencyMode=\"Fixed\" /><NavigationProperty Name=\"Alter" +
+                "nate_Work_Center_Link\" Relationship=\"NAV.WorkCenterList_Alternate_Work_Center_Li" +
+                "nk\" ToRole=\"Alternate_Work_Center_Link\" FromRole=\"WorkCenterList\" /><NavigationP" +
+                "roperty Name=\"Subcontractor_No_Link\" Relationship=\"NAV.WorkCenterList_Subcontrac" +
+                "tor_No_Link\" ToRole=\"Subcontractor_No_Link\" FromRole=\"WorkCenterList\" /></Entity" +
+                "Type><EntityType Name=\"Company\"><Key><PropertyRef Name=\"Name\" /></Key><Property " +
+                "Name=\"Name\" Type=\"Edm.String\" Nullable=\"false\" /><NavigationProperty Name=\"BOMOd" +
+                "ata\" Relationship=\"NAV.Company_BOMOdata\" ToRole=\"BOMOdata\" FromRole=\"Company\" />" +
+                "<NavigationProperty Name=\"ConsumptionJournal\" Relationship=\"NAV.Company_Consumpt" +
+                "ionJournal\" ToRole=\"ConsumptionJournal\" FromRole=\"Company\" /><NavigationProperty" +
+                " Name=\"CountryRegion\" Relationship=\"NAV.Company_CountryRegion\" ToRole=\"CountryRe" +
+                "gion\" FromRole=\"Company\" /><NavigationProperty Name=\"CPS_CalendarAbsenceEntries\"" +
+                " Relationship=\"NAV.Company_CPS_CalendarAbsenceEntries\" ToRole=\"CPS_CalendarAbsen" +
+                "ceEntries\" FromRole=\"Company\" /><NavigationProperty Name=\"CPS_ProdOrderLine\" Rel" +
+                "ationship=\"NAV.Company_CPS_ProdOrderLine\" ToRole=\"CPS_ProdOrderLine\" FromRole=\"C" +
+                "ompany\" /><NavigationProperty Name=\"CPS_ProdOrderRoutingLine\" Relationship=\"NAV." +
+                "Company_CPS_ProdOrderRoutingLine\" ToRole=\"CPS_ProdOrderRoutingLine\" FromRole=\"Co" +
+                "mpany\" /><NavigationProperty Name=\"CPS_ProductionOrder\" Relationship=\"NAV.Compan" +
+                "y_CPS_ProductionOrder\" ToRole=\"CPS_ProductionOrder\" FromRole=\"Company\" /><Naviga" +
+                "tionProperty Name=\"CreateProdOrderEntryWS\" Relationship=\"NAV.Company_CreateProdO" +
+                "rderEntryWS\" ToRole=\"CreateProdOrderEntryWS\" FromRole=\"Company\" /><NavigationPro" +
+                "perty Name=\"CreateProdOrderLineEntryWS\" Relationship=\"NAV.Company_CreateProdOrde" +
+                "rLineEntryWS\" ToRole=\"CreateProdOrderLineEntryWS\" FromRole=\"Company\" /><Navigati" +
+                "onProperty Name=\"CRTIMS_PostedTransferEntry\" Relationship=\"NAV.Company_CRTIMS_Po" +
+                "stedTransferEntry\" ToRole=\"CRTIMS_PostedTransferEntry\" FromRole=\"Company\" /><Nav" +
+                "igationProperty Name=\"CRTIMS_TransferEntry\" Relationship=\"NAV.Company_CRTIMS_Tra" +
+                "nsferEntry\" ToRole=\"CRTIMS_TransferEntry\" FromRole=\"Company\" /><NavigationProper" +
+                "ty Name=\"CRTIMS_TransferLines\" Relationship=\"NAV.Company_CRTIMS_TransferLines\" T" +
+                "oRole=\"CRTIMS_TransferLines\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTI" +
+                "MS_TransferShipmentHeader\" Relationship=\"NAV.Company_CRTIMS_TransferShipmentHead" +
+                "er\" ToRole=\"CRTIMS_TransferShipmentHeader\" FromRole=\"Company\" /><NavigationPrope" +
+                "rty Name=\"CRTIMS_TransferShipmentLines\" Relationship=\"NAV.Company_CRTIMS_Transfe" +
+                "rShipmentLines\" ToRole=\"CRTIMS_TransferShipmentLines\" FromRole=\"Company\" /><Navi" +
+                "gationProperty Name=\"CRTSHF_BatchSize\" Relationship=\"NAV.Company_CRTSHF_BatchSiz" +
+                "e\" ToRole=\"CRTSHF_BatchSize\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTS" +
+                "HF_BOMTypes\" Relationship=\"NAV.Company_CRTSHF_BOMTypes\" ToRole=\"CRTSHF_BOMTypes\"" +
+                " FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_BOMTypesLines\" Relationsh" +
+                "ip=\"NAV.Company_CRTSHF_BOMTypesLines\" ToRole=\"CRTSHF_BOMTypesLines\" FromRole=\"Co" +
+                "mpany\" /><NavigationProperty Name=\"CRTSHF_ItemUnitOfMeasure\" Relationship=\"NAV.C" +
+                "ompany_CRTSHF_ItemUnitOfMeasure\" ToRole=\"CRTSHF_ItemUnitOfMeasure\" FromRole=\"Com" +
+                "pany\" /><NavigationProperty Name=\"CRTSHF_NoSeriesList\" Relationship=\"NAV.Company" +
+                "_CRTSHF_NoSeriesList\" ToRole=\"CRTSHF_NoSeriesList\" FromRole=\"Company\" /><Navigat" +
+                "ionProperty Name=\"CRTSHF_PackSize\" Relationship=\"NAV.Company_CRTSHF_PackSize\" To" +
+                "Role=\"CRTSHF_PackSize\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_Pro" +
+                "dBOMLines\" Relationship=\"NAV.Company_CRTSHF_ProdBOMLines\" ToRole=\"CRTSHF_ProdBOM" +
+                "Lines\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_ProductionBOMList\" " +
+                "Relationship=\"NAV.Company_CRTSHF_ProductionBOMList\" ToRole=\"CRTSHF_ProductionBOM" +
+                "List\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_ProductionBOMVersion" +
+                "\" Relationship=\"NAV.Company_CRTSHF_ProductionBOMVersion\" ToRole=\"CRTSHF_Producti" +
+                "onBOMVersion\" FromRole=\"Company\" /><NavigationProperty Name=\"CRTSHF_ScrapCodes\" " +
+                "Relationship=\"NAV.Company_CRTSHF_ScrapCodes\" ToRole=\"CRTSHF_ScrapCodes\" FromRole" +
+                "=\"Company\" /><NavigationProperty Name=\"CRTSHF_ScrapItemJnlLine\" Relationship=\"NA" +
+                "V.Company_CRTSHF_ScrapItemJnlLine\" ToRole=\"CRTSHF_ScrapItemJnlLine\" FromRole=\"Co" +
+                "mpany\" /><NavigationProperty Name=\"CRTSHF_UnitOfMeasures\" Relationship=\"NAV.Comp" +
+                "any_CRTSHF_UnitOfMeasures\" ToRole=\"CRTSHF_UnitOfMeasures\" FromRole=\"Company\" /><" +
+                "NavigationProperty Name=\"CurrencyCodes\" Relationship=\"NAV.Company_CurrencyCodes\"" +
+                " ToRole=\"CurrencyCodes\" FromRole=\"Company\" /><NavigationProperty Name=\"Customer\"" +
+                " Relationship=\"NAV.Company_Customer\" ToRole=\"Customer\" FromRole=\"Company\" /><Nav" +
+                "igationProperty Name=\"CustomerPostingGroup\" Relationship=\"NAV.Company_CustomerPo" +
+                "stingGroup\" ToRole=\"CustomerPostingGroup\" FromRole=\"Company\" /><NavigationProper" +
+                "ty Name=\"DefaultDimensionList\" Relationship=\"NAV.Company_DefaultDimensionList\" T" +
+                "oRole=\"DefaultDimensionList\" FromRole=\"Company\" /><NavigationProperty Name=\"Docu" +
+                "mentStorageEntries\" Relationship=\"NAV.Company_DocumentStorageEntries\" ToRole=\"Do" +
+                "cumentStorageEntries\" FromRole=\"Company\" /><NavigationProperty Name=\"DrumWeight\"" +
+                " Relationship=\"NAV.Company_DrumWeight\" ToRole=\"DrumWeight\" FromRole=\"Company\" />" +
+                "<NavigationProperty Name=\"FinishedProdOrderLine\" Relationship=\"NAV.Company_Finis" +
+                "hedProdOrderLine\" ToRole=\"FinishedProdOrderLine\" FromRole=\"Company\" /><Navigatio" +
+                "nProperty Name=\"FP_ItemList\" Relationship=\"NAV.Company_FP_ItemList\" ToRole=\"FP_I" +
+                "temList\" FromRole=\"Company\" /><NavigationProperty Name=\"GenBussPostingGroup\" Rel" +
+                "ationship=\"NAV.Company_GenBussPostingGroup\" ToRole=\"GenBussPostingGroup\" FromRol" +
+                "e=\"Company\" /><NavigationProperty Name=\"GroupPlanning\" Relationship=\"NAV.Company" +
+                "_GroupPlanning\" ToRole=\"GroupPlanning\" FromRole=\"Company\" /><NavigationProperty " +
+                "Name=\"GroupPlanningSplit\" Relationship=\"NAV.Company_GroupPlanningSplit\" ToRole=\"" +
+                "GroupPlanningSplit\" FromRole=\"Company\" /><NavigationProperty Name=\"GSTBusPosting" +
+                "Group\" Relationship=\"NAV.Company_GSTBusPostingGroup\" ToRole=\"GSTBusPostingGroup\"" +
+                " FromRole=\"Company\" /><NavigationProperty Name=\"ItemAdditionalInfo\" Relationship" +
+                "=\"NAV.Company_ItemAdditionalInfo\" ToRole=\"ItemAdditionalInfo\" FromRole=\"Company\"" +
+                " /><NavigationProperty Name=\"ItemAttributes\" Relationship=\"NAV.Company_ItemAttri" +
+                "butes\" ToRole=\"ItemAttributes\" FromRole=\"Company\" /><Naviga";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart23 = "tesValuesMapping\" ToRole=\"ItemAttributesValuesMapping\" FromRole=\"Company\" /><Navi" +
-                "gationProperty Name=\"ItemBatchInfo\" Relationship=\"NAV.Company_ItemBatchInfo\" ToR" +
-                "ole=\"ItemBatchInfo\" FromRole=\"Company\" /><NavigationProperty Name=\"ItemCategorie" +
-                "s\" Relationship=\"NAV.Company_ItemCategories\" ToRole=\"ItemCategories\" FromRole=\"C" +
-                "ompany\" /><NavigationProperty Name=\"ItemJournalLines\" Relationship=\"NAV.Company_" +
-                "ItemJournalLines\" ToRole=\"ItemJournalLines\" FromRole=\"Company\" /><NavigationProp" +
-                "erty Name=\"ItemLedgerEntries\" Relationship=\"NAV.Company_ItemLedgerEntries\" ToRol" +
-                "e=\"ItemLedgerEntries\" FromRole=\"Company\" /><NavigationProperty Name=\"ItemList\" R" +
-                "elationship=\"NAV.Company_ItemList\" ToRole=\"ItemList\" FromRole=\"Company\" /><Navig" +
-                "ationProperty Name=\"ItemPicture\" Relationship=\"NAV.Company_ItemPicture\" ToRole=\"" +
-                "ItemPicture\" FromRole=\"Company\" /><NavigationProperty Name=\"ItemUOMList\" Relatio" +
-                "nship=\"NAV.Company_ItemUOMList\" ToRole=\"ItemUOMList\" FromRole=\"Company\" /><Navig" +
-                "ationProperty Name=\"Location\" Relationship=\"NAV.Company_Location\" ToRole=\"Locati" +
-                "on\" FromRole=\"Company\" /><NavigationProperty Name=\"MachineCenterList\" Relationsh" +
-                "ip=\"NAV.Company_MachineCenterList\" ToRole=\"MachineCenterList\" FromRole=\"Company\"" +
-                " /><NavigationProperty Name=\"OutputCorrectionList\" Relationship=\"NAV.Company_Out" +
-                "putCorrectionList\" ToRole=\"OutputCorrectionList\" FromRole=\"Company\" /><Navigatio" +
-                "nProperty Name=\"OutputJournal\" Relationship=\"NAV.Company_OutputJournal\" ToRole=\"" +
-                "OutputJournal\" FromRole=\"Company\" /><NavigationProperty Name=\"OutstandingProdOrd" +
-                "erLine\" Relationship=\"NAV.Company_OutstandingProdOrderLine\" ToRole=\"OutstandingP" +
-                "rodOrderLine\" FromRole=\"Company\" /><NavigationProperty Name=\"OutstandingSalesOrd" +
-                "erLine\" Relationship=\"NAV.Company_OutstandingSalesOrderLine\" ToRole=\"Outstanding" +
-                "SalesOrderLine\" FromRole=\"Company\" /><NavigationProperty Name=\"PackagingItemList" +
-                "\" Relationship=\"NAV.Company_PackagingItemList\" ToRole=\"PackagingItemList\" FromRo" +
-                "le=\"Company\" /><NavigationProperty Name=\"PaymentMethod\" Relationship=\"NAV.Compan" +
-                "y_PaymentMethod\" ToRole=\"PaymentMethod\" FromRole=\"Company\" /><NavigationProperty" +
-                " Name=\"PaymentTerms\" Relationship=\"NAV.Company_PaymentTerms\" ToRole=\"PaymentTerm" +
-                "s\" FromRole=\"Company\" /><NavigationProperty Name=\"PKGQtyInProd\" Relationship=\"NA" +
-                "V.Company_PKGQtyInProd\" ToRole=\"PKGQtyInProd\" FromRole=\"Company\" /><NavigationPr" +
-                "operty Name=\"Postcodes\" Relationship=\"NAV.Company_Postcodes\" ToRole=\"Postcodes\" " +
-                "FromRole=\"Company\" /><NavigationProperty Name=\"PostedSalesShipmentLines\" Relatio" +
-                "nship=\"NAV.Company_PostedSalesShipmentLines\" ToRole=\"PostedSalesShipmentLines\" F" +
-                "romRole=\"Company\" /><NavigationProperty Name=\"PostedSalesShipments\" Relationship" +
-                "=\"NAV.Company_PostedSalesShipments\" ToRole=\"PostedSalesShipments\" FromRole=\"Comp" +
-                "any\" /><NavigationProperty Name=\"Process\" Relationship=\"NAV.Company_Process\" ToR" +
-                "ole=\"Process\" FromRole=\"Company\" /><NavigationProperty Name=\"ProcessItemList\" Re" +
-                "lationship=\"NAV.Company_ProcessItemList\" ToRole=\"ProcessItemList\" FromRole=\"Comp" +
-                "any\" /><NavigationProperty Name=\"ProdOrderComp\" Relationship=\"NAV.Company_ProdOr" +
-                "derComp\" ToRole=\"ProdOrderComp\" FromRole=\"Company\" /><NavigationProperty Name=\"P" +
-                "rodOrderCompLineList\" Relationship=\"NAV.Company_ProdOrderCompLineList\" ToRole=\"P" +
-                "rodOrderCompLineList\" FromRole=\"Company\" /><NavigationProperty Name=\"ProdOrderLi" +
-                "neList\" Relationship=\"NAV.Company_ProdOrderLineList\" ToRole=\"ProdOrderLineList\" " +
-                "FromRole=\"Company\" /><NavigationProperty Name=\"ProdOrderOutputLine\" Relationship" +
-                "=\"NAV.Company_ProdOrderOutputLine\" ToRole=\"ProdOrderOutputLine\" FromRole=\"Compan" +
-                "y\" /><NavigationProperty Name=\"ProdPlanningLine\" Relationship=\"NAV.Company_ProdP" +
-                "lanningLine\" ToRole=\"ProdPlanningLine\" FromRole=\"Company\" /><NavigationProperty " +
-                "Name=\"ProductCodeList\" Relationship=\"NAV.Company_ProductCodeList\" ToRole=\"Produc" +
-                "tCodeList\" FromRole=\"Company\" /><NavigationProperty Name=\"ProductionEntry\" Relat" +
-                "ionship=\"NAV.Company_ProductionEntry\" ToRole=\"ProductionEntry\" FromRole=\"Company" +
-                "\" /><NavigationProperty Name=\"ProductionOrder\" Relationship=\"NAV.Company_Product" +
-                "ionOrder\" ToRole=\"ProductionOrder\" FromRole=\"Company\" /><NavigationProperty Name" +
-                "=\"ProductionOrderList\" Relationship=\"NAV.Company_ProductionOrderList\" ToRole=\"Pr" +
-                "oductionOrderList\" FromRole=\"Company\" /><NavigationProperty Name=\"ProductionReci" +
-                "pe\" Relationship=\"NAV.Company_ProductionRecipe\" ToRole=\"ProductionRecipe\" FromRo" +
-                "le=\"Company\" /><NavigationProperty Name=\"ProductionRecipeLinkWS\" Relationship=\"N" +
-                "AV.Company_ProductionRecipeLinkWS\" ToRole=\"ProductionRecipeLinkWS\" FromRole=\"Com" +
-                "pany\" /><NavigationProperty Name=\"ProductionRecipeWS\" Relationship=\"NAV.Company_" +
-                "ProductionRecipeWS\" ToRole=\"ProductionRecipeWS\" FromRole=\"Company\" /><Navigation" +
-                "Property Name=\"PurchaseLines\" Relationship=\"NAV.Company_PurchaseLines\" ToRole=\"P" +
-                "urchaseLines\" FromRole=\"Company\" /><NavigationProperty Name=\"RawMatItemList\" Rel" +
-                "ationship=\"NAV.Company_RawMatItemList\" ToRole=\"RawMatItemList\" FromRole=\"Company" +
-                "\" /><NavigationProperty Name=\"ReasonCodeList\" Relationship=\"NAV.Company_ReasonCo" +
-                "deList\" ToRole=\"ReasonCodeList\" FromRole=\"Company\" /><NavigationProperty Name=\"R" +
-                "egistrationDetailsLine\" Relationship=\"NAV.Company_RegistrationDetailsLine\" ToRol" +
-                "e=\"RegistrationDetailsLine\" FromRole=\"Company\" /><NavigationProperty Name=\"Sales" +
-                "ForecastList\" Relationship=\"NAV.Company_SalesForecastList\" ToRole=\"SalesForecast" +
-                "List\" FromRole=\"Company\" /><NavigationProperty Name=\"SalesLineNotClosed\" Relatio" +
-                "nship=\"NAV.Company_SalesLineNotClosed\" ToRole=\"SalesLineNotClosed\" FromRole=\"Com" +
-                "pany\" /><NavigationProperty Name=\"SalesLines\" Relationship=\"NAV.Company_SalesLin" +
-                "es\" ToRole=\"SalesLines\" FromRole=\"Company\" /><NavigationProperty Name=\"SalesOrde" +
-                "rLineKIV\" Relationship=\"NAV.Company_SalesOrderLineKIV\" ToRole=\"SalesOrderLineKIV" +
-                "\" FromRole=\"Company\" /><NavigationProperty Name=\"SalesPrices\" Relationship=\"NAV." +
-                "Company_SalesPrices\" ToRole=\"SalesPrices\" FromRole=\"Company\" /><NavigationProper" +
-                "ty Name=\"ShipmentMethod\" Relationship=\"NAV.Company_ShipmentMethod\" ToRole=\"Shipm" +
-                "entMethod\" FromRole=\"Company\" /><NavigationProperty Name=\"ShippingAgent\" Relatio" +
-                "nship=\"NAV.Company_ShippingAgent\" ToRole=\"ShippingAgent\" FromRole=\"Company\" /><N" +
-                "avigationProperty Name=\"ShippingAgentService\" Relationship=\"NAV.Company_Shipping" +
-                "AgentService\" ToRole=\"ShippingAgentService\" FromRole=\"Company\" /><NavigationProp" +
-                "erty Name=\"StockAdjustmentOdata\" Relationship=\"NAV.Company_StockAdjustmentOdata\"" +
-                " ToRole=\"StockAdjustmentOdata\" FromRole=\"Company\" /><NavigationProperty Name=\"SW" +
-                "D_ConsumptionEntries\" Relationship=\"NAV.Company_SWD_ConsumptionEntries\" ToRole=\"" +
-                "SWD_ConsumptionEntries\" FromRole=\"Company\" /><NavigationProperty Name=\"SWDAllPro" +
-                "dOutputLine\" Relationship=\"NAV.Company_SWDAllProdOutputLine\" ToRole=\"SWDAllProdO" +
-                "utputLine\" FromRole=\"Company\" /><NavigationProperty Name=\"SWDProdOrderSyncPortal" +
-                "\" Relationship=\"NAV.Company_SWDProdOrderSyncPortal\" ToRole=\"SWDProdOrderSyncPort" +
-                "al\" FromRole=\"Company\" /><NavigationProperty Name=\"SWDWebIntegrationEntry\" Relat" +
-                "ionship=\"NAV.Company_SWDWebIntegrationEntry\" ToRole=\"SWDWebIntegrationEntry\" Fro" +
-                "mRole=\"Company\" /><NavigationProperty Name=\"TenderForSimulation\" Relationship=\"N" +
-                "AV.Company_TenderForSimulation\" ToRole=\"TenderForSimulation\" FromRole=\"Company\" " +
-                "/><NavigationProperty Name=\"TenderOrderLines\" Relationship=\"NAV.Company_TenderOr" +
-                "derLines\" ToRole=\"TenderOrderLines\" FromRole=\"Company\" /><NavigationProperty Nam" +
-                "e=\"TestActualStart\" Relationship=\"NAV.Company_TestActualStart\" ToRole=\"TestActua" +
-                "lStart\" FromRole=\"Company\" /><NavigationProperty Name=\"TrackingSpecification\" Re" +
-                "lationship=\"NAV.Company_TrackingSpecification\" ToRole=\"Trac";
+            private const string ModelPart23 = "tionProperty Name=\"ItemAttributesValues\" Relationship=\"NAV.Company_ItemAttributes" +
+                "Values\" ToRole=\"ItemAttributesValues\" FromRole=\"Company\" /><NavigationProperty N" +
+                "ame=\"ItemAttributesValuesMapping\" Relationship=\"NAV.Company_ItemAttributesValues" +
+                "Mapping\" ToRole=\"ItemAttributesValuesMapping\" FromRole=\"Company\" /><NavigationPr" +
+                "operty Name=\"ItemBatchInfo\" Relationship=\"NAV.Company_ItemBatchInfo\" ToRole=\"Ite" +
+                "mBatchInfo\" FromRole=\"Company\" /><NavigationProperty Name=\"ItemCategories\" Relat" +
+                "ionship=\"NAV.Company_ItemCategories\" ToRole=\"ItemCategories\" FromRole=\"Company\" " +
+                "/><NavigationProperty Name=\"ItemJournalLines\" Relationship=\"NAV.Company_ItemJour" +
+                "nalLines\" ToRole=\"ItemJournalLines\" FromRole=\"Company\" /><NavigationProperty Nam" +
+                "e=\"ItemLedgerEntries\" Relationship=\"NAV.Company_ItemLedgerEntries\" ToRole=\"ItemL" +
+                "edgerEntries\" FromRole=\"Company\" /><NavigationProperty Name=\"ItemList\" Relations" +
+                "hip=\"NAV.Company_ItemList\" ToRole=\"ItemList\" FromRole=\"Company\" /><NavigationPro" +
+                "perty Name=\"ItemPicture\" Relationship=\"NAV.Company_ItemPicture\" ToRole=\"ItemPict" +
+                "ure\" FromRole=\"Company\" /><NavigationProperty Name=\"ItemUOMList\" Relationship=\"N" +
+                "AV.Company_ItemUOMList\" ToRole=\"ItemUOMList\" FromRole=\"Company\" /><NavigationPro" +
+                "perty Name=\"Location\" Relationship=\"NAV.Company_Location\" ToRole=\"Location\" From" +
+                "Role=\"Company\" /><NavigationProperty Name=\"MachineCenterList\" Relationship=\"NAV." +
+                "Company_MachineCenterList\" ToRole=\"MachineCenterList\" FromRole=\"Company\" /><Navi" +
+                "gationProperty Name=\"OutputCorrectionList\" Relationship=\"NAV.Company_OutputCorre" +
+                "ctionList\" ToRole=\"OutputCorrectionList\" FromRole=\"Company\" /><NavigationPropert" +
+                "y Name=\"OutputJournal\" Relationship=\"NAV.Company_OutputJournal\" ToRole=\"OutputJo" +
+                "urnal\" FromRole=\"Company\" /><NavigationProperty Name=\"OutstandingProdOrderLine\" " +
+                "Relationship=\"NAV.Company_OutstandingProdOrderLine\" ToRole=\"OutstandingProdOrder" +
+                "Line\" FromRole=\"Company\" /><NavigationProperty Name=\"OutstandingSalesOrderLine\" " +
+                "Relationship=\"NAV.Company_OutstandingSalesOrderLine\" ToRole=\"OutstandingSalesOrd" +
+                "erLine\" FromRole=\"Company\" /><NavigationProperty Name=\"PackagingItemList\" Relati" +
+                "onship=\"NAV.Company_PackagingItemList\" ToRole=\"PackagingItemList\" FromRole=\"Comp" +
+                "any\" /><NavigationProperty Name=\"PaymentMethod\" Relationship=\"NAV.Company_Paymen" +
+                "tMethod\" ToRole=\"PaymentMethod\" FromRole=\"Company\" /><NavigationProperty Name=\"P" +
+                "aymentTerms\" Relationship=\"NAV.Company_PaymentTerms\" ToRole=\"PaymentTerms\" FromR" +
+                "ole=\"Company\" /><NavigationProperty Name=\"PKGQtyInProd\" Relationship=\"NAV.Compan" +
+                "y_PKGQtyInProd\" ToRole=\"PKGQtyInProd\" FromRole=\"Company\" /><NavigationProperty N" +
+                "ame=\"Postcodes\" Relationship=\"NAV.Company_Postcodes\" ToRole=\"Postcodes\" FromRole" +
+                "=\"Company\" /><NavigationProperty Name=\"PostedSalesShipmentLines\" Relationship=\"N" +
+                "AV.Company_PostedSalesShipmentLines\" ToRole=\"PostedSalesShipmentLines\" FromRole=" +
+                "\"Company\" /><NavigationProperty Name=\"PostedSalesShipments\" Relationship=\"NAV.Co" +
+                "mpany_PostedSalesShipments\" ToRole=\"PostedSalesShipments\" FromRole=\"Company\" /><" +
+                "NavigationProperty Name=\"Process\" Relationship=\"NAV.Company_Process\" ToRole=\"Pro" +
+                "cess\" FromRole=\"Company\" /><NavigationProperty Name=\"ProcessItemList\" Relationsh" +
+                "ip=\"NAV.Company_ProcessItemList\" ToRole=\"ProcessItemList\" FromRole=\"Company\" /><" +
+                "NavigationProperty Name=\"ProdOrderComp\" Relationship=\"NAV.Company_ProdOrderComp\"" +
+                " ToRole=\"ProdOrderComp\" FromRole=\"Company\" /><NavigationProperty Name=\"ProdOrder" +
+                "CompLineList\" Relationship=\"NAV.Company_ProdOrderCompLineList\" ToRole=\"ProdOrder" +
+                "CompLineList\" FromRole=\"Company\" /><NavigationProperty Name=\"ProdOrderLineList\" " +
+                "Relationship=\"NAV.Company_ProdOrderLineList\" ToRole=\"ProdOrderLineList\" FromRole" +
+                "=\"Company\" /><NavigationProperty Name=\"ProdOrderOutputLine\" Relationship=\"NAV.Co" +
+                "mpany_ProdOrderOutputLine\" ToRole=\"ProdOrderOutputLine\" FromRole=\"Company\" /><Na" +
+                "vigationProperty Name=\"ProdPlanningLine\" Relationship=\"NAV.Company_ProdPlanningL" +
+                "ine\" ToRole=\"ProdPlanningLine\" FromRole=\"Company\" /><NavigationProperty Name=\"Pr" +
+                "oductCodeList\" Relationship=\"NAV.Company_ProductCodeList\" ToRole=\"ProductCodeLis" +
+                "t\" FromRole=\"Company\" /><NavigationProperty Name=\"ProductionEntry\" Relationship=" +
+                "\"NAV.Company_ProductionEntry\" ToRole=\"ProductionEntry\" FromRole=\"Company\" /><Nav" +
+                "igationProperty Name=\"ProductionOrder\" Relationship=\"NAV.Company_ProductionOrder" +
+                "\" ToRole=\"ProductionOrder\" FromRole=\"Company\" /><NavigationProperty Name=\"Produc" +
+                "tionOrderList\" Relationship=\"NAV.Company_ProductionOrderList\" ToRole=\"Production" +
+                "OrderList\" FromRole=\"Company\" /><NavigationProperty Name=\"ProductionRecipe\" Rela" +
+                "tionship=\"NAV.Company_ProductionRecipe\" ToRole=\"ProductionRecipe\" FromRole=\"Comp" +
+                "any\" /><NavigationProperty Name=\"ProductionRecipeLinkWS\" Relationship=\"NAV.Compa" +
+                "ny_ProductionRecipeLinkWS\" ToRole=\"ProductionRecipeLinkWS\" FromRole=\"Company\" />" +
+                "<NavigationProperty Name=\"ProductionRecipeWS\" Relationship=\"NAV.Company_Producti" +
+                "onRecipeWS\" ToRole=\"ProductionRecipeWS\" FromRole=\"Company\" /><NavigationProperty" +
+                " Name=\"PurchaseLines\" Relationship=\"NAV.Company_PurchaseLines\" ToRole=\"PurchaseL" +
+                "ines\" FromRole=\"Company\" /><NavigationProperty Name=\"RawMatItemList\" Relationshi" +
+                "p=\"NAV.Company_RawMatItemList\" ToRole=\"RawMatItemList\" FromRole=\"Company\" /><Nav" +
+                "igationProperty Name=\"ReasonCodeList\" Relationship=\"NAV.Company_ReasonCodeList\" " +
+                "ToRole=\"ReasonCodeList\" FromRole=\"Company\" /><NavigationProperty Name=\"Registrat" +
+                "ionDetailsLine\" Relationship=\"NAV.Company_RegistrationDetailsLine\" ToRole=\"Regis" +
+                "trationDetailsLine\" FromRole=\"Company\" /><NavigationProperty Name=\"SalesForecast" +
+                "List\" Relationship=\"NAV.Company_SalesForecastList\" ToRole=\"SalesForecastList\" Fr" +
+                "omRole=\"Company\" /><NavigationProperty Name=\"SalesLineNotClosed\" Relationship=\"N" +
+                "AV.Company_SalesLineNotClosed\" ToRole=\"SalesLineNotClosed\" FromRole=\"Company\" />" +
+                "<NavigationProperty Name=\"SalesLines\" Relationship=\"NAV.Company_SalesLines\" ToRo" +
+                "le=\"SalesLines\" FromRole=\"Company\" /><NavigationProperty Name=\"SalesOrderLineKIV" +
+                "\" Relationship=\"NAV.Company_SalesOrderLineKIV\" ToRole=\"SalesOrderLineKIV\" FromRo" +
+                "le=\"Company\" /><NavigationProperty Name=\"SalesPrices\" Relationship=\"NAV.Company_" +
+                "SalesPrices\" ToRole=\"SalesPrices\" FromRole=\"Company\" /><NavigationProperty Name=" +
+                "\"ShipmentMethod\" Relationship=\"NAV.Company_ShipmentMethod\" ToRole=\"ShipmentMetho" +
+                "d\" FromRole=\"Company\" /><NavigationProperty Name=\"ShippingAgent\" Relationship=\"N" +
+                "AV.Company_ShippingAgent\" ToRole=\"ShippingAgent\" FromRole=\"Company\" /><Navigatio" +
+                "nProperty Name=\"ShippingAgentService\" Relationship=\"NAV.Company_ShippingAgentSer" +
+                "vice\" ToRole=\"ShippingAgentService\" FromRole=\"Company\" /><NavigationProperty Nam" +
+                "e=\"StockAdjustmentOdata\" Relationship=\"NAV.Company_StockAdjustmentOdata\" ToRole=" +
+                "\"StockAdjustmentOdata\" FromRole=\"Company\" /><NavigationProperty Name=\"SWD_Consum" +
+                "ptionEntries\" Relationship=\"NAV.Company_SWD_ConsumptionEntries\" ToRole=\"SWD_Cons" +
+                "umptionEntries\" FromRole=\"Company\" /><NavigationProperty Name=\"SWDAllProdOutputL" +
+                "ine\" Relationship=\"NAV.Company_SWDAllProdOutputLine\" ToRole=\"SWDAllProdOutputLin" +
+                "e\" FromRole=\"Company\" /><NavigationProperty Name=\"SWDProdOrderSyncPortal\" Relati" +
+                "onship=\"NAV.Company_SWDProdOrderSyncPortal\" ToRole=\"SWDProdOrderSyncPortal\" From" +
+                "Role=\"Company\" /><NavigationProperty Name=\"SWDWebIntegrationEntry\" Relationship=" +
+                "\"NAV.Company_SWDWebIntegrationEntry\" ToRole=\"SWDWebIntegrationEntry\" FromRole=\"C" +
+                "ompany\" /><NavigationProperty Name=\"TenderForSimulation\" Relationship=\"NAV.Compa" +
+                "ny_TenderForSimulation\" ToRole=\"TenderForSimulation\" FromRole=\"Company\" /><Navig" +
+                "ationProperty Name=\"TenderOrderLines\" Relationship=\"NAV.Company_TenderOrderLines" +
+                "\" ToRole=\"TenderOrderLines\" FromRole=\"Company\" /><Navigatio";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart24 = "kingSpecification\" FromRole=\"Company\" /><NavigationProperty Name=\"Vendor\" Relatio" +
-                "nship=\"NAV.Company_Vendor\" ToRole=\"Vendor\" FromRole=\"Company\" /><NavigationPrope" +
-                "rty Name=\"WorkCenterList\" Relationship=\"NAV.Company_WorkCenterList\" ToRole=\"Work" +
-                "CenterList\" FromRole=\"Company\" /></EntityType><Association Name=\"ConsumptionJour" +
-                "nal_ProdOrderNo_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"ProdOrderNo_Link\" Mu" +
-                "ltiplicity=\"0..1\" /><End Type=\"NAV.ConsumptionJournal\" Role=\"ConsumptionJournal\"" +
-                " Multiplicity=\"*\" /></Association><Association Name=\"ConsumptionJournal_Location" +
-                "Code_Link\"><End Type=\"NAV.Location\" Role=\"LocationCode_Link\" Multiplicity=\"0..1\"" +
-                " /><End Type=\"NAV.ConsumptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\"" +
-                " /></Association><Association Name=\"ConsumptionJournal_Location_Code_Link\"><End " +
-                "Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"N" +
-                "AV.ConsumptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\" /></Associatio" +
-                "n><Association Name=\"ConsumptionJournal_Base_Unit_of_Measure_Link\"><End Type=\"NA" +
-                "V.ConsumptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\" /><End Type=\"NA" +
-                "V.CRTSHF_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\"" +
-                " /></Association><Association Name=\"ConsumptionJournal_Unit_Of_Measure_Code_Link" +
-                "\"><End Type=\"NAV.ConsumptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\" " +
-                "/><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_Of_Measure_Code_Link\" Multipl" +
-                "icity=\"0..1\" /></Association><Association Name=\"CPS_CalendarAbsenceEntries_Work_" +
-                "Center_No_Link\"><End Type=\"NAV.Process\" Role=\"Work_Center_No_Link\" Multiplicity=" +
-                "\"0..1\" /><End Type=\"NAV.CPS_CalendarAbsenceEntries\" Role=\"CPS_CalendarAbsenceEnt" +
-                "ries\" Multiplicity=\"*\" /></Association><Association Name=\"CPS_ProdOrderLine_Prod" +
-                "_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multip" +
-                "licity=\"0..1\" /><End Type=\"NAV.CPS_ProdOrderLine\" Role=\"CPS_ProdOrderLine\" Multi" +
-                "plicity=\"*\" /></Association><Association Name=\"CPS_ProdOrderLine_Location_Code_L" +
-                "ink\"><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><E" +
-                "nd Type=\"NAV.CPS_ProdOrderLine\" Role=\"CPS_ProdOrderLine\" Multiplicity=\"*\" /></As" +
-                "sociation><Association Name=\"CPS_ProdOrderLine_Unit_of_Measure_Code_Link\"><End T" +
-                "ype=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity" +
-                "=\"0..1\" /><End Type=\"NAV.CPS_ProdOrderLine\" Role=\"CPS_ProdOrderLine\" Multiplicit" +
-                "y=\"*\" /></Association><Association Name=\"CPS_ProdOrderRoutingLine_Prod_Order_No_" +
-                "Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0." +
-                ".1\" /><End Type=\"NAV.CPS_ProdOrderRoutingLine\" Role=\"CPS_ProdOrderRoutingLine\" M" +
-                "ultiplicity=\"*\" /></Association><Association Name=\"CPS_ProdOrderRoutingLine_Work" +
-                "_Center_No_Link\"><End Type=\"NAV.Process\" Role=\"Work_Center_No_Link\" Multiplicity" +
-                "=\"0..1\" /><End Type=\"NAV.CPS_ProdOrderRoutingLine\" Role=\"CPS_ProdOrderRoutingLin" +
-                "e\" Multiplicity=\"*\" /></Association><Association Name=\"CPS_ProductionOrder_No_Li" +
-                "nk\"><End Type=\"NAV.ProductionOrder\" Role=\"No_Link\" Multiplicity=\"0..1\" /><End Ty" +
-                "pe=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /></Ass" +
-                "ociation><Association Name=\"CPS_ProductionOrder_Gen_Bus_Posting_Group_Link\"><End" +
-                " Type=\"NAV.GenBussPostingGroup\" Role=\"Gen_Bus_Posting_Group_Link\" Multiplicity=\"" +
-                "0..1\" /><End Type=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplic" +
-                "ity=\"*\" /></Association><Association Name=\"CPS_ProductionOrder_Location_Code_Lin" +
-                "k\"><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End" +
-                " Type=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /></" +
-                "Association><Association Name=\"CPS_ProductionOrder_No_Series_Link\"><End Type=\"NA" +
-                "V.CRTSHF_NoSeriesList\" Role=\"No_Series_Link\" Multiplicity=\"0..1\" /><End Type=\"NA" +
-                "V.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /></Associati" +
-                "on><Association Name=\"CPS_ProductionOrder_Unit_Of_Measure_Code_Link\"><End Type=\"" +
-                "NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_Of_Measure_Code_Link\" Multiplicity=\"0..1\" " +
-                "/><End Type=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*" +
-                "\" /></Association><Association Name=\"CPS_ProductionOrder_Work_Center_Filter_Link" +
-                "\"><End Type=\"NAV.Process\" Role=\"Work_Center_Filter_Link\" Multiplicity=\"0..1\" /><" +
-                "End Type=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /" +
-                "></Association><Association Name=\"CreateProdOrderEntryWS_No_Series_Code_Link\"><E" +
-                "nd Type=\"NAV.CreateProdOrderEntryWS\" Role=\"CreateProdOrderEntryWS\" Multiplicity=" +
-                "\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"No_Series_Code_Link\" Multiplicit" +
-                "y=\"0..1\" /></Association><Association Name=\"CreateProdOrderEntryWS_Unit_of_Measu" +
-                "re_Code_Link\"><End Type=\"NAV.CreateProdOrderEntryWS\" Role=\"CreateProdOrderEntryW" +
-                "S\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Mea" +
-                "sure_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"CreatePro" +
-                "dOrderEntryWS_Location_Code_Link\"><End Type=\"NAV.Location\" Role=\"Location_Code_L" +
-                "ink\" Multiplicity=\"0..1\" /><End Type=\"NAV.CreateProdOrderEntryWS\" Role=\"CreatePr" +
-                "odOrderEntryWS\" Multiplicity=\"*\" /></Association><Association Name=\"CreateProdOr" +
-                "derLineEntryWS_Unit_of_Measure_Code_Link\"><End Type=\"NAV.CreateProdOrderLineEntr" +
-                "yWS\" Role=\"CreateProdOrderLineEntryWS\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_" +
-                "ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Asso" +
-                "ciation><Association Name=\"CRTIMS_PostedTransferEntry_Unit_of_Measure_Code_Link\"" +
-                "><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multi" +
-                "plicity=\"0..1\" /><End Type=\"NAV.CRTIMS_PostedTransferEntry\" Role=\"CRTIMS_PostedT" +
-                "ransferEntry\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_PostedT" +
-                "ransferEntry_Transfer_from_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfer_fr" +
-                "om_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_PostedTransferEntry\" R" +
-                "ole=\"CRTIMS_PostedTransferEntry\" Multiplicity=\"*\" /></Association><Association N" +
-                "ame=\"CRTIMS_PostedTransferEntry_Transfer_to_Code_Link\"><End Type=\"NAV.Location\" " +
-                "Role=\"Transfer_to_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_PostedT" +
-                "ransferEntry\" Role=\"CRTIMS_PostedTransferEntry\" Multiplicity=\"*\" /></Association" +
-                "><Association Name=\"CRTIMS_TransferEntry_Transfer_from_Code_Link\"><End Type=\"NAV" +
-                ".Location\" Role=\"Transfer_from_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.C" +
-                "RTIMS_TransferEntry\" Role=\"CRTIMS_TransferEntry\" Multiplicity=\"*\" /></Associatio" +
-                "n><Association Name=\"CRTIMS_TransferEntry_Transfer_to_Code_Link\"><End Type=\"NAV." +
-                "Location\" Role=\"Transfer_to_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTI" +
-                "MS_TransferEntry\" Role=\"CRTIMS_TransferEntry\" Multiplicity=\"*\" /></Association><" +
-                "Association Name=\"CRTIMS_TransferEntry_Unit_of_Measure_Code_Link\"><End Type=\"NAV" +
+            private const string ModelPart24 = "nProperty Name=\"TestActualStart\" Relationship=\"NAV.Company_TestActualStart\" ToRol" +
+                "e=\"TestActualStart\" FromRole=\"Company\" /><NavigationProperty Name=\"TrackingSpeci" +
+                "fication\" Relationship=\"NAV.Company_TrackingSpecification\" ToRole=\"TrackingSpeci" +
+                "fication\" FromRole=\"Company\" /><NavigationProperty Name=\"Vendor\" Relationship=\"N" +
+                "AV.Company_Vendor\" ToRole=\"Vendor\" FromRole=\"Company\" /><NavigationProperty Name" +
+                "=\"WorkCenterList\" Relationship=\"NAV.Company_WorkCenterList\" ToRole=\"WorkCenterLi" +
+                "st\" FromRole=\"Company\" /></EntityType><Association Name=\"ConsumptionJournal_Prod" +
+                "OrderNo_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"ProdOrderNo_Link\" Multiplici" +
+                "ty=\"0..1\" /><End Type=\"NAV.ConsumptionJournal\" Role=\"ConsumptionJournal\" Multipl" +
+                "icity=\"*\" /></Association><Association Name=\"ConsumptionJournal_LocationCode_Lin" +
+                "k\"><End Type=\"NAV.Location\" Role=\"LocationCode_Link\" Multiplicity=\"0..1\" /><End " +
+                "Type=\"NAV.ConsumptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\" /></Ass" +
+                "ociation><Association Name=\"ConsumptionJournal_Location_Code_Link\"><End Type=\"NA" +
+                "V.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Consu" +
+                "mptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\" /></Association><Assoc" +
+                "iation Name=\"ConsumptionJournal_Base_Unit_of_Measure_Link\"><End Type=\"NAV.Consum" +
+                "ptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF" +
+                "_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /></Ass" +
+                "ociation><Association Name=\"ConsumptionJournal_Unit_Of_Measure_Code_Link\"><End T" +
+                "ype=\"NAV.ConsumptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\" /><End T" +
+                "ype=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_Of_Measure_Code_Link\" Multiplicity=\"0" +
+                "..1\" /></Association><Association Name=\"CPS_CalendarAbsenceEntries_Work_Center_N" +
+                "o_Link\"><End Type=\"NAV.Process\" Role=\"Work_Center_No_Link\" Multiplicity=\"0..1\" /" +
+                "><End Type=\"NAV.CPS_CalendarAbsenceEntries\" Role=\"CPS_CalendarAbsenceEntries\" Mu" +
+                "ltiplicity=\"*\" /></Association><Association Name=\"CPS_ProdOrderLine_Prod_Order_N" +
+                "o_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"" +
+                "0..1\" /><End Type=\"NAV.CPS_ProdOrderLine\" Role=\"CPS_ProdOrderLine\" Multiplicity=" +
+                "\"*\" /></Association><Association Name=\"CPS_ProdOrderLine_Location_Code_Link\"><En" +
+                "d Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=" +
+                "\"NAV.CPS_ProdOrderLine\" Role=\"CPS_ProdOrderLine\" Multiplicity=\"*\" /></Associatio" +
+                "n><Association Name=\"CPS_ProdOrderLine_Unit_of_Measure_Code_Link\"><End Type=\"NAV" +
                 ".CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" " +
-                "/><End Type=\"NAV.CRTIMS_TransferEntry\" Role=\"CRTIMS_TransferEntry\" Multiplicity=" +
-                "\"*\" /></Association><Association Name=\"CRTIMS_TransferLines_Unit_of_Measure_Code" +
-                "_Link\"><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\"" +
-                " Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_Transfe" +
-                "rLines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferLines" +
-                "_In_Transit_Code_Link\"><End Type=\"NAV.Location\" Role=\"In_Transit_Code_Link\" Mult" +
-                "iplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_TransferLine" +
-                "s\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferLines_Tran" +
-                "sfer_from_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfe";
+                "/><End Type=\"NAV.CPS_ProdOrderLine\" Role=\"CPS_ProdOrderLine\" Multiplicity=\"*\" />" +
+                "</Association><Association Name=\"CPS_ProdOrderRoutingLine_Prod_Order_No_Link\"><E" +
+                "nd Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /><E" +
+                "nd Type=\"NAV.CPS_ProdOrderRoutingLine\" Role=\"CPS_ProdOrderRoutingLine\" Multiplic" +
+                "ity=\"*\" /></Association><Association Name=\"CPS_ProdOrderRoutingLine_Work_Center_" +
+                "No_Link\"><End Type=\"NAV.Process\" Role=\"Work_Center_No_Link\" Multiplicity=\"0..1\" " +
+                "/><End Type=\"NAV.CPS_ProdOrderRoutingLine\" Role=\"CPS_ProdOrderRoutingLine\" Multi" +
+                "plicity=\"*\" /></Association><Association Name=\"CPS_ProductionOrder_No_Link\"><End" +
+                " Type=\"NAV.ProductionOrder\" Role=\"No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV." +
+                "CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /></Association" +
+                "><Association Name=\"CPS_ProductionOrder_Gen_Bus_Posting_Group_Link\"><End Type=\"N" +
+                "AV.GenBussPostingGroup\" Role=\"Gen_Bus_Posting_Group_Link\" Multiplicity=\"0..1\" />" +
+                "<End Type=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" " +
+                "/></Association><Association Name=\"CPS_ProductionOrder_Location_Code_Link\"><End " +
+                "Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"N" +
+                "AV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /></Associat" +
+                "ion><Association Name=\"CPS_ProductionOrder_No_Series_Link\"><End Type=\"NAV.CRTSHF" +
+                "_NoSeriesList\" Role=\"No_Series_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CPS_Pr" +
+                "oductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /></Association><Asso" +
+                "ciation Name=\"CPS_ProductionOrder_Unit_Of_Measure_Code_Link\"><End Type=\"NAV.CRTS" +
+                "HF_UnitOfMeasures\" Role=\"Unit_Of_Measure_Code_Link\" Multiplicity=\"0..1\" /><End T" +
+                "ype=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /></As" +
+                "sociation><Association Name=\"CPS_ProductionOrder_Work_Center_Filter_Link\"><End T" +
+                "ype=\"NAV.Process\" Role=\"Work_Center_Filter_Link\" Multiplicity=\"0..1\" /><End Type" +
+                "=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\" /></Assoc" +
+                "iation><Association Name=\"CreateProdOrderEntryWS_No_Series_Code_Link\"><End Type=" +
+                "\"NAV.CreateProdOrderEntryWS\" Role=\"CreateProdOrderEntryWS\" Multiplicity=\"*\" /><E" +
+                "nd Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"No_Series_Code_Link\" Multiplicity=\"0..1\"" +
+                " /></Association><Association Name=\"CreateProdOrderEntryWS_Unit_of_Measure_Code_" +
+                "Link\"><End Type=\"NAV.CreateProdOrderEntryWS\" Role=\"CreateProdOrderEntryWS\" Multi" +
+                "plicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Cod" +
+                "e_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"CreateProdOrderEn" +
+                "tryWS_Location_Code_Link\"><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Mul" +
+                "tiplicity=\"0..1\" /><End Type=\"NAV.CreateProdOrderEntryWS\" Role=\"CreateProdOrderE" +
+                "ntryWS\" Multiplicity=\"*\" /></Association><Association Name=\"CreateProdOrderLineE" +
+                "ntryWS_Unit_of_Measure_Code_Link\"><End Type=\"NAV.CreateProdOrderLineEntryWS\" Rol" +
+                "e=\"CreateProdOrderLineEntryWS\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnit" +
+                "OfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association>" +
+                "<Association Name=\"CRTIMS_PostedTransferEntry_Unit_of_Measure_Code_Link\"><End Ty" +
+                "pe=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=" +
+                "\"0..1\" /><End Type=\"NAV.CRTIMS_PostedTransferEntry\" Role=\"CRTIMS_PostedTransferE" +
+                "ntry\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_PostedTransferE" +
+                "ntry_Transfer_from_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfer_from_Code_" +
+                "Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_PostedTransferEntry\" Role=\"CRT" +
+                "IMS_PostedTransferEntry\" Multiplicity=\"*\" /></Association><Association Name=\"CRT" +
+                "IMS_PostedTransferEntry_Transfer_to_Code_Link\"><End Type=\"NAV.Location\" Role=\"Tr" +
+                "ansfer_to_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_PostedTransferE" +
+                "ntry\" Role=\"CRTIMS_PostedTransferEntry\" Multiplicity=\"*\" /></Association><Associ" +
+                "ation Name=\"CRTIMS_TransferEntry_Transfer_from_Code_Link\"><End Type=\"NAV.Locatio" +
+                "n\" Role=\"Transfer_from_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Tr" +
+                "ansferEntry\" Role=\"CRTIMS_TransferEntry\" Multiplicity=\"*\" /></Association><Assoc" +
+                "iation Name=\"CRTIMS_TransferEntry_Transfer_to_Code_Link\"><End Type=\"NAV.Location" +
+                "\" Role=\"Transfer_to_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Trans" +
+                "ferEntry\" Role=\"CRTIMS_TransferEntry\" Multiplicity=\"*\" /></Association><Associat" +
+                "ion Name=\"CRTIMS_TransferEntry_Unit_of_Measure_Code_Link\"><End Type=\"NAV.CRTSHF_" +
+                "ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /><End T" +
+                "ype=\"NAV.CRTIMS_TransferEntry\" Role=\"CRTIMS_TransferEntry\" Multiplicity=\"*\" /></" +
+                "Association><Association Name=\"CRTIMS_TransferLines_Unit_of_Measure_Code_Link\"><" +
+                "End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multipl" +
+                "icity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_TransferLines\" " +
+                "Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferLines_In_Tran" +
+                "sit_Code_Link\"><End Type=\"NAV.Location\" Role=\"In_Transit_Co";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart25 = "r_from_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role" +
-                "=\"CRTIMS_TransferLines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTI" +
-                "MS_TransferLines_Transfer_to_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfer_" +
-                "to_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"C" +
+            private const string ModelPart25 = "de_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_" +
+                "TransferLines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_Transf" +
+                "erLines_Transfer_from_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfer_from_Co" +
+                "de_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS" +
+                "_TransferLines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_Trans" +
+                "ferLines_Transfer_to_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfer_to_Code_" +
+                "Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_Tr" +
+                "ansferLines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_Transfer" +
+                "Lines_Shipping_Agent_Code_Link\"><End Type=\"NAV.ShippingAgent\" Role=\"Shipping_Age" +
+                "nt_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"C" +
                 "RTIMS_TransferLines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_" +
-                "TransferLines_Shipping_Agent_Code_Link\"><End Type=\"NAV.ShippingAgent\" Role=\"Ship" +
-                "ping_Agent_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferLines\"" +
-                " Role=\"CRTIMS_TransferLines\" Multiplicity=\"*\" /></Association><Association Name=" +
-                "\"CRTIMS_TransferLines_Shipping_Agent_Service_Code_Link\"><End Type=\"NAV.ShippingA" +
-                "gentService\" Role=\"Shipping_Agent_Service_Code_Link\" Multiplicity=\"0..1\" /><End " +
-                "Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_TransferLines\" Multiplicity=\"*\" /><" +
-                "/Association><Association Name=\"CRTIMS_TransferLines_Item_Category_Code_Link\"><E" +
-                "nd Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" " +
-                "/><End Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_TransferLines\" Multiplicity=" +
-                "\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHeader_Transfer_fr" +
-                "om_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfer_from_Code_Link\" Multiplici" +
-                "ty=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferS" +
-                "hipmentHeader\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_Transf" +
-                "erShipmentHeader_Transfer_from_Post_Code_Link\"><End Type=\"NAV.Postcodes\" Role=\"T" +
-                "ransfer_from_Post_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Transfe" +
+                "TransferLines_Shipping_Agent_Service_Code_Link\"><End Type=\"NAV.ShippingAgentServ" +
+                "ice\" Role=\"Shipping_Agent_Service_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NA" +
+                "V.CRTIMS_TransferLines\" Role=\"CRTIMS_TransferLines\" Multiplicity=\"*\" /></Associa" +
+                "tion><Association Name=\"CRTIMS_TransferLines_Item_Category_Code_Link\"><End Type=" +
+                "\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /><End T" +
+                "ype=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_TransferLines\" Multiplicity=\"*\" /></" +
+                "Association><Association Name=\"CRTIMS_TransferShipmentHeader_Transfer_from_Code_" +
+                "Link\"><End Type=\"NAV.Location\" Role=\"Transfer_from_Code_Link\" Multiplicity=\"0..1" +
+                "\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentH" +
+                "eader\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipme" +
+                "ntHeader_Transfer_from_Post_Code_Link\"><End Type=\"NAV.Postcodes\" Role=\"Transfer_" +
+                "from_Post_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmen" +
+                "tHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><" +
+                "Association Name=\"CRTIMS_TransferShipmentHeader_Transfer_from_City_Link\"><End Ty" +
+                "pe=\"NAV.Postcodes\" Role=\"Transfer_from_City_Link\" Multiplicity=\"0..1\" /><End Typ" +
+                "e=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multi" +
+                "plicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHeader_Trs" +
+                "f_from_Country_Region_Code_Link\"><End Type=\"NAV.CountryRegion\" Role=\"Trsf_from_C" +
+                "ountry_Region_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShi" +
+                "pmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Associati" +
+                "on><Association Name=\"CRTIMS_TransferShipmentHeader_Transfer_to_Code_Link\"><End " +
+                "Type=\"NAV.Location\" Role=\"Transfer_to_Code_Link\" Multiplicity=\"0..1\" /><End Type" +
+                "=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multip" +
+                "licity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHeader_Tran" +
+                "sfer_to_Post_Code_Link\"><End Type=\"NAV.Postcodes\" Role=\"Transfer_to_Post_Code_Li" +
+                "nk\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CR" +
+                "TIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><Association Name=" +
+                "\"CRTIMS_TransferShipmentHeader_Transfer_to_City_Link\"><End Type=\"NAV.Postcodes\" " +
+                "Role=\"Transfer_to_City_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Transfe" +
                 "rShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Assoc" +
-                "iation><Association Name=\"CRTIMS_TransferShipmentHeader_Transfer_from_City_Link\"" +
-                "><End Type=\"NAV.Postcodes\" Role=\"Transfer_from_City_Link\" Multiplicity=\"0..1\" />" +
-                "<End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeade" +
-                "r\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHe" +
-                "ader_Trsf_from_Country_Region_Code_Link\"><End Type=\"NAV.CountryRegion\" Role=\"Trs" +
-                "f_from_Country_Region_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Tra" +
-                "nsferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></A" +
-                "ssociation><Association Name=\"CRTIMS_TransferShipmentHeader_Transfer_to_Code_Lin" +
-                "k\"><End Type=\"NAV.Location\" Role=\"Transfer_to_Code_Link\" Multiplicity=\"0..1\" /><" +
-                "End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader" +
-                "\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHea" +
-                "der_Transfer_to_Post_Code_Link\"><End Type=\"NAV.Postcodes\" Role=\"Transfer_to_Post" +
-                "_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" " +
-                "Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><Associati" +
-                "on Name=\"CRTIMS_TransferShipmentHeader_Transfer_to_City_Link\"><End Type=\"NAV.Pos" +
-                "tcodes\" Role=\"Transfer_to_City_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS" +
-                "_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /" +
-                "></Association><Association Name=\"CRTIMS_TransferShipmentHeader_Trsf_to_Country_" +
-                "Region_Code_Link\"><End Type=\"NAV.CountryRegion\" Role=\"Trsf_to_Country_Region_Cod" +
-                "e_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role" +
-                "=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><Association N" +
-                "ame=\"CRTIMS_TransferShipmentHeader_No_Series_Link\"><End Type=\"NAV.CRTSHF_NoSerie" +
-                "sList\" Role=\"No_Series_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Transfe" +
-                "rShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Assoc" +
-                "iation><Association Name=\"CRTIMS_TransferShipmentHeader_In_Transit_Code_Link\"><E" +
-                "nd Type=\"NAV.Location\" Role=\"In_Transit_Code_Link\" Multiplicity=\"0..1\" /><End Ty" +
-                "pe=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Mult" +
-                "iplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHeader_Sh" +
-                "ipping_Agent_Code_Link\"><End Type=\"NAV.ShippingAgent\" Role=\"Shipping_Agent_Code_" +
-                "Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"" +
-                "CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><Association Nam" +
-                "e=\"CRTIMS_TransferShipmentHeader_Shipping_Agent_Service_Code_Link\"><End Type=\"NA" +
-                "V.ShippingAgentService\" Role=\"Shipping_Agent_Service_Code_Link\" Multiplicity=\"0." +
-                ".1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmen" +
-                "tHeader\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShip" +
-                "mentHeader_Shipment_Method_Code_Link\"><End Type=\"NAV.ShipmentMethod\" Role=\"Shipm" +
-                "ent_Method_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipme" +
-                "ntHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association>" +
-                "<Association Name=\"CRTIMS_TransferShipmentHeader_Prod_Order_No_Link\"><End Type=\"" +
-                "NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"" +
-                "NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multipli" +
-                "city=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHeader_Create" +
-                "d_From_Prod_Order_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Created_From_Prod_" +
-                "Order_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" " +
-                "Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><Associati" +
-                "on Name=\"CRTIMS_TransferShipmentHeader_Prod_Replan_No_Link\"><End Type=\"NAV.Produ" +
-                "ctionOrder\" Role=\"Prod_Replan_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTI" +
+                "iation><Association Name=\"CRTIMS_TransferShipmentHeader_Trsf_to_Country_Region_C" +
+                "ode_Link\"><End Type=\"NAV.CountryRegion\" Role=\"Trsf_to_Country_Region_Code_Link\" " +
+                "Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS" +
+                "_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><Association Name=\"CRT" +
+                "IMS_TransferShipmentHeader_No_Series_Link\"><End Type=\"NAV.CRTSHF_NoSeriesList\" R" +
+                "ole=\"No_Series_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmen" +
+                "tHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><" +
+                "Association Name=\"CRTIMS_TransferShipmentHeader_In_Transit_Code_Link\"><End Type=" +
+                "\"NAV.Location\" Role=\"In_Transit_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV." +
+                "CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity" +
+                "=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHeader_Shipping_A" +
+                "gent_Code_Link\"><End Type=\"NAV.ShippingAgent\" Role=\"Shipping_Agent_Code_Link\" Mu" +
+                "ltiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_T" +
+                "ransferShipmentHeader\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIM" +
+                "S_TransferShipmentHeader_Shipping_Agent_Service_Code_Link\"><End Type=\"NAV.Shippi" +
+                "ngAgentService\" Role=\"Shipping_Agent_Service_Code_Link\" Multiplicity=\"0..1\" /><E" +
+                "nd Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\"" +
+                " Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentHead" +
+                "er_Shipment_Method_Code_Link\"><End Type=\"NAV.ShipmentMethod\" Role=\"Shipment_Meth" +
+                "od_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader" +
+                "\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><Associa" +
+                "tion Name=\"CRTIMS_TransferShipmentHeader_Prod_Order_No_Link\"><End Type=\"NAV.Prod" +
+                "uctionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTI" +
                 "MS_TransferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\"" +
-                " /></Association><Association Name=\"CRTIMS_TransferShipmentLines_Unit_of_Measure" +
-                "_Code_Link\"><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_" +
-                "Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentLines\" Role=\"C" +
-                "RTIMS_TransferShipmentLines\" Multiplicity=\"*\" /></Association><Association Name=" +
-                "\"CRTIMS_TransferShipmentLines_Shipping_Agent_Code_Link\"><End Type=\"NAV.ShippingA" +
-                "gent\" Role=\"Shipping_Agent_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIM" +
-                "S_TransferShipmentLines\" Role=\"CRTIMS_TransferShipmentLines\" Multiplicity=\"*\" />" +
-                "</Association><Association Name=\"CRTIMS_TransferShipmentLines_Shipping_Agent_Ser" +
-                "vice_Code_Link\"><End Type=\"NAV.ShippingAgentService\" Role=\"Shipping_Agent_Servic" +
-                "e_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentLines\" " +
-                "Role=\"CRTIMS_TransferShipmentLines\" Multiplicity=\"*\" /></Association><Associatio" +
-                "n Name=\"CRTIMS_TransferShipmentLines_In_Transit_Code_Link\"><End Type=\"NAV.Locati" +
-                "on\" Role=\"In_Transit_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Tran" +
-                "sferShipmentLines\" Role=\"CRTIMS_TransferShipmentLines\" Multiplicity=\"*\" /></Asso" +
-                "ciation><Association Name=\"CRTIMS_TransferShipmentLines_Transfer_from_Code_Link\"" +
-                "><End Type=\"NAV.Location\" Role=\"Transfer_from_Code_Link\" Multiplicity=\"0..1\" /><" +
-                "End Type=\"NAV.CRTIMS_TransferShipmentLines\" Role=\"CRTIMS_TransferShipmentLines\" " +
-                "Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentLines" +
-                "_Transfer_to_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfer_to_Code_Link\" Mu" +
+                " /></Association><Association Name=\"CRTIMS_TransferShipmentHeader_Created_From_P" +
+                "rod_Order_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Created_From_Prod_Order_Li" +
+                "nk\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CR" +
+                "TIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Association><Association Name=" +
+                "\"CRTIMS_TransferShipmentHeader_Prod_Replan_No_Link\"><End Type=\"NAV.ProductionOrd" +
+                "er\" Role=\"Prod_Replan_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Trans" +
+                "ferShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Ass" +
+                "ociation><Association Name=\"CRTIMS_TransferShipmentLines_Unit_of_Measure_Code_Li" +
+                "nk\"><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Mu" +
                 "ltiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentLines\" Role=\"CRTIMS_Tr" +
                 "ansferShipmentLines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_" +
-                "TransferShipmentLines_Item_Category_Code_Link\"><End Type=\"NAV.ItemCategories\" Ro" +
-                "le=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Transfe" +
-                "rShipmentLines\" Role=\"CRTIMS_TransferShipmentLines\" Multiplicity=\"*\" /></Associa" +
-                "tion><Association Name=\"CRTSHF_BatchSize_No_Series_Code_Lin";
+                "TransferShipmentLines_Shipping_Agent_Code_Link\"><End Type=\"NAV.ShippingAgent\" Ro" +
+                "le=\"Shipping_Agent_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_Transf" +
+                "erShipmentLines\" Role=\"CRTIMS_TransferShipmentLines\" Multiplicity=\"*\" /></Associ" +
+                "ation><Association Name=\"CRTIMS_TransferShipmentLines_Shipping_Agent_Service_Cod" +
+                "e_Link\"><End Type=\"NAV.ShippingAgentService\" Role=\"Shipping_Agent_Service_Code_L" +
+                "ink\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentLines\" Role=\"CR" +
+                "TIMS_TransferShipmentLines\" Multiplicity=\"*\" /></Association><Association Name=\"" +
+                "CRTIMS_TransferShipmentLines_In_Transit_Code_Link\"><End Type=\"NAV.Location\" Role" +
+                "=\"In_Transit_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShip" +
+                "mentLines\" Role=\"CRTIMS_TransferShipmentLines\" Multiplicity=\"*\" /></Association>" +
+                "<Association Name=\"CRTIMS_TransferShipmentLines_Transfer_from_Code_Link\"><End Ty" +
+                "pe=\"NAV.Location\" Role=\"Transfer_from_Code_Link\" Multiplicity=\"0..1\" /><End Type" +
+                "=\"NAV.CRTIMS_TransferShipmentLines\" Role=\"CRTIMS_TransferShipmentLines\" Multipli" +
+                "city=\"*\" /></Association><Association Name=\"CRTIMS_TransferShipmentLines_Transfe" +
+                "r_to_Code_Link\"><End Type=\"NAV.Location\" Role=\"Transfer_to_Code_Link\" Multiplici" +
+                "ty=\"0..1\" /><End Type=\"NAV.CRTIMS_TransferShipmentLines\" Role=\"CRTIMS_TransferSh" +
+                "ipmentLines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTIMS_Transfer" +
+                "ShipmentLines_Item_Category_Code_Link\"><End Type=\"NAV.ItemC";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart26 = "k\"><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"No_Series_Code_Link\" Multiplicity=\"0" +
-                "..1\" /><End Type=\"NAV.CRTSHF_BatchSize\" Role=\"CRTSHF_BatchSize\" Multiplicity=\"*\"" +
-                " /></Association><Association Name=\"CRTSHF_BatchSize_Unit_of_Measure_Code_Link\">" +
+            private const string ModelPart26 = "ategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CR" +
+                "TIMS_TransferShipmentLines\" Role=\"CRTIMS_TransferShipmentLines\" Multiplicity=\"*\"" +
+                " /></Association><Association Name=\"CRTSHF_BatchSize_No_Series_Code_Link\"><End T" +
+                "ype=\"NAV.CRTSHF_NoSeriesList\" Role=\"No_Series_Code_Link\" Multiplicity=\"0..1\" /><" +
+                "End Type=\"NAV.CRTSHF_BatchSize\" Role=\"CRTSHF_BatchSize\" Multiplicity=\"*\" /></Ass" +
+                "ociation><Association Name=\"CRTSHF_BatchSize_Unit_of_Measure_Code_Link\"><End Typ" +
+                "e=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"" +
+                "0..1\" /><End Type=\"NAV.CRTSHF_BatchSize\" Role=\"CRTSHF_BatchSize\" Multiplicity=\"*" +
+                "\" /></Association><Association Name=\"CRTSHF_BatchSize_Location_Code_Link\"><End T" +
+                "ype=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NA" +
+                "V.CRTSHF_BatchSize\" Role=\"CRTSHF_BatchSize\" Multiplicity=\"*\" /></Association><As" +
+                "sociation Name=\"CRTSHF_BOMTypes_CRTSHF_BOMTypesLines\"><End Type=\"NAV.CRTSHF_BOMT" +
+                "ypesLines\" Role=\"CRTSHF_BOMTypesLines\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_" +
+                "BOMTypes\" Role=\"CRTSHF_BOMTypes\" Multiplicity=\"*\" /></Association><Association N" +
+                "ame=\"CRTSHF_BOMTypes_Production_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" R" +
+                "ole=\"Production_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_BOMTy" +
+                "pes\" Role=\"CRTSHF_BOMTypes\" Multiplicity=\"*\" /></Association><Association Name=\"" +
+                "CRTSHF_BOMTypesLines_Unit_Of_Measure_Code_Link\"><End Type=\"NAV.CRTSHF_ItemUnitOf" +
+                "Measure\" Role=\"Unit_Of_Measure_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.C" +
+                "RTSHF_BOMTypesLines\" Role=\"CRTSHF_BOMTypesLines\" Multiplicity=\"*\" /></Associatio" +
+                "n><Association Name=\"CRTSHF_ItemUnitOfMeasure_Code_Link\"><End Type=\"NAV.CRTSHF_U" +
+                "nitOfMeasures\" Role=\"Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_Item" +
+                "UnitOfMeasure\" Role=\"CRTSHF_ItemUnitOfMeasure\" Multiplicity=\"*\" /></Association>" +
+                "<Association Name=\"CRTSHF_ItemUnitOfMeasure_ItemUnitOfMeasure_Link\"><End Type=\"N" +
+                "AV.CRTSHF_UnitOfMeasures\" Role=\"ItemUnitOfMeasure_Link\" Multiplicity=\"0..1\" /><E" +
+                "nd Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"CRTSHF_ItemUnitOfMeasure\" Multiplic" +
+                "ity=\"*\" /></Association><Association Name=\"CRTSHF_PackSize_Unit_of_Measure_Code_" +
+                "Link\"><End Type=\"NAV.CRTSHF_PackSize\" Role=\"CRTSHF_PackSize\" Multiplicity=\"*\" />" +
                 "<End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multip" +
-                "licity=\"0..1\" /><End Type=\"NAV.CRTSHF_BatchSize\" Role=\"CRTSHF_BatchSize\" Multipl" +
-                "icity=\"*\" /></Association><Association Name=\"CRTSHF_BatchSize_Location_Code_Link" +
-                "\"><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End " +
-                "Type=\"NAV.CRTSHF_BatchSize\" Role=\"CRTSHF_BatchSize\" Multiplicity=\"*\" /></Associa" +
-                "tion><Association Name=\"CRTSHF_BOMTypes_CRTSHF_BOMTypesLines\"><End Type=\"NAV.CRT" +
-                "SHF_BOMTypesLines\" Role=\"CRTSHF_BOMTypesLines\" Multiplicity=\"*\" /><End Type=\"NAV" +
-                ".CRTSHF_BOMTypes\" Role=\"CRTSHF_BOMTypes\" Multiplicity=\"*\" /></Association><Assoc" +
-                "iation Name=\"CRTSHF_BOMTypes_Production_Order_No_Link\"><End Type=\"NAV.Production" +
-                "Order\" Role=\"Production_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTS" +
-                "HF_BOMTypes\" Role=\"CRTSHF_BOMTypes\" Multiplicity=\"*\" /></Association><Associatio" +
-                "n Name=\"CRTSHF_BOMTypesLines_Unit_Of_Measure_Code_Link\"><End Type=\"NAV.CRTSHF_It" +
-                "emUnitOfMeasure\" Role=\"Unit_Of_Measure_Code_Link\" Multiplicity=\"0..1\" /><End Typ" +
-                "e=\"NAV.CRTSHF_BOMTypesLines\" Role=\"CRTSHF_BOMTypesLines\" Multiplicity=\"*\" /></As" +
-                "sociation><Association Name=\"CRTSHF_ItemUnitOfMeasure_Code_Link\"><End Type=\"NAV." +
-                "CRTSHF_UnitOfMeasures\" Role=\"Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRT" +
-                "SHF_ItemUnitOfMeasure\" Role=\"CRTSHF_ItemUnitOfMeasure\" Multiplicity=\"*\" /></Asso" +
-                "ciation><Association Name=\"CRTSHF_ItemUnitOfMeasure_ItemUnitOfMeasure_Link\"><End" +
-                " Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"ItemUnitOfMeasure_Link\" Multiplicity=\"0." +
-                ".1\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"CRTSHF_ItemUnitOfMeasure\" M" +
-                "ultiplicity=\"*\" /></Association><Association Name=\"CRTSHF_PackSize_Unit_of_Measu" +
-                "re_Code_Link\"><End Type=\"NAV.CRTSHF_PackSize\" Role=\"CRTSHF_PackSize\" Multiplicit" +
-                "y=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link" +
-                "\" Multiplicity=\"0..1\" /></Association><Association Name=\"CRTSHF_ProdBOMLines_Uni" +
-                "t_UOM_Link\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_UOM_Link\" Multiplic" +
-                "ity=\"0..1\" /><End Type=\"NAV.CRTSHF_ProdBOMLines\" Role=\"CRTSHF_ProdBOMLines\" Mult" +
-                "iplicity=\"*\" /></Association><Association Name=\"CRTSHF_ProdBOMLines_Per_Unit_TW_" +
-                "Wt_UOM_Link\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Per_Unit_TW_Wt_UOM_Link" +
-                "\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_ProdBOMLines\" Role=\"CRTSHF_ProdBOM" +
-                "Lines\" Multiplicity=\"*\" /></Association><Association Name=\"CRTSHF_ProdBOMLines_U" +
-                "nit_of_Measure_Code_Header_Link\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Uni" +
-                "t_of_Measure_Code_Header_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_ProdB" +
-                "OMLines\" Role=\"CRTSHF_ProdBOMLines\" Multiplicity=\"*\" /></Association><Associatio" +
-                "n Name=\"CRTSHF_ProductionBOMList_Production_Order_No_Link\"><End Type=\"NAV.Produc" +
-                "tionOrder\" Role=\"Production_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV." +
-                "CRTSHF_ProductionBOMList\" Role=\"CRTSHF_ProductionBOMList\" Multiplicity=\"*\" /></A" +
-                "ssociation><Association Name=\"CRTSHF_ProductionBOMVersion_Unit_of_Measure_Code_L" +
-                "ink\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_of_Measure_Code_Link\" Mult" +
-                "iplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_ProductionBOMVersion\" Role=\"CRTSHF_Produ" +
-                "ctionBOMVersion\" Multiplicity=\"*\" /></Association><Association Name=\"CRTSHF_Prod" +
-                "uctionBOMVersion_No_Series_Link\"><End Type=\"NAV.CRTSHF_ProductionBOMVersion\" Rol" +
-                "e=\"CRTSHF_ProductionBOMVersion\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_NoSerie" +
-                "sList\" Role=\"No_Series_Link\" Multiplicity=\"0..1\" /></Association><Association Na" +
-                "me=\"CRTSHF_ProductionBOMVersion_Scrap_Unit_of_Measure_Link\"><End Type=\"NAV.CRTSH" +
-                "F_UnitOfMeasures\" Role=\"Scrap_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /><End T" +
-                "ype=\"NAV.CRTSHF_ProductionBOMVersion\" Role=\"CRTSHF_ProductionBOMVersion\" Multipl" +
-                "icity=\"*\" /></Association><Association Name=\"CRTSHF_ScrapItemJnlLine_Prod_Order_" +
-                "No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=" +
-                "\"0..1\" /><End Type=\"NAV.CRTSHF_ScrapItemJnlLine\" Role=\"CRTSHF_ScrapItemJnlLine\" " +
-                "Multiplicity=\"*\" /></Association><Association Name=\"CRTSHF_ScrapItemJnlLine_Scra" +
-                "p_Unit_of_Measure_Code_Link\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Scrap_U" +
-                "nit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_ScrapItemJ" +
-                "nlLine\" Role=\"CRTSHF_ScrapItemJnlLine\" Multiplicity=\"*\" /></Association><Associa" +
-                "tion Name=\"CRTSHF_ScrapItemJnlLine_Unit_of_Measure_Code_Link\"><End Type=\"NAV.CRT" +
-                "SHF_UnitOfMeasures\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /><End " +
-                "Type=\"NAV.CRTSHF_ScrapItemJnlLine\" Role=\"CRTSHF_ScrapItemJnlLine\" Multiplicity=\"" +
-                "*\" /></Association><Association Name=\"Customer_Location_Code_Link\"><End Type=\"NA" +
-                "V.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Custo" +
-                "mer\" Role=\"Customer\" Multiplicity=\"*\" /></Association><Association Name=\"Custome" +
-                "r_City_Link\"><End Type=\"NAV.Postcodes\" Role=\"City_Link\" Multiplicity=\"0..1\" /><E" +
-                "nd Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /></Association><Associa" +
-                "tion Name=\"Customer_Post_Code_Link\"><End Type=\"NAV.Postcodes\" Role=\"Post_Code_Li" +
+                "licity=\"0..1\" /></Association><Association Name=\"CRTSHF_ProdBOMLines_Unit_UOM_Li" +
+                "nk\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_UOM_Link\" Multiplicity=\"0.." +
+                "1\" /><End Type=\"NAV.CRTSHF_ProdBOMLines\" Role=\"CRTSHF_ProdBOMLines\" Multiplicity" +
+                "=\"*\" /></Association><Association Name=\"CRTSHF_ProdBOMLines_Per_Unit_TW_Wt_UOM_L" +
+                "ink\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Per_Unit_TW_Wt_UOM_Link\" Multip" +
+                "licity=\"0..1\" /><End Type=\"NAV.CRTSHF_ProdBOMLines\" Role=\"CRTSHF_ProdBOMLines\" M" +
+                "ultiplicity=\"*\" /></Association><Association Name=\"CRTSHF_ProdBOMLines_Unit_of_M" +
+                "easure_Code_Header_Link\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_of_Mea" +
+                "sure_Code_Header_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_ProdBOMLines\"" +
+                " Role=\"CRTSHF_ProdBOMLines\" Multiplicity=\"*\" /></Association><Association Name=\"" +
+                "CRTSHF_ProductionBOMList_Production_Order_No_Link\"><End Type=\"NAV.ProductionOrde" +
+                "r\" Role=\"Production_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_P" +
+                "roductionBOMList\" Role=\"CRTSHF_ProductionBOMList\" Multiplicity=\"*\" /></Associati" +
+                "on><Association Name=\"CRTSHF_ProductionBOMVersion_Unit_of_Measure_Code_Link\"><En" +
+                "d Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity" +
+                "=\"0..1\" /><End Type=\"NAV.CRTSHF_ProductionBOMVersion\" Role=\"CRTSHF_ProductionBOM" +
+                "Version\" Multiplicity=\"*\" /></Association><Association Name=\"CRTSHF_ProductionBO" +
+                "MVersion_No_Series_Link\"><End Type=\"NAV.CRTSHF_ProductionBOMVersion\" Role=\"CRTSH" +
+                "F_ProductionBOMVersion\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" R" +
+                "ole=\"No_Series_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"CRTS" +
+                "HF_ProductionBOMVersion_Scrap_Unit_of_Measure_Link\"><End Type=\"NAV.CRTSHF_UnitOf" +
+                "Measures\" Role=\"Scrap_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV" +
+                ".CRTSHF_ProductionBOMVersion\" Role=\"CRTSHF_ProductionBOMVersion\" Multiplicity=\"*" +
+                "\" /></Association><Association Name=\"CRTSHF_ScrapItemJnlLine_Prod_Order_No_Link\"" +
+                "><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /" +
+                "><End Type=\"NAV.CRTSHF_ScrapItemJnlLine\" Role=\"CRTSHF_ScrapItemJnlLine\" Multipli" +
+                "city=\"*\" /></Association><Association Name=\"CRTSHF_ScrapItemJnlLine_Scrap_Unit_o" +
+                "f_Measure_Code_Link\"><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Scrap_Unit_of_M" +
+                "easure_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.CRTSHF_ScrapItemJnlLine\" " +
+                "Role=\"CRTSHF_ScrapItemJnlLine\" Multiplicity=\"*\" /></Association><Association Nam" +
+                "e=\"CRTSHF_ScrapItemJnlLine_Unit_of_Measure_Code_Link\"><End Type=\"NAV.CRTSHF_Unit" +
+                "OfMeasures\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NA" +
+                "V.CRTSHF_ScrapItemJnlLine\" Role=\"CRTSHF_ScrapItemJnlLine\" Multiplicity=\"*\" /></A" +
+                "ssociation><Association Name=\"Customer_Location_Code_Link\"><End Type=\"NAV.Locati" +
+                "on\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Customer\" Rol" +
+                "e=\"Customer\" Multiplicity=\"*\" /></Association><Association Name=\"Customer_City_L" +
+                "ink\"><End Type=\"NAV.Postcodes\" Role=\"City_Link\" Multiplicity=\"0..1\" /><End Type=" +
+                "\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /></Association><Association Nam" +
+                "e=\"Customer_Post_Code_Link\"><End Type=\"NAV.Postcodes\" Role=\"Post_Code_Link\" Mult" +
+                "iplicity=\"0..1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /></" +
+                "Association><Association Name=\"Customer_Country_Region_Code_Link\"><End Type=\"NAV" +
+                ".Customer\" Role=\"Customer\" Multiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" Role" +
+                "=\"Country_Region_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Nam" +
+                "e=\"Customer_Currency_Code_Link\"><End Type=\"NAV.Customer\" Role=\"Customer\" Multipl" +
+                "icity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Multiplicity" +
+                "=\"0..1\" /></Association><Association Name=\"Customer_Customer_Posting_Group_Link\"" +
+                "><End Type=\"NAV.CustomerPostingGroup\" Role=\"Customer_Posting_Group_Link\" Multipl" +
+                "icity=\"0..1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /></Ass" +
+                "ociation><Association Name=\"Customer_Gen_Bus_Posting_Group_Link\"><End Type=\"NAV." +
+                "GenBussPostingGroup\" Role=\"Gen_Bus_Posting_Group_Link\" Multiplicity=\"0..1\" /><En" +
+                "d Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /></Association><Associat" +
+                "ion Name=\"Customer_VAT_Bus_Posting_Group_Link\"><End Type=\"NAV.GSTBusPostingGroup" +
+                "\" Role=\"VAT_Bus_Posting_Group_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Custome" +
+                "r\" Role=\"Customer\" Multiplicity=\"*\" /></Association><Association Name=\"Customer_" +
+                "Payment_Terms_Code_Link\"><End Type=\"NAV.PaymentTerms\" Role=\"Payment_Terms_Code_L" +
+                "ink\" Multiplicity=\"0..1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity" +
+                "=\"*\" /></Association><Association Name=\"Customer_Payment_Method_Code_Link\"><End " +
+                "Type=\"NAV.PaymentMethod\" Role=\"Payment_Method_Code_Link\" Multiplicity=\"0..1\" /><" +
+                "End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /></Association><Associ" +
+                "ation Name=\"Customer_Shipment_Method_Code_Link\"><End Type=\"NAV.ShipmentMethod\" R" +
+                "ole=\"Shipment_Method_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Customer\" R" +
+                "ole=\"Customer\" Multiplicity=\"*\" /></Association><Association Name=\"Customer_Ship" +
+                "ping_Agent_Code_Link\"><End Type=\"NAV.ShippingAgent\" Role=\"Shipping_Agent_Code_Li" +
                 "nk\" Multiplicity=\"0..1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=" +
-                "\"*\" /></Association><Association Name=\"Customer_Country_Region_Code_Link\"><End T" +
-                "ype=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /><End Type=\"NAV.CountryRegi" +
-                "on\" Role=\"Country_Region_Code_Link\" Multiplicity=\"0..1\" /></Association><Associa" +
-                "tion Name=\"Customer_Currency_Code_Link\"><End Type=\"NAV.Customer\" Role=\"Customer\"" +
-                " Multiplicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Mult" +
-                "iplicity=\"0..1\" /></Association><Association Name=\"Customer_Customer_Posting_Gro" +
-                "up_Link\"><End Type=\"NAV.CustomerPostingGroup\" Role=\"Customer_Posting_Group_Link\"" +
-                " Multiplicity=\"0..1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\"" +
-                " /></Association><Association Name=\"Customer_Gen_Bus_Posting_Group_Link\"><End Ty" +
-                "pe=\"NAV.GenBussPostingGroup\" Role=\"Gen_Bus_Posting_Group_Link\" Multiplicity=\"0.." +
-                "1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /></Association><" +
-                "Association Name=\"Customer_VAT_Bus_Posting_Group_Link\"><End Type=\"NAV.GSTBusPost" +
-                "ingGroup\" Role=\"VAT_Bus_Posting_Group_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV" +
-                ".Customer\" Role=\"Customer\" Multiplicity=\"*\" /></Association><Association Name=\"C" +
-                "ustomer_Payment_Terms_Code_Link\"><End Type=\"NAV.PaymentTerms\" Role=\"Payment_Term" +
-                "s_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Mult" +
-                "iplicity=\"*\" /></Association><Association Name=\"Customer_Payment_Method_Code_Lin" +
-                "k\"><End Type=\"NAV.PaymentMethod\" Role=\"Payment_Method_Code_Link\" Multiplicity=\"0" +
-                "..1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /></Association" +
-                "><Association Name=\"Customer_Shipment_Method_Code_Link\"><End Type=\"NAV.ShipmentM" +
-                "ethod\" Role=\"Shipment_Method_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Cus" +
-                "tomer\" Role=\"Customer\" Multiplicity=\"*\" /></Association><Association Name=\"Custo" +
-                "mer_Shipping_Agent_Code_Link\"><End Type=\"NAV.ShippingAgent\" Role=\"Shipping_Agent" +
-                "_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Customer\" Role=\"Customer\" Multi" +
-                "plicity=\"*\" /></Association><Association Name=\"FinishedProdOrderLine_Prod_Order_" +
-                "No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=" +
-                "\"0..1\" /><End Type=\"NAV.FinishedProdOrderLine\" Role=\"FinishedProdOrderLine\" Mult" +
-                "iplicity=\"*\" /></Association><Association Name=\"FP_ItemList";
+                "\"*\" /></Association><Association Name=\"FinishedProdOrderLin";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart27 = "_Batch_Nos_Link\"><End Type=\"NAV.FP_ItemList\" Role=\"FP_ItemList\" Multiplicity=\"*\" " +
-                "/><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"Batch_Nos_Link\" Multiplicity=\"0..1\" " +
-                "/></Association><Association Name=\"FP_ItemList_Base_Unit_of_Measure_Link\"><End T" +
-                "ype=\"NAV.FP_ItemList\" Role=\"FP_ItemList\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSH" +
-                "F_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /></As" +
-                "sociation><Association Name=\"FP_ItemList_Item_Category_Code_Link\"><End Type=\"NAV" +
-                ".ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /><End Type=" +
-                "\"NAV.FP_ItemList\" Role=\"FP_ItemList\" Multiplicity=\"*\" /></Association><Associati" +
-                "on Name=\"FP_ItemList_Location_Filter_Link\"><End Type=\"NAV.Location\" Role=\"Locati" +
-                "on_Filter_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.FP_ItemList\" Role=\"FP_ItemL" +
-                "ist\" Multiplicity=\"*\" /></Association><Association Name=\"GenBussPostingGroup_Def" +
-                "_VAT_Bus_Posting_Group_Link\"><End Type=\"NAV.GenBussPostingGroup\" Role=\"GenBussPo" +
-                "stingGroup\" Multiplicity=\"*\" /><End Type=\"NAV.GSTBusPostingGroup\" Role=\"Def_VAT_" +
-                "Bus_Posting_Group_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"G" +
-                "roupPlanning_Product_Group_Code_Link\"><End Type=\"NAV.ProductCodeList\" Role=\"Prod" +
-                "uct_Group_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.GroupPlanning\" Role=\"G" +
-                "roupPlanning\" Multiplicity=\"*\" /></Association><Association Name=\"GroupPlanning_" +
-                "Unit_Of_Measure_Code_Link\"><End Type=\"NAV.GroupPlanning\" Role=\"GroupPlanning\" Mu" +
-                "ltiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_Of_Measure_Cod" +
-                "e_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"GroupPlanningSpli" +
-                "t_Product_Group_Code_Link\"><End Type=\"NAV.ProductCodeList\" Role=\"Product_Group_C" +
-                "ode_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.GroupPlanningSplit\" Role=\"GroupPl" +
-                "anningSplit\" Multiplicity=\"*\" /></Association><Association Name=\"GroupPlanningSp" +
-                "lit_Unit_Of_Measure_Code_Link\"><End Type=\"NAV.GroupPlanningSplit\" Role=\"GroupPla" +
-                "nningSplit\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Un" +
-                "it_Of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"" +
-                "ItemBatchInfo_Location_Code_Link\"><End Type=\"NAV.Location\" Role=\"Location_Code_L" +
-                "ink\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemBatchInfo\" Role=\"ItemBatchInfo\" Mu" +
-                "ltiplicity=\"*\" /></Association><Association Name=\"ItemJournalLines_Location_Code" +
-                "_Link\"><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" />" +
-                "<End Type=\"NAV.ItemJournalLines\" Role=\"ItemJournalLines\" Multiplicity=\"*\" /></As" +
-                "sociation><Association Name=\"ItemJournalLines_Gen_Bus_Posting_Group_Link\"><End T" +
-                "ype=\"NAV.ItemJournalLines\" Role=\"ItemJournalLines\" Multiplicity=\"*\" /><End Type=" +
-                "\"NAV.GenBussPostingGroup\" Role=\"Gen_Bus_Posting_Group_Link\" Multiplicity=\"0..1\" " +
-                "/></Association><Association Name=\"ItemJournalLines_Unit_of_Measure_Code_Link\"><" +
-                "End Type=\"NAV.ItemJournalLines\" Role=\"ItemJournalLines\" Multiplicity=\"*\" /><End " +
-                "Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicit" +
-                "y=\"0..1\" /></Association><Association Name=\"ItemLedgerEntries_Item_Category_Code" +
-                "_Link\"><End Type=\"NAV.ItemLedgerEntries\" Role=\"ItemLedgerEntries\" Multiplicity=\"" +
-                "*\" /><End Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=" +
-                "\"0..1\" /></Association><Association Name=\"ItemLedgerEntries_Location_Code_Link\">" +
-                "<End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Ty" +
-                "pe=\"NAV.ItemLedgerEntries\" Role=\"ItemLedgerEntries\" Multiplicity=\"*\" /></Associa" +
-                "tion><Association Name=\"ItemLedgerEntries_Country_Region_Code_Link\"><End Type=\"N" +
-                "AV.ItemLedgerEntries\" Role=\"ItemLedgerEntries\" Multiplicity=\"*\" /><End Type=\"NAV" +
-                ".CountryRegion\" Role=\"Country_Region_Code_Link\" Multiplicity=\"0..1\" /></Associat" +
-                "ion><Association Name=\"ItemLedgerEntries_Prod_Order_Type_Link\"><End Type=\"NAV.Sa" +
-                "lesForecastList\" Role=\"Prod_Order_Type_Link\" Multiplicity=\"0..1\" /><End Type=\"NA" +
-                "V.ItemLedgerEntries\" Role=\"ItemLedgerEntries\" Multiplicity=\"*\" /></Association><" +
-                "Association Name=\"ItemList_Batch_Nos_Link\"><End Type=\"NAV.ItemList\" Role=\"ItemLi" +
-                "st\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"Batch_Nos_Link\"" +
-                " Multiplicity=\"0..1\" /></Association><Association Name=\"ItemList_Base_Unit_of_Me" +
-                "asure_Link\"><End Type=\"NAV.ItemList\" Role=\"ItemList\" Multiplicity=\"*\" /><End Typ" +
-                "e=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"" +
-                "0..1\" /></Association><Association Name=\"ItemList_Item_Category_Code_Link\"><End " +
-                "Type=\"NAV.ItemList\" Role=\"ItemList\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCatego" +
-                "ries\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /></Association><Associ" +
-                "ation Name=\"ItemList_QC_Location_Link\"><End Type=\"NAV.Location\" Role=\"QC_Locatio" +
-                "n_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemList\" Role=\"ItemList\" Multiplic" +
-                "ity=\"*\" /></Association><Association Name=\"ItemList_Location_Filter_Link\"><End T" +
-                "ype=\"NAV.Location\" Role=\"Location_Filter_Link\" Multiplicity=\"0..1\" /><End Type=\"" +
-                "NAV.ItemList\" Role=\"ItemList\" Multiplicity=\"*\" /></Association><Association Name" +
-                "=\"ItemPicture_Customer_No_Link\"><End Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" M" +
-                "ultiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"Customer_No_Link\" Multiplicity=" +
-                "\"0..1\" /></Association><Association Name=\"ItemPicture_Vendor_No_Link\"><End Type=" +
-                "\"NAV.Vendor\" Role=\"Vendor_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemPict" +
-                "ure\" Role=\"ItemPicture\" Multiplicity=\"*\" /></Association><Association Name=\"Item" +
-                "Picture_Currency_Code_Link\"><End Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" Multi" +
-                "plicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Multiplici" +
-                "ty=\"0..1\" /></Association><Association Name=\"ItemPicture_Location_Code_Link\"><En" +
-                "d Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=" +
-                "\"NAV.ItemPicture\" Role=\"ItemPicture\" Multiplicity=\"*\" /></Association><Associati" +
-                "on Name=\"ItemPicture_Unit_of_Measure_Code_Link\"><End Type=\"NAV.ItemPicture\" Role" +
-                "=\"ItemPicture\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Un" +
-                "it_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"" +
-                "ItemPicture_Reason_Code_Link\"><End Type=\"NAV.ReasonCodeList\" Role=\"Reason_Code_L" +
-                "ink\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" Multip" +
-                "licity=\"*\" /></Association><Association Name=\"ItemPicture_Sample_Quantity_Link\">" +
-                "<End Type=\"NAV.Location\" Role=\"Sample_Quantity_Link\" Multiplicity=\"0..1\" /><End " +
-                "Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" Multiplicity=\"*\" /></Association><Asso" +
-                "ciation Name=\"ItemUOMList_Code_Link\"><End Type=\"NAV.ItemUOMList\" Role=\"ItemUOMLi" +
-                "st\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Code_Link\" Mu" +
-                "ltiplicity=\"0..1\" /></Association><Association Name=\"MachineCenterList_Work_Cent" +
-                "er_No_Link\"><End Type=\"NAV.Process\" Role=\"Work_Center_No_Link\" Multiplicity=\"0.." +
-                "1\" /><End Type=\"NAV.MachineCenterList\" Role=\"MachineCenterList\" Multiplicity=\"*\"" +
-                " /></Association><Association Name=\"OutputCorrectionList_Item_Ledger_Entry_No_Li" +
-                "nk\"><End Type=\"NAV.OutputCorrectionList\" Role=\"OutputCorrectionList\" Multiplicit" +
-                "y=\"*\" /><End Type=\"NAV.ItemLedgerEntries\" Role=\"Item_Ledger_Entry_No_Link\" Multi" +
-                "plicity=\"0..1\" /></Association><Association Name=\"OutputJournal_ProdOrderNo_Link" +
-                "\"><End Type=\"NAV.ProductionOrder\" Role=\"ProdOrderNo_Link\" Multiplicity=\"0..1\" />" +
-                "<End Type=\"NAV.OutputJournal\" Role=\"OutputJournal\" Multiplicity=\"*\" /></Associat" +
-                "ion><Association Name=\"OutputJournal_LocationCode_Link\"><End Type=\"NAV.OutputJou" +
-                "rnal\" Role=\"OutputJournal\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Loc" +
-                "ationCode_Link\" Multiplicity=\"0..1\" /></Association><Associ";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart28 = "ation Name=\"OutputJournal_Unit_Of_Measure_Code_Link\"><End Type=\"NAV.OutputJournal" +
-                "\" Role=\"OutputJournal\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" " +
-                "Role=\"Unit_Of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Associatio" +
-                "n Name=\"OutstandingProdOrderLine_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOr" +
-                "der\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.OutstandingP" +
-                "rodOrderLine\" Role=\"OutstandingProdOrderLine\" Multiplicity=\"*\" /></Association><" +
-                "Association Name=\"OutstandingProdOrderLine_Unit_of_Measure_Code_Link\"><End Type=" +
-                "\"NAV.OutstandingProdOrderLine\" Role=\"OutstandingProdOrderLine\" Multiplicity=\"*\" " +
-                "/><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Mult" +
-                "iplicity=\"0..1\" /></Association><Association Name=\"OutstandingSalesOrderLine_Sel" +
-                "l_to_Customer_No_Link\"><End Type=\"NAV.OutstandingSalesOrderLine\" Role=\"Outstandi" +
-                "ngSalesOrderLine\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_Cust" +
-                "omer_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"PackagingIt" +
-                "emList_Base_Unit_of_Measure_Link\"><End Type=\"NAV.PackagingItemList\" Role=\"Packag" +
-                "ingItemList\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"B" +
-                "ase_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /></Association><Association Name=" +
-                "\"PackagingItemList_Item_Category_Code_Link\"><End Type=\"NAV.PackagingItemList\" Ro" +
-                "le=\"PackagingItemList\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCategories\" Role=\"I" +
-                "tem_Category_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"P" +
-                "ackagingItemList_Location_Filter_Link\"><End Type=\"NAV.PackagingItemList\" Role=\"P" +
-                "ackagingItemList\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Fil" +
-                "ter_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"PaymentMethod_D" +
-                "irect_Debit_Pmt_Terms_Code_Link\"><End Type=\"NAV.PaymentTerms\" Role=\"Direct_Debit" +
-                "_Pmt_Terms_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.PaymentMethod\" Role=\"" +
-                "PaymentMethod\" Multiplicity=\"*\" /></Association><Association Name=\"PKGQtyInProd_" +
-                "Location_Code_Link\"><End Type=\"NAV.PKGQtyInProd\" Role=\"PKGQtyInProd\" Multiplicit" +
-                "y=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /" +
-                "></Association><Association Name=\"PKGQtyInProd_Unit_of_Measure_Code_Link\"><End T" +
-                "ype=\"NAV.PKGQtyInProd\" Role=\"PKGQtyInProd\" Multiplicity=\"*\" /><End Type=\"NAV.CRT" +
-                "SHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></" +
-                "Association><Association Name=\"Postcodes_Country_Region_Code_Link\"><End Type=\"NA" +
-                "V.Postcodes\" Role=\"Postcodes\" Multiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" R" +
-                "ole=\"Country_Region_Code_Link\" Multiplicity=\"0..1\" /></Association><Association " +
-                "Name=\"PostedSalesShipmentLines_Document_No_Link\"><End Type=\"NAV.PostedSalesShipm" +
-                "ents\" Role=\"Document_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.PostedSalesSh" +
-                "ipmentLines\" Role=\"PostedSalesShipmentLines\" Multiplicity=\"*\" /></Association><A" +
-                "ssociation Name=\"PostedSalesShipmentLines_Sell_to_Customer_No_Link\"><End Type=\"N" +
-                "AV.PostedSalesShipmentLines\" Role=\"PostedSalesShipmentLines\" Multiplicity=\"*\" />" +
-                "<End Type=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0..1\" /><" +
-                "/Association><Association Name=\"PostedSalesShipmentLines_Location_Code_Link\"><En" +
-                "d Type=\"NAV.PostedSalesShipmentLines\" Role=\"PostedSalesShipmentLines\" Multiplici" +
-                "ty=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" " +
-                "/></Association><Association Name=\"PostedSalesShipments_Sell_to_Customer_No_Link" +
-                "\"><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=" +
-                "\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0.." +
-                "1\" /></Association><Association Name=\"PostedSalesShipments_Sell_to_Post_Code_Lin" +
-                "k\"><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity" +
-                "=\"*\" /><End Type=\"NAV.Postcodes\" Role=\"Sell_to_Post_Code_Link\" Multiplicity=\"0.." +
-                "1\" /></Association><Association Name=\"PostedSalesShipments_Sell_to_Country_Regio" +
-                "n_Code_Link\"><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Mu" +
-                "ltiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" Role=\"Sell_to_Country_Region_Code" +
-                "_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"PostedSalesShipmen" +
-                "ts_Bill_to_Customer_No_Link\"><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSa" +
-                "lesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"Bill_to_Customer" +
-                "_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"PostedSalesShip" +
-                "ments_Bill_to_Post_Code_Link\"><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedS" +
-                "alesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.Postcodes\" Role=\"Bill_to_Post_C" +
-                "ode_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"PostedSalesShip" +
-                "ments_Bill_to_Country_Region_Code_Link\"><End Type=\"NAV.PostedSalesShipments\" Rol" +
-                "e=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" Role=\"" +
-                "Bill_to_Country_Region_Code_Link\" Multiplicity=\"0..1\" /></Association><Associati" +
-                "on Name=\"PostedSalesShipments_Ship_to_Post_Code_Link\"><End Type=\"NAV.PostedSales" +
-                "Shipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.Postcod" +
-                "es\" Role=\"Ship_to_Post_Code_Link\" Multiplicity=\"0..1\" /></Association><Associati" +
-                "on Name=\"PostedSalesShipments_Ship_to_Country_Region_Code_Link\"><End Type=\"NAV.P" +
-                "ostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"N" +
-                "AV.CountryRegion\" Role=\"Ship_to_Country_Region_Code_Link\" Multiplicity=\"0..1\" />" +
-                "</Association><Association Name=\"PostedSalesShipments_Currency_Code_Link\"><End T" +
-                "ype=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><E" +
-                "nd Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Multiplicity=\"0..1\" /></As" +
-                "sociation><Association Name=\"PostedSalesShipments_Location_Code_Link\"><End Type=" +
-                "\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><End T" +
-                "ype=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association" +
-                "><Association Name=\"PostedSalesShipments_Shipment_Method_Code_Link\"><End Type=\"N" +
-                "AV.ShipmentMethod\" Role=\"Shipment_Method_Code_Link\" Multiplicity=\"0..1\" /><End T" +
-                "ype=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /></" +
-                "Association><Association Name=\"PostedSalesShipments_Shipping_Agent_Code_Link\"><E" +
-                "nd Type=\"NAV.ShippingAgent\" Role=\"Shipping_Agent_Code_Link\" Multiplicity=\"0..1\" " +
-                "/><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=" +
-                "\"*\" /></Association><Association Name=\"PostedSalesShipments_Shipping_Agent_Servi" +
-                "ce_Code_Link\"><End Type=\"NAV.ShippingAgentService\" Role=\"Shipping_Agent_Service_" +
-                "Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.PostedSalesShipments\" Role=\"Post" +
-                "edSalesShipments\" Multiplicity=\"*\" /></Association><Association Name=\"Process_Al" +
-                "ternate_Work_Center_Link\"><End Type=\"NAV.Process\" Role=\"Alternate_Work_Center_Li" +
-                "nk\" Multiplicity=\"0..1\" /><End Type=\"NAV.Process\" Role=\"Process\" Multiplicity=\"*" +
-                "\" /></Association><Association Name=\"Process_Subcontractor_No_Link\"><End Type=\"N" +
-                "AV.Vendor\" Role=\"Subcontractor_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Pro" +
-                "cess\" Role=\"Process\" Multiplicity=\"*\" /></Association><Association Name=\"Process" +
-                "ItemList_Batch_Nos_Link\"><End Type=\"NAV.ProcessItemList\" Role=\"ProcessItemList\" " +
-                "Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"Batch_Nos_Link\" Mul" +
-                "tiplicity=\"0..1\" /></Association><Association Name=\"ProcessItemList_Base_Unit_of" +
-                "_Measure_Link\"><End Type=\"NAV.ProcessItemList\" Role=\"ProcessItemList\" Multiplici" +
-                "ty=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Lin" +
-                "k\" Multiplicity=\"0..1\" /></Association><Association Name=\"P";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart29 = "rocessItemList_Item_Category_Code_Link\"><End Type=\"NAV.ProcessItemList\" Role=\"Pro" +
-                "cessItemList\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCategories\" Role=\"Item_Categ" +
-                "ory_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ProcessIte" +
-                "mList_Location_Filter_Link\"><End Type=\"NAV.ProcessItemList\" Role=\"ProcessItemLis" +
-                "t\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Filter_Link\" Multi" +
-                "plicity=\"0..1\" /></Association><Association Name=\"ProdOrderComp_Prod_Order_No_Li" +
-                "nk\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1" +
-                "\" /><End Type=\"NAV.ProdOrderComp\" Role=\"ProdOrderComp\" Multiplicity=\"*\" /></Asso" +
-                "ciation><Association Name=\"ProdOrderComp_Prod_Order_Line_No_Link\"><End Type=\"NAV" +
-                ".ProdOrderLineList\" Role=\"Prod_Order_Line_No_Link\" Multiplicity=\"0..1\" /><End Ty" +
-                "pe=\"NAV.ProdOrderComp\" Role=\"ProdOrderComp\" Multiplicity=\"*\" /></Association><As" +
-                "sociation Name=\"ProdOrderComp_Location_Code_Link\"><End Type=\"NAV.ProdOrderComp\" " +
-                "Role=\"ProdOrderComp\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_" +
-                "Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ProdOrderComp_" +
-                "Unit_of_Measure_Code_Link\"><End Type=\"NAV.ProdOrderComp\" Role=\"ProdOrderComp\" Mu" +
-                "ltiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_" +
-                "Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ProdOrderCompL" +
-                "ineList_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_" +
-                "Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProdOrderCompLineList\" Role=\"ProdOrde" +
-                "rCompLineList\" Multiplicity=\"*\" /></Association><Association Name=\"ProdOrderComp" +
-                "LineList_Prod_Order_Line_No_Link\"><End Type=\"NAV.ProdOrderLineList\" Role=\"Prod_O" +
-                "rder_Line_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProdOrderCompLineList\" R" +
-                "ole=\"ProdOrderCompLineList\" Multiplicity=\"*\" /></Association><Association Name=\"" +
-                "ProdOrderCompLineList_Location_Code_Link\"><End Type=\"NAV.ProdOrderCompLineList\" " +
-                "Role=\"ProdOrderCompLineList\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"L" +
-                "ocation_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ProdOr" +
-                "derCompLineList_Unit_of_Measure_Code_Link\"><End Type=\"NAV.ProdOrderCompLineList\"" +
-                " Role=\"ProdOrderCompLineList\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitO" +
-                "fMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><" +
-                "Association Name=\"ProdOrderLineList_Prod_Order_No_Link\"><End Type=\"NAV.Productio" +
-                "nOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProdOrder" +
-                "LineList\" Role=\"ProdOrderLineList\" Multiplicity=\"*\" /></Association><Association" +
-                " Name=\"ProdOrderLineList_Location_Code_Link\"><End Type=\"NAV.ProdOrderLineList\" R" +
-                "ole=\"ProdOrderLineList\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Locati" +
-                "on_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ProdOrderOu" +
-                "tputLine_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No" +
-                "_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProdOrderOutputLine\" Role=\"ProdOrder" +
-                "OutputLine\" Multiplicity=\"*\" /></Association><Association Name=\"ProdOrderOutputL" +
-                "ine_Unit_of_Measure_Code_Link\"><End Type=\"NAV.ProdOrderOutputLine\" Role=\"ProdOrd" +
-                "erOutputLine\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"" +
-                "Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name" +
-                "=\"ProdPlanningLine_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Pro" +
-                "d_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProdPlanningLine\" Role=\"Pr" +
-                "odPlanningLine\" Multiplicity=\"*\" /></Association><Association Name=\"ProdPlanning" +
-                "Line_Unit_of_Measure_Code_Link\"><End Type=\"NAV.ProdPlanningLine\" Role=\"ProdPlann" +
-                "ingLine\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_" +
-                "of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Pro" +
-                "ductCodeList_No_Series_Link\"><End Type=\"NAV.ProductCodeList\" Role=\"ProductCodeLi" +
-                "st\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"No_Series_Link\"" +
-                " Multiplicity=\"0..1\" /></Association><Association Name=\"ProductionEntry_Producti" +
-                "on_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Production_Order_No_Link" +
-                "\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProductionEntry\" Role=\"ProductionEntry\" M" +
-                "ultiplicity=\"*\" /></Association><Association Name=\"ProductionEntry_Location_Code" +
-                "_Link\"><End Type=\"NAV.ProductionEntry\" Role=\"ProductionEntry\" Multiplicity=\"*\" /" +
-                "><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Asso" +
-                "ciation><Association Name=\"ProductionEntry_Base_Unit_of_Measure_Link\"><End Type=" +
-                "\"NAV.ProductionEntry\" Role=\"ProductionEntry\" Multiplicity=\"*\" /><End Type=\"NAV.C" +
-                "RTSHF_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\" />" +
-                "</Association><Association Name=\"ProductionEntry_Reason_Code_Link\"><End Type=\"NA" +
-                "V.ReasonCodeList\" Role=\"Reason_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.P" +
-                "roductionEntry\" Role=\"ProductionEntry\" Multiplicity=\"*\" /></Association><Associa" +
-                "tion Name=\"ProductionOrder_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"No_Lin" +
-                "k\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProductionOrder\" Role=\"ProductionOrder\" " +
-                "Multiplicity=\"*\" /></Association><Association Name=\"ProductionOrder_Location_Cod" +
-                "e_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"ProductionOrder\" Multiplicity=\"*\" " +
-                "/><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Ass" +
-                "ociation><Association Name=\"ProductionOrderList_No_Link\"><End Type=\"NAV.Producti" +
-                "onOrderList\" Role=\"ProductionOrderList\" Multiplicity=\"*\" /><End Type=\"NAV.Produc" +
-                "tionOrder\" Role=\"No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=" +
-                "\"ProductionOrderList_Location_Code_Link\"><End Type=\"NAV.ProductionOrderList\" Rol" +
-                "e=\"ProductionOrderList\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Locati" +
-                "on_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ProductionR" +
-                "ecipe_No_Series_Link\"><End Type=\"NAV.ProductionRecipe\" Role=\"ProductionRecipe\" M" +
-                "ultiplicity=\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"No_Series_Link\" Mult" +
-                "iplicity=\"0..1\" /></Association><Association Name=\"ProductionRecipe_Machine_Cent" +
-                "er_Code_Link\"><End Type=\"NAV.ProductionRecipe\" Role=\"ProductionRecipe\" Multiplic" +
-                "ity=\"*\" /><End Type=\"NAV.MachineCenterList\" Role=\"Machine_Center_Code_Link\" Mult" +
-                "iplicity=\"0..1\" /></Association><Association Name=\"ProductionRecipeWS_No_Series_" +
-                "Link\"><End Type=\"NAV.ProductionRecipeWS\" Role=\"ProductionRecipeWS\" Multiplicity=" +
-                "\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"No_Series_Link\" Multiplicity=\"0." +
-                ".1\" /></Association><Association Name=\"ProductionRecipeWS_Machine_Center_Code_Li" +
-                "nk\"><End Type=\"NAV.ProductionRecipeWS\" Role=\"ProductionRecipeWS\" Multiplicity=\"*" +
-                "\" /><End Type=\"NAV.MachineCenterList\" Role=\"Machine_Center_Code_Link\" Multiplici" +
-                "ty=\"0..1\" /></Association><Association Name=\"PurchaseLines_Buy_from_Vendor_No_Li" +
-                "nk\"><End Type=\"NAV.Vendor\" Role=\"Buy_from_Vendor_No_Link\" Multiplicity=\"0..1\" />" +
-                "<End Type=\"NAV.PurchaseLines\" Role=\"PurchaseLines\" Multiplicity=\"*\" /></Associat" +
-                "ion><Association Name=\"PurchaseLines_Location_Code_Link\"><End Type=\"NAV.Purchase" +
-                "Lines\" Role=\"PurchaseLines\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Lo" +
-                "cation_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Purchas" +
-                "eLines_Currency_Code_Link\"><End Type=\"NAV.PurchaseLines\" Role=\"PurchaseLines\" Mu" +
-                "ltiplicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Multipl" +
-                "icity=\"0..1\" /></Association><Association Name=\"RawMatItemList_Batch_Nos_Link\"><" +
-                "End Type=\"NAV.RawMatItemList\" Role=\"RawMatItemList\" Multiplicity=\"*\" /><End Type" +
-                "=\"NAV.CRTSHF_NoSeriesList\" Role=\"Batch_Nos_Link\" Multiplici";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart30 = "ty=\"0..1\" /></Association><Association Name=\"RawMatItemList_Base_Unit_of_Measure_" +
-                "Link\"><End Type=\"NAV.RawMatItemList\" Role=\"RawMatItemList\" Multiplicity=\"*\" /><E" +
-                "nd Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multipli" +
-                "city=\"0..1\" /></Association><Association Name=\"RawMatItemList_Item_Category_Code" +
-                "_Link\"><End Type=\"NAV.RawMatItemList\" Role=\"RawMatItemList\" Multiplicity=\"*\" /><" +
-                "End Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\"" +
-                " /></Association><Association Name=\"RawMatItemList_Location_Filter_Link\"><End Ty" +
-                "pe=\"NAV.RawMatItemList\" Role=\"RawMatItemList\" Multiplicity=\"*\" /><End Type=\"NAV." +
-                "Location\" Role=\"Location_Filter_Link\" Multiplicity=\"0..1\" /></Association><Assoc" +
-                "iation Name=\"RegistrationDetailsLine_Country_Code_Link\"><End Type=\"NAV.Registrat" +
-                "ionDetailsLine\" Role=\"RegistrationDetailsLine\" Multiplicity=\"*\" /><End Type=\"NAV" +
-                ".CountryRegion\" Role=\"Country_Code_Link\" Multiplicity=\"0..1\" /></Association><As" +
-                "sociation Name=\"RegistrationDetailsLine_Unit_Of_Measure_Code_Link\"><End Type=\"NA" +
-                "V.RegistrationDetailsLine\" Role=\"RegistrationDetailsLine\" Multiplicity=\"*\" /><En" +
-                "d Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_Of_Measure_Code_Link\" Multiplicity" +
-                "=\"0..1\" /></Association><Association Name=\"SalesLineNotClosed_Sell_to_Customer_N" +
-                "o_Link\"><End Type=\"NAV.SalesLineNotClosed\" Role=\"SalesLineNotClosed\" Multiplicit" +
-                "y=\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0" +
-                "..1\" /></Association><Association Name=\"SalesLineNotClosed_Item_Category_Code_Li" +
-                "nk\"><End Type=\"NAV.SalesLineNotClosed\" Role=\"SalesLineNotClosed\" Multiplicity=\"*" +
-                "\" /><End Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"" +
-                "0..1\" /></Association><Association Name=\"SalesLineNotClosed_Location_Code_Link\">" +
-                "<End Type=\"NAV.SalesLineNotClosed\" Role=\"SalesLineNotClosed\" Multiplicity=\"*\" />" +
-                "<End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Assoc" +
-                "iation><Association Name=\"SalesLineNotClosed_Currency_Code_Link\"><End Type=\"NAV." +
-                "SalesLineNotClosed\" Role=\"SalesLineNotClosed\" Multiplicity=\"*\" /><End Type=\"NAV." +
-                "CurrencyCodes\" Role=\"Currency_Code_Link\" Multiplicity=\"0..1\" /></Association><As" +
-                "sociation Name=\"SalesLines_Sell_to_Customer_No_Link\"><End Type=\"NAV.SalesLines\" " +
-                "Role=\"SalesLines\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_Cust" +
-                "omer_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SalesLines_" +
-                "Location_Code_Link\"><End Type=\"NAV.SalesLines\" Role=\"SalesLines\" Multiplicity=\"*" +
-                "\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></A" +
-                "ssociation><Association Name=\"SalesOrderLineKIV_Sell_to_Customer_No_Link\"><End T" +
-                "ype=\"NAV.SalesOrderLineKIV\" Role=\"SalesOrderLineKIV\" Multiplicity=\"*\" /><End Typ" +
-                "e=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0..1\" /></Associa" +
-                "tion><Association Name=\"SalesOrderLineKIV_Item_Category_Code_Link\"><End Type=\"NA" +
-                "V.SalesOrderLineKIV\" Role=\"SalesOrderLineKIV\" Multiplicity=\"*\" /><End Type=\"NAV." +
-                "ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /></Associati" +
-                "on><Association Name=\"SalesOrderLineKIV_Location_Code_Link\"><End Type=\"NAV.Sales" +
-                "OrderLineKIV\" Role=\"SalesOrderLineKIV\" Multiplicity=\"*\" /><End Type=\"NAV.Locatio" +
-                "n\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Na" +
-                "me=\"SalesPrices_Currency_Code_Link\"><End Type=\"NAV.SalesPrices\" Role=\"SalesPrice" +
-                "s\" Multiplicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Mu" +
-                "ltiplicity=\"0..1\" /></Association><Association Name=\"SalesPrices_Unit_of_Measure" +
-                "_Code_Link\"><End Type=\"NAV.SalesPrices\" Role=\"SalesPrices\" Multiplicity=\"*\" /><E" +
-                "nd Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multipli" +
-                "city=\"0..1\" /></Association><Association Name=\"SalesPrices_Source_Name_Link\"><En" +
-                "d Type=\"NAV.SalesPrices\" Role=\"SalesPrices\" Multiplicity=\"*\" /><End Type=\"NAV.Cu" +
-                "stomer\" Role=\"Source_Name_Link\" Multiplicity=\"0..1\" /></Association><Association" +
-                " Name=\"SalesPrices_Item_Category_Code_Link\"><End Type=\"NAV.SalesPrices\" Role=\"Sa" +
-                "lesPrices\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCategories\" Role=\"Item_Category" +
-                "_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SalesPrices_T" +
-                "ender_No_Link\"><End Type=\"NAV.SalesPrices\" Role=\"SalesPrices\" Multiplicity=\"*\" /" +
-                "><End Type=\"NAV.SalesForecastList\" Role=\"Tender_No_Link\" Multiplicity=\"0..1\" /><" +
-                "/Association><Association Name=\"ShippingAgentService_Shipping_Agent_Code_Link\"><" +
-                "End Type=\"NAV.ShippingAgentService\" Role=\"ShippingAgentService\" Multiplicity=\"*\"" +
-                " /><End Type=\"NAV.ShippingAgent\" Role=\"Shipping_Agent_Code_Link\" Multiplicity=\"0" +
-                "..1\" /></Association><Association Name=\"StockAdjustmentOdata_Customer_No_Link\"><" +
-                "End Type=\"NAV.StockAdjustmentOdata\" Role=\"StockAdjustmentOdata\" Multiplicity=\"*\"" +
-                " /><End Type=\"NAV.Customer\" Role=\"Customer_No_Link\" Multiplicity=\"0..1\" /></Asso" +
-                "ciation><Association Name=\"StockAdjustmentOdata_Vendor_No_Link\"><End Type=\"NAV.V" +
-                "endor\" Role=\"Vendor_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.StockAdjustmen" +
-                "tOdata\" Role=\"StockAdjustmentOdata\" Multiplicity=\"*\" /></Association><Associatio" +
-                "n Name=\"StockAdjustmentOdata_Currency_Code_Link\"><End Type=\"NAV.StockAdjustmentO" +
-                "data\" Role=\"StockAdjustmentOdata\" Multiplicity=\"*\" /><End Type=\"NAV.CurrencyCode" +
-                "s\" Role=\"Currency_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Na" +
-                "me=\"StockAdjustmentOdata_Location_Code_Link\"><End Type=\"NAV.StockAdjustmentOdata" +
-                "\" Role=\"StockAdjustmentOdata\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"" +
-                "Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Stock" +
-                "AdjustmentOdata_Unit_of_Measure_Code_Link\"><End Type=\"NAV.StockAdjustmentOdata\" " +
-                "Role=\"StockAdjustmentOdata\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasu" +
-                "res\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Assoc" +
-                "iation Name=\"StockAdjustmentOdata_Reason_Code_Link\"><End Type=\"NAV.StockAdjustme" +
-                "ntOdata\" Role=\"StockAdjustmentOdata\" Multiplicity=\"*\" /><End Type=\"NAV.ReasonCod" +
-                "eList\" Role=\"Reason_Code_Link\" Multiplicity=\"0..1\" /></Association><Association " +
-                "Name=\"StockAdjustmentOdata_Sample_Quantity_Link\"><End Type=\"NAV.StockAdjustmentO" +
-                "data\" Role=\"StockAdjustmentOdata\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Ro" +
-                "le=\"Sample_Quantity_Link\" Multiplicity=\"0..1\" /></Association><Association Name=" +
-                "\"SWDAllProdOutputLine_Prod_Order_No_Link\"><End Type=\"NAV.SWDAllProdOutputLine\" R" +
-                "ole=\"SWDAllProdOutputLine\" Multiplicity=\"*\" /><End Type=\"NAV.ProductionOrder\" Ro" +
-                "le=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"S" +
-                "WDAllProdOutputLine_Unit_of_Measure_Code_Link\"><End Type=\"NAV.SWDAllProdOutputLi" +
-                "ne\" Role=\"SWDAllProdOutputLine\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUni" +
-                "tOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association" +
-                "><Association Name=\"SWDProdOrderSyncPortal_Prod_Order_No_Link\"><End Type=\"NAV.SW" +
-                "DProdOrderSyncPortal\" Role=\"SWDProdOrderSyncPortal\" Multiplicity=\"*\" /><End Type" +
-                "=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /></Associa" +
-                "tion><Association Name=\"SWDProdOrderSyncPortal_Prod_Order_Line_No_Link\"><End Typ" +
-                "e=\"NAV.SWDProdOrderSyncPortal\" Role=\"SWDProdOrderSyncPortal\" Multiplicity=\"*\" />" +
-                "<End Type=\"NAV.ProdOrderLineList\" Role=\"Prod_Order_Line_No_Link\" Multiplicity=\"0" +
-                "..1\" /></Association><Association Name=\"SWDWebIntegrationEntry_Customer_No_Link\"" +
-                "><End Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Multiplici" +
-                "ty=\"*\" /><End Type=\"NAV.Customer\" Role=\"Customer_No_Link\" Multiplicity=\"0..1\" />" +
-                "</Association><Association Name=\"SWDWebIntegrationEntry_Ven";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart31 = "dor_No_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor_No_Link\" Multiplicity=\"0..1\" /><" +
-                "End Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Multiplicity" +
-                "=\"*\" /></Association><Association Name=\"SWDWebIntegrationEntry_Currency_Code_Lin" +
-                "k\"><End Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Multipli" +
-                "city=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Multiplicity=" +
-                "\"0..1\" /></Association><Association Name=\"SWDWebIntegrationEntry_Location_Code_L" +
-                "ink\"><End Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Multip" +
-                "licity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0." +
-                ".1\" /></Association><Association Name=\"SWDWebIntegrationEntry_Unit_of_Measure_Co" +
-                "de_Link\"><End Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Mu" +
-                "ltiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_of_Measure_Cod" +
-                "e_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SWDWebIntegration" +
-                "Entry_Reason_Code_Link\"><End Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebInteg" +
-                "rationEntry\" Multiplicity=\"*\" /><End Type=\"NAV.ReasonCodeList\" Role=\"Reason_Code" +
-                "_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SWDWebIntegrationE" +
-                "ntry_Sample_Quantity_Link\"><End Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIn" +
-                "tegrationEntry\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Sample_Quantit" +
-                "y_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"TenderForSimulati" +
-                "on_Sell_to_Customer_No_Link\"><End Type=\"NAV.TenderForSimulation\" Role=\"TenderFor" +
-                "Simulation\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_Customer_N" +
-                "o_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"TenderOrderLines_" +
-                "Sell_to_Customer_No_Link\"><End Type=\"NAV.TenderOrderLines\" Role=\"TenderOrderLine" +
-                "s\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" M" +
-                "ultiplicity=\"0..1\" /></Association><Association Name=\"TenderOrderLines_Item_Cate" +
-                "gory_Code_Link\"><End Type=\"NAV.TenderOrderLines\" Role=\"TenderOrderLines\" Multipl" +
-                "icity=\"*\" /><End Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multip" +
-                "licity=\"0..1\" /></Association><Association Name=\"TenderOrderLines_Location_Code_" +
-                "Link\"><End Type=\"NAV.TenderOrderLines\" Role=\"TenderOrderLines\" Multiplicity=\"*\" " +
-                "/><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Ass" +
-                "ociation><Association Name=\"TestActualStart_Prod_Order_No_Link\"><End Type=\"NAV.T" +
-                "estActualStart\" Role=\"TestActualStart\" Multiplicity=\"*\" /><End Type=\"NAV.Product" +
-                "ionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /></Association><Associa" +
-                "tion Name=\"TrackingSpecification_Production_Order_No_Link\"><End Type=\"NAV.Tracki" +
-                "ngSpecification\" Role=\"TrackingSpecification\" Multiplicity=\"*\" /><End Type=\"NAV." +
-                "ProductionOrder\" Role=\"Production_Order_No_Link\" Multiplicity=\"0..1\" /></Associa" +
-                "tion><Association Name=\"TrackingSpecification_Location_Code_Link\"><End Type=\"NAV" +
-                ".TrackingSpecification\" Role=\"TrackingSpecification\" Multiplicity=\"*\" /><End Typ" +
-                "e=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><" +
-                "Association Name=\"TrackingSpecification_Base_Unit_of_Measure_Link\"><End Type=\"NA" +
-                "V.TrackingSpecification\" Role=\"TrackingSpecification\" Multiplicity=\"*\" /><End Ty" +
-                "pe=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=" +
-                "\"0..1\" /></Association><Association Name=\"Vendor_Country_Region_Code_Link\"><End " +
-                "Type=\"NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End Type=\"NAV.CountryRegion\"" +
-                " Role=\"Country_Region_Code_Link\" Multiplicity=\"0..1\" /></Association><Associatio" +
-                "n Name=\"Vendor_Location_Code_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor\" Multipli" +
-                "city=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1" +
-                "\" /></Association><Association Name=\"Vendor_Gen_Bus_Posting_Group_Link\"><End Typ" +
-                "e=\"NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End Type=\"NAV.GenBussPostingGro" +
-                "up\" Role=\"Gen_Bus_Posting_Group_Link\" Multiplicity=\"0..1\" /></Association><Assoc" +
-                "iation Name=\"Vendor_VAT_Bus_Posting_Group_Link\"><End Type=\"NAV.Vendor\" Role=\"Ven" +
-                "dor\" Multiplicity=\"*\" /><End Type=\"NAV.GSTBusPostingGroup\" Role=\"VAT_Bus_Posting" +
-                "_Group_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Vendor_Payme" +
-                "nt_Terms_Code_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End" +
-                " Type=\"NAV.PaymentTerms\" Role=\"Payment_Terms_Code_Link\" Multiplicity=\"0..1\" /></" +
-                "Association><Association Name=\"Vendor_Currency_Code_Link\"><End Type=\"NAV.Vendor\"" +
-                " Role=\"Vendor\" Multiplicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_C" +
-                "ode_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Vendor_Shipment" +
-                "_Method_Code_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End " +
-                "Type=\"NAV.ShipmentMethod\" Role=\"Shipment_Method_Code_Link\" Multiplicity=\"0..1\" /" +
-                "></Association><Association Name=\"Vendor_Currency_Filter_Link\"><End Type=\"NAV.Ve" +
-                "ndor\" Role=\"Vendor\" Multiplicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Curre" +
-                "ncy_Filter_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"WorkCent" +
-                "erList_Alternate_Work_Center_Link\"><End Type=\"NAV.WorkCenterList\" Role=\"WorkCent" +
-                "erList\" Multiplicity=\"*\" /><End Type=\"NAV.Process\" Role=\"Alternate_Work_Center_L" +
-                "ink\" Multiplicity=\"0..1\" /></Association><Association Name=\"WorkCenterList_Subco" +
-                "ntractor_No_Link\"><End Type=\"NAV.WorkCenterList\" Role=\"WorkCenterList\" Multiplic" +
-                "ity=\"*\" /><End Type=\"NAV.Vendor\" Role=\"Subcontractor_No_Link\" Multiplicity=\"0..1" +
-                "\" /></Association><Association Name=\"Company_BOMOdata\"><End Type=\"NAV.Company\" R" +
-                "ole=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.BOMOdata\" Role=\"BOMOdata\" Multip" +
-                "licity=\"*\" /></Association><Association Name=\"Company_ConsumptionJournal\"><End T" +
-                "ype=\"NAV.ConsumptionJournal\" Role=\"ConsumptionJournal\" Multiplicity=\"*\" /><End T" +
-                "ype=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association N" +
-                "ame=\"Company_CountryRegion\"><End Type=\"NAV.CountryRegion\" Role=\"CountryRegion\" M" +
-                "ultiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></As" +
-                "sociation><Association Name=\"Company_CPS_CalendarAbsenceEntries\"><End Type=\"NAV." +
-                "Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CPS_CalendarAbsenceEnt" +
-                "ries\" Role=\"CPS_CalendarAbsenceEntries\" Multiplicity=\"*\" /></Association><Associ" +
-                "ation Name=\"Company_CPS_ProdOrderLine\"><End Type=\"NAV.Company\" Role=\"Company\" Mu" +
-                "ltiplicity=\"*\" /><End Type=\"NAV.CPS_ProdOrderLine\" Role=\"CPS_ProdOrderLine\" Mult" +
-                "iplicity=\"*\" /></Association><Association Name=\"Company_CPS_ProdOrderRoutingLine" +
-                "\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CPS_P" +
-                "rodOrderRoutingLine\" Role=\"CPS_ProdOrderRoutingLine\" Multiplicity=\"*\" /></Associ" +
-                "ation><Association Name=\"Company_CPS_ProductionOrder\"><End Type=\"NAV.Company\" Ro" +
-                "le=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CPS_ProductionOrder\" Role=\"CPS_Pr" +
-                "oductionOrder\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Creat" +
-                "eProdOrderEntryWS\"><End Type=\"NAV.CreateProdOrderEntryWS\" Role=\"CreateProdOrderE" +
-                "ntryWS\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"" +
-                "*\" /></Association><Association Name=\"Company_CreateProdOrderLineEntryWS\"><End T" +
-                "ype=\"NAV.CreateProdOrderLineEntryWS\" Role=\"CreateProdOrderLineEntryWS\" Multiplic" +
-                "ity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Associatio" +
-                "n><Association Name=\"Company_CRTIMS_PostedTransferEntry\"><End Type=\"NAV.Company\"" +
-                " Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTIMS_PostedTransferEntry\" Ro" +
-                "le=\"CRTIMS_PostedTransferEntry\" Multiplicity=\"*\" /></Association><Association Na" +
-                "me=\"Company_CRTIMS_TransferEntry\"><End Type=\"NAV.Company\" R";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart32 = "ole=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTIMS_TransferEntry\" Role=\"CRTIM" +
-                "S_TransferEntry\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CRT" +
-                "IMS_TransferLines\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><En" +
-                "d Type=\"NAV.CRTIMS_TransferLines\" Role=\"CRTIMS_TransferLines\" Multiplicity=\"*\" /" +
-                "></Association><Association Name=\"Company_CRTIMS_TransferShipmentHeader\"><End Ty" +
-                "pe=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTIMS_Transfe" +
-                "rShipmentHeader\" Role=\"CRTIMS_TransferShipmentHeader\" Multiplicity=\"*\" /></Assoc" +
-                "iation><Association Name=\"Company_CRTIMS_TransferShipmentLines\"><End Type=\"NAV.C" +
-                "ompany\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTIMS_TransferShipment" +
-                "Lines\" Role=\"CRTIMS_TransferShipmentLines\" Multiplicity=\"*\" /></Association><Ass" +
-                "ociation Name=\"Company_CRTSHF_BatchSize\"><End Type=\"NAV.Company\" Role=\"Company\" " +
-                "Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_BatchSize\" Role=\"CRTSHF_BatchSize\" Mult" +
-                "iplicity=\"*\" /></Association><Association Name=\"Company_CRTSHF_BOMTypes\"><End Ty" +
-                "pe=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_BOMType" +
-                "s\" Role=\"CRTSHF_BOMTypes\" Multiplicity=\"*\" /></Association><Association Name=\"Co" +
-                "mpany_CRTSHF_BOMTypesLines\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=" +
-                "\"*\" /><End Type=\"NAV.CRTSHF_BOMTypesLines\" Role=\"CRTSHF_BOMTypesLines\" Multiplic" +
-                "ity=\"*\" /></Association><Association Name=\"Company_CRTSHF_ItemUnitOfMeasure\"><En" +
-                "d Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_Ite" +
-                "mUnitOfMeasure\" Role=\"CRTSHF_ItemUnitOfMeasure\" Multiplicity=\"*\" /></Association" +
-                "><Association Name=\"Company_CRTSHF_NoSeriesList\"><End Type=\"NAV.Company\" Role=\"C" +
-                "ompany\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"CRTSHF_NoSe" +
-                "riesList\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CRTSHF_Pac" +
-                "kSize\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV." +
-                "CRTSHF_PackSize\" Role=\"CRTSHF_PackSize\" Multiplicity=\"*\" /></Association><Associ" +
-                "ation Name=\"Company_CRTSHF_ProdBOMLines\"><End Type=\"NAV.Company\" Role=\"Company\" " +
-                "Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ProdBOMLines\" Role=\"CRTSHF_ProdBOMLines" +
-                "\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CRTSHF_ProductionB" +
-                "OMList\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV" +
-                ".CRTSHF_ProductionBOMList\" Role=\"CRTSHF_ProductionBOMList\" Multiplicity=\"*\" /></" +
-                "Association><Association Name=\"Company_CRTSHF_ProductionBOMVersion\"><End Type=\"N" +
-                "AV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ProductionBO" +
-                "MVersion\" Role=\"CRTSHF_ProductionBOMVersion\" Multiplicity=\"*\" /></Association><A" +
-                "ssociation Name=\"Company_CRTSHF_ScrapCodes\"><End Type=\"NAV.Company\" Role=\"Compan" +
-                "y\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ScrapCodes\" Role=\"CRTSHF_ScrapCodes\"" +
-                " Multiplicity=\"*\" /></Association><Association Name=\"Company_CRTSHF_ScrapItemJnl" +
-                "Line\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.C" +
-                "RTSHF_ScrapItemJnlLine\" Role=\"CRTSHF_ScrapItemJnlLine\" Multiplicity=\"*\" /></Asso" +
-                "ciation><Association Name=\"Company_CRTSHF_UnitOfMeasures\"><End Type=\"NAV.Company" +
-                "\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"" +
-                "CRTSHF_UnitOfMeasures\" Multiplicity=\"*\" /></Association><Association Name=\"Compa" +
-                "ny_CurrencyCodes\"><End Type=\"NAV.CurrencyCodes\" Role=\"CurrencyCodes\" Multiplicit" +
-                "y=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association>" +
-                "<Association Name=\"Company_Customer\"><End Type=\"NAV.Customer\" Role=\"Customer\" Mu" +
-                "ltiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Ass" +
-                "ociation><Association Name=\"Company_CustomerPostingGroup\"><End Type=\"NAV.Custome" +
-                "rPostingGroup\" Role=\"CustomerPostingGroup\" Multiplicity=\"*\" /><End Type=\"NAV.Com" +
-                "pany\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company" +
-                "_DefaultDimensionList\"><End Type=\"NAV.DefaultDimensionList\" Role=\"DefaultDimensi" +
-                "onList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"" +
-                "*\" /></Association><Association Name=\"Company_DocumentStorageEntries\"><End Type=" +
-                "\"NAV.DocumentStorageEntries\" Role=\"DocumentStorageEntries\" Multiplicity=\"*\" /><E" +
-                "nd Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Associati" +
-                "on Name=\"Company_DrumWeight\"><End Type=\"NAV.DrumWeight\" Role=\"DrumWeight\" Multip" +
-                "licity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Associa" +
-                "tion><Association Name=\"Company_FinishedProdOrderLine\"><End Type=\"NAV.FinishedPr" +
-                "odOrderLine\" Role=\"FinishedProdOrderLine\" Multiplicity=\"*\" /><End Type=\"NAV.Comp" +
-                "any\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_" +
-                "FP_ItemList\"><End Type=\"NAV.FP_ItemList\" Role=\"FP_ItemList\" Multiplicity=\"*\" /><" +
-                "End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Associat" +
-                "ion Name=\"Company_GenBussPostingGroup\"><End Type=\"NAV.GenBussPostingGroup\" Role=" +
-                "\"GenBussPostingGroup\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" " +
-                "Multiplicity=\"*\" /></Association><Association Name=\"Company_GroupPlanning\"><End " +
-                "Type=\"NAV.GroupPlanning\" Role=\"GroupPlanning\" Multiplicity=\"*\" /><End Type=\"NAV." +
-                "Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Comp" +
-                "any_GroupPlanningSplit\"><End Type=\"NAV.GroupPlanningSplit\" Role=\"GroupPlanningSp" +
-                "lit\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" " +
-                "/></Association><Association Name=\"Company_GSTBusPostingGroup\"><End Type=\"NAV.GS" +
-                "TBusPostingGroup\" Role=\"GSTBusPostingGroup\" Multiplicity=\"*\" /><End Type=\"NAV.Co" +
-                "mpany\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Compan" +
-                "y_ItemAdditionalInfo\"><End Type=\"NAV.ItemAdditionalInfo\" Role=\"ItemAdditionalInf" +
-                "o\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" />" +
-                "</Association><Association Name=\"Company_ItemAttributes\"><End Type=\"NAV.ItemAttr" +
-                "ibutes\" Role=\"ItemAttributes\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"C" +
-                "ompany\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ItemAttribut" +
-                "esValues\"><End Type=\"NAV.ItemAttributesValues\" Role=\"ItemAttributesValues\" Multi" +
-                "plicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Associ" +
-                "ation><Association Name=\"Company_ItemAttributesValuesMapping\"><End Type=\"NAV.Ite" +
-                "mAttributesValuesMapping\" Role=\"ItemAttributesValuesMapping\" Multiplicity=\"*\" />" +
-                "<End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Associa" +
-                "tion Name=\"Company_ItemBatchInfo\"><End Type=\"NAV.ItemBatchInfo\" Role=\"ItemBatchI" +
-                "nfo\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" " +
-                "/></Association><Association Name=\"Company_ItemCategories\"><End Type=\"NAV.ItemCa" +
-                "tegories\" Role=\"ItemCategories\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=" +
-                "\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ItemJourna" +
-                "lLines\"><End Type=\"NAV.ItemJournalLines\" Role=\"ItemJournalLines\" Multiplicity=\"*" +
-                "\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Ass" +
-                "ociation Name=\"Company_ItemLedgerEntries\"><End Type=\"NAV.ItemLedgerEntries\" Role" +
-                "=\"ItemLedgerEntries\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" M" +
-                "ultiplicity=\"*\" /></Association><Association Name=\"Company_ItemList\"><End Type=\"" +
-                "NAV.ItemList\" Role=\"ItemList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"C" +
-                "ompany\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ItemPicture\"" +
+            private const string ModelPart27 = "e_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" M" +
+                "ultiplicity=\"0..1\" /><End Type=\"NAV.FinishedProdOrderLine\" Role=\"FinishedProdOrd" +
+                "erLine\" Multiplicity=\"*\" /></Association><Association Name=\"FP_ItemList_Batch_No" +
+                "s_Link\"><End Type=\"NAV.FP_ItemList\" Role=\"FP_ItemList\" Multiplicity=\"*\" /><End T" +
+                "ype=\"NAV.CRTSHF_NoSeriesList\" Role=\"Batch_Nos_Link\" Multiplicity=\"0..1\" /></Asso" +
+                "ciation><Association Name=\"FP_ItemList_Base_Unit_of_Measure_Link\"><End Type=\"NAV" +
+                ".FP_ItemList\" Role=\"FP_ItemList\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUn" +
+                "itOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /></Associatio" +
+                "n><Association Name=\"FP_ItemList_Item_Category_Code_Link\"><End Type=\"NAV.ItemCat" +
+                "egories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.FP_" +
+                "ItemList\" Role=\"FP_ItemList\" Multiplicity=\"*\" /></Association><Association Name=" +
+                "\"FP_ItemList_Location_Filter_Link\"><End Type=\"NAV.Location\" Role=\"Location_Filte" +
+                "r_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.FP_ItemList\" Role=\"FP_ItemList\" Mul" +
+                "tiplicity=\"*\" /></Association><Association Name=\"GenBussPostingGroup_Def_VAT_Bus" +
+                "_Posting_Group_Link\"><End Type=\"NAV.GenBussPostingGroup\" Role=\"GenBussPostingGro" +
+                "up\" Multiplicity=\"*\" /><End Type=\"NAV.GSTBusPostingGroup\" Role=\"Def_VAT_Bus_Post" +
+                "ing_Group_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"GroupPlan" +
+                "ning_Product_Group_Code_Link\"><End Type=\"NAV.ProductCodeList\" Role=\"Product_Grou" +
+                "p_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.GroupPlanning\" Role=\"GroupPlan" +
+                "ning\" Multiplicity=\"*\" /></Association><Association Name=\"GroupPlanning_Unit_Of_" +
+                "Measure_Code_Link\"><End Type=\"NAV.GroupPlanning\" Role=\"GroupPlanning\" Multiplici" +
+                "ty=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_Of_Measure_Code_Link\" " +
+                "Multiplicity=\"0..1\" /></Association><Association Name=\"GroupPlanningSplit_Produc" +
+                "t_Group_Code_Link\"><End Type=\"NAV.ProductCodeList\" Role=\"Product_Group_Code_Link" +
+                "\" Multiplicity=\"0..1\" /><End Type=\"NAV.GroupPlanningSplit\" Role=\"GroupPlanningSp" +
+                "lit\" Multiplicity=\"*\" /></Association><Association Name=\"GroupPlanningSplit_Unit" +
+                "_Of_Measure_Code_Link\"><End Type=\"NAV.GroupPlanningSplit\" Role=\"GroupPlanningSpl" +
+                "it\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_Of_Me" +
+                "asure_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ItemBatc" +
+                "hInfo_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Li" +
+                "nk\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemBatchInfo\" Role=\"ItemBatchInfo\" Mul" +
+                "tiplicity=\"*\" /></Association><Association Name=\"ItemBatchInfo_Location_Code_Lin" +
+                "k\"><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End" +
+                " Type=\"NAV.ItemBatchInfo\" Role=\"ItemBatchInfo\" Multiplicity=\"*\" /></Association>" +
+                "<Association Name=\"ItemJournalLines_Location_Code_Link\"><End Type=\"NAV.Location\"" +
+                " Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemJournalLines" +
+                "\" Role=\"ItemJournalLines\" Multiplicity=\"*\" /></Association><Association Name=\"It" +
+                "emJournalLines_Gen_Bus_Posting_Group_Link\"><End Type=\"NAV.ItemJournalLines\" Role" +
+                "=\"ItemJournalLines\" Multiplicity=\"*\" /><End Type=\"NAV.GenBussPostingGroup\" Role=" +
+                "\"Gen_Bus_Posting_Group_Link\" Multiplicity=\"0..1\" /></Association><Association Na" +
+                "me=\"ItemJournalLines_Unit_of_Measure_Code_Link\"><End Type=\"NAV.ItemJournalLines\"" +
+                " Role=\"ItemJournalLines\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeas" +
+                "ure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Assoc" +
+                "iation Name=\"ItemLedgerEntries_Item_Category_Code_Link\"><End Type=\"NAV.ItemLedge" +
+                "rEntries\" Role=\"ItemLedgerEntries\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCategor" +
+                "ies\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /></Association><Associa" +
+                "tion Name=\"ItemLedgerEntries_Location_Code_Link\"><End Type=\"NAV.Location\" Role=\"" +
+                "Location_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemLedgerEntries\" Role" +
+                "=\"ItemLedgerEntries\" Multiplicity=\"*\" /></Association><Association Name=\"ItemLed" +
+                "gerEntries_Country_Region_Code_Link\"><End Type=\"NAV.ItemLedgerEntries\" Role=\"Ite" +
+                "mLedgerEntries\" Multiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" Role=\"Country_R" +
+                "egion_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ItemLedg" +
+                "erEntries_Prod_Order_Type_Link\"><End Type=\"NAV.SalesForecastList\" Role=\"Prod_Ord" +
+                "er_Type_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemLedgerEntries\" Role=\"Item" +
+                "LedgerEntries\" Multiplicity=\"*\" /></Association><Association Name=\"ItemList_Batc" +
+                "h_Nos_Link\"><End Type=\"NAV.ItemList\" Role=\"ItemList\" Multiplicity=\"*\" /><End Typ" +
+                "e=\"NAV.CRTSHF_NoSeriesList\" Role=\"Batch_Nos_Link\" Multiplicity=\"0..1\" /></Associ" +
+                "ation><Association Name=\"ItemList_Base_Unit_of_Measure_Link\"><End Type=\"NAV.Item" +
+                "List\" Role=\"ItemList\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure" +
+                "\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /></Association><Associat" +
+                "ion Name=\"ItemList_Item_Category_Code_Link\"><End Type=\"NAV.ItemList\" Role=\"ItemL" +
+                "ist\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_" +
+                "Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ItemList_QC_Locatio" +
+                "n_Link\"><End Type=\"NAV.Location\" Role=\"QC_Location_Link\" Multiplicity=\"0..1\" /><" +
+                "End Type=\"NAV.ItemList\" Role=\"ItemList\" Multiplicity=\"*\" /></Association><Associ" +
+                "ation Name=\"ItemList_Location_Filter_Link\"><End Type=\"NAV.Location\" Role=\"Locati" +
+                "on_Filter_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemList\" Role=\"ItemList\" M" +
+                "ultiplicity=\"*\" /></Association><Association Name=\"ItemPicture_Customer_No_Link\"" +
                 "><End Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" Multiplicity=\"*\" /><End Type=\"NA" +
-                "V.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association>";
+                "V.Customer\" Role=\"Customer_No_Link\" Multiplicity=\"0..1\" /></Association><Associa" +
+                "tion Name=\"ItemPicture_Vendor_No_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor_No_Li" +
+                "nk\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" Multipl" +
+                "icity=\"*\" /></Association><Association Name=\"ItemPicture_Currency_Code_Link\"><En" +
+                "d Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" Multiplicity=\"*\" /><End Type=\"NAV.Cu" +
+                "rrencyCodes\" Role=\"Currency_Code_Link\" Multiplicity=\"0..1\" /></Association><Asso" +
+                "ciation Name=\"ItemPicture_Location_Code_Link\"><End Type=\"NAV.Location\" Role=\"Loc" +
+                "ation_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemPicture\" Role=\"ItemPic" +
+                "ture\" Multiplicity=\"*\" /></Association><Association Name=\"ItemPicture_Unit_of_Me" +
+                "asure_Code_Link\"><End Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" Multiplicity=\"*\"" +
+                " /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_of_Measure_Code_Link\" Multip" +
+                "licity=\"0..1\" /></Association><Association Name=\"ItemPicture_Reason_Code_Link\"><" +
+                "End Type=\"NAV.ReasonCodeList\" Role=\"Reason_Code_Link\" Multiplicity=\"0..1\" /><End" +
+                " Type=\"NAV.ItemPicture\" Role=\"ItemPicture\" Multiplicity=\"*\" /></Association><Ass" +
+                "ociation Name=\"ItemPicture_Sample_Quantity_Link\"><End Type=\"NAV.Location\" Role=\"" +
+                "Sample_Quantity_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ItemPicture\" Role=\"It" +
+                "emPicture\" Multiplicity=\"*\" /></Association><Association Name=\"ItemUOMList_Code_" +
+                "Link\"><End Type=\"NAV.ItemUOMList\" Role=\"ItemUOMList\" Multiplicity=\"*\" /><End Typ" +
+                "e=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Code_Link\" Multiplicity=\"0..1\" /></Associati" +
+                "on><Association Name=\"MachineCenterList_Work_Center_No_Link\"><End Type=\"NAV.Proc" +
+                "ess\" Role=\"Work_Center_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.MachineCent" +
+                "erList\" Role=\"MachineCenterList\" Multiplicity=\"*\" /></Association><Association N" +
+                "ame=\"OutputCorrectionList_Item_Ledger_Entry_No_Link\"><End Type=\"NAV.OutputCorrec" +
+                "tionList\" Role=\"OutputCorrectionList\" Multiplicity=\"*\" /><End Type=\"NAV.ItemLedg" +
+                "erEntries\" Role=\"Item_Ledger_Entry_No_Link\" Multiplicity=\"0";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart33 = "<Association Name=\"Company_ItemUOMList\"><End Type=\"NAV.ItemUOMList\" Role=\"ItemUOM" +
-                "List\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\"" +
-                " /></Association><Association Name=\"Company_Location\"><End Type=\"NAV.Location\" R" +
-                "ole=\"Location\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multipl" +
-                "icity=\"*\" /></Association><Association Name=\"Company_MachineCenterList\"><End Typ" +
-                "e=\"NAV.MachineCenterList\" Role=\"MachineCenterList\" Multiplicity=\"*\" /><End Type=" +
-                "\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=" +
-                "\"Company_OutputCorrectionList\"><End Type=\"NAV.OutputCorrectionList\" Role=\"Output" +
-                "CorrectionList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multip" +
-                "licity=\"*\" /></Association><Association Name=\"Company_OutputJournal\"><End Type=\"" +
-                "NAV.OutputJournal\" Role=\"OutputJournal\" Multiplicity=\"*\" /><End Type=\"NAV.Compan" +
-                "y\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Ou" +
-                "tstandingProdOrderLine\"><End Type=\"NAV.OutstandingProdOrderLine\" Role=\"Outstandi" +
-                "ngProdOrderLine\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multi" +
-                "plicity=\"*\" /></Association><Association Name=\"Company_OutstandingSalesOrderLine" +
-                "\"><End Type=\"NAV.OutstandingSalesOrderLine\" Role=\"OutstandingSalesOrderLine\" Mul" +
-                "tiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Asso" +
-                "ciation><Association Name=\"Company_PackagingItemList\"><End Type=\"NAV.PackagingIt" +
-                "emList\" Role=\"PackagingItemList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role" +
-                "=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_PaymentMe" +
-                "thod\"><End Type=\"NAV.PaymentMethod\" Role=\"PaymentMethod\" Multiplicity=\"*\" /><End" +
+            private const string ModelPart28 = "..1\" /></Association><Association Name=\"OutputJournal_ProdOrderNo_Link\"><End Type" +
+                "=\"NAV.ProductionOrder\" Role=\"ProdOrderNo_Link\" Multiplicity=\"0..1\" /><End Type=\"" +
+                "NAV.OutputJournal\" Role=\"OutputJournal\" Multiplicity=\"*\" /></Association><Associ" +
+                "ation Name=\"OutputJournal_LocationCode_Link\"><End Type=\"NAV.OutputJournal\" Role=" +
+                "\"OutputJournal\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"LocationCode_L" +
+                "ink\" Multiplicity=\"0..1\" /></Association><Association Name=\"OutputJournal_Unit_O" +
+                "f_Measure_Code_Link\"><End Type=\"NAV.OutputJournal\" Role=\"OutputJournal\" Multipli" +
+                "city=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_Of_Measure_Code_Link" +
+                "\" Multiplicity=\"0..1\" /></Association><Association Name=\"OutstandingProdOrderLin" +
+                "e_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" " +
+                "Multiplicity=\"0..1\" /><End Type=\"NAV.OutstandingProdOrderLine\" Role=\"Outstanding" +
+                "ProdOrderLine\" Multiplicity=\"*\" /></Association><Association Name=\"OutstandingPr" +
+                "odOrderLine_Unit_of_Measure_Code_Link\"><End Type=\"NAV.OutstandingProdOrderLine\" " +
+                "Role=\"OutstandingProdOrderLine\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUni" +
+                "tOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association" +
+                "><Association Name=\"OutstandingSalesOrderLine_Sell_to_Customer_No_Link\"><End Typ" +
+                "e=\"NAV.OutstandingSalesOrderLine\" Role=\"OutstandingSalesOrderLine\" Multiplicity=" +
+                "\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0.." +
+                "1\" /></Association><Association Name=\"PackagingItemList_Base_Unit_of_Measure_Lin" +
+                "k\"><End Type=\"NAV.PackagingItemList\" Role=\"PackagingItemList\" Multiplicity=\"*\" /" +
+                "><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multi" +
+                "plicity=\"0..1\" /></Association><Association Name=\"PackagingItemList_Item_Categor" +
+                "y_Code_Link\"><End Type=\"NAV.PackagingItemList\" Role=\"PackagingItemList\" Multipli" +
+                "city=\"*\" /><End Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multipl" +
+                "icity=\"0..1\" /></Association><Association Name=\"PackagingItemList_Location_Filte" +
+                "r_Link\"><End Type=\"NAV.PackagingItemList\" Role=\"PackagingItemList\" Multiplicity=" +
+                "\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Filter_Link\" Multiplicity=\"0..1\" /" +
+                "></Association><Association Name=\"PaymentMethod_Direct_Debit_Pmt_Terms_Code_Link" +
+                "\"><End Type=\"NAV.PaymentTerms\" Role=\"Direct_Debit_Pmt_Terms_Code_Link\" Multiplic" +
+                "ity=\"0..1\" /><End Type=\"NAV.PaymentMethod\" Role=\"PaymentMethod\" Multiplicity=\"*\"" +
+                " /></Association><Association Name=\"PKGQtyInProd_Location_Code_Link\"><End Type=\"" +
+                "NAV.PKGQtyInProd\" Role=\"PKGQtyInProd\" Multiplicity=\"*\" /><End Type=\"NAV.Location" +
+                "\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Nam" +
+                "e=\"PKGQtyInProd_Unit_of_Measure_Code_Link\"><End Type=\"NAV.PKGQtyInProd\" Role=\"PK" +
+                "GQtyInProd\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Un" +
+                "it_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"" +
+                "Postcodes_Country_Region_Code_Link\"><End Type=\"NAV.Postcodes\" Role=\"Postcodes\" M" +
+                "ultiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" Role=\"Country_Region_Code_Link\" " +
+                "Multiplicity=\"0..1\" /></Association><Association Name=\"PostedSalesShipmentLines_" +
+                "Document_No_Link\"><End Type=\"NAV.PostedSalesShipments\" Role=\"Document_No_Link\" M" +
+                "ultiplicity=\"0..1\" /><End Type=\"NAV.PostedSalesShipmentLines\" Role=\"PostedSalesS" +
+                "hipmentLines\" Multiplicity=\"*\" /></Association><Association Name=\"PostedSalesShi" +
+                "pmentLines_Sell_to_Customer_No_Link\"><End Type=\"NAV.PostedSalesShipmentLines\" Ro" +
+                "le=\"PostedSalesShipmentLines\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"" +
+                "Sell_to_Customer_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=" +
+                "\"PostedSalesShipmentLines_Location_Code_Link\"><End Type=\"NAV.PostedSalesShipment" +
+                "Lines\" Role=\"PostedSalesShipmentLines\" Multiplicity=\"*\" /><End Type=\"NAV.Locatio" +
+                "n\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Na" +
+                "me=\"PostedSalesShipments_Sell_to_Customer_No_Link\"><End Type=\"NAV.PostedSalesShi" +
+                "pments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" " +
+                "Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0..1\" /></Association><Association" +
+                " Name=\"PostedSalesShipments_Sell_to_Post_Code_Link\"><End Type=\"NAV.PostedSalesSh" +
+                "ipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.Postcodes" +
+                "\" Role=\"Sell_to_Post_Code_Link\" Multiplicity=\"0..1\" /></Association><Association" +
+                " Name=\"PostedSalesShipments_Sell_to_Country_Region_Code_Link\"><End Type=\"NAV.Pos" +
+                "tedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV" +
+                ".CountryRegion\" Role=\"Sell_to_Country_Region_Code_Link\" Multiplicity=\"0..1\" /></" +
+                "Association><Association Name=\"PostedSalesShipments_Bill_to_Customer_No_Link\"><E" +
+                "nd Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" " +
+                "/><End Type=\"NAV.Customer\" Role=\"Bill_to_Customer_No_Link\" Multiplicity=\"0..1\" /" +
+                "></Association><Association Name=\"PostedSalesShipments_Bill_to_Post_Code_Link\"><" +
+                "End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\"" +
+                " /><End Type=\"NAV.Postcodes\" Role=\"Bill_to_Post_Code_Link\" Multiplicity=\"0..1\" /" +
+                "></Association><Association Name=\"PostedSalesShipments_Bill_to_Country_Region_Co" +
+                "de_Link\"><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multip" +
+                "licity=\"*\" /><End Type=\"NAV.CountryRegion\" Role=\"Bill_to_Country_Region_Code_Lin" +
+                "k\" Multiplicity=\"0..1\" /></Association><Association Name=\"PostedSalesShipments_S" +
+                "hip_to_Post_Code_Link\"><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShi" +
+                "pments\" Multiplicity=\"*\" /><End Type=\"NAV.Postcodes\" Role=\"Ship_to_Post_Code_Lin" +
+                "k\" Multiplicity=\"0..1\" /></Association><Association Name=\"PostedSalesShipments_S" +
+                "hip_to_Country_Region_Code_Link\"><End Type=\"NAV.PostedSalesShipments\" Role=\"Post" +
+                "edSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" Role=\"Ship_to" +
+                "_Country_Region_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name" +
+                "=\"PostedSalesShipments_Currency_Code_Link\"><End Type=\"NAV.PostedSalesShipments\" " +
+                "Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Rol" +
+                "e=\"Currency_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Po" +
+                "stedSalesShipments_Location_Code_Link\"><End Type=\"NAV.PostedSalesShipments\" Role" +
+                "=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Locati" +
+                "on_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"PostedSales" +
+                "Shipments_Shipment_Method_Code_Link\"><End Type=\"NAV.ShipmentMethod\" Role=\"Shipme" +
+                "nt_Method_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.PostedSalesShipments\" " +
+                "Role=\"PostedSalesShipments\" Multiplicity=\"*\" /></Association><Association Name=\"" +
+                "PostedSalesShipments_Shipping_Agent_Code_Link\"><End Type=\"NAV.ShippingAgent\" Rol" +
+                "e=\"Shipping_Agent_Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.PostedSalesShi" +
+                "pments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /></Association><Associatio" +
+                "n Name=\"PostedSalesShipments_Shipping_Agent_Service_Code_Link\"><End Type=\"NAV.Sh" +
+                "ippingAgentService\" Role=\"Shipping_Agent_Service_Code_Link\" Multiplicity=\"0..1\" " +
+                "/><End Type=\"NAV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=" +
+                "\"*\" /></Association><Association Name=\"Process_Alternate_Work_Center_Link\"><End " +
+                "Type=\"NAV.Process\" Role=\"Alternate_Work_Center_Link\" Multiplicity=\"0..1\" /><End " +
+                "Type=\"NAV.Process\" Role=\"Process\" Multiplicity=\"*\" /></Association><Association " +
+                "Name=\"Process_Subcontractor_No_Link\"><End Type=\"NAV.Vendor\" Role=\"Subcontractor_" +
+                "No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.Process\" Role=\"Process\" Multiplici" +
+                "ty=\"*\" /></Association><Association Name=\"ProcessItemList_B";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart29 = "atch_Nos_Link\"><End Type=\"NAV.ProcessItemList\" Role=\"ProcessItemList\" Multiplicit" +
+                "y=\"*\" /><End Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"Batch_Nos_Link\" Multiplicity=\"" +
+                "0..1\" /></Association><Association Name=\"ProcessItemList_Base_Unit_of_Measure_Li" +
+                "nk\"><End Type=\"NAV.ProcessItemList\" Role=\"ProcessItemList\" Multiplicity=\"*\" /><E" +
+                "nd Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Base_Unit_of_Measure_Link\" Multipli" +
+                "city=\"0..1\" /></Association><Association Name=\"ProcessItemList_Item_Category_Cod" +
+                "e_Link\"><End Type=\"NAV.ProcessItemList\" Role=\"ProcessItemList\" Multiplicity=\"*\" " +
+                "/><End Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0." +
+                ".1\" /></Association><Association Name=\"ProcessItemList_Location_Filter_Link\"><En" +
+                "d Type=\"NAV.ProcessItemList\" Role=\"ProcessItemList\" Multiplicity=\"*\" /><End Type" +
+                "=\"NAV.Location\" Role=\"Location_Filter_Link\" Multiplicity=\"0..1\" /></Association>" +
+                "<Association Name=\"ProdOrderComp_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOr" +
+                "der\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProdOrderCom" +
+                "p\" Role=\"ProdOrderComp\" Multiplicity=\"*\" /></Association><Association Name=\"Prod" +
+                "OrderComp_Prod_Order_Line_No_Link\"><End Type=\"NAV.ProdOrderLineList\" Role=\"Prod_" +
+                "Order_Line_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProdOrderComp\" Role=\"Pr" +
+                "odOrderComp\" Multiplicity=\"*\" /></Association><Association Name=\"ProdOrderComp_L" +
+                "ocation_Code_Link\"><End Type=\"NAV.ProdOrderComp\" Role=\"ProdOrderComp\" Multiplici" +
+                "ty=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" " +
+                "/></Association><Association Name=\"ProdOrderComp_Unit_of_Measure_Code_Link\"><End" +
+                " Type=\"NAV.ProdOrderComp\" Role=\"ProdOrderComp\" Multiplicity=\"*\" /><End Type=\"NAV" +
+                ".CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" " +
+                "/></Association><Association Name=\"ProdOrderCompLineList_Prod_Order_No_Link\"><En" +
+                "d Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /><En" +
+                "d Type=\"NAV.ProdOrderCompLineList\" Role=\"ProdOrderCompLineList\" Multiplicity=\"*\"" +
+                " /></Association><Association Name=\"ProdOrderCompLineList_Prod_Order_Line_No_Lin" +
+                "k\"><End Type=\"NAV.ProdOrderLineList\" Role=\"Prod_Order_Line_No_Link\" Multiplicity" +
+                "=\"0..1\" /><End Type=\"NAV.ProdOrderCompLineList\" Role=\"ProdOrderCompLineList\" Mul" +
+                "tiplicity=\"*\" /></Association><Association Name=\"ProdOrderCompLineList_Location_" +
+                "Code_Link\"><End Type=\"NAV.ProdOrderCompLineList\" Role=\"ProdOrderCompLineList\" Mu" +
+                "ltiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity" +
+                "=\"0..1\" /></Association><Association Name=\"ProdOrderCompLineList_Unit_of_Measure" +
+                "_Code_Link\"><End Type=\"NAV.ProdOrderCompLineList\" Role=\"ProdOrderCompLineList\" M" +
+                "ultiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure" +
+                "_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"ProdOrderLine" +
+                "List_Prod_Order_No_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Lin" +
+                "k\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProdOrderLineList\" Role=\"ProdOrderLineLi" +
+                "st\" Multiplicity=\"*\" /></Association><Association Name=\"ProdOrderLineList_Locati" +
+                "on_Code_Link\"><End Type=\"NAV.ProdOrderLineList\" Role=\"ProdOrderLineList\" Multipl" +
+                "icity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0.." +
+                "1\" /></Association><Association Name=\"ProdOrderOutputLine_Prod_Order_No_Link\"><E" +
+                "nd Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"0..1\" /><E" +
+                "nd Type=\"NAV.ProdOrderOutputLine\" Role=\"ProdOrderOutputLine\" Multiplicity=\"*\" />" +
+                "</Association><Association Name=\"ProdOrderOutputLine_Unit_of_Measure_Code_Link\">" +
+                "<End Type=\"NAV.ProdOrderOutputLine\" Role=\"ProdOrderOutputLine\" Multiplicity=\"*\" " +
+                "/><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Mult" +
+                "iplicity=\"0..1\" /></Association><Association Name=\"ProdPlanningLine_Prod_Order_N" +
+                "o_Link\"><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multiplicity=\"" +
+                "0..1\" /><End Type=\"NAV.ProdPlanningLine\" Role=\"ProdPlanningLine\" Multiplicity=\"*" +
+                "\" /></Association><Association Name=\"ProdPlanningLine_Unit_of_Measure_Code_Link\"" +
+                "><End Type=\"NAV.ProdPlanningLine\" Role=\"ProdPlanningLine\" Multiplicity=\"*\" /><En" +
+                "d Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measure_Code_Link\" Multiplic" +
+                "ity=\"0..1\" /></Association><Association Name=\"ProductCodeList_No_Series_Link\"><E" +
+                "nd Type=\"NAV.ProductCodeList\" Role=\"ProductCodeList\" Multiplicity=\"*\" /><End Typ" +
+                "e=\"NAV.CRTSHF_NoSeriesList\" Role=\"No_Series_Link\" Multiplicity=\"0..1\" /></Associ" +
+                "ation><Association Name=\"ProductionEntry_Production_Order_No_Link\"><End Type=\"NA" +
+                "V.ProductionOrder\" Role=\"Production_Order_No_Link\" Multiplicity=\"0..1\" /><End Ty" +
+                "pe=\"NAV.ProductionEntry\" Role=\"ProductionEntry\" Multiplicity=\"*\" /></Association" +
+                "><Association Name=\"ProductionEntry_Location_Code_Link\"><End Type=\"NAV.Productio" +
+                "nEntry\" Role=\"ProductionEntry\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=" +
+                "\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Prod" +
+                "uctionEntry_Base_Unit_of_Measure_Link\"><End Type=\"NAV.ProductionEntry\" Role=\"Pro" +
+                "ductionEntry\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"" +
+                "Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /></Association><Association Name" +
+                "=\"ProductionEntry_Reason_Code_Link\"><End Type=\"NAV.ReasonCodeList\" Role=\"Reason_" +
+                "Code_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.ProductionEntry\" Role=\"Productio" +
+                "nEntry\" Multiplicity=\"*\" /></Association><Association Name=\"ProductionOrder_No_L" +
+                "ink\"><End Type=\"NAV.ProductionOrder\" Role=\"No_Link\" Multiplicity=\"0..1\" /><End T" +
+                "ype=\"NAV.ProductionOrder\" Role=\"ProductionOrder\" Multiplicity=\"*\" /></Associatio" +
+                "n><Association Name=\"ProductionOrder_Location_Code_Link\"><End Type=\"NAV.Producti" +
+                "onOrder\" Role=\"ProductionOrder\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role" +
+                "=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Pro" +
+                "ductionOrderList_No_Link\"><End Type=\"NAV.ProductionOrderList\" Role=\"ProductionOr" +
+                "derList\" Multiplicity=\"*\" /><End Type=\"NAV.ProductionOrder\" Role=\"No_Link\" Multi" +
+                "plicity=\"0..1\" /></Association><Association Name=\"ProductionOrderList_Location_C" +
+                "ode_Link\"><End Type=\"NAV.ProductionOrderList\" Role=\"ProductionOrderList\" Multipl" +
+                "icity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicity=\"0.." +
+                "1\" /></Association><Association Name=\"ProductionRecipe_No_Series_Link\"><End Type" +
+                "=\"NAV.ProductionRecipe\" Role=\"ProductionRecipe\" Multiplicity=\"*\" /><End Type=\"NA" +
+                "V.CRTSHF_NoSeriesList\" Role=\"No_Series_Link\" Multiplicity=\"0..1\" /></Association" +
+                "><Association Name=\"ProductionRecipe_Machine_Center_Code_Link\"><End Type=\"NAV.Pr" +
+                "oductionRecipe\" Role=\"ProductionRecipe\" Multiplicity=\"*\" /><End Type=\"NAV.Machin" +
+                "eCenterList\" Role=\"Machine_Center_Code_Link\" Multiplicity=\"0..1\" /></Association" +
+                "><Association Name=\"ProductionRecipeWS_No_Series_Link\"><End Type=\"NAV.Production" +
+                "RecipeWS\" Role=\"ProductionRecipeWS\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_NoS" +
+                "eriesList\" Role=\"No_Series_Link\" Multiplicity=\"0..1\" /></Association><Associatio" +
+                "n Name=\"ProductionRecipeWS_Machine_Center_Code_Link\"><End Type=\"NAV.ProductionRe" +
+                "cipeWS\" Role=\"ProductionRecipeWS\" Multiplicity=\"*\" /><End Type=\"NAV.MachineCente" +
+                "rList\" Role=\"Machine_Center_Code_Link\" Multiplicity=\"0..1\" /></Association><Asso" +
+                "ciation Name=\"PurchaseLines_Buy_from_Vendor_No_Link\"><End Type=\"NAV.Vendor\" Role" +
+                "=\"Buy_from_Vendor_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.PurchaseLines\" R" +
+                "ole=\"PurchaseLines\" Multiplicity=\"*\" /></Association><Association Name=\"Purchase" +
+                "Lines_Location_Code_Link\"><End Type=\"NAV.PurchaseLines\" Role=\"PurchaseLines\" Mul" +
+                "tiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Cod";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart30 = "e_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"PurchaseLines_Curr" +
+                "ency_Code_Link\"><End Type=\"NAV.PurchaseLines\" Role=\"PurchaseLines\" Multiplicity=" +
+                "\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Multiplicity=\"0..1" +
+                "\" /></Association><Association Name=\"RawMatItemList_Batch_Nos_Link\"><End Type=\"N" +
+                "AV.RawMatItemList\" Role=\"RawMatItemList\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSH" +
+                "F_NoSeriesList\" Role=\"Batch_Nos_Link\" Multiplicity=\"0..1\" /></Association><Assoc" +
+                "iation Name=\"RawMatItemList_Base_Unit_of_Measure_Link\"><End Type=\"NAV.RawMatItem" +
+                "List\" Role=\"RawMatItemList\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfM" +
+                "easure\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /></Association><As" +
+                "sociation Name=\"RawMatItemList_Item_Category_Code_Link\"><End Type=\"NAV.RawMatIte" +
+                "mList\" Role=\"RawMatItemList\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCategories\" R" +
+                "ole=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /></Association><Association N" +
+                "ame=\"RawMatItemList_Location_Filter_Link\"><End Type=\"NAV.RawMatItemList\" Role=\"R" +
+                "awMatItemList\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Filter" +
+                "_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"RegistrationDetail" +
+                "sLine_Country_Code_Link\"><End Type=\"NAV.RegistrationDetailsLine\" Role=\"Registrat" +
+                "ionDetailsLine\" Multiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" Role=\"Country_C" +
+                "ode_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"RegistrationDet" +
+                "ailsLine_Unit_Of_Measure_Code_Link\"><End Type=\"NAV.RegistrationDetailsLine\" Role" +
+                "=\"RegistrationDetailsLine\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasur" +
+                "es\" Role=\"Unit_Of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><Associ" +
+                "ation Name=\"SalesLineNotClosed_Sell_to_Customer_No_Link\"><End Type=\"NAV.SalesLin" +
+                "eNotClosed\" Role=\"SalesLineNotClosed\" Multiplicity=\"*\" /><End Type=\"NAV.Customer" +
+                "\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0..1\" /></Association><Associati" +
+                "on Name=\"SalesLineNotClosed_Item_Category_Code_Link\"><End Type=\"NAV.SalesLineNot" +
+                "Closed\" Role=\"SalesLineNotClosed\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCategori" +
+                "es\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /></Association><Associat" +
+                "ion Name=\"SalesLineNotClosed_Location_Code_Link\"><End Type=\"NAV.SalesLineNotClos" +
+                "ed\" Role=\"SalesLineNotClosed\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"" +
+                "Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Sales" +
+                "LineNotClosed_Currency_Code_Link\"><End Type=\"NAV.SalesLineNotClosed\" Role=\"Sales" +
+                "LineNotClosed\" Multiplicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_C" +
+                "ode_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SalesLines_Sell" +
+                "_to_Customer_No_Link\"><End Type=\"NAV.SalesLines\" Role=\"SalesLines\" Multiplicity=" +
+                "\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0.." +
+                "1\" /></Association><Association Name=\"SalesLines_Location_Code_Link\"><End Type=\"" +
+                "NAV.SalesLines\" Role=\"SalesLines\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Ro" +
+                "le=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"S" +
+                "alesOrderLineKIV_Sell_to_Customer_No_Link\"><End Type=\"NAV.SalesOrderLineKIV\" Rol" +
+                "e=\"SalesOrderLineKIV\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"Sell_to_" +
+                "Customer_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SalesOr" +
+                "derLineKIV_Item_Category_Code_Link\"><End Type=\"NAV.SalesOrderLineKIV\" Role=\"Sale" +
+                "sOrderLineKIV\" Multiplicity=\"*\" /><End Type=\"NAV.ItemCategories\" Role=\"Item_Cate" +
+                "gory_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SalesOrde" +
+                "rLineKIV_Location_Code_Link\"><End Type=\"NAV.SalesOrderLineKIV\" Role=\"SalesOrderL" +
+                "ineKIV\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Mu" +
+                "ltiplicity=\"0..1\" /></Association><Association Name=\"SalesPrices_Currency_Code_L" +
+                "ink\"><End Type=\"NAV.SalesPrices\" Role=\"SalesPrices\" Multiplicity=\"*\" /><End Type" +
+                "=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Multiplicity=\"0..1\" /></Associati" +
+                "on><Association Name=\"SalesPrices_Unit_of_Measure_Code_Link\"><End Type=\"NAV.Sale" +
+                "sPrices\" Role=\"SalesPrices\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfM" +
+                "easure\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /></Association><As" +
+                "sociation Name=\"SalesPrices_Source_Name_Link\"><End Type=\"NAV.SalesPrices\" Role=\"" +
+                "SalesPrices\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Role=\"Source_Name_Link\"" +
+                " Multiplicity=\"0..1\" /></Association><Association Name=\"SalesPrices_Item_Categor" +
+                "y_Code_Link\"><End Type=\"NAV.SalesPrices\" Role=\"SalesPrices\" Multiplicity=\"*\" /><" +
+                "End Type=\"NAV.ItemCategories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\"" +
+                " /></Association><Association Name=\"SalesPrices_Tender_No_Link\"><End Type=\"NAV.S" +
+                "alesPrices\" Role=\"SalesPrices\" Multiplicity=\"*\" /><End Type=\"NAV.SalesForecastLi" +
+                "st\" Role=\"Tender_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=" +
+                "\"ShippingAgentService_Shipping_Agent_Code_Link\"><End Type=\"NAV.ShippingAgentServ" +
+                "ice\" Role=\"ShippingAgentService\" Multiplicity=\"*\" /><End Type=\"NAV.ShippingAgent" +
+                "\" Role=\"Shipping_Agent_Code_Link\" Multiplicity=\"0..1\" /></Association><Associati" +
+                "on Name=\"StockAdjustmentOdata_Customer_No_Link\"><End Type=\"NAV.StockAdjustmentOd" +
+                "ata\" Role=\"StockAdjustmentOdata\" Multiplicity=\"*\" /><End Type=\"NAV.Customer\" Rol" +
+                "e=\"Customer_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Stoc" +
+                "kAdjustmentOdata_Vendor_No_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor_No_Link\" Mu" +
+                "ltiplicity=\"0..1\" /><End Type=\"NAV.StockAdjustmentOdata\" Role=\"StockAdjustmentOd" +
+                "ata\" Multiplicity=\"*\" /></Association><Association Name=\"StockAdjustmentOdata_Cu" +
+                "rrency_Code_Link\"><End Type=\"NAV.StockAdjustmentOdata\" Role=\"StockAdjustmentOdat" +
+                "a\" Multiplicity=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Mu" +
+                "ltiplicity=\"0..1\" /></Association><Association Name=\"StockAdjustmentOdata_Locati" +
+                "on_Code_Link\"><End Type=\"NAV.StockAdjustmentOdata\" Role=\"StockAdjustmentOdata\" M" +
+                "ultiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location_Code_Link\" Multiplicit" +
+                "y=\"0..1\" /></Association><Association Name=\"StockAdjustmentOdata_Unit_of_Measure" +
+                "_Code_Link\"><End Type=\"NAV.StockAdjustmentOdata\" Role=\"StockAdjustmentOdata\" Mul" +
+                "tiplicity=\"*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"Unit_of_Measure_Code" +
+                "_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"StockAdjustmentOda" +
+                "ta_Reason_Code_Link\"><End Type=\"NAV.StockAdjustmentOdata\" Role=\"StockAdjustmentO" +
+                "data\" Multiplicity=\"*\" /><End Type=\"NAV.ReasonCodeList\" Role=\"Reason_Code_Link\" " +
+                "Multiplicity=\"0..1\" /></Association><Association Name=\"StockAdjustmentOdata_Samp" +
+                "le_Quantity_Link\"><End Type=\"NAV.StockAdjustmentOdata\" Role=\"StockAdjustmentOdat" +
+                "a\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Sample_Quantity_Link\" Multi" +
+                "plicity=\"0..1\" /></Association><Association Name=\"SWDAllProdOutputLine_Prod_Orde" +
+                "r_No_Link\"><End Type=\"NAV.SWDAllProdOutputLine\" Role=\"SWDAllProdOutputLine\" Mult" +
+                "iplicity=\"*\" /><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_Link\" Multipl" +
+                "icity=\"0..1\" /></Association><Association Name=\"SWDAllProdOutputLine_Unit_of_Mea" +
+                "sure_Code_Link\"><End Type=\"NAV.SWDAllProdOutputLine\" Role=\"SWDAllProdOutputLine\"" +
+                " Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"Unit_of_Measu" +
+                "re_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SWDProdOrde" +
+                "rSyncPortal_Prod_Order_No_Link\"><End Type=\"NAV.SWDProdOrderSyncPortal\" Role=\"SWD" +
+                "ProdOrderSyncPortal\" Multiplicity=\"*\" /><End Type=\"NAV.ProductionOrder\" Role=\"Pr" +
+                "od_Order_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"SWDProd" +
+                "OrderSyncPortal_Prod_Order_Line_No_Link\"><End Type=\"NAV.SWD";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart31 = "ProdOrderSyncPortal\" Role=\"SWDProdOrderSyncPortal\" Multiplicity=\"*\" /><End Type=\"" +
+                "NAV.ProdOrderLineList\" Role=\"Prod_Order_Line_No_Link\" Multiplicity=\"0..1\" /></As" +
+                "sociation><Association Name=\"SWDWebIntegrationEntry_Customer_No_Link\"><End Type=" +
+                "\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Multiplicity=\"*\" /><E" +
+                "nd Type=\"NAV.Customer\" Role=\"Customer_No_Link\" Multiplicity=\"0..1\" /></Associati" +
+                "on><Association Name=\"SWDWebIntegrationEntry_Vendor_No_Link\"><End Type=\"NAV.Vend" +
+                "or\" Role=\"Vendor_No_Link\" Multiplicity=\"0..1\" /><End Type=\"NAV.SWDWebIntegration" +
+                "Entry\" Role=\"SWDWebIntegrationEntry\" Multiplicity=\"*\" /></Association><Associati" +
+                "on Name=\"SWDWebIntegrationEntry_Currency_Code_Link\"><End Type=\"NAV.SWDWebIntegra" +
+                "tionEntry\" Role=\"SWDWebIntegrationEntry\" Multiplicity=\"*\" /><End Type=\"NAV.Curre" +
+                "ncyCodes\" Role=\"Currency_Code_Link\" Multiplicity=\"0..1\" /></Association><Associa" +
+                "tion Name=\"SWDWebIntegrationEntry_Location_Code_Link\"><End Type=\"NAV.SWDWebInteg" +
+                "rationEntry\" Role=\"SWDWebIntegrationEntry\" Multiplicity=\"*\" /><End Type=\"NAV.Loc" +
+                "ation\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Associatio" +
+                "n Name=\"SWDWebIntegrationEntry_Unit_of_Measure_Code_Link\"><End Type=\"NAV.SWDWebI" +
+                "ntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Multiplicity=\"*\" /><End Type=\"NAV" +
+                ".CRTSHF_UnitOfMeasures\" Role=\"Unit_of_Measure_Code_Link\" Multiplicity=\"0..1\" /><" +
+                "/Association><Association Name=\"SWDWebIntegrationEntry_Reason_Code_Link\"><End Ty" +
+                "pe=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Multiplicity=\"*\" /" +
+                "><End Type=\"NAV.ReasonCodeList\" Role=\"Reason_Code_Link\" Multiplicity=\"0..1\" /></" +
+                "Association><Association Name=\"SWDWebIntegrationEntry_Sample_Quantity_Link\"><End" +
+                " Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegrationEntry\" Multiplicity=\"*" +
+                "\" /><End Type=\"NAV.Location\" Role=\"Sample_Quantity_Link\" Multiplicity=\"0..1\" /><" +
+                "/Association><Association Name=\"TenderForSimulation_Sell_to_Customer_No_Link\"><E" +
+                "nd Type=\"NAV.TenderForSimulation\" Role=\"TenderForSimulation\" Multiplicity=\"*\" />" +
+                "<End Type=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0..1\" /><" +
+                "/Association><Association Name=\"TenderOrderLines_Sell_to_Customer_No_Link\"><End " +
+                "Type=\"NAV.TenderOrderLines\" Role=\"TenderOrderLines\" Multiplicity=\"*\" /><End Type" +
+                "=\"NAV.Customer\" Role=\"Sell_to_Customer_No_Link\" Multiplicity=\"0..1\" /></Associat" +
+                "ion><Association Name=\"TenderOrderLines_Item_Category_Code_Link\"><End Type=\"NAV." +
+                "TenderOrderLines\" Role=\"TenderOrderLines\" Multiplicity=\"*\" /><End Type=\"NAV.Item" +
+                "Categories\" Role=\"Item_Category_Code_Link\" Multiplicity=\"0..1\" /></Association><" +
+                "Association Name=\"TenderOrderLines_Location_Code_Link\"><End Type=\"NAV.TenderOrde" +
+                "rLines\" Role=\"TenderOrderLines\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role" +
+                "=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Tes" +
+                "tActualStart_Prod_Order_No_Link\"><End Type=\"NAV.TestActualStart\" Role=\"TestActua" +
+                "lStart\" Multiplicity=\"*\" /><End Type=\"NAV.ProductionOrder\" Role=\"Prod_Order_No_L" +
+                "ink\" Multiplicity=\"0..1\" /></Association><Association Name=\"TrackingSpecificatio" +
+                "n_Production_Order_No_Link\"><End Type=\"NAV.TrackingSpecification\" Role=\"Tracking" +
+                "Specification\" Multiplicity=\"*\" /><End Type=\"NAV.ProductionOrder\" Role=\"Producti" +
+                "on_Order_No_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Trackin" +
+                "gSpecification_Location_Code_Link\"><End Type=\"NAV.TrackingSpecification\" Role=\"T" +
+                "rackingSpecification\" Multiplicity=\"*\" /><End Type=\"NAV.Location\" Role=\"Location" +
+                "_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"TrackingSpeci" +
+                "fication_Base_Unit_of_Measure_Link\"><End Type=\"NAV.TrackingSpecification\" Role=\"" +
+                "TrackingSpecification\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasur" +
+                "e\" Role=\"Base_Unit_of_Measure_Link\" Multiplicity=\"0..1\" /></Association><Associa" +
+                "tion Name=\"Vendor_Country_Region_Code_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor\"" +
+                " Multiplicity=\"*\" /><End Type=\"NAV.CountryRegion\" Role=\"Country_Region_Code_Link" +
+                "\" Multiplicity=\"0..1\" /></Association><Association Name=\"Vendor_Location_Code_Li" +
+                "nk\"><End Type=\"NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End Type=\"NAV.Locat" +
+                "ion\" Role=\"Location_Code_Link\" Multiplicity=\"0..1\" /></Association><Association " +
+                "Name=\"Vendor_Gen_Bus_Posting_Group_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor\" Mu" +
+                "ltiplicity=\"*\" /><End Type=\"NAV.GenBussPostingGroup\" Role=\"Gen_Bus_Posting_Group" +
+                "_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"Vendor_VAT_Bus_Pos" +
+                "ting_Group_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End Ty" +
+                "pe=\"NAV.GSTBusPostingGroup\" Role=\"VAT_Bus_Posting_Group_Link\" Multiplicity=\"0..1" +
+                "\" /></Association><Association Name=\"Vendor_Payment_Terms_Code_Link\"><End Type=\"" +
+                "NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End Type=\"NAV.PaymentTerms\" Role=\"" +
+                "Payment_Terms_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Name=\"" +
+                "Vendor_Currency_Code_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\"" +
+                " /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Code_Link\" Multiplicity=\"0..1\" /" +
+                "></Association><Association Name=\"Vendor_Shipment_Method_Code_Link\"><End Type=\"N" +
+                "AV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End Type=\"NAV.ShipmentMethod\" Role=" +
+                "\"Shipment_Method_Code_Link\" Multiplicity=\"0..1\" /></Association><Association Nam" +
+                "e=\"Vendor_Currency_Filter_Link\"><End Type=\"NAV.Vendor\" Role=\"Vendor\" Multiplicit" +
+                "y=\"*\" /><End Type=\"NAV.CurrencyCodes\" Role=\"Currency_Filter_Link\" Multiplicity=\"" +
+                "0..1\" /></Association><Association Name=\"WorkCenterList_Alternate_Work_Center_Li" +
+                "nk\"><End Type=\"NAV.WorkCenterList\" Role=\"WorkCenterList\" Multiplicity=\"*\" /><End" +
+                " Type=\"NAV.Process\" Role=\"Alternate_Work_Center_Link\" Multiplicity=\"0..1\" /></As" +
+                "sociation><Association Name=\"WorkCenterList_Subcontractor_No_Link\"><End Type=\"NA" +
+                "V.WorkCenterList\" Role=\"WorkCenterList\" Multiplicity=\"*\" /><End Type=\"NAV.Vendor" +
+                "\" Role=\"Subcontractor_No_Link\" Multiplicity=\"0..1\" /></Association><Association " +
+                "Name=\"Company_BOMOdata\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" " +
+                "/><End Type=\"NAV.BOMOdata\" Role=\"BOMOdata\" Multiplicity=\"*\" /></Association><Ass" +
+                "ociation Name=\"Company_ConsumptionJournal\"><End Type=\"NAV.ConsumptionJournal\" Ro" +
+                "le=\"ConsumptionJournal\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company" +
+                "\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CountryRegion\"><En" +
+                "d Type=\"NAV.CountryRegion\" Role=\"CountryRegion\" Multiplicity=\"*\" /><End Type=\"NA" +
+                "V.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Co" +
+                "mpany_CPS_CalendarAbsenceEntries\"><End Type=\"NAV.Company\" Role=\"Company\" Multipl" +
+                "icity=\"*\" /><End Type=\"NAV.CPS_CalendarAbsenceEntries\" Role=\"CPS_CalendarAbsence" +
+                "Entries\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CPS_ProdOrd" +
+                "erLine\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV" +
+                ".CPS_ProdOrderLine\" Role=\"CPS_ProdOrderLine\" Multiplicity=\"*\" /></Association><A" +
+                "ssociation Name=\"Company_CPS_ProdOrderRoutingLine\"><End Type=\"NAV.Company\" Role=" +
+                "\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CPS_ProdOrderRoutingLine\" Role=\"CPS_" +
+                "ProdOrderRoutingLine\" Multiplicity=\"*\" /></Association><Association Name=\"Compan" +
+                "y_CPS_ProductionOrder\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /" +
+                "><End Type=\"NAV.CPS_ProductionOrder\" Role=\"CPS_ProductionOrder\" Multiplicity=\"*\"" +
+                " /></Association><Association Name=\"Company_CreateProdOrderEntryWS\"><End Type=\"N" +
+                "AV.CreateProdOrderEntryWS\" Role=\"CreateProdOrderEntryWS\" Multiplicity=\"*\" /><End" +
                 " Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association" +
-                " Name=\"Company_PaymentTerms\"><End Type=\"NAV.PaymentTerms\" Role=\"PaymentTerms\" Mu" +
-                "ltiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Ass" +
-                "ociation><Association Name=\"Company_PKGQtyInProd\"><End Type=\"NAV.PKGQtyInProd\" R" +
-                "ole=\"PKGQtyInProd\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Mul" +
-                "tiplicity=\"*\" /></Association><Association Name=\"Company_Postcodes\"><End Type=\"N" +
-                "AV.Postcodes\" Role=\"Postcodes\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"" +
-                "Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_PostedSales" +
-                "ShipmentLines\"><End Type=\"NAV.PostedSalesShipmentLines\" Role=\"PostedSalesShipmen" +
-                "tLines\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"" +
-                "*\" /></Association><Association Name=\"Company_PostedSalesShipments\"><End Type=\"N" +
-                "AV.PostedSalesShipments\" Role=\"PostedSalesShipments\" Multiplicity=\"*\" /><End Typ" +
-                "e=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Nam" +
-                "e=\"Company_Process\"><End Type=\"NAV.Process\" Role=\"Process\" Multiplicity=\"*\" /><E" +
-                "nd Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Associati" +
-                "on Name=\"Company_ProcessItemList\"><End Type=\"NAV.ProcessItemList\" Role=\"ProcessI" +
-                "temList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=" +
-                "\"*\" /></Association><Association Name=\"Company_ProdOrderComp\"><End Type=\"NAV.Pro" +
-                "dOrderComp\" Role=\"ProdOrderComp\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role" +
-                "=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ProdOrder" +
-                "CompLineList\"><End Type=\"NAV.ProdOrderCompLineList\" Role=\"ProdOrderCompLineList\"" +
-                " Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></" +
-                "Association><Association Name=\"Company_ProdOrderLineList\"><End Type=\"NAV.ProdOrd" +
-                "erLineList\" Role=\"ProdOrderLineList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" " +
-                "Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ProdO" +
-                "rderOutputLine\"><End Type=\"NAV.ProdOrderOutputLine\" Role=\"ProdOrderOutputLine\" M" +
-                "ultiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></As" +
-                "sociation><Association Name=\"Company_ProdPlanningLine\"><End Type=\"NAV.ProdPlanni" +
-                "ngLine\" Role=\"ProdPlanningLine\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=" +
-                "\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ProductCod" +
-                "eList\"><End Type=\"NAV.ProductCodeList\" Role=\"ProductCodeList\" Multiplicity=\"*\" /" +
-                "><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Associ" +
-                "ation Name=\"Company_ProductionEntry\"><End Type=\"NAV.ProductionEntry\" Role=\"Produ" +
-                "ctionEntry\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplici" +
-                "ty=\"*\" /></Association><Association Name=\"Company_ProductionOrder\"><End Type=\"NA" +
-                "V.ProductionOrder\" Role=\"ProductionOrder\" Multiplicity=\"*\" /><End Type=\"NAV.Comp" +
-                "any\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_" +
-                "ProductionOrderList\"><End Type=\"NAV.ProductionOrderList\" Role=\"ProductionOrderLi" +
-                "st\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /" +
-                "></Association><Association Name=\"Company_ProductionRecipe\"><End Type=\"NAV.Produ" +
-                "ctionRecipe\" Role=\"ProductionRecipe\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" " +
-                "Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Produ" +
-                "ctionRecipeLinkWS\"><End Type=\"NAV.ProductionRecipeLinkWS\" Role=\"ProductionRecipe" +
-                "LinkWS\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"" +
-                "*\" /></Association><Association Name=\"Company_ProductionRecipeWS\"><End Type=\"NAV" +
-                ".ProductionRecipeWS\" Role=\"ProductionRecipeWS\" Multiplicity=\"*\" /><End Type=\"NAV" +
+                " Name=\"Company_CreateProdOrderLineEntryWS\"><End Type=\"NAV.C";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart32 = "reateProdOrderLineEntryWS\" Role=\"CreateProdOrderLineEntryWS\" Multiplicity=\"*\" /><" +
+                "End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Associat" +
+                "ion Name=\"Company_CRTIMS_PostedTransferEntry\"><End Type=\"NAV.Company\" Role=\"Comp" +
+                "any\" Multiplicity=\"*\" /><End Type=\"NAV.CRTIMS_PostedTransferEntry\" Role=\"CRTIMS_" +
+                "PostedTransferEntry\" Multiplicity=\"*\" /></Association><Association Name=\"Company" +
+                "_CRTIMS_TransferEntry\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /" +
+                "><End Type=\"NAV.CRTIMS_TransferEntry\" Role=\"CRTIMS_TransferEntry\" Multiplicity=\"" +
+                "*\" /></Association><Association Name=\"Company_CRTIMS_TransferLines\"><End Type=\"N" +
+                "AV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTIMS_TransferLine" +
+                "s\" Role=\"CRTIMS_TransferLines\" Multiplicity=\"*\" /></Association><Association Nam" +
+                "e=\"Company_CRTIMS_TransferShipmentHeader\"><End Type=\"NAV.Company\" Role=\"Company\"" +
+                " Multiplicity=\"*\" /><End Type=\"NAV.CRTIMS_TransferShipmentHeader\" Role=\"CRTIMS_T" +
+                "ransferShipmentHeader\" Multiplicity=\"*\" /></Association><Association Name=\"Compa" +
+                "ny_CRTIMS_TransferShipmentLines\"><End Type=\"NAV.Company\" Role=\"Company\" Multipli" +
+                "city=\"*\" /><End Type=\"NAV.CRTIMS_TransferShipmentLines\" Role=\"CRTIMS_TransferShi" +
+                "pmentLines\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CRTSHF_B" +
+                "atchSize\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"N" +
+                "AV.CRTSHF_BatchSize\" Role=\"CRTSHF_BatchSize\" Multiplicity=\"*\" /></Association><A" +
+                "ssociation Name=\"Company_CRTSHF_BOMTypes\"><End Type=\"NAV.Company\" Role=\"Company\"" +
+                " Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_BOMTypes\" Role=\"CRTSHF_BOMTypes\" Multi" +
+                "plicity=\"*\" /></Association><Association Name=\"Company_CRTSHF_BOMTypesLines\"><En" +
+                "d Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_BOM" +
+                "TypesLines\" Role=\"CRTSHF_BOMTypesLines\" Multiplicity=\"*\" /></Association><Associ" +
+                "ation Name=\"Company_CRTSHF_ItemUnitOfMeasure\"><End Type=\"NAV.Company\" Role=\"Comp" +
+                "any\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ItemUnitOfMeasure\" Role=\"CRTSHF_It" +
+                "emUnitOfMeasure\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CRT" +
+                "SHF_NoSeriesList\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End" +
+                " Type=\"NAV.CRTSHF_NoSeriesList\" Role=\"CRTSHF_NoSeriesList\" Multiplicity=\"*\" /></" +
+                "Association><Association Name=\"Company_CRTSHF_PackSize\"><End Type=\"NAV.Company\" " +
+                "Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_PackSize\" Role=\"CRTSHF_P" +
+                "ackSize\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CRTSHF_Prod" +
+                "BOMLines\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type=\"N" +
+                "AV.CRTSHF_ProdBOMLines\" Role=\"CRTSHF_ProdBOMLines\" Multiplicity=\"*\" /></Associat" +
+                "ion><Association Name=\"Company_CRTSHF_ProductionBOMList\"><End Type=\"NAV.Company\"" +
+                " Role=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ProductionBOMList\" Role" +
+                "=\"CRTSHF_ProductionBOMList\" Multiplicity=\"*\" /></Association><Association Name=\"" +
+                "Company_CRTSHF_ProductionBOMVersion\"><End Type=\"NAV.Company\" Role=\"Company\" Mult" +
+                "iplicity=\"*\" /><End Type=\"NAV.CRTSHF_ProductionBOMVersion\" Role=\"CRTSHF_Producti" +
+                "onBOMVersion\" Multiplicity=\"*\" /></Association><Association Name=\"Company_CRTSHF" +
+                "_ScrapCodes\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><End Type" +
+                "=\"NAV.CRTSHF_ScrapCodes\" Role=\"CRTSHF_ScrapCodes\" Multiplicity=\"*\" /></Associati" +
+                "on><Association Name=\"Company_CRTSHF_ScrapItemJnlLine\"><End Type=\"NAV.Company\" R" +
+                "ole=\"Company\" Multiplicity=\"*\" /><End Type=\"NAV.CRTSHF_ScrapItemJnlLine\" Role=\"C" +
+                "RTSHF_ScrapItemJnlLine\" Multiplicity=\"*\" /></Association><Association Name=\"Comp" +
+                "any_CRTSHF_UnitOfMeasures\"><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"" +
+                "*\" /><End Type=\"NAV.CRTSHF_UnitOfMeasures\" Role=\"CRTSHF_UnitOfMeasures\" Multipli" +
+                "city=\"*\" /></Association><Association Name=\"Company_CurrencyCodes\"><End Type=\"NA" +
+                "V.CurrencyCodes\" Role=\"CurrencyCodes\" Multiplicity=\"*\" /><End Type=\"NAV.Company\"" +
+                " Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Cust" +
+                "omer\"><End Type=\"NAV.Customer\" Role=\"Customer\" Multiplicity=\"*\" /><End Type=\"NAV" +
                 ".Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Com" +
-                "pany_PurchaseLines\"><End Type=\"NAV.PurchaseLines\" Role=\"PurchaseLines\" Multiplic" +
+                "pany_CustomerPostingGroup\"><End Type=\"NAV.CustomerPostingGroup\" Role=\"CustomerPo" +
+                "stingGroup\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplici" +
+                "ty=\"*\" /></Association><Association Name=\"Company_DefaultDimensionList\"><End Typ" +
+                "e=\"NAV.DefaultDimensionList\" Role=\"DefaultDimensionList\" Multiplicity=\"*\" /><End" +
+                " Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association" +
+                " Name=\"Company_DocumentStorageEntries\"><End Type=\"NAV.DocumentStorageEntries\" Ro" +
+                "le=\"DocumentStorageEntries\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Com" +
+                "pany\" Multiplicity=\"*\" /></Association><Association Name=\"Company_DrumWeight\"><E" +
+                "nd Type=\"NAV.DrumWeight\" Role=\"DrumWeight\" Multiplicity=\"*\" /><End Type=\"NAV.Com" +
+                "pany\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company" +
+                "_FinishedProdOrderLine\"><End Type=\"NAV.FinishedProdOrderLine\" Role=\"FinishedProd" +
+                "OrderLine\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicit" +
+                "y=\"*\" /></Association><Association Name=\"Company_FP_ItemList\"><End Type=\"NAV.FP_" +
+                "ItemList\" Role=\"FP_ItemList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Co" +
+                "mpany\" Multiplicity=\"*\" /></Association><Association Name=\"Company_GenBussPostin" +
+                "gGroup\"><End Type=\"NAV.GenBussPostingGroup\" Role=\"GenBussPostingGroup\" Multiplic" +
                 "ity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Associatio" +
-                "n><Association Name=\"Company_RawMatItemList\"><End Type=\"NAV.RawMatItemList\" Role" +
-                "=\"RawMatItemList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Mult" +
-                "iplicity=\"*\" /></Association><Association Name=\"Company_ReasonCodeList\"><End Typ" +
-                "e=\"NAV.ReasonCodeList\" Role=\"ReasonCodeList\" Multiplicity=\"*\" /><End Type=\"NAV.C" +
-                "ompany\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Compa" +
-                "ny_RegistrationDetailsLine\"><End Type=\"NAV.RegistrationDetailsLine\" Role=\"Regist" +
-                "rationDetailsLine\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Mul" +
-                "tiplicity=\"*\" /></Association><Association Name=\"Company_SalesForecastList\"><End" +
-                " Type=\"NAV.SalesForecastList\" Role=\"SalesForecastList\" Multiplicity=\"*\" /><End T" +
+                "n><Association Name=\"Company_GroupPlanning\"><End Type=\"NAV.GroupPlanning\" Role=\"" +
+                "GroupPlanning\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multipl" +
+                "icity=\"*\" /></Association><Association Name=\"Company_GroupPlanningSplit\"><End Ty" +
+                "pe=\"NAV.GroupPlanningSplit\" Role=\"GroupPlanningSplit\" Multiplicity=\"*\" /><End Ty" +
+                "pe=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Na" +
+                "me=\"Company_GSTBusPostingGroup\"><End Type=\"NAV.GSTBusPostingGroup\" Role=\"GSTBusP" +
+                "ostingGroup\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplic" +
+                "ity=\"*\" /></Association><Association Name=\"Company_ItemAdditionalInfo\"><End Type" +
+                "=\"NAV.ItemAdditionalInfo\" Role=\"ItemAdditionalInfo\" Multiplicity=\"*\" /><End Type" +
+                "=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name" +
+                "=\"Company_ItemAttributes\"><End Type=\"NAV.ItemAttributes\" Role=\"ItemAttributes\" M" +
+                "ultiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></As" +
+                "sociation><Association Name=\"Company_ItemAttributesValues\"><End Type=\"NAV.ItemAt" +
+                "tributesValues\" Role=\"ItemAttributesValues\" Multiplicity=\"*\" /><End Type=\"NAV.Co" +
+                "mpany\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Compan" +
+                "y_ItemAttributesValuesMapping\"><End Type=\"NAV.ItemAttributesValuesMapping\" Role=" +
+                "\"ItemAttributesValuesMapping\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"C" +
+                "ompany\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ItemBatchInf" +
+                "o\"><End Type=\"NAV.ItemBatchInfo\" Role=\"ItemBatchInfo\" Multiplicity=\"*\" /><End Ty" +
+                "pe=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Na" +
+                "me=\"Company_ItemCategories\"><End Type=\"NAV.ItemCategories\" Role=\"ItemCategories\"" +
+                " Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></" +
+                "Association><Association Name=\"Company_ItemJournalLines\"><End Type=\"NAV.ItemJour" +
+                "nalLines\" Role=\"ItemJournalLines\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Rol" +
+                "e=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ItemLedg" +
+                "erEntries\"><End Type=\"NAV.ItemLedgerEntries\" Role=\"ItemLedg";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart33 = "erEntries\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity" +
+                "=\"*\" /></Association><Association Name=\"Company_ItemList\"><End Type=\"NAV.ItemLis" +
+                "t\" Role=\"ItemList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Mul" +
+                "tiplicity=\"*\" /></Association><Association Name=\"Company_ItemPicture\"><End Type=" +
+                "\"NAV.ItemPicture\" Role=\"ItemPicture\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" " +
+                "Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ItemU" +
+                "OMList\"><End Type=\"NAV.ItemUOMList\" Role=\"ItemUOMList\" Multiplicity=\"*\" /><End T" +
                 "ype=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association N" +
-                "ame=\"Company_SalesLineNotClosed\"><End Type=\"NAV.SalesLineNotClosed\" Role=\"SalesL" +
-                "ineNotClosed\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multipli" +
-                "city=\"*\" /></Association><Association Name=\"Company_SalesLines\"><End Type=\"NAV.S" +
-                "alesLines\" Role=\"SalesLines\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Co" +
-                "mpany\" Multiplicity=\"*\" /></Association><Association Name=\"Company_SalesOrderLin" +
-                "eKIV\"><End Type=\"NAV.SalesOrderLineKIV\" Role=\"SalesOrderLineKIV\" Multiplicity=\"*" +
+                "ame=\"Company_Location\"><End Type=\"NAV.Location\" Role=\"Location\" Multiplicity=\"*\"" +
+                " /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Asso" +
+                "ciation Name=\"Company_MachineCenterList\"><End Type=\"NAV.MachineCenterList\" Role=" +
+                "\"MachineCenterList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Mu" +
+                "ltiplicity=\"*\" /></Association><Association Name=\"Company_OutputCorrectionList\">" +
+                "<End Type=\"NAV.OutputCorrectionList\" Role=\"OutputCorrectionList\" Multiplicity=\"*" +
                 "\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Ass" +
-                "ociation Name=\"Company_SalesPrices\"><End Type=\"NAV.SalesPrices\" Role=\"SalesPrice" +
-                "s\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" />" +
-                "</Association><Association Name=\"Company_ShipmentMethod\"><End Type=\"NAV.Shipment" +
-                "Method\" Role=\"ShipmentMethod\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"C" +
-                "ompany\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ShippingAgen" +
-                "t\"><End Type=\"NAV.ShippingAgent\" Role=\"ShippingAgent\" Multiplicity=\"*\" /><End Ty" +
-                "pe=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Associ";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart34 = "ation><Association Name=\"Company_ShippingAgentService\"><End Type=\"NAV.ShippingAge" +
-                "ntService\" Role=\"ShippingAgentService\" Multiplicity=\"*\" /><End Type=\"NAV.Company" +
-                "\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Sto" +
-                "ckAdjustmentOdata\"><End Type=\"NAV.StockAdjustmentOdata\" Role=\"StockAdjustmentOda" +
-                "ta\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /" +
-                "></Association><Association Name=\"Company_SWD_ConsumptionEntries\"><End Type=\"NAV" +
-                ".SWD_ConsumptionEntries\" Role=\"SWD_ConsumptionEntries\" Multiplicity=\"*\" /><End T" +
-                "ype=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association N" +
-                "ame=\"Company_SWDAllProdOutputLine\"><End Type=\"NAV.SWDAllProdOutputLine\" Role=\"SW" +
-                "DAllProdOutputLine\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Mu" +
-                "ltiplicity=\"*\" /></Association><Association Name=\"Company_SWDProdOrderSyncPortal" +
-                "\"><End Type=\"NAV.SWDProdOrderSyncPortal\" Role=\"SWDProdOrderSyncPortal\" Multiplic" +
-                "ity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Associatio" +
-                "n><Association Name=\"Company_SWDWebIntegrationEntry\"><End Type=\"NAV.SWDWebIntegr" +
-                "ationEntry\" Role=\"SWDWebIntegrationEntry\" Multiplicity=\"*\" /><End Type=\"NAV.Comp" +
-                "any\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_" +
-                "TenderForSimulation\"><End Type=\"NAV.TenderForSimulation\" Role=\"TenderForSimulati" +
-                "on\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /" +
-                "></Association><Association Name=\"Company_TenderOrderLines\"><End Type=\"NAV.Tende" +
-                "rOrderLines\" Role=\"TenderOrderLines\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" " +
-                "Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_TestA" +
-                "ctualStart\"><End Type=\"NAV.TestActualStart\" Role=\"TestActualStart\" Multiplicity=" +
+                "ociation Name=\"Company_OutputJournal\"><End Type=\"NAV.OutputJournal\" Role=\"Output" +
+                "Journal\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=" +
+                "\"*\" /></Association><Association Name=\"Company_OutstandingProdOrderLine\"><End Ty" +
+                "pe=\"NAV.OutstandingProdOrderLine\" Role=\"OutstandingProdOrderLine\" Multiplicity=\"" +
+                "*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><As" +
+                "sociation Name=\"Company_OutstandingSalesOrderLine\"><End Type=\"NAV.OutstandingSal" +
+                "esOrderLine\" Role=\"OutstandingSalesOrderLine\" Multiplicity=\"*\" /><End Type=\"NAV." +
+                "Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Comp" +
+                "any_PackagingItemList\"><End Type=\"NAV.PackagingItemList\" Role=\"PackagingItemList" +
+                "\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><" +
+                "/Association><Association Name=\"Company_PaymentMethod\"><End Type=\"NAV.PaymentMet" +
+                "hod\" Role=\"PaymentMethod\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Compa" +
+                "ny\" Multiplicity=\"*\" /></Association><Association Name=\"Company_PaymentTerms\"><E" +
+                "nd Type=\"NAV.PaymentTerms\" Role=\"PaymentTerms\" Multiplicity=\"*\" /><End Type=\"NAV" +
+                ".Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Com" +
+                "pany_PKGQtyInProd\"><End Type=\"NAV.PKGQtyInProd\" Role=\"PKGQtyInProd\" Multiplicity" +
+                "=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><" +
+                "Association Name=\"Company_Postcodes\"><End Type=\"NAV.Postcodes\" Role=\"Postcodes\" " +
+                "Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></A" +
+                "ssociation><Association Name=\"Company_PostedSalesShipmentLines\"><End Type=\"NAV.P" +
+                "ostedSalesShipmentLines\" Role=\"PostedSalesShipmentLines\" Multiplicity=\"*\" /><End" +
+                " Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association" +
+                " Name=\"Company_PostedSalesShipments\"><End Type=\"NAV.PostedSalesShipments\" Role=\"" +
+                "PostedSalesShipments\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" " +
+                "Multiplicity=\"*\" /></Association><Association Name=\"Company_Process\"><End Type=\"" +
+                "NAV.Process\" Role=\"Process\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Com" +
+                "pany\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ProcessItemLis" +
+                "t\"><End Type=\"NAV.ProcessItemList\" Role=\"ProcessItemList\" Multiplicity=\"*\" /><En" +
+                "d Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Associatio" +
+                "n Name=\"Company_ProdOrderComp\"><End Type=\"NAV.ProdOrderComp\" Role=\"ProdOrderComp" +
+                "\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /><" +
+                "/Association><Association Name=\"Company_ProdOrderCompLineList\"><End Type=\"NAV.Pr" +
+                "odOrderCompLineList\" Role=\"ProdOrderCompLineList\" Multiplicity=\"*\" /><End Type=\"" +
+                "NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"" +
+                "Company_ProdOrderLineList\"><End Type=\"NAV.ProdOrderLineList\" Role=\"ProdOrderLine" +
+                "List\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\"" +
+                " /></Association><Association Name=\"Company_ProdOrderOutputLine\"><End Type=\"NAV." +
+                "ProdOrderOutputLine\" Role=\"ProdOrderOutputLine\" Multiplicity=\"*\" /><End Type=\"NA" +
+                "V.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Co" +
+                "mpany_ProdPlanningLine\"><End Type=\"NAV.ProdPlanningLine\" Role=\"ProdPlanningLine\"" +
+                " Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></" +
+                "Association><Association Name=\"Company_ProductCodeList\"><End Type=\"NAV.ProductCo" +
+                "deList\" Role=\"ProductCodeList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"" +
+                "Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_ProductionE" +
+                "ntry\"><End Type=\"NAV.ProductionEntry\" Role=\"ProductionEntry\" Multiplicity=\"*\" />" +
+                "<End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Associa" +
+                "tion Name=\"Company_ProductionOrder\"><End Type=\"NAV.ProductionOrder\" Role=\"Produc" +
+                "tionOrder\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicit" +
+                "y=\"*\" /></Association><Association Name=\"Company_ProductionOrderList\"><End Type=" +
+                "\"NAV.ProductionOrderList\" Role=\"ProductionOrderList\" Multiplicity=\"*\" /><End Typ" +
+                "e=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Nam" +
+                "e=\"Company_ProductionRecipe\"><End Type=\"NAV.ProductionRecipe\" Role=\"ProductionRe" +
+                "cipe\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\"" +
+                " /></Association><Association Name=\"Company_ProductionRecipeLinkWS\"><End Type=\"N" +
+                "AV.ProductionRecipeLinkWS\" Role=\"ProductionRecipeLinkWS\" Multiplicity=\"*\" /><End" +
+                " Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association" +
+                " Name=\"Company_ProductionRecipeWS\"><End Type=\"NAV.ProductionRecipeWS\" Role=\"Prod" +
+                "uctionRecipeWS\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multip" +
+                "licity=\"*\" /></Association><Association Name=\"Company_PurchaseLines\"><End Type=\"" +
+                "NAV.PurchaseLines\" Role=\"PurchaseLines\" Multiplicity=\"*\" /><End Type=\"NAV.Compan" +
+                "y\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Ra" +
+                "wMatItemList\"><End Type=\"NAV.RawMatItemList\" Role=\"RawMatItemList\" Multiplicity=" +
                 "\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><A" +
-                "ssociation Name=\"Company_TrackingSpecification\"><End Type=\"NAV.TrackingSpecifica" +
-                "tion\" Role=\"TrackingSpecification\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Ro" +
-                "le=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Vendor\"" +
-                "><End Type=\"NAV.Vendor\" Role=\"Vendor\" Multiplicity=\"*\" /><End Type=\"NAV.Company\"" +
-                " Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Work" +
-                "CenterList\"><End Type=\"NAV.WorkCenterList\" Role=\"WorkCenterList\" Multiplicity=\"*" +
-                "\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Ent" +
-                "ityContainer Name=\"NAV\" m:IsDefaultEntityContainer=\"true\"><EntitySet Name=\"BOMOd" +
-                "ata\" EntityType=\"NAV.BOMOdata\" /><EntitySet Name=\"ConsumptionJournal\" EntityType" +
-                "=\"NAV.ConsumptionJournal\" /><EntitySet Name=\"CountryRegion\" EntityType=\"NAV.Coun" +
-                "tryRegion\" /><EntitySet Name=\"CPS_CalendarAbsenceEntries\" EntityType=\"NAV.CPS_Ca" +
-                "lendarAbsenceEntries\" /><EntitySet Name=\"CPS_ProdOrderLine\" EntityType=\"NAV.CPS_" +
-                "ProdOrderLine\" /><EntitySet Name=\"CPS_ProdOrderRoutingLine\" EntityType=\"NAV.CPS_" +
-                "ProdOrderRoutingLine\" /><EntitySet Name=\"CPS_ProductionOrder\" EntityType=\"NAV.CP" +
-                "S_ProductionOrder\" /><EntitySet Name=\"CreateProdOrderEntryWS\" EntityType=\"NAV.Cr" +
-                "eateProdOrderEntryWS\" /><EntitySet Name=\"CreateProdOrderLineEntryWS\" EntityType=" +
-                "\"NAV.CreateProdOrderLineEntryWS\" /><EntitySet Name=\"CRTIMS_PostedTransferEntry\" " +
-                "EntityType=\"NAV.CRTIMS_PostedTransferEntry\" /><EntitySet Name=\"CRTIMS_TransferEn" +
-                "try\" EntityType=\"NAV.CRTIMS_TransferEntry\" /><EntitySet Name=\"CRTIMS_TransferLin" +
-                "es\" EntityType=\"NAV.CRTIMS_TransferLines\" /><EntitySet Name=\"CRTIMS_TransferShip" +
-                "mentHeader\" EntityType=\"NAV.CRTIMS_TransferShipmentHeader\" /><EntitySet Name=\"CR" +
-                "TIMS_TransferShipmentLines\" EntityType=\"NAV.CRTIMS_TransferShipmentLines\" /><Ent" +
-                "itySet Name=\"CRTSHF_BatchSize\" EntityType=\"NAV.CRTSHF_BatchSize\" /><EntitySet Na" +
-                "me=\"CRTSHF_BOMTypes\" EntityType=\"NAV.CRTSHF_BOMTypes\" /><EntitySet Name=\"CRTSHF_" +
-                "BOMTypesLines\" EntityType=\"NAV.CRTSHF_BOMTypesLines\" /><EntitySet Name=\"CRTSHF_I" +
-                "temUnitOfMeasure\" EntityType=\"NAV.CRTSHF_ItemUnitOfMeasure\" /><EntitySet Name=\"C" +
-                "RTSHF_NoSeriesList\" EntityType=\"NAV.CRTSHF_NoSeriesList\" /><EntitySet Name=\"CRTS" +
-                "HF_PackSize\" EntityType=\"NAV.CRTSHF_PackSize\" /><EntitySet Name=\"CRTSHF_ProdBOML" +
-                "ines\" EntityType=\"NAV.CRTSHF_ProdBOMLines\" /><EntitySet Name=\"CRTSHF_ProductionB" +
-                "OMList\" EntityType=\"NAV.CRTSHF_ProductionBOMList\" /><EntitySet Name=\"CRTSHF_Prod" +
-                "uctionBOMVersion\" EntityType=\"NAV.CRTSHF_ProductionBOMVersion\" /><EntitySet Name" +
-                "=\"CRTSHF_ScrapCodes\" EntityType=\"NAV.CRTSHF_ScrapCodes\" /><EntitySet Name=\"CRTSH" +
-                "F_ScrapItemJnlLine\" EntityType=\"NAV.CRTSHF_ScrapItemJnlLine\" /><EntitySet Name=\"" +
-                "CRTSHF_UnitOfMeasures\" EntityType=\"NAV.CRTSHF_UnitOfMeasures\" /><EntitySet Name=" +
-                "\"CurrencyCodes\" EntityType=\"NAV.CurrencyCodes\" /><EntitySet Name=\"Customer\" Enti" +
-                "tyType=\"NAV.Customer\" /><EntitySet Name=\"CustomerPostingGroup\" EntityType=\"NAV.C" +
-                "ustomerPostingGroup\" /><EntitySet Name=\"DefaultDimensionList\" EntityType=\"NAV.De" +
-                "faultDimensionList\" /><EntitySet Name=\"DocumentStorageEntries\" EntityType=\"NAV.D" +
-                "ocumentStorageEntries\" /><EntitySet Name=\"DrumWeight\" EntityType=\"NAV.DrumWeight" +
-                "\" /><EntitySet Name=\"FinishedProdOrderLine\" EntityType=\"NAV.FinishedProdOrderLin" +
-                "e\" /><EntitySet Name=\"FP_ItemList\" EntityType=\"NAV.FP_ItemList\" /><EntitySet Nam" +
-                "e=\"GenBussPostingGroup\" EntityType=\"NAV.GenBussPostingGroup\" /><EntitySet Name=\"" +
-                "GroupPlanning\" EntityType=\"NAV.GroupPlanning\" /><EntitySet Name=\"GroupPlanningSp" +
-                "lit\" EntityType=\"NAV.GroupPlanningSplit\" /><EntitySet Name=\"GSTBusPostingGroup\" " +
-                "EntityType=\"NAV.GSTBusPostingGroup\" /><EntitySet Name=\"ItemAdditionalInfo\" Entit" +
-                "yType=\"NAV.ItemAdditionalInfo\" /><EntitySet Name=\"ItemAttributes\" EntityType=\"NA" +
-                "V.ItemAttributes\" /><EntitySet Name=\"ItemAttributesValues\" EntityType=\"NAV.ItemA" +
-                "ttributesValues\" /><EntitySet Name=\"ItemAttributesValuesMapping\" EntityType=\"NAV" +
-                ".ItemAttributesValuesMapping\" /><EntitySet Name=\"ItemBatchInfo\" EntityType=\"NAV." +
-                "ItemBatchInfo\" /><EntitySet Name=\"ItemCategories\" EntityType=\"NAV.ItemCategories" +
-                "\" /><EntitySet Name=\"ItemJournalLines\" EntityType=\"NAV.ItemJournalLines\" /><Enti" +
-                "tySet Name=\"ItemLedgerEntries\" EntityType=\"NAV.ItemLedgerEntries\" /><EntitySet N" +
-                "ame=\"ItemList\" EntityType=\"NAV.ItemList\" /><EntitySet Name=\"ItemPicture\" EntityT" +
-                "ype=\"NAV.ItemPicture\" /><EntitySet Name=\"ItemUOMList\" EntityType=\"NAV.ItemUOMLis" +
-                "t\" /><EntitySet Name=\"Location\" EntityType=\"NAV.Location\" /><EntitySet Name=\"Mac" +
-                "hineCenterList\" EntityType=\"NAV.MachineCenterList\" /><EntitySet Name=\"OutputCorr" +
-                "ectionList\" EntityType=\"NAV.OutputCorrectionList\" /><EntitySet Name=\"OutputJourn" +
-                "al\" EntityType=\"NAV.OutputJournal\" /><EntitySet Name=\"OutstandingProdOrderLine\" " +
-                "EntityType=\"NAV.OutstandingProdOrderLine\" /><EntitySet Name=\"OutstandingSalesOrd" +
-                "erLine\" EntityType=\"NAV.OutstandingSalesOrderLine\" /><EntitySet Name=\"PackagingI" +
-                "temList\" EntityType=\"NAV.PackagingItemList\" /><EntitySet Name=\"PaymentMethod\" En" +
-                "tityType=\"NAV.PaymentMethod\" /><EntitySet Name=\"PaymentTerms\" EntityType=\"NAV.Pa" +
-                "ymentTerms\" /><EntitySet Name=\"PKGQtyInProd\" EntityType=\"NAV.PKGQtyInProd\" /><En" +
-                "titySet Name=\"Postcodes\" EntityType=\"NAV.Postcodes\" /><EntitySet Name=\"PostedSal" +
-                "esShipmentLines\" EntityType=\"NAV.PostedSalesShipmentLines\" /><EntitySet Name=\"Po" +
-                "stedSalesShipments\" EntityType=\"NAV.PostedSalesShipments\" /><EntitySet Name=\"Pro" +
-                "cess\" EntityType=\"NAV.Process\" /><EntitySet Name=\"ProcessItemList\" EntityType=\"N" +
-                "AV.ProcessItemList\" /><EntitySet Name=\"ProdOrderComp\" EntityType=\"NAV.ProdOrderC" +
-                "omp\" /><EntitySet Name=\"ProdOrderCompLineList\" EntityType=\"NAV.ProdOrderCompLine" +
-                "List\" /><EntitySet Name=\"ProdOrderLineList\" EntityType=\"NAV.ProdOrderLineList\" /" +
-                "><EntitySet Name=\"ProdOrderOutputLine\" EntityType=\"NAV.Prod";
+                "ssociation Name=\"Company_ReasonCodeList\"><End Type=\"NAV.ReasonCodeList\" Role=\"Re" +
+                "asonCodeList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multipli" +
+                "city=\"*\" /></Association><Association Name=\"Company_RegistrationDetailsLine\"><En" +
+                "d Type=\"NAV.RegistrationDetailsLine\" Role=\"RegistrationDetailsLine\" Multiplicity" +
+                "=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><" +
+                "Association Name=\"Company_SalesForecastList\"><End Type=\"NAV.SalesForecastList\" R" +
+                "ole=\"SalesForecastList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company" +
+                "\" Multiplicity=\"*\" /></Association><Association Name=\"Company_SalesLineNotClosed" +
+                "\"><End Type=\"NAV.SalesLineNotClosed\" Role=\"SalesLineNotClosed\" Multiplicity=\"*\" " +
+                "/><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Assoc" +
+                "iation Name=\"Company_SalesLines\"><End Type=\"NAV.SalesLines\" Role=\"SalesLines\" Mu" +
+                "ltiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Ass" +
+                "ociation><Association Name=\"Company_SalesOrderLineKIV\"><End Type=\"NAV.SalesOrder" +
+                "LineKIV\" Role=\"SalesOrderLineKIV\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Rol" +
+                "e=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_SalesPri" +
+                "ces\"><End Type=\"NAV.SalesPrices\" Role=\"SalesPrices\" Multipl";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart35 = "OrderOutputLine\" /><EntitySet Name=\"ProdPlanningLine\" EntityType=\"NAV.ProdPlannin" +
-                "gLine\" /><EntitySet Name=\"ProductCodeList\" EntityType=\"NAV.ProductCodeList\" /><E" +
-                "ntitySet Name=\"ProductionEntry\" EntityType=\"NAV.ProductionEntry\" /><EntitySet Na" +
-                "me=\"ProductionOrder\" EntityType=\"NAV.ProductionOrder\" /><EntitySet Name=\"Product" +
-                "ionOrderList\" EntityType=\"NAV.ProductionOrderList\" /><EntitySet Name=\"Production" +
-                "Recipe\" EntityType=\"NAV.ProductionRecipe\" /><EntitySet Name=\"ProductionRecipeLin" +
-                "kWS\" EntityType=\"NAV.ProductionRecipeLinkWS\" /><EntitySet Name=\"ProductionRecipe" +
-                "WS\" EntityType=\"NAV.ProductionRecipeWS\" /><EntitySet Name=\"PurchaseLines\" Entity" +
-                "Type=\"NAV.PurchaseLines\" /><EntitySet Name=\"RawMatItemList\" EntityType=\"NAV.RawM" +
-                "atItemList\" /><EntitySet Name=\"ReasonCodeList\" EntityType=\"NAV.ReasonCodeList\" /" +
-                "><EntitySet Name=\"RegistrationDetailsLine\" EntityType=\"NAV.RegistrationDetailsLi" +
-                "ne\" /><EntitySet Name=\"SalesForecastList\" EntityType=\"NAV.SalesForecastList\" /><" +
-                "EntitySet Name=\"SalesLineNotClosed\" EntityType=\"NAV.SalesLineNotClosed\" /><Entit" +
-                "ySet Name=\"SalesLines\" EntityType=\"NAV.SalesLines\" /><EntitySet Name=\"SalesOrder" +
-                "LineKIV\" EntityType=\"NAV.SalesOrderLineKIV\" /><EntitySet Name=\"SalesPrices\" Enti" +
-                "tyType=\"NAV.SalesPrices\" /><EntitySet Name=\"ShipmentMethod\" EntityType=\"NAV.Ship" +
-                "mentMethod\" /><EntitySet Name=\"ShippingAgent\" EntityType=\"NAV.ShippingAgent\" /><" +
-                "EntitySet Name=\"ShippingAgentService\" EntityType=\"NAV.ShippingAgentService\" /><E" +
-                "ntitySet Name=\"StockAdjustmentOdata\" EntityType=\"NAV.StockAdjustmentOdata\" /><En" +
-                "titySet Name=\"SWD_ConsumptionEntries\" EntityType=\"NAV.SWD_ConsumptionEntries\" />" +
-                "<EntitySet Name=\"SWDAllProdOutputLine\" EntityType=\"NAV.SWDAllProdOutputLine\" /><" +
-                "EntitySet Name=\"SWDProdOrderSyncPortal\" EntityType=\"NAV.SWDProdOrderSyncPortal\" " +
-                "/><EntitySet Name=\"SWDWebIntegrationEntry\" EntityType=\"NAV.SWDWebIntegrationEntr" +
-                "y\" /><EntitySet Name=\"TenderForSimulation\" EntityType=\"NAV.TenderForSimulation\" " +
-                "/><EntitySet Name=\"TenderOrderLines\" EntityType=\"NAV.TenderOrderLines\" /><Entity" +
-                "Set Name=\"TestActualStart\" EntityType=\"NAV.TestActualStart\" /><EntitySet Name=\"T" +
-                "rackingSpecification\" EntityType=\"NAV.TrackingSpecification\" /><EntitySet Name=\"" +
-                "Vendor\" EntityType=\"NAV.Vendor\" /><EntitySet Name=\"WorkCenterList\" EntityType=\"N" +
-                "AV.WorkCenterList\" /><EntitySet Name=\"Company\" EntityType=\"NAV.Company\" /><Assoc" +
-                "iationSet Name=\"ConsumptionJournal_ProdOrderNo_Link_ProductionOrder\" Association" +
-                "=\"NAV.ConsumptionJournal_ProdOrderNo_Link\"><End Role=\"ConsumptionJournal\" Entity" +
-                "Set=\"ConsumptionJournal\" /><End Role=\"ProdOrderNo_Link\" EntitySet=\"ProductionOrd" +
-                "er\" /></AssociationSet><AssociationSet Name=\"ConsumptionJournal_LocationCode_Lin" +
-                "k_Location\" Association=\"NAV.ConsumptionJournal_LocationCode_Link\"><End Role=\"Co" +
-                "nsumptionJournal\" EntitySet=\"ConsumptionJournal\" /><End Role=\"LocationCode_Link\"" +
-                " EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"ConsumptionJourna" +
-                "l_Location_Code_Link_Location\" Association=\"NAV.ConsumptionJournal_Location_Code" +
-                "_Link\"><End Role=\"ConsumptionJournal\" EntitySet=\"ConsumptionJournal\" /><End Role" +
-                "=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Na" +
-                "me=\"ConsumptionJournal_Base_Unit_of_Measure_Link_CRTSHF_ItemUnitOfMeasure\" Assoc" +
-                "iation=\"NAV.ConsumptionJournal_Base_Unit_of_Measure_Link\"><End Role=\"Consumption" +
-                "Journal\" EntitySet=\"ConsumptionJournal\" /><End Role=\"Base_Unit_of_Measure_Link\" " +
-                "EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"Co" +
-                "nsumptionJournal_Unit_Of_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"N" +
-                "AV.ConsumptionJournal_Unit_Of_Measure_Code_Link\"><End Role=\"ConsumptionJournal\" " +
-                "EntitySet=\"ConsumptionJournal\" /><End Role=\"Unit_Of_Measure_Code_Link\" EntitySet" +
-                "=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"CPS_CalendarAb" +
-                "senceEntries_Work_Center_No_Link_Process\" Association=\"NAV.CPS_CalendarAbsenceEn" +
-                "tries_Work_Center_No_Link\"><End Role=\"CPS_CalendarAbsenceEntries\" EntitySet=\"CPS" +
-                "_CalendarAbsenceEntries\" /><End Role=\"Work_Center_No_Link\" EntitySet=\"Process\" /" +
-                "></AssociationSet><AssociationSet Name=\"CPS_ProdOrderLine_Prod_Order_No_Link_Pro" +
-                "ductionOrder\" Association=\"NAV.CPS_ProdOrderLine_Prod_Order_No_Link\"><End Role=\"" +
-                "CPS_ProdOrderLine\" EntitySet=\"CPS_ProdOrderLine\" /><End Role=\"Prod_Order_No_Link" +
-                "\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"CPS_ProdO" +
-                "rderLine_Location_Code_Link_Location\" Association=\"NAV.CPS_ProdOrderLine_Locatio" +
-                "n_Code_Link\"><End Role=\"CPS_ProdOrderLine\" EntitySet=\"CPS_ProdOrderLine\" /><End " +
-                "Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSe" +
-                "t Name=\"CPS_ProdOrderLine_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" As" +
-                "sociation=\"NAV.CPS_ProdOrderLine_Unit_of_Measure_Code_Link\"><End Role=\"CPS_ProdO" +
-                "rderLine\" EntitySet=\"CPS_ProdOrderLine\" /><End Role=\"Unit_of_Measure_Code_Link\" " +
-                "EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"CP" +
-                "S_ProdOrderRoutingLine_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV.CPS_" +
-                "ProdOrderRoutingLine_Prod_Order_No_Link\"><End Role=\"CPS_ProdOrderRoutingLine\" En" +
-                "titySet=\"CPS_ProdOrderRoutingLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"P" +
-                "roductionOrder\" /></AssociationSet><AssociationSet Name=\"CPS_ProdOrderRoutingLin" +
-                "e_Work_Center_No_Link_Process\" Association=\"NAV.CPS_ProdOrderRoutingLine_Work_Ce" +
-                "nter_No_Link\"><End Role=\"CPS_ProdOrderRoutingLine\" EntitySet=\"CPS_ProdOrderRouti" +
-                "ngLine\" /><End Role=\"Work_Center_No_Link\" EntitySet=\"Process\" /></AssociationSet" +
-                "><AssociationSet Name=\"CPS_ProductionOrder_No_Link_ProductionOrder\" Association=" +
-                "\"NAV.CPS_ProductionOrder_No_Link\"><End Role=\"CPS_ProductionOrder\" EntitySet=\"CPS" +
-                "_ProductionOrder\" /><End Role=\"No_Link\" EntitySet=\"ProductionOrder\" /></Associat" +
-                "ionSet><AssociationSet Name=\"CPS_ProductionOrder_Gen_Bus_Posting_Group_Link_GenB" +
-                "ussPostingGroup\" Association=\"NAV.CPS_ProductionOrder_Gen_Bus_Posting_Group_Link" +
-                "\"><End Role=\"CPS_ProductionOrder\" EntitySet=\"CPS_ProductionOrder\" /><End Role=\"G" +
-                "en_Bus_Posting_Group_Link\" EntitySet=\"GenBussPostingGroup\" /></AssociationSet><A" +
-                "ssociationSet Name=\"CPS_ProductionOrder_Location_Code_Link_Location\" Association" +
-                "=\"NAV.CPS_ProductionOrder_Location_Code_Link\"><End Role=\"CPS_ProductionOrder\" En" +
-                "titySet=\"CPS_ProductionOrder\" /><End Role=\"Location_Code_Link\" EntitySet=\"Locati" +
-                "on\" /></AssociationSet><AssociationSet Name=\"CPS_ProductionOrder_No_Series_Link_" +
-                "CRTSHF_NoSeriesList\" Association=\"NAV.CPS_ProductionOrder_No_Series_Link\"><End R" +
-                "ole=\"CPS_ProductionOrder\" EntitySet=\"CPS_ProductionOrder\" /><End Role=\"No_Series" +
-                "_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet Name=\"" +
-                "CPS_ProductionOrder_Unit_Of_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Association" +
-                "=\"NAV.CPS_ProductionOrder_Unit_Of_Measure_Code_Link\"><End Role=\"CPS_ProductionOr" +
-                "der\" EntitySet=\"CPS_ProductionOrder\" /><End Role=\"Unit_Of_Measure_Code_Link\" Ent" +
-                "itySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"CPS_Prod" +
-                "uctionOrder_Work_Center_Filter_Link_Process\" Association=\"NAV.CPS_ProductionOrde" +
-                "r_Work_Center_Filter_Link\"><End Role=\"CPS_ProductionOrder\" EntitySet=\"CPS_Produc" +
-                "tionOrder\" /><End Role=\"Work_Center_Filter_Link\" EntitySet=\"Process\" /></Associa" +
-                "tionSet><AssociationSet Name=\"CreateProdOrderEntryWS_No_Series_Code_Link_CRTSHF_" +
-                "NoSeriesList\" Association=\"NAV.CreateProdOrderEntryWS_No_Series_Code_Link\"><End " +
-                "Role=\"CreateProdOrderEntryWS\" EntitySet=\"CreateProdOrderEntryWS\" /><End Role=\"No" +
-                "_Series_Code_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><Associati" +
-                "onSet Name=\"CreateProdOrderEntryWS_Unit_of_Measure_Code_Lin";
+            private const string ModelPart34 = "icity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Associati" +
+                "on><Association Name=\"Company_ShipmentMethod\"><End Type=\"NAV.ShipmentMethod\" Rol" +
+                "e=\"ShipmentMethod\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Mul" +
+                "tiplicity=\"*\" /></Association><Association Name=\"Company_ShippingAgent\"><End Typ" +
+                "e=\"NAV.ShippingAgent\" Role=\"ShippingAgent\" Multiplicity=\"*\" /><End Type=\"NAV.Com" +
+                "pany\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company" +
+                "_ShippingAgentService\"><End Type=\"NAV.ShippingAgentService\" Role=\"ShippingAgentS" +
+                "ervice\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"" +
+                "*\" /></Association><Association Name=\"Company_StockAdjustmentOdata\"><End Type=\"N" +
+                "AV.StockAdjustmentOdata\" Role=\"StockAdjustmentOdata\" Multiplicity=\"*\" /><End Typ" +
+                "e=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Nam" +
+                "e=\"Company_SWD_ConsumptionEntries\"><End Type=\"NAV.SWD_ConsumptionEntries\" Role=\"" +
+                "SWD_ConsumptionEntries\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company" +
+                "\" Multiplicity=\"*\" /></Association><Association Name=\"Company_SWDAllProdOutputLi" +
+                "ne\"><End Type=\"NAV.SWDAllProdOutputLine\" Role=\"SWDAllProdOutputLine\" Multiplicit" +
+                "y=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association>" +
+                "<Association Name=\"Company_SWDProdOrderSyncPortal\"><End Type=\"NAV.SWDProdOrderSy" +
+                "ncPortal\" Role=\"SWDProdOrderSyncPortal\" Multiplicity=\"*\" /><End Type=\"NAV.Compan" +
+                "y\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_SW" +
+                "DWebIntegrationEntry\"><End Type=\"NAV.SWDWebIntegrationEntry\" Role=\"SWDWebIntegra" +
+                "tionEntry\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicit" +
+                "y=\"*\" /></Association><Association Name=\"Company_TenderForSimulation\"><End Type=" +
+                "\"NAV.TenderForSimulation\" Role=\"TenderForSimulation\" Multiplicity=\"*\" /><End Typ" +
+                "e=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /></Association><Association Nam" +
+                "e=\"Company_TenderOrderLines\"><End Type=\"NAV.TenderOrderLines\" Role=\"TenderOrderL" +
+                "ines\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\"" +
+                " /></Association><Association Name=\"Company_TestActualStart\"><End Type=\"NAV.Test" +
+                "ActualStart\" Role=\"TestActualStart\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" R" +
+                "ole=\"Company\" Multiplicity=\"*\" /></Association><Association Name=\"Company_Tracki" +
+                "ngSpecification\"><End Type=\"NAV.TrackingSpecification\" Role=\"TrackingSpecificati" +
+                "on\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*\" /" +
+                "></Association><Association Name=\"Company_Vendor\"><End Type=\"NAV.Vendor\" Role=\"V" +
+                "endor\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Role=\"Company\" Multiplicity=\"*" +
+                "\" /></Association><Association Name=\"Company_WorkCenterList\"><End Type=\"NAV.Work" +
+                "CenterList\" Role=\"WorkCenterList\" Multiplicity=\"*\" /><End Type=\"NAV.Company\" Rol" +
+                "e=\"Company\" Multiplicity=\"*\" /></Association><EntityContainer Name=\"NAV\" m:IsDef" +
+                "aultEntityContainer=\"true\"><EntitySet Name=\"BOMOdata\" EntityType=\"NAV.BOMOdata\" " +
+                "/><EntitySet Name=\"ConsumptionJournal\" EntityType=\"NAV.ConsumptionJournal\" /><En" +
+                "titySet Name=\"CountryRegion\" EntityType=\"NAV.CountryRegion\" /><EntitySet Name=\"C" +
+                "PS_CalendarAbsenceEntries\" EntityType=\"NAV.CPS_CalendarAbsenceEntries\" /><Entity" +
+                "Set Name=\"CPS_ProdOrderLine\" EntityType=\"NAV.CPS_ProdOrderLine\" /><EntitySet Nam" +
+                "e=\"CPS_ProdOrderRoutingLine\" EntityType=\"NAV.CPS_ProdOrderRoutingLine\" /><Entity" +
+                "Set Name=\"CPS_ProductionOrder\" EntityType=\"NAV.CPS_ProductionOrder\" /><EntitySet" +
+                " Name=\"CreateProdOrderEntryWS\" EntityType=\"NAV.CreateProdOrderEntryWS\" /><Entity" +
+                "Set Name=\"CreateProdOrderLineEntryWS\" EntityType=\"NAV.CreateProdOrderLineEntryWS" +
+                "\" /><EntitySet Name=\"CRTIMS_PostedTransferEntry\" EntityType=\"NAV.CRTIMS_PostedTr" +
+                "ansferEntry\" /><EntitySet Name=\"CRTIMS_TransferEntry\" EntityType=\"NAV.CRTIMS_Tra" +
+                "nsferEntry\" /><EntitySet Name=\"CRTIMS_TransferLines\" EntityType=\"NAV.CRTIMS_Tran" +
+                "sferLines\" /><EntitySet Name=\"CRTIMS_TransferShipmentHeader\" EntityType=\"NAV.CRT" +
+                "IMS_TransferShipmentHeader\" /><EntitySet Name=\"CRTIMS_TransferShipmentLines\" Ent" +
+                "ityType=\"NAV.CRTIMS_TransferShipmentLines\" /><EntitySet Name=\"CRTSHF_BatchSize\" " +
+                "EntityType=\"NAV.CRTSHF_BatchSize\" /><EntitySet Name=\"CRTSHF_BOMTypes\" EntityType" +
+                "=\"NAV.CRTSHF_BOMTypes\" /><EntitySet Name=\"CRTSHF_BOMTypesLines\" EntityType=\"NAV." +
+                "CRTSHF_BOMTypesLines\" /><EntitySet Name=\"CRTSHF_ItemUnitOfMeasure\" EntityType=\"N" +
+                "AV.CRTSHF_ItemUnitOfMeasure\" /><EntitySet Name=\"CRTSHF_NoSeriesList\" EntityType=" +
+                "\"NAV.CRTSHF_NoSeriesList\" /><EntitySet Name=\"CRTSHF_PackSize\" EntityType=\"NAV.CR" +
+                "TSHF_PackSize\" /><EntitySet Name=\"CRTSHF_ProdBOMLines\" EntityType=\"NAV.CRTSHF_Pr" +
+                "odBOMLines\" /><EntitySet Name=\"CRTSHF_ProductionBOMList\" EntityType=\"NAV.CRTSHF_" +
+                "ProductionBOMList\" /><EntitySet Name=\"CRTSHF_ProductionBOMVersion\" EntityType=\"N" +
+                "AV.CRTSHF_ProductionBOMVersion\" /><EntitySet Name=\"CRTSHF_ScrapCodes\" EntityType" +
+                "=\"NAV.CRTSHF_ScrapCodes\" /><EntitySet Name=\"CRTSHF_ScrapItemJnlLine\" EntityType=" +
+                "\"NAV.CRTSHF_ScrapItemJnlLine\" /><EntitySet Name=\"CRTSHF_UnitOfMeasures\" EntityTy" +
+                "pe=\"NAV.CRTSHF_UnitOfMeasures\" /><EntitySet Name=\"CurrencyCodes\" EntityType=\"NAV" +
+                ".CurrencyCodes\" /><EntitySet Name=\"Customer\" EntityType=\"NAV.Customer\" /><Entity" +
+                "Set Name=\"CustomerPostingGroup\" EntityType=\"NAV.CustomerPostingGroup\" /><EntityS" +
+                "et Name=\"DefaultDimensionList\" EntityType=\"NAV.DefaultDimensionList\" /><EntitySe" +
+                "t Name=\"DocumentStorageEntries\" EntityType=\"NAV.DocumentStorageEntries\" /><Entit" +
+                "ySet Name=\"DrumWeight\" EntityType=\"NAV.DrumWeight\" /><EntitySet Name=\"FinishedPr" +
+                "odOrderLine\" EntityType=\"NAV.FinishedProdOrderLine\" /><EntitySet Name=\"FP_ItemLi" +
+                "st\" EntityType=\"NAV.FP_ItemList\" /><EntitySet Name=\"GenBussPostingGroup\" EntityT" +
+                "ype=\"NAV.GenBussPostingGroup\" /><EntitySet Name=\"GroupPlanning\" EntityType=\"NAV." +
+                "GroupPlanning\" /><EntitySet Name=\"GroupPlanningSplit\" EntityType=\"NAV.GroupPlann" +
+                "ingSplit\" /><EntitySet Name=\"GSTBusPostingGroup\" EntityType=\"NAV.GSTBusPostingGr" +
+                "oup\" /><EntitySet Name=\"ItemAdditionalInfo\" EntityType=\"NAV.ItemAdditionalInfo\" " +
+                "/><EntitySet Name=\"ItemAttributes\" EntityType=\"NAV.ItemAttributes\" /><EntitySet " +
+                "Name=\"ItemAttributesValues\" EntityType=\"NAV.ItemAttributesValues\" /><EntitySet N" +
+                "ame=\"ItemAttributesValuesMapping\" EntityType=\"NAV.ItemAttributesValuesMapping\" /" +
+                "><EntitySet Name=\"ItemBatchInfo\" EntityType=\"NAV.ItemBatchInfo\" /><EntitySet Nam" +
+                "e=\"ItemCategories\" EntityType=\"NAV.ItemCategories\" /><EntitySet Name=\"ItemJourna" +
+                "lLines\" EntityType=\"NAV.ItemJournalLines\" /><EntitySet Name=\"ItemLedgerEntries\" " +
+                "EntityType=\"NAV.ItemLedgerEntries\" /><EntitySet Name=\"ItemList\" EntityType=\"NAV." +
+                "ItemList\" /><EntitySet Name=\"ItemPicture\" EntityType=\"NAV.ItemPicture\" /><Entity" +
+                "Set Name=\"ItemUOMList\" EntityType=\"NAV.ItemUOMList\" /><EntitySet Name=\"Location\"" +
+                " EntityType=\"NAV.Location\" /><EntitySet Name=\"MachineCenterList\" EntityType=\"NAV" +
+                ".MachineCenterList\" /><EntitySet Name=\"OutputCorrectionList\" EntityType=\"NAV.Out" +
+                "putCorrectionList\" /><EntitySet Name=\"OutputJournal\" EntityType=\"NAV.OutputJourn" +
+                "al\" /><EntitySet Name=\"OutstandingProdOrderLine\" EntityType=\"NAV.OutstandingProd" +
+                "OrderLine\" /><EntitySet Name=\"OutstandingSalesOrderLine\" EntityType=\"NAV.Outstan" +
+                "dingSalesOrderLine\" /><EntitySet Name=\"PackagingItemList\" EntityType=\"NAV.Packag" +
+                "ingItemList\" /><EntitySet Name=\"PaymentMethod\" EntityType=\"NAV.PaymentMethod\" />" +
+                "<EntitySet Name=\"PaymentTerms\" EntityType=\"NAV.PaymentTerms\" /><EntitySet Name=\"" +
+                "PKGQtyInProd\" EntityType=\"NAV.PKGQtyInProd\" /><EntitySet Name=\"Postcodes\" Entity" +
+                "Type=\"NAV.Postcodes\" /><EntitySet Name=\"PostedSalesShipmentLines\" EntityType=\"NA" +
+                "V.PostedSalesShipmentLines\" /><EntitySet Name=\"PostedSalesS";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart36 = "k_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.CreateProdOrderEntryWS_Unit_of_Measu" +
-                "re_Code_Link\"><End Role=\"CreateProdOrderEntryWS\" EntitySet=\"CreateProdOrderEntry" +
-                "WS\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\"" +
-                " /></AssociationSet><AssociationSet Name=\"CreateProdOrderEntryWS_Location_Code_L" +
-                "ink_Location\" Association=\"NAV.CreateProdOrderEntryWS_Location_Code_Link\"><End R" +
-                "ole=\"CreateProdOrderEntryWS\" EntitySet=\"CreateProdOrderEntryWS\" /><End Role=\"Loc" +
-                "ation_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"C" +
-                "reateProdOrderLineEntryWS_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" As" +
-                "sociation=\"NAV.CreateProdOrderLineEntryWS_Unit_of_Measure_Code_Link\"><End Role=\"" +
-                "CreateProdOrderLineEntryWS\" EntitySet=\"CreateProdOrderLineEntryWS\" /><End Role=\"" +
-                "Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationS" +
-                "et><AssociationSet Name=\"CRTIMS_PostedTransferEntry_Unit_of_Measure_Code_Link_CR" +
-                "TSHF_ItemUnitOfMeasure\" Association=\"NAV.CRTIMS_PostedTransferEntry_Unit_of_Meas" +
-                "ure_Code_Link\"><End Role=\"CRTIMS_PostedTransferEntry\" EntitySet=\"CRTIMS_PostedTr" +
-                "ansferEntry\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitO" +
-                "fMeasure\" /></AssociationSet><AssociationSet Name=\"CRTIMS_PostedTransferEntry_Tr" +
-                "ansfer_from_Code_Link_Location\" Association=\"NAV.CRTIMS_PostedTransferEntry_Tran" +
-                "sfer_from_Code_Link\"><End Role=\"CRTIMS_PostedTransferEntry\" EntitySet=\"CRTIMS_Po" +
-                "stedTransferEntry\" /><End Role=\"Transfer_from_Code_Link\" EntitySet=\"Location\" />" +
-                "</AssociationSet><AssociationSet Name=\"CRTIMS_PostedTransferEntry_Transfer_to_Co" +
-                "de_Link_Location\" Association=\"NAV.CRTIMS_PostedTransferEntry_Transfer_to_Code_L" +
-                "ink\"><End Role=\"CRTIMS_PostedTransferEntry\" EntitySet=\"CRTIMS_PostedTransferEntr" +
-                "y\" /><End Role=\"Transfer_to_Code_Link\" EntitySet=\"Location\" /></AssociationSet><" +
-                "AssociationSet Name=\"CRTIMS_TransferEntry_Transfer_from_Code_Link_Location\" Asso" +
-                "ciation=\"NAV.CRTIMS_TransferEntry_Transfer_from_Code_Link\"><End Role=\"CRTIMS_Tra" +
-                "nsferEntry\" EntitySet=\"CRTIMS_TransferEntry\" /><End Role=\"Transfer_from_Code_Lin" +
-                "k\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_Transfer" +
-                "Entry_Transfer_to_Code_Link_Location\" Association=\"NAV.CRTIMS_TransferEntry_Tran" +
-                "sfer_to_Code_Link\"><End Role=\"CRTIMS_TransferEntry\" EntitySet=\"CRTIMS_TransferEn" +
-                "try\" /><End Role=\"Transfer_to_Code_Link\" EntitySet=\"Location\" /></AssociationSet" +
-                "><AssociationSet Name=\"CRTIMS_TransferEntry_Unit_of_Measure_Code_Link_CRTSHF_Ite" +
-                "mUnitOfMeasure\" Association=\"NAV.CRTIMS_TransferEntry_Unit_of_Measure_Code_Link\"" +
-                "><End Role=\"CRTIMS_TransferEntry\" EntitySet=\"CRTIMS_TransferEntry\" /><End Role=\"" +
-                "Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationS" +
-                "et><AssociationSet Name=\"CRTIMS_TransferLines_Unit_of_Measure_Code_Link_CRTSHF_I" +
-                "temUnitOfMeasure\" Association=\"NAV.CRTIMS_TransferLines_Unit_of_Measure_Code_Lin" +
-                "k\"><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_TransferLines\" /><End Role" +
-                "=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></Associatio" +
-                "nSet><AssociationSet Name=\"CRTIMS_TransferLines_In_Transit_Code_Link_Location\" A" +
-                "ssociation=\"NAV.CRTIMS_TransferLines_In_Transit_Code_Link\"><End Role=\"CRTIMS_Tra" +
-                "nsferLines\" EntitySet=\"CRTIMS_TransferLines\" /><End Role=\"In_Transit_Code_Link\" " +
-                "EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferLin" +
-                "es_Transfer_from_Code_Link_Location\" Association=\"NAV.CRTIMS_TransferLines_Trans" +
-                "fer_from_Code_Link\"><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_TransferL" +
-                "ines\" /><End Role=\"Transfer_from_Code_Link\" EntitySet=\"Location\" /></Association" +
-                "Set><AssociationSet Name=\"CRTIMS_TransferLines_Transfer_to_Code_Link_Location\" A" +
-                "ssociation=\"NAV.CRTIMS_TransferLines_Transfer_to_Code_Link\"><End Role=\"CRTIMS_Tr" +
-                "ansferLines\" EntitySet=\"CRTIMS_TransferLines\" /><End Role=\"Transfer_to_Code_Link" +
-                "\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferL" +
-                "ines_Shipping_Agent_Code_Link_ShippingAgent\" Association=\"NAV.CRTIMS_TransferLin" +
-                "es_Shipping_Agent_Code_Link\"><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_" +
-                "TransferLines\" /><End Role=\"Shipping_Agent_Code_Link\" EntitySet=\"ShippingAgent\" " +
-                "/></AssociationSet><AssociationSet Name=\"CRTIMS_TransferLines_Shipping_Agent_Ser" +
-                "vice_Code_Link_ShippingAgentService\" Association=\"NAV.CRTIMS_TransferLines_Shipp" +
-                "ing_Agent_Service_Code_Link\"><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_" +
-                "TransferLines\" /><End Role=\"Shipping_Agent_Service_Code_Link\" EntitySet=\"Shippin" +
-                "gAgentService\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferLines_Ite" +
-                "m_Category_Code_Link_ItemCategories\" Association=\"NAV.CRTIMS_TransferLines_Item_" +
-                "Category_Code_Link\"><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_TransferL" +
-                "ines\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories\" /></Assoc" +
-                "iationSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_Transfer_from_Code" +
-                "_Link_Location\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Transfer_from_Cod" +
-                "e_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShip" +
-                "mentHeader\" /><End Role=\"Transfer_from_Code_Link\" EntitySet=\"Location\" /></Assoc" +
-                "iationSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_Transfer_from_Post" +
-                "_Code_Link_Postcodes\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Transfer_fr" +
-                "om_Post_Code_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_T" +
-                "ransferShipmentHeader\" /><End Role=\"Transfer_from_Post_Code_Link\" EntitySet=\"Pos" +
-                "tcodes\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_T" +
-                "ransfer_from_City_Link_Postcodes\" Association=\"NAV.CRTIMS_TransferShipmentHeader" +
-                "_Transfer_from_City_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"C" +
-                "RTIMS_TransferShipmentHeader\" /><End Role=\"Transfer_from_City_Link\" EntitySet=\"P" +
-                "ostcodes\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader" +
-                "_Trsf_from_Country_Region_Code_Link_CountryRegion\" Association=\"NAV.CRTIMS_Trans" +
-                "ferShipmentHeader_Trsf_from_Country_Region_Code_Link\"><End Role=\"CRTIMS_Transfer" +
-                "ShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Trsf_from" +
-                "_Country_Region_Code_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><Associa" +
-                "tionSet Name=\"CRTIMS_TransferShipmentHeader_Transfer_to_Code_Link_Location\" Asso" +
-                "ciation=\"NAV.CRTIMS_TransferShipmentHeader_Transfer_to_Code_Link\"><End Role=\"CRT" +
-                "IMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Rol" +
-                "e=\"Transfer_to_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSe" +
-                "t Name=\"CRTIMS_TransferShipmentHeader_Transfer_to_Post_Code_Link_Postcodes\" Asso" +
-                "ciation=\"NAV.CRTIMS_TransferShipmentHeader_Transfer_to_Post_Code_Link\"><End Role" +
-                "=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><En" +
-                "d Role=\"Transfer_to_Post_Code_Link\" EntitySet=\"Postcodes\" /></AssociationSet><As" +
-                "sociationSet Name=\"CRTIMS_TransferShipmentHeader_Transfer_to_City_Link_Postcodes" +
-                "\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Transfer_to_City_Link\"><End Rol" +
-                "e=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><E" +
-                "nd Role=\"Transfer_to_City_Link\" EntitySet=\"Postcodes\" /></AssociationSet><Associ" +
-                "ationSet Name=\"CRTIMS_TransferShipmentHeader_Trsf_to_Country_Region_Code_Link_Co" +
-                "untryRegion\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Trsf_to_Country_Regi" +
-                "on_Code_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_Transf" +
-                "erShipmentHeader\" /><End Role=\"Trsf_to_Country_Region_Code_Link\" EntitySet=\"Coun" +
-                "tryRegion\" /></AssociationSet><AssociationSet Name=\"CRTIMS_";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart37 = "TransferShipmentHeader_No_Series_Link_CRTSHF_NoSeriesList\" Association=\"NAV.CRTIM" +
-                "S_TransferShipmentHeader_No_Series_Link\"><End Role=\"CRTIMS_TransferShipmentHeade" +
-                "r\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"No_Series_Link\" Entity" +
-                "Set=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet Name=\"CRTIMS_Transf" +
-                "erShipmentHeader_In_Transit_Code_Link_Location\" Association=\"NAV.CRTIMS_Transfer" +
-                "ShipmentHeader_In_Transit_Code_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" E" +
-                "ntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"In_Transit_Code_Link\" Enti" +
-                "tySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmen" +
-                "tHeader_Shipping_Agent_Code_Link_ShippingAgent\" Association=\"NAV.CRTIMS_Transfer" +
-                "ShipmentHeader_Shipping_Agent_Code_Link\"><End Role=\"CRTIMS_TransferShipmentHeade" +
-                "r\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Shipping_Agent_Code_Li" +
-                "nk\" EntitySet=\"ShippingAgent\" /></AssociationSet><AssociationSet Name=\"CRTIMS_Tr" +
-                "ansferShipmentHeader_Shipping_Agent_Service_Code_Link_ShippingAgentService\" Asso" +
-                "ciation=\"NAV.CRTIMS_TransferShipmentHeader_Shipping_Agent_Service_Code_Link\"><En" +
-                "d Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\"" +
-                " /><End Role=\"Shipping_Agent_Service_Code_Link\" EntitySet=\"ShippingAgentService\"" +
-                " /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_Shipment" +
-                "_Method_Code_Link_ShipmentMethod\" Association=\"NAV.CRTIMS_TransferShipmentHeader" +
-                "_Shipment_Method_Code_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=" +
-                "\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Shipment_Method_Code_Link\" EntitySe" +
-                "t=\"ShipmentMethod\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipm" +
-                "entHeader_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV.CRTIMS_TransferSh" +
-                "ipmentHeader_Prod_Order_No_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" Entit" +
-                "ySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Prod_Order_No_Link\" EntitySet=" +
-                "\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipme" +
-                "ntHeader_Created_From_Prod_Order_Link_ProductionOrder\" Association=\"NAV.CRTIMS_T" +
-                "ransferShipmentHeader_Created_From_Prod_Order_Link\"><End Role=\"CRTIMS_TransferSh" +
-                "ipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Created_Fro" +
-                "m_Prod_Order_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationSe" +
-                "t Name=\"CRTIMS_TransferShipmentHeader_Prod_Replan_No_Link_ProductionOrder\" Assoc" +
-                "iation=\"NAV.CRTIMS_TransferShipmentHeader_Prod_Replan_No_Link\"><End Role=\"CRTIMS" +
-                "_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"" +
-                "Prod_Replan_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><Association" +
-                "Set Name=\"CRTIMS_TransferShipmentLines_Unit_of_Measure_Code_Link_CRTSHF_ItemUnit" +
-                "OfMeasure\" Association=\"NAV.CRTIMS_TransferShipmentLines_Unit_of_Measure_Code_Li" +
-                "nk\"><End Role=\"CRTIMS_TransferShipmentLines\" EntitySet=\"CRTIMS_TransferShipmentL" +
-                "ines\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasur" +
-                "e\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentLines_Shippin" +
-                "g_Agent_Code_Link_ShippingAgent\" Association=\"NAV.CRTIMS_TransferShipmentLines_S" +
-                "hipping_Agent_Code_Link\"><End Role=\"CRTIMS_TransferShipmentLines\" EntitySet=\"CRT" +
-                "IMS_TransferShipmentLines\" /><End Role=\"Shipping_Agent_Code_Link\" EntitySet=\"Shi" +
-                "ppingAgent\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentLine" +
-                "s_Shipping_Agent_Service_Code_Link_ShippingAgentService\" Association=\"NAV.CRTIMS" +
-                "_TransferShipmentLines_Shipping_Agent_Service_Code_Link\"><End Role=\"CRTIMS_Trans" +
-                "ferShipmentLines\" EntitySet=\"CRTIMS_TransferShipmentLines\" /><End Role=\"Shipping" +
-                "_Agent_Service_Code_Link\" EntitySet=\"ShippingAgentService\" /></AssociationSet><A" +
-                "ssociationSet Name=\"CRTIMS_TransferShipmentLines_In_Transit_Code_Link_Location\" " +
-                "Association=\"NAV.CRTIMS_TransferShipmentLines_In_Transit_Code_Link\"><End Role=\"C" +
-                "RTIMS_TransferShipmentLines\" EntitySet=\"CRTIMS_TransferShipmentLines\" /><End Rol" +
-                "e=\"In_Transit_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet" +
-                " Name=\"CRTIMS_TransferShipmentLines_Transfer_from_Code_Link_Location\" Associatio" +
-                "n=\"NAV.CRTIMS_TransferShipmentLines_Transfer_from_Code_Link\"><End Role=\"CRTIMS_T" +
-                "ransferShipmentLines\" EntitySet=\"CRTIMS_TransferShipmentLines\" /><End Role=\"Tran" +
-                "sfer_from_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Nam" +
-                "e=\"CRTIMS_TransferShipmentLines_Transfer_to_Code_Link_Location\" Association=\"NAV" +
-                ".CRTIMS_TransferShipmentLines_Transfer_to_Code_Link\"><End Role=\"CRTIMS_TransferS" +
-                "hipmentLines\" EntitySet=\"CRTIMS_TransferShipmentLines\" /><End Role=\"Transfer_to_" +
-                "Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_" +
-                "TransferShipmentLines_Item_Category_Code_Link_ItemCategories\" Association=\"NAV.C" +
-                "RTIMS_TransferShipmentLines_Item_Category_Code_Link\"><End Role=\"CRTIMS_TransferS" +
-                "hipmentLines\" EntitySet=\"CRTIMS_TransferShipmentLines\" /><End Role=\"Item_Categor" +
-                "y_Code_Link\" EntitySet=\"ItemCategories\" /></AssociationSet><AssociationSet Name=" +
-                "\"CRTSHF_BatchSize_No_Series_Code_Link_CRTSHF_NoSeriesList\" Association=\"NAV.CRTS" +
-                "HF_BatchSize_No_Series_Code_Link\"><End Role=\"CRTSHF_BatchSize\" EntitySet=\"CRTSHF" +
-                "_BatchSize\" /><End Role=\"No_Series_Code_Link\" EntitySet=\"CRTSHF_NoSeriesList\" />" +
-                "</AssociationSet><AssociationSet Name=\"CRTSHF_BatchSize_Unit_of_Measure_Code_Lin" +
-                "k_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.CRTSHF_BatchSize_Unit_of_Measure_Co" +
-                "de_Link\"><End Role=\"CRTSHF_BatchSize\" EntitySet=\"CRTSHF_BatchSize\" /><End Role=\"" +
-                "Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationS" +
-                "et><AssociationSet Name=\"CRTSHF_BatchSize_Location_Code_Link_Location\" Associati" +
-                "on=\"NAV.CRTSHF_BatchSize_Location_Code_Link\"><End Role=\"CRTSHF_BatchSize\" Entity" +
-                "Set=\"CRTSHF_BatchSize\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /><" +
-                "/AssociationSet><AssociationSet Name=\"CRTSHF_BOMTypes_CRTSHF_BOMTypesLines_CRTSH" +
-                "F_BOMTypesLines\" Association=\"NAV.CRTSHF_BOMTypes_CRTSHF_BOMTypesLines\"><End Rol" +
-                "e=\"CRTSHF_BOMTypes\" EntitySet=\"CRTSHF_BOMTypes\" /><End Role=\"CRTSHF_BOMTypesLine" +
-                "s\" EntitySet=\"CRTSHF_BOMTypesLines\" /></AssociationSet><AssociationSet Name=\"CRT" +
-                "SHF_BOMTypes_Production_Order_No_Link_ProductionOrder\" Association=\"NAV.CRTSHF_B" +
-                "OMTypes_Production_Order_No_Link\"><End Role=\"CRTSHF_BOMTypes\" EntitySet=\"CRTSHF_" +
-                "BOMTypes\" /><End Role=\"Production_Order_No_Link\" EntitySet=\"ProductionOrder\" /><" +
-                "/AssociationSet><AssociationSet Name=\"CRTSHF_BOMTypesLines_Unit_Of_Measure_Code_" +
-                "Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.CRTSHF_BOMTypesLines_Unit_Of_Mea" +
-                "sure_Code_Link\"><End Role=\"CRTSHF_BOMTypesLines\" EntitySet=\"CRTSHF_BOMTypesLines" +
-                "\" /><End Role=\"Unit_Of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /" +
-                "></AssociationSet><AssociationSet Name=\"CRTSHF_ItemUnitOfMeasure_Code_Link_CRTSH" +
-                "F_UnitOfMeasures\" Association=\"NAV.CRTSHF_ItemUnitOfMeasure_Code_Link\"><End Role" +
-                "=\"CRTSHF_ItemUnitOfMeasure\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /><End Role=\"Co" +
-                "de_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Na" +
-                "me=\"CRTSHF_ItemUnitOfMeasure_ItemUnitOfMeasure_Link_CRTSHF_UnitOfMeasures\" Assoc" +
-                "iation=\"NAV.CRTSHF_ItemUnitOfMeasure_ItemUnitOfMeasure_Link\"><End Role=\"CRTSHF_I" +
-                "temUnitOfMeasure\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /><End Role=\"ItemUnitOfMe" +
-                "asure_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet" +
-                " Name=\"CRTSHF_PackSize_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Assoc" +
-                "iation=\"NAV.CRTSHF_PackSize_Unit_of_Measure_Code_Link\"><End Role=\"CRTSHF_PackSiz" +
-                "e\" EntitySet=\"CRTSHF_PackSize\" /><End Role=\"Unit_of_Measure";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart38 = "_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationS" +
-                "et Name=\"CRTSHF_ProdBOMLines_Unit_UOM_Link_CRTSHF_UnitOfMeasures\" Association=\"N" +
-                "AV.CRTSHF_ProdBOMLines_Unit_UOM_Link\"><End Role=\"CRTSHF_ProdBOMLines\" EntitySet=" +
-                "\"CRTSHF_ProdBOMLines\" /><End Role=\"Unit_UOM_Link\" EntitySet=\"CRTSHF_UnitOfMeasur" +
-                "es\" /></AssociationSet><AssociationSet Name=\"CRTSHF_ProdBOMLines_Per_Unit_TW_Wt_" +
-                "UOM_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.CRTSHF_ProdBOMLines_Per_Unit_TW" +
-                "_Wt_UOM_Link\"><End Role=\"CRTSHF_ProdBOMLines\" EntitySet=\"CRTSHF_ProdBOMLines\" />" +
-                "<End Role=\"Per_Unit_TW_Wt_UOM_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></Associ" +
-                "ationSet><AssociationSet Name=\"CRTSHF_ProdBOMLines_Unit_of_Measure_Code_Header_L" +
-                "ink_CRTSHF_UnitOfMeasures\" Association=\"NAV.CRTSHF_ProdBOMLines_Unit_of_Measure_" +
-                "Code_Header_Link\"><End Role=\"CRTSHF_ProdBOMLines\" EntitySet=\"CRTSHF_ProdBOMLines" +
-                "\" /><End Role=\"Unit_of_Measure_Code_Header_Link\" EntitySet=\"CRTSHF_UnitOfMeasure" +
-                "s\" /></AssociationSet><AssociationSet Name=\"CRTSHF_ProductionBOMList_Production_" +
-                "Order_No_Link_ProductionOrder\" Association=\"NAV.CRTSHF_ProductionBOMList_Product" +
-                "ion_Order_No_Link\"><End Role=\"CRTSHF_ProductionBOMList\" EntitySet=\"CRTSHF_Produc" +
-                "tionBOMList\" /><End Role=\"Production_Order_No_Link\" EntitySet=\"ProductionOrder\" " +
-                "/></AssociationSet><AssociationSet Name=\"CRTSHF_ProductionBOMVersion_Unit_of_Mea" +
-                "sure_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.CRTSHF_ProductionBOMVersi" +
-                "on_Unit_of_Measure_Code_Link\"><End Role=\"CRTSHF_ProductionBOMVersion\" EntitySet=" +
-                "\"CRTSHF_ProductionBOMVersion\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=" +
-                "\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"CRTSHF_Producti" +
-                "onBOMVersion_No_Series_Link_CRTSHF_NoSeriesList\" Association=\"NAV.CRTSHF_Product" +
-                "ionBOMVersion_No_Series_Link\"><End Role=\"CRTSHF_ProductionBOMVersion\" EntitySet=" +
-                "\"CRTSHF_ProductionBOMVersion\" /><End Role=\"No_Series_Link\" EntitySet=\"CRTSHF_NoS" +
-                "eriesList\" /></AssociationSet><AssociationSet Name=\"CRTSHF_ProductionBOMVersion_" +
-                "Scrap_Unit_of_Measure_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.CRTSHF_Produc" +
-                "tionBOMVersion_Scrap_Unit_of_Measure_Link\"><End Role=\"CRTSHF_ProductionBOMVersio" +
-                "n\" EntitySet=\"CRTSHF_ProductionBOMVersion\" /><End Role=\"Scrap_Unit_of_Measure_Li" +
-                "nk\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"C" +
-                "RTSHF_ScrapItemJnlLine_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV.CRTS" +
-                "HF_ScrapItemJnlLine_Prod_Order_No_Link\"><End Role=\"CRTSHF_ScrapItemJnlLine\" Enti" +
-                "tySet=\"CRTSHF_ScrapItemJnlLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"Prod" +
-                "uctionOrder\" /></AssociationSet><AssociationSet Name=\"CRTSHF_ScrapItemJnlLine_Sc" +
-                "rap_Unit_of_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.CRTSHF_Scr" +
-                "apItemJnlLine_Scrap_Unit_of_Measure_Code_Link\"><End Role=\"CRTSHF_ScrapItemJnlLin" +
-                "e\" EntitySet=\"CRTSHF_ScrapItemJnlLine\" /><End Role=\"Scrap_Unit_of_Measure_Code_L" +
-                "ink\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"" +
-                "CRTSHF_ScrapItemJnlLine_Unit_of_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Associa" +
-                "tion=\"NAV.CRTSHF_ScrapItemJnlLine_Unit_of_Measure_Code_Link\"><End Role=\"CRTSHF_S" +
-                "crapItemJnlLine\" EntitySet=\"CRTSHF_ScrapItemJnlLine\" /><End Role=\"Unit_of_Measur" +
-                "e_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSe" +
-                "t Name=\"Customer_Location_Code_Link_Location\" Association=\"NAV.Customer_Location" +
-                "_Code_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Location_Code" +
-                "_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"Customer_Ci" +
-                "ty_Link_Postcodes\" Association=\"NAV.Customer_City_Link\"><End Role=\"Customer\" Ent" +
-                "itySet=\"Customer\" /><End Role=\"City_Link\" EntitySet=\"Postcodes\" /></AssociationS" +
-                "et><AssociationSet Name=\"Customer_Post_Code_Link_Postcodes\" Association=\"NAV.Cus" +
-                "tomer_Post_Code_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Pos" +
-                "t_Code_Link\" EntitySet=\"Postcodes\" /></AssociationSet><AssociationSet Name=\"Cust" +
-                "omer_Country_Region_Code_Link_CountryRegion\" Association=\"NAV.Customer_Country_R" +
-                "egion_Code_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Country_" +
-                "Region_Code_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><AssociationSet N" +
-                "ame=\"Customer_Currency_Code_Link_CurrencyCodes\" Association=\"NAV.Customer_Curren" +
-                "cy_Code_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Currency_Co" +
-                "de_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><AssociationSet Name=\"Cust" +
-                "omer_Customer_Posting_Group_Link_CustomerPostingGroup\" Association=\"NAV.Customer" +
-                "_Customer_Posting_Group_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End R" +
-                "ole=\"Customer_Posting_Group_Link\" EntitySet=\"CustomerPostingGroup\" /></Associati" +
-                "onSet><AssociationSet Name=\"Customer_Gen_Bus_Posting_Group_Link_GenBussPostingGr" +
-                "oup\" Association=\"NAV.Customer_Gen_Bus_Posting_Group_Link\"><End Role=\"Customer\" " +
-                "EntitySet=\"Customer\" /><End Role=\"Gen_Bus_Posting_Group_Link\" EntitySet=\"GenBuss" +
-                "PostingGroup\" /></AssociationSet><AssociationSet Name=\"Customer_VAT_Bus_Posting_" +
-                "Group_Link_GSTBusPostingGroup\" Association=\"NAV.Customer_VAT_Bus_Posting_Group_L" +
-                "ink\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"VAT_Bus_Posting_Grou" +
-                "p_Link\" EntitySet=\"GSTBusPostingGroup\" /></AssociationSet><AssociationSet Name=\"" +
-                "Customer_Payment_Terms_Code_Link_PaymentTerms\" Association=\"NAV.Customer_Payment" +
-                "_Terms_Code_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Payment" +
-                "_Terms_Code_Link\" EntitySet=\"PaymentTerms\" /></AssociationSet><AssociationSet Na" +
-                "me=\"Customer_Payment_Method_Code_Link_PaymentMethod\" Association=\"NAV.Customer_P" +
-                "ayment_Method_Code_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"" +
-                "Payment_Method_Code_Link\" EntitySet=\"PaymentMethod\" /></AssociationSet><Associat" +
-                "ionSet Name=\"Customer_Shipment_Method_Code_Link_ShipmentMethod\" Association=\"NAV" +
-                ".Customer_Shipment_Method_Code_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /" +
-                "><End Role=\"Shipment_Method_Code_Link\" EntitySet=\"ShipmentMethod\" /></Associatio" +
-                "nSet><AssociationSet Name=\"Customer_Shipping_Agent_Code_Link_ShippingAgent\" Asso" +
-                "ciation=\"NAV.Customer_Shipping_Agent_Code_Link\"><End Role=\"Customer\" EntitySet=\"" +
-                "Customer\" /><End Role=\"Shipping_Agent_Code_Link\" EntitySet=\"ShippingAgent\" /></A" +
-                "ssociationSet><AssociationSet Name=\"FinishedProdOrderLine_Prod_Order_No_Link_Pro" +
-                "ductionOrder\" Association=\"NAV.FinishedProdOrderLine_Prod_Order_No_Link\"><End Ro" +
-                "le=\"FinishedProdOrderLine\" EntitySet=\"FinishedProdOrderLine\" /><End Role=\"Prod_O" +
-                "rder_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationSet Nam" +
-                "e=\"FP_ItemList_Batch_Nos_Link_CRTSHF_NoSeriesList\" Association=\"NAV.FP_ItemList_" +
-                "Batch_Nos_Link\"><End Role=\"FP_ItemList\" EntitySet=\"FP_ItemList\" /><End Role=\"Bat" +
-                "ch_Nos_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet " +
-                "Name=\"FP_ItemList_Base_Unit_of_Measure_Link_CRTSHF_ItemUnitOfMeasure\" Associatio" +
-                "n=\"NAV.FP_ItemList_Base_Unit_of_Measure_Link\"><End Role=\"FP_ItemList\" EntitySet=" +
-                "\"FP_ItemList\" /><End Role=\"Base_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnit" +
-                "OfMeasure\" /></AssociationSet><AssociationSet Name=\"FP_ItemList_Item_Category_Co" +
-                "de_Link_ItemCategories\" Association=\"NAV.FP_ItemList_Item_Category_Code_Link\"><E" +
-                "nd Role=\"FP_ItemList\" EntitySet=\"FP_ItemList\" /><End Role=\"Item_Category_Code_Li" +
-                "nk\" EntitySet=\"ItemCategories\" /></AssociationSet><AssociationSet Name=\"FP_ItemL" +
-                "ist_Location_Filter_Link_Location\" Association=\"NAV.FP_ItemList_Location_Filter_" +
-                "Link\"><End Role=\"FP_ItemList\" EntitySet=\"FP_ItemList\" /><End Role=\"Location_Filt" +
-                "er_Link\" EntitySet=\"Location\" /></AssociationSet><Associati";
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart39 = "onSet Name=\"GenBussPostingGroup_Def_VAT_Bus_Posting_Group_Link_GSTBusPostingGroup" +
-                "\" Association=\"NAV.GenBussPostingGroup_Def_VAT_Bus_Posting_Group_Link\"><End Role" +
-                "=\"GenBussPostingGroup\" EntitySet=\"GenBussPostingGroup\" /><End Role=\"Def_VAT_Bus_" +
-                "Posting_Group_Link\" EntitySet=\"GSTBusPostingGroup\" /></AssociationSet><Associati" +
-                "onSet Name=\"GroupPlanning_Product_Group_Code_Link_ProductCodeList\" Association=\"" +
-                "NAV.GroupPlanning_Product_Group_Code_Link\"><End Role=\"GroupPlanning\" EntitySet=\"" +
-                "GroupPlanning\" /><End Role=\"Product_Group_Code_Link\" EntitySet=\"ProductCodeList\"" +
-                " /></AssociationSet><AssociationSet Name=\"GroupPlanning_Unit_Of_Measure_Code_Lin" +
-                "k_CRTSHF_UnitOfMeasures\" Association=\"NAV.GroupPlanning_Unit_Of_Measure_Code_Lin" +
-                "k\"><End Role=\"GroupPlanning\" EntitySet=\"GroupPlanning\" /><End Role=\"Unit_Of_Meas" +
-                "ure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><Association" +
-                "Set Name=\"GroupPlanningSplit_Product_Group_Code_Link_ProductCodeList\" Associatio" +
-                "n=\"NAV.GroupPlanningSplit_Product_Group_Code_Link\"><End Role=\"GroupPlanningSplit" +
-                "\" EntitySet=\"GroupPlanningSplit\" /><End Role=\"Product_Group_Code_Link\" EntitySet" +
-                "=\"ProductCodeList\" /></AssociationSet><AssociationSet Name=\"GroupPlanningSplit_U" +
-                "nit_Of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.GroupPlannin" +
-                "gSplit_Unit_Of_Measure_Code_Link\"><End Role=\"GroupPlanningSplit\" EntitySet=\"Grou" +
-                "pPlanningSplit\" /><End Role=\"Unit_Of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUn" +
-                "itOfMeasure\" /></AssociationSet><AssociationSet Name=\"ItemBatchInfo_Location_Cod" +
-                "e_Link_Location\" Association=\"NAV.ItemBatchInfo_Location_Code_Link\"><End Role=\"I" +
-                "temBatchInfo\" EntitySet=\"ItemBatchInfo\" /><End Role=\"Location_Code_Link\" EntityS" +
-                "et=\"Location\" /></AssociationSet><AssociationSet Name=\"ItemJournalLines_Location" +
-                "_Code_Link_Location\" Association=\"NAV.ItemJournalLines_Location_Code_Link\"><End " +
-                "Role=\"ItemJournalLines\" EntitySet=\"ItemJournalLines\" /><End Role=\"Location_Code_" +
-                "Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"ItemJournalL" +
-                "ines_Gen_Bus_Posting_Group_Link_GenBussPostingGroup\" Association=\"NAV.ItemJourna" +
-                "lLines_Gen_Bus_Posting_Group_Link\"><End Role=\"ItemJournalLines\" EntitySet=\"ItemJ" +
-                "ournalLines\" /><End Role=\"Gen_Bus_Posting_Group_Link\" EntitySet=\"GenBussPostingG" +
-                "roup\" /></AssociationSet><AssociationSet Name=\"ItemJournalLines_Unit_of_Measure_" +
-                "Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ItemJournalLines_Unit_of_Me" +
-                "asure_Code_Link\"><End Role=\"ItemJournalLines\" EntitySet=\"ItemJournalLines\" /><En" +
-                "d Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></Asso" +
-                "ciationSet><AssociationSet Name=\"ItemLedgerEntries_Item_Category_Code_Link_ItemC" +
-                "ategories\" Association=\"NAV.ItemLedgerEntries_Item_Category_Code_Link\"><End Role" +
-                "=\"ItemLedgerEntries\" EntitySet=\"ItemLedgerEntries\" /><End Role=\"Item_Category_Co" +
-                "de_Link\" EntitySet=\"ItemCategories\" /></AssociationSet><AssociationSet Name=\"Ite" +
-                "mLedgerEntries_Location_Code_Link_Location\" Association=\"NAV.ItemLedgerEntries_L" +
-                "ocation_Code_Link\"><End Role=\"ItemLedgerEntries\" EntitySet=\"ItemLedgerEntries\" /" +
+            private const string ModelPart35 = "hipments\" EntityType=\"NAV.PostedSalesShipments\" /><EntitySet Name=\"Process\" Entit" +
+                "yType=\"NAV.Process\" /><EntitySet Name=\"ProcessItemList\" EntityType=\"NAV.ProcessI" +
+                "temList\" /><EntitySet Name=\"ProdOrderComp\" EntityType=\"NAV.ProdOrderComp\" /><Ent" +
+                "itySet Name=\"ProdOrderCompLineList\" EntityType=\"NAV.ProdOrderCompLineList\" /><En" +
+                "titySet Name=\"ProdOrderLineList\" EntityType=\"NAV.ProdOrderLineList\" /><EntitySet" +
+                " Name=\"ProdOrderOutputLine\" EntityType=\"NAV.ProdOrderOutputLine\" /><EntitySet Na" +
+                "me=\"ProdPlanningLine\" EntityType=\"NAV.ProdPlanningLine\" /><EntitySet Name=\"Produ" +
+                "ctCodeList\" EntityType=\"NAV.ProductCodeList\" /><EntitySet Name=\"ProductionEntry\"" +
+                " EntityType=\"NAV.ProductionEntry\" /><EntitySet Name=\"ProductionOrder\" EntityType" +
+                "=\"NAV.ProductionOrder\" /><EntitySet Name=\"ProductionOrderList\" EntityType=\"NAV.P" +
+                "roductionOrderList\" /><EntitySet Name=\"ProductionRecipe\" EntityType=\"NAV.Product" +
+                "ionRecipe\" /><EntitySet Name=\"ProductionRecipeLinkWS\" EntityType=\"NAV.Production" +
+                "RecipeLinkWS\" /><EntitySet Name=\"ProductionRecipeWS\" EntityType=\"NAV.ProductionR" +
+                "ecipeWS\" /><EntitySet Name=\"PurchaseLines\" EntityType=\"NAV.PurchaseLines\" /><Ent" +
+                "itySet Name=\"RawMatItemList\" EntityType=\"NAV.RawMatItemList\" /><EntitySet Name=\"" +
+                "ReasonCodeList\" EntityType=\"NAV.ReasonCodeList\" /><EntitySet Name=\"RegistrationD" +
+                "etailsLine\" EntityType=\"NAV.RegistrationDetailsLine\" /><EntitySet Name=\"SalesFor" +
+                "ecastList\" EntityType=\"NAV.SalesForecastList\" /><EntitySet Name=\"SalesLineNotClo" +
+                "sed\" EntityType=\"NAV.SalesLineNotClosed\" /><EntitySet Name=\"SalesLines\" EntityTy" +
+                "pe=\"NAV.SalesLines\" /><EntitySet Name=\"SalesOrderLineKIV\" EntityType=\"NAV.SalesO" +
+                "rderLineKIV\" /><EntitySet Name=\"SalesPrices\" EntityType=\"NAV.SalesPrices\" /><Ent" +
+                "itySet Name=\"ShipmentMethod\" EntityType=\"NAV.ShipmentMethod\" /><EntitySet Name=\"" +
+                "ShippingAgent\" EntityType=\"NAV.ShippingAgent\" /><EntitySet Name=\"ShippingAgentSe" +
+                "rvice\" EntityType=\"NAV.ShippingAgentService\" /><EntitySet Name=\"StockAdjustmentO" +
+                "data\" EntityType=\"NAV.StockAdjustmentOdata\" /><EntitySet Name=\"SWD_ConsumptionEn" +
+                "tries\" EntityType=\"NAV.SWD_ConsumptionEntries\" /><EntitySet Name=\"SWDAllProdOutp" +
+                "utLine\" EntityType=\"NAV.SWDAllProdOutputLine\" /><EntitySet Name=\"SWDProdOrderSyn" +
+                "cPortal\" EntityType=\"NAV.SWDProdOrderSyncPortal\" /><EntitySet Name=\"SWDWebIntegr" +
+                "ationEntry\" EntityType=\"NAV.SWDWebIntegrationEntry\" /><EntitySet Name=\"TenderFor" +
+                "Simulation\" EntityType=\"NAV.TenderForSimulation\" /><EntitySet Name=\"TenderOrderL" +
+                "ines\" EntityType=\"NAV.TenderOrderLines\" /><EntitySet Name=\"TestActualStart\" Enti" +
+                "tyType=\"NAV.TestActualStart\" /><EntitySet Name=\"TrackingSpecification\" EntityTyp" +
+                "e=\"NAV.TrackingSpecification\" /><EntitySet Name=\"Vendor\" EntityType=\"NAV.Vendor\"" +
+                " /><EntitySet Name=\"WorkCenterList\" EntityType=\"NAV.WorkCenterList\" /><EntitySet" +
+                " Name=\"Company\" EntityType=\"NAV.Company\" /><AssociationSet Name=\"ConsumptionJour" +
+                "nal_ProdOrderNo_Link_ProductionOrder\" Association=\"NAV.ConsumptionJournal_ProdOr" +
+                "derNo_Link\"><End Role=\"ConsumptionJournal\" EntitySet=\"ConsumptionJournal\" /><End" +
+                " Role=\"ProdOrderNo_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><Associa" +
+                "tionSet Name=\"ConsumptionJournal_LocationCode_Link_Location\" Association=\"NAV.Co" +
+                "nsumptionJournal_LocationCode_Link\"><End Role=\"ConsumptionJournal\" EntitySet=\"Co" +
+                "nsumptionJournal\" /><End Role=\"LocationCode_Link\" EntitySet=\"Location\" /></Assoc" +
+                "iationSet><AssociationSet Name=\"ConsumptionJournal_Location_Code_Link_Location\" " +
+                "Association=\"NAV.ConsumptionJournal_Location_Code_Link\"><End Role=\"ConsumptionJo" +
+                "urnal\" EntitySet=\"ConsumptionJournal\" /><End Role=\"Location_Code_Link\" EntitySet" +
+                "=\"Location\" /></AssociationSet><AssociationSet Name=\"ConsumptionJournal_Base_Uni" +
+                "t_of_Measure_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ConsumptionJournal_" +
+                "Base_Unit_of_Measure_Link\"><End Role=\"ConsumptionJournal\" EntitySet=\"Consumption" +
+                "Journal\" /><End Role=\"Base_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMea" +
+                "sure\" /></AssociationSet><AssociationSet Name=\"ConsumptionJournal_Unit_Of_Measur" +
+                "e_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.ConsumptionJournal_Unit_Of_M" +
+                "easure_Code_Link\"><End Role=\"ConsumptionJournal\" EntitySet=\"ConsumptionJournal\" " +
+                "/><End Role=\"Unit_Of_Measure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></As" +
+                "sociationSet><AssociationSet Name=\"CPS_CalendarAbsenceEntries_Work_Center_No_Lin" +
+                "k_Process\" Association=\"NAV.CPS_CalendarAbsenceEntries_Work_Center_No_Link\"><End" +
+                " Role=\"CPS_CalendarAbsenceEntries\" EntitySet=\"CPS_CalendarAbsenceEntries\" /><End" +
+                " Role=\"Work_Center_No_Link\" EntitySet=\"Process\" /></AssociationSet><AssociationS" +
+                "et Name=\"CPS_ProdOrderLine_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV." +
+                "CPS_ProdOrderLine_Prod_Order_No_Link\"><End Role=\"CPS_ProdOrderLine\" EntitySet=\"C" +
+                "PS_ProdOrderLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /" +
+                "></AssociationSet><AssociationSet Name=\"CPS_ProdOrderLine_Location_Code_Link_Loc" +
+                "ation\" Association=\"NAV.CPS_ProdOrderLine_Location_Code_Link\"><End Role=\"CPS_Pro" +
+                "dOrderLine\" EntitySet=\"CPS_ProdOrderLine\" /><End Role=\"Location_Code_Link\" Entit" +
+                "ySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CPS_ProdOrderLine_Unit_" +
+                "of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.CPS_ProdOrderLin" +
+                "e_Unit_of_Measure_Code_Link\"><End Role=\"CPS_ProdOrderLine\" EntitySet=\"CPS_ProdOr" +
+                "derLine\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMea" +
+                "sure\" /></AssociationSet><AssociationSet Name=\"CPS_ProdOrderRoutingLine_Prod_Ord" +
+                "er_No_Link_ProductionOrder\" Association=\"NAV.CPS_ProdOrderRoutingLine_Prod_Order" +
+                "_No_Link\"><End Role=\"CPS_ProdOrderRoutingLine\" EntitySet=\"CPS_ProdOrderRoutingLi" +
+                "ne\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></Association" +
+                "Set><AssociationSet Name=\"CPS_ProdOrderRoutingLine_Work_Center_No_Link_Process\" " +
+                "Association=\"NAV.CPS_ProdOrderRoutingLine_Work_Center_No_Link\"><End Role=\"CPS_Pr" +
+                "odOrderRoutingLine\" EntitySet=\"CPS_ProdOrderRoutingLine\" /><End Role=\"Work_Cente" +
+                "r_No_Link\" EntitySet=\"Process\" /></AssociationSet><AssociationSet Name=\"CPS_Prod" +
+                "uctionOrder_No_Link_ProductionOrder\" Association=\"NAV.CPS_ProductionOrder_No_Lin" +
+                "k\"><End Role=\"CPS_ProductionOrder\" EntitySet=\"CPS_ProductionOrder\" /><End Role=\"" +
+                "No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"CP" +
+                "S_ProductionOrder_Gen_Bus_Posting_Group_Link_GenBussPostingGroup\" Association=\"N" +
+                "AV.CPS_ProductionOrder_Gen_Bus_Posting_Group_Link\"><End Role=\"CPS_ProductionOrde" +
+                "r\" EntitySet=\"CPS_ProductionOrder\" /><End Role=\"Gen_Bus_Posting_Group_Link\" Enti" +
+                "tySet=\"GenBussPostingGroup\" /></AssociationSet><AssociationSet Name=\"CPS_Product" +
+                "ionOrder_Location_Code_Link_Location\" Association=\"NAV.CPS_ProductionOrder_Locat" +
+                "ion_Code_Link\"><End Role=\"CPS_ProductionOrder\" EntitySet=\"CPS_ProductionOrder\" /" +
                 "><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><Associa" +
-                "tionSet Name=\"ItemLedgerEntries_Country_Region_Code_Link_CountryRegion\" Associat" +
-                "ion=\"NAV.ItemLedgerEntries_Country_Region_Code_Link\"><End Role=\"ItemLedgerEntrie" +
-                "s\" EntitySet=\"ItemLedgerEntries\" /><End Role=\"Country_Region_Code_Link\" EntitySe" +
-                "t=\"CountryRegion\" /></AssociationSet><AssociationSet Name=\"ItemLedgerEntries_Pro" +
-                "d_Order_Type_Link_SalesForecastList\" Association=\"NAV.ItemLedgerEntries_Prod_Ord" +
-                "er_Type_Link\"><End Role=\"ItemLedgerEntries\" EntitySet=\"ItemLedgerEntries\" /><End" +
-                " Role=\"Prod_Order_Type_Link\" EntitySet=\"SalesForecastList\" /></AssociationSet><A" +
-                "ssociationSet Name=\"ItemList_Batch_Nos_Link_CRTSHF_NoSeriesList\" Association=\"NA" +
-                "V.ItemList_Batch_Nos_Link\"><End Role=\"ItemList\" EntitySet=\"ItemList\" /><End Role" +
-                "=\"Batch_Nos_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><Associatio" +
-                "nSet Name=\"ItemList_Base_Unit_of_Measure_Link_CRTSHF_ItemUnitOfMeasure\" Associat" +
-                "ion=\"NAV.ItemList_Base_Unit_of_Measure_Link\"><End Role=\"ItemList\" EntitySet=\"Ite" +
-                "mList\" /><End Role=\"Base_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasu" +
-                "re\" /></AssociationSet><AssociationSet Name=\"ItemList_Item_Category_Code_Link_It" +
-                "emCategories\" Association=\"NAV.ItemList_Item_Category_Code_Link\"><End Role=\"Item" +
-                "List\" EntitySet=\"ItemList\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"Item" +
-                "Categories\" /></AssociationSet><AssociationSet Name=\"ItemList_QC_Location_Link_L" +
-                "ocation\" Association=\"NAV.ItemList_QC_Location_Link\"><End Role=\"ItemList\" Entity" +
-                "Set=\"ItemList\" /><End Role=\"QC_Location_Link\" EntitySet=\"Location\" /></Associati" +
-                "onSet><AssociationSet Name=\"ItemList_Location_Filter_Link_Location\" Association=" +
-                "\"NAV.ItemList_Location_Filter_Link\"><End Role=\"ItemList\" EntitySet=\"ItemList\" />" +
-                "<End Role=\"Location_Filter_Link\" EntitySet=\"Location\" /></AssociationSet><Associ" +
-                "ationSet Name=\"ItemPicture_Customer_No_Link_Customer\" Association=\"NAV.ItemPictu" +
-                "re_Customer_No_Link\"><End Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role" +
-                "=\"Customer_No_Link\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Name" +
-                "=\"ItemPicture_Vendor_No_Link_Vendor\" Association=\"NAV.ItemPicture_Vendor_No_Link" +
-                "\"><End Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Vendor_No_Link\" E" +
-                "ntitySet=\"Vendor\" /></AssociationSet><AssociationSet Name=\"ItemPicture_Currency_" +
-                "Code_Link_CurrencyCodes\" Association=\"NAV.ItemPicture_Currency_Code_Link\"><End R" +
-                "ole=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Currency_Code_Link\" Entit" +
-                "ySet=\"CurrencyCodes\" /></AssociationSet><AssociationSet Name=\"ItemPicture_Locati" +
-                "on_Code_Link_Location\" Association=\"NAV.ItemPicture_Location_Code_Link\"><End Rol" +
-                "e=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Location_Code_Link\" EntityS" +
-                "et=\"Location\" /></AssociationSet><AssociationSet Name=\"ItemPicture_Unit_of_Measu" +
-                "re_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.ItemPicture_Unit_of_Measure" +
-                "_Code_Link\"><End Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Unit_of" +
-                "_Measure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><Associ" +
-                "ationSet Name=\"ItemPicture_Reason_Code_Link_ReasonCodeList\" Association=\"NAV.Ite" +
-                "mPicture_Reason_Code_Link\"><End Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><En" +
-                "d Role=\"Reason_Code_Link\" EntitySet=\"ReasonCodeList\" /></AssociationSet><Associa" +
-                "tionSet Name=\"ItemPicture_Sample_Quantity_Link_Location\" Association=\"NAV.ItemPi" +
-                "cture_Sample_Quantity_Link\"><End Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><E" +
-                "nd Role=\"Sample_Quantity_Link\" EntitySet=\"Location\" /></AssociationSet><Associat" +
-                "ionSet Name=\"ItemUOMList_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.ItemU" +
-                "OMList_Code_Link\"><End Role=\"ItemUOMList\" EntitySet=\"ItemUOMList\" /><End Role=\"C" +
-                "ode_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet N" +
-                "ame=\"MachineCenterList_Work_Center_No_Link_Process\" Association=\"NAV.MachineCent" +
-                "erList_Work_Center_No_Link\"><End Role=\"MachineCenterList\" EntitySet=\"MachineCent" +
-                "erList\" /><End Role=\"Work_Center_No_Link\" EntitySet=\"Process\" /></AssociationSet" +
-                "><AssociationSet Name=\"OutputCorrectionList_Item_Ledger_Entry_No_Link_ItemLedger" +
-                "Entries\" Association=\"NAV.OutputCorrectionList_Item_Ledger_Entry_No_Link\"><End R" +
-                "ole=\"OutputCorrectionList\" EntitySet=\"OutputCorrectionList\" /><End Role=\"Item_Le" +
-                "dger_Entry_No_Link\" EntitySet=\"ItemLedgerEntries\" /></AssociationSet><Associatio" +
-                "nSet Name=\"OutputJournal_ProdOrderNo_Link_ProductionOrder\" Association=\"NAV.Outp" +
-                "utJournal_ProdOrderNo_Link\"><End Role=\"OutputJournal\" Entit";
+                "tionSet Name=\"CPS_ProductionOrder_No_Series_Link_CRTSHF_NoSeriesList\" Associatio" +
+                "n=\"NAV.CPS_ProductionOrder_No_Series_Link\"><End Role=\"CPS_ProductionOrder\" Entit" +
+                "ySet=\"CPS_ProductionOrder\" /><End Role=\"No_Series_Link\" EntitySet=\"CRTSHF_NoSeri" +
+                "esList\" /></AssociationSet><AssociationSet Name=\"CPS_ProductionOrder_Unit_Of_Mea" +
+                "sure_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.CPS_ProductionOrder_Unit_" +
+                "Of_Measure_Code_Link\"><End Role=\"CPS_ProductionOrder\" EntitySet=\"CPS_ProductionO" +
+                "rder\" /><End Role=\"Unit_Of_Measure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" " +
+                "/></AssociationSet><AssociationSet Name=\"CPS_ProductionOrder_Work_Center_Filter_" +
+                "Link_Process\" Association=\"NAV.CPS_ProductionOrder_Work_Center_Filter_Link\"><End" +
+                " Role=\"CPS_ProductionOrder\" EntitySet=\"CPS_ProductionOrder\"";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart40 = "ySet=\"OutputJournal\" /><End Role=\"ProdOrderNo_Link\" EntitySet=\"ProductionOrder\" /" +
-                "></AssociationSet><AssociationSet Name=\"OutputJournal_LocationCode_Link_Location" +
-                "\" Association=\"NAV.OutputJournal_LocationCode_Link\"><End Role=\"OutputJournal\" En" +
-                "titySet=\"OutputJournal\" /><End Role=\"LocationCode_Link\" EntitySet=\"Location\" /><" +
-                "/AssociationSet><AssociationSet Name=\"OutputJournal_Unit_Of_Measure_Code_Link_CR" +
-                "TSHF_UnitOfMeasures\" Association=\"NAV.OutputJournal_Unit_Of_Measure_Code_Link\"><" +
-                "End Role=\"OutputJournal\" EntitySet=\"OutputJournal\" /><End Role=\"Unit_Of_Measure_" +
-                "Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet " +
-                "Name=\"OutstandingProdOrderLine_Prod_Order_No_Link_ProductionOrder\" Association=\"" +
-                "NAV.OutstandingProdOrderLine_Prod_Order_No_Link\"><End Role=\"OutstandingProdOrder" +
-                "Line\" EntitySet=\"OutstandingProdOrderLine\" /><End Role=\"Prod_Order_No_Link\" Enti" +
-                "tySet=\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"OutstandingProd" +
-                "OrderLine_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.O" +
-                "utstandingProdOrderLine_Unit_of_Measure_Code_Link\"><End Role=\"OutstandingProdOrd" +
-                "erLine\" EntitySet=\"OutstandingProdOrderLine\" /><End Role=\"Unit_of_Measure_Code_L" +
-                "ink\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Nam" +
-                "e=\"OutstandingSalesOrderLine_Sell_to_Customer_No_Link_Customer\" Association=\"NAV" +
-                ".OutstandingSalesOrderLine_Sell_to_Customer_No_Link\"><End Role=\"OutstandingSales" +
-                "OrderLine\" EntitySet=\"OutstandingSalesOrderLine\" /><End Role=\"Sell_to_Customer_N" +
-                "o_Link\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Name=\"PackagingI" +
-                "temList_Base_Unit_of_Measure_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.Pac" +
-                "kagingItemList_Base_Unit_of_Measure_Link\"><End Role=\"PackagingItemList\" EntitySe" +
-                "t=\"PackagingItemList\" /><End Role=\"Base_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_" +
-                "ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"PackagingItemList_It" +
-                "em_Category_Code_Link_ItemCategories\" Association=\"NAV.PackagingItemList_Item_Ca" +
-                "tegory_Code_Link\"><End Role=\"PackagingItemList\" EntitySet=\"PackagingItemList\" />" +
-                "<End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories\" /></AssociationSe" +
-                "t><AssociationSet Name=\"PackagingItemList_Location_Filter_Link_Location\" Associa" +
-                "tion=\"NAV.PackagingItemList_Location_Filter_Link\"><End Role=\"PackagingItemList\" " +
-                "EntitySet=\"PackagingItemList\" /><End Role=\"Location_Filter_Link\" EntitySet=\"Loca" +
-                "tion\" /></AssociationSet><AssociationSet Name=\"PaymentMethod_Direct_Debit_Pmt_Te" +
-                "rms_Code_Link_PaymentTerms\" Association=\"NAV.PaymentMethod_Direct_Debit_Pmt_Term" +
-                "s_Code_Link\"><End Role=\"PaymentMethod\" EntitySet=\"PaymentMethod\" /><End Role=\"Di" +
-                "rect_Debit_Pmt_Terms_Code_Link\" EntitySet=\"PaymentTerms\" /></AssociationSet><Ass" +
-                "ociationSet Name=\"PKGQtyInProd_Location_Code_Link_Location\" Association=\"NAV.PKG" +
-                "QtyInProd_Location_Code_Link\"><End Role=\"PKGQtyInProd\" EntitySet=\"PKGQtyInProd\" " +
-                "/><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><Associ" +
-                "ationSet Name=\"PKGQtyInProd_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" " +
-                "Association=\"NAV.PKGQtyInProd_Unit_of_Measure_Code_Link\"><End Role=\"PKGQtyInProd" +
-                "\" EntitySet=\"PKGQtyInProd\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CR" +
-                "TSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"Postcodes_Count" +
-                "ry_Region_Code_Link_CountryRegion\" Association=\"NAV.Postcodes_Country_Region_Cod" +
-                "e_Link\"><End Role=\"Postcodes\" EntitySet=\"Postcodes\" /><End Role=\"Country_Region_" +
-                "Code_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><AssociationSet Name=\"Po" +
-                "stedSalesShipmentLines_Document_No_Link_PostedSalesShipments\" Association=\"NAV.P" +
-                "ostedSalesShipmentLines_Document_No_Link\"><End Role=\"PostedSalesShipmentLines\" E" +
-                "ntitySet=\"PostedSalesShipmentLines\" /><End Role=\"Document_No_Link\" EntitySet=\"Po" +
-                "stedSalesShipments\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipment" +
-                "Lines_Sell_to_Customer_No_Link_Customer\" Association=\"NAV.PostedSalesShipmentLin" +
-                "es_Sell_to_Customer_No_Link\"><End Role=\"PostedSalesShipmentLines\" EntitySet=\"Pos" +
-                "tedSalesShipmentLines\" /><End Role=\"Sell_to_Customer_No_Link\" EntitySet=\"Custome" +
-                "r\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipmentLines_Location_Co" +
-                "de_Link_Location\" Association=\"NAV.PostedSalesShipmentLines_Location_Code_Link\">" +
-                "<End Role=\"PostedSalesShipmentLines\" EntitySet=\"PostedSalesShipmentLines\" /><End" +
-                " Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationS" +
-                "et Name=\"PostedSalesShipments_Sell_to_Customer_No_Link_Customer\" Association=\"NA" +
-                "V.PostedSalesShipments_Sell_to_Customer_No_Link\"><End Role=\"PostedSalesShipments" +
-                "\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Sell_to_Customer_No_Link\" Entity" +
-                "Set=\"Customer\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipments_Sel" +
-                "l_to_Post_Code_Link_Postcodes\" Association=\"NAV.PostedSalesShipments_Sell_to_Pos" +
-                "t_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" /" +
-                "><End Role=\"Sell_to_Post_Code_Link\" EntitySet=\"Postcodes\" /></AssociationSet><As" +
-                "sociationSet Name=\"PostedSalesShipments_Sell_to_Country_Region_Code_Link_Country" +
-                "Region\" Association=\"NAV.PostedSalesShipments_Sell_to_Country_Region_Code_Link\">" +
-                "<End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"S" +
-                "ell_to_Country_Region_Code_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><A" +
-                "ssociationSet Name=\"PostedSalesShipments_Bill_to_Customer_No_Link_Customer\" Asso" +
-                "ciation=\"NAV.PostedSalesShipments_Bill_to_Customer_No_Link\"><End Role=\"PostedSal" +
-                "esShipments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Bill_to_Customer_No_L" +
-                "ink\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Name=\"PostedSalesSh" +
-                "ipments_Bill_to_Post_Code_Link_Postcodes\" Association=\"NAV.PostedSalesShipments_" +
-                "Bill_to_Post_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesS" +
-                "hipments\" /><End Role=\"Bill_to_Post_Code_Link\" EntitySet=\"Postcodes\" /></Associa" +
-                "tionSet><AssociationSet Name=\"PostedSalesShipments_Bill_to_Country_Region_Code_L" +
-                "ink_CountryRegion\" Association=\"NAV.PostedSalesShipments_Bill_to_Country_Region_" +
-                "Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" /><" +
-                "End Role=\"Bill_to_Country_Region_Code_Link\" EntitySet=\"CountryRegion\" /></Associ" +
-                "ationSet><AssociationSet Name=\"PostedSalesShipments_Ship_to_Post_Code_Link_Postc" +
-                "odes\" Association=\"NAV.PostedSalesShipments_Ship_to_Post_Code_Link\"><End Role=\"P" +
-                "ostedSalesShipments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Ship_to_Post_" +
-                "Code_Link\" EntitySet=\"Postcodes\" /></AssociationSet><AssociationSet Name=\"Posted" +
-                "SalesShipments_Ship_to_Country_Region_Code_Link_CountryRegion\" Association=\"NAV." +
-                "PostedSalesShipments_Ship_to_Country_Region_Code_Link\"><End Role=\"PostedSalesShi" +
-                "pments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Ship_to_Country_Region_Cod" +
-                "e_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><AssociationSet Name=\"Poste" +
-                "dSalesShipments_Currency_Code_Link_CurrencyCodes\" Association=\"NAV.PostedSalesSh" +
-                "ipments_Currency_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSa" +
-                "lesShipments\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></Ass" +
-                "ociationSet><AssociationSet Name=\"PostedSalesShipments_Location_Code_Link_Locati" +
-                "on\" Association=\"NAV.PostedSalesShipments_Location_Code_Link\"><End Role=\"PostedS" +
-                "alesShipments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Location_Code_Link\"" +
-                " EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipme" +
-                "nts_Shipment_Method_Code_Link_ShipmentMethod\" Association=\"NAV.PostedSalesShipme" +
-                "nts_Shipment_Method_Code_Link\"><End Role=\"PostedSalesShipme";
+            private const string ModelPart36 = " /><End Role=\"Work_Center_Filter_Link\" EntitySet=\"Process\" /></AssociationSet><As" +
+                "sociationSet Name=\"CreateProdOrderEntryWS_No_Series_Code_Link_CRTSHF_NoSeriesLis" +
+                "t\" Association=\"NAV.CreateProdOrderEntryWS_No_Series_Code_Link\"><End Role=\"Creat" +
+                "eProdOrderEntryWS\" EntitySet=\"CreateProdOrderEntryWS\" /><End Role=\"No_Series_Cod" +
+                "e_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet Name=" +
+                "\"CreateProdOrderEntryWS_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Asso" +
+                "ciation=\"NAV.CreateProdOrderEntryWS_Unit_of_Measure_Code_Link\"><End Role=\"Create" +
+                "ProdOrderEntryWS\" EntitySet=\"CreateProdOrderEntryWS\" /><End Role=\"Unit_of_Measur" +
+                "e_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Associatio" +
+                "nSet Name=\"CreateProdOrderEntryWS_Location_Code_Link_Location\" Association=\"NAV." +
+                "CreateProdOrderEntryWS_Location_Code_Link\"><End Role=\"CreateProdOrderEntryWS\" En" +
+                "titySet=\"CreateProdOrderEntryWS\" /><End Role=\"Location_Code_Link\" EntitySet=\"Loc" +
+                "ation\" /></AssociationSet><AssociationSet Name=\"CreateProdOrderLineEntryWS_Unit_" +
+                "of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.CreateProdOrderL" +
+                "ineEntryWS_Unit_of_Measure_Code_Link\"><End Role=\"CreateProdOrderLineEntryWS\" Ent" +
+                "itySet=\"CreateProdOrderLineEntryWS\" /><End Role=\"Unit_of_Measure_Code_Link\" Enti" +
+                "tySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"CRTIMS" +
+                "_PostedTransferEntry_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Associa" +
+                "tion=\"NAV.CRTIMS_PostedTransferEntry_Unit_of_Measure_Code_Link\"><End Role=\"CRTIM" +
+                "S_PostedTransferEntry\" EntitySet=\"CRTIMS_PostedTransferEntry\" /><End Role=\"Unit_" +
+                "of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><A" +
+                "ssociationSet Name=\"CRTIMS_PostedTransferEntry_Transfer_from_Code_Link_Location\"" +
+                " Association=\"NAV.CRTIMS_PostedTransferEntry_Transfer_from_Code_Link\"><End Role=" +
+                "\"CRTIMS_PostedTransferEntry\" EntitySet=\"CRTIMS_PostedTransferEntry\" /><End Role=" +
+                "\"Transfer_from_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSe" +
+                "t Name=\"CRTIMS_PostedTransferEntry_Transfer_to_Code_Link_Location\" Association=\"" +
+                "NAV.CRTIMS_PostedTransferEntry_Transfer_to_Code_Link\"><End Role=\"CRTIMS_PostedTr" +
+                "ansferEntry\" EntitySet=\"CRTIMS_PostedTransferEntry\" /><End Role=\"Transfer_to_Cod" +
+                "e_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_Tra" +
+                "nsferEntry_Transfer_from_Code_Link_Location\" Association=\"NAV.CRTIMS_TransferEnt" +
+                "ry_Transfer_from_Code_Link\"><End Role=\"CRTIMS_TransferEntry\" EntitySet=\"CRTIMS_T" +
+                "ransferEntry\" /><End Role=\"Transfer_from_Code_Link\" EntitySet=\"Location\" /></Ass" +
+                "ociationSet><AssociationSet Name=\"CRTIMS_TransferEntry_Transfer_to_Code_Link_Loc" +
+                "ation\" Association=\"NAV.CRTIMS_TransferEntry_Transfer_to_Code_Link\"><End Role=\"C" +
+                "RTIMS_TransferEntry\" EntitySet=\"CRTIMS_TransferEntry\" /><End Role=\"Transfer_to_C" +
+                "ode_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_T" +
+                "ransferEntry_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NA" +
+                "V.CRTIMS_TransferEntry_Unit_of_Measure_Code_Link\"><End Role=\"CRTIMS_TransferEntr" +
+                "y\" EntitySet=\"CRTIMS_TransferEntry\" /><End Role=\"Unit_of_Measure_Code_Link\" Enti" +
+                "tySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"CRTIMS" +
+                "_TransferLines_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"" +
+                "NAV.CRTIMS_TransferLines_Unit_of_Measure_Code_Link\"><End Role=\"CRTIMS_TransferLi" +
+                "nes\" EntitySet=\"CRTIMS_TransferLines\" /><End Role=\"Unit_of_Measure_Code_Link\" En" +
+                "titySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"CRTI" +
+                "MS_TransferLines_In_Transit_Code_Link_Location\" Association=\"NAV.CRTIMS_Transfer" +
+                "Lines_In_Transit_Code_Link\"><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_T" +
+                "ransferLines\" /><End Role=\"In_Transit_Code_Link\" EntitySet=\"Location\" /></Associ" +
+                "ationSet><AssociationSet Name=\"CRTIMS_TransferLines_Transfer_from_Code_Link_Loca" +
+                "tion\" Association=\"NAV.CRTIMS_TransferLines_Transfer_from_Code_Link\"><End Role=\"" +
+                "CRTIMS_TransferLines\" EntitySet=\"CRTIMS_TransferLines\" /><End Role=\"Transfer_fro" +
+                "m_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIM" +
+                "S_TransferLines_Transfer_to_Code_Link_Location\" Association=\"NAV.CRTIMS_Transfer" +
+                "Lines_Transfer_to_Code_Link\"><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_" +
+                "TransferLines\" /><End Role=\"Transfer_to_Code_Link\" EntitySet=\"Location\" /></Asso" +
+                "ciationSet><AssociationSet Name=\"CRTIMS_TransferLines_Shipping_Agent_Code_Link_S" +
+                "hippingAgent\" Association=\"NAV.CRTIMS_TransferLines_Shipping_Agent_Code_Link\"><E" +
+                "nd Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_TransferLines\" /><End Role=\"Shi" +
+                "pping_Agent_Code_Link\" EntitySet=\"ShippingAgent\" /></AssociationSet><Association" +
+                "Set Name=\"CRTIMS_TransferLines_Shipping_Agent_Service_Code_Link_ShippingAgentSer" +
+                "vice\" Association=\"NAV.CRTIMS_TransferLines_Shipping_Agent_Service_Code_Link\"><E" +
+                "nd Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_TransferLines\" /><End Role=\"Shi" +
+                "pping_Agent_Service_Code_Link\" EntitySet=\"ShippingAgentService\" /></AssociationS" +
+                "et><AssociationSet Name=\"CRTIMS_TransferLines_Item_Category_Code_Link_ItemCatego" +
+                "ries\" Association=\"NAV.CRTIMS_TransferLines_Item_Category_Code_Link\"><End Role=\"" +
+                "CRTIMS_TransferLines\" EntitySet=\"CRTIMS_TransferLines\" /><End Role=\"Item_Categor" +
+                "y_Code_Link\" EntitySet=\"ItemCategories\" /></AssociationSet><AssociationSet Name=" +
+                "\"CRTIMS_TransferShipmentHeader_Transfer_from_Code_Link_Location\" Association=\"NA" +
+                "V.CRTIMS_TransferShipmentHeader_Transfer_from_Code_Link\"><End Role=\"CRTIMS_Trans" +
+                "ferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Transf" +
+                "er_from_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=" +
+                "\"CRTIMS_TransferShipmentHeader_Transfer_from_Post_Code_Link_Postcodes\" Associati" +
+                "on=\"NAV.CRTIMS_TransferShipmentHeader_Transfer_from_Post_Code_Link\"><End Role=\"C" +
+                "RTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End R" +
+                "ole=\"Transfer_from_Post_Code_Link\" EntitySet=\"Postcodes\" /></AssociationSet><Ass" +
+                "ociationSet Name=\"CRTIMS_TransferShipmentHeader_Transfer_from_City_Link_Postcode" +
+                "s\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Transfer_from_City_Link\"><End " +
+                "Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /" +
+                "><End Role=\"Transfer_from_City_Link\" EntitySet=\"Postcodes\" /></AssociationSet><A" +
+                "ssociationSet Name=\"CRTIMS_TransferShipmentHeader_Trsf_from_Country_Region_Code_" +
+                "Link_CountryRegion\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Trsf_from_Cou" +
+                "ntry_Region_Code_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTI" +
+                "MS_TransferShipmentHeader\" /><End Role=\"Trsf_from_Country_Region_Code_Link\" Enti" +
+                "tySet=\"CountryRegion\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferSh" +
+                "ipmentHeader_Transfer_to_Code_Link_Location\" Association=\"NAV.CRTIMS_TransferShi" +
+                "pmentHeader_Transfer_to_Code_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" Ent" +
+                "itySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Transfer_to_Code_Link\" Entit" +
+                "ySet=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipment" +
+                "Header_Transfer_to_Post_Code_Link_Postcodes\" Association=\"NAV.CRTIMS_TransferShi" +
+                "pmentHeader_Transfer_to_Post_Code_Link\"><End Role=\"CRTIMS_TransferShipmentHeader" +
+                "\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Transfer_to_Post_Code_L" +
+                "ink\" EntitySet=\"Postcodes\" /></AssociationSet><AssociationSet Name=\"CRTIMS_Trans" +
+                "ferShipmentHeader_Transfer_to_City_Link_Postcodes\" Association=\"NAV.CRTIMS_Trans" +
+                "ferShipmentHeader_Transfer_to_City_Link\"><End Role=\"CRTIMS_TransferShipmentHeade" +
+                "r\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"T";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart41 = "nts\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Shipment_Method_Code_Link\" Ent" +
-                "itySet=\"ShipmentMethod\" /></AssociationSet><AssociationSet Name=\"PostedSalesShip" +
-                "ments_Shipping_Agent_Code_Link_ShippingAgent\" Association=\"NAV.PostedSalesShipme" +
-                "nts_Shipping_Agent_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"Posted" +
-                "SalesShipments\" /><End Role=\"Shipping_Agent_Code_Link\" EntitySet=\"ShippingAgent\"" +
-                " /></AssociationSet><AssociationSet Name=\"PostedSalesShipments_Shipping_Agent_Se" +
-                "rvice_Code_Link_ShippingAgentService\" Association=\"NAV.PostedSalesShipments_Ship" +
-                "ping_Agent_Service_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"Posted" +
-                "SalesShipments\" /><End Role=\"Shipping_Agent_Service_Code_Link\" EntitySet=\"Shippi" +
-                "ngAgentService\" /></AssociationSet><AssociationSet Name=\"Process_Alternate_Work_" +
-                "Center_Link_Process\" Association=\"NAV.Process_Alternate_Work_Center_Link\"><End R" +
-                "ole=\"Process\" EntitySet=\"Process\" /><End Role=\"Alternate_Work_Center_Link\" Entit" +
-                "ySet=\"Process\" /></AssociationSet><AssociationSet Name=\"Process_Subcontractor_No" +
-                "_Link_Vendor\" Association=\"NAV.Process_Subcontractor_No_Link\"><End Role=\"Process" +
-                "\" EntitySet=\"Process\" /><End Role=\"Subcontractor_No_Link\" EntitySet=\"Vendor\" /><" +
-                "/AssociationSet><AssociationSet Name=\"ProcessItemList_Batch_Nos_Link_CRTSHF_NoSe" +
-                "riesList\" Association=\"NAV.ProcessItemList_Batch_Nos_Link\"><End Role=\"ProcessIte" +
-                "mList\" EntitySet=\"ProcessItemList\" /><End Role=\"Batch_Nos_Link\" EntitySet=\"CRTSH" +
-                "F_NoSeriesList\" /></AssociationSet><AssociationSet Name=\"ProcessItemList_Base_Un" +
-                "it_of_Measure_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ProcessItemList_Ba" +
-                "se_Unit_of_Measure_Link\"><End Role=\"ProcessItemList\" EntitySet=\"ProcessItemList\"" +
-                " /><End Role=\"Base_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" />" +
-                "</AssociationSet><AssociationSet Name=\"ProcessItemList_Item_Category_Code_Link_I" +
-                "temCategories\" Association=\"NAV.ProcessItemList_Item_Category_Code_Link\"><End Ro" +
-                "le=\"ProcessItemList\" EntitySet=\"ProcessItemList\" /><End Role=\"Item_Category_Code" +
-                "_Link\" EntitySet=\"ItemCategories\" /></AssociationSet><AssociationSet Name=\"Proce" +
-                "ssItemList_Location_Filter_Link_Location\" Association=\"NAV.ProcessItemList_Locat" +
-                "ion_Filter_Link\"><End Role=\"ProcessItemList\" EntitySet=\"ProcessItemList\" /><End " +
-                "Role=\"Location_Filter_Link\" EntitySet=\"Location\" /></AssociationSet><Association" +
-                "Set Name=\"ProdOrderComp_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV.Pro" +
-                "dOrderComp_Prod_Order_No_Link\"><End Role=\"ProdOrderComp\" EntitySet=\"ProdOrderCom" +
-                "p\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationS" +
-                "et><AssociationSet Name=\"ProdOrderComp_Prod_Order_Line_No_Link_ProdOrderLineList" +
-                "\" Association=\"NAV.ProdOrderComp_Prod_Order_Line_No_Link\"><End Role=\"ProdOrderCo" +
-                "mp\" EntitySet=\"ProdOrderComp\" /><End Role=\"Prod_Order_Line_No_Link\" EntitySet=\"P" +
-                "rodOrderLineList\" /></AssociationSet><AssociationSet Name=\"ProdOrderComp_Locatio" +
-                "n_Code_Link_Location\" Association=\"NAV.ProdOrderComp_Location_Code_Link\"><End Ro" +
-                "le=\"ProdOrderComp\" EntitySet=\"ProdOrderComp\" /><End Role=\"Location_Code_Link\" En" +
-                "titySet=\"Location\" /></AssociationSet><AssociationSet Name=\"ProdOrderComp_Unit_o" +
-                "f_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ProdOrderComp_Uni" +
-                "t_of_Measure_Code_Link\"><End Role=\"ProdOrderComp\" EntitySet=\"ProdOrderComp\" /><E" +
-                "nd Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></Ass" +
-                "ociationSet><AssociationSet Name=\"ProdOrderCompLineList_Prod_Order_No_Link_Produ" +
-                "ctionOrder\" Association=\"NAV.ProdOrderCompLineList_Prod_Order_No_Link\"><End Role" +
-                "=\"ProdOrderCompLineList\" EntitySet=\"ProdOrderCompLineList\" /><End Role=\"Prod_Ord" +
-                "er_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationSet Name=" +
-                "\"ProdOrderCompLineList_Prod_Order_Line_No_Link_ProdOrderLineList\" Association=\"N" +
-                "AV.ProdOrderCompLineList_Prod_Order_Line_No_Link\"><End Role=\"ProdOrderCompLineLi" +
-                "st\" EntitySet=\"ProdOrderCompLineList\" /><End Role=\"Prod_Order_Line_No_Link\" Enti" +
-                "tySet=\"ProdOrderLineList\" /></AssociationSet><AssociationSet Name=\"ProdOrderComp" +
-                "LineList_Location_Code_Link_Location\" Association=\"NAV.ProdOrderCompLineList_Loc" +
-                "ation_Code_Link\"><End Role=\"ProdOrderCompLineList\" EntitySet=\"ProdOrderCompLineL" +
-                "ist\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><A" +
-                "ssociationSet Name=\"ProdOrderCompLineList_Unit_of_Measure_Code_Link_CRTSHF_ItemU" +
-                "nitOfMeasure\" Association=\"NAV.ProdOrderCompLineList_Unit_of_Measure_Code_Link\">" +
-                "<End Role=\"ProdOrderCompLineList\" EntitySet=\"ProdOrderCompLineList\" /><End Role=" +
-                "\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></Association" +
-                "Set><AssociationSet Name=\"ProdOrderLineList_Prod_Order_No_Link_ProductionOrder\" " +
-                "Association=\"NAV.ProdOrderLineList_Prod_Order_No_Link\"><End Role=\"ProdOrderLineL" +
-                "ist\" EntitySet=\"ProdOrderLineList\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"P" +
-                "roductionOrder\" /></AssociationSet><AssociationSet Name=\"ProdOrderLineList_Locat" +
-                "ion_Code_Link_Location\" Association=\"NAV.ProdOrderLineList_Location_Code_Link\"><" +
-                "End Role=\"ProdOrderLineList\" EntitySet=\"ProdOrderLineList\" /><End Role=\"Location" +
-                "_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"ProdOr" +
-                "derOutputLine_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV.ProdOrderOutp" +
-                "utLine_Prod_Order_No_Link\"><End Role=\"ProdOrderOutputLine\" EntitySet=\"ProdOrderO" +
-                "utputLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></Asso" +
-                "ciationSet><AssociationSet Name=\"ProdOrderOutputLine_Unit_of_Measure_Code_Link_C" +
-                "RTSHF_ItemUnitOfMeasure\" Association=\"NAV.ProdOrderOutputLine_Unit_of_Measure_Co" +
-                "de_Link\"><End Role=\"ProdOrderOutputLine\" EntitySet=\"ProdOrderOutputLine\" /><End " +
-                "Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></Associ" +
-                "ationSet><AssociationSet Name=\"ProdPlanningLine_Prod_Order_No_Link_ProductionOrd" +
-                "er\" Association=\"NAV.ProdPlanningLine_Prod_Order_No_Link\"><End Role=\"ProdPlannin" +
-                "gLine\" EntitySet=\"ProdPlanningLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"" +
-                "ProductionOrder\" /></AssociationSet><AssociationSet Name=\"ProdPlanningLine_Unit_" +
-                "of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ProdPlanningLine" +
-                "_Unit_of_Measure_Code_Link\"><End Role=\"ProdPlanningLine\" EntitySet=\"ProdPlanning" +
-                "Line\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasur" +
-                "e\" /></AssociationSet><AssociationSet Name=\"ProductCodeList_No_Series_Link_CRTSH" +
-                "F_NoSeriesList\" Association=\"NAV.ProductCodeList_No_Series_Link\"><End Role=\"Prod" +
-                "uctCodeList\" EntitySet=\"ProductCodeList\" /><End Role=\"No_Series_Link\" EntitySet=" +
-                "\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet Name=\"ProductionEntry_P" +
-                "roduction_Order_No_Link_ProductionOrder\" Association=\"NAV.ProductionEntry_Produc" +
-                "tion_Order_No_Link\"><End Role=\"ProductionEntry\" EntitySet=\"ProductionEntry\" /><E" +
-                "nd Role=\"Production_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSe" +
-                "t><AssociationSet Name=\"ProductionEntry_Location_Code_Link_Location\" Association" +
-                "=\"NAV.ProductionEntry_Location_Code_Link\"><End Role=\"ProductionEntry\" EntitySet=" +
-                "\"ProductionEntry\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></Asso" +
-                "ciationSet><AssociationSet Name=\"ProductionEntry_Base_Unit_of_Measure_Link_CRTSH" +
-                "F_ItemUnitOfMeasure\" Association=\"NAV.ProductionEntry_Base_Unit_of_Measure_Link\"" +
-                "><End Role=\"ProductionEntry\" EntitySet=\"ProductionEntry\" /><End Role=\"Base_Unit_" +
-                "of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Associ" +
-                "ationSet Name=\"ProductionEntry_Reason_Code_Link_ReasonCodeList\" Association=\"NAV" +
-                ".ProductionEntry_Reason_Code_Link\"><End Role=\"ProductionEnt";
+            private const string ModelPart37 = "ransfer_to_City_Link\" EntitySet=\"Postcodes\" /></AssociationSet><AssociationSet Na" +
+                "me=\"CRTIMS_TransferShipmentHeader_Trsf_to_Country_Region_Code_Link_CountryRegion" +
+                "\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Trsf_to_Country_Region_Code_Lin" +
+                "k\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentH" +
+                "eader\" /><End Role=\"Trsf_to_Country_Region_Code_Link\" EntitySet=\"CountryRegion\" " +
+                "/></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_No_Series" +
+                "_Link_CRTSHF_NoSeriesList\" Association=\"NAV.CRTIMS_TransferShipmentHeader_No_Ser" +
+                "ies_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferSh" +
+                "ipmentHeader\" /><End Role=\"No_Series_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></A" +
+                "ssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_In_Transit_Cod" +
+                "e_Link_Location\" Association=\"NAV.CRTIMS_TransferShipmentHeader_In_Transit_Code_" +
+                "Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipme" +
+                "ntHeader\" /><End Role=\"In_Transit_Code_Link\" EntitySet=\"Location\" /></Associatio" +
+                "nSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_Shipping_Agent_Code_Lin" +
+                "k_ShippingAgent\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Shipping_Agent_C" +
+                "ode_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferSh" +
+                "ipmentHeader\" /><End Role=\"Shipping_Agent_Code_Link\" EntitySet=\"ShippingAgent\" /" +
+                "></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_Shipping_A" +
+                "gent_Service_Code_Link_ShippingAgentService\" Association=\"NAV.CRTIMS_TransferShi" +
+                "pmentHeader_Shipping_Agent_Service_Code_Link\"><End Role=\"CRTIMS_TransferShipment" +
+                "Header\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Shipping_Agent_Se" +
+                "rvice_Code_Link\" EntitySet=\"ShippingAgentService\" /></AssociationSet><Associatio" +
+                "nSet Name=\"CRTIMS_TransferShipmentHeader_Shipment_Method_Code_Link_ShipmentMetho" +
+                "d\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Shipment_Method_Code_Link\"><En" +
+                "d Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\"" +
+                " /><End Role=\"Shipment_Method_Code_Link\" EntitySet=\"ShipmentMethod\" /></Associat" +
+                "ionSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_Prod_Order_No_Link_Pr" +
+                "oductionOrder\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Prod_Order_No_Link" +
+                "\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHe" +
+                "ader\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></Associati" +
+                "onSet><AssociationSet Name=\"CRTIMS_TransferShipmentHeader_Created_From_Prod_Orde" +
+                "r_Link_ProductionOrder\" Association=\"NAV.CRTIMS_TransferShipmentHeader_Created_F" +
+                "rom_Prod_Order_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" EntitySet=\"CRTIMS" +
+                "_TransferShipmentHeader\" /><End Role=\"Created_From_Prod_Order_Link\" EntitySet=\"P" +
+                "roductionOrder\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipment" +
+                "Header_Prod_Replan_No_Link_ProductionOrder\" Association=\"NAV.CRTIMS_TransferShip" +
+                "mentHeader_Prod_Replan_No_Link\"><End Role=\"CRTIMS_TransferShipmentHeader\" Entity" +
+                "Set=\"CRTIMS_TransferShipmentHeader\" /><End Role=\"Prod_Replan_No_Link\" EntitySet=" +
+                "\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipme" +
+                "ntLines_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.CRT" +
+                "IMS_TransferShipmentLines_Unit_of_Measure_Code_Link\"><End Role=\"CRTIMS_TransferS" +
+                "hipmentLines\" EntitySet=\"CRTIMS_TransferShipmentLines\" /><End Role=\"Unit_of_Meas" +
+                "ure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Associat" +
+                "ionSet Name=\"CRTIMS_TransferShipmentLines_Shipping_Agent_Code_Link_ShippingAgent" +
+                "\" Association=\"NAV.CRTIMS_TransferShipmentLines_Shipping_Agent_Code_Link\"><End R" +
+                "ole=\"CRTIMS_TransferShipmentLines\" EntitySet=\"CRTIMS_TransferShipmentLines\" /><E" +
+                "nd Role=\"Shipping_Agent_Code_Link\" EntitySet=\"ShippingAgent\" /></AssociationSet>" +
+                "<AssociationSet Name=\"CRTIMS_TransferShipmentLines_Shipping_Agent_Service_Code_L" +
+                "ink_ShippingAgentService\" Association=\"NAV.CRTIMS_TransferShipmentLines_Shipping" +
+                "_Agent_Service_Code_Link\"><End Role=\"CRTIMS_TransferShipmentLines\" EntitySet=\"CR" +
+                "TIMS_TransferShipmentLines\" /><End Role=\"Shipping_Agent_Service_Code_Link\" Entit" +
+                "ySet=\"ShippingAgentService\" /></AssociationSet><AssociationSet Name=\"CRTIMS_Tran" +
+                "sferShipmentLines_In_Transit_Code_Link_Location\" Association=\"NAV.CRTIMS_Transfe" +
+                "rShipmentLines_In_Transit_Code_Link\"><End Role=\"CRTIMS_TransferShipmentLines\" En" +
+                "titySet=\"CRTIMS_TransferShipmentLines\" /><End Role=\"In_Transit_Code_Link\" Entity" +
+                "Set=\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentL" +
+                "ines_Transfer_from_Code_Link_Location\" Association=\"NAV.CRTIMS_TransferShipmentL" +
+                "ines_Transfer_from_Code_Link\"><End Role=\"CRTIMS_TransferShipmentLines\" EntitySet" +
+                "=\"CRTIMS_TransferShipmentLines\" /><End Role=\"Transfer_from_Code_Link\" EntitySet=" +
+                "\"Location\" /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentLines" +
+                "_Transfer_to_Code_Link_Location\" Association=\"NAV.CRTIMS_TransferShipmentLines_T" +
+                "ransfer_to_Code_Link\"><End Role=\"CRTIMS_TransferShipmentLines\" EntitySet=\"CRTIMS" +
+                "_TransferShipmentLines\" /><End Role=\"Transfer_to_Code_Link\" EntitySet=\"Location\"" +
+                " /></AssociationSet><AssociationSet Name=\"CRTIMS_TransferShipmentLines_Item_Cate" +
+                "gory_Code_Link_ItemCategories\" Association=\"NAV.CRTIMS_TransferShipmentLines_Ite" +
+                "m_Category_Code_Link\"><End Role=\"CRTIMS_TransferShipmentLines\" EntitySet=\"CRTIMS" +
+                "_TransferShipmentLines\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCat" +
+                "egories\" /></AssociationSet><AssociationSet Name=\"CRTSHF_BatchSize_No_Series_Cod" +
+                "e_Link_CRTSHF_NoSeriesList\" Association=\"NAV.CRTSHF_BatchSize_No_Series_Code_Lin" +
+                "k\"><End Role=\"CRTSHF_BatchSize\" EntitySet=\"CRTSHF_BatchSize\" /><End Role=\"No_Ser" +
+                "ies_Code_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSe" +
+                "t Name=\"CRTSHF_BatchSize_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Ass" +
+                "ociation=\"NAV.CRTSHF_BatchSize_Unit_of_Measure_Code_Link\"><End Role=\"CRTSHF_Batc" +
+                "hSize\" EntitySet=\"CRTSHF_BatchSize\" /><End Role=\"Unit_of_Measure_Code_Link\" Enti" +
+                "tySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"CRTSHF" +
+                "_BatchSize_Location_Code_Link_Location\" Association=\"NAV.CRTSHF_BatchSize_Locati" +
+                "on_Code_Link\"><End Role=\"CRTSHF_BatchSize\" EntitySet=\"CRTSHF_BatchSize\" /><End R" +
+                "ole=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet" +
+                " Name=\"CRTSHF_BOMTypes_CRTSHF_BOMTypesLines_CRTSHF_BOMTypesLines\" Association=\"N" +
+                "AV.CRTSHF_BOMTypes_CRTSHF_BOMTypesLines\"><End Role=\"CRTSHF_BOMTypes\" EntitySet=\"" +
+                "CRTSHF_BOMTypes\" /><End Role=\"CRTSHF_BOMTypesLines\" EntitySet=\"CRTSHF_BOMTypesLi" +
+                "nes\" /></AssociationSet><AssociationSet Name=\"CRTSHF_BOMTypes_Production_Order_N" +
+                "o_Link_ProductionOrder\" Association=\"NAV.CRTSHF_BOMTypes_Production_Order_No_Lin" +
+                "k\"><End Role=\"CRTSHF_BOMTypes\" EntitySet=\"CRTSHF_BOMTypes\" /><End Role=\"Producti" +
+                "on_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationSet" +
+                " Name=\"CRTSHF_BOMTypesLines_Unit_Of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" " +
+                "Association=\"NAV.CRTSHF_BOMTypesLines_Unit_Of_Measure_Code_Link\"><End Role=\"CRTS" +
+                "HF_BOMTypesLines\" EntitySet=\"CRTSHF_BOMTypesLines\" /><End Role=\"Unit_Of_Measure_" +
+                "Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationS" +
+                "et Name=\"CRTSHF_ItemUnitOfMeasure_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"" +
+                "NAV.CRTSHF_ItemUnitOfMeasure_Code_Link\"><End Role=\"CRTSHF_ItemUnitOfMeasure\" Ent" +
+                "itySet=\"CRTSHF_ItemUnitOfMeasure\" /><End Role=\"Code_Link\" EntitySet=\"CRTSHF_Unit" +
+                "OfMeasures\" /></AssociationSet><AssociationSet Name=\"CRTSHF_ItemUnitOfMeasure_It" +
+                "emUnitOfMeasure_Link_CRTSHF_UnitOfMeasures\" Association=\"NA";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart42 = "ry\" EntitySet=\"ProductionEntry\" /><End Role=\"Reason_Code_Link\" EntitySet=\"ReasonC" +
-                "odeList\" /></AssociationSet><AssociationSet Name=\"ProductionOrder_No_Link_Produc" +
-                "tionOrder\" Association=\"NAV.ProductionOrder_No_Link\"><End Role=\"ProductionOrder\"" +
-                " EntitySet=\"ProductionOrder\" /><End Role=\"No_Link\" EntitySet=\"ProductionOrder\" /" +
-                "></AssociationSet><AssociationSet Name=\"ProductionOrder_Location_Code_Link_Locat" +
-                "ion\" Association=\"NAV.ProductionOrder_Location_Code_Link\"><End Role=\"ProductionO" +
-                "rder\" EntitySet=\"ProductionOrder\" /><End Role=\"Location_Code_Link\" EntitySet=\"Lo" +
-                "cation\" /></AssociationSet><AssociationSet Name=\"ProductionOrderList_No_Link_Pro" +
-                "ductionOrder\" Association=\"NAV.ProductionOrderList_No_Link\"><End Role=\"Productio" +
-                "nOrderList\" EntitySet=\"ProductionOrderList\" /><End Role=\"No_Link\" EntitySet=\"Pro" +
-                "ductionOrder\" /></AssociationSet><AssociationSet Name=\"ProductionOrderList_Locat" +
-                "ion_Code_Link_Location\" Association=\"NAV.ProductionOrderList_Location_Code_Link\"" +
-                "><End Role=\"ProductionOrderList\" EntitySet=\"ProductionOrderList\" /><End Role=\"Lo" +
-                "cation_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"" +
-                "ProductionRecipe_No_Series_Link_CRTSHF_NoSeriesList\" Association=\"NAV.Production" +
-                "Recipe_No_Series_Link\"><End Role=\"ProductionRecipe\" EntitySet=\"ProductionRecipe\"" +
-                " /><End Role=\"No_Series_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet" +
-                "><AssociationSet Name=\"ProductionRecipe_Machine_Center_Code_Link_MachineCenterLi" +
-                "st\" Association=\"NAV.ProductionRecipe_Machine_Center_Code_Link\"><End Role=\"Produ" +
-                "ctionRecipe\" EntitySet=\"ProductionRecipe\" /><End Role=\"Machine_Center_Code_Link\"" +
-                " EntitySet=\"MachineCenterList\" /></AssociationSet><AssociationSet Name=\"Producti" +
-                "onRecipeWS_No_Series_Link_CRTSHF_NoSeriesList\" Association=\"NAV.ProductionRecipe" +
-                "WS_No_Series_Link\"><End Role=\"ProductionRecipeWS\" EntitySet=\"ProductionRecipeWS\"" +
-                " /><End Role=\"No_Series_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet" +
-                "><AssociationSet Name=\"ProductionRecipeWS_Machine_Center_Code_Link_MachineCenter" +
-                "List\" Association=\"NAV.ProductionRecipeWS_Machine_Center_Code_Link\"><End Role=\"P" +
-                "roductionRecipeWS\" EntitySet=\"ProductionRecipeWS\" /><End Role=\"Machine_Center_Co" +
-                "de_Link\" EntitySet=\"MachineCenterList\" /></AssociationSet><AssociationSet Name=\"" +
-                "PurchaseLines_Buy_from_Vendor_No_Link_Vendor\" Association=\"NAV.PurchaseLines_Buy" +
-                "_from_Vendor_No_Link\"><End Role=\"PurchaseLines\" EntitySet=\"PurchaseLines\" /><End" +
-                " Role=\"Buy_from_Vendor_No_Link\" EntitySet=\"Vendor\" /></AssociationSet><Associati" +
-                "onSet Name=\"PurchaseLines_Location_Code_Link_Location\" Association=\"NAV.Purchase" +
-                "Lines_Location_Code_Link\"><End Role=\"PurchaseLines\" EntitySet=\"PurchaseLines\" />" +
-                "<End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><Associat" +
-                "ionSet Name=\"PurchaseLines_Currency_Code_Link_CurrencyCodes\" Association=\"NAV.Pu" +
-                "rchaseLines_Currency_Code_Link\"><End Role=\"PurchaseLines\" EntitySet=\"PurchaseLin" +
-                "es\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSe" +
-                "t><AssociationSet Name=\"RawMatItemList_Batch_Nos_Link_CRTSHF_NoSeriesList\" Assoc" +
-                "iation=\"NAV.RawMatItemList_Batch_Nos_Link\"><End Role=\"RawMatItemList\" EntitySet=" +
-                "\"RawMatItemList\" /><End Role=\"Batch_Nos_Link\" EntitySet=\"CRTSHF_NoSeriesList\" />" +
-                "</AssociationSet><AssociationSet Name=\"RawMatItemList_Base_Unit_of_Measure_Link_" +
-                "CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.RawMatItemList_Base_Unit_of_Measure_L" +
-                "ink\"><End Role=\"RawMatItemList\" EntitySet=\"RawMatItemList\" /><End Role=\"Base_Uni" +
-                "t_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Asso" +
-                "ciationSet Name=\"RawMatItemList_Item_Category_Code_Link_ItemCategories\" Associat" +
-                "ion=\"NAV.RawMatItemList_Item_Category_Code_Link\"><End Role=\"RawMatItemList\" Enti" +
-                "tySet=\"RawMatItemList\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCate" +
-                "gories\" /></AssociationSet><AssociationSet Name=\"RawMatItemList_Location_Filter_" +
-                "Link_Location\" Association=\"NAV.RawMatItemList_Location_Filter_Link\"><End Role=\"" +
-                "RawMatItemList\" EntitySet=\"RawMatItemList\" /><End Role=\"Location_Filter_Link\" En" +
-                "titySet=\"Location\" /></AssociationSet><AssociationSet Name=\"RegistrationDetailsL" +
-                "ine_Country_Code_Link_CountryRegion\" Association=\"NAV.RegistrationDetailsLine_Co" +
-                "untry_Code_Link\"><End Role=\"RegistrationDetailsLine\" EntitySet=\"RegistrationDeta" +
-                "ilsLine\" /><End Role=\"Country_Code_Link\" EntitySet=\"CountryRegion\" /></Associati" +
-                "onSet><AssociationSet Name=\"RegistrationDetailsLine_Unit_Of_Measure_Code_Link_CR" +
-                "TSHF_UnitOfMeasures\" Association=\"NAV.RegistrationDetailsLine_Unit_Of_Measure_Co" +
-                "de_Link\"><End Role=\"RegistrationDetailsLine\" EntitySet=\"RegistrationDetailsLine\"" +
-                " /><End Role=\"Unit_Of_Measure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></A" +
-                "ssociationSet><AssociationSet Name=\"SalesLineNotClosed_Sell_to_Customer_No_Link_" +
-                "Customer\" Association=\"NAV.SalesLineNotClosed_Sell_to_Customer_No_Link\"><End Rol" +
-                "e=\"SalesLineNotClosed\" EntitySet=\"SalesLineNotClosed\" /><End Role=\"Sell_to_Custo" +
-                "mer_No_Link\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Name=\"Sales" +
-                "LineNotClosed_Item_Category_Code_Link_ItemCategories\" Association=\"NAV.SalesLine" +
-                "NotClosed_Item_Category_Code_Link\"><End Role=\"SalesLineNotClosed\" EntitySet=\"Sal" +
-                "esLineNotClosed\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories" +
-                "\" /></AssociationSet><AssociationSet Name=\"SalesLineNotClosed_Location_Code_Link" +
-                "_Location\" Association=\"NAV.SalesLineNotClosed_Location_Code_Link\"><End Role=\"Sa" +
-                "lesLineNotClosed\" EntitySet=\"SalesLineNotClosed\" /><End Role=\"Location_Code_Link" +
-                "\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"SalesLineNotClos" +
-                "ed_Currency_Code_Link_CurrencyCodes\" Association=\"NAV.SalesLineNotClosed_Currenc" +
-                "y_Code_Link\"><End Role=\"SalesLineNotClosed\" EntitySet=\"SalesLineNotClosed\" /><En" +
-                "d Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><Associ" +
-                "ationSet Name=\"SalesLines_Sell_to_Customer_No_Link_Customer\" Association=\"NAV.Sa" +
-                "lesLines_Sell_to_Customer_No_Link\"><End Role=\"SalesLines\" EntitySet=\"SalesLines\"" +
-                " /><End Role=\"Sell_to_Customer_No_Link\" EntitySet=\"Customer\" /></AssociationSet>" +
-                "<AssociationSet Name=\"SalesLines_Location_Code_Link_Location\" Association=\"NAV.S" +
-                "alesLines_Location_Code_Link\"><End Role=\"SalesLines\" EntitySet=\"SalesLines\" /><E" +
-                "nd Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><Associatio" +
-                "nSet Name=\"SalesOrderLineKIV_Sell_to_Customer_No_Link_Customer\" Association=\"NAV" +
-                ".SalesOrderLineKIV_Sell_to_Customer_No_Link\"><End Role=\"SalesOrderLineKIV\" Entit" +
-                "ySet=\"SalesOrderLineKIV\" /><End Role=\"Sell_to_Customer_No_Link\" EntitySet=\"Custo" +
-                "mer\" /></AssociationSet><AssociationSet Name=\"SalesOrderLineKIV_Item_Category_Co" +
-                "de_Link_ItemCategories\" Association=\"NAV.SalesOrderLineKIV_Item_Category_Code_Li" +
-                "nk\"><End Role=\"SalesOrderLineKIV\" EntitySet=\"SalesOrderLineKIV\" /><End Role=\"Ite" +
-                "m_Category_Code_Link\" EntitySet=\"ItemCategories\" /></AssociationSet><Association" +
-                "Set Name=\"SalesOrderLineKIV_Location_Code_Link_Location\" Association=\"NAV.SalesO" +
-                "rderLineKIV_Location_Code_Link\"><End Role=\"SalesOrderLineKIV\" EntitySet=\"SalesOr" +
-                "derLineKIV\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></Associatio" +
-                "nSet><AssociationSet Name=\"SalesPrices_Currency_Code_Link_CurrencyCodes\" Associa" +
-                "tion=\"NAV.SalesPrices_Currency_Code_Link\"><End Role=\"SalesPrices\" EntitySet=\"Sal" +
-                "esPrices\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></Associa" +
-                "tionSet><AssociationSet Name=\"SalesPrices_Unit_of_Measure_Code_Link_CRTSHF_ItemU" +
-                "nitOfMeasure\" Association=\"NAV.SalesPrices_Unit_of_Measure_Code_Link\"><End Role=" +
-                "\"SalesPrices\" EntitySet=\"SalesPrices\" /><End Role=\"Unit_of_";
+            private const string ModelPart38 = "V.CRTSHF_ItemUnitOfMeasure_ItemUnitOfMeasure_Link\"><End Role=\"CRTSHF_ItemUnitOfMe" +
+                "asure\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /><End Role=\"ItemUnitOfMeasure_Link\"" +
+                " EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"CRTS" +
+                "HF_PackSize_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV" +
+                ".CRTSHF_PackSize_Unit_of_Measure_Code_Link\"><End Role=\"CRTSHF_PackSize\" EntitySe" +
+                "t=\"CRTSHF_PackSize\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_It" +
+                "emUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"CRTSHF_ProdBOMLines_Un" +
+                "it_UOM_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.CRTSHF_ProdBOMLines_Unit_UOM" +
+                "_Link\"><End Role=\"CRTSHF_ProdBOMLines\" EntitySet=\"CRTSHF_ProdBOMLines\" /><End Ro" +
+                "le=\"Unit_UOM_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><Associa" +
+                "tionSet Name=\"CRTSHF_ProdBOMLines_Per_Unit_TW_Wt_UOM_Link_CRTSHF_UnitOfMeasures\"" +
+                " Association=\"NAV.CRTSHF_ProdBOMLines_Per_Unit_TW_Wt_UOM_Link\"><End Role=\"CRTSHF" +
+                "_ProdBOMLines\" EntitySet=\"CRTSHF_ProdBOMLines\" /><End Role=\"Per_Unit_TW_Wt_UOM_L" +
+                "ink\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"" +
+                "CRTSHF_ProdBOMLines_Unit_of_Measure_Code_Header_Link_CRTSHF_UnitOfMeasures\" Asso" +
+                "ciation=\"NAV.CRTSHF_ProdBOMLines_Unit_of_Measure_Code_Header_Link\"><End Role=\"CR" +
+                "TSHF_ProdBOMLines\" EntitySet=\"CRTSHF_ProdBOMLines\" /><End Role=\"Unit_of_Measure_" +
+                "Code_Header_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><Associat" +
+                "ionSet Name=\"CRTSHF_ProductionBOMList_Production_Order_No_Link_ProductionOrder\" " +
+                "Association=\"NAV.CRTSHF_ProductionBOMList_Production_Order_No_Link\"><End Role=\"C" +
+                "RTSHF_ProductionBOMList\" EntitySet=\"CRTSHF_ProductionBOMList\" /><End Role=\"Produ" +
+                "ction_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><Association" +
+                "Set Name=\"CRTSHF_ProductionBOMVersion_Unit_of_Measure_Code_Link_CRTSHF_UnitOfMea" +
+                "sures\" Association=\"NAV.CRTSHF_ProductionBOMVersion_Unit_of_Measure_Code_Link\"><" +
+                "End Role=\"CRTSHF_ProductionBOMVersion\" EntitySet=\"CRTSHF_ProductionBOMVersion\" /" +
+                "><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></Ass" +
+                "ociationSet><AssociationSet Name=\"CRTSHF_ProductionBOMVersion_No_Series_Link_CRT" +
+                "SHF_NoSeriesList\" Association=\"NAV.CRTSHF_ProductionBOMVersion_No_Series_Link\"><" +
+                "End Role=\"CRTSHF_ProductionBOMVersion\" EntitySet=\"CRTSHF_ProductionBOMVersion\" /" +
+                "><End Role=\"No_Series_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><" +
+                "AssociationSet Name=\"CRTSHF_ProductionBOMVersion_Scrap_Unit_of_Measure_Link_CRTS" +
+                "HF_UnitOfMeasures\" Association=\"NAV.CRTSHF_ProductionBOMVersion_Scrap_Unit_of_Me" +
+                "asure_Link\"><End Role=\"CRTSHF_ProductionBOMVersion\" EntitySet=\"CRTSHF_Production" +
+                "BOMVersion\" /><End Role=\"Scrap_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_UnitOfMea" +
+                "sures\" /></AssociationSet><AssociationSet Name=\"CRTSHF_ScrapItemJnlLine_Prod_Ord" +
+                "er_No_Link_ProductionOrder\" Association=\"NAV.CRTSHF_ScrapItemJnlLine_Prod_Order_" +
+                "No_Link\"><End Role=\"CRTSHF_ScrapItemJnlLine\" EntitySet=\"CRTSHF_ScrapItemJnlLine\"" +
+                " /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet" +
+                "><AssociationSet Name=\"CRTSHF_ScrapItemJnlLine_Scrap_Unit_of_Measure_Code_Link_C" +
+                "RTSHF_UnitOfMeasures\" Association=\"NAV.CRTSHF_ScrapItemJnlLine_Scrap_Unit_of_Mea" +
+                "sure_Code_Link\"><End Role=\"CRTSHF_ScrapItemJnlLine\" EntitySet=\"CRTSHF_ScrapItemJ" +
+                "nlLine\" /><End Role=\"Scrap_Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMe" +
+                "asures\" /></AssociationSet><AssociationSet Name=\"CRTSHF_ScrapItemJnlLine_Unit_of" +
+                "_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.CRTSHF_ScrapItemJnlLi" +
+                "ne_Unit_of_Measure_Code_Link\"><End Role=\"CRTSHF_ScrapItemJnlLine\" EntitySet=\"CRT" +
+                "SHF_ScrapItemJnlLine\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_" +
+                "UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"Customer_Location_Code_" +
+                "Link_Location\" Association=\"NAV.Customer_Location_Code_Link\"><End Role=\"Customer" +
+                "\" EntitySet=\"Customer\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /><" +
+                "/AssociationSet><AssociationSet Name=\"Customer_City_Link_Postcodes\" Association=" +
+                "\"NAV.Customer_City_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"" +
+                "City_Link\" EntitySet=\"Postcodes\" /></AssociationSet><AssociationSet Name=\"Custom" +
+                "er_Post_Code_Link_Postcodes\" Association=\"NAV.Customer_Post_Code_Link\"><End Role" +
+                "=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Post_Code_Link\" EntitySet=\"Postcod" +
+                "es\" /></AssociationSet><AssociationSet Name=\"Customer_Country_Region_Code_Link_C" +
+                "ountryRegion\" Association=\"NAV.Customer_Country_Region_Code_Link\"><End Role=\"Cus" +
+                "tomer\" EntitySet=\"Customer\" /><End Role=\"Country_Region_Code_Link\" EntitySet=\"Co" +
+                "untryRegion\" /></AssociationSet><AssociationSet Name=\"Customer_Currency_Code_Lin" +
+                "k_CurrencyCodes\" Association=\"NAV.Customer_Currency_Code_Link\"><End Role=\"Custom" +
+                "er\" EntitySet=\"Customer\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCod" +
+                "es\" /></AssociationSet><AssociationSet Name=\"Customer_Customer_Posting_Group_Lin" +
+                "k_CustomerPostingGroup\" Association=\"NAV.Customer_Customer_Posting_Group_Link\"><" +
+                "End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Customer_Posting_Group_Lin" +
+                "k\" EntitySet=\"CustomerPostingGroup\" /></AssociationSet><AssociationSet Name=\"Cus" +
+                "tomer_Gen_Bus_Posting_Group_Link_GenBussPostingGroup\" Association=\"NAV.Customer_" +
+                "Gen_Bus_Posting_Group_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Rol" +
+                "e=\"Gen_Bus_Posting_Group_Link\" EntitySet=\"GenBussPostingGroup\" /></AssociationSe" +
+                "t><AssociationSet Name=\"Customer_VAT_Bus_Posting_Group_Link_GSTBusPostingGroup\" " +
+                "Association=\"NAV.Customer_VAT_Bus_Posting_Group_Link\"><End Role=\"Customer\" Entit" +
+                "ySet=\"Customer\" /><End Role=\"VAT_Bus_Posting_Group_Link\" EntitySet=\"GSTBusPostin" +
+                "gGroup\" /></AssociationSet><AssociationSet Name=\"Customer_Payment_Terms_Code_Lin" +
+                "k_PaymentTerms\" Association=\"NAV.Customer_Payment_Terms_Code_Link\"><End Role=\"Cu" +
+                "stomer\" EntitySet=\"Customer\" /><End Role=\"Payment_Terms_Code_Link\" EntitySet=\"Pa" +
+                "ymentTerms\" /></AssociationSet><AssociationSet Name=\"Customer_Payment_Method_Cod" +
+                "e_Link_PaymentMethod\" Association=\"NAV.Customer_Payment_Method_Code_Link\"><End R" +
+                "ole=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Payment_Method_Code_Link\" Entit" +
+                "ySet=\"PaymentMethod\" /></AssociationSet><AssociationSet Name=\"Customer_Shipment_" +
+                "Method_Code_Link_ShipmentMethod\" Association=\"NAV.Customer_Shipment_Method_Code_" +
+                "Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Shipment_Method_Cod" +
+                "e_Link\" EntitySet=\"ShipmentMethod\" /></AssociationSet><AssociationSet Name=\"Cust" +
+                "omer_Shipping_Agent_Code_Link_ShippingAgent\" Association=\"NAV.Customer_Shipping_" +
+                "Agent_Code_Link\"><End Role=\"Customer\" EntitySet=\"Customer\" /><End Role=\"Shipping" +
+                "_Agent_Code_Link\" EntitySet=\"ShippingAgent\" /></AssociationSet><AssociationSet N" +
+                "ame=\"FinishedProdOrderLine_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV." +
+                "FinishedProdOrderLine_Prod_Order_No_Link\"><End Role=\"FinishedProdOrderLine\" Enti" +
+                "tySet=\"FinishedProdOrderLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"Produc" +
+                "tionOrder\" /></AssociationSet><AssociationSet Name=\"FP_ItemList_Batch_Nos_Link_C" +
+                "RTSHF_NoSeriesList\" Association=\"NAV.FP_ItemList_Batch_Nos_Link\"><End Role=\"FP_I" +
+                "temList\" EntitySet=\"FP_ItemList\" /><End Role=\"Batch_Nos_Link\" EntitySet=\"CRTSHF_" +
+                "NoSeriesList\" /></AssociationSet><AssociationSet Name=\"FP_ItemList_Base_Unit_of_" +
+                "Measure_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.FP_ItemList_Base_Unit_of" +
+                "_Measure_Link\"><End Role=\"FP_ItemList\" EntitySet=\"FP_ItemList\" /><End Role=\"Base" +
+                "_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><" +
+                "AssociationSet Name=\"FP_ItemList_Item_Category_Code_Link_It";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart43 = "Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Assoc" +
-                "iationSet Name=\"SalesPrices_Source_Name_Link_Customer\" Association=\"NAV.SalesPri" +
-                "ces_Source_Name_Link\"><End Role=\"SalesPrices\" EntitySet=\"SalesPrices\" /><End Rol" +
-                "e=\"Source_Name_Link\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Nam" +
-                "e=\"SalesPrices_Item_Category_Code_Link_ItemCategories\" Association=\"NAV.SalesPri" +
-                "ces_Item_Category_Code_Link\"><End Role=\"SalesPrices\" EntitySet=\"SalesPrices\" /><" +
-                "End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories\" /></AssociationSet" +
-                "><AssociationSet Name=\"SalesPrices_Tender_No_Link_SalesForecastList\" Association" +
-                "=\"NAV.SalesPrices_Tender_No_Link\"><End Role=\"SalesPrices\" EntitySet=\"SalesPrices" +
-                "\" /><End Role=\"Tender_No_Link\" EntitySet=\"SalesForecastList\" /></AssociationSet>" +
-                "<AssociationSet Name=\"ShippingAgentService_Shipping_Agent_Code_Link_ShippingAgen" +
-                "t\" Association=\"NAV.ShippingAgentService_Shipping_Agent_Code_Link\"><End Role=\"Sh" +
-                "ippingAgentService\" EntitySet=\"ShippingAgentService\" /><End Role=\"Shipping_Agent" +
-                "_Code_Link\" EntitySet=\"ShippingAgent\" /></AssociationSet><AssociationSet Name=\"S" +
-                "tockAdjustmentOdata_Customer_No_Link_Customer\" Association=\"NAV.StockAdjustmentO" +
-                "data_Customer_No_Link\"><End Role=\"StockAdjustmentOdata\" EntitySet=\"StockAdjustme" +
-                "ntOdata\" /><End Role=\"Customer_No_Link\" EntitySet=\"Customer\" /></AssociationSet>" +
-                "<AssociationSet Name=\"StockAdjustmentOdata_Vendor_No_Link_Vendor\" Association=\"N" +
-                "AV.StockAdjustmentOdata_Vendor_No_Link\"><End Role=\"StockAdjustmentOdata\" EntityS" +
-                "et=\"StockAdjustmentOdata\" /><End Role=\"Vendor_No_Link\" EntitySet=\"Vendor\" /></As" +
-                "sociationSet><AssociationSet Name=\"StockAdjustmentOdata_Currency_Code_Link_Curre" +
-                "ncyCodes\" Association=\"NAV.StockAdjustmentOdata_Currency_Code_Link\"><End Role=\"S" +
-                "tockAdjustmentOdata\" EntitySet=\"StockAdjustmentOdata\" /><End Role=\"Currency_Code" +
-                "_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><AssociationSet Name=\"StockA" +
-                "djustmentOdata_Location_Code_Link_Location\" Association=\"NAV.StockAdjustmentOdat" +
-                "a_Location_Code_Link\"><End Role=\"StockAdjustmentOdata\" EntitySet=\"StockAdjustmen" +
-                "tOdata\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet" +
-                "><AssociationSet Name=\"StockAdjustmentOdata_Unit_of_Measure_Code_Link_CRTSHF_Uni" +
-                "tOfMeasures\" Association=\"NAV.StockAdjustmentOdata_Unit_of_Measure_Code_Link\"><E" +
-                "nd Role=\"StockAdjustmentOdata\" EntitySet=\"StockAdjustmentOdata\" /><End Role=\"Uni" +
-                "t_of_Measure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><As" +
-                "sociationSet Name=\"StockAdjustmentOdata_Reason_Code_Link_ReasonCodeList\" Associa" +
-                "tion=\"NAV.StockAdjustmentOdata_Reason_Code_Link\"><End Role=\"StockAdjustmentOdata" +
-                "\" EntitySet=\"StockAdjustmentOdata\" /><End Role=\"Reason_Code_Link\" EntitySet=\"Rea" +
-                "sonCodeList\" /></AssociationSet><AssociationSet Name=\"StockAdjustmentOdata_Sampl" +
-                "e_Quantity_Link_Location\" Association=\"NAV.StockAdjustmentOdata_Sample_Quantity_" +
+            private const string ModelPart39 = "emCategories\" Association=\"NAV.FP_ItemList_Item_Category_Code_Link\"><End Role=\"FP" +
+                "_ItemList\" EntitySet=\"FP_ItemList\" /><End Role=\"Item_Category_Code_Link\" EntityS" +
+                "et=\"ItemCategories\" /></AssociationSet><AssociationSet Name=\"FP_ItemList_Locatio" +
+                "n_Filter_Link_Location\" Association=\"NAV.FP_ItemList_Location_Filter_Link\"><End " +
+                "Role=\"FP_ItemList\" EntitySet=\"FP_ItemList\" /><End Role=\"Location_Filter_Link\" En" +
+                "titySet=\"Location\" /></AssociationSet><AssociationSet Name=\"GenBussPostingGroup_" +
+                "Def_VAT_Bus_Posting_Group_Link_GSTBusPostingGroup\" Association=\"NAV.GenBussPosti" +
+                "ngGroup_Def_VAT_Bus_Posting_Group_Link\"><End Role=\"GenBussPostingGroup\" EntitySe" +
+                "t=\"GenBussPostingGroup\" /><End Role=\"Def_VAT_Bus_Posting_Group_Link\" EntitySet=\"" +
+                "GSTBusPostingGroup\" /></AssociationSet><AssociationSet Name=\"GroupPlanning_Produ" +
+                "ct_Group_Code_Link_ProductCodeList\" Association=\"NAV.GroupPlanning_Product_Group" +
+                "_Code_Link\"><End Role=\"GroupPlanning\" EntitySet=\"GroupPlanning\" /><End Role=\"Pro" +
+                "duct_Group_Code_Link\" EntitySet=\"ProductCodeList\" /></AssociationSet><Associatio" +
+                "nSet Name=\"GroupPlanning_Unit_Of_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Associ" +
+                "ation=\"NAV.GroupPlanning_Unit_Of_Measure_Code_Link\"><End Role=\"GroupPlanning\" En" +
+                "titySet=\"GroupPlanning\" /><End Role=\"Unit_Of_Measure_Code_Link\" EntitySet=\"CRTSH" +
+                "F_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"GroupPlanningSplit_Pr" +
+                "oduct_Group_Code_Link_ProductCodeList\" Association=\"NAV.GroupPlanningSplit_Produ" +
+                "ct_Group_Code_Link\"><End Role=\"GroupPlanningSplit\" EntitySet=\"GroupPlanningSplit" +
+                "\" /><End Role=\"Product_Group_Code_Link\" EntitySet=\"ProductCodeList\" /></Associat" +
+                "ionSet><AssociationSet Name=\"GroupPlanningSplit_Unit_Of_Measure_Code_Link_CRTSHF" +
+                "_ItemUnitOfMeasure\" Association=\"NAV.GroupPlanningSplit_Unit_Of_Measure_Code_Lin" +
+                "k\"><End Role=\"GroupPlanningSplit\" EntitySet=\"GroupPlanningSplit\" /><End Role=\"Un" +
+                "it_Of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet" +
+                "><AssociationSet Name=\"ItemBatchInfo_Prod_Order_No_Link_ProductionOrder\" Associa" +
+                "tion=\"NAV.ItemBatchInfo_Prod_Order_No_Link\"><End Role=\"ItemBatchInfo\" EntitySet=" +
+                "\"ItemBatchInfo\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /><" +
+                "/AssociationSet><AssociationSet Name=\"ItemBatchInfo_Location_Code_Link_Location\"" +
+                " Association=\"NAV.ItemBatchInfo_Location_Code_Link\"><End Role=\"ItemBatchInfo\" En" +
+                "titySet=\"ItemBatchInfo\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" />" +
+                "</AssociationSet><AssociationSet Name=\"ItemJournalLines_Location_Code_Link_Locat" +
+                "ion\" Association=\"NAV.ItemJournalLines_Location_Code_Link\"><End Role=\"ItemJourna" +
+                "lLines\" EntitySet=\"ItemJournalLines\" /><End Role=\"Location_Code_Link\" EntitySet=" +
+                "\"Location\" /></AssociationSet><AssociationSet Name=\"ItemJournalLines_Gen_Bus_Pos" +
+                "ting_Group_Link_GenBussPostingGroup\" Association=\"NAV.ItemJournalLines_Gen_Bus_P" +
+                "osting_Group_Link\"><End Role=\"ItemJournalLines\" EntitySet=\"ItemJournalLines\" /><" +
+                "End Role=\"Gen_Bus_Posting_Group_Link\" EntitySet=\"GenBussPostingGroup\" /></Associ" +
+                "ationSet><AssociationSet Name=\"ItemJournalLines_Unit_of_Measure_Code_Link_CRTSHF" +
+                "_ItemUnitOfMeasure\" Association=\"NAV.ItemJournalLines_Unit_of_Measure_Code_Link\"" +
+                "><End Role=\"ItemJournalLines\" EntitySet=\"ItemJournalLines\" /><End Role=\"Unit_of_" +
+                "Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Asso" +
+                "ciationSet Name=\"ItemLedgerEntries_Item_Category_Code_Link_ItemCategories\" Assoc" +
+                "iation=\"NAV.ItemLedgerEntries_Item_Category_Code_Link\"><End Role=\"ItemLedgerEntr" +
+                "ies\" EntitySet=\"ItemLedgerEntries\" /><End Role=\"Item_Category_Code_Link\" EntityS" +
+                "et=\"ItemCategories\" /></AssociationSet><AssociationSet Name=\"ItemLedgerEntries_L" +
+                "ocation_Code_Link_Location\" Association=\"NAV.ItemLedgerEntries_Location_Code_Lin" +
+                "k\"><End Role=\"ItemLedgerEntries\" EntitySet=\"ItemLedgerEntries\" /><End Role=\"Loca" +
+                "tion_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"It" +
+                "emLedgerEntries_Country_Region_Code_Link_CountryRegion\" Association=\"NAV.ItemLed" +
+                "gerEntries_Country_Region_Code_Link\"><End Role=\"ItemLedgerEntries\" EntitySet=\"It" +
+                "emLedgerEntries\" /><End Role=\"Country_Region_Code_Link\" EntitySet=\"CountryRegion" +
+                "\" /></AssociationSet><AssociationSet Name=\"ItemLedgerEntries_Prod_Order_Type_Lin" +
+                "k_SalesForecastList\" Association=\"NAV.ItemLedgerEntries_Prod_Order_Type_Link\"><E" +
+                "nd Role=\"ItemLedgerEntries\" EntitySet=\"ItemLedgerEntries\" /><End Role=\"Prod_Orde" +
+                "r_Type_Link\" EntitySet=\"SalesForecastList\" /></AssociationSet><AssociationSet Na" +
+                "me=\"ItemList_Batch_Nos_Link_CRTSHF_NoSeriesList\" Association=\"NAV.ItemList_Batch" +
+                "_Nos_Link\"><End Role=\"ItemList\" EntitySet=\"ItemList\" /><End Role=\"Batch_Nos_Link" +
+                "\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet Name=\"ItemL" +
+                "ist_Base_Unit_of_Measure_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ItemLis" +
+                "t_Base_Unit_of_Measure_Link\"><End Role=\"ItemList\" EntitySet=\"ItemList\" /><End Ro" +
+                "le=\"Base_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></Associat" +
+                "ionSet><AssociationSet Name=\"ItemList_Item_Category_Code_Link_ItemCategories\" As" +
+                "sociation=\"NAV.ItemList_Item_Category_Code_Link\"><End Role=\"ItemList\" EntitySet=" +
+                "\"ItemList\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories\" /></" +
+                "AssociationSet><AssociationSet Name=\"ItemList_QC_Location_Link_Location\" Associa" +
+                "tion=\"NAV.ItemList_QC_Location_Link\"><End Role=\"ItemList\" EntitySet=\"ItemList\" /" +
+                "><End Role=\"QC_Location_Link\" EntitySet=\"Location\" /></AssociationSet><Associati" +
+                "onSet Name=\"ItemList_Location_Filter_Link_Location\" Association=\"NAV.ItemList_Lo" +
+                "cation_Filter_Link\"><End Role=\"ItemList\" EntitySet=\"ItemList\" /><End Role=\"Locat" +
+                "ion_Filter_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"I" +
+                "temPicture_Customer_No_Link_Customer\" Association=\"NAV.ItemPicture_Customer_No_L" +
+                "ink\"><End Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Customer_No_Li" +
+                "nk\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Name=\"ItemPicture_Ve" +
+                "ndor_No_Link_Vendor\" Association=\"NAV.ItemPicture_Vendor_No_Link\"><End Role=\"Ite" +
+                "mPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Vendor_No_Link\" EntitySet=\"Vendor" +
+                "\" /></AssociationSet><AssociationSet Name=\"ItemPicture_Currency_Code_Link_Curren" +
+                "cyCodes\" Association=\"NAV.ItemPicture_Currency_Code_Link\"><End Role=\"ItemPicture" +
+                "\" EntitySet=\"ItemPicture\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCo" +
+                "des\" /></AssociationSet><AssociationSet Name=\"ItemPicture_Location_Code_Link_Loc" +
+                "ation\" Association=\"NAV.ItemPicture_Location_Code_Link\"><End Role=\"ItemPicture\" " +
+                "EntitySet=\"ItemPicture\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" />" +
+                "</AssociationSet><AssociationSet Name=\"ItemPicture_Unit_of_Measure_Code_Link_CRT" +
+                "SHF_UnitOfMeasures\" Association=\"NAV.ItemPicture_Unit_of_Measure_Code_Link\"><End" +
+                " Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Unit_of_Measure_Code_Li" +
+                "nk\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"I" +
+                "temPicture_Reason_Code_Link_ReasonCodeList\" Association=\"NAV.ItemPicture_Reason_" +
+                "Code_Link\"><End Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Reason_C" +
+                "ode_Link\" EntitySet=\"ReasonCodeList\" /></AssociationSet><AssociationSet Name=\"It" +
+                "emPicture_Sample_Quantity_Link_Location\" Association=\"NAV.ItemPicture_Sample_Qua" +
+                "ntity_Link\"><End Role=\"ItemPicture\" EntitySet=\"ItemPicture\" /><End Role=\"Sample_" +
+                "Quantity_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"Ite" +
+                "mUOMList_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.ItemUOMList_Code_Link" +
+                "\"><End Role=\"ItemUOMList\" EntitySet=\"ItemUOMList\" /><End Role=\"Code_Link\" Entity" +
+                "Set=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><Association";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart40 = "Set Name=\"MachineCenterList_Work_Center_No_Link_Process\" Association=\"NAV.Machine" +
+                "CenterList_Work_Center_No_Link\"><End Role=\"MachineCenterList\" EntitySet=\"Machine" +
+                "CenterList\" /><End Role=\"Work_Center_No_Link\" EntitySet=\"Process\" /></Associatio" +
+                "nSet><AssociationSet Name=\"OutputCorrectionList_Item_Ledger_Entry_No_Link_ItemLe" +
+                "dgerEntries\" Association=\"NAV.OutputCorrectionList_Item_Ledger_Entry_No_Link\"><E" +
+                "nd Role=\"OutputCorrectionList\" EntitySet=\"OutputCorrectionList\" /><End Role=\"Ite" +
+                "m_Ledger_Entry_No_Link\" EntitySet=\"ItemLedgerEntries\" /></AssociationSet><Associ" +
+                "ationSet Name=\"OutputJournal_ProdOrderNo_Link_ProductionOrder\" Association=\"NAV." +
+                "OutputJournal_ProdOrderNo_Link\"><End Role=\"OutputJournal\" EntitySet=\"OutputJourn" +
+                "al\" /><End Role=\"ProdOrderNo_Link\" EntitySet=\"ProductionOrder\" /></AssociationSe" +
+                "t><AssociationSet Name=\"OutputJournal_LocationCode_Link_Location\" Association=\"N" +
+                "AV.OutputJournal_LocationCode_Link\"><End Role=\"OutputJournal\" EntitySet=\"OutputJ" +
+                "ournal\" /><End Role=\"LocationCode_Link\" EntitySet=\"Location\" /></AssociationSet>" +
+                "<AssociationSet Name=\"OutputJournal_Unit_Of_Measure_Code_Link_CRTSHF_UnitOfMeasu" +
+                "res\" Association=\"NAV.OutputJournal_Unit_Of_Measure_Code_Link\"><End Role=\"Output" +
+                "Journal\" EntitySet=\"OutputJournal\" /><End Role=\"Unit_Of_Measure_Code_Link\" Entit" +
+                "ySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"Outstandin" +
+                "gProdOrderLine_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV.OutstandingP" +
+                "rodOrderLine_Prod_Order_No_Link\"><End Role=\"OutstandingProdOrderLine\" EntitySet=" +
+                "\"OutstandingProdOrderLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"Productio" +
+                "nOrder\" /></AssociationSet><AssociationSet Name=\"OutstandingProdOrderLine_Unit_o" +
+                "f_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.OutstandingProdOr" +
+                "derLine_Unit_of_Measure_Code_Link\"><End Role=\"OutstandingProdOrderLine\" EntitySe" +
+                "t=\"OutstandingProdOrderLine\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"" +
+                "CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"OutstandingSa" +
+                "lesOrderLine_Sell_to_Customer_No_Link_Customer\" Association=\"NAV.OutstandingSale" +
+                "sOrderLine_Sell_to_Customer_No_Link\"><End Role=\"OutstandingSalesOrderLine\" Entit" +
+                "ySet=\"OutstandingSalesOrderLine\" /><End Role=\"Sell_to_Customer_No_Link\" EntitySe" +
+                "t=\"Customer\" /></AssociationSet><AssociationSet Name=\"PackagingItemList_Base_Uni" +
+                "t_of_Measure_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.PackagingItemList_B" +
+                "ase_Unit_of_Measure_Link\"><End Role=\"PackagingItemList\" EntitySet=\"PackagingItem" +
+                "List\" /><End Role=\"Base_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasur" +
+                "e\" /></AssociationSet><AssociationSet Name=\"PackagingItemList_Item_Category_Code" +
+                "_Link_ItemCategories\" Association=\"NAV.PackagingItemList_Item_Category_Code_Link" +
+                "\"><End Role=\"PackagingItemList\" EntitySet=\"PackagingItemList\" /><End Role=\"Item_" +
+                "Category_Code_Link\" EntitySet=\"ItemCategories\" /></AssociationSet><AssociationSe" +
+                "t Name=\"PackagingItemList_Location_Filter_Link_Location\" Association=\"NAV.Packag" +
+                "ingItemList_Location_Filter_Link\"><End Role=\"PackagingItemList\" EntitySet=\"Packa" +
+                "gingItemList\" /><End Role=\"Location_Filter_Link\" EntitySet=\"Location\" /></Associ" +
+                "ationSet><AssociationSet Name=\"PaymentMethod_Direct_Debit_Pmt_Terms_Code_Link_Pa" +
+                "ymentTerms\" Association=\"NAV.PaymentMethod_Direct_Debit_Pmt_Terms_Code_Link\"><En" +
+                "d Role=\"PaymentMethod\" EntitySet=\"PaymentMethod\" /><End Role=\"Direct_Debit_Pmt_T" +
+                "erms_Code_Link\" EntitySet=\"PaymentTerms\" /></AssociationSet><AssociationSet Name" +
+                "=\"PKGQtyInProd_Location_Code_Link_Location\" Association=\"NAV.PKGQtyInProd_Locati" +
+                "on_Code_Link\"><End Role=\"PKGQtyInProd\" EntitySet=\"PKGQtyInProd\" /><End Role=\"Loc" +
+                "ation_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"P" +
+                "KGQtyInProd_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV" +
+                ".PKGQtyInProd_Unit_of_Measure_Code_Link\"><End Role=\"PKGQtyInProd\" EntitySet=\"PKG" +
+                "QtyInProd\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfM" +
+                "easure\" /></AssociationSet><AssociationSet Name=\"Postcodes_Country_Region_Code_L" +
+                "ink_CountryRegion\" Association=\"NAV.Postcodes_Country_Region_Code_Link\"><End Rol" +
+                "e=\"Postcodes\" EntitySet=\"Postcodes\" /><End Role=\"Country_Region_Code_Link\" Entit" +
+                "ySet=\"CountryRegion\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipmen" +
+                "tLines_Document_No_Link_PostedSalesShipments\" Association=\"NAV.PostedSalesShipme" +
+                "ntLines_Document_No_Link\"><End Role=\"PostedSalesShipmentLines\" EntitySet=\"Posted" +
+                "SalesShipmentLines\" /><End Role=\"Document_No_Link\" EntitySet=\"PostedSalesShipmen" +
+                "ts\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipmentLines_Sell_to_Cu" +
+                "stomer_No_Link_Customer\" Association=\"NAV.PostedSalesShipmentLines_Sell_to_Custo" +
+                "mer_No_Link\"><End Role=\"PostedSalesShipmentLines\" EntitySet=\"PostedSalesShipment" +
+                "Lines\" /><End Role=\"Sell_to_Customer_No_Link\" EntitySet=\"Customer\" /></Associati" +
+                "onSet><AssociationSet Name=\"PostedSalesShipmentLines_Location_Code_Link_Location" +
+                "\" Association=\"NAV.PostedSalesShipmentLines_Location_Code_Link\"><End Role=\"Poste" +
+                "dSalesShipmentLines\" EntitySet=\"PostedSalesShipmentLines\" /><End Role=\"Location_" +
+                "Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"PostedS" +
+                "alesShipments_Sell_to_Customer_No_Link_Customer\" Association=\"NAV.PostedSalesShi" +
+                "pments_Sell_to_Customer_No_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"Pos" +
+                "tedSalesShipments\" /><End Role=\"Sell_to_Customer_No_Link\" EntitySet=\"Customer\" /" +
+                "></AssociationSet><AssociationSet Name=\"PostedSalesShipments_Sell_to_Post_Code_L" +
+                "ink_Postcodes\" Association=\"NAV.PostedSalesShipments_Sell_to_Post_Code_Link\"><En" +
+                "d Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Sell" +
+                "_to_Post_Code_Link\" EntitySet=\"Postcodes\" /></AssociationSet><AssociationSet Nam" +
+                "e=\"PostedSalesShipments_Sell_to_Country_Region_Code_Link_CountryRegion\" Associat" +
+                "ion=\"NAV.PostedSalesShipments_Sell_to_Country_Region_Code_Link\"><End Role=\"Poste" +
+                "dSalesShipments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Sell_to_Country_R" +
+                "egion_Code_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><AssociationSet Na" +
+                "me=\"PostedSalesShipments_Bill_to_Customer_No_Link_Customer\" Association=\"NAV.Pos" +
+                "tedSalesShipments_Bill_to_Customer_No_Link\"><End Role=\"PostedSalesShipments\" Ent" +
+                "itySet=\"PostedSalesShipments\" /><End Role=\"Bill_to_Customer_No_Link\" EntitySet=\"" +
+                "Customer\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipments_Bill_to_" +
+                "Post_Code_Link_Postcodes\" Association=\"NAV.PostedSalesShipments_Bill_to_Post_Cod" +
+                "e_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" /><End" +
+                " Role=\"Bill_to_Post_Code_Link\" EntitySet=\"Postcodes\" /></AssociationSet><Associa" +
+                "tionSet Name=\"PostedSalesShipments_Bill_to_Country_Region_Code_Link_CountryRegio" +
+                "n\" Association=\"NAV.PostedSalesShipments_Bill_to_Country_Region_Code_Link\"><End " +
+                "Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Bill_t" +
+                "o_Country_Region_Code_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><Associ" +
+                "ationSet Name=\"PostedSalesShipments_Ship_to_Post_Code_Link_Postcodes\" Associatio" +
+                "n=\"NAV.PostedSalesShipments_Ship_to_Post_Code_Link\"><End Role=\"PostedSalesShipme" +
+                "nts\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Ship_to_Post_Code_Link\" Entit" +
+                "ySet=\"Postcodes\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipments_S" +
+                "hip_to_Country_Region_Code_Link_CountryRegion\" Association=\"NAV.PostedSalesShipm" +
+                "ents_Ship_to_Country_Region_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySe" +
+                "t=\"PostedSalesShipments\" /><End Role=\"Ship_to_Country_Region_Code_Link\" EntitySe" +
+                "t=\"CountryRegion\" /></AssociationSet><AssociationSet Name=\"";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart41 = "PostedSalesShipments_Currency_Code_Link_CurrencyCodes\" Association=\"NAV.PostedSal" +
+                "esShipments_Currency_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"Post" +
+                "edSalesShipments\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /><" +
+                "/AssociationSet><AssociationSet Name=\"PostedSalesShipments_Location_Code_Link_Lo" +
+                "cation\" Association=\"NAV.PostedSalesShipments_Location_Code_Link\"><End Role=\"Pos" +
+                "tedSalesShipments\" EntitySet=\"PostedSalesShipments\" /><End Role=\"Location_Code_L" +
+                "ink\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"PostedSalesSh" +
+                "ipments_Shipment_Method_Code_Link_ShipmentMethod\" Association=\"NAV.PostedSalesSh" +
+                "ipments_Shipment_Method_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"P" +
+                "ostedSalesShipments\" /><End Role=\"Shipment_Method_Code_Link\" EntitySet=\"Shipment" +
+                "Method\" /></AssociationSet><AssociationSet Name=\"PostedSalesShipments_Shipping_A" +
+                "gent_Code_Link_ShippingAgent\" Association=\"NAV.PostedSalesShipments_Shipping_Age" +
+                "nt_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" " +
+                "/><End Role=\"Shipping_Agent_Code_Link\" EntitySet=\"ShippingAgent\" /></Association" +
+                "Set><AssociationSet Name=\"PostedSalesShipments_Shipping_Agent_Service_Code_Link_" +
+                "ShippingAgentService\" Association=\"NAV.PostedSalesShipments_Shipping_Agent_Servi" +
+                "ce_Code_Link\"><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" " +
+                "/><End Role=\"Shipping_Agent_Service_Code_Link\" EntitySet=\"ShippingAgentService\" " +
+                "/></AssociationSet><AssociationSet Name=\"Process_Alternate_Work_Center_Link_Proc" +
+                "ess\" Association=\"NAV.Process_Alternate_Work_Center_Link\"><End Role=\"Process\" En" +
+                "titySet=\"Process\" /><End Role=\"Alternate_Work_Center_Link\" EntitySet=\"Process\" /" +
+                "></AssociationSet><AssociationSet Name=\"Process_Subcontractor_No_Link_Vendor\" As" +
+                "sociation=\"NAV.Process_Subcontractor_No_Link\"><End Role=\"Process\" EntitySet=\"Pro" +
+                "cess\" /><End Role=\"Subcontractor_No_Link\" EntitySet=\"Vendor\" /></AssociationSet>" +
+                "<AssociationSet Name=\"ProcessItemList_Batch_Nos_Link_CRTSHF_NoSeriesList\" Associ" +
+                "ation=\"NAV.ProcessItemList_Batch_Nos_Link\"><End Role=\"ProcessItemList\" EntitySet" +
+                "=\"ProcessItemList\" /><End Role=\"Batch_Nos_Link\" EntitySet=\"CRTSHF_NoSeriesList\" " +
+                "/></AssociationSet><AssociationSet Name=\"ProcessItemList_Base_Unit_of_Measure_Li" +
+                "nk_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ProcessItemList_Base_Unit_of_Measu" +
+                "re_Link\"><End Role=\"ProcessItemList\" EntitySet=\"ProcessItemList\" /><End Role=\"Ba" +
+                "se_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet" +
+                "><AssociationSet Name=\"ProcessItemList_Item_Category_Code_Link_ItemCategories\" A" +
+                "ssociation=\"NAV.ProcessItemList_Item_Category_Code_Link\"><End Role=\"ProcessItemL" +
+                "ist\" EntitySet=\"ProcessItemList\" /><End Role=\"Item_Category_Code_Link\" EntitySet" +
+                "=\"ItemCategories\" /></AssociationSet><AssociationSet Name=\"ProcessItemList_Locat" +
+                "ion_Filter_Link_Location\" Association=\"NAV.ProcessItemList_Location_Filter_Link\"" +
+                "><End Role=\"ProcessItemList\" EntitySet=\"ProcessItemList\" /><End Role=\"Location_F" +
+                "ilter_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"ProdOr" +
+                "derComp_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV.ProdOrderComp_Prod_" +
+                "Order_No_Link\"><End Role=\"ProdOrderComp\" EntitySet=\"ProdOrderComp\" /><End Role=\"" +
+                "Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationS" +
+                "et Name=\"ProdOrderComp_Prod_Order_Line_No_Link_ProdOrderLineList\" Association=\"N" +
+                "AV.ProdOrderComp_Prod_Order_Line_No_Link\"><End Role=\"ProdOrderComp\" EntitySet=\"P" +
+                "rodOrderComp\" /><End Role=\"Prod_Order_Line_No_Link\" EntitySet=\"ProdOrderLineList" +
+                "\" /></AssociationSet><AssociationSet Name=\"ProdOrderComp_Location_Code_Link_Loca" +
+                "tion\" Association=\"NAV.ProdOrderComp_Location_Code_Link\"><End Role=\"ProdOrderCom" +
+                "p\" EntitySet=\"ProdOrderComp\" /><End Role=\"Location_Code_Link\" EntitySet=\"Locatio" +
+                "n\" /></AssociationSet><AssociationSet Name=\"ProdOrderComp_Unit_of_Measure_Code_L" +
+                "ink_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ProdOrderComp_Unit_of_Measure_Cod" +
+                "e_Link\"><End Role=\"ProdOrderComp\" EntitySet=\"ProdOrderComp\" /><End Role=\"Unit_of" +
+                "_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Ass" +
+                "ociationSet Name=\"ProdOrderCompLineList_Prod_Order_No_Link_ProductionOrder\" Asso" +
+                "ciation=\"NAV.ProdOrderCompLineList_Prod_Order_No_Link\"><End Role=\"ProdOrderCompL" +
+                "ineList\" EntitySet=\"ProdOrderCompLineList\" /><End Role=\"Prod_Order_No_Link\" Enti" +
+                "tySet=\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"ProdOrderCompLi" +
+                "neList_Prod_Order_Line_No_Link_ProdOrderLineList\" Association=\"NAV.ProdOrderComp" +
+                "LineList_Prod_Order_Line_No_Link\"><End Role=\"ProdOrderCompLineList\" EntitySet=\"P" +
+                "rodOrderCompLineList\" /><End Role=\"Prod_Order_Line_No_Link\" EntitySet=\"ProdOrder" +
+                "LineList\" /></AssociationSet><AssociationSet Name=\"ProdOrderCompLineList_Locatio" +
+                "n_Code_Link_Location\" Association=\"NAV.ProdOrderCompLineList_Location_Code_Link\"" +
+                "><End Role=\"ProdOrderCompLineList\" EntitySet=\"ProdOrderCompLineList\" /><End Role" +
+                "=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Na" +
+                "me=\"ProdOrderCompLineList_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" As" +
+                "sociation=\"NAV.ProdOrderCompLineList_Unit_of_Measure_Code_Link\"><End Role=\"ProdO" +
+                "rderCompLineList\" EntitySet=\"ProdOrderCompLineList\" /><End Role=\"Unit_of_Measure" +
+                "_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Association" +
+                "Set Name=\"ProdOrderLineList_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV" +
+                ".ProdOrderLineList_Prod_Order_No_Link\"><End Role=\"ProdOrderLineList\" EntitySet=\"" +
+                "ProdOrderLineList\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" " +
+                "/></AssociationSet><AssociationSet Name=\"ProdOrderLineList_Location_Code_Link_Lo" +
+                "cation\" Association=\"NAV.ProdOrderLineList_Location_Code_Link\"><End Role=\"ProdOr" +
+                "derLineList\" EntitySet=\"ProdOrderLineList\" /><End Role=\"Location_Code_Link\" Enti" +
+                "tySet=\"Location\" /></AssociationSet><AssociationSet Name=\"ProdOrderOutputLine_Pr" +
+                "od_Order_No_Link_ProductionOrder\" Association=\"NAV.ProdOrderOutputLine_Prod_Orde" +
+                "r_No_Link\"><End Role=\"ProdOrderOutputLine\" EntitySet=\"ProdOrderOutputLine\" /><En" +
+                "d Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><Asso" +
+                "ciationSet Name=\"ProdOrderOutputLine_Unit_of_Measure_Code_Link_CRTSHF_ItemUnitOf" +
+                "Measure\" Association=\"NAV.ProdOrderOutputLine_Unit_of_Measure_Code_Link\"><End Ro" +
+                "le=\"ProdOrderOutputLine\" EntitySet=\"ProdOrderOutputLine\" /><End Role=\"Unit_of_Me" +
+                "asure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Associ" +
+                "ationSet Name=\"ProdPlanningLine_Prod_Order_No_Link_ProductionOrder\" Association=" +
+                "\"NAV.ProdPlanningLine_Prod_Order_No_Link\"><End Role=\"ProdPlanningLine\" EntitySet" +
+                "=\"ProdPlanningLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\"" +
+                " /></AssociationSet><AssociationSet Name=\"ProdPlanningLine_Unit_of_Measure_Code_" +
+                "Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.ProdPlanningLine_Unit_of_Measure" +
+                "_Code_Link\"><End Role=\"ProdPlanningLine\" EntitySet=\"ProdPlanningLine\" /><End Rol" +
+                "e=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></Associati" +
+                "onSet><AssociationSet Name=\"ProductCodeList_No_Series_Link_CRTSHF_NoSeriesList\" " +
+                "Association=\"NAV.ProductCodeList_No_Series_Link\"><End Role=\"ProductCodeList\" Ent" +
+                "itySet=\"ProductCodeList\" /><End Role=\"No_Series_Link\" EntitySet=\"CRTSHF_NoSeries" +
+                "List\" /></AssociationSet><AssociationSet Name=\"ProductionEntry_Production_Order_" +
+                "No_Link_ProductionOrder\" Association=\"NAV.ProductionEntry_Production_Order_No_Li" +
+                "nk\"><End Role=\"ProductionEntry\" EntitySet=\"ProductionEntry\" /><End Role=\"Product" +
+                "ion_Order_No_Link\" EntitySet=\"ProductionOrder\" /></Associat";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart42 = "ionSet><AssociationSet Name=\"ProductionEntry_Location_Code_Link_Location\" Associa" +
+                "tion=\"NAV.ProductionEntry_Location_Code_Link\"><End Role=\"ProductionEntry\" Entity" +
+                "Set=\"ProductionEntry\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></" +
+                "AssociationSet><AssociationSet Name=\"ProductionEntry_Base_Unit_of_Measure_Link_C" +
+                "RTSHF_ItemUnitOfMeasure\" Association=\"NAV.ProductionEntry_Base_Unit_of_Measure_L" +
+                "ink\"><End Role=\"ProductionEntry\" EntitySet=\"ProductionEntry\" /><End Role=\"Base_U" +
+                "nit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><As" +
+                "sociationSet Name=\"ProductionEntry_Reason_Code_Link_ReasonCodeList\" Association=" +
+                "\"NAV.ProductionEntry_Reason_Code_Link\"><End Role=\"ProductionEntry\" EntitySet=\"Pr" +
+                "oductionEntry\" /><End Role=\"Reason_Code_Link\" EntitySet=\"ReasonCodeList\" /></Ass" +
+                "ociationSet><AssociationSet Name=\"ProductionOrder_No_Link_ProductionOrder\" Assoc" +
+                "iation=\"NAV.ProductionOrder_No_Link\"><End Role=\"ProductionOrder\" EntitySet=\"Prod" +
+                "uctionOrder\" /><End Role=\"No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSe" +
+                "t><AssociationSet Name=\"ProductionOrder_Location_Code_Link_Location\" Association" +
+                "=\"NAV.ProductionOrder_Location_Code_Link\"><End Role=\"ProductionOrder\" EntitySet=" +
+                "\"ProductionOrder\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></Asso" +
+                "ciationSet><AssociationSet Name=\"ProductionOrderList_No_Link_ProductionOrder\" As" +
+                "sociation=\"NAV.ProductionOrderList_No_Link\"><End Role=\"ProductionOrderList\" Enti" +
+                "tySet=\"ProductionOrderList\" /><End Role=\"No_Link\" EntitySet=\"ProductionOrder\" />" +
+                "</AssociationSet><AssociationSet Name=\"ProductionOrderList_Location_Code_Link_Lo" +
+                "cation\" Association=\"NAV.ProductionOrderList_Location_Code_Link\"><End Role=\"Prod" +
+                "uctionOrderList\" EntitySet=\"ProductionOrderList\" /><End Role=\"Location_Code_Link" +
+                "\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"ProductionRecipe" +
+                "_No_Series_Link_CRTSHF_NoSeriesList\" Association=\"NAV.ProductionRecipe_No_Series" +
+                "_Link\"><End Role=\"ProductionRecipe\" EntitySet=\"ProductionRecipe\" /><End Role=\"No" +
+                "_Series_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet" +
+                " Name=\"ProductionRecipe_Machine_Center_Code_Link_MachineCenterList\" Association=" +
+                "\"NAV.ProductionRecipe_Machine_Center_Code_Link\"><End Role=\"ProductionRecipe\" Ent" +
+                "itySet=\"ProductionRecipe\" /><End Role=\"Machine_Center_Code_Link\" EntitySet=\"Mach" +
+                "ineCenterList\" /></AssociationSet><AssociationSet Name=\"ProductionRecipeWS_No_Se" +
+                "ries_Link_CRTSHF_NoSeriesList\" Association=\"NAV.ProductionRecipeWS_No_Series_Lin" +
+                "k\"><End Role=\"ProductionRecipeWS\" EntitySet=\"ProductionRecipeWS\" /><End Role=\"No" +
+                "_Series_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet" +
+                " Name=\"ProductionRecipeWS_Machine_Center_Code_Link_MachineCenterList\" Associatio" +
+                "n=\"NAV.ProductionRecipeWS_Machine_Center_Code_Link\"><End Role=\"ProductionRecipeW" +
+                "S\" EntitySet=\"ProductionRecipeWS\" /><End Role=\"Machine_Center_Code_Link\" EntityS" +
+                "et=\"MachineCenterList\" /></AssociationSet><AssociationSet Name=\"PurchaseLines_Bu" +
+                "y_from_Vendor_No_Link_Vendor\" Association=\"NAV.PurchaseLines_Buy_from_Vendor_No_" +
+                "Link\"><End Role=\"PurchaseLines\" EntitySet=\"PurchaseLines\" /><End Role=\"Buy_from_" +
+                "Vendor_No_Link\" EntitySet=\"Vendor\" /></AssociationSet><AssociationSet Name=\"Purc" +
+                "haseLines_Location_Code_Link_Location\" Association=\"NAV.PurchaseLines_Location_C" +
+                "ode_Link\"><End Role=\"PurchaseLines\" EntitySet=\"PurchaseLines\" /><End Role=\"Locat" +
+                "ion_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"Pur" +
+                "chaseLines_Currency_Code_Link_CurrencyCodes\" Association=\"NAV.PurchaseLines_Curr" +
+                "ency_Code_Link\"><End Role=\"PurchaseLines\" EntitySet=\"PurchaseLines\" /><End Role=" +
+                "\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><AssociationSe" +
+                "t Name=\"RawMatItemList_Batch_Nos_Link_CRTSHF_NoSeriesList\" Association=\"NAV.RawM" +
+                "atItemList_Batch_Nos_Link\"><End Role=\"RawMatItemList\" EntitySet=\"RawMatItemList\"" +
+                " /><End Role=\"Batch_Nos_Link\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet" +
+                "><AssociationSet Name=\"RawMatItemList_Base_Unit_of_Measure_Link_CRTSHF_ItemUnitO" +
+                "fMeasure\" Association=\"NAV.RawMatItemList_Base_Unit_of_Measure_Link\"><End Role=\"" +
+                "RawMatItemList\" EntitySet=\"RawMatItemList\" /><End Role=\"Base_Unit_of_Measure_Lin" +
+                "k\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=" +
+                "\"RawMatItemList_Item_Category_Code_Link_ItemCategories\" Association=\"NAV.RawMatI" +
+                "temList_Item_Category_Code_Link\"><End Role=\"RawMatItemList\" EntitySet=\"RawMatIte" +
+                "mList\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories\" /></Asso" +
+                "ciationSet><AssociationSet Name=\"RawMatItemList_Location_Filter_Link_Location\" A" +
+                "ssociation=\"NAV.RawMatItemList_Location_Filter_Link\"><End Role=\"RawMatItemList\" " +
+                "EntitySet=\"RawMatItemList\" /><End Role=\"Location_Filter_Link\" EntitySet=\"Locatio" +
+                "n\" /></AssociationSet><AssociationSet Name=\"RegistrationDetailsLine_Country_Code" +
+                "_Link_CountryRegion\" Association=\"NAV.RegistrationDetailsLine_Country_Code_Link\"" +
+                "><End Role=\"RegistrationDetailsLine\" EntitySet=\"RegistrationDetailsLine\" /><End " +
+                "Role=\"Country_Code_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><Associati" +
+                "onSet Name=\"RegistrationDetailsLine_Unit_Of_Measure_Code_Link_CRTSHF_UnitOfMeasu" +
+                "res\" Association=\"NAV.RegistrationDetailsLine_Unit_Of_Measure_Code_Link\"><End Ro" +
+                "le=\"RegistrationDetailsLine\" EntitySet=\"RegistrationDetailsLine\" /><End Role=\"Un" +
+                "it_Of_Measure_Code_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><A" +
+                "ssociationSet Name=\"SalesLineNotClosed_Sell_to_Customer_No_Link_Customer\" Associ" +
+                "ation=\"NAV.SalesLineNotClosed_Sell_to_Customer_No_Link\"><End Role=\"SalesLineNotC" +
+                "losed\" EntitySet=\"SalesLineNotClosed\" /><End Role=\"Sell_to_Customer_No_Link\" Ent" +
+                "itySet=\"Customer\" /></AssociationSet><AssociationSet Name=\"SalesLineNotClosed_It" +
+                "em_Category_Code_Link_ItemCategories\" Association=\"NAV.SalesLineNotClosed_Item_C" +
+                "ategory_Code_Link\"><End Role=\"SalesLineNotClosed\" EntitySet=\"SalesLineNotClosed\"" +
+                " /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories\" /></Associatio" +
+                "nSet><AssociationSet Name=\"SalesLineNotClosed_Location_Code_Link_Location\" Assoc" +
+                "iation=\"NAV.SalesLineNotClosed_Location_Code_Link\"><End Role=\"SalesLineNotClosed" +
+                "\" EntitySet=\"SalesLineNotClosed\" /><End Role=\"Location_Code_Link\" EntitySet=\"Loc" +
+                "ation\" /></AssociationSet><AssociationSet Name=\"SalesLineNotClosed_Currency_Code" +
+                "_Link_CurrencyCodes\" Association=\"NAV.SalesLineNotClosed_Currency_Code_Link\"><En" +
+                "d Role=\"SalesLineNotClosed\" EntitySet=\"SalesLineNotClosed\" /><End Role=\"Currency" +
+                "_Code_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><AssociationSet Name=\"S" +
+                "alesLines_Sell_to_Customer_No_Link_Customer\" Association=\"NAV.SalesLines_Sell_to" +
+                "_Customer_No_Link\"><End Role=\"SalesLines\" EntitySet=\"SalesLines\" /><End Role=\"Se" +
+                "ll_to_Customer_No_Link\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet " +
+                "Name=\"SalesLines_Location_Code_Link_Location\" Association=\"NAV.SalesLines_Locati" +
+                "on_Code_Link\"><End Role=\"SalesLines\" EntitySet=\"SalesLines\" /><End Role=\"Locatio" +
+                "n_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"Sales" +
+                "OrderLineKIV_Sell_to_Customer_No_Link_Customer\" Association=\"NAV.SalesOrderLineK" +
+                "IV_Sell_to_Customer_No_Link\"><End Role=\"SalesOrderLineKIV\" EntitySet=\"SalesOrder" +
+                "LineKIV\" /><End Role=\"Sell_to_Customer_No_Link\" EntitySet=\"Customer\" /></Associa" +
+                "tionSet><AssociationSet Name=\"SalesOrderLineKIV_Item_Category_Code_Link_ItemCate" +
+                "gories\" Association=\"NAV.SalesOrderLineKIV_Item_Category_Code_Link\"><End Role=\"S" +
+                "alesOrderLineKIV\" EntitySet=\"SalesOrderLineKIV\" /><End Role=\"Item_Category_Code_" +
+                "Link\" EntitySet=\"ItemCategories\" /></AssociationSet><Associ";
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+            private const string ModelPart43 = "ationSet Name=\"SalesOrderLineKIV_Location_Code_Link_Location\" Association=\"NAV.Sa" +
+                "lesOrderLineKIV_Location_Code_Link\"><End Role=\"SalesOrderLineKIV\" EntitySet=\"Sal" +
+                "esOrderLineKIV\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></Associ" +
+                "ationSet><AssociationSet Name=\"SalesPrices_Currency_Code_Link_CurrencyCodes\" Ass" +
+                "ociation=\"NAV.SalesPrices_Currency_Code_Link\"><End Role=\"SalesPrices\" EntitySet=" +
+                "\"SalesPrices\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></Ass" +
+                "ociationSet><AssociationSet Name=\"SalesPrices_Unit_of_Measure_Code_Link_CRTSHF_I" +
+                "temUnitOfMeasure\" Association=\"NAV.SalesPrices_Unit_of_Measure_Code_Link\"><End R" +
+                "ole=\"SalesPrices\" EntitySet=\"SalesPrices\" /><End Role=\"Unit_of_Measure_Code_Link" +
+                "\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=\"" +
+                "SalesPrices_Source_Name_Link_Customer\" Association=\"NAV.SalesPrices_Source_Name_" +
+                "Link\"><End Role=\"SalesPrices\" EntitySet=\"SalesPrices\" /><End Role=\"Source_Name_L" +
+                "ink\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Name=\"SalesPrices_I" +
+                "tem_Category_Code_Link_ItemCategories\" Association=\"NAV.SalesPrices_Item_Categor" +
+                "y_Code_Link\"><End Role=\"SalesPrices\" EntitySet=\"SalesPrices\" /><End Role=\"Item_C" +
+                "ategory_Code_Link\" EntitySet=\"ItemCategories\" /></AssociationSet><AssociationSet" +
+                " Name=\"SalesPrices_Tender_No_Link_SalesForecastList\" Association=\"NAV.SalesPrice" +
+                "s_Tender_No_Link\"><End Role=\"SalesPrices\" EntitySet=\"SalesPrices\" /><End Role=\"T" +
+                "ender_No_Link\" EntitySet=\"SalesForecastList\" /></AssociationSet><AssociationSet " +
+                "Name=\"ShippingAgentService_Shipping_Agent_Code_Link_ShippingAgent\" Association=\"" +
+                "NAV.ShippingAgentService_Shipping_Agent_Code_Link\"><End Role=\"ShippingAgentServi" +
+                "ce\" EntitySet=\"ShippingAgentService\" /><End Role=\"Shipping_Agent_Code_Link\" Enti" +
+                "tySet=\"ShippingAgent\" /></AssociationSet><AssociationSet Name=\"StockAdjustmentOd" +
+                "ata_Customer_No_Link_Customer\" Association=\"NAV.StockAdjustmentOdata_Customer_No" +
+                "_Link\"><End Role=\"StockAdjustmentOdata\" EntitySet=\"StockAdjustmentOdata\" /><End " +
+                "Role=\"Customer_No_Link\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet " +
+                "Name=\"StockAdjustmentOdata_Vendor_No_Link_Vendor\" Association=\"NAV.StockAdjustme" +
+                "ntOdata_Vendor_No_Link\"><End Role=\"StockAdjustmentOdata\" EntitySet=\"StockAdjustm" +
+                "entOdata\" /><End Role=\"Vendor_No_Link\" EntitySet=\"Vendor\" /></AssociationSet><As" +
+                "sociationSet Name=\"StockAdjustmentOdata_Currency_Code_Link_CurrencyCodes\" Associ" +
+                "ation=\"NAV.StockAdjustmentOdata_Currency_Code_Link\"><End Role=\"StockAdjustmentOd" +
+                "ata\" EntitySet=\"StockAdjustmentOdata\" /><End Role=\"Currency_Code_Link\" EntitySet" +
+                "=\"CurrencyCodes\" /></AssociationSet><AssociationSet Name=\"StockAdjustmentOdata_L" +
+                "ocation_Code_Link_Location\" Association=\"NAV.StockAdjustmentOdata_Location_Code_" +
                 "Link\"><End Role=\"StockAdjustmentOdata\" EntitySet=\"StockAdjustmentOdata\" /><End R" +
-                "ole=\"Sample_Quantity_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationS" +
-                "et Name=\"SWDAllProdOutputLine_Prod_Order_No_Link_ProductionOrder\" Association=\"N" +
-                "AV.SWDAllProdOutputLine_Prod_Order_No_Link\"><End Role=\"SWDAllProdOutputLine\" Ent" +
-                "itySet=\"SWDAllProdOutputLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"Produc" +
-                "tionOrder\" /></AssociationSet><AssociationSet Name=\"SWDAllProdOutputLine_Unit_of" +
-                "_Measure_Code_Link_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.SWDAllProdOutputLi" +
-                "ne_Unit_of_Measure_Code_Link\"><End Role=\"SWDAllProdOutputLine\" EntitySet=\"SWDAll" +
-                "ProdOutputLine\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUn" +
-                "itOfMeasure\" /></AssociationSet><AssociationSet Name=\"SWDProdOrderSyncPortal_Pro" +
-                "d_Order_No_Link_ProductionOrder\" Association=\"NAV.SWDProdOrderSyncPortal_Prod_Or" +
-                "der_No_Link\"><End Role=\"SWDProdOrderSyncPortal\" EntitySet=\"SWDProdOrderSyncPorta" +
-                "l\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationS" +
-                "et><AssociationSet Name=\"SWDProdOrderSyncPortal_Prod_Order_Line_No_Link_ProdOrde" +
-                "rLineList\" Association=\"NAV.SWDProdOrderSyncPortal_Prod_Order_Line_No_Link\"><End" +
-                " Role=\"SWDProdOrderSyncPortal\" EntitySet=\"SWDProdOrderSyncPortal\" /><End Role=\"P" +
-                "rod_Order_Line_No_Link\" EntitySet=\"ProdOrderLineList\" /></AssociationSet><Associ" +
-                "ationSet Name=\"SWDWebIntegrationEntry_Customer_No_Link_Customer\" Association=\"NA" +
-                "V.SWDWebIntegrationEntry_Customer_No_Link\"><End Role=\"SWDWebIntegrationEntry\" En" +
-                "titySet=\"SWDWebIntegrationEntry\" /><End Role=\"Customer_No_Link\" EntitySet=\"Custo" +
-                "mer\" /></AssociationSet><AssociationSet Name=\"SWDWebIntegrationEntry_Vendor_No_L" +
-                "ink_Vendor\" Association=\"NAV.SWDWebIntegrationEntry_Vendor_No_Link\"><End Role=\"S" +
-                "WDWebIntegrationEntry\" EntitySet=\"SWDWebIntegrationEntry\" /><End Role=\"Vendor_No" +
-                "_Link\" EntitySet=\"Vendor\" /></AssociationSet><AssociationSet Name=\"SWDWebIntegra" +
-                "tionEntry_Currency_Code_Link_CurrencyCodes\" Association=\"NAV.SWDWebIntegrationEn" +
-                "try_Currency_Code_Link\"><End Role=\"SWDWebIntegrationEntry\" EntitySet=\"SWDWebInte" +
-                "grationEntry\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></Ass" +
-                "ociationSet><AssociationSet Name=\"SWDWebIntegrationEntry_Location_Code_Link_Loca" +
-                "tion\" Association=\"NAV.SWDWebIntegrationEntry_Location_Code_Link\"><End Role=\"SWD" +
-                "WebIntegrationEntry\" EntitySet=\"SWDWebIntegrationEntry\" /><End Role=\"Location_Co" +
-                "de_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"SWDWebInt" +
-                "egrationEntry_Unit_of_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV." +
-                "SWDWebIntegrationEntry_Unit_of_Measure_Code_Link\"><End Role=\"SWDWebIntegrationEn" +
-                "try\" EntitySet=\"SWDWebIntegrationEntry\" /><End Role=\"Unit_of_Measure_Code_Link\" " +
-                "EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"SWDWe" +
-                "bIntegrationEntry_Reason_Code_Link_ReasonCodeList\" Association=\"NAV.SWDWebIntegr" +
-                "ationEntry_Reason_Code_Link\"><End Role=\"SWDWebIntegrationEntry\" EntitySet=\"SWDWe" +
-                "bIntegrationEntry\" /><End Role=\"Reason_Code_Link\" EntitySet=\"ReasonCodeList\" /><" +
-                "/AssociationSet><AssociationSet Name=\"SWDWebIntegrationEntry_Sample_Quantity_Lin" +
-                "k_Location\" Association=\"NAV.SWDWebIntegrationEntry_Sample_Quantity_Link\"><End R" +
-                "ole=\"SWDWebIntegrationEntry\" EntitySet=\"SWDWebIntegrationEntry\" /><End Role=\"Sam" +
-                "ple_Quantity_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=" +
-                "\"TenderForSimulation_Sell_to_Customer_No_Link_Customer\" Association=\"NAV.TenderF" +
-                "orSimulation_Sell_to_Customer_No_Link\"><End Role=\"TenderForSimulation\" EntitySet" +
-                "=\"TenderForSimulation\" /><End Role=\"Sell_to_Customer_No_Link\" EntitySet=\"Custome" +
-                "r\" /></AssociationSet><AssociationSet Name=\"TenderOrderLines_Sell_to_Customer_No" +
-                "_Link_Customer\" Association=\"NAV.TenderOrderLines_Sell_to_Customer_No_Link\"><End" +
-                " Role=\"TenderOrderLines\" EntitySet=\"TenderOrderLines\" /><End Role=\"Sell_to_Custo" +
-                "mer_No_Link\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Name=\"Tende" +
-                "rOrderLines_Item_Category_Code_Link_ItemCategories\" Association=\"NAV.TenderOrder" +
-                "Lines_Item_Category_Code_Link\"><End Role=\"TenderOrderLines\" EntitySet=\"TenderOrd" +
-                "erLines\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories\" /></As" +
-                "sociationSet><AssociationSet Name=\"TenderOrderLines_Location_Code_Link_Location\"" +
-                " Association=\"NAV.TenderOrderLines_Location_Code_Link\"><End Role=\"TenderOrderLin" +
-                "es\" EntitySet=\"TenderOrderLines\" /><End Role=\"Location_Code_Link\" EntitySet=\"Loc" +
-                "ation\" /></AssociationSet><AssociationSet Name=\"TestActualStart_Prod_Order_No_Li" +
-                "nk_ProductionOrder\" Association=\"NAV.TestActualStart_Prod_Order_No_Link\"><End Ro" +
-                "le=\"TestActualStart\" EntitySet=\"TestActualStart\" /><End Rol";
+                "ole=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet" +
+                " Name=\"StockAdjustmentOdata_Unit_of_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Ass" +
+                "ociation=\"NAV.StockAdjustmentOdata_Unit_of_Measure_Code_Link\"><End Role=\"StockAd" +
+                "justmentOdata\" EntitySet=\"StockAdjustmentOdata\" /><End Role=\"Unit_of_Measure_Cod" +
+                "e_Link\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Nam" +
+                "e=\"StockAdjustmentOdata_Reason_Code_Link_ReasonCodeList\" Association=\"NAV.StockA" +
+                "djustmentOdata_Reason_Code_Link\"><End Role=\"StockAdjustmentOdata\" EntitySet=\"Sto" +
+                "ckAdjustmentOdata\" /><End Role=\"Reason_Code_Link\" EntitySet=\"ReasonCodeList\" /><" +
+                "/AssociationSet><AssociationSet Name=\"StockAdjustmentOdata_Sample_Quantity_Link_" +
+                "Location\" Association=\"NAV.StockAdjustmentOdata_Sample_Quantity_Link\"><End Role=" +
+                "\"StockAdjustmentOdata\" EntitySet=\"StockAdjustmentOdata\" /><End Role=\"Sample_Quan" +
+                "tity_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"SWDAllP" +
+                "rodOutputLine_Prod_Order_No_Link_ProductionOrder\" Association=\"NAV.SWDAllProdOut" +
+                "putLine_Prod_Order_No_Link\"><End Role=\"SWDAllProdOutputLine\" EntitySet=\"SWDAllPr" +
+                "odOutputLine\" /><End Role=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></A" +
+                "ssociationSet><AssociationSet Name=\"SWDAllProdOutputLine_Unit_of_Measure_Code_Li" +
+                "nk_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.SWDAllProdOutputLine_Unit_of_Measu" +
+                "re_Code_Link\"><End Role=\"SWDAllProdOutputLine\" EntitySet=\"SWDAllProdOutputLine\" " +
+                "/><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /><" +
+                "/AssociationSet><AssociationSet Name=\"SWDProdOrderSyncPortal_Prod_Order_No_Link_" +
+                "ProductionOrder\" Association=\"NAV.SWDProdOrderSyncPortal_Prod_Order_No_Link\"><En" +
+                "d Role=\"SWDProdOrderSyncPortal\" EntitySet=\"SWDProdOrderSyncPortal\" /><End Role=\"" +
+                "Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationS" +
+                "et Name=\"SWDProdOrderSyncPortal_Prod_Order_Line_No_Link_ProdOrderLineList\" Assoc" +
+                "iation=\"NAV.SWDProdOrderSyncPortal_Prod_Order_Line_No_Link\"><End Role=\"SWDProdOr" +
+                "derSyncPortal\" EntitySet=\"SWDProdOrderSyncPortal\" /><End Role=\"Prod_Order_Line_N" +
+                "o_Link\" EntitySet=\"ProdOrderLineList\" /></AssociationSet><AssociationSet Name=\"S" +
+                "WDWebIntegrationEntry_Customer_No_Link_Customer\" Association=\"NAV.SWDWebIntegrat" +
+                "ionEntry_Customer_No_Link\"><End Role=\"SWDWebIntegrationEntry\" EntitySet=\"SWDWebI" +
+                "ntegrationEntry\" /><End Role=\"Customer_No_Link\" EntitySet=\"Customer\" /></Associa" +
+                "tionSet><AssociationSet Name=\"SWDWebIntegrationEntry_Vendor_No_Link_Vendor\" Asso" +
+                "ciation=\"NAV.SWDWebIntegrationEntry_Vendor_No_Link\"><End Role=\"SWDWebIntegration" +
+                "Entry\" EntitySet=\"SWDWebIntegrationEntry\" /><End Role=\"Vendor_No_Link\" EntitySet" +
+                "=\"Vendor\" /></AssociationSet><AssociationSet Name=\"SWDWebIntegrationEntry_Curren" +
+                "cy_Code_Link_CurrencyCodes\" Association=\"NAV.SWDWebIntegrationEntry_Currency_Cod" +
+                "e_Link\"><End Role=\"SWDWebIntegrationEntry\" EntitySet=\"SWDWebIntegrationEntry\" />" +
+                "<End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><Ass" +
+                "ociationSet Name=\"SWDWebIntegrationEntry_Location_Code_Link_Location\" Associatio" +
+                "n=\"NAV.SWDWebIntegrationEntry_Location_Code_Link\"><End Role=\"SWDWebIntegrationEn" +
+                "try\" EntitySet=\"SWDWebIntegrationEntry\" /><End Role=\"Location_Code_Link\" EntityS" +
+                "et=\"Location\" /></AssociationSet><AssociationSet Name=\"SWDWebIntegrationEntry_Un" +
+                "it_of_Measure_Code_Link_CRTSHF_UnitOfMeasures\" Association=\"NAV.SWDWebIntegratio" +
+                "nEntry_Unit_of_Measure_Code_Link\"><End Role=\"SWDWebIntegrationEntry\" EntitySet=\"" +
+                "SWDWebIntegrationEntry\" /><End Role=\"Unit_of_Measure_Code_Link\" EntitySet=\"CRTSH" +
+                "F_UnitOfMeasures\" /></AssociationSet><AssociationSet Name=\"SWDWebIntegrationEntr" +
+                "y_Reason_Code_Link_ReasonCodeList\" Association=\"NAV.SWDWebIntegrationEntry_Reaso" +
+                "n_Code_Link\"><End Role=\"SWDWebIntegrationEntry\" EntitySet=\"SWDWebIntegrationEntr" +
+                "y\" /><End Role=\"Reason_Code_Link\" EntitySet=\"ReasonCodeList\" /></AssociationSet>" +
+                "<AssociationSet Name=\"SWDWebIntegrationEntry_Sample_Quantity_Link_Location\" Asso" +
+                "ciation=\"NAV.SWDWebIntegrationEntry_Sample_Quantity_Link\"><End Role=\"SWDWebInteg" +
+                "rationEntry\" EntitySet=\"SWDWebIntegrationEntry\" /><End Role=\"Sample_Quantity_Lin" +
+                "k\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"TenderForSimula" +
+                "tion_Sell_to_Customer_No_Link_Customer\" Association=\"NAV.TenderForSimulation_Sel" +
+                "l_to_Customer_No_Link\"><End Role=\"TenderForSimulation\" EntitySet=\"TenderForSimul" +
+                "ation\" /><End Role=\"Sell_to_Customer_No_Link\" EntitySet=\"Customer\" /></Associati" +
+                "onSet><AssociationSet Name=\"TenderOrderLines_Sell_to_Customer_No_Link_Customer\" " +
+                "Association=\"NAV.TenderOrderLines_Sell_to_Customer_No_Link\"><End Role=\"TenderOrd" +
+                "erLines\" EntitySet=\"TenderOrderLines\" /><End Role=\"Sell_to_Customer_No_Link\" Ent" +
+                "itySet=\"Customer\" /></AssociationSet><AssociationSet Name=\"";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart44 = "e=\"Prod_Order_No_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><Associatio" +
-                "nSet Name=\"TrackingSpecification_Production_Order_No_Link_ProductionOrder\" Assoc" +
-                "iation=\"NAV.TrackingSpecification_Production_Order_No_Link\"><End Role=\"TrackingS" +
-                "pecification\" EntitySet=\"TrackingSpecification\" /><End Role=\"Production_Order_No" +
-                "_Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"Trac" +
-                "kingSpecification_Location_Code_Link_Location\" Association=\"NAV.TrackingSpecific" +
-                "ation_Location_Code_Link\"><End Role=\"TrackingSpecification\" EntitySet=\"TrackingS" +
-                "pecification\" /><End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></Associat" +
-                "ionSet><AssociationSet Name=\"TrackingSpecification_Base_Unit_of_Measure_Link_CRT" +
-                "SHF_ItemUnitOfMeasure\" Association=\"NAV.TrackingSpecification_Base_Unit_of_Measu" +
-                "re_Link\"><End Role=\"TrackingSpecification\" EntitySet=\"TrackingSpecification\" /><" +
-                "End Role=\"Base_Unit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></As" +
-                "sociationSet><AssociationSet Name=\"Vendor_Country_Region_Code_Link_CountryRegion" +
-                "\" Association=\"NAV.Vendor_Country_Region_Code_Link\"><End Role=\"Vendor\" EntitySet" +
-                "=\"Vendor\" /><End Role=\"Country_Region_Code_Link\" EntitySet=\"CountryRegion\" /></A" +
-                "ssociationSet><AssociationSet Name=\"Vendor_Location_Code_Link_Location\" Associat" +
-                "ion=\"NAV.Vendor_Location_Code_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><End" +
-                " Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationS" +
-                "et Name=\"Vendor_Gen_Bus_Posting_Group_Link_GenBussPostingGroup\" Association=\"NAV" +
-                ".Vendor_Gen_Bus_Posting_Group_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><End" +
-                " Role=\"Gen_Bus_Posting_Group_Link\" EntitySet=\"GenBussPostingGroup\" /></Associati" +
-                "onSet><AssociationSet Name=\"Vendor_VAT_Bus_Posting_Group_Link_GSTBusPostingGroup" +
-                "\" Association=\"NAV.Vendor_VAT_Bus_Posting_Group_Link\"><End Role=\"Vendor\" EntityS" +
-                "et=\"Vendor\" /><End Role=\"VAT_Bus_Posting_Group_Link\" EntitySet=\"GSTBusPostingGro" +
-                "up\" /></AssociationSet><AssociationSet Name=\"Vendor_Payment_Terms_Code_Link_Paym" +
-                "entTerms\" Association=\"NAV.Vendor_Payment_Terms_Code_Link\"><End Role=\"Vendor\" En" +
-                "titySet=\"Vendor\" /><End Role=\"Payment_Terms_Code_Link\" EntitySet=\"PaymentTerms\" " +
-                "/></AssociationSet><AssociationSet Name=\"Vendor_Currency_Code_Link_CurrencyCodes" +
-                "\" Association=\"NAV.Vendor_Currency_Code_Link\"><End Role=\"Vendor\" EntitySet=\"Vend" +
-                "or\" /><End Role=\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSe" +
-                "t><AssociationSet Name=\"Vendor_Shipment_Method_Code_Link_ShipmentMethod\" Associa" +
-                "tion=\"NAV.Vendor_Shipment_Method_Code_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor" +
-                "\" /><End Role=\"Shipment_Method_Code_Link\" EntitySet=\"ShipmentMethod\" /></Associa" +
-                "tionSet><AssociationSet Name=\"Vendor_Currency_Filter_Link_CurrencyCodes\" Associa" +
-                "tion=\"NAV.Vendor_Currency_Filter_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><" +
-                "End Role=\"Currency_Filter_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><As" +
-                "sociationSet Name=\"WorkCenterList_Alternate_Work_Center_Link_Process\" Associatio" +
-                "n=\"NAV.WorkCenterList_Alternate_Work_Center_Link\"><End Role=\"WorkCenterList\" Ent" +
-                "itySet=\"WorkCenterList\" /><End Role=\"Alternate_Work_Center_Link\" EntitySet=\"Proc" +
-                "ess\" /></AssociationSet><AssociationSet Name=\"WorkCenterList_Subcontractor_No_Li" +
-                "nk_Vendor\" Association=\"NAV.WorkCenterList_Subcontractor_No_Link\"><End Role=\"Wor" +
-                "kCenterList\" EntitySet=\"WorkCenterList\" /><End Role=\"Subcontractor_No_Link\" Enti" +
-                "tySet=\"Vendor\" /></AssociationSet><AssociationSet Name=\"Company_BOMOdata_BOMOdat" +
-                "a\" Association=\"NAV.Company_BOMOdata\"><End Role=\"Company\" EntitySet=\"Company\" />" +
-                "<End Role=\"BOMOdata\" EntitySet=\"BOMOdata\" /></AssociationSet><AssociationSet Nam" +
-                "e=\"Company_ConsumptionJournal_ConsumptionJournal\" Association=\"NAV.Company_Consu" +
-                "mptionJournal\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ConsumptionJ" +
-                "ournal\" EntitySet=\"ConsumptionJournal\" /></AssociationSet><AssociationSet Name=\"" +
-                "Company_CountryRegion_CountryRegion\" Association=\"NAV.Company_CountryRegion\"><En" +
-                "d Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CountryRegion\" EntitySet=\"Coun" +
-                "tryRegion\" /></AssociationSet><AssociationSet Name=\"Company_CPS_CalendarAbsenceE" +
-                "ntries_CPS_CalendarAbsenceEntries\" Association=\"NAV.Company_CPS_CalendarAbsenceE" +
-                "ntries\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CPS_CalendarAbsence" +
-                "Entries\" EntitySet=\"CPS_CalendarAbsenceEntries\" /></AssociationSet><AssociationS" +
-                "et Name=\"Company_CPS_ProdOrderLine_CPS_ProdOrderLine\" Association=\"NAV.Company_C" +
-                "PS_ProdOrderLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CPS_ProdO" +
-                "rderLine\" EntitySet=\"CPS_ProdOrderLine\" /></AssociationSet><AssociationSet Name=" +
-                "\"Company_CPS_ProdOrderRoutingLine_CPS_ProdOrderRoutingLine\" Association=\"NAV.Com" +
-                "pany_CPS_ProdOrderRoutingLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Ro" +
-                "le=\"CPS_ProdOrderRoutingLine\" EntitySet=\"CPS_ProdOrderRoutingLine\" /></Associati" +
-                "onSet><AssociationSet Name=\"Company_CPS_ProductionOrder_CPS_ProductionOrder\" Ass" +
-                "ociation=\"NAV.Company_CPS_ProductionOrder\"><End Role=\"Company\" EntitySet=\"Compan" +
-                "y\" /><End Role=\"CPS_ProductionOrder\" EntitySet=\"CPS_ProductionOrder\" /></Associa" +
-                "tionSet><AssociationSet Name=\"Company_CreateProdOrderEntryWS_CreateProdOrderEntr" +
-                "yWS\" Association=\"NAV.Company_CreateProdOrderEntryWS\"><End Role=\"Company\" Entity" +
-                "Set=\"Company\" /><End Role=\"CreateProdOrderEntryWS\" EntitySet=\"CreateProdOrderEnt" +
-                "ryWS\" /></AssociationSet><AssociationSet Name=\"Company_CreateProdOrderLineEntryW" +
-                "S_CreateProdOrderLineEntryWS\" Association=\"NAV.Company_CreateProdOrderLineEntryW" +
-                "S\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CreateProdOrderLineEntry" +
-                "WS\" EntitySet=\"CreateProdOrderLineEntryWS\" /></AssociationSet><AssociationSet Na" +
-                "me=\"Company_CRTIMS_PostedTransferEntry_CRTIMS_PostedTransferEntry\" Association=\"" +
-                "NAV.Company_CRTIMS_PostedTransferEntry\"><End Role=\"Company\" EntitySet=\"Company\" " +
-                "/><End Role=\"CRTIMS_PostedTransferEntry\" EntitySet=\"CRTIMS_PostedTransferEntry\" " +
-                "/></AssociationSet><AssociationSet Name=\"Company_CRTIMS_TransferEntry_CRTIMS_Tra" +
-                "nsferEntry\" Association=\"NAV.Company_CRTIMS_TransferEntry\"><End Role=\"Company\" E" +
-                "ntitySet=\"Company\" /><End Role=\"CRTIMS_TransferEntry\" EntitySet=\"CRTIMS_Transfer" +
-                "Entry\" /></AssociationSet><AssociationSet Name=\"Company_CRTIMS_TransferLines_CRT" +
-                "IMS_TransferLines\" Association=\"NAV.Company_CRTIMS_TransferLines\"><End Role=\"Com" +
-                "pany\" EntitySet=\"Company\" /><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_T" +
-                "ransferLines\" /></AssociationSet><AssociationSet Name=\"Company_CRTIMS_TransferSh" +
-                "ipmentHeader_CRTIMS_TransferShipmentHeader\" Association=\"NAV.Company_CRTIMS_Tran" +
-                "sferShipmentHeader\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTIMS_" +
-                "TransferShipmentHeader\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /></Associatio" +
-                "nSet><AssociationSet Name=\"Company_CRTIMS_TransferShipmentLines_CRTIMS_TransferS" +
-                "hipmentLines\" Association=\"NAV.Company_CRTIMS_TransferShipmentLines\"><End Role=\"" +
-                "Company\" EntitySet=\"Company\" /><End Role=\"CRTIMS_TransferShipmentLines\" EntitySe" +
-                "t=\"CRTIMS_TransferShipmentLines\" /></AssociationSet><AssociationSet Name=\"Compan" +
-                "y_CRTSHF_BatchSize_CRTSHF_BatchSize\" Association=\"NAV.Company_CRTSHF_BatchSize\">" +
-                "<End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_BatchSize\" EntitySet" +
-                "=\"CRTSHF_BatchSize\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_BOMT" +
-                "ypes_CRTSHF_BOMTypes\" Association=\"NAV.Company_CRTSHF_BOMTypes\"><End Role=\"Compa" +
-                "ny\" EntitySet=\"Company\" /><End Role=\"CRTSHF_BOMTypes\" EntitySet=\"CRTSHF_BOMTypes" +
-                "\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_BOMTypesLines_CRTSHF_B" +
-                "OMTypesLines\" Association=\"NAV.Company_CRTSHF_BOMTypesLines";
+            private const string ModelPart44 = "TenderOrderLines_Item_Category_Code_Link_ItemCategories\" Association=\"NAV.TenderO" +
+                "rderLines_Item_Category_Code_Link\"><End Role=\"TenderOrderLines\" EntitySet=\"Tende" +
+                "rOrderLines\" /><End Role=\"Item_Category_Code_Link\" EntitySet=\"ItemCategories\" />" +
+                "</AssociationSet><AssociationSet Name=\"TenderOrderLines_Location_Code_Link_Locat" +
+                "ion\" Association=\"NAV.TenderOrderLines_Location_Code_Link\"><End Role=\"TenderOrde" +
+                "rLines\" EntitySet=\"TenderOrderLines\" /><End Role=\"Location_Code_Link\" EntitySet=" +
+                "\"Location\" /></AssociationSet><AssociationSet Name=\"TestActualStart_Prod_Order_N" +
+                "o_Link_ProductionOrder\" Association=\"NAV.TestActualStart_Prod_Order_No_Link\"><En" +
+                "d Role=\"TestActualStart\" EntitySet=\"TestActualStart\" /><End Role=\"Prod_Order_No_" +
+                "Link\" EntitySet=\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"Track" +
+                "ingSpecification_Production_Order_No_Link_ProductionOrder\" Association=\"NAV.Trac" +
+                "kingSpecification_Production_Order_No_Link\"><End Role=\"TrackingSpecification\" En" +
+                "titySet=\"TrackingSpecification\" /><End Role=\"Production_Order_No_Link\" EntitySet" +
+                "=\"ProductionOrder\" /></AssociationSet><AssociationSet Name=\"TrackingSpecificatio" +
+                "n_Location_Code_Link_Location\" Association=\"NAV.TrackingSpecification_Location_C" +
+                "ode_Link\"><End Role=\"TrackingSpecification\" EntitySet=\"TrackingSpecification\" />" +
+                "<End Role=\"Location_Code_Link\" EntitySet=\"Location\" /></AssociationSet><Associat" +
+                "ionSet Name=\"TrackingSpecification_Base_Unit_of_Measure_Link_CRTSHF_ItemUnitOfMe" +
+                "asure\" Association=\"NAV.TrackingSpecification_Base_Unit_of_Measure_Link\"><End Ro" +
+                "le=\"TrackingSpecification\" EntitySet=\"TrackingSpecification\" /><End Role=\"Base_U" +
+                "nit_of_Measure_Link\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><As" +
+                "sociationSet Name=\"Vendor_Country_Region_Code_Link_CountryRegion\" Association=\"N" +
+                "AV.Vendor_Country_Region_Code_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><End" +
+                " Role=\"Country_Region_Code_Link\" EntitySet=\"CountryRegion\" /></AssociationSet><A" +
+                "ssociationSet Name=\"Vendor_Location_Code_Link_Location\" Association=\"NAV.Vendor_" +
+                "Location_Code_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><End Role=\"Location_" +
+                "Code_Link\" EntitySet=\"Location\" /></AssociationSet><AssociationSet Name=\"Vendor_" +
+                "Gen_Bus_Posting_Group_Link_GenBussPostingGroup\" Association=\"NAV.Vendor_Gen_Bus_" +
+                "Posting_Group_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><End Role=\"Gen_Bus_P" +
+                "osting_Group_Link\" EntitySet=\"GenBussPostingGroup\" /></AssociationSet><Associati" +
+                "onSet Name=\"Vendor_VAT_Bus_Posting_Group_Link_GSTBusPostingGroup\" Association=\"N" +
+                "AV.Vendor_VAT_Bus_Posting_Group_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><E" +
+                "nd Role=\"VAT_Bus_Posting_Group_Link\" EntitySet=\"GSTBusPostingGroup\" /></Associat" +
+                "ionSet><AssociationSet Name=\"Vendor_Payment_Terms_Code_Link_PaymentTerms\" Associ" +
+                "ation=\"NAV.Vendor_Payment_Terms_Code_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\"" +
+                " /><End Role=\"Payment_Terms_Code_Link\" EntitySet=\"PaymentTerms\" /></AssociationS" +
+                "et><AssociationSet Name=\"Vendor_Currency_Code_Link_CurrencyCodes\" Association=\"N" +
+                "AV.Vendor_Currency_Code_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><End Role=" +
+                "\"Currency_Code_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><AssociationSe" +
+                "t Name=\"Vendor_Shipment_Method_Code_Link_ShipmentMethod\" Association=\"NAV.Vendor" +
+                "_Shipment_Method_Code_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><End Role=\"S" +
+                "hipment_Method_Code_Link\" EntitySet=\"ShipmentMethod\" /></AssociationSet><Associa" +
+                "tionSet Name=\"Vendor_Currency_Filter_Link_CurrencyCodes\" Association=\"NAV.Vendor" +
+                "_Currency_Filter_Link\"><End Role=\"Vendor\" EntitySet=\"Vendor\" /><End Role=\"Curren" +
+                "cy_Filter_Link\" EntitySet=\"CurrencyCodes\" /></AssociationSet><AssociationSet Nam" +
+                "e=\"WorkCenterList_Alternate_Work_Center_Link_Process\" Association=\"NAV.WorkCente" +
+                "rList_Alternate_Work_Center_Link\"><End Role=\"WorkCenterList\" EntitySet=\"WorkCent" +
+                "erList\" /><End Role=\"Alternate_Work_Center_Link\" EntitySet=\"Process\" /></Associa" +
+                "tionSet><AssociationSet Name=\"WorkCenterList_Subcontractor_No_Link_Vendor\" Assoc" +
+                "iation=\"NAV.WorkCenterList_Subcontractor_No_Link\"><End Role=\"WorkCenterList\" Ent" +
+                "itySet=\"WorkCenterList\" /><End Role=\"Subcontractor_No_Link\" EntitySet=\"Vendor\" /" +
+                "></AssociationSet><AssociationSet Name=\"Company_BOMOdata_BOMOdata\" Association=\"" +
+                "NAV.Company_BOMOdata\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"BOMOd" +
+                "ata\" EntitySet=\"BOMOdata\" /></AssociationSet><AssociationSet Name=\"Company_Consu" +
+                "mptionJournal_ConsumptionJournal\" Association=\"NAV.Company_ConsumptionJournal\"><" +
+                "End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ConsumptionJournal\" EntitySe" +
+                "t=\"ConsumptionJournal\" /></AssociationSet><AssociationSet Name=\"Company_CountryR" +
+                "egion_CountryRegion\" Association=\"NAV.Company_CountryRegion\"><End Role=\"Company\"" +
+                " EntitySet=\"Company\" /><End Role=\"CountryRegion\" EntitySet=\"CountryRegion\" /></A" +
+                "ssociationSet><AssociationSet Name=\"Company_CPS_CalendarAbsenceEntries_CPS_Calen" +
+                "darAbsenceEntries\" Association=\"NAV.Company_CPS_CalendarAbsenceEntries\"><End Rol" +
+                "e=\"Company\" EntitySet=\"Company\" /><End Role=\"CPS_CalendarAbsenceEntries\" EntityS" +
+                "et=\"CPS_CalendarAbsenceEntries\" /></AssociationSet><AssociationSet Name=\"Company" +
+                "_CPS_ProdOrderLine_CPS_ProdOrderLine\" Association=\"NAV.Company_CPS_ProdOrderLine" +
+                "\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CPS_ProdOrderLine\" Entity" +
+                "Set=\"CPS_ProdOrderLine\" /></AssociationSet><AssociationSet Name=\"Company_CPS_Pro" +
+                "dOrderRoutingLine_CPS_ProdOrderRoutingLine\" Association=\"NAV.Company_CPS_ProdOrd" +
+                "erRoutingLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CPS_ProdOrde" +
+                "rRoutingLine\" EntitySet=\"CPS_ProdOrderRoutingLine\" /></AssociationSet><Associati" +
+                "onSet Name=\"Company_CPS_ProductionOrder_CPS_ProductionOrder\" Association=\"NAV.Co" +
+                "mpany_CPS_ProductionOrder\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"" +
+                "CPS_ProductionOrder\" EntitySet=\"CPS_ProductionOrder\" /></AssociationSet><Associa" +
+                "tionSet Name=\"Company_CreateProdOrderEntryWS_CreateProdOrderEntryWS\" Association" +
+                "=\"NAV.Company_CreateProdOrderEntryWS\"><End Role=\"Company\" EntitySet=\"Company\" />" +
+                "<End Role=\"CreateProdOrderEntryWS\" EntitySet=\"CreateProdOrderEntryWS\" /></Associ" +
+                "ationSet><AssociationSet Name=\"Company_CreateProdOrderLineEntryWS_CreateProdOrde" +
+                "rLineEntryWS\" Association=\"NAV.Company_CreateProdOrderLineEntryWS\"><End Role=\"Co" +
+                "mpany\" EntitySet=\"Company\" /><End Role=\"CreateProdOrderLineEntryWS\" EntitySet=\"C" +
+                "reateProdOrderLineEntryWS\" /></AssociationSet><AssociationSet Name=\"Company_CRTI" +
+                "MS_PostedTransferEntry_CRTIMS_PostedTransferEntry\" Association=\"NAV.Company_CRTI" +
+                "MS_PostedTransferEntry\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRT" +
+                "IMS_PostedTransferEntry\" EntitySet=\"CRTIMS_PostedTransferEntry\" /></AssociationS" +
+                "et><AssociationSet Name=\"Company_CRTIMS_TransferEntry_CRTIMS_TransferEntry\" Asso" +
+                "ciation=\"NAV.Company_CRTIMS_TransferEntry\"><End Role=\"Company\" EntitySet=\"Compan" +
+                "y\" /><End Role=\"CRTIMS_TransferEntry\" EntitySet=\"CRTIMS_TransferEntry\" /></Assoc" +
+                "iationSet><AssociationSet Name=\"Company_CRTIMS_TransferLines_CRTIMS_TransferLine" +
+                "s\" Association=\"NAV.Company_CRTIMS_TransferLines\"><End Role=\"Company\" EntitySet=" +
+                "\"Company\" /><End Role=\"CRTIMS_TransferLines\" EntitySet=\"CRTIMS_TransferLines\" />" +
+                "</AssociationSet><AssociationSet Name=\"Company_CRTIMS_TransferShipmentHeader_CRT" +
+                "IMS_TransferShipmentHeader\" Association=\"NAV.Company_CRTIMS_TransferShipmentHead" +
+                "er\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTIMS_TransferShipment" +
+                "Header\" EntitySet=\"CRTIMS_TransferShipmentHeader\" /></AssociationSet><Associatio" +
+                "nSet Name=\"Company_CRTIMS_TransferShipmentLines_CRTIMS_TransferShipmentLines\" As" +
+                "sociation=\"NAV.Company_CRTIMS_TransferShipmentLines\"><End R";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart45 = "\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_BOMTypesLines\" Enti" +
-                "tySet=\"CRTSHF_BOMTypesLines\" /></AssociationSet><AssociationSet Name=\"Company_CR" +
-                "TSHF_ItemUnitOfMeasure_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.Company_CRTSHF" +
-                "_ItemUnitOfMeasure\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_" +
-                "ItemUnitOfMeasure\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><Asso" +
-                "ciationSet Name=\"Company_CRTSHF_NoSeriesList_CRTSHF_NoSeriesList\" Association=\"N" +
-                "AV.Company_CRTSHF_NoSeriesList\"><End Role=\"Company\" EntitySet=\"Company\" /><End R" +
-                "ole=\"CRTSHF_NoSeriesList\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><As" +
-                "sociationSet Name=\"Company_CRTSHF_PackSize_CRTSHF_PackSize\" Association=\"NAV.Com" +
-                "pany_CRTSHF_PackSize\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSH" +
-                "F_PackSize\" EntitySet=\"CRTSHF_PackSize\" /></AssociationSet><AssociationSet Name=" +
-                "\"Company_CRTSHF_ProdBOMLines_CRTSHF_ProdBOMLines\" Association=\"NAV.Company_CRTSH" +
-                "F_ProdBOMLines\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_Prod" +
-                "BOMLines\" EntitySet=\"CRTSHF_ProdBOMLines\" /></AssociationSet><AssociationSet Nam" +
-                "e=\"Company_CRTSHF_ProductionBOMList_CRTSHF_ProductionBOMList\" Association=\"NAV.C" +
-                "ompany_CRTSHF_ProductionBOMList\"><End Role=\"Company\" EntitySet=\"Company\" /><End " +
-                "Role=\"CRTSHF_ProductionBOMList\" EntitySet=\"CRTSHF_ProductionBOMList\" /></Associa" +
-                "tionSet><AssociationSet Name=\"Company_CRTSHF_ProductionBOMVersion_CRTSHF_Product" +
-                "ionBOMVersion\" Association=\"NAV.Company_CRTSHF_ProductionBOMVersion\"><End Role=\"" +
-                "Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_ProductionBOMVersion\" EntitySet" +
-                "=\"CRTSHF_ProductionBOMVersion\" /></AssociationSet><AssociationSet Name=\"Company_" +
-                "CRTSHF_ScrapCodes_CRTSHF_ScrapCodes\" Association=\"NAV.Company_CRTSHF_ScrapCodes\"" +
-                "><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_ScrapCodes\" EntityS" +
-                "et=\"CRTSHF_ScrapCodes\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_S" +
-                "crapItemJnlLine_CRTSHF_ScrapItemJnlLine\" Association=\"NAV.Company_CRTSHF_ScrapIt" +
-                "emJnlLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_ScrapItem" +
-                "JnlLine\" EntitySet=\"CRTSHF_ScrapItemJnlLine\" /></AssociationSet><AssociationSet " +
-                "Name=\"Company_CRTSHF_UnitOfMeasures_CRTSHF_UnitOfMeasures\" Association=\"NAV.Comp" +
-                "any_CRTSHF_UnitOfMeasures\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"" +
-                "CRTSHF_UnitOfMeasures\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><Ass" +
-                "ociationSet Name=\"Company_CurrencyCodes_CurrencyCodes\" Association=\"NAV.Company_" +
-                "CurrencyCodes\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CurrencyCode" +
-                "s\" EntitySet=\"CurrencyCodes\" /></AssociationSet><AssociationSet Name=\"Company_Cu" +
-                "stomer_Customer\" Association=\"NAV.Company_Customer\"><End Role=\"Company\" EntitySe" +
-                "t=\"Company\" /><End Role=\"Customer\" EntitySet=\"Customer\" /></AssociationSet><Asso" +
-                "ciationSet Name=\"Company_CustomerPostingGroup_CustomerPostingGroup\" Association=" +
-                "\"NAV.Company_CustomerPostingGroup\"><End Role=\"Company\" EntitySet=\"Company\" /><En" +
-                "d Role=\"CustomerPostingGroup\" EntitySet=\"CustomerPostingGroup\" /></AssociationSe" +
-                "t><AssociationSet Name=\"Company_DefaultDimensionList_DefaultDimensionList\" Assoc" +
-                "iation=\"NAV.Company_DefaultDimensionList\"><End Role=\"Company\" EntitySet=\"Company" +
-                "\" /><End Role=\"DefaultDimensionList\" EntitySet=\"DefaultDimensionList\" /></Associ" +
-                "ationSet><AssociationSet Name=\"Company_DocumentStorageEntries_DocumentStorageEnt" +
-                "ries\" Association=\"NAV.Company_DocumentStorageEntries\"><End Role=\"Company\" Entit" +
-                "ySet=\"Company\" /><End Role=\"DocumentStorageEntries\" EntitySet=\"DocumentStorageEn" +
-                "tries\" /></AssociationSet><AssociationSet Name=\"Company_DrumWeight_DrumWeight\" A" +
-                "ssociation=\"NAV.Company_DrumWeight\"><End Role=\"Company\" EntitySet=\"Company\" /><E" +
-                "nd Role=\"DrumWeight\" EntitySet=\"DrumWeight\" /></AssociationSet><AssociationSet N" +
-                "ame=\"Company_FinishedProdOrderLine_FinishedProdOrderLine\" Association=\"NAV.Compa" +
-                "ny_FinishedProdOrderLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"F" +
-                "inishedProdOrderLine\" EntitySet=\"FinishedProdOrderLine\" /></AssociationSet><Asso" +
-                "ciationSet Name=\"Company_FP_ItemList_FP_ItemList\" Association=\"NAV.Company_FP_It" +
-                "emList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"FP_ItemList\" Entity" +
-                "Set=\"FP_ItemList\" /></AssociationSet><AssociationSet Name=\"Company_GenBussPostin" +
-                "gGroup_GenBussPostingGroup\" Association=\"NAV.Company_GenBussPostingGroup\"><End R" +
-                "ole=\"Company\" EntitySet=\"Company\" /><End Role=\"GenBussPostingGroup\" EntitySet=\"G" +
-                "enBussPostingGroup\" /></AssociationSet><AssociationSet Name=\"Company_GroupPlanni" +
-                "ng_GroupPlanning\" Association=\"NAV.Company_GroupPlanning\"><End Role=\"Company\" En" +
-                "titySet=\"Company\" /><End Role=\"GroupPlanning\" EntitySet=\"GroupPlanning\" /></Asso" +
-                "ciationSet><AssociationSet Name=\"Company_GroupPlanningSplit_GroupPlanningSplit\" " +
-                "Association=\"NAV.Company_GroupPlanningSplit\"><End Role=\"Company\" EntitySet=\"Comp" +
-                "any\" /><End Role=\"GroupPlanningSplit\" EntitySet=\"GroupPlanningSplit\" /></Associa" +
-                "tionSet><AssociationSet Name=\"Company_GSTBusPostingGroup_GSTBusPostingGroup\" Ass" +
-                "ociation=\"NAV.Company_GSTBusPostingGroup\"><End Role=\"Company\" EntitySet=\"Company" +
-                "\" /><End Role=\"GSTBusPostingGroup\" EntitySet=\"GSTBusPostingGroup\" /></Associatio" +
-                "nSet><AssociationSet Name=\"Company_ItemAdditionalInfo_ItemAdditionalInfo\" Associ" +
-                "ation=\"NAV.Company_ItemAdditionalInfo\"><End Role=\"Company\" EntitySet=\"Company\" /" +
-                "><End Role=\"ItemAdditionalInfo\" EntitySet=\"ItemAdditionalInfo\" /></AssociationSe" +
-                "t><AssociationSet Name=\"Company_ItemAttributes_ItemAttributes\" Association=\"NAV." +
-                "Company_ItemAttributes\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Ite" +
-                "mAttributes\" EntitySet=\"ItemAttributes\" /></AssociationSet><AssociationSet Name=" +
-                "\"Company_ItemAttributesValues_ItemAttributesValues\" Association=\"NAV.Company_Ite" +
-                "mAttributesValues\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemAttr" +
-                "ibutesValues\" EntitySet=\"ItemAttributesValues\" /></AssociationSet><AssociationSe" +
-                "t Name=\"Company_ItemAttributesValuesMapping_ItemAttributesValuesMapping\" Associa" +
-                "tion=\"NAV.Company_ItemAttributesValuesMapping\"><End Role=\"Company\" EntitySet=\"Co" +
-                "mpany\" /><End Role=\"ItemAttributesValuesMapping\" EntitySet=\"ItemAttributesValues" +
-                "Mapping\" /></AssociationSet><AssociationSet Name=\"Company_ItemBatchInfo_ItemBatc" +
-                "hInfo\" Association=\"NAV.Company_ItemBatchInfo\"><End Role=\"Company\" EntitySet=\"Co" +
-                "mpany\" /><End Role=\"ItemBatchInfo\" EntitySet=\"ItemBatchInfo\" /></AssociationSet>" +
-                "<AssociationSet Name=\"Company_ItemCategories_ItemCategories\" Association=\"NAV.Co" +
-                "mpany_ItemCategories\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemC" +
-                "ategories\" EntitySet=\"ItemCategories\" /></AssociationSet><AssociationSet Name=\"C" +
-                "ompany_ItemJournalLines_ItemJournalLines\" Association=\"NAV.Company_ItemJournalLi" +
-                "nes\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemJournalLines\" Enti" +
-                "tySet=\"ItemJournalLines\" /></AssociationSet><AssociationSet Name=\"Company_ItemLe" +
-                "dgerEntries_ItemLedgerEntries\" Association=\"NAV.Company_ItemLedgerEntries\"><End " +
-                "Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemLedgerEntries\" EntitySet=\"It" +
-                "emLedgerEntries\" /></AssociationSet><AssociationSet Name=\"Company_ItemList_ItemL" +
-                "ist\" Association=\"NAV.Company_ItemList\"><End Role=\"Company\" EntitySet=\"Company\" " +
-                "/><End Role=\"ItemList\" EntitySet=\"ItemList\" /></AssociationSet><AssociationSet N" +
-                "ame=\"Company_ItemPicture_ItemPicture\" Association=\"NAV.Company_ItemPicture\"><End" +
-                " Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemPicture\" EntitySet=\"ItemPic" +
-                "ture\" /></AssociationSet><AssociationSet Name=\"Company_ItemUOMList_ItemUOMList\" " +
-                "Association=\"NAV.Company_ItemUOMList\"><End Role=\"Company\" E";
+            private const string ModelPart45 = "ole=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTIMS_TransferShipmentLines\" Enti" +
+                "tySet=\"CRTIMS_TransferShipmentLines\" /></AssociationSet><AssociationSet Name=\"Co" +
+                "mpany_CRTSHF_BatchSize_CRTSHF_BatchSize\" Association=\"NAV.Company_CRTSHF_BatchSi" +
+                "ze\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_BatchSize\" Entit" +
+                "ySet=\"CRTSHF_BatchSize\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_" +
+                "BOMTypes_CRTSHF_BOMTypes\" Association=\"NAV.Company_CRTSHF_BOMTypes\"><End Role=\"C" +
+                "ompany\" EntitySet=\"Company\" /><End Role=\"CRTSHF_BOMTypes\" EntitySet=\"CRTSHF_BOMT" +
+                "ypes\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_BOMTypesLines_CRTS" +
+                "HF_BOMTypesLines\" Association=\"NAV.Company_CRTSHF_BOMTypesLines\"><End Role=\"Comp" +
+                "any\" EntitySet=\"Company\" /><End Role=\"CRTSHF_BOMTypesLines\" EntitySet=\"CRTSHF_BO" +
+                "MTypesLines\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_ItemUnitOfM" +
+                "easure_CRTSHF_ItemUnitOfMeasure\" Association=\"NAV.Company_CRTSHF_ItemUnitOfMeasu" +
+                "re\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_ItemUnitOfMeasur" +
+                "e\" EntitySet=\"CRTSHF_ItemUnitOfMeasure\" /></AssociationSet><AssociationSet Name=" +
+                "\"Company_CRTSHF_NoSeriesList_CRTSHF_NoSeriesList\" Association=\"NAV.Company_CRTSH" +
+                "F_NoSeriesList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_NoSe" +
+                "riesList\" EntitySet=\"CRTSHF_NoSeriesList\" /></AssociationSet><AssociationSet Nam" +
+                "e=\"Company_CRTSHF_PackSize_CRTSHF_PackSize\" Association=\"NAV.Company_CRTSHF_Pack" +
+                "Size\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_PackSize\" Enti" +
+                "tySet=\"CRTSHF_PackSize\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_" +
+                "ProdBOMLines_CRTSHF_ProdBOMLines\" Association=\"NAV.Company_CRTSHF_ProdBOMLines\">" +
+                "<End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_ProdBOMLines\" Entity" +
+                "Set=\"CRTSHF_ProdBOMLines\" /></AssociationSet><AssociationSet Name=\"Company_CRTSH" +
+                "F_ProductionBOMList_CRTSHF_ProductionBOMList\" Association=\"NAV.Company_CRTSHF_Pr" +
+                "oductionBOMList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_Pro" +
+                "ductionBOMList\" EntitySet=\"CRTSHF_ProductionBOMList\" /></AssociationSet><Associa" +
+                "tionSet Name=\"Company_CRTSHF_ProductionBOMVersion_CRTSHF_ProductionBOMVersion\" A" +
+                "ssociation=\"NAV.Company_CRTSHF_ProductionBOMVersion\"><End Role=\"Company\" EntityS" +
+                "et=\"Company\" /><End Role=\"CRTSHF_ProductionBOMVersion\" EntitySet=\"CRTSHF_Product" +
+                "ionBOMVersion\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_ScrapCode" +
+                "s_CRTSHF_ScrapCodes\" Association=\"NAV.Company_CRTSHF_ScrapCodes\"><End Role=\"Comp" +
+                "any\" EntitySet=\"Company\" /><End Role=\"CRTSHF_ScrapCodes\" EntitySet=\"CRTSHF_Scrap" +
+                "Codes\" /></AssociationSet><AssociationSet Name=\"Company_CRTSHF_ScrapItemJnlLine_" +
+                "CRTSHF_ScrapItemJnlLine\" Association=\"NAV.Company_CRTSHF_ScrapItemJnlLine\"><End " +
+                "Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_ScrapItemJnlLine\" EntityS" +
+                "et=\"CRTSHF_ScrapItemJnlLine\" /></AssociationSet><AssociationSet Name=\"Company_CR" +
+                "TSHF_UnitOfMeasures_CRTSHF_UnitOfMeasures\" Association=\"NAV.Company_CRTSHF_UnitO" +
+                "fMeasures\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CRTSHF_UnitOfMea" +
+                "sures\" EntitySet=\"CRTSHF_UnitOfMeasures\" /></AssociationSet><AssociationSet Name" +
+                "=\"Company_CurrencyCodes_CurrencyCodes\" Association=\"NAV.Company_CurrencyCodes\"><" +
+                "End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"CurrencyCodes\" EntitySet=\"Cu" +
+                "rrencyCodes\" /></AssociationSet><AssociationSet Name=\"Company_Customer_Customer\"" +
+                " Association=\"NAV.Company_Customer\"><End Role=\"Company\" EntitySet=\"Company\" /><E" +
+                "nd Role=\"Customer\" EntitySet=\"Customer\" /></AssociationSet><AssociationSet Name=" +
+                "\"Company_CustomerPostingGroup_CustomerPostingGroup\" Association=\"NAV.Company_Cus" +
+                "tomerPostingGroup\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Customer" +
+                "PostingGroup\" EntitySet=\"CustomerPostingGroup\" /></AssociationSet><AssociationSe" +
+                "t Name=\"Company_DefaultDimensionList_DefaultDimensionList\" Association=\"NAV.Comp" +
+                "any_DefaultDimensionList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"D" +
+                "efaultDimensionList\" EntitySet=\"DefaultDimensionList\" /></AssociationSet><Associ" +
+                "ationSet Name=\"Company_DocumentStorageEntries_DocumentStorageEntries\" Associatio" +
+                "n=\"NAV.Company_DocumentStorageEntries\"><End Role=\"Company\" EntitySet=\"Company\" /" +
+                "><End Role=\"DocumentStorageEntries\" EntitySet=\"DocumentStorageEntries\" /></Assoc" +
+                "iationSet><AssociationSet Name=\"Company_DrumWeight_DrumWeight\" Association=\"NAV." +
+                "Company_DrumWeight\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"DrumWei" +
+                "ght\" EntitySet=\"DrumWeight\" /></AssociationSet><AssociationSet Name=\"Company_Fin" +
+                "ishedProdOrderLine_FinishedProdOrderLine\" Association=\"NAV.Company_FinishedProdO" +
+                "rderLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"FinishedProdOrder" +
+                "Line\" EntitySet=\"FinishedProdOrderLine\" /></AssociationSet><AssociationSet Name=" +
+                "\"Company_FP_ItemList_FP_ItemList\" Association=\"NAV.Company_FP_ItemList\"><End Rol" +
+                "e=\"Company\" EntitySet=\"Company\" /><End Role=\"FP_ItemList\" EntitySet=\"FP_ItemList" +
+                "\" /></AssociationSet><AssociationSet Name=\"Company_GenBussPostingGroup_GenBussPo" +
+                "stingGroup\" Association=\"NAV.Company_GenBussPostingGroup\"><End Role=\"Company\" En" +
+                "titySet=\"Company\" /><End Role=\"GenBussPostingGroup\" EntitySet=\"GenBussPostingGro" +
+                "up\" /></AssociationSet><AssociationSet Name=\"Company_GroupPlanning_GroupPlanning" +
+                "\" Association=\"NAV.Company_GroupPlanning\"><End Role=\"Company\" EntitySet=\"Company" +
+                "\" /><End Role=\"GroupPlanning\" EntitySet=\"GroupPlanning\" /></AssociationSet><Asso" +
+                "ciationSet Name=\"Company_GroupPlanningSplit_GroupPlanningSplit\" Association=\"NAV" +
+                ".Company_GroupPlanningSplit\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role" +
+                "=\"GroupPlanningSplit\" EntitySet=\"GroupPlanningSplit\" /></AssociationSet><Associa" +
+                "tionSet Name=\"Company_GSTBusPostingGroup_GSTBusPostingGroup\" Association=\"NAV.Co" +
+                "mpany_GSTBusPostingGroup\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"G" +
+                "STBusPostingGroup\" EntitySet=\"GSTBusPostingGroup\" /></AssociationSet><Associatio" +
+                "nSet Name=\"Company_ItemAdditionalInfo_ItemAdditionalInfo\" Association=\"NAV.Compa" +
+                "ny_ItemAdditionalInfo\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Item" +
+                "AdditionalInfo\" EntitySet=\"ItemAdditionalInfo\" /></AssociationSet><AssociationSe" +
+                "t Name=\"Company_ItemAttributes_ItemAttributes\" Association=\"NAV.Company_ItemAttr" +
+                "ibutes\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemAttributes\" Ent" +
+                "itySet=\"ItemAttributes\" /></AssociationSet><AssociationSet Name=\"Company_ItemAtt" +
+                "ributesValues_ItemAttributesValues\" Association=\"NAV.Company_ItemAttributesValue" +
+                "s\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemAttributesValues\" En" +
+                "titySet=\"ItemAttributesValues\" /></AssociationSet><AssociationSet Name=\"Company_" +
+                "ItemAttributesValuesMapping_ItemAttributesValuesMapping\" Association=\"NAV.Compan" +
+                "y_ItemAttributesValuesMapping\"><End Role=\"Company\" EntitySet=\"Company\" /><End Ro" +
+                "le=\"ItemAttributesValuesMapping\" EntitySet=\"ItemAttributesValuesMapping\" /></Ass" +
+                "ociationSet><AssociationSet Name=\"Company_ItemBatchInfo_ItemBatchInfo\" Associati" +
+                "on=\"NAV.Company_ItemBatchInfo\"><End Role=\"Company\" EntitySet=\"Company\" /><End Ro" +
+                "le=\"ItemBatchInfo\" EntitySet=\"ItemBatchInfo\" /></AssociationSet><AssociationSet " +
+                "Name=\"Company_ItemCategories_ItemCategories\" Association=\"NAV.Company_ItemCatego" +
+                "ries\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemCategories\" Entit" +
+                "ySet=\"ItemCategories\" /></AssociationSet><AssociationSet Name=\"Company_ItemJourn" +
+                "alLines_ItemJournalLines\" Association=\"NAV.Company_ItemJournalLines\"><End Role=\"" +
+                "Company\" EntitySet=\"Company\" /><End Role=\"ItemJournalLines\" EntitySet=\"ItemJourn" +
+                "alLines\" /></AssociationSet><AssociationSet Name=\"Company_I";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart46 = "ntitySet=\"Company\" /><End Role=\"ItemUOMList\" EntitySet=\"ItemUOMList\" /></Associat" +
-                "ionSet><AssociationSet Name=\"Company_Location_Location\" Association=\"NAV.Company" +
-                "_Location\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Location\" Entity" +
-                "Set=\"Location\" /></AssociationSet><AssociationSet Name=\"Company_MachineCenterLis" +
-                "t_MachineCenterList\" Association=\"NAV.Company_MachineCenterList\"><End Role=\"Comp" +
-                "any\" EntitySet=\"Company\" /><End Role=\"MachineCenterList\" EntitySet=\"MachineCente" +
-                "rList\" /></AssociationSet><AssociationSet Name=\"Company_OutputCorrectionList_Out" +
-                "putCorrectionList\" Association=\"NAV.Company_OutputCorrectionList\"><End Role=\"Com" +
-                "pany\" EntitySet=\"Company\" /><End Role=\"OutputCorrectionList\" EntitySet=\"OutputCo" +
-                "rrectionList\" /></AssociationSet><AssociationSet Name=\"Company_OutputJournal_Out" +
-                "putJournal\" Association=\"NAV.Company_OutputJournal\"><End Role=\"Company\" EntitySe" +
-                "t=\"Company\" /><End Role=\"OutputJournal\" EntitySet=\"OutputJournal\" /></Associatio" +
-                "nSet><AssociationSet Name=\"Company_OutstandingProdOrderLine_OutstandingProdOrder" +
-                "Line\" Association=\"NAV.Company_OutstandingProdOrderLine\"><End Role=\"Company\" Ent" +
-                "itySet=\"Company\" /><End Role=\"OutstandingProdOrderLine\" EntitySet=\"OutstandingPr" +
-                "odOrderLine\" /></AssociationSet><AssociationSet Name=\"Company_OutstandingSalesOr" +
-                "derLine_OutstandingSalesOrderLine\" Association=\"NAV.Company_OutstandingSalesOrde" +
-                "rLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"OutstandingSalesOrde" +
-                "rLine\" EntitySet=\"OutstandingSalesOrderLine\" /></AssociationSet><AssociationSet " +
-                "Name=\"Company_PackagingItemList_PackagingItemList\" Association=\"NAV.Company_Pack" +
-                "agingItemList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"PackagingIte" +
-                "mList\" EntitySet=\"PackagingItemList\" /></AssociationSet><AssociationSet Name=\"Co" +
-                "mpany_PaymentMethod_PaymentMethod\" Association=\"NAV.Company_PaymentMethod\"><End " +
-                "Role=\"Company\" EntitySet=\"Company\" /><End Role=\"PaymentMethod\" EntitySet=\"Paymen" +
-                "tMethod\" /></AssociationSet><AssociationSet Name=\"Company_PaymentTerms_PaymentTe" +
-                "rms\" Association=\"NAV.Company_PaymentTerms\"><End Role=\"Company\" EntitySet=\"Compa" +
-                "ny\" /><End Role=\"PaymentTerms\" EntitySet=\"PaymentTerms\" /></AssociationSet><Asso" +
-                "ciationSet Name=\"Company_PKGQtyInProd_PKGQtyInProd\" Association=\"NAV.Company_PKG" +
-                "QtyInProd\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"PKGQtyInProd\" En" +
-                "titySet=\"PKGQtyInProd\" /></AssociationSet><AssociationSet Name=\"Company_Postcode" +
-                "s_Postcodes\" Association=\"NAV.Company_Postcodes\"><End Role=\"Company\" EntitySet=\"" +
-                "Company\" /><End Role=\"Postcodes\" EntitySet=\"Postcodes\" /></AssociationSet><Assoc" +
-                "iationSet Name=\"Company_PostedSalesShipmentLines_PostedSalesShipmentLines\" Assoc" +
-                "iation=\"NAV.Company_PostedSalesShipmentLines\"><End Role=\"Company\" EntitySet=\"Com" +
-                "pany\" /><End Role=\"PostedSalesShipmentLines\" EntitySet=\"PostedSalesShipmentLines" +
-                "\" /></AssociationSet><AssociationSet Name=\"Company_PostedSalesShipments_PostedSa" +
-                "lesShipments\" Association=\"NAV.Company_PostedSalesShipments\"><End Role=\"Company\"" +
-                " EntitySet=\"Company\" /><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesSh" +
-                "ipments\" /></AssociationSet><AssociationSet Name=\"Company_Process_Process\" Assoc" +
-                "iation=\"NAV.Company_Process\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role" +
-                "=\"Process\" EntitySet=\"Process\" /></AssociationSet><AssociationSet Name=\"Company_" +
-                "ProcessItemList_ProcessItemList\" Association=\"NAV.Company_ProcessItemList\"><End " +
-                "Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ProcessItemList\" EntitySet=\"Proc" +
-                "essItemList\" /></AssociationSet><AssociationSet Name=\"Company_ProdOrderComp_Prod" +
-                "OrderComp\" Association=\"NAV.Company_ProdOrderComp\"><End Role=\"Company\" EntitySet" +
-                "=\"Company\" /><End Role=\"ProdOrderComp\" EntitySet=\"ProdOrderComp\" /></Association" +
-                "Set><AssociationSet Name=\"Company_ProdOrderCompLineList_ProdOrderCompLineList\" A" +
-                "ssociation=\"NAV.Company_ProdOrderCompLineList\"><End Role=\"Company\" EntitySet=\"Co" +
-                "mpany\" /><End Role=\"ProdOrderCompLineList\" EntitySet=\"ProdOrderCompLineList\" /><" +
-                "/AssociationSet><AssociationSet Name=\"Company_ProdOrderLineList_ProdOrderLineLis" +
-                "t\" Association=\"NAV.Company_ProdOrderLineList\"><End Role=\"Company\" EntitySet=\"Co" +
-                "mpany\" /><End Role=\"ProdOrderLineList\" EntitySet=\"ProdOrderLineList\" /></Associa" +
-                "tionSet><AssociationSet Name=\"Company_ProdOrderOutputLine_ProdOrderOutputLine\" A" +
-                "ssociation=\"NAV.Company_ProdOrderOutputLine\"><End Role=\"Company\" EntitySet=\"Comp" +
-                "any\" /><End Role=\"ProdOrderOutputLine\" EntitySet=\"ProdOrderOutputLine\" /></Assoc" +
-                "iationSet><AssociationSet Name=\"Company_ProdPlanningLine_ProdPlanningLine\" Assoc" +
-                "iation=\"NAV.Company_ProdPlanningLine\"><End Role=\"Company\" EntitySet=\"Company\" />" +
-                "<End Role=\"ProdPlanningLine\" EntitySet=\"ProdPlanningLine\" /></AssociationSet><As" +
-                "sociationSet Name=\"Company_ProductCodeList_ProductCodeList\" Association=\"NAV.Com" +
-                "pany_ProductCodeList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Produ" +
-                "ctCodeList\" EntitySet=\"ProductCodeList\" /></AssociationSet><AssociationSet Name=" +
-                "\"Company_ProductionEntry_ProductionEntry\" Association=\"NAV.Company_ProductionEnt" +
-                "ry\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ProductionEntry\" Entity" +
-                "Set=\"ProductionEntry\" /></AssociationSet><AssociationSet Name=\"Company_Productio" +
-                "nOrder_ProductionOrder\" Association=\"NAV.Company_ProductionOrder\"><End Role=\"Com" +
-                "pany\" EntitySet=\"Company\" /><End Role=\"ProductionOrder\" EntitySet=\"ProductionOrd" +
-                "er\" /></AssociationSet><AssociationSet Name=\"Company_ProductionOrderList_Product" +
-                "ionOrderList\" Association=\"NAV.Company_ProductionOrderList\"><End Role=\"Company\" " +
-                "EntitySet=\"Company\" /><End Role=\"ProductionOrderList\" EntitySet=\"ProductionOrder" +
-                "List\" /></AssociationSet><AssociationSet Name=\"Company_ProductionRecipe_Producti" +
-                "onRecipe\" Association=\"NAV.Company_ProductionRecipe\"><End Role=\"Company\" EntityS" +
-                "et=\"Company\" /><End Role=\"ProductionRecipe\" EntitySet=\"ProductionRecipe\" /></Ass" +
-                "ociationSet><AssociationSet Name=\"Company_ProductionRecipeLinkWS_ProductionRecip" +
-                "eLinkWS\" Association=\"NAV.Company_ProductionRecipeLinkWS\"><End Role=\"Company\" En" +
-                "titySet=\"Company\" /><End Role=\"ProductionRecipeLinkWS\" EntitySet=\"ProductionReci" +
-                "peLinkWS\" /></AssociationSet><AssociationSet Name=\"Company_ProductionRecipeWS_Pr" +
-                "oductionRecipeWS\" Association=\"NAV.Company_ProductionRecipeWS\"><End Role=\"Compan" +
-                "y\" EntitySet=\"Company\" /><End Role=\"ProductionRecipeWS\" EntitySet=\"ProductionRec" +
-                "ipeWS\" /></AssociationSet><AssociationSet Name=\"Company_PurchaseLines_PurchaseLi" +
-                "nes\" Association=\"NAV.Company_PurchaseLines\"><End Role=\"Company\" EntitySet=\"Comp" +
-                "any\" /><End Role=\"PurchaseLines\" EntitySet=\"PurchaseLines\" /></AssociationSet><A" +
-                "ssociationSet Name=\"Company_RawMatItemList_RawMatItemList\" Association=\"NAV.Comp" +
-                "any_RawMatItemList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"RawMatI" +
-                "temList\" EntitySet=\"RawMatItemList\" /></AssociationSet><AssociationSet Name=\"Com" +
-                "pany_ReasonCodeList_ReasonCodeList\" Association=\"NAV.Company_ReasonCodeList\"><En" +
-                "d Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ReasonCodeList\" EntitySet=\"Rea" +
-                "sonCodeList\" /></AssociationSet><AssociationSet Name=\"Company_RegistrationDetail" +
-                "sLine_RegistrationDetailsLine\" Association=\"NAV.Company_RegistrationDetailsLine\"" +
-                "><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"RegistrationDetailsLine\" E" +
-                "ntitySet=\"RegistrationDetailsLine\" /></AssociationSet><AssociationSet Name=\"Comp" +
-                "any_SalesForecastList_SalesForecastList\" Association=\"NAV.Company_SalesForecastL" +
-                "ist\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"SalesForecastList\" Ent" +
-                "itySet=\"SalesForecastList\" /></AssociationSet><AssociationSet Name=\"Company_Sale" +
-                "sLineNotClosed_SalesLineNotClosed\" Association=\"NAV.Company";
+            private const string ModelPart46 = "temLedgerEntries_ItemLedgerEntries\" Association=\"NAV.Company_ItemLedgerEntries\"><" +
+                "End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemLedgerEntries\" EntitySet" +
+                "=\"ItemLedgerEntries\" /></AssociationSet><AssociationSet Name=\"Company_ItemList_I" +
+                "temList\" Association=\"NAV.Company_ItemList\"><End Role=\"Company\" EntitySet=\"Compa" +
+                "ny\" /><End Role=\"ItemList\" EntitySet=\"ItemList\" /></AssociationSet><AssociationS" +
+                "et Name=\"Company_ItemPicture_ItemPicture\" Association=\"NAV.Company_ItemPicture\">" +
+                "<End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ItemPicture\" EntitySet=\"Ite" +
+                "mPicture\" /></AssociationSet><AssociationSet Name=\"Company_ItemUOMList_ItemUOMLi" +
+                "st\" Association=\"NAV.Company_ItemUOMList\"><End Role=\"Company\" EntitySet=\"Company" +
+                "\" /><End Role=\"ItemUOMList\" EntitySet=\"ItemUOMList\" /></AssociationSet><Associat" +
+                "ionSet Name=\"Company_Location_Location\" Association=\"NAV.Company_Location\"><End " +
+                "Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Location\" EntitySet=\"Location\" /" +
+                "></AssociationSet><AssociationSet Name=\"Company_MachineCenterList_MachineCenterL" +
+                "ist\" Association=\"NAV.Company_MachineCenterList\"><End Role=\"Company\" EntitySet=\"" +
+                "Company\" /><End Role=\"MachineCenterList\" EntitySet=\"MachineCenterList\" /></Assoc" +
+                "iationSet><AssociationSet Name=\"Company_OutputCorrectionList_OutputCorrectionLis" +
+                "t\" Association=\"NAV.Company_OutputCorrectionList\"><End Role=\"Company\" EntitySet=" +
+                "\"Company\" /><End Role=\"OutputCorrectionList\" EntitySet=\"OutputCorrectionList\" />" +
+                "</AssociationSet><AssociationSet Name=\"Company_OutputJournal_OutputJournal\" Asso" +
+                "ciation=\"NAV.Company_OutputJournal\"><End Role=\"Company\" EntitySet=\"Company\" /><E" +
+                "nd Role=\"OutputJournal\" EntitySet=\"OutputJournal\" /></AssociationSet><Associatio" +
+                "nSet Name=\"Company_OutstandingProdOrderLine_OutstandingProdOrderLine\" Associatio" +
+                "n=\"NAV.Company_OutstandingProdOrderLine\"><End Role=\"Company\" EntitySet=\"Company\"" +
+                " /><End Role=\"OutstandingProdOrderLine\" EntitySet=\"OutstandingProdOrderLine\" /><" +
+                "/AssociationSet><AssociationSet Name=\"Company_OutstandingSalesOrderLine_Outstand" +
+                "ingSalesOrderLine\" Association=\"NAV.Company_OutstandingSalesOrderLine\"><End Role" +
+                "=\"Company\" EntitySet=\"Company\" /><End Role=\"OutstandingSalesOrderLine\" EntitySet" +
+                "=\"OutstandingSalesOrderLine\" /></AssociationSet><AssociationSet Name=\"Company_Pa" +
+                "ckagingItemList_PackagingItemList\" Association=\"NAV.Company_PackagingItemList\"><" +
+                "End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"PackagingItemList\" EntitySet" +
+                "=\"PackagingItemList\" /></AssociationSet><AssociationSet Name=\"Company_PaymentMet" +
+                "hod_PaymentMethod\" Association=\"NAV.Company_PaymentMethod\"><End Role=\"Company\" E" +
+                "ntitySet=\"Company\" /><End Role=\"PaymentMethod\" EntitySet=\"PaymentMethod\" /></Ass" +
+                "ociationSet><AssociationSet Name=\"Company_PaymentTerms_PaymentTerms\" Association" +
+                "=\"NAV.Company_PaymentTerms\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=" +
+                "\"PaymentTerms\" EntitySet=\"PaymentTerms\" /></AssociationSet><AssociationSet Name=" +
+                "\"Company_PKGQtyInProd_PKGQtyInProd\" Association=\"NAV.Company_PKGQtyInProd\"><End " +
+                "Role=\"Company\" EntitySet=\"Company\" /><End Role=\"PKGQtyInProd\" EntitySet=\"PKGQtyI" +
+                "nProd\" /></AssociationSet><AssociationSet Name=\"Company_Postcodes_Postcodes\" Ass" +
+                "ociation=\"NAV.Company_Postcodes\"><End Role=\"Company\" EntitySet=\"Company\" /><End " +
+                "Role=\"Postcodes\" EntitySet=\"Postcodes\" /></AssociationSet><AssociationSet Name=\"" +
+                "Company_PostedSalesShipmentLines_PostedSalesShipmentLines\" Association=\"NAV.Comp" +
+                "any_PostedSalesShipmentLines\"><End Role=\"Company\" EntitySet=\"Company\" /><End Rol" +
+                "e=\"PostedSalesShipmentLines\" EntitySet=\"PostedSalesShipmentLines\" /></Associatio" +
+                "nSet><AssociationSet Name=\"Company_PostedSalesShipments_PostedSalesShipments\" As" +
+                "sociation=\"NAV.Company_PostedSalesShipments\"><End Role=\"Company\" EntitySet=\"Comp" +
+                "any\" /><End Role=\"PostedSalesShipments\" EntitySet=\"PostedSalesShipments\" /></Ass" +
+                "ociationSet><AssociationSet Name=\"Company_Process_Process\" Association=\"NAV.Comp" +
+                "any_Process\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Process\" Entit" +
+                "ySet=\"Process\" /></AssociationSet><AssociationSet Name=\"Company_ProcessItemList_" +
+                "ProcessItemList\" Association=\"NAV.Company_ProcessItemList\"><End Role=\"Company\" E" +
+                "ntitySet=\"Company\" /><End Role=\"ProcessItemList\" EntitySet=\"ProcessItemList\" /><" +
+                "/AssociationSet><AssociationSet Name=\"Company_ProdOrderComp_ProdOrderComp\" Assoc" +
+                "iation=\"NAV.Company_ProdOrderComp\"><End Role=\"Company\" EntitySet=\"Company\" /><En" +
+                "d Role=\"ProdOrderComp\" EntitySet=\"ProdOrderComp\" /></AssociationSet><Association" +
+                "Set Name=\"Company_ProdOrderCompLineList_ProdOrderCompLineList\" Association=\"NAV." +
+                "Company_ProdOrderCompLineList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Ro" +
+                "le=\"ProdOrderCompLineList\" EntitySet=\"ProdOrderCompLineList\" /></AssociationSet>" +
+                "<AssociationSet Name=\"Company_ProdOrderLineList_ProdOrderLineList\" Association=\"" +
+                "NAV.Company_ProdOrderLineList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Ro" +
+                "le=\"ProdOrderLineList\" EntitySet=\"ProdOrderLineList\" /></AssociationSet><Associa" +
+                "tionSet Name=\"Company_ProdOrderOutputLine_ProdOrderOutputLine\" Association=\"NAV." +
+                "Company_ProdOrderOutputLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role" +
+                "=\"ProdOrderOutputLine\" EntitySet=\"ProdOrderOutputLine\" /></AssociationSet><Assoc" +
+                "iationSet Name=\"Company_ProdPlanningLine_ProdPlanningLine\" Association=\"NAV.Comp" +
+                "any_ProdPlanningLine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ProdP" +
+                "lanningLine\" EntitySet=\"ProdPlanningLine\" /></AssociationSet><AssociationSet Nam" +
+                "e=\"Company_ProductCodeList_ProductCodeList\" Association=\"NAV.Company_ProductCode" +
+                "List\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ProductCodeList\" Enti" +
+                "tySet=\"ProductCodeList\" /></AssociationSet><AssociationSet Name=\"Company_Product" +
+                "ionEntry_ProductionEntry\" Association=\"NAV.Company_ProductionEntry\"><End Role=\"C" +
+                "ompany\" EntitySet=\"Company\" /><End Role=\"ProductionEntry\" EntitySet=\"ProductionE" +
+                "ntry\" /></AssociationSet><AssociationSet Name=\"Company_ProductionOrder_Productio" +
+                "nOrder\" Association=\"NAV.Company_ProductionOrder\"><End Role=\"Company\" EntitySet=" +
+                "\"Company\" /><End Role=\"ProductionOrder\" EntitySet=\"ProductionOrder\" /></Associat" +
+                "ionSet><AssociationSet Name=\"Company_ProductionOrderList_ProductionOrderList\" As" +
+                "sociation=\"NAV.Company_ProductionOrderList\"><End Role=\"Company\" EntitySet=\"Compa" +
+                "ny\" /><End Role=\"ProductionOrderList\" EntitySet=\"ProductionOrderList\" /></Associ" +
+                "ationSet><AssociationSet Name=\"Company_ProductionRecipe_ProductionRecipe\" Associ" +
+                "ation=\"NAV.Company_ProductionRecipe\"><End Role=\"Company\" EntitySet=\"Company\" /><" +
+                "End Role=\"ProductionRecipe\" EntitySet=\"ProductionRecipe\" /></AssociationSet><Ass" +
+                "ociationSet Name=\"Company_ProductionRecipeLinkWS_ProductionRecipeLinkWS\" Associa" +
+                "tion=\"NAV.Company_ProductionRecipeLinkWS\"><End Role=\"Company\" EntitySet=\"Company" +
+                "\" /><End Role=\"ProductionRecipeLinkWS\" EntitySet=\"ProductionRecipeLinkWS\" /></As" +
+                "sociationSet><AssociationSet Name=\"Company_ProductionRecipeWS_ProductionRecipeWS" +
+                "\" Association=\"NAV.Company_ProductionRecipeWS\"><End Role=\"Company\" EntitySet=\"Co" +
+                "mpany\" /><End Role=\"ProductionRecipeWS\" EntitySet=\"ProductionRecipeWS\" /></Assoc" +
+                "iationSet><AssociationSet Name=\"Company_PurchaseLines_PurchaseLines\" Association" +
+                "=\"NAV.Company_PurchaseLines\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role" +
+                "=\"PurchaseLines\" EntitySet=\"PurchaseLines\" /></AssociationSet><AssociationSet Na" +
+                "me=\"Company_RawMatItemList_RawMatItemList\" Association=\"NAV.Company_RawMatItemLi" +
+                "st\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"RawMatItemList\" EntityS" +
+                "et=\"RawMatItemList\" /></AssociationSet><AssociationSet Name=\"Company_ReasonCodeL" +
+                "ist_ReasonCodeList\" Association=\"NAV.Company_ReasonCodeList";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-            private const string ModelPart47 = "_SalesLineNotClosed\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"SalesLi" +
-                "neNotClosed\" EntitySet=\"SalesLineNotClosed\" /></AssociationSet><AssociationSet N" +
-                "ame=\"Company_SalesLines_SalesLines\" Association=\"NAV.Company_SalesLines\"><End Ro" +
-                "le=\"Company\" EntitySet=\"Company\" /><End Role=\"SalesLines\" EntitySet=\"SalesLines\"" +
-                " /></AssociationSet><AssociationSet Name=\"Company_SalesOrderLineKIV_SalesOrderLi" +
-                "neKIV\" Association=\"NAV.Company_SalesOrderLineKIV\"><End Role=\"Company\" EntitySet" +
-                "=\"Company\" /><End Role=\"SalesOrderLineKIV\" EntitySet=\"SalesOrderLineKIV\" /></Ass" +
-                "ociationSet><AssociationSet Name=\"Company_SalesPrices_SalesPrices\" Association=\"" +
-                "NAV.Company_SalesPrices\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Sa" +
-                "lesPrices\" EntitySet=\"SalesPrices\" /></AssociationSet><AssociationSet Name=\"Comp" +
-                "any_ShipmentMethod_ShipmentMethod\" Association=\"NAV.Company_ShipmentMethod\"><End" +
-                " Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ShipmentMethod\" EntitySet=\"Ship" +
-                "mentMethod\" /></AssociationSet><AssociationSet Name=\"Company_ShippingAgent_Shipp" +
-                "ingAgent\" Association=\"NAV.Company_ShippingAgent\"><End Role=\"Company\" EntitySet=" +
-                "\"Company\" /><End Role=\"ShippingAgent\" EntitySet=\"ShippingAgent\" /></AssociationS" +
-                "et><AssociationSet Name=\"Company_ShippingAgentService_ShippingAgentService\" Asso" +
-                "ciation=\"NAV.Company_ShippingAgentService\"><End Role=\"Company\" EntitySet=\"Compan" +
-                "y\" /><End Role=\"ShippingAgentService\" EntitySet=\"ShippingAgentService\" /></Assoc" +
-                "iationSet><AssociationSet Name=\"Company_StockAdjustmentOdata_StockAdjustmentOdat" +
-                "a\" Association=\"NAV.Company_StockAdjustmentOdata\"><End Role=\"Company\" EntitySet=" +
-                "\"Company\" /><End Role=\"StockAdjustmentOdata\" EntitySet=\"StockAdjustmentOdata\" />" +
-                "</AssociationSet><AssociationSet Name=\"Company_SWD_ConsumptionEntries_SWD_Consum" +
-                "ptionEntries\" Association=\"NAV.Company_SWD_ConsumptionEntries\"><End Role=\"Compan" +
-                "y\" EntitySet=\"Company\" /><End Role=\"SWD_ConsumptionEntries\" EntitySet=\"SWD_Consu" +
-                "mptionEntries\" /></AssociationSet><AssociationSet Name=\"Company_SWDAllProdOutput" +
-                "Line_SWDAllProdOutputLine\" Association=\"NAV.Company_SWDAllProdOutputLine\"><End R" +
-                "ole=\"Company\" EntitySet=\"Company\" /><End Role=\"SWDAllProdOutputLine\" EntitySet=\"" +
-                "SWDAllProdOutputLine\" /></AssociationSet><AssociationSet Name=\"Company_SWDProdOr" +
-                "derSyncPortal_SWDProdOrderSyncPortal\" Association=\"NAV.Company_SWDProdOrderSyncP" +
-                "ortal\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"SWDProdOrderSyncPort" +
-                "al\" EntitySet=\"SWDProdOrderSyncPortal\" /></AssociationSet><AssociationSet Name=\"" +
-                "Company_SWDWebIntegrationEntry_SWDWebIntegrationEntry\" Association=\"NAV.Company_" +
-                "SWDWebIntegrationEntry\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"SWD" +
-                "WebIntegrationEntry\" EntitySet=\"SWDWebIntegrationEntry\" /></AssociationSet><Asso" +
-                "ciationSet Name=\"Company_TenderForSimulation_TenderForSimulation\" Association=\"N" +
-                "AV.Company_TenderForSimulation\"><End Role=\"Company\" EntitySet=\"Company\" /><End R" +
-                "ole=\"TenderForSimulation\" EntitySet=\"TenderForSimulation\" /></AssociationSet><As" +
-                "sociationSet Name=\"Company_TenderOrderLines_TenderOrderLines\" Association=\"NAV.C" +
-                "ompany_TenderOrderLines\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"Te" +
-                "nderOrderLines\" EntitySet=\"TenderOrderLines\" /></AssociationSet><AssociationSet " +
-                "Name=\"Company_TestActualStart_TestActualStart\" Association=\"NAV.Company_TestActu" +
-                "alStart\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"TestActualStart\" E" +
-                "ntitySet=\"TestActualStart\" /></AssociationSet><AssociationSet Name=\"Company_Trac" +
-                "kingSpecification_TrackingSpecification\" Association=\"NAV.Company_TrackingSpecif" +
-                "ication\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"TrackingSpecificat" +
-                "ion\" EntitySet=\"TrackingSpecification\" /></AssociationSet><AssociationSet Name=\"" +
-                "Company_Vendor_Vendor\" Association=\"NAV.Company_Vendor\"><End Role=\"Company\" Enti" +
-                "tySet=\"Company\" /><End Role=\"Vendor\" EntitySet=\"Vendor\" /></AssociationSet><Asso" +
-                "ciationSet Name=\"Company_WorkCenterList_WorkCenterList\" Association=\"NAV.Company" +
-                "_WorkCenterList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"WorkCenter" +
-                "List\" EntitySet=\"WorkCenterList\" /></AssociationSet></EntityContainer></Schema><" +
-                "/edmx:DataServices></edmx:Edmx>";
+            private const string ModelPart47 = "\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"ReasonCodeList\" EntitySet=" +
+                "\"ReasonCodeList\" /></AssociationSet><AssociationSet Name=\"Company_RegistrationDe" +
+                "tailsLine_RegistrationDetailsLine\" Association=\"NAV.Company_RegistrationDetailsL" +
+                "ine\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"RegistrationDetailsLin" +
+                "e\" EntitySet=\"RegistrationDetailsLine\" /></AssociationSet><AssociationSet Name=\"" +
+                "Company_SalesForecastList_SalesForecastList\" Association=\"NAV.Company_SalesForec" +
+                "astList\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"SalesForecastList\"" +
+                " EntitySet=\"SalesForecastList\" /></AssociationSet><AssociationSet Name=\"Company_" +
+                "SalesLineNotClosed_SalesLineNotClosed\" Association=\"NAV.Company_SalesLineNotClos" +
+                "ed\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"SalesLineNotClosed\" Ent" +
+                "itySet=\"SalesLineNotClosed\" /></AssociationSet><AssociationSet Name=\"Company_Sal" +
+                "esLines_SalesLines\" Association=\"NAV.Company_SalesLines\"><End Role=\"Company\" Ent" +
+                "itySet=\"Company\" /><End Role=\"SalesLines\" EntitySet=\"SalesLines\" /></Association" +
+                "Set><AssociationSet Name=\"Company_SalesOrderLineKIV_SalesOrderLineKIV\" Associati" +
+                "on=\"NAV.Company_SalesOrderLineKIV\"><End Role=\"Company\" EntitySet=\"Company\" /><En" +
+                "d Role=\"SalesOrderLineKIV\" EntitySet=\"SalesOrderLineKIV\" /></AssociationSet><Ass" +
+                "ociationSet Name=\"Company_SalesPrices_SalesPrices\" Association=\"NAV.Company_Sale" +
+                "sPrices\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"SalesPrices\" Entit" +
+                "ySet=\"SalesPrices\" /></AssociationSet><AssociationSet Name=\"Company_ShipmentMeth" +
+                "od_ShipmentMethod\" Association=\"NAV.Company_ShipmentMethod\"><End Role=\"Company\" " +
+                "EntitySet=\"Company\" /><End Role=\"ShipmentMethod\" EntitySet=\"ShipmentMethod\" /></" +
+                "AssociationSet><AssociationSet Name=\"Company_ShippingAgent_ShippingAgent\" Associ" +
+                "ation=\"NAV.Company_ShippingAgent\"><End Role=\"Company\" EntitySet=\"Company\" /><End" +
+                " Role=\"ShippingAgent\" EntitySet=\"ShippingAgent\" /></AssociationSet><AssociationS" +
+                "et Name=\"Company_ShippingAgentService_ShippingAgentService\" Association=\"NAV.Com" +
+                "pany_ShippingAgentService\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"" +
+                "ShippingAgentService\" EntitySet=\"ShippingAgentService\" /></AssociationSet><Assoc" +
+                "iationSet Name=\"Company_StockAdjustmentOdata_StockAdjustmentOdata\" Association=\"" +
+                "NAV.Company_StockAdjustmentOdata\"><End Role=\"Company\" EntitySet=\"Company\" /><End" +
+                " Role=\"StockAdjustmentOdata\" EntitySet=\"StockAdjustmentOdata\" /></AssociationSet" +
+                "><AssociationSet Name=\"Company_SWD_ConsumptionEntries_SWD_ConsumptionEntries\" As" +
+                "sociation=\"NAV.Company_SWD_ConsumptionEntries\"><End Role=\"Company\" EntitySet=\"Co" +
+                "mpany\" /><End Role=\"SWD_ConsumptionEntries\" EntitySet=\"SWD_ConsumptionEntries\" /" +
+                "></AssociationSet><AssociationSet Name=\"Company_SWDAllProdOutputLine_SWDAllProdO" +
+                "utputLine\" Association=\"NAV.Company_SWDAllProdOutputLine\"><End Role=\"Company\" En" +
+                "titySet=\"Company\" /><End Role=\"SWDAllProdOutputLine\" EntitySet=\"SWDAllProdOutput" +
+                "Line\" /></AssociationSet><AssociationSet Name=\"Company_SWDProdOrderSyncPortal_SW" +
+                "DProdOrderSyncPortal\" Association=\"NAV.Company_SWDProdOrderSyncPortal\"><End Role" +
+                "=\"Company\" EntitySet=\"Company\" /><End Role=\"SWDProdOrderSyncPortal\" EntitySet=\"S" +
+                "WDProdOrderSyncPortal\" /></AssociationSet><AssociationSet Name=\"Company_SWDWebIn" +
+                "tegrationEntry_SWDWebIntegrationEntry\" Association=\"NAV.Company_SWDWebIntegratio" +
+                "nEntry\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"SWDWebIntegrationEn" +
+                "try\" EntitySet=\"SWDWebIntegrationEntry\" /></AssociationSet><AssociationSet Name=" +
+                "\"Company_TenderForSimulation_TenderForSimulation\" Association=\"NAV.Company_Tende" +
+                "rForSimulation\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"TenderForSi" +
+                "mulation\" EntitySet=\"TenderForSimulation\" /></AssociationSet><AssociationSet Nam" +
+                "e=\"Company_TenderOrderLines_TenderOrderLines\" Association=\"NAV.Company_TenderOrd" +
+                "erLines\"><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"TenderOrderLines\" " +
+                "EntitySet=\"TenderOrderLines\" /></AssociationSet><AssociationSet Name=\"Company_Te" +
+                "stActualStart_TestActualStart\" Association=\"NAV.Company_TestActualStart\"><End Ro" +
+                "le=\"Company\" EntitySet=\"Company\" /><End Role=\"TestActualStart\" EntitySet=\"TestAc" +
+                "tualStart\" /></AssociationSet><AssociationSet Name=\"Company_TrackingSpecificatio" +
+                "n_TrackingSpecification\" Association=\"NAV.Company_TrackingSpecification\"><End Ro" +
+                "le=\"Company\" EntitySet=\"Company\" /><End Role=\"TrackingSpecification\" EntitySet=\"" +
+                "TrackingSpecification\" /></AssociationSet><AssociationSet Name=\"Company_Vendor_V" +
+                "endor\" Association=\"NAV.Company_Vendor\"><End Role=\"Company\" EntitySet=\"Company\" " +
+                "/><End Role=\"Vendor\" EntitySet=\"Vendor\" /></AssociationSet><AssociationSet Name=" +
+                "\"Company_WorkCenterList_WorkCenterList\" Association=\"NAV.Company_WorkCenterList\"" +
+                "><End Role=\"Company\" EntitySet=\"Company\" /><End Role=\"WorkCenterList\" EntitySet=" +
+                "\"WorkCenterList\" /></AssociationSet></EntityContainer></Schema></edmx:DataServic" +
+                "es></edmx:Edmx>";
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
             private static string GetConcatenatedEdmxString()
             {
@@ -23357,6 +23366,27 @@ namespace NAV
         partial void OnProduct_NameChanging(string value);
         partial void OnProduct_NameChanged();
         /// <summary>
+        /// There are no comments for Property g_optStatus in the schema.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        public string g_optStatus
+        {
+            get
+            {
+                return this._g_optStatus;
+            }
+            set
+            {
+                this.Ong_optStatusChanging(value);
+                this._g_optStatus = value;
+                this.Ong_optStatusChanged();
+            }
+        }
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        private string _g_optStatus;
+        partial void Ong_optStatusChanging(string value);
+        partial void Ong_optStatusChanged();
+        /// <summary>
         /// There are no comments for Property ETag in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
@@ -27413,43 +27443,91 @@ namespace NAV
     /// There are no comments for NAV.ItemBatchInfo in the schema.
     /// </summary>
     /// <KeyProperties>
-    /// Entry_No
+    /// Line_No
+    /// Prod_Order_No
+    /// Status
     /// </KeyProperties>
-    [global::System.Data.Services.Common.DataServiceKeyAttribute("Entry_No")]
+    [global::System.Data.Services.Common.DataServiceKeyAttribute("Line_No", "Prod_Order_No", "Status")]
     public partial class ItemBatchInfo
     {
         /// <summary>
         /// Create a new ItemBatchInfo object.
         /// </summary>
-        /// <param name="entry_No">Initial value of Entry_No.</param>
+        /// <param name="status">Initial value of Status.</param>
+        /// <param name="prod_Order_No">Initial value of Prod_Order_No.</param>
+        /// <param name="line_No">Initial value of Line_No.</param>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public static ItemBatchInfo CreateItemBatchInfo(int entry_No)
+        public static ItemBatchInfo CreateItemBatchInfo(string status, string prod_Order_No, int line_No)
         {
             ItemBatchInfo itemBatchInfo = new ItemBatchInfo();
-            itemBatchInfo.Entry_No = entry_No;
+            itemBatchInfo.Status = status;
+            itemBatchInfo.Prod_Order_No = prod_Order_No;
+            itemBatchInfo.Line_No = line_No;
             return itemBatchInfo;
         }
         /// <summary>
-        /// There are no comments for Property Entry_No in the schema.
+        /// There are no comments for Property Status in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public int Entry_No
+        public string Status
         {
             get
             {
-                return this._Entry_No;
+                return this._Status;
             }
             set
             {
-                this.OnEntry_NoChanging(value);
-                this._Entry_No = value;
-                this.OnEntry_NoChanged();
+                this.OnStatusChanging(value);
+                this._Status = value;
+                this.OnStatusChanged();
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        private int _Entry_No;
-        partial void OnEntry_NoChanging(int value);
-        partial void OnEntry_NoChanged();
+        private string _Status;
+        partial void OnStatusChanging(string value);
+        partial void OnStatusChanged();
+        /// <summary>
+        /// There are no comments for Property Prod_Order_No in the schema.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        public string Prod_Order_No
+        {
+            get
+            {
+                return this._Prod_Order_No;
+            }
+            set
+            {
+                this.OnProd_Order_NoChanging(value);
+                this._Prod_Order_No = value;
+                this.OnProd_Order_NoChanged();
+            }
+        }
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        private string _Prod_Order_No;
+        partial void OnProd_Order_NoChanging(string value);
+        partial void OnProd_Order_NoChanged();
+        /// <summary>
+        /// There are no comments for Property Line_No in the schema.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        public int Line_No
+        {
+            get
+            {
+                return this._Line_No;
+            }
+            set
+            {
+                this.OnLine_NoChanging(value);
+                this._Line_No = value;
+                this.OnLine_NoChanged();
+            }
+        }
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        private int _Line_No;
+        partial void OnLine_NoChanging(int value);
+        partial void OnLine_NoChanged();
         /// <summary>
         /// There are no comments for Property Item_No in the schema.
         /// </summary>
@@ -27471,27 +27549,6 @@ namespace NAV
         private string _Item_No;
         partial void OnItem_NoChanging(string value);
         partial void OnItem_NoChanged();
-        /// <summary>
-        /// There are no comments for Property Posting_Date in the schema.
-        /// </summary>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public global::System.Nullable<global::System.DateTime> Posting_Date
-        {
-            get
-            {
-                return this._Posting_Date;
-            }
-            set
-            {
-                this.OnPosting_DateChanging(value);
-                this._Posting_Date = value;
-                this.OnPosting_DateChanged();
-            }
-        }
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        private global::System.Nullable<global::System.DateTime> _Posting_Date;
-        partial void OnPosting_DateChanging(global::System.Nullable<global::System.DateTime> value);
-        partial void OnPosting_DateChanged();
         /// <summary>
         /// There are no comments for Property Description in the schema.
         /// </summary>
@@ -27535,48 +27592,6 @@ namespace NAV
         partial void OnLocation_CodeChanging(string value);
         partial void OnLocation_CodeChanged();
         /// <summary>
-        /// There are no comments for Property Lot_No in the schema.
-        /// </summary>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public string Lot_No
-        {
-            get
-            {
-                return this._Lot_No;
-            }
-            set
-            {
-                this.OnLot_NoChanging(value);
-                this._Lot_No = value;
-                this.OnLot_NoChanged();
-            }
-        }
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        private string _Lot_No;
-        partial void OnLot_NoChanging(string value);
-        partial void OnLot_NoChanged();
-        /// <summary>
-        /// There are no comments for Property Remaining_Quantity in the schema.
-        /// </summary>
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public global::System.Nullable<decimal> Remaining_Quantity
-        {
-            get
-            {
-                return this._Remaining_Quantity;
-            }
-            set
-            {
-                this.OnRemaining_QuantityChanging(value);
-                this._Remaining_Quantity = value;
-                this.OnRemaining_QuantityChanged();
-            }
-        }
-        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        private global::System.Nullable<decimal> _Remaining_Quantity;
-        partial void OnRemaining_QuantityChanging(global::System.Nullable<decimal> value);
-        partial void OnRemaining_QuantityChanged();
-        /// <summary>
         /// There are no comments for Property Batch_No in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
@@ -27598,47 +27613,47 @@ namespace NAV
         partial void OnBatch_NoChanging(string value);
         partial void OnBatch_NoChanged();
         /// <summary>
-        /// There are no comments for Property Manufacturing_Date in the schema.
+        /// There are no comments for Property g_dteMfgDate in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public global::System.Nullable<global::System.DateTime> Manufacturing_Date
+        public global::System.Nullable<global::System.DateTime> g_dteMfgDate
         {
             get
             {
-                return this._Manufacturing_Date;
+                return this._g_dteMfgDate;
             }
             set
             {
-                this.OnManufacturing_DateChanging(value);
-                this._Manufacturing_Date = value;
-                this.OnManufacturing_DateChanged();
+                this.Ong_dteMfgDateChanging(value);
+                this._g_dteMfgDate = value;
+                this.Ong_dteMfgDateChanged();
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        private global::System.Nullable<global::System.DateTime> _Manufacturing_Date;
-        partial void OnManufacturing_DateChanging(global::System.Nullable<global::System.DateTime> value);
-        partial void OnManufacturing_DateChanged();
+        private global::System.Nullable<global::System.DateTime> _g_dteMfgDate;
+        partial void Ong_dteMfgDateChanging(global::System.Nullable<global::System.DateTime> value);
+        partial void Ong_dteMfgDateChanged();
         /// <summary>
-        /// There are no comments for Property Expiration_Date in the schema.
+        /// There are no comments for Property g_dteExpDate in the schema.
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        public global::System.Nullable<global::System.DateTime> Expiration_Date
+        public global::System.Nullable<global::System.DateTime> g_dteExpDate
         {
             get
             {
-                return this._Expiration_Date;
+                return this._g_dteExpDate;
             }
             set
             {
-                this.OnExpiration_DateChanging(value);
-                this._Expiration_Date = value;
-                this.OnExpiration_DateChanged();
+                this.Ong_dteExpDateChanging(value);
+                this._g_dteExpDate = value;
+                this.Ong_dteExpDateChanged();
             }
         }
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
-        private global::System.Nullable<global::System.DateTime> _Expiration_Date;
-        partial void OnExpiration_DateChanging(global::System.Nullable<global::System.DateTime> value);
-        partial void OnExpiration_DateChanged();
+        private global::System.Nullable<global::System.DateTime> _g_dteExpDate;
+        partial void Ong_dteExpDateChanging(global::System.Nullable<global::System.DateTime> value);
+        partial void Ong_dteExpDateChanged();
         /// <summary>
         /// There are no comments for Property ETag in the schema.
         /// </summary>
@@ -27660,6 +27675,23 @@ namespace NAV
         private string _ETag;
         partial void OnETagChanging(string value);
         partial void OnETagChanged();
+        /// <summary>
+        /// There are no comments for Prod_Order_No_Link in the schema.
+        /// </summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        public ProductionOrder Prod_Order_No_Link
+        {
+            get
+            {
+                return this._Prod_Order_No_Link;
+            }
+            set
+            {
+                this._Prod_Order_No_Link = value;
+            }
+        }
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
+        private ProductionOrder _Prod_Order_No_Link;
         /// <summary>
         /// There are no comments for Location_Code_Link in the schema.
         /// </summary>

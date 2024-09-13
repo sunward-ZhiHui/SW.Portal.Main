@@ -390,7 +390,7 @@ namespace Infrastructure.Repository.Query
                             var Exits = Navlists.Where(w => w.No == s.ItemNo).FirstOrDefault();
                             if (Exits != null)
                             {
-                                var itemBatchExits = itemBatch.Where(f => f.CompanyId == CompanyId && f.BatchNo == s.BatchNo && f.ItemId == Exits.ItemId && f.LocationCode == s.LocationCode).Count();
+                                var itemBatchExits = itemBatch.Where(f => f.CompanyId == CompanyId && f.LotNo == s.LotNo && f.BatchNo == s.BatchNo && f.ItemId == Exits.ItemId && f.LocationCode == s.LocationCode).Count();
                                 if (itemBatchExits > 0)
                                 {
 
@@ -669,17 +669,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<FinishedProdOrderLine>> deleteFinishedProdOrderLine(long? CompanyId)
+        public async Task<IReadOnlyList<FinishedProdOrderLine>> DeleteFinishedProdOrderLine(long? CompanyId)
         {
             List<FinishedProdOrderLine> ItemBatchInfos = new List<FinishedProdOrderLine>();
             try
             {
-                var query = "select tt1.*,\r\nProductName = STUFF((\r\n          SELECT ',' + CAST(md.FinishedProdOrderLineID AS VARCHAR(MAX))\r\n          FROM FinishedProdOrderLine md\r\n          WHERE md.CompanyID=tt1.CompanyID AND md.ProdOrderNo=tt1.ProdOrderNo AND md.ReplanRefNo=tt1.ReplanRefNo AND md.ItemNo=tt1.ItemNo\r\n\t\t  Order by md.FinishedProdOrderLineID asc\r\n          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')\r\nfrom (select t1.ProdOrderNo,t1.ReplanRefNo,t1.ItemNo,t1.CompanyID,count(t1.ProdOrderNo) Counts from FinishedProdOrderLine t1 where t1.CompanyID="+ CompanyId + " group by t1.ProdOrderNo,t1.ReplanRefNo,t1.ItemNo,t1.CompanyID)tt1 where Counts>1 order by Counts desc\r\n";
-
+                var query = "select tt2.*,(right(tt2.ProductName, len(tt2.ProductName) - charindex(',', tt2.ProductName))) as ProductCode from (select tt1.*,\r\nProductName = STUFF((\r\n          SELECT ',' + CAST(md.FinishedProdOrderLineID AS VARCHAR(MAX))\r\n          FROM FinishedProdOrderLine md\r\n          WHERE md.CompanyID=tt1.CompanyID AND md.ProdOrderNo=tt1.ProdOrderNo AND md.ReplanRefNo=tt1.ReplanRefNo AND md.ItemNo=tt1.ItemNo\r\n\t\t  Order by md.FinishedProdOrderLineID asc\r\n          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')\r\nfrom (select t1.ProdOrderNo,t1.ReplanRefNo,t1.ItemNo,t1.CompanyID,count(t1.ProdOrderNo) Counts from FinishedProdOrderLine t1 where t1.CompanyID=" + CompanyId + " group by t1.ProdOrderNo,t1.ReplanRefNo,t1.ItemNo,t1.CompanyID)tt1 where Counts>1 )tt2 order by tt2.Counts desc;";
+                query += "\r\nselect tt2.*,\r\n(CONCAT('DELETE FROM ItemBatchInfo WHERE ItemBatchId IN(',right(tt2.ProductName, len(tt2.ProductName) - charindex(',', tt2.ProductName)),')')) as ProductCode from(select tt1.* ,\r\nProductName = STUFF((\r\n          SELECT ',' + CAST(md.ItemBatchId AS VARCHAR(MAX))\r\n          FROM ItemBatchInfo md\r\n          WHERE md.CompanyID=tt1.CompanyID AND md.BatchNo=tt1.BatchNo AND md.CompanyId=tt1.CompanyId AND md.LocationCode=tt1.LocationCode AND md.ItemId=tt1.ItemId\r\n\t\t  Order by md.ItemBatchId asc\r\n          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')\r\nfrom \r\n(select t1.BatchNo,t1.CompanyId,t1.LocationCode,t1.ItemId,COUNT(t1.ItemId) as Counts from ItemBatchInfo t1 where CAST(t1.AddedDate as Date)>='2024-09-05' AND t1.CompanyId=2 group by t1.BatchNo,t1.CompanyId,t1.LocationCode,t1.ItemId)tt1 where tt1.Counts>1)tt2 order by tt2.Counts desc";
                 using (var connection = CreateConnection())
                 {
                     var result = (await connection.QueryAsync<FinishedProdOrderLine>(query)).ToList();
                     ItemBatchInfos = result != null ? result : new List<FinishedProdOrderLine>();
+                }
+                if (ItemBatchInfos != null && ItemBatchInfos.Count() > 0)
+                {
+                    var query1 = string.Empty;
+                    ItemBatchInfos.ForEach(s =>
+                    {
+                        query1 += "\n\r";
+                    });
                 }
                 return ItemBatchInfos;
             }

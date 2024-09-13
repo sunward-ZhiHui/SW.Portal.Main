@@ -127,6 +127,8 @@ namespace Core.Entities
         public List<long?> DynamicFormSectionIDs { get; set; } = new List<long?>();
         [DynamicFormWorkFormFlowSectionCustomValidation]
         public IEnumerable<long>? SelectDynamicFormSectionIDs { get; set; } = new List<long>();
+        public long? CurrentApprovalUserId { get; set; }
+        public string? CurrentApprovalUserName { get; set; }
     }
     public class DynamicFormDataUploadByPermission
     {

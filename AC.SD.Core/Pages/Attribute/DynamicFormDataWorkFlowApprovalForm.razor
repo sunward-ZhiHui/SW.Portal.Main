@@ -300,16 +300,24 @@
         {
             // if (SelectedItems.IsAllowDelegateUser == true)
             // {
-            if (SelectedItems.IsNextFlow == true)
+            // if (SelectedItems.IsNextFlow == true)
+            // {
+            //     EditDelegateEnabled = true;
+            //     EditEnabled = true;
+            //     DeleteEnabled = true;
+            // }
+            // }
+
+            if (_selectedItems.IsApproved == null)
             {
                 EditDelegateEnabled = true;
                 EditEnabled = true;
                 DeleteEnabled = true;
             }
-            // }
-        }
-        StateHasChanged();
 
+        }
+
+        StateHasChanged();
     }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -364,7 +372,8 @@
         {
             if (_usersAllList != null && _usersAllList.Count() > 0)
             {
-                var userIds = _dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count() > 0 ? _dynamicFormWorkFlowApprovalList.Select(s => s.UserId).ToList() : new List<long?>();
+                var userIds = _dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count() > 0 ? _dynamicFormWorkFlowApprovalList.Select(s => s.UserId).ToList() : new List<long?>
+    ();
                 _usersList = _usersAllList.Where(w => !userIds.Contains(w.UserID)).ToList();
             }
         }
@@ -372,7 +381,8 @@
         {
             if (_usersAllList != null && _usersAllList.Count() > 0)
             {
-                var userIds = _dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count() > 0 ? _dynamicFormWorkFlowApprovalList.Where(w => w.UserId != navitems.UserId).Select(s => s.UserId).ToList() : new List<long?>();
+                var userIds = _dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count() > 0 ? _dynamicFormWorkFlowApprovalList.Where(w => w.UserId != navitems.UserId).Select(s => s.UserId).ToList() : new List<long?>
+                    ();
                 _usersList = _usersAllList.Where(w => !userIds.Contains(w.UserID)).ToList();
             }
         }
@@ -452,7 +462,7 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    void SelectedDataItemsChanged(IReadOnlyList <object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
     }
@@ -468,7 +478,9 @@
     {
         _selectedDynamicFormSectionItems = new DynamicFormWorkFlowApproval();
 
-        sortOrderList = new List<DynamicFormSectionSortOrder>();
+        sortOrderList = new List
+        <DynamicFormSectionSortOrder>
+            ();
         IsSortOrderByOpen = true;
         if (_dynamicFormWorkFlowApprovalList != null && _dynamicFormWorkFlowApprovalList.Count > 0)
         {

@@ -146,7 +146,7 @@
     </div>
 </div>
 <div class="card cw-480" style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 325px);">
-    <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
+    <DxTabs RenderMode="TabsRenderMode.Default" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
         <DxTabPage Text="Form">
             <div class="card-body" style="margin-top:5px;">
                 <DxFormLayout CssClass="w-100">
@@ -965,6 +965,10 @@
                 {
                     if (_dynamicform != null)
                     {
+                        if (_dynamicformData == null)
+                        {
+                            isSaveEnabled = true;
+                        }
                         if (_dynamicformData != null)
                         {
                             if (_dynamicFormWorkFlowSection != null && _dynamicFormWorkFlowSection.Count() > 0)
@@ -1005,6 +1009,38 @@
                                         {
                                             _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
                                             break;
+                                        }
+                                    }
+                                }
+                                isWorkflowEnabled = false; isSaveEnabled = false; isApprovalEnabled = false; isVisibleButton = false; IsUploadEnabled = false;
+                                if (notCompleted != null && notCompleted.Count() > 0)
+                                {
+                                    var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
+                                    if (_dynamicform.IsApproval == true)
+                                    {
+                                        isApprovalEnabled = true;
+                                        isVisibleButton = true;
+                                        if (_dynamicformData != null)
+                                        {
+                                            CheckedApprovalData();
+                                        }
+                                    }
+                                    if (_dynamicformData == null)
+                                    {
+                                        isSaveEnabled = true;
+                                    }
+                                    if (exitss != null)
+                                    {
+                                        if (exitss.IsWorkFlowDone == 0)
+                                        {
+                                            isWorkflowEnabled = true; isSaveEnabled = true;
+                                            if (_dynamicformData != null)
+                                            {
+                                                if (isApproval == true)
+                                                {
+                                                    IsUploadEnabled = true;
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -1615,10 +1651,6 @@
         else
         {
             AddEnabled = false;
-        }
-        if (refDynamicFormDataWorkFlowFormList != null)
-        {
-            await refDynamicFormDataWorkFlowFormList?.loadDatas();
         }
         StateHasChanged();
     }
@@ -3652,9 +3684,9 @@
                   isVisible = true;
               }
               isReadonly = false;
-              isVisibleButton = false;
-              IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
-              isSaveEnabled = false;
+              // isVisibleButton = false;
+              // IsUploadEnabled = false; IsSendApprovalVisible = false; IsApprovalApproved = false; IsApprovalRejected = false;
+              // isSaveEnabled = false;
           }
           var exitsForm = string.Empty;
           if (_dynamicFormWorkFlowFormList != null && _dynamicFormWorkFlowFormList.Count > 0)
@@ -3672,17 +3704,28 @@
                       var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
                       if (exitss != null)
                       {
-                          var userExits = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
-                          if (userExits != null)
+                          if (exitss.IsWorkFlowDone == 0)
                           {
+                              var userExits = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
+                              if (userExits != null)
+                              {
 
-                              if (isVisible != false)
-                              {
-                                  isVisible = true;
+                                  if (isVisible != false)
+                                  {
+                                      isVisible = true;
+                                  }
+                                  if (isReadonly == false)
+                                  {
+                                      isReadonly = true;
+                                  }
                               }
-                              if (isReadonly == false)
+                              else
                               {
-                                  isReadonly = true;
+                                  if (isVisible != false)
+                                  {
+                                      isVisible = true;
+                                  }
+                                  isReadonly = false;
                               }
                           }
                           else
@@ -4636,6 +4679,10 @@
                           layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
                           layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                           layoutItemBuilders.CloseComponent();
+                          layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                          layoutItemBuilders.AddAttribute(16, "FieldName", "OptStatus");
+                          layoutItemBuilders.AddAttribute(16, "Caption", "Status");
+                          layoutItemBuilders.CloseComponent();
                       }
                   }
               }
@@ -4905,6 +4952,10 @@
                       layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
                       layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                       layoutItemBuilders.CloseComponent();
+                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                      layoutItemBuilders.AddAttribute(16, "FieldName", "OptStatus");
+                      layoutItemBuilders.AddAttribute(16, "Caption", "Status");
+                      layoutItemBuilders.CloseComponent();
                   }
               }
           }
@@ -5129,6 +5180,10 @@
               layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
               layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
               layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
+              layoutItemBuilders.CloseComponent();
+              layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+              layoutItemBuilders.AddAttribute(16, "FieldName", "OptStatus");
+              layoutItemBuilders.AddAttribute(16, "Caption", "Status");
               layoutItemBuilders.CloseComponent();
           }
 
@@ -5369,6 +5424,10 @@
               layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
               layoutItemBuilders1.AddAttribute(15, "FieldName", "CompanyName");
               layoutItemBuilders1.AddAttribute(15, "Caption", "Comapny");
+              layoutItemBuilders1.CloseComponent();
+              layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+              layoutItemBuilders1.AddAttribute(16, "FieldName", "OptStatus");
+              layoutItemBuilders1.AddAttribute(16, "Caption", "Status");
               layoutItemBuilders1.CloseComponent();
           }
       }));
@@ -5940,6 +5999,10 @@
                       layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
                       layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                       layoutItemBuilders.CloseComponent();
+                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                      layoutItemBuilders.AddAttribute(16, "FieldName", "OptStatus");
+                      layoutItemBuilders.AddAttribute(16, "Caption", "Status");
+                      layoutItemBuilders.CloseComponent();
                   }
               }));
                   if (q.IsRequired == true)
@@ -6076,6 +6139,10 @@
                       layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                       layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
                       layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
+                      layoutItemBuilders.CloseComponent();
+                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                      layoutItemBuilders.AddAttribute(16, "FieldName", "OptStatus");
+                      layoutItemBuilders.AddAttribute(16, "Caption", "Status");
                       layoutItemBuilders.CloseComponent();
                   }
               }));
@@ -6246,6 +6313,10 @@
                       layoutItemBuilders.AddAttribute(15, "FieldName", "CompanyName");
                       layoutItemBuilders.AddAttribute(15, "Caption", "Comapny");
                       layoutItemBuilders.CloseComponent();
+                      layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                      layoutItemBuilders.AddAttribute(16, "FieldName", "OptStatus");
+                      layoutItemBuilders.AddAttribute(16, "Caption", "Status");
+                      layoutItemBuilders.CloseComponent();
                   }
               }));
                   if (q.IsRequired == true)
@@ -6331,41 +6402,6 @@
                       loadDynamicGridDropDownForm(s, i, itemBuilder, isAccessOnly, isReadonly);
                   }
               });
-
-          }
-          if (dynamicFormData != null)
-          {
-              if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
-              {
-                  var exitss = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId && f.UserId == applicationUser.UserID);
-                  if (_dynamicform.IsApproval == true)
-                  {
-                      isApprovalEnabled = true;
-                      isVisibleButton = true;
-                      if (_dynamicformData != null)
-                      {
-                          CheckedApprovalData();
-                      }
-                  }
-                  if (_dynamicformData == null)
-                  {
-                      isSaveEnabled = true;
-                  }
-                  if (exitss != null)
-                  {
-                      isWorkflowEnabled = true; isSaveEnabled = true;
-                      if (_dynamicformData != null)
-                      {
-                          if (isApproval == true)
-                          {
-                              IsUploadEnabled = true;
-                          }
-                      }
-                  }
-              }
-          }
-          else
-          {
 
           }
       }));

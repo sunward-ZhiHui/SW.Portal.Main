@@ -44,6 +44,7 @@ using FirebaseNet.Messaging;
 using Google.Apis.Auth.OAuth2;
 using DevExpress.CodeParser;
 using System.Drawing;
+using Microsoft.Ajax.Utilities;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -605,7 +606,19 @@ namespace SW.Portal.Solutions.Controllers
                 }
             }
         }
+        [HttpGet("PushNotificationAll")]
+        public async Task<string> PushNotificationAll(List<string> tokens, string titles, string message,string housturl)
+        {
+            
+           
+            foreach (var lst in tokens)
+            {
+                //tokenStringList.Add(lst.TokenID.ToString());
 
+                await PushNotification(lst, titles, message, housturl);
+            }
+            return titles;
+        }
         private async Task<string> GetAccessTokenAsync(IWebHostEnvironment env)
         {
             string relativePath = _configuration["FcmNotification:FilePath"];

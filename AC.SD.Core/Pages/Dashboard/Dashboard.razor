@@ -16,9 +16,9 @@
 @inject AC.SD.Core.Services.ToastService toastService
 
 <style scoped>
-    .dxbl-sc-table.dxbl-sc-vertical-view tr:first-of-type {
+   /*  .dxbl-sc-table.dxbl-sc-vertical-view tr:first-of-type {
         display: none;
-    }
+    } */
     .demo-resnavigator-sc-container
     {
         overflow:auto;
@@ -32,6 +32,10 @@
         display: none;
     }
 
+    .highlight {
+        background-color: yellow;
+        font-weight: bold;
+    }
 
 </style>
 
@@ -73,14 +77,27 @@
     <DxSchedulerMonthView />
 </DxScheduler> *@ 
 <div class="demo-resnavigator">
-    <div class="demo-resnavigator-container card">
-        <div class="demo-resnavigator-title card-body">
+    <div class="demo-resnavigator-container card" style="height: calc(100vh - 230px); overflow:auto;">
+        <div class="demo-resnavigator-title card-body" >
             <DxButton RenderStyle="ButtonRenderStyle.None" Click="@ToggleResourceNavigator" IconCssClass="demo-resnavigator-icon" title="Toggle the resource navigator" />
             @if(ResourceNavigatorExpanded) {
                 <span style="">Filter</span>
+                
             }
         </div>
         @if(ResourceNavigatorExpanded) {
+            <div style="margin-left: 10px;    margin-right: 10px;">
+                <DxTextBox @bind-Text="filterText" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" NullText="Type to filter..." />
+            </div>
+            <div style="margin-left: 10px;    margin-right: 10px;">
+                <DxCheckBox CheckType="CheckType.Switch"
+                            LabelPosition="LabelPosition.Left"
+                            Checked="@SilentMode"
+                            CheckedChanged="@((bool t) => TimeCheckedChanged(t))"
+                            Alignment="CheckBoxContentAlignment.SpaceBetween">
+                    With Time
+                </DxCheckBox>
+            </div>
             <div class="demo-resnavigator-tree card-body">
                 <DxTreeView AfterCollapse="@(e => UpdateExpandedState(e, false))" AfterExpand="@(e => UpdateExpandedState(e, true))">
                     <Nodes>
@@ -113,7 +130,7 @@
                     <Nodes>
                         <DxTreeViewNode Text="User Tags" CssClass="user_tag" Name="User Tags" Expanded="false"> 
                             <Nodes>
-                                @foreach (var userTag in userTagList)
+                                @foreach (var userTag in userTagList.Where(tag => IsFiltered(tag)))
                                 {
                             
                                     <DxTreeViewNode Text="@userTag">
@@ -121,8 +138,8 @@
                                             <div class="demo-resnavigator-item">
                                                 <DxCheckBox T="bool"
                                                             Checked="@IsUserTagSelected(userTag)"
-                                                            CheckedChanged="@(isChecked => OnUserTagCheckedChanged(userTag, isChecked))">
-                                                    @userTag
+                                                            CheckedChanged="@(isChecked => OnUserTagCheckedChanged(userTag, isChecked))">                                                    
+                                                    @((MarkupString)HighlightSearchText(userTag))
                                                 </DxCheckBox>
                                             </div>
                                         </Template>
@@ -141,7 +158,7 @@
                         {
                             <DxTreeViewNode Text="Other Tags" CssClass="other_tag" Name="Other Tags" Expanded="false"> 
                                 <Nodes>
-                                    @foreach (var otherTag in otherTagList)
+                                    @foreach (var otherTag in otherTagList.Where(tag => IsFiltered(tag)))
                                     {
                                         <DxTreeViewNode Text="@otherTag">
                                             <Template>
@@ -149,7 +166,7 @@
                                                     <DxCheckBox T="bool"
                                                                 Checked="@IsOtherTagSelected(otherTag)"
                                                                 CheckedChanged="@(isChecked => OnOtherTagCheckedChanged(otherTag, isChecked))">
-                                                        @otherTag
+                                                        <span>@(HighlightSearchText(otherTag))</span>
                                                     </DxCheckBox>
                                                 </div>
                                             </Template>
@@ -177,8 +194,7 @@
                  AppointmentRemoving="AppointmentRemoving"
                  AppointmentUpdating="AppointmentUpdating">
         <Views>
-            <DxSchedulerDayView ShowWorkTimeOnly="false" TimeIndicatorVisibility="SchedulerTimeIndicatorVisibility.Never" 
-            VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))">
+            <DxSchedulerDayView>
                 @* <HorizontalAppointmentTemplate>
                     @{
                         string backgroundCss = context.Resource == null ? "dx-purple-color" : context.Resource.BackgroundCssClass;
@@ -208,7 +224,7 @@
                 </VerticalAppointmentTemplate> *@
             
             </DxSchedulerDayView>
-            <DxSchedulerWeekView VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(9)))" />
+            <DxSchedulerWeekView />
             <DxSchedulerMonthView />
         </Views>
         <AppointmentTooltipHeaderTemplate>
@@ -280,6 +296,8 @@
     </div>
 </div>
 @code {
+    private string filterText { get; set; } = string.Empty;    
+    bool SilentMode { get; set; } = false;
     DxTreeView treeview;
     private List<string> selectedUserTags = new List<string>();
     private List<string> selectedOtherTags = new List<string>();
@@ -288,12 +306,43 @@
     private string SelectedUserTag { get; set; }
     private string SelectedOtherTag { get; set; }
     private List<Appointment>? _data { get; set; }
+    private List<Appointment> _filteredData;
 
     IReadOnlyList<ITreeViewNodeInfo> checkedEmployees;
     void CheckingChanged(TreeViewCheckedChangedEventArgs e)
     {
         if (e.CheckedItems != null)
             checkedEmployees = e.CheckedItems;
+    }
+    async Task TimeCheckedChanged(bool value)
+    {
+        SilentMode = value;
+        await TimeFilter(value);  
+        // Enabled = !value;
+    }
+    async Task TimeFilter(bool status)
+    {
+        if (_data != null)
+        {
+            _filteredData = _data
+           .Where(appointment =>
+               appointment.StatusType == "EmailDueDate" ||
+               appointment.StatusType == "TodoDueDate")
+           .Select(appointment =>
+           {
+               appointment.AllDay = !status;  // Set AllDay to 0
+               return appointment;
+           }).ToList();
+
+            ApplyFilters();
+           // DataStorage.AppointmentsSource = _data;
+        }
+       
+
+
+       
+        StateHasChanged();
+
     }
 
     bool AllowEditAppointment { get; set; } = true;
@@ -378,6 +427,7 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _data = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
+        _filteredData = _data.ToList();
         DataStorage.AppointmentsSource = _data.ToList();
 
 
@@ -409,18 +459,10 @@
         ApplyFilters();
     }
     private void ApplyFilters()
-    {
-        // if (_data != null)
-        // {
-        //     var filteredData = _data
-        //    .Where(a => (string.IsNullOrEmpty(SelectedUserTag) || a.UserTag == SelectedUserTag) &&
-        //                (string.IsNullOrEmpty(SelectedOtherTag) || a.OtherTag == SelectedOtherTag))
-        //    .ToList();
+    {       
+        if (_data == null) return;
 
-        //     DataStorage.AppointmentsSource = filteredData;
-        // }
-
-        var filteredData = _data
+        var filteredData = _filteredData
        .Where(a => (selectedUserTags.Count == 0 || selectedUserTags.Contains(a.UserTag)) &&
                    (selectedOtherTags.Count == 0 || selectedOtherTags.Contains(a.OtherTag)))
        .ToList();
@@ -532,7 +574,7 @@
                 };
 
             var ans = await Mediator.Send(InsertReq);
-            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            //toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             //await UpdateDataAsync();
         }
     }
@@ -564,5 +606,52 @@
             new Resource { Id = 2, Name = "Todos", BackgroundCss = "resource-bg-todo", TextCss = "resource-text-todo" }
         };
     }
+
+    private bool IsFiltered(string tag)
+    {
+        return string.IsNullOrEmpty(filterText) || tag.Contains(filterText, StringComparison.OrdinalIgnoreCase);
+    }
+    private MarkupString HighlightSearchTextold(string text)
+    {
+        if (string.IsNullOrEmpty(filterText))
+        {
+            return new MarkupString(text);
+        }
+
+        // Split the tag based on the search text
+        string[] parts = text.Split(filterText, StringSplitOptions.None);
+
+        // Reconstruct the string with highlighting
+        string highlightedText = string.Join(
+         $"<span class='highlight'>{filterText}</span>",
+         parts
+         );
+
+
+        // Return the result as HTML
+        return new MarkupString(highlightedText);
+    }
+    private MarkupString HighlightSearchText(string text)
+    {
+        if (string.IsNullOrEmpty(filterText) || !text.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+        {
+            return new MarkupString(text);
+        }
+
+        // Get the index of the search term in the text (case-insensitive)
+        int index = text.IndexOf(filterText, StringComparison.OrdinalIgnoreCase);
+
+        // If the search term is found, split the text into 3 parts: before, match, and after
+        string beforeMatch = text.Substring(0, index);
+        string match = text.Substring(index, filterText.Length);
+        string afterMatch = text.Substring(index + filterText.Length);
+
+        // Reconstruct the string with highlighting for the matched part
+        string highlightedText = $"{beforeMatch}<span class='highlight'>{match}</span>{afterMatch}";
+
+        // Return the result as HTML (MarkupString)
+        return new MarkupString(highlightedText);
+    }
+
 
 }

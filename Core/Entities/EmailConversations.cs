@@ -114,6 +114,8 @@ namespace Core.Entities
         public long? DynamicFormID { get; set; }
         [NotMapped]
         public bool? openAccessUserLink { get; set; }
+        public string? UserTag { get; set; }
+        public string? OtherTag { get; set; }
 
     }
     public class EmailDocumentModel

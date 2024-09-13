@@ -146,7 +146,7 @@
                                                 
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />                                                    
                                                    
-                                                <DxMenuItem Text="Tags" Enabled="@isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                <DxMenuItem Text="Tags" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                             </Items>
@@ -168,7 +168,7 @@
                                                 <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
 
                                                 <DxMenuItem Text="Group List" Enabled="@isEnabled" class="@((isMenuvisible == "AddGroupParticipants" ? "tActive": "taddgroupparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddGroupParticipants"))" />
-                                                    <DxMenuItem Text="Tags" Enabled="@isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                <DxMenuItem Text="Tags" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                 @*  <DxMenuItem>

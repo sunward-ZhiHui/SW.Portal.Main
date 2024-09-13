@@ -115,16 +115,17 @@
     <EditFormTemplate Context="EditFormContext">
         @{
             var types = (EmailTopics)EditFormContext.EditModel;
-            types.TopicName = "kumar";
-            types.ToIds = new List<long> { -1 };
+             types.TopicName = "kumar";
+             types.ToIds = new List<long> { -1 };
         }
-        <DxFormLayout CssClass="w-100">
+        <DxFormLayout CssClass="w-100" CaptionPosition="CaptionPosition.Vertical">
             <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
                 <DxDateEdit @bind-Date="@types.DueDate" MinDate="DateTime.Now" TimeSectionVisible="false" />
             </DxFormLayoutItem>  
             <DxFormLayoutItem Caption="Allowed Days to Extend DueDate" ColSpanMd="4" Visible="@IsSubjectNoOfDays">
                 <DxSpinEdit @bind-Value="@types.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0"></DxSpinEdit>
             </DxFormLayoutItem>
+           
         </DxFormLayout>
 
     </EditFormTemplate>
@@ -137,9 +138,9 @@
     </TotalSummary>
 </DxGrid>
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  Width="max(25vw, 550px)" @bind-Visible="@Previewmsg">
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  CloseOnEscape="false" CloseOnOutsideClick="false"  Width="max(25vw, 550px)" @bind-Visible="@Previewmsg">
     <BodyContentTemplate>
-        <div style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+        <div style="height: calc(100vh - 250px);overflow:auto;">
             @{
                 byte[] htmlBinaryData = _selectedItems.Replymsg; // Your HTML binary data
                 string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
@@ -149,7 +150,7 @@
     </BodyContentTemplate>
 </DxPopup>
 
-<DxPopup @ref="popup" HeaderText="Due Date History" ShowCloseButton="true" Width="max(25vw, 550px)" @bind-Visible="@isDueDateHistory">
+<DxPopup @ref="popup" HeaderText="Due Date History" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false"  Width="max(25vw, 550px)" @bind-Visible="@isDueDateHistory">
     <BodyContentTemplate>
         <div style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DueDateHistory @ref=RefDueDateHistoryList Cid="@Cid"></DueDateHistory>           
@@ -170,6 +171,10 @@
 </DxPopup>
 
 @code {
+    internal List<EmailActivityCatgorys>? _UserTagList = new List<EmailActivityCatgorys>();
+    internal List<EmailActivityCatgorys>? _AllCategory = new List<EmailActivityCatgorys>();
+    private string UserTagName = string.Empty;  
+    private string OthersTagName = string.Empty; 
     private DueDateHistory? RefDueDateHistoryList { get; set; }
     [Parameter]
     public long Cid { get; set; }
@@ -404,20 +409,58 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _emailTopicDueDate = await Mediator.Send(new GetEmailTopicHome(applicationUser.UserID));
         _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
+
+        var getAllCategoryTask = Mediator.Send(new GetAllEmailActivityCatgorys());
+        var getUserTagListTask = Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
+        try
+        {
+            await Task.WhenAll(getAllCategoryTask,getUserTagListTask);
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+
+        _UserTagList = await getUserTagListTask;
+        _AllCategory = await getAllCategoryTask;
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        if (e.ElementType == GridElementType.DataRow)
         {
-            e.CssClass = "alt-item";
-            e.CssClass += "non-selectable-row";
+            //var item = (EmailTopics)e.Grid;
+
+            // Check if the row meets your criteria, for example, if the row is even or odd, etc.
+            if (e.VisibleIndex % 2 == 1)
+            {
+                e.CssClass = "alt-item non-selectable-row";
+
+                // Dynamically set UserTagName and OthersTagName to null or empty
+                // item.UserTag = string.Empty;  // or null
+                // item.OtherTag = string.Empty;  // or null
+            }
         }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = null;
         _selectedItems = _emailTopicDueDate.FirstOrDefault(f => f.ID == (long?)UniqueId);
+
+        if (_selectedItems != null)
+        {
+            UserTagName = string.IsNullOrEmpty(_selectedItems.UserTag) ? string.Empty : _selectedItems.UserTag;
+            OthersTagName = string.IsNullOrEmpty(_selectedItems.OtherTag) ? string.Empty : _selectedItems.OtherTag;
+        }
+        else
+        {            
+            UserTagName = string.Empty;
+            OthersTagName = string.Empty;
+        }
+       
+
         ReplyMsgEnabled = true;
         EditEnabled = true;
 
@@ -472,7 +515,11 @@
 
         _dataEditEamilTopics = (EmailTopics)e.EditModel;
 
-        if ((applicationUser.UserID != editModel.UserId) || _openAccessUserLink != null)
+        if (_openAccessUserLink != null)
+        {
+            await updateDueDate(editModel);
+        }
+        else if ((applicationUser.UserID != editModel.UserId))
         {
             if (editModel.DueDate.HasValue)
             {
@@ -519,6 +566,8 @@
                 NoOfDays = emailTopics.NoOfDays,
                 DueDate = emailTopics.DueDate,
                 UserId = emailTopics.UserId,
+                UserTag = UserTagName,
+                OtherTag = OthersTagName,
                 openAccessUserLink = _openAccessUserLink != null ? true : false,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now

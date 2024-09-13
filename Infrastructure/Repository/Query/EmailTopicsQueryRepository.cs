@@ -2284,6 +2284,8 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("TopicId", emailConversations.TopicID);
                             parameters.Add("ModifiedByUserID", emailConversations.ModifiedByUserID);
                             parameters.Add("ModifiedDate", emailConversations.ModifiedDate);
+                            parameters.Add("UserTag", emailConversations.UserTag);
+                            parameters.Add("OtherTag", emailConversations.OtherTag);
 
                         DateTime? expiryDueDate = null; // Use nullable DateTime
 
@@ -2306,18 +2308,22 @@ namespace Infrastructure.Repository.Query
 
                         var query = "";
                         var emailquery = "";
+                        var userTag = "";
+                        var otherTag = "";
 
                         if ((emailConversations.ModifiedByUserID == emailConversations.UserId) || emailConversations.openAccessUserLink == true)
                         {
                             query = " UPDATE EmailConversations SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
                             emailquery = "UPDATE EmailTopics SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
-
+                            //otherTag = "update EmailActivityCatgorys SET Name = @OtherTag WHERE TopicId = @TopicId";
+                            //userTag = "update EmailTopicUserTags SET UserTag = @UserTag WHERE TopicId = @TopicId";
                         }
                         else
                         {
                             query = " UPDATE EmailConversations SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
                             emailquery = "UPDATE EmailTopics SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
-                           
+                            //otherTag = "update EmailActivityCatgorys SET Name = @OtherTag WHERE TopicId = @TopicId";
+                            //userTag = "update EmailTopicUserTags SET UserTag = @UserTag WHERE TopicId = @TopicId";
                         }
 
 
@@ -2328,12 +2334,16 @@ namespace Infrastructure.Repository.Query
 
                         var ckquery = "SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicId AND ReplyId = 0 ORDER BY ID";
                             var actresult = await connection.QueryAsync<EmailConversations>(ckquery, parameters);
+                        
 
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        //var otherTagAffected = await connection.ExecuteAsync(otherTag, parameters);
+                        //var userTagAffected = await connection.ExecuteAsync(userTag, parameters);
 
-                            // Check if there are any results in the actresult
-                            if (actresult != null && actresult.Any())
+
+                        // Check if there are any results in the actresult
+                        if (actresult != null && actresult.Any())
                             {
                                 var firstResult = actresult.FirstOrDefault();
 

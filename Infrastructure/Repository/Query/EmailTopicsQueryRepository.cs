@@ -2307,22 +2307,21 @@ namespace Infrastructure.Repository.Query
 
 
                         var query = "";
-                        var emailquery = "";
-                        var userTag = "";
+                        var emailquery = "";                     
                         var otherTag = "";
 
                         if ((emailConversations.ModifiedByUserID == emailConversations.UserId) || emailConversations.openAccessUserLink == true)
                         {
                             query = " UPDATE EmailConversations SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
                             emailquery = "UPDATE EmailTopics SET ExpiryDueDate = @ExpiryDueDate, NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
-                            //otherTag = "update EmailActivityCatgorys SET Name = @OtherTag WHERE TopicId = @TopicId";
+                            otherTag = "update EmailActivityCatgorys SET Name = @OtherTag WHERE TopicId = @TopicId";
                             //userTag = "update EmailTopicUserTags SET UserTag = @UserTag WHERE TopicId = @TopicId";
                         }
                         else
                         {
                             query = " UPDATE EmailConversations SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
                             emailquery = "UPDATE EmailTopics SET NoOfDays = @NoOfDays, DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
-                            //otherTag = "update EmailActivityCatgorys SET Name = @OtherTag WHERE TopicId = @TopicId";
+                            otherTag = "update EmailActivityCatgorys SET Name = @OtherTag WHERE TopicId = @TopicId";
                             //userTag = "update EmailTopicUserTags SET UserTag = @UserTag WHERE TopicId = @TopicId";
                         }
 
@@ -2334,12 +2333,23 @@ namespace Infrastructure.Repository.Query
 
                         var ckquery = "SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicId AND ReplyId = 0 ORDER BY ID";
                             var actresult = await connection.QueryAsync<EmailConversations>(ckquery, parameters);
-                        
+
+                        var isUserTag = await CheckUserTagList(emailConversations.TopicID, emailConversations.ModifiedByUserID);
+
+                        if (isUserTag)
+                        {
+                            var userTag = "update EmailTopicUserTags SET UserTag = @UserTag WHERE TopicId = @TopicId";
+                            var userTagAffected = await connection.ExecuteAsync(userTag, parameters);
+                        }
+                        else
+                        {
+                            var usertagresult = await InsertUserTag(emailConversations.TopicID, emailConversations.UserTag, emailConversations.ModifiedByUserID, emailConversations.ModifiedDate);                          
+                        }
 
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
-                        //var otherTagAffected = await connection.ExecuteAsync(otherTag, parameters);
-                        //var userTagAffected = await connection.ExecuteAsync(userTag, parameters);
+                        var otherTagAffected = await connection.ExecuteAsync(otherTag, parameters);
+                        
 
 
                         // Check if there are any results in the actresult
@@ -2371,6 +2381,56 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+
+        private async Task<int> InsertUserTag(long topicId, string? userTag, long? userId, DateTime? date)
+        {
+            using (var connection = CreateConnection())
+            {
+                try
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("TopicId", topicId);
+                    parameters.Add("UserTag", userTag);
+                    parameters.Add("ModifiedByUserID", userId);
+                    parameters.Add("ModifiedDate", date);
+
+                    var userTagInsert = @"INSERT INTO EmailTopicUserTags (TopicId, UserTag, StatusCodeID, AddedByUserID, AddedDate, ModifiedByUserID, ModifiedDate) 
+                VALUES (@TopicId, @UserTag, 1, @ModifiedByUserID, @ModifiedDate, @ModifiedByUserID, @ModifiedDate)";
+
+                    var userTagRowsAffected = await connection.ExecuteAsync(userTagInsert, parameters);
+                    return userTagRowsAffected;
+                }
+                catch (Exception exp)
+                {
+                    throw new Exception(exp.Message, exp);
+                }
+            }
+        }
+
+
+        private async Task<bool> CheckUserTagList(long topicId, long? userId)
+        {
+            using (var connection = CreateConnection())
+            {
+                try
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("topicId", topicId);
+                    parameters.Add("userId", userId);
+
+                    var query = "SELECT TOP 1 ID FROM EmailTopicUserTags WHERE TopicId = @topicId AND AddedByUserID = @userId";
+                    var result = await connection.QuerySingleOrDefaultAsync<int?>(query, parameters);
+
+                    // Return true if result is not null, otherwise false
+                    return result.HasValue;
+                }
+                catch (Exception exp)
+                {
+                    throw new Exception(exp.Message, exp);
+                }
+            }
+        }
+
         public async Task<long> InsertEmailDueDateHistory(EmailConversations emailConversations)
         {
             try

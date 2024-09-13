@@ -108,7 +108,24 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<EmailConversations> Handle(UpdateTransferPermissionsEmailConversationUser request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.UpdateTransferPermissionsEmailConversationParticipant(request.Ids, request.UserIds);
+            var emailConversations =  await _queryRepository.UpdateTransferPermissionsEmailConversationParticipant(request.Ids, request.ToUserId);
+
+            foreach (var conversation in request.Ids)
+            {
+                if (conversation != null)
+                {
+                    await _queryRepository.InsertEmailTransferHistory(
+                        fromUserId: request.FromUserId.Value,
+                        toUserId: request.ToUserId.Value,
+                        emailConversationId: conversation.ConversationId.Value,
+                        topicId: conversation.TopicID,
+                        addedByUserId: request.UserId.Value
+                    );
+                }
+            }
+
+
+            return emailConversations;
         }
     }
 }

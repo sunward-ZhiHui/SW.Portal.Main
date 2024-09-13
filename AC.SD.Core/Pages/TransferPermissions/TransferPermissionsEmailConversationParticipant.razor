@@ -4,8 +4,10 @@
 @using MediatR
 @inject IMediator Mediator
 @using global::Core.EntityModels;
+@using global::Core.Repositories.Query
 @inject AC.SD.Core.Services.ToastService toastService
 @implements IAsyncDisposable
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -86,10 +88,12 @@
     bool DeleteEmailConversationEnabled { get; set; } = false;
     bool UpdateEmailConversationEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedEmailConversationDataItems { get; set; }
+    public ApplicationUser? applicationUser { get; internal set; }
 
     private EmailConversations _selectedItems;
     protected override async Task OnInitializedAsync()
     {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await loadEmailConversation();
     }
     public async Task loadEmailConversations(ResetPermissionModel data)
@@ -185,7 +189,7 @@
                 {
                     if (ids != null && ids.Count > 0)
                     {
-                        var request = new UpdateTransferPermissionsEmailConversationUser(ids, Data.ToUserId);
+                        var request = new UpdateTransferPermissionsEmailConversationUser(ids, Data.FromUserId, Data.ToUserId, applicationUser.UserID);
                         await Mediator.Send(request);
                         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         await loadEmailConversation();

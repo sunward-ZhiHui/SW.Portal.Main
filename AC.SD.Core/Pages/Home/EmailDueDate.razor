@@ -125,7 +125,34 @@
             <DxFormLayoutItem Caption="Allowed Days to Extend DueDate" ColSpanMd="4" Visible="@IsSubjectNoOfDays">
                 <DxSpinEdit @bind-Value="@types.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0"></DxSpinEdit>
             </DxFormLayoutItem>
-           
+            <DxFormLayoutItem Caption="User Tag:" ColSpanMd="4">
+                <DxComboBox Data="@_UserTagList"
+                            NullText="Select User Tag..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            AllowUserInput="true"
+                            TextFieldName="UserTag"
+                            ValueFieldName="UserTag"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@types.UserTag"
+                            @bind-Text="@UserTagName">
+                </DxComboBox>                                
+            </DxFormLayoutItem>
+             <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="4">
+                <DxComboBox Data="@_AllCategory"
+                            NullText="Select Others Tag..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            AllowUserInput="true"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="Name"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@types.OtherTag"
+                            @bind-Text="@OthersTagName">
+                </DxComboBox>                               
+            </DxFormLayoutItem>
         </DxFormLayout>
 
     </EditFormTemplate>

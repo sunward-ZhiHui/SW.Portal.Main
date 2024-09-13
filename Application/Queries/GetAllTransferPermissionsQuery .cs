@@ -75,11 +75,16 @@ namespace Application.Queries
     public class UpdateTransferPermissionsEmailConversationUser : PagedRequest, IRequest<EmailConversations>
     {
         public List<EmailConversations> Ids { get; set; }
-        public long? UserIds { get; set; }
-        public UpdateTransferPermissionsEmailConversationUser(List<EmailConversations> ids, long? userIds)
+        public long? FromUserId { get; set; }
+        public long? ToUserId { get; set; }
+        public long? UserId { get; set; }
+        public UpdateTransferPermissionsEmailConversationUser(List<EmailConversations> ids, long? fromid, long? toid, long? userId)
         {
             this.Ids = ids;
-            this.UserIds = userIds;
+            this.FromUserId = fromid;
+            this.ToUserId = toid;
+            this.UserId = userId;
+            
         }
     }
 

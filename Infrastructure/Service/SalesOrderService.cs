@@ -604,7 +604,7 @@ namespace Infrastructure.Service
                             if (!string.IsNullOrEmpty(b.Item_No))
                             {
                                 var itemsExits = navitems.FirstOrDefault(f => f.No.Trim().ToLower() == b.Item_No.Trim().ToLower());
-                                var exist = finishedProdOrderLines.Where(p => p.ReplanRefNo == b.Replan_Ref_No && p.CompanyId == companyid && p.ProdOrderNo == b.Prod_Order_No).FirstOrDefault();
+                                var exist = finishedProdOrderLines.Where(p => p.ItemNo == b.Item_No && p.ReplanRefNo == b.Replan_Ref_No && p.CompanyId == companyid && p.ProdOrderNo == b.Prod_Order_No).FirstOrDefault();
                                 if (exist == null)
                                 {
                                     finishedProdOrderLine.Add(new Core.Entities.FinishedProdOrderLine

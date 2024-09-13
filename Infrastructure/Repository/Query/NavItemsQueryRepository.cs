@@ -669,5 +669,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<FinishedProdOrderLine>> deleteFinishedProdOrderLine(long? CompanyId)
+        {
+            List<FinishedProdOrderLine> ItemBatchInfos = new List<FinishedProdOrderLine>();
+            try
+            {
+                var query = "select tt1.*,\r\nProductName = STUFF((\r\n          SELECT ',' + CAST(md.FinishedProdOrderLineID AS VARCHAR(MAX))\r\n          FROM FinishedProdOrderLine md\r\n          WHERE md.CompanyID=tt1.CompanyID AND md.ProdOrderNo=tt1.ProdOrderNo AND md.ReplanRefNo=tt1.ReplanRefNo AND md.ItemNo=tt1.ItemNo\r\n\t\t  Order by md.FinishedProdOrderLineID asc\r\n          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')\r\nfrom (select t1.ProdOrderNo,t1.ReplanRefNo,t1.ItemNo,t1.CompanyID,count(t1.ProdOrderNo) Counts from FinishedProdOrderLine t1 where t1.CompanyID="+ CompanyId + " group by t1.ProdOrderNo,t1.ReplanRefNo,t1.ItemNo,t1.CompanyID)tt1 where Counts>1 order by Counts desc\r\n";
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<FinishedProdOrderLine>(query)).ToList();
+                    ItemBatchInfos = result != null ? result : new List<FinishedProdOrderLine>();
+                }
+                return ItemBatchInfos;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

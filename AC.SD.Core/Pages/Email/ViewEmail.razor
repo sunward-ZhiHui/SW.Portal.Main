@@ -146,7 +146,7 @@
                                                 
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />                                                    
                                                    
-                                                    <DxMenuItem Text="Tags" Enabled="@isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                <DxMenuItem Text="Tags" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                             </Items>
@@ -168,7 +168,7 @@
                                                 <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
 
                                                 <DxMenuItem Text="Group List" Enabled="@isEnabled" class="@((isMenuvisible == "AddGroupParticipants" ? "tActive": "taddgroupparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddGroupParticipants"))" />
-                                                    <DxMenuItem Text="Tags" Enabled="@isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                <DxMenuItem Text="Tags" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                 @*  <DxMenuItem>
@@ -2782,8 +2782,8 @@
             {
                 await replyslst();
             }
-            
-            
+
+
         }
         else
         {
@@ -2824,7 +2824,7 @@
             {
                 await replyslst();
             }
-            
+
         }
         else
         {
@@ -2860,11 +2860,11 @@
     private async Task replyslst()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
-          if (_replyDiscussionList != null)
-          {
-              _replyDiscussionList.Clear();
-              _replyDiscussionList = null;
-          }
+        if (_replyDiscussionList != null)
+        {
+            _replyDiscussionList.Clear();
+            _replyDiscussionList = null;
+        }
 
         _replyDiscussionList = await Mediator.Send(new GetOnReplyDiscussionList(reply_id, applicationUser.UserID));
         await JSRuntime.InvokeAsync<string>("hideLoading");
@@ -4042,7 +4042,7 @@
     } 
     public async void SubmitunArchivedAll()
     {
-        await RefMasterSearch.GetID();
+        await RefMasterSearch.GetID();        
     }
     public  async Task UnArchiveAll()
     {
@@ -4410,7 +4410,6 @@
     private async Task SubmitIsArchivedAll()
     {       
 
-
         // if (string.IsNullOrEmpty(_headTopic[0].UserType) || _headTopic[0].UserType == "Users")
         // {
         foreach (var item in SelectedGroups)
@@ -4453,6 +4452,10 @@
             AddPopupArchive = false;
             ArchiveEnabled = false;
         }
+
+        await RefreshService.RequestRefreshAsync();
+
+        StateHasChanged();
     }
     private async Task SubmitDocDelete(long Id)
     {
@@ -4565,15 +4568,33 @@
     private async Task onMarkasAllRead(int Id)
     {        
         var request = await Mediator.Send(new UpdateMarkasAllRead(Id,applicationUser.UserID));
+             
 
         if (RTopicId == 0)
         {
-            await LoadData();
+            if (reply_id == 0)
+            {
+                await LoadData();
+            }
+            else
+            {
+                await replyslst();
+            }
+
+
         }
         else
         {
-            await LoadReplyData();
+            if (reply_id == 0)
+            {
+                await LoadReplyData();
+            }
+            else
+            {
+                await replyslst();
+            }
         }
+
 
         isOpenSubjectPop = false;        
 
@@ -4595,7 +4616,7 @@
 
         }
 
-          await RefreshService.RequestRefreshAsync();
+        await RefreshService.RequestRefreshAsync();
         StateHasChanged();
     }
     private void ToggleDocItemVisibility(int id)

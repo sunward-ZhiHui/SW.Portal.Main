@@ -296,5 +296,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task InsertEmailTransferHistory(long fromUserId, long toUserId, long emailConversationId, long topicId, long addedByUserId)
+        {
+            var query = @"INSERT INTO EmailTransferHistory(FromUserID, ToUserID, EmailConversationID, TopicID, TransferDate, AddedByUserID, AddedDate)
+                        VALUES(@FromUserID, @ToUserID, @EmailConversationID, @TopicID, GETDATE(), @AddedByUserID, GETDATE());";
+
+            using (var connection = CreateConnection())
+            {
+                await connection.ExecuteAsync(query, new
+                {
+                    FromUserID = fromUserId,
+                    ToUserID = toUserId,
+                    EmailConversationID = emailConversationId,
+                    TopicID = topicId,
+                    AddedByUserID = addedByUserId
+                });
+            }
+        }
+
     }
 }

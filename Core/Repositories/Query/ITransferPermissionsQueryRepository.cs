@@ -21,6 +21,7 @@ namespace Core.Repositories.Query
         Task<List<long?>> UpdateTransferPermissionsDocumentUserRoleUser(List<long?> ids, long? Id);
         Task<IReadOnlyList<EmailConversations>> GetTransferPermissionsEmailConversationParticipant(long? userIds);
         Task<EmailConversations> UpdateTransferPermissionsEmailConversationParticipant(List<EmailConversations> ids, long? userId);
+        Task InsertEmailTransferHistory(long fromUserId, long toUserId, long emailConversationId, long topicId, long addedByUserId);
 
     }
 }

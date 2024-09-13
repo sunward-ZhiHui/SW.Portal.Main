@@ -168,7 +168,7 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"WITH DistinctTopics AS (
                                 SELECT DISTINCT ECAT.TopicId
-                                FROM EmailConversationAssignTo ECAT
+                                FROM EmailConversationParticipant ECAT
                                 WHERE ECAT.UserId = @UserId
                             )
 

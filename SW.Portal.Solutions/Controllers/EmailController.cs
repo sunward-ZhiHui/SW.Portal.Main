@@ -617,7 +617,7 @@ namespace SW.Portal.Solutions.Controllers
 
                 await PushNotification(lst, titles, message, housturl);
             }
-            return null;
+            return titles;
         }
         private async Task<string> GetAccessTokenAsync(IWebHostEnvironment env)
         {

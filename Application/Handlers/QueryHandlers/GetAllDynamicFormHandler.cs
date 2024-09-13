@@ -1123,4 +1123,63 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetGetDynamicFormWorkFlowFormDelegateListHandler : IRequestHandler<GetDynamicFormWorkFlowFormDelegateList, List<DynamicFormWorkFlowFormDelegate>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetGetDynamicFormWorkFlowFormDelegateListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowFormDelegate>> Handle(GetDynamicFormWorkFlowFormDelegateList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowFormDelegate>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowFormDelegateList(request.DynamicFormWorkFlowFormID);
+        }
+
+
+    }
+    public class InsertDynamicFormWorkFlowFormDelegateHandler : IRequestHandler<InsertDynamicFormWorkFlowFormDelegate, DynamicFormWorkFlowFormDelegate>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormWorkFlowFormDelegateHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowFormDelegate> Handle(InsertDynamicFormWorkFlowFormDelegate request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormWorkFlowFormDelegate(request.DynamicFormWorkFlowFormDelegate);
+
+
+        }
+    }
+    public class InsertDynamicFormWorkFormFlowHandler : IRequestHandler<InsertDynamicFormWorkFlowForm, DynamicFormWorkFlowForm>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormWorkFormFlowHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowForm> Handle(InsertDynamicFormWorkFlowForm request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormWorkFlowForm(request.DynamicFormWorkFlowForm);
+
+
+        }
+    }
+    public class DeleteDynamicFormWorkFlowFormHandler : IRequestHandler<DeleteDynamicFormWorkFlowForm, DynamicFormWorkFlowForm>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormWorkFlowFormHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormWorkFlowForm> Handle(DeleteDynamicFormWorkFlowForm request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormWorkFlowForm(request.DynamicFormWorkFlowForm);
+
+
+        }
+    }
 }

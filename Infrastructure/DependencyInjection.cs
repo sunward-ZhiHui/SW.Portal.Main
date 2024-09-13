@@ -172,6 +172,7 @@ namespace Infrastructure
             services.AddScoped<ISimulationQueryRepository, SimulationQueryRepository>();
             services.AddScoped<IJobScheduleQueryRepository, JobScheduleQueryRepository>();
             services.AddScoped<IApplicationPermissionListQueryRepository, ApplicationPermissionListQueryRepository>();
+            services.AddScoped<IMemoQueryRepository, MemoQueryRepository>();
             return services;
         }
     }

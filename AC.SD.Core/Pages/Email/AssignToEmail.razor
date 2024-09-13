@@ -181,7 +181,20 @@
         if (applicationUser != null)
         {
             PanelVisible = true;
-            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
+
+            if (pageNumber > 1)
+            {
+                var pnumber = 1;
+                var psize = pageSize * pageNumber;
+                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pnumber, psize));
+
+            }
+            else
+            {
+                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
+
+            }
+             
             PanelVisible = false;
         }
 

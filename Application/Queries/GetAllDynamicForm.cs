@@ -652,6 +652,39 @@ namespace Application.Queries
             this.FlowStatusID = flowStatusID;
         }
     }
-    
+    public class GetDynamicFormWorkFlowFormDelegateList : PagedRequest, IRequest<List<DynamicFormWorkFlowFormDelegate>>
+    {
+        public long? DynamicFormWorkFlowFormID { get; set; }
+        public GetDynamicFormWorkFlowFormDelegateList(long? dynamicFormWorkFlowFormID)
+        {
+            this.DynamicFormWorkFlowFormID = dynamicFormWorkFlowFormID;
+        }
+    }
+    public class InsertDynamicFormWorkFlowFormDelegate : PagedRequest, IRequest<DynamicFormWorkFlowFormDelegate>
+    {
+        public DynamicFormWorkFlowFormDelegate DynamicFormWorkFlowFormDelegate { get; set; }
+        public InsertDynamicFormWorkFlowFormDelegate(DynamicFormWorkFlowFormDelegate dynamicFormWorkFlowFormDelegate)
+        {
+            this.DynamicFormWorkFlowFormDelegate = dynamicFormWorkFlowFormDelegate;
+        }
+    }
+    public class InsertDynamicFormWorkFlowForm : DynamicFormWorkFlowForm, IRequest<DynamicFormWorkFlowForm>
+    {
+        public DynamicFormWorkFlowForm DynamicFormWorkFlowForm { get; set; }
+        public InsertDynamicFormWorkFlowForm(DynamicFormWorkFlowForm dynamicFormWorkFlowForm)
+        {
+            this.DynamicFormWorkFlowForm = dynamicFormWorkFlowForm;
+        }
+
+    }
+    public class DeleteDynamicFormWorkFlowForm : DynamicFormWorkFlowForm, IRequest<DynamicFormWorkFlowForm>
+    {
+        public DynamicFormWorkFlowForm DynamicFormWorkFlowForm { get; set; }
+        public DeleteDynamicFormWorkFlowForm(DynamicFormWorkFlowForm dynamicFormWorkFlowForm)
+        {
+            this.DynamicFormWorkFlowForm = dynamicFormWorkFlowForm;
+        }
+    }
+
 }
 

@@ -1,0 +1,473 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
+<style>
+    .alt-item > td {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .header-bold span {
+        font-weight: 700;
+    }
+
+</style>
+@page "/ItemBatchInfoList"
+
+<div id="NavHeader">
+    <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                    <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_documentRole"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                KeyFieldName="ItemBatchId"
+                EditModelSaving="Grid_EditModelSaving"
+                CustomizeEditModel="Grid_CustomizeEditModel"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                RowDoubleClick="OnRowDoubleClick"
+                SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true">
+            <Columns>
+                <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                <DxGridDataColumn FieldName="ItemBatchId" Visible="false" />
+                <DxGridDataColumn FieldName="PlantCode" Caption="Company" />
+                <DxGridDataColumn FieldName="ItemNo" Caption="Item No" />
+                <DxGridDataColumn FieldName="ItemDescription" Caption="Description" />
+                <DxGridDataColumn FieldName="LocationCode" />
+                <DxGridDataColumn FieldName="BatchNo" />
+                <DxGridDataColumn FieldName="ExpiryDate" />
+                <DxGridDataColumn FieldName="ManufacturingDate" />
+                <DxGridDataColumn FieldName="QuantityOnHand" Caption="Qty OnHand" />
+                <DxGridDataColumn FieldName="NavQuantity" Caption="Nav Qty" />
+                <DxGridDataColumn FieldName="IssueQuantity" Caption="Issue Qty" />
+                <DxGridDataColumn FieldName="BalanceQuantity" Caption="Balance Qty" />
+                <DxGridDataColumn FieldName="StockOutBatchConfirm" />
+            </Columns>
+
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var plant = (ItemBatchInfo)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    @bind-Value="@plant.CompanyId"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Company Code"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => plant.CompanyId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Item No" ColSpanMd="6">
+                        <DxComboBox Data="@_AllNavitems"
+                                    NullText="Select Item SerialNo..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    TextFieldName="No"
+                                    ValueFieldName="ItemId"
+                                    EditFormat="{0}-{1}"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@plant.ItemId"
+                                    ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                                                    Caption="Item" />
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+                                                    Caption="Description" />
+                                                    <DxListEditorColumn FieldName="@nameof(View_NavItems.Description2)"
+                                                    Caption="Description2" />
+                            </Columns>
+                            
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => plant.ItemId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Location Code" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.LocationCode" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.LocationCode)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Batch No" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.BatchNo" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.BatchNo)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Lot No" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.LotNo" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.LotNo)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Expiry Date" ColSpanMd="6">
+                        <DxDateEdit @bind-Date="@plant.ExpiryDate" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ExpiryDate)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Manufacturing Date" ColSpanMd="6">
+                        <DxDateEdit @bind-Date="@plant.ManufacturingDate" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ManufacturingDate)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Quantity OnHand" ColSpanMd="6">
+                        <DxSpinEdit @bind-Value="@plant.QuantityOnHand" MinValue="0" CssClass="cw-320" InputId="QuantityOnHand" />
+                        <ValidationMessage For="@(() => plant.QuantityOnHand)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Nav Quantity" ColSpanMd="6">
+                        <DxSpinEdit @bind-Value="@plant.NavQuantity" MinValue="0" CssClass="cw-320" InputId="NavQuantity" />
+                        <ValidationMessage For="@(() => plant.NavQuantity)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Issue Quantity" ColSpanMd="6">
+                        <DxSpinEdit @bind-Value="@plant.IssueQuantity" MinValue="0" CssClass="cw-320" InputId="IssueQuantity" />
+                        <ValidationMessage For="@(() => plant.IssueQuantity)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Balance Quantity" ColSpanMd="6">
+                        <DxSpinEdit @bind-Value="@plant.BalanceQuantity" MinValue="0" CssClass="cw-320" InputId="BalanceQuantity" />
+                        <ValidationMessage For="@(() => plant.BalanceQuantity)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="StockOut Batch Confirm" ColSpanMd="6">
+                        <DxSpinEdit @bind-Value="@plant.StockOutBatchConfirm" MinValue="0" CssClass="cw-320" InputId="StockOutBatchConfirm" />
+                        <ValidationMessage For="@(() => plant.StockOutBatchConfirm)" />
+                    </DxFormLayoutItem>
+                   @*   <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                         <DxComboBox Data="@_stausItems"
+                                     NullText="Select Status..."
+                                     SearchMode="ListSearchMode.AutoSearch"
+                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                     TextFieldName="CodeValue"
+                                     ValueFieldName="CodeId"
+                                     @bind-Value="@plant.StatusCodeId"
+                                     ShowValidationIcon="true">
+                         </DxComboBox>
+                         <ValidationMessage For="@(() => plant.StatusCodeId)" />
+                     </DxFormLayoutItem> *@
+                </DxFormLayout>
+            </EditFormTemplate>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ItemNo" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="Delete" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+
+
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
+
+</DxPopup>
+
+
+@code {
+    private List<View_NavItems>? _AllNavitems;
+    private List<ItemBatchInfo> _documentRole;
+    private List<ViewPlants>? _plantItems;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private ItemBatchInfo? _selectedItems;
+    private List<CodeMaster> _stausItems;
+    bool DeleteEnabled { get; set; } = false;
+    public ApplicationUser applicationUser { get; private set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    bool deletepopup { get; set; } = false;
+    string? DeleteerrorMessage;
+    protected override async Task OnInitializedAsync()
+    {
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
+        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisible = true; EditEnabled = false; DeleteEnabled = false;
+            _documentRole = await Mediator.Send(new GetItemBatchInfoAllQuery());
+            if (_documentRole.Count > 0)
+            {
+                _selectedItems = _documentRole.FirstOrDefault();
+                EditEnabled = true; DeleteEnabled = true;
+                Grid.SetFocusedRowIndex(0);
+                Grid.ClearSelection();
+                PanelVisible = false;
+                StateHasChanged();
+            }
+            PanelVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ItemBatchInfo dataselectItems)
+                    {
+                        _selectedItems = (ItemBatchInfo)item;
+                    }
+                }
+            }
+            EditEnabled = true;
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editablePlant = (ItemBatchInfo)e.EditModel;
+        if (e.IsNew)
+        {
+            await AddOrUpdate(editablePlant);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+        else
+        {
+            await AddOrUpdate(editablePlant);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+    }
+    async Task AddOrUpdate(ItemBatchInfo editablePlant)
+    {
+        var request = new InsertOrUpdateBatchInfo
+            {
+                ItemBatchId = editablePlant.ItemBatchId,
+                ItemId = editablePlant.ItemId,
+                CompanyId = editablePlant.CompanyId,
+                StatusCodeId = editablePlant.StatusCodeId,
+                LocationCode = editablePlant.LocationCode,
+                BatchNo = editablePlant.BatchNo,
+                LotNo = editablePlant.LotNo,
+                ExpiryDate = editablePlant.ExpiryDate,
+                ManufacturingDate = editablePlant.ManufacturingDate,
+                QuantityOnHand = editablePlant.QuantityOnHand,
+                NavQuantity = editablePlant.NavQuantity,
+                IssueQuantity = editablePlant.IssueQuantity,
+                BalanceQuantity = editablePlant.BalanceQuantity,
+                StockOutBatchConfirm = editablePlant.StockOutBatchConfirm,
+                AddedDate = editablePlant.AddedDate == null ? DateTime.Now : editablePlant.AddedDate,
+                ModifiedDate = editablePlant.ModifiedDate == null ? DateTime.Now : editablePlant.ModifiedDate,
+                AddedByUserId = editablePlant.AddedByUserId == null ? applicationUser.UserID : editablePlant.AddedByUserId,
+                ModifiedByUserId = editablePlant.ModifiedByUserId == null ? applicationUser.UserID : editablePlant.ModifiedByUserId,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    void EulaPopupPermissionClosed(PopupClosedEventArgs args)
+    {
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var newplant = (ItemBatchInfo)e.EditModel;
+        if (e.IsNew)
+        {
+            
+        }
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ItemBatchId");
+        _selectedItems = _documentRole.FirstOrDefault(f => f.ItemBatchId == (long?)UniqueId);
+        EditEnabled = true; DeleteEnabled = true;
+        StateHasChanged();
+    }
+    public async Task OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ItemBatchInfo plants)
+                    {
+                        var request = new DeleteItemBatchInfo(plants);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        // await UpdateDataAsync();
+    }
+    async Task ExportXlsx_Click()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+    }
+    async Task ExportXls_Click()
+    {
+        await Grid.ExportToXlsAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+        //System.GC.Collect();
+        _documentRole?.Clear();
+        _plantItems?.Clear();
+        SelectedDataItems = null;
+        _selectedItems = null;
+        _stausItems?.Clear();
+        //GC.SuppressFinalize(this);
+    }
+}

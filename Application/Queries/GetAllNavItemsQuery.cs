@@ -100,9 +100,35 @@ namespace Application.Queries
     public class NavCompanyItemQuery : PagedRequest, IRequest<Navitems>
     {
         public long? CompanyId { get; set; }
-        public NavCompanyItemQuery(long? CompanyId)
+        public long? UserId { get; set; }
+        public NavCompanyItemQuery(long? CompanyId, long? userId)
         {
             this.CompanyId = CompanyId;
+            this.UserId = userId;
+        }
+    }
+    public class GetFinishedProdOrderLineQuery : PagedRequest, IRequest<FinishedProdOrderLine>
+    {
+        public long? CompanyId { get; set; }
+        public GetFinishedProdOrderLineQuery(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
+    public class GetItemBatchInfoAllQuery : PagedRequest, IRequest<List<ItemBatchInfo>>
+    {
+        public string SearchString { get; set; }
+    }
+    public class InsertOrUpdateBatchInfo : ItemBatchInfo, IRequest<ItemBatchInfo>
+    {
+
+    }
+    public class DeleteItemBatchInfo : ItemBatchInfo, IRequest<ItemBatchInfo>
+    {
+        public ItemBatchInfo ItemBatchInfo { get; set; }
+        public DeleteItemBatchInfo(ItemBatchInfo itemBatchInfo)
+        {
+            this.ItemBatchInfo = itemBatchInfo;
         }
     }
 }

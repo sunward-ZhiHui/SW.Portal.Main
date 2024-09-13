@@ -51,19 +51,20 @@
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20" 
+        PageSize="20"
+        TextWrapEnabled="false"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 285px);"        
         RowClick="OnRowClick"
         RowDoubleClick="OnEmailDueRowClick"
-        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         LayoutAutoLoading="Grid_LayoutAutoLoading"
         LayoutAutoSaving="Grid_LayoutAutoSaving"
         AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
     <Columns>    
         <DxGridDataColumn FieldName="TopicName" Caption="Main Subject"  FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
-        <DxGridDataColumn FieldName="Name" Caption="Subject Name" MinWidth="250" />
+        <DxGridDataColumn FieldName="Name" Caption="Subject Name" />
         <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
         <DxGridDataColumn FieldName="DueDate" Width="180">
             <CellDisplayTemplate>
@@ -73,6 +74,8 @@
                 <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.DueDate.Value)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
+        <DxGridDataColumn FieldName="UserTag"  />
+        <DxGridDataColumn FieldName="OtherTag"  />
         <DxGridDataColumn FieldName="ExpiryDueDate" Width="180" Caption="Extend DueDate">
             <CellDisplayTemplate>
                 @{

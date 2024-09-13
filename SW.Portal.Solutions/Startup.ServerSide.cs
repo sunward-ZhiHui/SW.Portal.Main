@@ -72,6 +72,8 @@ namespace SW.Portal.Solutions.ServerSide
             services.AddDevExpressServerSideBlazorReportViewer();
             services.AddScoped<ClipboardService>();
             services.AddScoped<FirebaseMessagingService>();
+            services.AddScoped<DataRefreshService>();
+
 
 
             //services.AddControllersWithViews();

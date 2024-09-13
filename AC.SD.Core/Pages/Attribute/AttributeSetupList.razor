@@ -9,7 +9,7 @@
 @implements IAsyncDisposable
 @inject NavigationManager NavigationManager
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
-
+@using System.Data;
 <div class="row align-items-end" style="padding: 10px;border: 1px solid #d5d4d4;">
     <div class="cw-480 ch-220" style="margin-top:10px;">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -134,7 +134,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-       
+        //DataTable dt = new DataTable();
+       // var v = dt.Compute("10 + 12*10 - (-47 % 30.0)", "");
+        //var v = dt.Compute("3 * (2+4)", "");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await loadData();
     }

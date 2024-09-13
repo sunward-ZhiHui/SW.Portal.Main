@@ -77,19 +77,20 @@
             CustomizeElement="Grid_CustomizeApprovalElement"
             CustomizeEditModel="Grid_CustomizeApprovalEditModel"
             AutoExpandAllGroupRows="true"
-            SelectionMode="GridSelectionMode.Multiple"
+            SelectionMode="GridSelectionMode.Single"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            RowDoubleClick="OnRowApprovalDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsApprovalChanged">
+            RowDoubleClick="OnRowApprovalDoubleClick">
 
 
         <Columns>
-            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+           @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="DynamicFormWorkFlowId" Visible="false" />
+            <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
             <DxGridDataColumn FieldName="FullName" Caption="User" MinWidth="40" />
             <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
             <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="40" />
             <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
-            v<DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="40" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="40" />
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -189,6 +190,9 @@
                     <DxSpinEdit @bind-Value="@types.SequenceNo" NullText="Type a Sequence No 1,2,3,..." MinValue="1" CssClass="cw-320" InputId="seNullableValue" />
                     <ValidationMessage For="@(() => types.SequenceNo)" />
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+                </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
         <TotalSummary>
@@ -271,8 +275,8 @@
         await UpdateDataAsync();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
-        _userGroupsList = await Mediator.Send(new GetUserGroups());
-        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
+        //_userGroupsList = await Mediator.Send(new GetUserGroups());
+        //_levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
 
     }
     public async Task loadChildData(long? dynamicFormIds)
@@ -465,30 +469,30 @@
     }
     void addEditApproval()
     {
-        if (SelectedDataItems != null)
-        {
+        // if (SelectedDataItems != null)
+        // {
 
-            if (SelectedDataItems.Count == 1)
-            {
+        //     if (SelectedDataItems.Count == 1)
+        //     {
 
-                foreach (object item in SelectedDataItems)
-                {
-                    if (item is DynamicFormWorkFlow dataselectItems)
-                    {
-                        _selectlst = _dynamicFormApprovalData.FirstOrDefault(f => f.DynamicFormWorkFlowId == dataselectItems.DynamicFormWorkFlowId);
-                    }
-                }
+        //         foreach (object item in SelectedDataItems)
+        //         {
+        //             if (item is DynamicFormWorkFlow dataselectItems)
+        //             {
+        //                 _selectlst = _dynamicFormApprovalData.FirstOrDefault(f => f.DynamicFormWorkFlowId == dataselectItems.DynamicFormWorkFlowId);
+        //             }
+        //         }
 
-                SMWorkFlowGrids.StartEditDataItemAsync(_selectlst);
+        //         SMWorkFlowGrids.StartEditDataItemAsync(_selectlst);
 
-            }
-            else
-            {
+        //     }
+        //     else
+        //     {
 
                 SMWorkFlowGrids.StartEditDataItemAsync(_selectedItems);
 
-            }
-        }
+          //  }
+       // }
 
     }
     void addDeleteApproval()
@@ -508,22 +512,22 @@
     {
         try
         {
-            if (SelectedDataItems != null)
-            {
-                foreach (object item in SelectedDataItems)
-                {
+            // if (SelectedDataItems != null)
+            // {
+            //     foreach (object item in SelectedDataItems)
+            //     {
 
-                    if (item is DynamicFormWorkFlow selectData)
-                    {
-                        var request = new DeleteDynamicFormWorkFlow(selectData);
+            //         if (item is DynamicFormWorkFlow selectData)
+            //         {
+            var request = new DeleteDynamicFormWorkFlow(_selectedItems);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         SMWorkFlowGrids.SetFocusedRowIndex(0);
-                    }
+                  //  }
 
-                }
-            }
+               // }
+           // }
         }
         catch (Exception eq)
         {

@@ -115,7 +115,22 @@
                         }
                         else
                         {
-                            <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                            if (s.Value == "ModifiedDate")
+                            {
+                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
+                                    <CellDisplayTemplate>
+                                        @{
+                                            dynamic item = (ExpandoObject)context.DataItem;
+                                            DateTime? items = (DateTime?)item.ModifiedDate;
+                                        }
+                                        @(items != null ? Application.Common.Helper.Helper.FormatDateTime(items) : null)
+                                    </CellDisplayTemplate>
+                                </DxGridDataColumn>
+                            }
+                            else
+                            {
+                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                            }
                         }
                     }
                 }

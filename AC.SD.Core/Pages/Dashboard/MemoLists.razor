@@ -1,0 +1,624 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using global::Core.Entities.Views;
+@implements IAsyncDisposable
+<style>
+    .alt-item > td {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .header-bold span {
+        font-weight: 700;
+    }
+
+</style>
+@page "/memos"
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
+                <DxMenuItem Text="Memo Users" IconCssClass="fa fa-users" Click="@addMemoUsers" Enabled="@EditEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_MemoList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="MemoId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            AutoExpandAllGroupRows="true"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick"
+            AllowSelectRowByClick="true"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            EditModelSaving="@OnEditModelSaving"
+            style="height: calc(100vh - 220px);"
+            CssClass="ch-360">
+        <Columns>
+            <DxGridDataColumn FieldName="Subject" Width="30%" />
+            <DxGridDataColumn FieldName="StartDate" Caption="Start Date" Width="30%" />
+            <DxGridDataColumn FieldName="MemoContent" Caption="Content" Width="50%">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (Memo)context.DataItem;
+                    }
+                    <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.MemoId}") title="View Content" onclick="@(() => OnButtonSortOrderByClick(item))"></i>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="IsAttachment" Width="30%" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (Memo)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Type" ColSpanMd="6">
+                    <DxRadioGroup Items="@TemplateUploadOptions"
+                                  Value="@types.UserType"
+                                  ValueExpression="@(() => types.UserType )"
+                                  ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(types,value))"
+                                  Layout="RadioGroupLayout.Horizontal"
+                                  Enabled="@isEnabled"
+                                  CssClass="dx-demo-radio-group" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Users" ColSpanMd="6" Visible="UserEnabled">
+                    <DxTagBox Data="_usersList"
+                              @bind-Values="types.SelectUserIDs"
+                              NullText="Select To..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserID"
+                              TextFieldName="FirstName"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              EditFormat="{0}-{1}-{3}"
+                              Enabled="@isEnabled"
+                              ListRenderMode="ListRenderMode.Virtual">
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                    </DxTagBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="User Group" ColSpanMd="6" Visible="UserGroupEnabled">
+                    <DxTagBox Data="_userGroupsList"
+                              @bind-Values="types.SelectUserGroupIDs"
+                              NullText="Select To..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              TextFieldName="Name"
+                              Enabled="@isEnabled"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              ListRenderMode="ListRenderMode.Virtual">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+                    </DxTagBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Level Master" ColSpanMd="6" Visible="LevelEnabled">
+                    <DxTagBox Data="_levelMasterLists"
+                              @bind-Values="types.SelectLevelMasterIDs"
+                              NullText="Select To..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="LevelID"
+                              TextFieldName="Name"
+                              Enabled="@isEnabled"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              ListRenderMode="ListRenderMode.Virtual">
+                        <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
+                    </DxTagBox>
+                </DxFormLayoutItem>
+                @*  <DxFormLayoutItem Caption="CC Users" ColSpanMd="6">
+                <DxTagBox Data="_usersList"
+                @bind-Values="types.SelectCCUserIDs"
+                NullText="Select To..."
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                ValueFieldName="UserID"
+                TextFieldName="FirstName"
+                SearchMode="ListSearchMode.AutoSearch"
+                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                EditFormat="{0}-{1}-{3}"
+                ListRenderMode="ListRenderMode.Virtual">
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                </DxTagBox>
+                </DxFormLayoutItem> *@
+                <DxFormLayoutItem Caption="Subject" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.Subject" />
+                    <ValidationMessage For="@(() => types.Subject)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Attachment" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsAttachment"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Start Date" ColSpanMd="6">
+                    <DxDateEdit @bind-Date="@types.StartDate" />
+                    <ValidationMessage For="@(() => types.StartDate)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Content" ColSpanMd="12">
+
+                    <DxHtmlEditor @bind-Markup="@types.MemoContent" MarkupType="HtmlEditorMarkupType.Html" Height="200px" Width="100%" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Subject" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @ref="popup" HeaderText="Message" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="Delete" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible" ShowCloseButton="true" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@AttachmentPopUp"
+         ShowFooter="true"
+         HeaderText="Attachment"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments @ref="refUploadDocuments" SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxFlyout @bind-IsOpen=IsMemoOpen
+          PositionTarget=@($"#flyout-overview-target-container-RenameFilename-{_selectAttributelsts?.MemoId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Memo Content"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                <div style="height: calc(100vh - 170px);overflow-x: hidden;">@((MarkupString)_selectAttributelsts?.MemoContent)</div>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsMemoOpen = false) />
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@MemoUserpopup"
+         ShowFooter="true"
+         HeaderText="Memo Users"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <DxLoadingPanel @bind-Visible="PanelSubVisible"
+                        IsContentBlocked="true"
+                        ApplyBackgroundShading="true"
+                        IndicatorAreaVisible="false"
+                        Text="Fetching Data...">
+            <DxGrid Data="@_MemoUserList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
+                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                    KeyFieldName="MemoUserId"
+                    PageSizeSelectorVisible="true"
+                    PageSizeSelectorAllRowsItemVisible="true"
+                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                    PageSize="20"
+                    AutoExpandAllGroupRows="true"
+                    FocusedRowEnabled="true"
+                    SelectionMode="GridSelectionMode.Single"
+                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    AllowSelectRowByClick="true"
+                    style="height: calc(100vh - 420px);"
+                    CssClass="ch-360">
+                <Columns>
+                    <DxGridDataColumn FieldName="IsAcknowledgement" Caption="Is Acknowledge" Width="30%" />
+                    <DxGridDataColumn FieldName="FullName" Caption="Name" Width="30%" />
+                    <DxGridDataColumn FieldName="DepartmentName" Caption="Department" Width="30%" />
+                    <DxGridDataColumn FieldName="DesignationName" Caption="Designation" Width="30%" />
+
+                </Columns>
+
+                <TotalSummary>
+                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Subject" />
+                </TotalSummary>
+            </DxGrid>
+        </DxLoadingPanel>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool isEnabled { get; set; } = true;
+    bool PanelSubVisible { get; set; } = false;
+    bool IsMemoOpen { get; set; } = false; bool MemoUserpopup { get; set; } = false;
+    IEnumerable<string> TemplateUploadOptions = new[] { "User", "User Group", "Level" };
+    private AC.SD.Core.Pages.UploadDocuments.UploadDocuments refUploadDocuments;
+    bool AttachmentPopUp { get; set; } = false; bool AttachmentEnabled { get; set; } = false;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    bool PanelVisible { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false; bool DeleteEnabled { get; set; } = false;
+    private List<Memo> _MemoList;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    private Memo _selectedItems;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private Memo _selectAttributelst; private Memo _selectAttributelsts { get; set; }
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    string MessageHeader = "Error";
+    string MessageBody = ""; public ApplicationUser? applicationUser { get; private set; }
+    bool UserEnabled { get; set; } = false;
+    bool UserGroupEnabled { get; set; } = false;
+    bool LevelEnabled { get; set; } = false;
+    private List<ViewEmployee>? _usersList { get; set; }
+    private List<UserGroup> _userGroupsList { get; set; }
+    public List<ViewLevel> _levelMasterLists { get; set; }
+    public List<MemoUser> _MemoUserList { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        _userGroupsList = await Mediator.Send(new GetUserGroups());
+        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisible = true; AttachmentEnabled = false;
+            EditEnabled = false; DeleteEnabled = false;
+            _MemoList = await Mediator.Send(new GetAllMemoQuery()); isEnabled = true;
+            AddEnabled = true;
+            if (_MemoList != null && _MemoList.Count > 0)
+            {
+                _selectedItems = _MemoList.FirstOrDefault();
+                EditEnabled = true;
+                DeleteEnabled = true;
+                if (_selectedItems.IsAttachment == true)
+                {
+                    AttachmentEnabled = true;
+                }
+                if (_selectedItems.AcknowledgeUserIDs.Count() > 0)
+                {
+                    isEnabled = false;
+                }
+            }
+
+            PanelVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void OnButtonSortOrderByClick(Memo dynamicFormSection)
+    {
+        _selectAttributelsts = dynamicFormSection;
+        IsMemoOpen = true;
+    }
+    void OnTemplateUploadGroupValueChanged(Memo types, string? radioValue)
+    {
+        UserEnabled = false; UserGroupEnabled = false; LevelEnabled = false;
+        types.UserType = radioValue;
+        types.SelectUserGroupIDs = new List<long?>();
+        types.SelectUserIDs = new List<long?>();
+        types.SelectLevelMasterIDs = new List<long?>();
+        if (radioValue == "User")
+        {
+            UserEnabled = true;
+        }
+        if (radioValue == "User Group")
+        {
+            UserGroupEnabled = true;
+        }
+        if (radioValue == "Level")
+        {
+            LevelEnabled = true;
+        }
+        StateHasChanged();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "MemoId");
+        _selectedItems = _MemoList.FirstOrDefault(f => f.MemoId == (long?)UniqueId);
+        DeleteEnabled = true; EditEnabled = true; AttachmentEnabled = false;isEnabled = true;
+        if (_selectedItems.IsAttachment == true)
+        {
+            AttachmentEnabled = true;
+        }
+        if(_selectedItems.AcknowledgeUserIDs.Count()>0)
+        {
+            isEnabled = false;
+        }
+        StateHasChanged();
+
+    }
+    void addAttachment()
+    {
+        AttachmentPopUp = true;
+    }
+    void CloseAttachmentPopup()
+    {
+        AttachmentPopUp = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        MemoUserpopup = false;
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        // await UpdateDataAsync();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (Memo)e.EditModel;
+        UserEnabled = false; UserGroupEnabled = false; LevelEnabled = false;
+        if (e.IsNew)
+        {
+            navitems.UserType = "User";
+            UserEnabled = true;
+            isEnabled = true;
+        }
+        else
+        {
+            isEnabled = true;
+            if (navitems.UserType == "User")
+            {
+                UserEnabled = true;
+            }
+            if (navitems.UserType == "User Group")
+            {
+                UserGroupEnabled = true;
+            }
+            if (navitems.UserType == "Level")
+            {
+                LevelEnabled = true;
+            }
+            if (navitems.AcknowledgeUserIDs.Count() > 0)
+            {
+                isEnabled = false;
+            }
+        }
+    }
+    void addEdit()
+    {
+        // if (SelectedDataItems != null)
+        // {
+
+        //     if (SelectedDataItems.Count == 1)
+        //     {
+
+        //         foreach (object item in SelectedDataItems)
+        //         {
+        //             if (item is Memo dataselectItems)
+        //             {
+        //                 _selectAttributelst = _MemoList.FirstOrDefault(f => f.MemoId == dataselectItems.MemoId);
+        //             }
+        //         }
+        //         Grid.StartEditDataItemAsync(_selectAttributelst);
+        //     }
+        //     else
+        //     {
+        Grid.StartEditDataItemAsync(_selectedItems);
+        //}
+        // }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            // if (SelectedDataItems != null)
+            // {
+            //     foreach (object item in SelectedDataItems)
+            //     {
+
+            //         if (item is Memo selectData)
+            //         {
+            var request = new DeleteMemo(_selectedItems);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            Grid.SetFocusedRowIndex(0);
+            // }
+
+            //}
+            // }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (Memo)e.EditModel;
+        var createReq = new InsertOrUpdateMemo
+            {
+                MemoId = editModel.MemoId,
+                Subject = editModel.Subject,
+                MemoContent = editModel.MemoContent,
+                StartDate = editModel.StartDate,
+                IsAttachment = editModel.IsAttachment,
+                AddedDate = DateTime.Now,
+                SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                ModifiedDate = DateTime.Now,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = applicationUser.UserID,
+                StatusCodeId = 1,
+                SelectLevelMasterIDs = editModel.SelectLevelMasterIDs,
+                SelectUserGroupIDs = editModel.SelectUserGroupIDs,
+                SelectUserIDs = editModel.SelectUserIDs,
+                UserType = editModel.UserType,
+                SelectCCUserIDs = editModel.SelectCCUserIDs,
+                AcknowledgeUserIDs=editModel.AcknowledgeUserIDs,
+            };
+
+        try
+        {
+            var result = await Mediator.Send(createReq);
+            if (editModel.MemoId > 0)
+            {
+                toastService.ShowToast("Record Update Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            else
+            {
+                toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+
+        }
+        catch (Exception eq)
+        {
+
+            errorMessage = eq.Message;
+            PopupVisible = true;
+
+        }
+
+    }
+    async Task addMemoUsers()
+    {
+        if (_selectedItems != null)
+        {
+            PanelSubVisible = true;
+            MemoUserpopup = true;
+            StateHasChanged();
+            _MemoUserList = await Mediator.Send(new GetAllMemoByMemoIdQuery(_selectedItems?.MemoId));
+            if (_MemoUserList != null && _MemoUserList.Count() > 0)
+            {
+                PanelSubVisible = false;
+            }
+        }
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        // System.GC.Collect();
+        refUploadDocuments?.DisposeAsync();
+        _selectedItems = null;
+        _MemoList?.Clear();
+        SelectedDataItems = null; _MemoUserList?.Clear();
+        _selectAttributelst = null; _selectAttributelsts = null;
+        _usersList?.Clear();
+        _userGroupsList?.Clear();
+        _levelMasterLists?.Clear();
+        // GC.SuppressFinalize(this);
+    }
+}

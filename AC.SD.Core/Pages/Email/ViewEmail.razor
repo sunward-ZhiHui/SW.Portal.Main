@@ -50,6 +50,7 @@
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
+@inject DataRefreshService RefreshService
 
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
@@ -2735,7 +2736,9 @@
     IEnumerable<UploadFileInfo>? Files { get; set; }
     UploadFileInfo? FirstFile { get; set; }
     public string MyHeight { get; set; } = "200px";
-    string width = "800px", height = "800px";
+    string width = "800px", height = "800px";  
+    [Parameter]
+    public EventCallback OnDataChange { get; set; }
     private ParticipantList? RefTopicAddPList { get; set; }
     private GroupParticipantList? RefTopicAddGroupPList { get; set; }
     private AssignToEmail? RefAssignTo { get; set; }
@@ -2771,13 +2774,27 @@
 
         if (RTopicId == 0)
         {
-            //await LoadData();
-            await replyslst();
+            if(reply_id == 0)
+            {
+                await LoadData();
+            }
+            else
+            {
+                await replyslst();
+            }
+            
+            
         }
         else
         {
-            //await LoadReplyData();
-            await replyslst();
+            if(reply_id == 0)
+            {
+                await LoadReplyData();
+            }
+            else
+            {
+                await replyslst();
+            }            
         }
 
         if(isLeftMenuvisible == "AssignTo")
@@ -2788,7 +2805,9 @@
         if (isLeftMenuvisible == "All")
         {
             await RefAssignAll.onAssignAllGridRefresh(long.Parse(@SelectedGroup));
-        }
+        }      
+
+        await RefreshService.RequestRefreshAsync();
 
     }
     async Task onMarkasunRead(long Id)
@@ -2797,13 +2816,26 @@
 
         if (RTopicId == 0)
         {
-            //await LoadData();
-            await replyslst();
+            if(reply_id == 0)
+            {
+                await LoadData();
+            }
+            else
+            {
+                await replyslst();
+            }
+            
         }
         else
         {
-            //await LoadReplyData();
-            await replyslst();
+            if(reply_id == 0)
+            {
+                await LoadReplyData();
+            }
+            else
+            {
+                await replyslst();
+            }   
         }
 
         if (isLeftMenuvisible == "AssignTo")
@@ -2823,7 +2855,7 @@
 
         }
 
-
+        await RefreshService.RequestRefreshAsync();
     }
     private async Task replyslst()
     {
@@ -4563,7 +4595,7 @@
 
         }
 
-
+          await RefreshService.RequestRefreshAsync();
         StateHasChanged();
     }
     private void ToggleDocItemVisibility(int id)

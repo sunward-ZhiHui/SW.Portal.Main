@@ -82,7 +82,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<ItemBatchInfo>> Handle(GetAllNavItemBatchNoByItemIdQuery request, CancellationToken cancellationToken)
         {
-            return (List<ItemBatchInfo>)await _queryRepository.GetNavItemBatchNoByItemIdAsync(request.ItemId,request.CompanyId);
+            return (List<ItemBatchInfo>)await _queryRepository.GetNavItemBatchNoByItemIdAsync(request.ItemId, request.CompanyId);
         }
     }
     public class GetAllNavProductionInformationHandler : IRequestHandler<GetNavProductionInformationQuery, List<NavProductionInformation>>
@@ -118,7 +118,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<ItemBatchInfo> Handle(GetSyncBatchQuery request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.GetSyncBatchInfo(request.ItemNo,request.CompanyId,request.ItemId);
+            return await _queryRepository.GetSyncBatchInfo(request.ItemNo, request.CompanyId, request.ItemId);
         }
     }
     public class NavCompanyItemBatchInfoQueryHandler : IRequestHandler<NavCompanyItemBatchInfoQuery, ItemBatchInfo>
@@ -132,8 +132,8 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<ItemBatchInfo> Handle(NavCompanyItemBatchInfoQuery request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.GetNavItemBatchInfo(request.CompanyId);            
-            
+            return await _queryRepository.GetNavItemBatchInfo(request.CompanyId);
+
         }
     }
     public class NavCompanyItemQueryHandler : IRequestHandler<NavCompanyItemQuery, Navitems>
@@ -147,8 +147,65 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<Navitems> Handle(NavCompanyItemQuery request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.GetNavItemServicesList(request.CompanyId);
+            return await _queryRepository.GetNavItemServicesList(request.CompanyId,request.UserId);
 
+        }
+    }
+    public class GetFinishedProdOrderLineQueryHandler : IRequestHandler<GetFinishedProdOrderLineQuery, FinishedProdOrderLine>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public GetFinishedProdOrderLineQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<FinishedProdOrderLine> Handle(GetFinishedProdOrderLineQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetFinishedProdOrderLineList(request.CompanyId);
+
+        }
+    }
+    public class GetItemBatchInfoAllQueryHandler : IRequestHandler<GetItemBatchInfoAllQuery, List<ItemBatchInfo>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetItemBatchInfoAllQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ItemBatchInfo>> Handle(GetItemBatchInfoAllQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ItemBatchInfo>)await _queryRepository.GetNavItemBatchNoByItemByAllAsync();
+        }
+    }
+    public class InsertOrUpdateBatchInfoHandler : IRequestHandler<InsertOrUpdateBatchInfo, ItemBatchInfo>
+    {
+
+
+        private readonly INavItemsQueryRepository _queryRepository;
+        public InsertOrUpdateBatchInfoHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<ItemBatchInfo> Handle(InsertOrUpdateBatchInfo request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateBatchInfo(request);
+
+        }
+    }
+    public class DeleteItemBatchInfoHandler : IRequestHandler<DeleteItemBatchInfo, ItemBatchInfo>
+    {
+        private readonly INavItemsQueryRepository _DynamicFormQueryRepository;
+
+        public DeleteItemBatchInfoHandler(INavItemsQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<ItemBatchInfo> Handle(DeleteItemBatchInfo request, CancellationToken cancellationToken)
+        {
+            return await _DynamicFormQueryRepository.DeleteItemBatchInfo(request.ItemBatchInfo);
         }
     }
 }

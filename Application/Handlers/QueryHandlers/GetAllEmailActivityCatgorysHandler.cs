@@ -38,6 +38,21 @@ namespace Application.Handlers.QueryHandlers
             
         }
     }
+    public class GetTagLockInfoHandler : IRequestHandler<GetTagLockInfo, bool>
+    {
+
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetTagLockInfoHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<bool> Handle(GetTagLockInfo request, CancellationToken cancellationToken)
+        {
+            return await _emailactyqueryRepository.GetTagLockInfoAsync(request.TopicId);
+
+        }
+    }
+
     public class CreateEmailActivityCatgorysHandler : IRequestHandler<CreateEmailActivityCatgorysQuery, long>
     {
         private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;

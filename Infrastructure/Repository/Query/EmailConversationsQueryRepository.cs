@@ -561,6 +561,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long> GetTotalNotificationCountAsync(long UserId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QuerySingleAsync<long>("sp_Select_Email_NotificationCount",parameters,commandType: CommandType.StoredProcedure);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId, long UserId, string Option)
         {
             try

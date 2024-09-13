@@ -1,0 +1,248 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using global::Core.Entities.Views;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@implements IAsyncDisposable
+<link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
+<div class="menu-bar-content-container-content msgOpen">
+    <div id="tableData" style="overflow-x: hidden; overflow-y: auto; height: calc(100vh - 230px);">
+        <div>
+            @if (_MemoList != null && _MemoList.Any())
+            {
+                @foreach (var item in _MemoList)
+                {
+                    <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto  markasunread_border" style="margin-right: 10px;">
+                        <div class="uk-card-header">
+                            <div class="container-header" style="margin-left: -9px;">
+                                <div class="left-column">
+                                    <div style="font-size: 20px; margin: 0;">@item.Subject</div><!--!-->
+                                    <p style="font-size:12px; line-height: 1.1; margin: 0;    padding: 5px 0 0 0;">
+                                        <!--!-->
+                                        @*  Users:@item.UserNameLists<br> *@
+                                    </p>
+                                </div><!--!-->
+
+                                <div class="right-column" style="width: 37%;">
+                                    <div class="shared-div">
+                                        <div class="date-and-notes">
+                                            <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Memo Date</span> @Application.Common.Helper.Helper.FormatDate(@item.StartDate)</div>
+                                            <button type="button" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" onclick="@(() => OnAcknowledgeClick(item))" class="">
+                                                <!--!--><i class="fa fa-check"></i> @(@item.IsAcknowledgement == true ? "Acknowledged" : "Acknowledge")
+                                            </button>
+                                        </div><!--!-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div><div class="uk-card-body">
+                            <div>
+                                @((MarkupString)item.MemoContent)
+                            </div>
+                        </div>
+                        @if (item.DocumentsData.Any())
+                        {
+                            <div class="uk-card-footer">
+                                <div>
+                                    <div class="">
+                                        @foreach (var attachment in item.DocumentsData)
+                                        {
+                                            var contentType = attachment.ContentType != null ? attachment.ContentType.Split("/").First().ToLower() : "";
+                                            <div class="tag handline">
+                                                @if (attachment.Type == "Document")
+                                                {
+                                                    @if (attachment.Extension == "xlsx" || attachment.Extension == "xls")
+                                                    {
+                                                        <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@attachment.FileName"></i>
+                                                    }
+                                                    else if (attachment.Extension == "ppt" || attachment.Extension == "pptx")
+                                                    {
+                                                        <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@attachment.FileName"></i>
+                                                    }
+                                                    else if (attachment.Extension == "doc" || attachment.Extension == "docx")
+                                                    {
+                                                        <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@attachment.FileName"></i>
+                                                    }
+                                                    else if (attachment.Extension == "pdf")
+                                                    {
+                                                        <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@attachment.FileName"></i>
+                                                    }
+                                                    else if (attachment.Extension == "txt")
+                                                    {
+                                                        <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        if (contentType == "image")
+                                                        {
+                                                            <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@attachment.FileName"></i>
+                                                        }
+                                                        else if (contentType == "video")
+                                                        {
+                                                            <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                        }
+                                                        else if (contentType == "audio")
+                                                        {
+                                                            <i class="fa fa-file-audio" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
+                                                        }
+                                                    }
+                                                }
+                                                @* <i class="fas fa-file" aria-hidden="true"></i> *@ @attachment.FileName
+                                                <div class="options">
+                                                    <div class="download" @onclick="@(() => Download(attachment))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                    <div class="preview" @onclick="@(() => onView(attachment))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+<DxPopup @bind-Visible="@Acknowledgepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are You Sure Update Acknowledge?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="updateAcknowldge" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    public bool Acknowledgepopup { get; set; } = false;
+    private List<Memo> _MemoList;
+    private Memo _selectedItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    private string? FileUrl;
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateData();
+    }
+    async Task UpdateData()
+    {
+        _MemoList = await Mediator.Send(new GetAllMemoByUserQuery(applicationUser.UserID));
+        StateHasChanged();
+        if (_MemoList != null && _MemoList.Count() > 0)
+        {
+            int i = 0;
+            foreach (var item in _MemoList)
+            {
+                DocumentSearchModel documentSearchModel = new DocumentSearchModel();
+                documentSearchModel.AttachSessionId = item.SessionId;
+                var list = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentSearchModel));
+                if (list != null && list.DocumentsData != null && list.DocumentsData.Count() > 0)
+                {
+                    _MemoList[i].DocumentsData = list.DocumentsData;
+                }
+                else
+                {
+                    _MemoList[i].DocumentsData = new List<DocumentsModel>();
+                }
+                i++;
+            }
+            StateHasChanged();
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        // System.GC.Collect();
+        _MemoList?.Clear();
+        _selectedItems = null;
+        // GC.SuppressFinalize(this);
+    }
+    void OnAcknowledgeClick(Memo memo)
+    {
+        Acknowledgepopup = true;
+        _selectedItems = memo;
+        StateHasChanged();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+    }
+    async Task updateAcknowldge()
+    {
+        bool? IsAcknowledgement = false;
+        if (_selectedItems.IsAcknowledgement == false)
+        {
+            IsAcknowledgement = true;
+        }
+        var request = new UpdateMemoUserAcknowledgement(_selectedItems.MemoUserId, IsAcknowledgement);
+        var result = await Mediator.Send(request);
+        if (result.MemoUserId > 0)
+        {
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            Acknowledgepopup = false;
+            await UpdateData();
+        }
+
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    async Task Download(DocumentsModel _selectedItems)
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //  Trigger file download
+                await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.OriginalFileName, response.ImageData, "");
+            }
+        }
+    }
+    async void onView(DocumentsModel _selectedItems)
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            if (_selectedItems.IsNewPath == true)
+            {
+                // var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                //var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+
+        }
+    }
+}

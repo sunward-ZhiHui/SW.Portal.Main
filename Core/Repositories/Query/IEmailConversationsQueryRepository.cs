@@ -36,7 +36,7 @@ namespace Core.Repositories.Query
         Task<List<EmailConversations>> GetFullDiscussionListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId,string Option);
         Task<List<EmailConversations>> GetEmailPrintAllDiscussionListAsync(Int64 TopicId, Int64 UserId, string Option);
-        
+        Task<long> GetTotalNotificationCountAsync(long UserId);
         Task<List<EmailConversations>> GetByReplyDiscussionList(long replyId);
         Task<List<EmailConversations>> GetOnDiscussionListAsync(long replyId,long UserId);
         Task<List<EmailConversations>> GetDemoEmailFileDataListAsync();

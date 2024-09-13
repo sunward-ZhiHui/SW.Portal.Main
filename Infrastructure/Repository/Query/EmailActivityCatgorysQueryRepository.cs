@@ -60,6 +60,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<bool> GetTagLockInfoAsync(long TopicId)
+        {
+            try
+            {               
+                var query = @"select top 1 ISNULL(TagLock, 0) as TagLock from EmailConversations where TopicID = @TopicId and ReplyId = 0 order by ID asc";
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+
+                using (var connection = CreateConnection())
+                {
+                    var result = await connection.QueryFirstOrDefaultAsync<bool>(query, parameters);
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<long> Insert(EmailActivityCatgorys emailActivityCatgorys)
         {

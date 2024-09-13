@@ -75,6 +75,15 @@ namespace Application.Queries
             this.Option = option;
         }
     }
+    
+    public class GetEmailNotificationCount : IRequest<long>
+    {       
+        public long UserId { get; private set; }       
+        public GetEmailNotificationCount( long UserId)
+        {            
+            this.UserId = UserId;            
+        }
+    }
     public class GetEmailPrintAllDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; private set; }

@@ -120,6 +120,68 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
+                var query = @"SELECT TNU.ID, TNH.ID AS ToDoNotesHistoryID,TNH.NotesId,TNH.DueDate,TNH.Url,TNH.RemainDate,TNH.Description, TNH.AddedByUserID,
+            TNH.AddedDate,TNH.SessionId,TNH.TopicId,EC.Name AS SubjectName, ET.TopicName AS MainSubject,TD.Notes AS NoteName,AP.UserName AS AssignTo,TNH.Status,
+            STRING_AGG(CAST(TNU.UserID AS VARCHAR), ',') AS UserIds
+            FROM ToDoNotesHistory TNH
+            INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+            INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
+            INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
+            LEFT JOIN TodoNotesUsers TNU ON TNU.NotesHistoryID = TNH.ID
+            LEFT JOIN ApplicationUser AP ON AP.UserID = TNU.UserID
+            WHERE TNH.AddedByUserID = @UserId
+                AND TNH.TopicId IS NOT NULL
+                AND TNH.TopicId > 0
+                AND TNH.Status = 'Open'
+            GROUP BY
+                TNU.ID,TNH.ID, TNH.NotesId, TNH.DueDate, TNH.Url, TNH.RemainDate,
+                TNH.Description, TNH.AddedByUserID, TNH.AddedDate, TNH.SessionId,
+                TNH.TopicId, EC.Name, ET.TopicName, TD.Notes, AP.UserName, TNH.Status
+            ORDER BY TNH.DueDate";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    var result = await connection.QueryAsync<dynamic>(query, parameters);
+
+                    // Convert the result to the appropriate type
+                    var todoNotesHistoryList = result.Select(row => new ToDoNotesHistory
+                    {
+                        ID = row.ID ?? 0L,
+                        ToDoNotesHistoryID = (long)row.ToDoNotesHistoryID,
+                        NotesId = (long)row.NotesId,
+                        DueDate = (DateTime?)row.DueDate,
+                        Url = (string)row.Url,
+                        RemainDate = (DateTime?)row.RemainDate,
+                        Description = (string)row.Description,
+                        AddedByUserID = (long)row.AddedByUserID,
+                        AddedDate = (DateTime)row.AddedDate,
+                        SessionId = (Guid)row.SessionId,
+                        TopicId = (long?)row.TopicId,
+                        SubjectName = (string)row.SubjectName,
+                        MainSubject = (string)row.MainSubject,
+                        NoteName = (string)row.NoteName,
+                        AssignTo = (string)row.AssignTo,
+                        Status = (string)row.Status,
+                        Users = (string)row.UserIds,
+                        UserIds = ((string)row.UserIds)?.Split(',').Select(id => long.Parse(id)).ToList() // Convert string to IEnumerable<long>
+                    }).ToList();
+
+                    return todoNotesHistoryList;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ToDoNotesHistory>> GetTodoRemainderAsyncold(long UserId)
+        {
+            try
+            {
 
                 //var query = @"SELECT TNH.*,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo FROM ToDoNotesHistory TNH
                 //                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
@@ -137,7 +199,7 @@ namespace Infrastructure.Repository.Query
                 //                    )
                 //                ORDER BY TNH.DueDate";
 
-                var query = @"SELECT TNU.ID,TNH.ID as ToDoNotesHistoryID,TNH.NotesId,TNH.DueDate,TNH.Url,TNH.RemainDate,TNH.Description,TNH.AddedByUserID,TNH.AddedDate,TNH.SessionId,TNH.TopicId,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo,TNH.Status FROM ToDoNotesHistory TNH
+                var query1 = @"SELECT TNU.ID,TNH.ID as ToDoNotesHistoryID,TNH.NotesId,TNH.DueDate,TNH.Url,TNH.RemainDate,TNH.Description,TNH.AddedByUserID,TNH.AddedDate,TNH.SessionId,TNH.TopicId,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo,TNH.Status,TNU.UserID as UserIds FROM ToDoNotesHistory TNH
                                 INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
                                 INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
@@ -154,6 +216,22 @@ namespace Infrastructure.Repository.Query
                                     --CAST(TNH.DueDate AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE))
                                     --)
                                 ORDER BY TNH.DueDate";
+
+                var query = @"SELECT TNU.ID,TNH.ID AS ToDoNotesHistoryID,TNH.NotesId,TNH.DueDate,TNH.Url,TNH.RemainDate,TNH.Description,    TNH.AddedByUserID,
+                    TNH.AddedDate,TNH.SessionId,TNH.TopicId,EC.Name AS SubjectName,    ET.TopicName AS MainSubject,TD.Notes AS NoteName,AP.UserName AS AssignTo,TNH.Status,STRING_AGG(CAST(TNU.UserID AS VARCHAR), ',') AS UserIds
+                FROM ToDoNotesHistory TNH
+                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+                INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
+                INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
+                LEFT JOIN TodoNotesUsers TNU ON TNU.NotesHistoryID = TNH.ID
+                LEFT JOIN ApplicationUser AP ON AP.UserID = TNU.UserID
+                WHERE     TNH.AddedByUserID = @UserId    AND TNH.TopicId IS NOT NULL    AND TNH.TopicId > 0    AND TNH.Status = 'Open'
+                GROUP BY
+                    TNU.ID, TNH.ID, TNH.NotesId, TNH.DueDate, TNH.Url, TNH.RemainDate,
+                    TNH.Description, TNH.AddedByUserID, TNH.AddedDate, TNH.SessionId,
+                    TNH.TopicId, EC.Name, ET.TopicName, TD.Notes, AP.UserName, TNH.Status
+                ORDER BY 
+                    TNH.DueDate";
 
 
                 var parameters = new DynamicParameters();

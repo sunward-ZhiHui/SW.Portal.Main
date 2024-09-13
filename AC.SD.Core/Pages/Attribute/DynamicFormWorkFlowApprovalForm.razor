@@ -53,7 +53,7 @@
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Single"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+            RowDoubleClick="OnRowDoubleClick">
         <Columns>
             <DxGridDataColumn FieldName="UserName" Caption="User" />
             @*   <DxGridDataColumn FieldName="SortBy" Caption="Sort By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
@@ -306,26 +306,7 @@
     }
     void addEdit()
     {
-
-        if (SelectedDataItems != null)
-        {
-            if (SelectedDataItems.Count == 1)
-            {
-                foreach (object item in SelectedDataItems)
-                {
-                    if (item is DynamicFormWorkFlowApproval dataselectItems)
-                    {
-                        var _selectlst = _dynamicFormWorkFlowApprovalList.FirstOrDefault(f => f.DynamicFormWorkFlowApprovalId == dataselectItems.DynamicFormWorkFlowApprovalId);
-                        SMShareGrid.StartEditDataItemAsync(_selectlst);
-                    }
-                }
-
-            }
-            else
-            {
-                SMShareGrid.StartEditDataItemAsync(_selectedItems);
-            }
-        }
+        SMShareGrid.StartEditDataItemAsync(_selectedItems);
 
     }
     void addDelete()
@@ -336,22 +317,14 @@
     {
         try
         {
-            if (SelectedDataItems != null)
+            if (_selectedItems != null)
             {
-                foreach (object item in SelectedDataItems)
-                {
-
-                    if (item is DynamicFormWorkFlowApproval selectData)
-                    {
-                        var request = new DeleteDynamicFormWorkFlowApproval(selectData);
-                        await Mediator.Send(request);
-                        Blukdeletepopup = false;
-                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        await UpdateDataAsync();
-                        SMShareGrid.SetFocusedRowIndex(0);
-                    }
-
-                }
+                var request = new DeleteDynamicFormWorkFlowApproval(_selectedItems);
+                await Mediator.Send(request);
+                Blukdeletepopup = false;
+                toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+                SMShareGrid.SetFocusedRowIndex(0);
             }
         }
         catch (Exception eq)

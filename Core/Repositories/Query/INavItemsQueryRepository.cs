@@ -26,6 +26,10 @@ namespace Core.Repositories.Query
         Task<ItemBatchInfo> GetSyncBatchInfo(string ItemNo, long? CompanyId, long? ItemId);
         Task<ItemBatchInfo> GetNavItemBatchInfo(long? CompanyId);
         Task<IReadOnlyList<Navitems>> GetNavItemItemNosAsync(long? CompanyId);
-        Task<Navitems> GetNavItemServicesList(long? CompanyId);
+        Task<Navitems> GetNavItemServicesList(long? CompanyId,long? UserId);
+        Task<FinishedProdOrderLine> GetFinishedProdOrderLineList(long? CompanyId);
+        Task<IReadOnlyList<ItemBatchInfo>> GetNavItemBatchNoByItemByAllAsync();
+        Task<ItemBatchInfo> InsertOrUpdateBatchInfo(ItemBatchInfo itemBatchInfo);
+        Task<ItemBatchInfo> DeleteItemBatchInfo(ItemBatchInfo itemBatchInfo);
     }
 }

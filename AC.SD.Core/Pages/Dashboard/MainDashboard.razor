@@ -22,16 +22,16 @@
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
             <div>
-                <DxFormLayoutTabPage Caption="Dynamic Form Approval" Click="OnTabClick">
-                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
-                        <DynamicFormPendingApproval @ref="refDynamicFormPendingApproval"></DynamicFormPendingApproval>
-                    </div>
-                </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Scheduler" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <Dashboard></Dashboard>
                     </div>
                 </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Dynamic Form Approval" Click="OnTabClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <DynamicFormPendingApproval @ref="refDynamicFormPendingApproval"></DynamicFormPendingApproval>
+                    </div>
+                </DxFormLayoutTabPage>                
                 <DxFormLayoutTabPage Caption="Approved Status" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <ApprovalDynamicDataForm @ref="refApprovalDynamicDataForm"></ApprovalDynamicDataForm>
@@ -42,11 +42,17 @@
                         <DynamicFormSectionApprovedPage @ref="refDynamicFormWorkFlowSectionApprovals"></DynamicFormSectionApprovedPage>
                     </div>
                 </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Memo" Click="OnTabClick">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+                        <MemoUserLists @ref="refMemoLists"></MemoUserLists>
+                    </div>
+                </DxFormLayoutTabPage>
             </div>
         </DxFormLayoutTabPages>
     </DxFormLayout>
 </div>
 @code {
+    private MemoUserLists refMemoLists;
     private DynamicFormSectionApprovedPage refDynamicFormWorkFlowSectionApprovals;
     private DynamicFormPendingApproval refDynamicFormPendingApproval;
     private ApprovalDynamicDataForm refApprovalDynamicDataForm;
@@ -95,6 +101,7 @@
         refDynamicFormPendingApproval?.DisposeAsync();
         refApprovalDynamicDataForm?.DisposeAsync();
         refDynamicFormWorkFlowSectionApprovals?.DisposeAsync();
+        // refMemoLists?.DisposeAsync();
         //GC.SuppressFinalize(this);
     }
 }

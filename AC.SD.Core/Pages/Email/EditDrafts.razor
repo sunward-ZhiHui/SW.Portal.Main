@@ -1352,6 +1352,7 @@ else
         Data.OverDue = false;
         Data.IsAllowParticipants = false;
         Data.NotifyUser = false;
+
         var topics = await Mediator.Send(new GetAllEmailTopics());
         _topics = topics;
         //var appusers = await Mediator.Send(new GetAllApplicationUserQuery());
@@ -1454,8 +1455,14 @@ else
 
 
                         // selectgrouptagItems = _TagEmailList[0];
-                        GroupTagChangedEdit(_TagEmailList[0].GroupTag);
-                        CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+                         if (_TagEmailList[0].CategoryTag != 0)
+                         {
+                            GroupTagChangedEdit(_TagEmailList[0].GroupTag);
+                         }
+                         if (_TagEmailList[0].ActionTag != 0)
+                         {
+                            CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+                         }
                     }
                 }
 
@@ -1933,6 +1940,7 @@ else
         else
         {
             selectCategory = null;
+            CategoryData.GroupTag = null;
         }
         StateHasChanged();
     }
@@ -1975,6 +1983,7 @@ else
         {
             CategoryData.ActionTag = null;
             Text = null;
+            CategoryData.CategoryTag = null;
         }
         StateHasChanged();
     }

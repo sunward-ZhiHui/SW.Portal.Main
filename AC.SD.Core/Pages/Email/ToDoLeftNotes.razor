@@ -13,39 +13,37 @@
 @implements IDisposable;
 @inject NavigationManager NavigationManager
 
-<div class="card w-100" style="margin-bottom:10px;">
+<div class="card w-100" style="margin-bottom:10px;"> 
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
+                DisplayMode="MenuDisplayMode.Auto">
             <Items>
                 <DxMenuItem Text="@AddText" IconCssClass="fa fa-add" Click="@addNew"/>
                 <DxMenuItem Text="@EditText" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="@deleteText" IconCssClass="fa fa-remove" Click="@addLeftDelete" Enabled="@LeftDeleteEnabled" />
-                <DxMenu Visible="@Complete">
-             
-
-                    <Items>
-                       
-                        <DxMenuItem Text="@CompleteText" IconCssClass="fa fa-check" Click="@addDelete" style="@CompeleteStyle" />
-                    </Items>
+                <DxMenuItem Text="@CompleteText" Visible="@Complete" IconCssClass="fa fa-check" Click="@addDelete" />
+                <DxMenuItem Text="@ReopenText" IconCssClass="fa fa-check-square" Click="@onIncomplete" Visible="@Incomplete" />
+               @*  <DxMenu Visible="@Complete">
+                    <Items> *@
+               
+                    @* </Items>
                 </DxMenu>
-
-                <DxMenu Visible="@Incomplete">
-                    <Items>
-                        <DxMenuItem Text="@ReopenText" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="@CompeleteStyle" />
-                    </Items>
-                </DxMenu>
+                <DxMenu Visible="@Incomplete"> *@
+                  @*   <Items> *@
+              
+                   @*  </Items>
+                </DxMenu> *@
 
 
              @*   <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" Enabled=@DeleteEnabled />
-
+                style="@CompeleteStyle"style="@CompeleteStyle"
                 <DxMenuItem Text="InCompleted" IconCssClass="fa fa-check-square" Click="@onIncomplete" Enabled=@DeleteEnabled />*@
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
             </Items>
         </DxMenu>
     </div>
-</div>
+</div> 
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
     <div class="text-center">
@@ -511,7 +509,7 @@
     }
     void addDelete()
     {
-        deletepopup = true;
+        Blukdeletepopup = true;
 
     }
     public async void OnDelete()

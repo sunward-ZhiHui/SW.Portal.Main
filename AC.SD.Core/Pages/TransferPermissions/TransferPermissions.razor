@@ -84,6 +84,7 @@
     private TransferPermissionDocumentUserRole refTransferPermissionDocumentUserRole;
     private TransferPermissionsEmailConversationParticipant refTransferPermissionsEmailConversationParticipant;
     private List<ViewEmployee> _usersList { get; set; }
+    private List<ViewEmployee> _userList { get; set; }
     private List<ViewEmployee> _usersFromList { get; set; }
     private List<ViewEmployee> _usersToList { get; set; }
     ResetPermissionModel Data = new ResetPermissionModel();
@@ -93,12 +94,15 @@
     protected override async Task OnInitializedAsync()
     {
         var usersList = await Mediator.Send(new GetAllUserWithoutStatusQuery());
+        var tolist = await Mediator.Send(new GetAllEmployeeListQuery());
         _usersFromList = new List<ViewEmployee>();
         _usersFromList = usersList;
         _usersToList = new List<ViewEmployee>();
-        _usersToList = usersList;
+        _usersToList = tolist;
         _usersList = new List<ViewEmployee>();
         _usersList = usersList;
+        _userList = new List<ViewEmployee>();
+        _userList = tolist;
         StateHasChanged();
     }
     async Task onSelectedUserItemsChanged(ViewEmployee viewEmployee)
@@ -109,11 +113,11 @@
         if (viewEmployee != null && viewEmployee.UserID > 0)
         {
             UserIds = viewEmployee.UserID;
-            _usersToList = _usersList.Where(w => w.UserID != viewEmployee.UserID).ToList();
+            _usersToList = _userList.Where(w => w.UserID != viewEmployee.UserID).ToList();
         }
         else
         {
-            _usersToList = _usersList;
+            _usersToList = _userList;
         }
         Data.FromUserId = viewEmployee != null ? UserIds : null;
         StateHasChanged();
@@ -178,6 +182,11 @@
             _usersList.Clear();
             _usersList = null;
 
+        }
+        if(_userList != null)
+        {
+            _userList.Clear();
+            _userList = null;
         }
         CurrentToUser = null;
         CurrentFromUser = null;

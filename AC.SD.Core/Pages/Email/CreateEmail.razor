@@ -1901,6 +1901,8 @@ else
                     //Guid docSessionId = Guid.Parse(docId);
                     await GroupTagChanged(actItem[0].ManufacturingProcessId);
                     await CategoryTagChange(actItem[0].CategoryActionId);
+                  
+                    
 
                     var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
                     ActUserName = Namelist[0].Name;
@@ -2448,7 +2450,7 @@ else
     }
     async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
-       
+
         if (applicationMasterChildModel != null)
         {
             selectCategory = applicationMasterChildModel;
@@ -2462,17 +2464,25 @@ else
     }
     async Task GroupTagChanged(long? ApplicationMasterChildId)
     {
-        if (ApplicationMasterChildId != null)
+        if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1)
         {
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        }
+        else
+        {
+            CategoryData.GroupTag = 0;
         }
         StateHasChanged();
     }
     async Task CategoryTagChange(long? ApplicationMasterChildID)
     {
-        if (ApplicationMasterChildID != null)
+        if (ApplicationMasterChildID != null && ApplicationMasterChildID != -1)
         {
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        }
+        else
+        {
+            CategoryData.CategoryTag = 0;
         }
         StateHasChanged();
     }

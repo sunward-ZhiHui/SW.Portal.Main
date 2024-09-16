@@ -322,12 +322,20 @@
     }
     async Task TimeFilter(bool status)
     {
-        if (_data != null)
+       var  _data1 = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
+        if (_data1 != null)
         {
-            _filteredData = _data
-           .Where(appointment =>
-               appointment.StatusType == "EmailDueDate" ||
-               appointment.StatusType == "TodoDueDate")
+           //  _filteredData = _data
+           // .Where(appointment =>
+           //     appointment.StatusType == "EmailDueDate" ||
+           //     appointment.StatusType == "TodoDueDate")
+           // .Select(appointment =>
+           // {
+           //     appointment.AllDay = !status;  // Set AllDay to 0
+           //     return appointment;
+           // }).ToList();
+
+            _filteredData = _data1
            .Select(appointment =>
            {
                appointment.AllDay = !status;  // Set AllDay to 0
@@ -335,12 +343,12 @@
            }).ToList();
 
             ApplyFilters();
-           // DataStorage.AppointmentsSource = _data;
+            // DataStorage.AppointmentsSource = _data;
         }
-       
 
 
-       
+
+
         StateHasChanged();
 
     }
@@ -468,7 +476,7 @@
        .ToList();
 
         DataStorage.AppointmentsSource = filteredData;
-       
+
 
         StateHasChanged();
     }
@@ -521,10 +529,10 @@
 
     void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
     {
-        if (args.FormType == SchedulerAppointmentFormType.CompactEditForm)
-        {
-            args.Cancel = true;
-        }
+        // if (args.FormType == SchedulerAppointmentFormType.CompactEditForm)
+        // {
+        //     args.Cancel = true;
+        // }
     }
 
     async Task AppointmentInserting(SchedulerAppointmentOperationEventArgs e)
@@ -557,26 +565,37 @@
 
     }
     async Task AppointmentUpdating(SchedulerAppointmentOperationEventArgs e)
-    {
-        if (e.Appointment != null && e.Appointment.Id != null)
-        {
-            var InsertReq = new EditAppointment
-                {
-                    ID = (long)e.Appointment.Id,
-                    StartDate = e.Appointment.Start,
-                    EndDate = e.Appointment.End,
-                    Caption = e.Appointment.Subject,
-                    Label = (int)e.Appointment.LabelId,
-                    Status = (int)e.Appointment.StatusId,
-                    AllDay = e.Appointment.AllDay,
-                    Location = e.Appointment.Location,
-                    Description = e.Appointment.Description
-                };
+    {       
 
-            var ans = await Mediator.Send(InsertReq);
-            //toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        var appointment = e.Appointment.SourceObject as Appointment;
+
+        if (appointment != null)
+        {
+            var statusType = appointment.StatusType;  
+            if (statusType == "Appointment")
+            {
+                if (e.Appointment != null && e.Appointment.Id != null)
+                {
+                    var InsertReq = new EditAppointment
+                        {
+                            ID = (long)e.Appointment.Id,
+                            StartDate = e.Appointment.Start,
+                            EndDate = e.Appointment.End,
+                            Caption = e.Appointment.Subject,
+                            Label = (int)e.Appointment.LabelId,
+                            Status = (int)e.Appointment.StatusId,
+                            AllDay = e.Appointment.AllDay,
+                            Location = e.Appointment.Location,
+                            Description = e.Appointment.Description
+                        };
+
+                    var ans = await Mediator.Send(InsertReq);
+                    toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+            }
+        }       
             //await UpdateDataAsync();
-        }
+        
     }
     async Task AppointmentRemoving(SchedulerAppointmentOperationEventArgs e)
     {
@@ -611,26 +630,7 @@
     {
         return string.IsNullOrEmpty(filterText) || tag.Contains(filterText, StringComparison.OrdinalIgnoreCase);
     }
-    private MarkupString HighlightSearchTextold(string text)
-    {
-        if (string.IsNullOrEmpty(filterText))
-        {
-            return new MarkupString(text);
-        }
-
-        // Split the tag based on the search text
-        string[] parts = text.Split(filterText, StringSplitOptions.None);
-
-        // Reconstruct the string with highlighting
-        string highlightedText = string.Join(
-         $"<span class='highlight'>{filterText}</span>",
-         parts
-         );
-
-
-        // Return the result as HTML
-        return new MarkupString(highlightedText);
-    }
+    
     private MarkupString HighlightSearchText(string text)
     {
         if (string.IsNullOrEmpty(filterText) || !text.Contains(filterText, StringComparison.OrdinalIgnoreCase))

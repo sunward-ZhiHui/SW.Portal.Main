@@ -26,6 +26,7 @@
             <Items>
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onReset" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
             </Items>
         </DxMenu>
     </div>
@@ -52,9 +53,11 @@
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         AllowSelectRowByClick="true"
         LayoutAutoLoading="Grid_LayoutAutoLoading"
-        LayoutAutoSaving="Grid_LayoutAutoSaving" 
+        LayoutAutoSaving="Grid_LayoutAutoSaving"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
         EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
-    <Columns>        
+    <Columns>
+       @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
         <DxGridDataColumn FieldName="MainSubject" Caption="Main Subject" ReadOnly="true"  />
         <DxGridDataColumn FieldName="SubjectName" Caption="Subject" ReadOnly="true"  />
         <DxGridDataColumn FieldName="NoteName" Caption="Note Name" ReadOnly="true"  />
@@ -225,7 +228,7 @@
             // Mute exceptions for the server prerender stage
         }
     }
-
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     IGrid? Grid { get; set; }
     Documents _documents { get; set; }
     bool UploadPopupVisible { get; set; } = false;
@@ -405,5 +408,41 @@
         _documents = null;
         CurrentTodoNotes = null;
         //GC.SuppressFinalize(this);
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        EditEnabled = false;
+        StateHasChanged();
+    }
+    async Task ExportToExcel()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
     }
 }

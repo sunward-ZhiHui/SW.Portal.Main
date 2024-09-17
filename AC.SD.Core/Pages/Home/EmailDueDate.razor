@@ -2,6 +2,7 @@
 @using Application.Common.Helper;
 @using Application.Queries;
 @using Application.Response;
+@using DevExpress.Export
 @using Microsoft.AspNetCore.Http;
 @using System.Text
 @using global::Core.Repositories.Query;
@@ -35,6 +36,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Reload" IconCssClass="fa fa-refresh" Click="@onRefresh"/>
                 <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onReset" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 @* <DxMenuItem Text="Message" IconCssClass="fa fa-commenting" Click="@onReplyMsg" Enabled="@ReplyMsgEnabled" /> *@
             </Items>
         </DxMenu>
@@ -61,8 +63,10 @@
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         LayoutAutoLoading="Grid_LayoutAutoLoading"
         LayoutAutoSaving="Grid_LayoutAutoSaving"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
         AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
-    <Columns>    
+    <Columns>   
+       @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
         <DxGridDataColumn FieldName="TopicName" Caption="Main Subject"  FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
         <DxGridDataColumn FieldName="Name" Caption="Subject Name" />
         <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
@@ -198,6 +202,7 @@
 </DxPopup>
 
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     internal List<EmailActivityCatgorys>? _UserTagList = new List<EmailActivityCatgorys>();
     internal List<EmailActivityCatgorys>? _AllCategory = new List<EmailActivityCatgorys>();
     private string UserTagName = string.Empty;  
@@ -486,7 +491,7 @@
             UserTagName = string.Empty;
             OthersTagName = string.Empty;
         }
-       
+
 
         ReplyMsgEnabled = true;
         EditEnabled = true;
@@ -620,5 +625,41 @@
         _selectedItems = null;
         RefSubAssignAll?.DisposeAsync();
         //GC.SuppressFinalize(this);
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        EditEnabled = false;
+        StateHasChanged();
+    }
+    async Task ExportToExcel()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            await EmailDueDateGrid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await EmailDueDateGrid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
     }
 }

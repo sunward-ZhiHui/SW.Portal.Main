@@ -20,13 +20,13 @@
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
             <div>
-                <DxFormLayoutTabPage Caption="ToDo" Click="OnTabClick">
+                <DxFormLayoutTabPage Caption="Email" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <EmailDueDate TabIndex="@TabIndex"></EmailDueDate>                        
                     </div>
                 </DxFormLayoutTabPage>
 
-                <DxFormLayoutTabPage Caption="Email" Click="OnTabClick">
+                <DxFormLayoutTabPage Caption="ToDo" Click="OnTabClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <MyDayNew></MyDayNew>
                     </div>

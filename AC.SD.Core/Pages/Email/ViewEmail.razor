@@ -3782,7 +3782,10 @@
             TopicID = CurrentEmailConversations.TopicID,
             AssigntoIds = AssigntoIdss,
             AssignccIds = AssignccIdss,
-                Message = "Reason :" + DuedateReason + "" + "\n Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ").",
+              //  Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
+                Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)}\"<br/><br/>" +
+                "<strong>Reason:</strong><br/>" +
+                $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
             PlistIdss="",
             AllowPlistids = "",
             IsAllowParticipants= false,

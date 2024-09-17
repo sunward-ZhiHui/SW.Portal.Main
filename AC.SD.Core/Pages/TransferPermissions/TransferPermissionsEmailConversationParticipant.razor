@@ -1,4 +1,5 @@
-﻿@using global::Core.Entities.Views;
+﻿@using System.Text
+@using global::Core.Entities.Views;
 @using global::Core.Entities;
 @using Application.Queries;
 @using MediatR
@@ -8,6 +9,9 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @implements IAsyncDisposable
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient;
+
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -89,7 +93,7 @@
     bool UpdateEmailConversationEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedEmailConversationDataItems { get; set; }
     public ApplicationUser? applicationUser { get; internal set; }
-
+    public List<RequestEmail> list { get; set; }
     private EmailConversations _selectedItems;
     protected override async Task OnInitializedAsync()
     {
@@ -193,6 +197,88 @@
                         await Mediator.Send(request);
                         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         await loadEmailConversation();
+
+                        // foreach(var id in ids)
+                        // {
+
+
+                        //     list = await Mediator.Send(new GetRequestEmailParticipantList(id.ConversationId.Value));
+
+
+
+                        //     var participantIds = new List<long>();
+                        //     var AssigntoIdss = new List<long>();
+                        //     var AssignccIdss = new List<long>();
+                        
+
+                        //     if (list.Count > 0)
+                        //     {
+                        //         foreach (var item in list)
+                        //         {
+                        //             if (item.ToIds == Data.FromUserId)
+                        //             {
+                        //                 list.Remove(item);
+                                      
+                                       
+                        //             }
+                        //             var ccids = item.ToIds.ToString();
+                        //             AssignccIdss = ccids != null ? ccids.Split(',').Select(long.Parse).ToList() : new List<long>();
+                        //         }
+
+
+                        //         if (list != null)
+                        //         {
+
+                        //             participantIds.Add(list[0].ToIds.Value);
+                        //           // participantIds.Add(Data.ToUserId.Value);
+                        //         }
+
+                        //         participantIds.Add(applicationUser.UserID);
+                              
+                        //         AssigntoIdss = Data.ToUserId.HasValue ? new List<long> { Data.ToUserId.Value } : new List<long>();
+                              
+
+                        //     }
+                            
+
+                        //     var emailconlist = new EmailConversations
+                        //         {
+                        //             TopicID = id.TopicID,
+                        //             AssigntoIds = AssigntoIdss,
+                        //             AssignccIds = AssignccIdss,
+                        //             // Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
+                        //             Message = "The Raja Resign Work Infure reply to this user",
+                        //             PlistIdss = "",
+                        //             AllowPlistids = "",
+                        //             IsAllowParticipants = false,
+                        //             Urgent = false,
+                        //             ConIds = 0,
+                        //             ReplyId = id.ID,
+                        //             AllParticipantIds = participantIds.Distinct().ToList(),
+                        //             ParticipantId = applicationUser.UserID,
+                        //             Name = id.Name,
+                        //             AddedByUserID = applicationUser.UserID,
+                        //             From = "",
+                        //             LastName = "",
+                        //             UserCode = "",
+                        //             UserName = "",
+                        //             FirstName = "",
+                        //             UserEmail = "",
+                        //             FileData = new byte[0],
+                        //             FirebaseDocKey = "",
+
+                        //         };
+
+                        //     string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                        //     string url = BaseUrl + "OnSubmitReply";
+                        //     string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);
+                        //     var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                        //     // Send the POST request with the content
+                        //     var response = await httpClient.PostAsync(url, content);
+                        //     var msg = response.StatusCode;
+                           
+                        // }
+                       
                         TransferPermissionsEmailConversationUserGrid.SetFocusedRowIndex(0);
                     }
                 }

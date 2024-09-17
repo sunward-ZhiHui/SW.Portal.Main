@@ -66,6 +66,14 @@ namespace Application.Queries
             this.ConId = conId;
         }
     }
+    public class GetRequestEmailParticipantList : PagedRequest, IRequest<List<RequestEmail>>
+    {
+        public long ConversationID { get; private set; }
+        public GetRequestEmailParticipantList(long ConversationID)
+        {
+            this.ConversationID = ConversationID;
+        }
+    }
     public class GetRequestEmailToOnlyList : PagedRequest, IRequest<List<RequestEmail>>
     {
         public long ConId { get; private set; }

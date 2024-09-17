@@ -167,6 +167,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<RequestEmail>> RequestEmailParticipantList(long ConversationID)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationID", ConversationID);
+                var query = "select UserID as ToIds From EmailConversationParticipant where ConversationId =@ConversationID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<RequestEmail>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+           
+        }
         public async Task<List<RequestEmail>> RequestEmailToOnlyList(long ConId)
         {
             try

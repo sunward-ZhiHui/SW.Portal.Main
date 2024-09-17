@@ -63,7 +63,7 @@
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         LayoutAutoLoading="Grid_LayoutAutoLoading"
         LayoutAutoSaving="Grid_LayoutAutoSaving"
-        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+       
         AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
     <Columns>   
        @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
@@ -194,6 +194,12 @@
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
             <span class="@((MessageHeader == "Warning Info" ? "TxtRed" :""))"> @MessageBody</span>
         </div>
+        <DxFormLayout>
+            <DxFormLayoutItem Caption="Reason :" ColSpanMd="12">
+                <DxMemo @bind-Text="@DuedateReason"></DxMemo>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+
     </BodyContentTemplate>
     <FooterContentTemplate>
         <span>@Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate)</span>
@@ -314,7 +320,10 @@
                 TopicID = _selectedItems.EmailTopicID,
                 AssigntoIds = AssigntoIdss,
                 AssignccIds = AssignccIdss,
-                Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate) + ").",
+                // Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate) + ").",
+                Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate)}\"<br/><br/>" +
+                    "<strong>Reason:</strong><br/>" +
+                    $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
                 PlistIdss = "",
                 AllowPlistids = "",
                 IsAllowParticipants = false,
@@ -409,7 +418,7 @@
     [Parameter]
     public Action<string> SubViewAllTopicId { get; set; }
     private string? BaseUrl;
-
+    string DuedateReason { get; set; } = "";
     async Task onRefresh()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -626,12 +635,7 @@
         RefSubAssignAll?.DisposeAsync();
         //GC.SuppressFinalize(this);
     }
-    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
-    {
-        SelectedDataItems = SelectedToItems;
-        EditEnabled = false;
-        StateHasChanged();
-    }
+   
     async Task ExportToExcel()
     {
         if (SelectedDataItems != null)

@@ -54,7 +54,7 @@
         AllowSelectRowByClick="true"
         LayoutAutoLoading="Grid_LayoutAutoLoading"
         LayoutAutoSaving="Grid_LayoutAutoSaving"
-        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+      
         EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
     <Columns>
        @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
@@ -409,12 +409,7 @@
         CurrentTodoNotes = null;
         //GC.SuppressFinalize(this);
     }
-    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
-    {
-        SelectedDataItems = SelectedToItems;
-        EditEnabled = false;
-        StateHasChanged();
-    }
+    
     async Task ExportToExcel()
     {
         if (SelectedDataItems != null)

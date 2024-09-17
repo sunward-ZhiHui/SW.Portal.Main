@@ -50,7 +50,7 @@
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         LayoutAutoLoading="Grid_LayoutAutoLoading"
         LayoutAutoSaving="Grid_LayoutAutoSaving"
-        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+       
         AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
     <Columns>
        @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible ="false"/> *@
@@ -383,12 +383,7 @@
 
         //GC.SuppressFinalize(this);
     }
-    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
-    {
-        SelectedDataItems = SelectedToItems;
-        EditEnabled = false;
-        StateHasChanged();
-    }
+    
     async Task ExportToExcel()
     {
         if (SelectedDataItems != null)

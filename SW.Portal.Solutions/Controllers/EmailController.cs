@@ -606,18 +606,22 @@ namespace SW.Portal.Solutions.Controllers
                 }
             }
         }
-        [HttpGet("PushNotificationAll")]
-        public async Task<string> PushNotificationAll(List<string> tokens, string titles, string message,string housturl)
+        [HttpPost("PushNotificationAll")]
+        public async Task<string> PushNotificationAll([FromBody] NotificationAllModel notificationAllModel)
         {
-            
            
-            foreach (var lst in tokens)
+           List<string> list = new List< string>();
+            string result = String.Join(",",notificationAllModel.tokens);
+                   list = result.Split(',').ToList();
+            
+               
+            foreach (var lst in list)
             {
                 //tokenStringList.Add(lst.TokenID.ToString());
 
-                await PushNotification(lst, titles, message, housturl);
+                await PushNotification(lst, notificationAllModel.titles, notificationAllModel.message, notificationAllModel.housturl);
             }
-            return titles;
+            return notificationAllModel.titles;
         }
         private async Task<string> GetAccessTokenAsync(IWebHostEnvironment env)
         {

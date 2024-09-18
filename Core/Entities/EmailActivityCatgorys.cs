@@ -41,6 +41,9 @@ namespace Core.Entities
         public long? UserTagTopicId { get; set; }
         [NotMapped]
         public long? UserTagAddedByUserID { get; set; }
+        [NotMapped]
+       // [Required]
+        public IEnumerable<long> ActionTagIds { get; set; }
     }
 
 

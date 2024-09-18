@@ -119,7 +119,21 @@
                 </DxFormLayoutItem>
 
                 <DxFormLayoutItem Caption="Action" ColSpanMd="6">
-                    <DxComboBox Data="@_actionTagItems"
+                  @*   <DxTagBox Data="_actionTagItems"
+                              @bind-Values="types.ActionTagIds"
+                              NullText="Select Action"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="ApplicationMasterChildId"
+                              TextFieldName="Value"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
+                      
+                    </DxTagBox> *@
+                   
+                     <DxComboBox Data="@_actionTagItems"
                                 NullText="Select Action..."                                
                                 SearchMode="ListSearchMode.AutoSearch"
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -127,7 +141,7 @@
                                 ValueFieldName="ApplicationMasterChildId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ActionTag">
-                    </DxComboBox>
+                    </DxComboBox> 
                     <ValidationMessage For="@(() => types.ActionTag)" />
                 </DxFormLayoutItem>
 

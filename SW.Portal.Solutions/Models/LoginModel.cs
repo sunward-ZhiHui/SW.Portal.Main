@@ -16,5 +16,11 @@
         public string? DeviceType { get; set; }
         public string? TokenID { get; set; }
     }
-
+    public class NotificationAllModel
+    {
+        public List<string>? tokens { get; set; } = new List<string>();
+        public string? titles { get; set; } 
+        public string? message { get; set; }
+        public string? housturl { get; set; }
+    }
 }

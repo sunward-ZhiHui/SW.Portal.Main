@@ -8,9 +8,14 @@
 @using global::Core.Repositories.Query
 @inject AC.SD.Core.Services.ToastService toastService
 @implements IAsyncDisposable
+@using Microsoft.AspNetCore.Http;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
 @inject HttpClient httpClient;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+@inject IJSRuntime JSRuntime;
 
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
@@ -19,7 +24,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Transfer" IconCssClass="fa fa-pencil" Click="@updateEmailConversation" Enabled="@UpdateEmailConversationEnabled" />
+                <DxMenuItem Text="Transfer" IconCssClass="fa fa-exchange" Click="@updateEmailConversation" Enabled="@UpdateEmailConversationEnabled" />
                 @* <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteEmailConversationDelete" Enabled="@DeleteEmailConversationEnabled" /> *@
             </Items>
         </DxMenu>
@@ -176,6 +181,7 @@
     // }
     async Task updateEmailConversation()
     {
+        await JSRuntime.InvokeAsync<string>("showLoading");
         List<EmailConversations> ids = new List<EmailConversations>();
         try
         {
@@ -194,91 +200,21 @@
                     if (ids != null && ids.Count > 0)
                     {
                         var request = new UpdateTransferPermissionsEmailConversationUser(ids, Data.FromUserId, Data.ToUserId, applicationUser.UserID);
-                        await Mediator.Send(request);
+                        await Mediator.Send(request);   
+
+                        var fromname = await Mediator.Send(new GetUserList(Data.FromUserId.ToString()));
+                        var toname = await Mediator.Send(new GetUserList(Data.ToUserId.ToString()));
+                        var createdname = await Mediator.Send(new GetUserList(applicationUser.UserID.ToString()));
+                        var fromnamestring = string.Concat(fromname[0].FirstName, "-", fromname[0].NickName);
+                        var tonamestring = string.Concat(toname[0].FirstName, "-", toname[0].NickName);
+                        var createdstring = string.Concat(createdname[0].FirstName, "-", createdname[0].NickName);
+
+
+                        await sentReplyTransfer(ids, fromnamestring, tonamestring, createdstring);
+                        
                         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         await loadEmailConversation();
 
-                        // foreach(var id in ids)
-                        // {
-
-
-                        //     list = await Mediator.Send(new GetRequestEmailParticipantList(id.ConversationId.Value));
-
-
-
-                        //     var participantIds = new List<long>();
-                        //     var AssigntoIdss = new List<long>();
-                        //     var AssignccIdss = new List<long>();
-                        
-
-                        //     if (list.Count > 0)
-                        //     {
-                        //         foreach (var item in list)
-                        //         {
-                        //             if (item.ToIds == Data.FromUserId)
-                        //             {
-                        //                 list.Remove(item);
-                                      
-                                       
-                        //             }
-                        //             var ccids = item.ToIds.ToString();
-                        //             AssignccIdss = ccids != null ? ccids.Split(',').Select(long.Parse).ToList() : new List<long>();
-                        //         }
-
-
-                        //         if (list != null)
-                        //         {
-
-                        //             participantIds.Add(list[0].ToIds.Value);
-                        //           // participantIds.Add(Data.ToUserId.Value);
-                        //         }
-
-                        //         participantIds.Add(applicationUser.UserID);
-                              
-                        //         AssigntoIdss = Data.ToUserId.HasValue ? new List<long> { Data.ToUserId.Value } : new List<long>();
-                              
-
-                        //     }
-                            
-
-                        //     var emailconlist = new EmailConversations
-                        //         {
-                        //             TopicID = id.TopicID,
-                        //             AssigntoIds = AssigntoIdss,
-                        //             AssignccIds = AssignccIdss,
-                        //             // Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
-                        //             Message = "The Raja Resign Work Infure reply to this user",
-                        //             PlistIdss = "",
-                        //             AllowPlistids = "",
-                        //             IsAllowParticipants = false,
-                        //             Urgent = false,
-                        //             ConIds = 0,
-                        //             ReplyId = id.ID,
-                        //             AllParticipantIds = participantIds.Distinct().ToList(),
-                        //             ParticipantId = applicationUser.UserID,
-                        //             Name = id.Name,
-                        //             AddedByUserID = applicationUser.UserID,
-                        //             From = "",
-                        //             LastName = "",
-                        //             UserCode = "",
-                        //             UserName = "",
-                        //             FirstName = "",
-                        //             UserEmail = "",
-                        //             FileData = new byte[0],
-                        //             FirebaseDocKey = "",
-
-                        //         };
-
-                        //     string BaseUrl = NavigationManager.BaseUri + "api/Email/";
-                        //     string url = BaseUrl + "OnSubmitReply";
-                        //     string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);
-                        //     var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-                        //     // Send the POST request with the content
-                        //     var response = await httpClient.PostAsync(url, content);
-                        //     var msg = response.StatusCode;
-                           
-                        // }
-                       
                         TransferPermissionsEmailConversationUserGrid.SetFocusedRowIndex(0);
                     }
                 }
@@ -291,6 +227,113 @@
         catch (Exception eq)
         {
             // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+        }
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private async Task sentReplyTransfer(List<EmailConversations> ids,string fromname,string toname,string sendername)
+    {
+        foreach(var id in ids)
+        {
+            list = await Mediator.Send(new GetRequestEmailParticipantList(id.ConversationId.Value));
+
+            var participantIds = new List<long>();
+            var AssigntoIdss = new List<long>();
+            var AssignccIdss = new HashSet<long>();
+
+
+            if (list.Count > 0)
+            {
+                foreach (var item in list)
+                {
+                    if (item.ToIds == Data.FromUserId)
+                    {
+                        list.Remove(item);
+
+
+                    }
+                    var ccids = item.ToIds.ToString();                    
+
+                    // Add parsed ccids and item.ToIds.Value to AssignccIdss if they are not null
+                    if (!string.IsNullOrEmpty(ccids))
+                    {
+                        AssignccIdss.UnionWith(ccids.Split(',').Select(long.Parse));
+                    }
+
+                    if (item.ToIds.HasValue)
+                    {
+                        AssignccIdss.Add(item.ToIds.Value);
+                        participantIds.Add(item.ToIds.Value);
+                    }
+                }
+
+                AssigntoIdss = Data.ToUserId.HasValue ? new List<long> { Data.ToUserId.Value } : new List<long>();
+
+
+
+                var fromid = applicationUser.UserID;
+
+                // Remove fromid from AssignccIdss if it exists
+                AssignccIdss.Remove(fromid);
+
+                // Remove all IDs in AssigntoIdss from AssignccIdss
+                foreach (var idss in AssigntoIdss)
+                {
+                    AssignccIdss.Remove(idss);
+                }
+
+
+            }
+
+            var emailconlist = new EmailConversations
+                {
+                    TopicID = id.TopicID,
+                    AssigntoIds = AssigntoIdss,
+                    AssignccIds = AssignccIdss,
+                    // Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
+              //       Message = $"Transfer Details:<br/><br/>" +
+              // $"<strong>From:</strong> {fromname}<br/>" +
+              // $"<strong>To:</strong> {toname}<br/>" +
+              // $"<strong>Processed By:</strong> {sendername}<br/>" +
+              // $"<strong>Date:</strong> {DateTime.Now.ToString("dd/MMM/yyyy")}<br/><br/>" +
+              // "<strong>Additional Information:</strong><br/>" +
+              // $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transfer successfully processed.",
+
+                    Message = $"I would like to inform you that a transfer from <strong>{fromname}</strong> to <strong>{toname}</strong> has been successfully processed.<br/><br/>" +
+                              $"This transfer was executed by <strong>{sendername}</strong> on {DateTime.Now.ToString("dd/MMM/yyyy")}.",
+
+
+                    PlistIdss = "",
+                    AllowPlistids = "",
+                    IsAllowParticipants = false,
+                    Urgent = false,
+                    ConIds = 0,
+                    ReplyId = id.ConversationId.Value,
+                    AllParticipantIds = participantIds.Distinct().ToList(),
+                    ParticipantId = applicationUser.UserID,
+                    Name = id.EmailConversationName,
+                    AddedByUserID = applicationUser.UserID,
+                    From = "",
+                    LastName = "",
+                    UserCode = "",
+                    UserName = "",
+                    FirstName = "",
+                    UserEmail = "",
+                    FileData = new byte[0],
+                    FirebaseDocKey = "",
+
+                };
+
+           
+
+            string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+            string url = BaseUrl + "OnSubmitReply";
+            string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            // Send the POST request with the content
+            var response = await httpClient.PostAsync(url, content);
+            var msg = response.StatusCode;
+
         }
     }
     public async ValueTask DisposeAsync()

@@ -8,7 +8,6 @@
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
 @using MediatR
-@using System.Text.Json
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
@@ -17,7 +16,7 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration;
 @inject HttpClient httpClient;
-@using System.Text.Json;
+@using System.Text.Json
 @using System.Text.Json.Serialization;
 @implements IAsyncDisposable
 

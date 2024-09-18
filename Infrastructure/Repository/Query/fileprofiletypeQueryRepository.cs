@@ -149,7 +149,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                  var query = "select \r\nt1.FileProfileTypeID,\r\nCONCAT((select count(tt.FileProfileTypeID) as counts from FileProfileType tt where tt.parentId=t1.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','Folders') as FileSizes,\r\nCONCAT((Select COUNT(tt1.DocumentID) as DocCount from Documents tt1 where tt1.FilterProfileTypeId=t1.FileProfileTypeID AND tt1.IsLatest=1 AND  (tt1.isDelete is null or tt1.isDelete=0) AND (tt1.ArchiveStatusId != 2562 OR tt1.ArchiveStatusId  IS NULL) OR (tt1.DocumentID in(select tt2.DocumentID from LinkFileProfileTypeDocument tt2 where tt2.FileProfileTypeID=t1.FileProfileTypeID ) AND tt1.IsLatest=1)),' ','files') as FileCounts from FileProfileType t1 \r\n";
+                var query = "select \r\nt1.FileProfileTypeID,\r\nCONCAT((select count(tt.FileProfileTypeID) as counts from FileProfileType tt where tt.parentId=t1.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','Folders') as FileSizes,\r\nCONCAT((Select COUNT(tt1.DocumentID) as DocCount from Documents tt1 where tt1.FilterProfileTypeId=t1.FileProfileTypeID AND tt1.IsLatest=1 AND  (tt1.isDelete is null or tt1.isDelete=0) AND (tt1.ArchiveStatusId != 2562 OR tt1.ArchiveStatusId  IS NULL) OR (tt1.DocumentID in(select tt2.DocumentID from LinkFileProfileTypeDocument tt2 where tt2.FileProfileTypeID=t1.FileProfileTypeID ) AND tt1.IsLatest=1)),' ','files') as FileCounts from FileProfileType t1 \r\n";
                 if (selectedFileProfileTypeID == null)
                 {
                     query += "\r\nWhere t1.parentid is null AND t1.IsDelete is null or IsDelete=0 order by t1.Name asc";
@@ -436,7 +436,11 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
+                if (fileProfileTypeId != null && fileProfileTypeId.Count > 0)
+                {
+                    fileProfileTypeId = fileProfileTypeId.Where(w => w != null).ToList();
+                    fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
+                }
                 var query = "select t1.LinkFileProfileTypeDocumentId,t1.TransactionSessionId,t1.DocumentId,t1.FileProfileTypeId,(Select t2.DocumentID from documents t2 where t2.SessionId=t1.TransactionsessionId AND islatest=1)as DocumentID from LinkFileProfileTypeDocument t1 where t1.FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
                 using (var connection = CreateConnection())
                 {

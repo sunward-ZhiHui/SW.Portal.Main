@@ -17,6 +17,8 @@ using Application.Queries;
 using Infrastructure.Data;
 using static iText.IO.Image.Jpeg2000ImageData;
 using Google.Protobuf.Collections;
+using static iTextSharp.text.pdf.AcroFields;
+using Microsoft.Data.Edm.Values;
 
 namespace Infrastructure.Repository.Query
 {
@@ -32,7 +34,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 List<Memo> Memolist = new List<Memo>(); List<MemoUser> MemoUser = new List<MemoUser>();
-                var query = "select * from Memo;";
+                var query = "select t1.*,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID\r\n;";
                 query += "select * from MemoUser;";
                 /* query += "select t1.MemoUserId,\r\nt1.MemoId,\r\nt1.UserType,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\n" +
                      "t5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
@@ -92,7 +94,7 @@ namespace Infrastructure.Repository.Query
                 List<Memo> Memolist = new List<Memo>();
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", userId);
-                var query = "select t1.*,t2.IsAcknowledgement,t2.MemoUserId from Memo t1 JOIN MemoUser t2 ON t1.MemoID=t2.MemoID where t2.UserID=@UserID; \r\n";
+                var query = "select t1.*,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate from Memo t1 JOIN MemoUser t2 ON t1.MemoID=t2.MemoID where t1.StatusCodeId=2730 AND t2.UserID=@UserID order by t1.AddedDate desc; \r\n";
 
                 using (var connection = CreateConnection())
                 {
@@ -179,7 +181,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 List<MemoUser> memoUsers = new List<MemoUser>();
-                var query = "select t1.MemoUserId,\r\nt1.IsAcknowledgement,\r\nt1.MemoId,\r\nt1.UserType,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\nt8.Name as DesignationName,\r\nCONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\nfrom MemoUser t1\r\n" +
+                var query = "select t1.MemoUserId,\r\nt1.IsAcknowledgement,t1.AcknowledgementDate,\r\nt1.MemoId,\r\nt1.UserType,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\nt8.Name as DesignationName,\r\nCONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\nfrom MemoUser t1\r\n" +
                     "LEFT JOIN Memo t2 ON t1.MemoId=t2.MemoID\r\n" +
                     "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
                     "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\nJOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
@@ -237,7 +239,7 @@ namespace Infrastructure.Repository.Query
                         {
                         }
                         else
-                        { 
+                        {
                             //var userExitsByRoles = await GetMemoUsersync(memo.MemoId);
                             if (userExitsByRoles != null && userExitsByRoles.Count() > 0 && memo.SelectUserIDs != null && memo.SelectUserIDs.Count() > 0)
                             {
@@ -362,8 +364,9 @@ namespace Infrastructure.Repository.Query
                         memoUser.MemoUserId = (long)MemoUserId;
                         var parameters = new DynamicParameters();
                         parameters.Add("MemoUserId", MemoUserId);
+                        parameters.Add("AcknowledgementDate", DateTime.Now);
                         parameters.Add("IsAcknowledgement", IsAcknowledgement == true ? true : null);
-                        var query = "Update MemoUser set  IsAcknowledgement=@IsAcknowledgement where MemoUserId=@MemoUserId;\r\n;";
+                        var query = "Update MemoUser set  IsAcknowledgement=@IsAcknowledgement,AcknowledgementDate=@AcknowledgementDate where MemoUserId=@MemoUserId;\r\n;";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
                         return memoUser;
                     }
@@ -378,6 +381,64 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<Memo> InsertCloneMemo(Memo memo)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("MemoId", memo.MemoId);
+                        parameters.Add("Subject", memo.Subject, DbType.String);
+                        parameters.Add("MemoContent", memo.MemoContent, DbType.String);
+                        parameters.Add("IsAttachment", memo.IsAttachment == true ? true : null);
+                        parameters.Add("SessionId", memo.SessionId, DbType.Guid);
+                        parameters.Add("AddedByUserID", memo.AddedByUserId);
+                        parameters.Add("ModifiedByUserID", memo.ModifiedByUserId);
+                        parameters.Add("AddedDate", memo.AddedDate, DbType.DateTime);
+                        parameters.Add("StartDate", memo.StartDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", memo.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeID", memo.StatusCodeId);
+                        var query = "INSERT INTO Memo(StartDate,Subject,MemoContent,IsAttachment,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
+                            "OUTPUT INSERTED.MemoId VALUES " +
+                            "(@StartDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
+                        memo.MemoId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        if (memo.MemoUserList != null && memo.MemoUserList.Count() > 0)
+                        {
+                            var query1 = string.Empty;
+                            memo.MemoUserList.ForEach(s =>
+                            {
+                                string? userId = s.UserId == null ? "null" : s.UserId.ToString();
+                                string? userGroupId = s.UserGroupId == null ? "null" : s.UserGroupId.ToString();
+                                string? levelId = s.LevelId == null ? "null" : s.LevelId.ToString();
+                                query1 += "INSERT INTO [MemoUser](MemoId,UserId,UserType,UserGroupId,LevelId) OUTPUT INSERTED.MemoUserId " +
+                                      "VALUES (" + memo.MemoId + "," + userId + ",'" + s.UserType + "'," + userGroupId + "," + levelId + ");";
+                            });
+                            if (!string.IsNullOrEmpty(query1))
+                            {
+                                await connection.QuerySingleOrDefaultAsync<long>(query1, null);
+                            }
+                        }
+                        return memo;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
             }
         }
     }

@@ -54,4 +54,12 @@ namespace Application.Queries
             this.MemoId = memoId;
         }
     }
+    public class InsertCloneMemo : PagedRequest, IRequest<Memo>
+    {
+        public Memo Memo { get; set; }
+        public InsertCloneMemo(Memo memo)
+        {
+            this.Memo = memo;
+        }
+    }
 }

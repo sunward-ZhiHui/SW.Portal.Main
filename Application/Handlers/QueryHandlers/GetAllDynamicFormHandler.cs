@@ -1182,4 +1182,19 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class UpdateDynamicFormDataSectionLockHandler : IRequestHandler<UpdateDynamicFormDataSectionLock, DynamicFormDataSectionLock>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormDataSectionLockHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormDataSectionLock> Handle(UpdateDynamicFormDataSectionLock request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormDataSectionLock(request.DynamicFormDataSectionLock);
+
+
+        }
+    }
 }

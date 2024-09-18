@@ -108,6 +108,7 @@ namespace Core.Repositories.Query
         DynamicFormWorkFlowForm GetDynamicFormDataWorkFlowSequenceNoExitsCheckValidation(long? dynamicFormId, long? dynamicFormWorkFlowId, int? SequenceNo);
         Task<DynamicFormWorkFlowForm> InsertDynamicFormWorkFlowForm(DynamicFormWorkFlowForm value);
         Task<DynamicFormWorkFlowForm> DeleteDynamicFormWorkFlowForm(DynamicFormWorkFlowForm dynamicFormWorkFlowForm);
+        Task<DynamicFormDataSectionLock> UpdateDynamicFormDataSectionLock(DynamicFormDataSectionLock value);
     }
 
 }

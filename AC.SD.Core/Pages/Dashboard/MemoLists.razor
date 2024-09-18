@@ -31,6 +31,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
                 <DxMenuItem Text="Memo Users" IconCssClass="fa fa-users" Click="@addMemoUsers" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -70,6 +71,9 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="IsAttachment" Width="30%" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="AddedDate" Width="30%" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="AddedBy" Width="30%" />
+            <DxGridDataColumn FieldName="StatusCode" Caption="Memo Status" Width="30%" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
             @{
@@ -163,6 +167,17 @@
                     <DxDateEdit @bind-Date="@types.StartDate" />
                     <ValidationMessage For="@(() => types.StartDate)" />
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Memo Status" ColSpanMd="6">
+                    <DxComboBox Data="@_memoStatusList"
+                                NullText="Select Memo Status..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="CodeValue"
+                                ValueFieldName="CodeId"
+                                ShowValidationIcon="true"
+                                @bind-Value="@types.StatusCodeId" />
+                    <ValidationMessage For="@(() => types.StatusCodeId)" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Content" ColSpanMd="12">
 
                     <DxHtmlEditor @bind-Markup="@types.MemoContent" MarkupType="HtmlEditorMarkupType.Html" Height="200px" Width="100%" />
@@ -252,7 +267,7 @@
          ShowCloseButton="true"
          Closed="EulaPopupClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
-    <BodyContentTemplate>
+    <BodyContentTemplate Context="context1">
         <DxLoadingPanel @bind-Visible="PanelSubVisible"
                         IsContentBlocked="true"
                         ApplyBackgroundShading="true"
@@ -274,6 +289,14 @@
                     CssClass="ch-360">
                 <Columns>
                     <DxGridDataColumn FieldName="IsAcknowledgement" Caption="Is Acknowledge" Width="30%" />
+                    <DxGridDataColumn FieldName="AcknowledgementDate" Caption="Date of Acknowlege" Width="30%">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (MemoUser)context.DataItem;
+                            }
+                            @Application.Common.Helper.Helper.FormatDate(@item.AcknowledgementDate)
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
                     <DxGridDataColumn FieldName="FullName" Caption="Name" Width="30%" />
                     <DxGridDataColumn FieldName="DepartmentName" Caption="Department" Width="30%" />
                     <DxGridDataColumn FieldName="DesignationName" Caption="Designation" Width="30%" />
@@ -288,6 +311,23 @@
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Clonepopup"
+         ShowFooter="true"
+         HeaderText="Clone"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are you clone this record?
+        </p>
+        <span style="font-weight:bold;">@_selectedItems?.Subject</span>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="cloneMemo" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
@@ -321,9 +361,11 @@
     private List<UserGroup> _userGroupsList { get; set; }
     public List<ViewLevel> _levelMasterLists { get; set; }
     public List<MemoUser> _MemoUserList { get; set; }
+    private List<CodeMaster> _memoStatusList; bool Clonepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _memoStatusList = await Mediator.Send(new GetAllCodeMasterQuery("MemoStatus"));
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
         _userGroupsList = await Mediator.Send(new GetUserGroups());
         _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
@@ -350,6 +392,9 @@
                 {
                     isEnabled = false;
                 }
+                Grid.ClearSelection();
+                StateHasChanged();
+                Grid.SetFocusedRowIndex(0);
             }
 
             PanelVisible = false;
@@ -390,12 +435,12 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "MemoId");
         _selectedItems = _MemoList.FirstOrDefault(f => f.MemoId == (long?)UniqueId);
-        DeleteEnabled = true; EditEnabled = true; AttachmentEnabled = false;isEnabled = true;
+        DeleteEnabled = true; EditEnabled = true; AttachmentEnabled = false; isEnabled = true;
         if (_selectedItems.IsAttachment == true)
         {
             AttachmentEnabled = true;
         }
-        if(_selectedItems.AcknowledgeUserIDs.Count()>0)
+        if (_selectedItems.AcknowledgeUserIDs.Count() > 0)
         {
             isEnabled = false;
         }
@@ -418,12 +463,13 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    void EulaPopupClosed(PopupClosedEventArgs args)
     {
         MemoUserpopup = false;
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
+        Clonepopup = false;
         // await UpdateDataAsync();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -442,6 +488,7 @@
         UserEnabled = false; UserGroupEnabled = false; LevelEnabled = false;
         if (e.IsNew)
         {
+            navitems.StatusCodeId = 2730;
             navitems.UserType = "User";
             UserEnabled = true;
             isEnabled = true;
@@ -560,13 +607,13 @@
                 ModifiedDate = DateTime.Now,
                 AddedByUserId = applicationUser.UserID,
                 ModifiedByUserId = applicationUser.UserID,
-                StatusCodeId = 1,
+                StatusCodeId = editModel.StatusCodeId,
                 SelectLevelMasterIDs = editModel.SelectLevelMasterIDs,
                 SelectUserGroupIDs = editModel.SelectUserGroupIDs,
                 SelectUserIDs = editModel.SelectUserIDs,
                 UserType = editModel.UserType,
                 SelectCCUserIDs = editModel.SelectCCUserIDs,
-                AcknowledgeUserIDs=editModel.AcknowledgeUserIDs,
+                AcknowledgeUserIDs = editModel.AcknowledgeUserIDs,
             };
 
         try
@@ -604,6 +651,31 @@
             if (_MemoUserList != null && _MemoUserList.Count() > 0)
             {
                 PanelSubVisible = false;
+            }
+        }
+        StateHasChanged();
+    }
+    void addCloneOpen()
+    {
+        Clonepopup = true;
+    }
+    async Task cloneMemo()
+    {
+        if (_selectedItems != null)
+        {
+            Memo cloneMemo = new Memo();
+            cloneMemo = _selectedItems;
+            cloneMemo.AddedDate = DateTime.Now;
+            cloneMemo.SessionId = Guid.NewGuid();
+            cloneMemo.ModifiedDate = DateTime.Now;
+            cloneMemo.AddedByUserId = applicationUser.UserID;
+            cloneMemo.ModifiedByUserId = applicationUser.UserID;
+            var result = await Mediator.Send(new InsertCloneMemo(cloneMemo));
+            if (result.MemoId > 0)
+            {
+                Clonepopup = false;
+                toastService.ShowToast("Record Clone Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
             }
         }
         StateHasChanged();

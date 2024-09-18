@@ -933,7 +933,7 @@ namespace Infrastructure.Repository.Query
                     query += "Select DynamicFormSectionAttributeSecurityId,DynamicFormSectionAttributeId,UserId,IsAccess,IsViewFormatOnly from DynamicFormSectionAttributeSecurity;";
                     query += "Select ApplicationMasterId,ApplicationMasterName,ApplicationMasterDescription,ApplicationMasterCodeId from ApplicationMaster;";
                     query += "Select ApplicationMasterParentId,ApplicationMasterParentCodeId,ApplicationMasterName,Description,ParentId from ApplicationMasterParent;";
-                    query += "select t1.*,t2.DynamicFormSectionAttributeID from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentID=t2.DynamicFormSectionAttributeSectionParentID;";
+                    query += "select t1.*,t2.SequenceNo,t2.DynamicFormSectionAttributeID from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentID=t2.DynamicFormSectionAttributeSectionParentID;";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
                     attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
@@ -2544,7 +2544,7 @@ namespace Infrastructure.Repository.Query
                     query += "Select DynamicFormSectionAttributeSecurityId,DynamicFormSectionAttributeId,UserId,IsAccess,IsViewFormatOnly from DynamicFormSectionAttributeSecurity;";
                     query += "Select ApplicationMasterId,ApplicationMasterName,ApplicationMasterDescription,ApplicationMasterCodeId from ApplicationMaster;";
                     query += "Select ApplicationMasterParentId,ApplicationMasterParentCodeId,ApplicationMasterName,Description,ParentId from ApplicationMasterParent;";
-                    query += "select t1.*,t2.DynamicFormSectionAttributeID from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentID=t2.DynamicFormSectionAttributeSectionParentID;";
+                    query += "select t1.*,t2.DynamicFormSectionAttributeID,t2.SequenceNo from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentID=t2.DynamicFormSectionAttributeSectionParentID;";
                     query += "select * from dynamicform where Id IN (" + string.Join(',', dynamicForm) + ");";
                     var results = await connection.QueryMultipleAsync(query);
                     attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
@@ -3159,6 +3159,10 @@ namespace Infrastructure.Repository.Query
                                                 else
                                                 {
                                                     var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                    if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                    {
+                                                        listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                    }
                                                     ValueSet = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
 
                                                 }
@@ -3201,6 +3205,10 @@ namespace Infrastructure.Repository.Query
                                                         else
                                                         {
                                                             var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                            if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                            {
+                                                                listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                            }
                                                             ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                         }
                                                     }
@@ -3242,6 +3250,10 @@ namespace Infrastructure.Repository.Query
                                                                         List<long?> listData = itemDepValue.ToObject<List<long?>>();
 
                                                                         var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                                        if (dd.DataSourceTable == "FinishedProdOrderLine" ||dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                        {
+                                                                            listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
+                                                                        }
                                                                         var lists = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                                         opts1.Add("Value", lists);
                                                                         objectData[nameData] = opts1;
@@ -3268,6 +3280,10 @@ namespace Infrastructure.Repository.Query
                                                                 {
                                                                     long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
                                                                     var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
+                                                                    if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                    {
+                                                                        listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
+                                                                    }
                                                                     opts1.Add("Value", listss);
                                                                     objectData[nameData] = opts1;
                                                                     objectDataList[nameData + "$" + dd.DisplayName.Replace(" ", "_")] = listss;
@@ -3298,7 +3314,11 @@ namespace Infrastructure.Repository.Query
                                                     if (Svalues != null)
                                                     {
                                                         var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
-                                                        ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                        if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                        {
+                                                            listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                        }
+                                                            ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                     }
                                                     else
                                                     {

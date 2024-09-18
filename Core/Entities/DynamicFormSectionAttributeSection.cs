@@ -16,6 +16,7 @@ namespace Core.Entities
         public long? DynamicFormSectionSelectionId { get; set; }
         public string? DynamicFormSectionSelectionById { get; set; }
         public long? DynamicFormSectionAttributeId { get; set; }
+        public int? SequenceNo { get;set; }
     }
     public class DynamicFormSectionAttributeSectionParent
     {
@@ -29,5 +30,6 @@ namespace Core.Entities
         public IEnumerable<string?> ShowSectionVisibleDataIds { get; set; } = new List<string?>();
         [Required(ErrorMessage = "Section Name is required")]
         public IEnumerable<long?> DynamicFormSectionIds { get; set; } = new List<long?>();
+        public int? SequenceNo { get; set; }
     }
 }

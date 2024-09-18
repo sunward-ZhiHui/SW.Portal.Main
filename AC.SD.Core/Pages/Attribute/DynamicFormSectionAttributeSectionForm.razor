@@ -281,10 +281,13 @@
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (DynamicFormSectionAttributeSectionParent)e.EditModel;
-        if (e.IsNew)
+        if (navitems != null)
         {
-            navitems.ShowSectionVisibleDataIds = new List<string?>();
-            navitems.DynamicFormSectionIds = new List<long?>();
+            if (e.IsNew)
+            {
+                navitems.ShowSectionVisibleDataIds = new List<string?>();
+                navitems.DynamicFormSectionIds = new List<long?>();
+            }
         }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

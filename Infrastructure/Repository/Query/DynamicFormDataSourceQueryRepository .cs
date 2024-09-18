@@ -102,6 +102,12 @@ namespace Infrastructure.Repository.Query
                     query += GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds);
                     //dataSourceDropDownList.AddRange(await GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds));
                 }
+                if (dataSourceTableIds.Contains("FinishedProdOrderLineProductionInProgress"))
+                {
+                    i++;
+                    query += GetFinishedProdOrderLineProductionInProgressDataSource(CompanyId, plantCode, plantIds);
+                    //dataSourceDropDownList.AddRange(await GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds));
+                }
                 var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
@@ -590,13 +596,49 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private string GetFinishedProdOrderLineProductionInProgressDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            //var attributeDetails = new List<AttributeDetails>();
+            try
+            {
+                var query = string.Empty;
+                query += "select CONCAT('FinishedProdOrderLineProductionInProgress_',t1.FinishedProdOrderLineID) as AttributeDetailNameId,'FinishedProdOrderLineProductionInProgress' as DropDownTypeId,t1.OptStatus,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName,CONCAT(t1.ItemNo,'|',t1.Description,'|',t1.Description2,'|',t1.ReplanRefNo) as NameList  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "where t1.OptStatus='Production In Progress' AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID in(" + string.Join(',', plantIds) + ");";
+                    }
+                    else
+                    {
+                        query += "Where t1.OptStatus='Production In Progress'  AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID=" + CompanyId + ";\r\n";
+                    }
+                }
+                else
+                {
+                    query += "\n\rWhere t1.OptStatus='Production In Progress' AND (t1.BatchNo is not null AND t1.BatchNo!='');\r\n";
+                }
+                //using (var connection = CreateConnection())
+                //{
+                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
+                //}
+                //return attributeDetails;
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         private string GetFinishedProdOrderLineDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
         {
             //var attributeDetails = new List<AttributeDetails>();
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('FinishedProdOrderLine_',t1.FinishedProdOrderLineID) as AttributeDetailNameId,'FinishedProdOrderLine' as DropDownTypeId,t1.OptStatus,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
+                query += "select CONCAT('FinishedProdOrderLine_',t1.FinishedProdOrderLineID) as AttributeDetailNameId,'FinishedProdOrderLine' as DropDownTypeId,t1.OptStatus,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName,CONCAT(t1.ItemNo,'|',t1.Description,'|',t1.Description2,'|',t1.ReplanRefNo) as NameList  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")
@@ -626,7 +668,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+
         private string GetSoCustomerDataSource(List<string?> dataSourceTableIds)
         {
             //var attributeDetails = new List<AttributeDetails>();
@@ -1132,10 +1174,15 @@ namespace Infrastructure.Repository.Query
                     query += "select 'ItemBatchInfo' as DropDownTypeId,t1.ItemBatchId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.BatchNo as AttributeDetailName,CONCAT(t3.No,'||',t3.Description) as Description from ItemBatchInfo t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID JOIN NavItems t3 ON t3.ItemId=t1.ItemId\r";
 
                 }
-                else if(DataSource== "FinishedProdOrderLine")
+                else if (DataSource == "FinishedProdOrderLine")
                 {
                     query += "select 'FinishedProdOrderLine' as DropDownTypeId,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
-
+                    query += "Where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='')\r";
+                }
+                else if (DataSource == "FinishedProdOrderLineProductionInProgress")
+                {
+                    query += "select 'FinishedProdOrderLineProductionInProgress' as DropDownTypeId,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
+                    query += "Where t1.OptStatus='Production In Progress' AND (t1.BatchNo is not null AND t1.BatchNo!='')\r";
                 }
                 else
                 {
@@ -1214,7 +1261,14 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            query += "where";
+                            if (DataSource == "FinishedProdOrderLine" || DataSource == "FinishedProdOrderLineProductionInProgress")
+                            {
+                                query += "AND\r";
+                            }
+                            else
+                            {
+                                query += "where";
+                            }
                         }
                     }
                     var query1 = string.Empty;

@@ -55,6 +55,7 @@ namespace Core.Entities
         public string? ProductCode { get; set; }
         public string? ProductName { get; set; }
         public string? OptStatus { get; set; }
+        public string? NameList { get; set; }
 
     }
     public class DataSourceAttributeDetails

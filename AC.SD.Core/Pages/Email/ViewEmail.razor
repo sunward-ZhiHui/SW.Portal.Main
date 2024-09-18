@@ -147,7 +147,7 @@
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />                                                    
                                                    
                                                 <DxMenuItem Text="Tags" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
-                                                <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
+                                                    <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                             </Items>
                                         </DxMenu>
@@ -4412,6 +4412,8 @@
         _headTopic = new List<EmailTopics>();
         isComponentVisible = false;
 
+         await RefreshService.RequestRefreshAsync();
+        StateHasChanged();
     }
     private async Task Submit()
     {

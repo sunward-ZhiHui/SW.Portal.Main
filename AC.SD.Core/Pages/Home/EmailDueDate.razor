@@ -2,6 +2,7 @@
 @using Application.Common.Helper;
 @using Application.Queries;
 @using Application.Response;
+@using DevExpress.Export
 @using Microsoft.AspNetCore.Http;
 @using System.Text
 @using global::Core.Repositories.Query;
@@ -35,6 +36,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Reload" IconCssClass="fa fa-refresh" Click="@onRefresh"/>
                 <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onReset" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 @* <DxMenuItem Text="Message" IconCssClass="fa fa-commenting" Click="@onReplyMsg" Enabled="@ReplyMsgEnabled" /> *@
             </Items>
         </DxMenu>
@@ -61,8 +63,10 @@
         ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
         LayoutAutoLoading="Grid_LayoutAutoLoading"
         LayoutAutoSaving="Grid_LayoutAutoSaving"
+       
         AllowSelectRowByClick="true" EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
-    <Columns>    
+    <Columns>   
+       @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
         <DxGridDataColumn FieldName="TopicName" Caption="Main Subject"  FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
         <DxGridDataColumn FieldName="Name" Caption="Subject Name" />
         <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
@@ -190,6 +194,12 @@
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
             <span class="@((MessageHeader == "Warning Info" ? "TxtRed" :""))"> @MessageBody</span>
         </div>
+        <DxFormLayout>
+            <DxFormLayoutItem Caption="Reason :" ColSpanMd="12">
+                <DxMemo @bind-Text="@DuedateReason"></DxMemo>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+
     </BodyContentTemplate>
     <FooterContentTemplate>
         <span>@Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate)</span>
@@ -198,6 +208,7 @@
 </DxPopup>
 
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     internal List<EmailActivityCatgorys>? _UserTagList = new List<EmailActivityCatgorys>();
     internal List<EmailActivityCatgorys>? _AllCategory = new List<EmailActivityCatgorys>();
     private string UserTagName = string.Empty;  
@@ -309,7 +320,10 @@
                 TopicID = _selectedItems.EmailTopicID,
                 AssigntoIds = AssigntoIdss,
                 AssignccIds = AssignccIdss,
-                Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate) + ").",
+                // Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate) + ").",
+                Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataEditEamilTopics.DueDate)}\"<br/><br/>" +
+                    "<strong>Reason:</strong><br/>" +
+                    $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
                 PlistIdss = "",
                 AllowPlistids = "",
                 IsAllowParticipants = false,
@@ -404,7 +418,7 @@
     [Parameter]
     public Action<string> SubViewAllTopicId { get; set; }
     private string? BaseUrl;
-
+    string DuedateReason { get; set; } = "";
     async Task onRefresh()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -486,7 +500,7 @@
             UserTagName = string.Empty;
             OthersTagName = string.Empty;
         }
-       
+
 
         ReplyMsgEnabled = true;
         EditEnabled = true;
@@ -620,5 +634,36 @@
         _selectedItems = null;
         RefSubAssignAll?.DisposeAsync();
         //GC.SuppressFinalize(this);
+    }
+   
+    async Task ExportToExcel()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            await EmailDueDateGrid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await EmailDueDateGrid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
     }
 }

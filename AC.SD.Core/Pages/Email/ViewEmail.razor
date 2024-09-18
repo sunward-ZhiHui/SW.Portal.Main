@@ -1223,6 +1223,12 @@
         <div class="@((DueDateMessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
             <span class="@((DueDateMessageHeader == "Warning Info" ? "TxtRed" :""))"> @DueDateMessageBody</span>
         </div>
+        <DxFormLayout>
+            <DxFormLayoutItem Caption="Reason :" ColSpanMd="12">
+                <DxMemo @bind-Text="@DuedateReason"></DxMemo>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+         
     </BodyContentTemplate>
     <FooterContentTemplate>
         <span>@Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)</span>
@@ -2899,8 +2905,8 @@
         [Required(ErrorMessage = "Subject Name is required")]
         public string? SubjectName { get; set; } 
     }
-    private DxUpload? uploadComponent;  
-
+    private DxUpload? uploadComponent;
+    string DuedateReason { get; set; } = "";
     private Model _dataDuDate = new Model();
     private Model _dataSubjectDuDate = new Model();
     private UserTagData dataUserTag = new UserTagData();
@@ -3776,7 +3782,10 @@
             TopicID = CurrentEmailConversations.TopicID,
             AssigntoIds = AssigntoIdss,
             AssignccIds = AssignccIdss,
-            Message = "Could you extend the due date to (" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + ").",
+              //  Message = "Requested Due Date(" + @Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate) + "). Reason :" + DuedateReason,
+                Message = $"Request Due Date: \"{Application.Common.Helper.Helper.FormatDate(_dataSubjectDuDate.DueDate)}\"<br/><br/>" +
+                "<strong>Reason:</strong><br/>" +
+                $"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{DuedateReason}",
             PlistIdss="",
             AllowPlistids = "",
             IsAllowParticipants= false,
@@ -3797,7 +3806,7 @@
             FirebaseDocKey = "",
 
         };
-
+    
         string BaseUrl = NavigationManager.BaseUri + "api/Email/";
         string url = BaseUrl + "OnSubmitReply";        
         string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);        
@@ -3831,6 +3840,7 @@
         }
 
         DueDateMessageVisible = false;
+        DuedateReason = "";
         StateHasChanged();
     }
 

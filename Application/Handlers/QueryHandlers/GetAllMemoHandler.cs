@@ -90,4 +90,18 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<MemoUser>)await _queryRepository.GetMemoUserByMemoIdync(request.MemoId);
         }
     }
+    public class InsertCloneMemoHandler : IRequestHandler<InsertCloneMemo, Memo>
+    {
+        private readonly IMemoQueryRepository _queryRepository;
+        public InsertCloneMemoHandler(IMemoQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<Memo> Handle(InsertCloneMemo request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertCloneMemo(request.Memo);
+
+        }
+    }
 }

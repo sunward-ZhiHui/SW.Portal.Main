@@ -102,7 +102,7 @@ namespace Infrastructure.Repository.Query
                     if (DynamicForm != null && DynamicForm.Count > 0)
                     {
                         List<int?> codeIds = new List<int?>();
-                        codeIds.AddRange(DynamicForm.Where(w=>w.StatusCodeID>0).Select(a => a.StatusCodeID).ToList());
+                        codeIds.AddRange(DynamicForm.Where(w => w.StatusCodeID > 0).Select(a => a.StatusCodeID).ToList());
                         List<long?> userIds = new List<long?>();
                         userIds.AddRange(DynamicForm.Where(w => w.AddedByUserID > 0).Select(a => a.AddedByUserID).ToList());
                         userIds.AddRange(DynamicForm.Where(a => a.ModifiedByUserID > 0).Select(a => a.ModifiedByUserID).ToList());
@@ -1090,7 +1090,7 @@ namespace Infrastructure.Repository.Query
                 List<DynamicFormSectionAttributeSection> _dynamicFormSectionAttributeSection = new List<DynamicFormSectionAttributeSection>();
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormSectionAttributeId", dynamicFormSectionAttributeId);
-                var query = "select DynamicFormSectionAttributeSectionParentID,DynamicFormSectionAttributeID from DynamicFormSectionAttributeSectionParent where DynamicFormSectionAttributeID=@DynamicFormSectionAttributeId;\r\n";
+                var query = "select SequenceNo,DynamicFormSectionAttributeSectionParentID,DynamicFormSectionAttributeID from DynamicFormSectionAttributeSectionParent where DynamicFormSectionAttributeID=@DynamicFormSectionAttributeId;\r\n";
                 query += "select t1.DynamicFormSectionAttributeSectionID,\r\nt1.DynamicFormSectionAttributeSectionParentID,\r\nt1.DynamicFormSectionID,\r\nt1.DynamicFormSectionSelectionID,\r\nt1.DynamicFormSectionSelectionByID,t2.DynamicFormSectionAttributeId from DynamicFormSectionAttributeSection t1 JOIN DynamicFormSectionAttributeSectionParent t2 ON t1.DynamicFormSectionAttributeSectionParentId=t2.DynamicFormSectionAttributeSectionParentId\r\n" +
                     "where t2.DynamicFormSectionAttributeId=@DynamicFormSectionAttributeId";
                 using (var connection = CreateConnection())
@@ -1824,6 +1824,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
+                DynamicFormData dynamicFormData = new DynamicFormData();
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
                 var query = "select t1.DynamicFormDataID,\r\nt1.DynamicFormID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.DynamicFormItem,\r\nt1.IsSendApproval,\r\nt1.FileProfileSessionID,\r\nt1.ProfileID,\r\nt1.ProfileNo,\r\nt1.DynamicFormDataGridID,\r\nt1.IsDeleted,\r\nt1.SortOrderByNo,\r\nt1.GridSortOrderByNo,\r\nt1.DynamicFormSectionGridAttributeID,\r\nt1.IsLocked,\r\nt1.LockedUserID,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid,(case when t1.AddedByUserID>0 Then CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) ELSE null END) as AddedBy,(case when t1.ModifiedByUserID>0 Then CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) ELSE null END) as ModifiedBy,t4.CodeValue as StatusCode,\r\nt5.IsApproval,t5.FileProfileTypeID,t6.Name as FileProfileTypeName,\r\n" +
@@ -1836,8 +1837,36 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN FileProfileType t6 ON t6.FileProfileTypeID=t5.FileProfileTypeID\r\nWHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
                 using (var connection = CreateConnection())
                 {
-                    return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                    dynamicFormData = await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                    if (dynamicFormData != null)
+                    {
+                        parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
+                        var query1 = "select t1.*,(case when t1.LockedUserID>0 Then CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) ELSE null END) as LockedUser from DynamicFormDataSectionLock t1\r\nJOIN Employee t2 ON t2.UserID=t1.LockedUserID Where t1.DynamicFormDataId=@DynamicFormDataId;";
+                        dynamicFormData.DynamicFormDataSectionLock = (await connection.QueryAsync<DynamicFormDataSectionLock>(query1, parameters)).ToList();
+                        if (dynamicFormData.SessionId != null)
+                        {
+                            var _activityEmailTopics = await GetActivityEmailTopicList("'" + dynamicFormData.SessionId.ToString() + "'");
+                            var _activityEmailTopicsOne = _activityEmailTopics.FirstOrDefault(f => f.SessionId == dynamicFormData.SessionId);
+                            if (_activityEmailTopicsOne != null)
+                            {
+                                dynamicFormData.EmailTopicSessionId = _activityEmailTopicsOne.EmailTopicSessionId;
+                                if (_activityEmailTopicsOne.EmailTopicSessionId != null)
+                                {
+                                    if (_activityEmailTopicsOne.IsDraft == false)
+                                    {
+                                        dynamicFormData.IsDraft = false;
+                                    }
+                                    if (_activityEmailTopicsOne.IsDraft == true)
+                                    {
+                                        dynamicFormData.IsDraft = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                 }
+                return dynamicFormData;
             }
             catch (Exception exp)
             {
@@ -4228,7 +4257,7 @@ namespace Infrastructure.Repository.Query
                             var _dynamicFormWorkFlowForms = dataList.DynamicFormWorkFlowForm.ToList();
                             if (_dynamicFormWorkFlowForms != null && _dynamicFormWorkFlowForms.Count() > 0)
                             {
-                                var exits = _dynamicFormWorkFlowForms.FirstOrDefault(f => f.CurrentApprovalUserId == userId && f.DynamicFormDataId == dynamicFormDataId && f.FlowStatusID==0);
+                                var exits = _dynamicFormWorkFlowForms.FirstOrDefault(f => f.CurrentApprovalUserId == userId && f.DynamicFormDataId == dynamicFormDataId && f.FlowStatusID == 0);
                                 if (exits != null)
                                 {
                                     parameters.Add("DynamicFormWorkFlowFormId", exits.DynamicFormWorkFlowFormId);
@@ -5964,6 +5993,68 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormDataSectionLock> GetDynamicFormDataSectionLockList(DynamicFormDataSectionLock dynamicFormDataSectionLock)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormDataId", dynamicFormDataSectionLock.DynamicFormDataId);
+                parameters.Add("DynamicFormSectionId", dynamicFormDataSectionLock.DynamicFormSectionId);
+                var query = string.Empty;
+                query += "select  * from DynamicFormDataSectionLock where DynamicFormDataId=@DynamicFormDataId AND DynamicFormSectionId=@DynamicFormSectionId;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormDataSectionLock>(query, parameters)).FirstOrDefault();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormDataSectionLock> UpdateDynamicFormDataSectionLock(DynamicFormDataSectionLock value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var exits = await GetDynamicFormDataSectionLockList(value);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormDataId", value.DynamicFormDataId);
+                        parameters.Add("DynamicFormSectionId", value.DynamicFormSectionId);
+                        parameters.Add("IsLocked", value.IsLocked == true ? true : null);
+                        parameters.Add("LockedUserId", value.LockedUserId);
+                        if (exits == null)
+                        {
+                            var query = "INSERT INTO DynamicFormDataSectionLock(DynamicFormDataId,DynamicFormSectionId,IsLocked,LockedUserId) OUTPUT INSERTED.DynamicFormDataSectionLockId VALUES " +
+                            "(@DynamicFormDataId,@DynamicFormSectionId,@IsLocked,@LockedUserId)";
+                            var rowsAffected = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        else
+                        {
+                            var query = "Delete from DynamicFormDataSectionLock where DynamicFormSectionId=@DynamicFormSectionId AND DynamicFormDataId=@DynamicFormDataId\r\n;";
+                            // var query = "update DynamicFormDataSectionLock set IsLocked=@IsLocked,LockedUserID=@LockedUserId where DynamicFormSectionId=@DynamicFormSectionId AND DynamicFormDataId=@DynamicFormDataId\r\n;";
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        }
+
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
             }
         }
     }

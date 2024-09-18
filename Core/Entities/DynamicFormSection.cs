@@ -71,6 +71,7 @@ namespace Core.Entities
         public string? SectionFileProfileTypeName { get; set; }
         public long? CompanyId { get; set; }
         public string? PlantCode { get; set; }
+        public DynamicFormDataSectionLock DynamicFormDataSectionLock { get; set; } = new DynamicFormDataSectionLock();
     }
     public class DynamicFormSectionSortOrder
     {

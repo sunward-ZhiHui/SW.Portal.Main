@@ -18,7 +18,8 @@ namespace Core.Entities
         public Guid? SessionId { get; set; }
         [Required(ErrorMessage = "Start Date is Required")]
         public DateTime? StartDate { get; set; }
-        public int StatusCodeId { get; set; }
+        [Required(ErrorMessage = "Status is Required")]
+        public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
@@ -38,5 +39,9 @@ namespace Core.Entities
         public bool? IsAcknowledgement { get; set; } = false;
         public long? MemoUserId { get; set; }
         public List<DocumentsModel> DocumentsData { get; set; } = new List<DocumentsModel>();
+        public string? StatusCode { get; set; }
+        public DateTime? AcknowledgementDate { get; set; }
+        public string? AddedByUser { get; set; }
+        public string? ModifiedByUser { get; set; }
     }
 }

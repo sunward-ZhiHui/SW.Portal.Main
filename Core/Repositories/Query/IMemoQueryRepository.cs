@@ -19,5 +19,6 @@ namespace Core.Repositories.Query
         Task<MemoUser> UpdateMemoUserAcknowledgement(long? MemoUserId, bool? IsAcknowledgement);
         Task<IReadOnlyList<Memo>> GetAllByUserAsync(long? userId);
         Task<IReadOnlyList<MemoUser>> GetMemoUserByMemoIdync(long? MemoId);
+        Task<Memo> InsertCloneMemo(Memo memo);
     }
 }

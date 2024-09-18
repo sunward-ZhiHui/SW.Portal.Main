@@ -35,9 +35,16 @@
                                     <div class="shared-div">
                                         <div class="date-and-notes">
                                             <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Memo Date</span> @Application.Common.Helper.Helper.FormatDate(@item.StartDate)</div>
-                                            <button type="button" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" onclick="@(() => OnAcknowledgeClick(item))" class="">
-                                                <!--!--><i class="fa fa-check"></i> @(@item.IsAcknowledgement == true ? "Acknowledged" : "Acknowledge")
-                                            </button>
+                                            @if (item.IsAcknowledgement == true)
+                                            {
+                                                <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Date of Acknowlege</span> @Application.Common.Helper.Helper.FormatDate(@item.AcknowledgementDate)</div>
+                                            }
+                                            else
+                                            {
+                                                <button type="button" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" onclick="@(() => OnAcknowledgeClick(item))" class="">
+                                                    <!--!--><i class="fa fa-check"></i> @(@item.IsAcknowledgement == true ? "Acknowledged" : "Acknowledge")
+                                                </button>
+                                            }
                                         </div><!--!-->
                                     </div>
                                 </div>

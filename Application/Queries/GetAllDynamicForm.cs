@@ -685,6 +685,16 @@ namespace Application.Queries
             this.DynamicFormWorkFlowForm = dynamicFormWorkFlowForm;
         }
     }
+    public class UpdateDynamicFormDataSectionLock : DynamicFormDataSectionLock, IRequest<DynamicFormDataSectionLock>
+    {
+        public DynamicFormDataSectionLock DynamicFormDataSectionLock { get; set; }
+        public UpdateDynamicFormDataSectionLock(DynamicFormDataSectionLock dynamicFormDataSectionLock)
+        {
+            this.DynamicFormDataSectionLock = dynamicFormDataSectionLock;
+        }
+
+    }
+    
 
 }
 

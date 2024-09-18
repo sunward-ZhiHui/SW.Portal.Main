@@ -96,6 +96,7 @@
                                         </Items>
                                     </DxMenuItem>
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                    <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
                                     <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
@@ -117,6 +118,7 @@
                                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                                     <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isSaveEnabled" />
                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                    <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
                                     <DxMenuItem Text="Release" IconCssClass="fa fa-tasks" Click="@addWorlflow" Enabled=@isWorkflowEnabled />
                                     <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isUserLocked" />
                                     <DxMenuItem Text="WorkFlow Approval" id=@($"flyout-overview-target-container-WorkFlowApproval") style="@workflowStyle">
@@ -603,6 +605,40 @@
         <DxButton RenderStyle="ButtonRenderStyle.Success" Text="@ApproveRejectWokFlowName" Click=@(()=> OnUpdateWorkFlowDescription()) />
     </FooterContentTemplate>
 </DxFlyout>
+<DxPopup @bind-Visible="@IsSectionLockOpen"
+         ShowFooter="true"
+         HeaderText="Section Lock"
+         ShowCloseButton="true"
+         Closed="EulaPopupLockClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to @SectionLockedName this Section?
+        </p>
+        <span style="font-weight:bold;">@dynamicFormSectionData?.SectionName</span>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkSectionLock())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@createEmailpopup"
+         ShowFooter="true"
+         ShowCloseButton="true"
+         HeaderText="Create Email"
+         Closed="EulaPopupLockClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure create Email?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="createEmailYes" />
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     private DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
@@ -707,6 +743,8 @@
     public List<DynamicFormWorkFlowForm> _dynamicFormWorkFlowFormListItems = new List<DynamicFormWorkFlowForm>();
     bool EditEnabledApproval { get; set; } = false; public List<DynamicFormWorkFlowApprovedForm> _dynamicFormWorkFlowApprovedFormList { get; set; }
     public DynamicFormWorkFlowApprovedForm _dynamicFormWorkFlowApprovedFormOne { get; set; }
+    bool IsSectionLockOpen { get; set; } = false; public string? SectionLockedName { get; set; } = ""; public string? DynamicSectionName { get; set; }
+    bool createEmailpopup { get; set; } = false; bool emailEnabled { get; set; } = false; public DynamicFormSection dynamicFormSectionData { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -766,7 +804,7 @@
     }
     async Task loadDynamicForm()
     {
-        await onshowLoading(); _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false;
+        await onshowLoading(); _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
         IsWorkflowApprovalRejected = false; IsWokFlowDescriptionOpen = false; workflowStyle = "display:none;"; _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
@@ -805,12 +843,13 @@
                         _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
                         if (_dynamicformData != null)
                         {
-                            isUserLocked = true;
+                            isUserLocked = true; emailEnabled = true;
                             if (_dynamicformData.IsLocked == true && _dynamicformData.LockedUserId > 0)
                             {
                                 LockedName = "UnLock"; fafaunlock = "fa fa-unlock";
                                 if (_dynamicformData.LockedUserId != applicationUser.UserID)
                                 {
+                                    emailEnabled = false;
                                     isLocked = true; isUserLocked = false;
                                 }
                             }
@@ -1331,14 +1370,10 @@
                                                                 {
                                                                     valuess = a.DataSourceTable + "_" + w;
                                                                 }
-                                                                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId);
-                                                                if (valeExits != null)
+                                                                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId).ToList();
+                                                                if (valeExits != null && valeExits.Count() > 0)
                                                                 {
-                                                                    var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                                                                    if (exits1 == null)
-                                                                    {
-                                                                        dynamicFormSectionAttributeSectionSelected.Add(valeExits);
-                                                                    }
+                                                                    dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
 
                                                                 }
                                                             }
@@ -1379,15 +1414,10 @@
                                                         {
                                                             valuess = a.DataSourceTable + "_" + values;
                                                         }
-                                                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId);
-                                                        if (valeExits != null)
+                                                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == a.DynamicFormSectionAttributeId).ToList();
+                                                        if (valeExits != null && valeExits.Count() > 0)
                                                         {
-                                                            var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                                                            if (exits1 == null)
-                                                            {
-                                                                dynamicFormSectionAttributeSectionSelected.Add(valeExits);
-                                                            }
-
+                                                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                                                         }
                                                     }
                                                     if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0)
@@ -1557,6 +1587,7 @@
     void EulaPopupLockClosed(PopupClosedEventArgs args)
     {
         lockpopup = false;
+        createEmailpopup = false;
         StateHasChanged();
     }
     async Task bulkLock()
@@ -1671,6 +1702,21 @@
                                 {
                                     Data.GetType().GetProperty(nameData).SetValue(Data, listDatas);
                                 }
+                                if (listDatas != null && listDatas.Count() > 0)
+                                {
+                                    listDatas.ForEach(w =>
+                                    {
+                                        if (w > 0)
+                                        {
+                                            var valuess = dynamicFormSectionAttributes.DataSourceTable + "_" + w;
+                                            var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttributes.DynamicFormSectionAttributeId).ToList();
+                                            if (valeExits != null && valeExits.Count() > 0)
+                                            {
+                                                dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
+                                            }
+                                        }
+                                    });
+                                }
                             }
                             else
                             {
@@ -1681,15 +1727,10 @@
                                     if (values > 0)
                                     {
                                         var valuess = dynamicFormSectionAttributes.DataSourceTable + "_" + values;
-                                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttributes.DynamicFormSectionAttributeId);
-                                        if (valeExits != null)
+                                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttributes.DynamicFormSectionAttributeId).ToList();
+                                        if (valeExits != null && valeExits.Count() > 0)
                                         {
-                                            var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                                            if (exits1 == null)
-                                            {
-                                                dynamicFormSectionAttributeSectionSelected.Add(valeExits);
-                                            }
-
+                                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                                         }
                                     }
                                 }
@@ -1909,15 +1950,10 @@
                                 {
                                     valuess = dynamicFormSectionAttributes.DataSourceTable + "_" + w;
                                 }
-                                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttributes.DynamicFormSectionAttributeId);
-                                if (valeExits != null)
+                                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttributes.DynamicFormSectionAttributeId).ToList();
+                                if (valeExits != null && valeExits.Count() > 0)
                                 {
-                                    var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                                    if (exits1 == null)
-                                    {
-                                        dynamicFormSectionAttributeSectionSelected.Add(valeExits);
-                                    }
-
+                                    dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                                 }
                             }
                         });
@@ -1933,15 +1969,10 @@
                         if (values > 0)
                         {
                             var valuess = dynamicFormSectionAttributes.DataSourceTable + "_" + values;
-                            var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttributes.DynamicFormSectionAttributeId);
-                            if (valeExits != null)
+                            var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttributes.DynamicFormSectionAttributeId).ToList();
+                            if (valeExits != null && valeExits.Count() > 0)
                             {
-                                var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
-                                if (exits1 == null)
-                                {
-                                    dynamicFormSectionAttributeSectionSelected.Add(valeExits);
-                                }
-
+                                dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                             }
                         }
                     }
@@ -2313,6 +2344,105 @@
             SubSectionValue = item as ViewSubSection;
         }
         dropDownBox.HideDropDown();
+    }
+    async Task bulkSectionLock()
+    {
+        if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+        {
+            DynamicFormDataSectionLock dynamicFormData = new DynamicFormDataSectionLock();
+            dynamicFormData.DynamicFormDataId = _dynamicformData.DynamicFormDataId;
+            dynamicFormData.DynamicFormSectionId = dynamicFormSectionData.DynamicFormSectionId;
+            dynamicFormData.IsLocked = dynamicFormSectionData.DynamicFormDataSectionLock?.IsLocked == false ? true : false;
+            if (dynamicFormData.IsLocked == true)
+            {
+                dynamicFormData.LockedUserId = applicationUser.UserID;
+                dynamicFormData.LockedUser = applicationUser.UserName;
+            }
+            var result = await Mediator.Send(new UpdateDynamicFormDataSectionLock(dynamicFormData));
+            IsSectionLockOpen = false;
+            if (result.DynamicFormDataId > 0)
+            {
+
+                if (dynamicFormData.IsLocked == true)
+                {
+                    toastService.ShowToast("Lock successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadDynamicForm();
+                }
+                else
+                {
+                    toastService.ShowToast("Unlock successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadDynamicForm();
+                }
+
+            }
+
+        }
+        StateHasChanged();
+    }
+    void OnSectionLockClick(DynamicFormSection dynamicFormSection)
+    {
+        dynamicFormSectionData = dynamicFormSection;
+        dynamicFormData.IsLocked = dynamicFormSectionData.DynamicFormDataSectionLock?.IsLocked == false ? true : false;
+        SectionLockedName = "Unlock";
+        if (dynamicFormData.IsLocked == true)
+        {
+            SectionLockedName = "Lock";
+        }
+        IsSectionLockOpen = true;
+        StateHasChanged();
+    }
+    async Task addDetailEmailCreate()
+    {
+        _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
+        if (_dynamicformData != null)
+        {
+            if (_dynamicformData.IsDraft == null)
+            {
+                createEmailpopup = true;
+            }
+            if (_dynamicformData.IsDraft == true)
+            {
+                var url = NavigationManager.BaseUri + "EmailDrafts";
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            if (_dynamicformData.IsDraft == false)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _dynamicformData.EmailTopicSessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+        }
+    }
+    async Task createEmailYes()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+
+        if (_dynamicformData != null)
+        {
+            string backurl = rep1;
+            var insertData = new DynamicFormData
+                {
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = _dynamicformData.SessionId,
+                    ProfileNo = _dynamicformData.ProfileNo,
+                    StatusCodeID = 1,
+                    DynamicFormDataId = _dynamicformData.DynamicFormDataId,
+                    BackUrl = backurl
+                };
+            var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
+            if (response.DynamicFormDataId > 0)
+            {
+                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                createEmailpopup = false;
+                var url = NavigationManager.BaseUri + "CreateEmail/" + dynamicFormData.SessionId;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                await loadDynamicForm();
+            }
+        }
+        StateHasChanged();
     }
     void CheckApproval()
     {
@@ -2977,7 +3107,7 @@
         dynamicFormSectionAttributeSectionSelected?.Clear();
         _dynamicFormWorkFlowFormListItems?.Clear();
         _dynamicFormWorkFlowApprovedFormList?.Clear();
-        _dynamicFormWorkFlowApprovedFormOne = null;
+        _dynamicFormWorkFlowApprovedFormOne = null; dynamicFormSectionData = null;
     }
     public async ValueTask DisposeAsync()
     {
@@ -3296,10 +3426,10 @@
                         {
                             valuess = dynamicFormSectionAttribute.DataSourceTable + "_" + a;
                         }
-                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                        if (valeExits != null)
+                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
+                        if (valeExits != null && valeExits.Count() > 0)
                         {
-                            dynamicFormSectionAttributeSectionSelected.Add(valeExits);
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                         }
                     }
                 });
@@ -3319,21 +3449,31 @@
                 {
                     valuess = dynamicFormSectionAttribute.DataSourceTable + "_" + str;
                 }
-                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
+                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
                 if (valeExits != null)
                 {
-                    var exits2 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                    if (exits2 != null)
+                    var exits2 = dynamicFormSectionAttributeSectionSelected.Where(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
+                    if (exits2 != null && exits2.Count() > 0)
                     {
-                        int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                        dynamicFormSectionAttributeSectionSelected[index] = valeExits;
+                        if (exits2 != null && exits2.Count() > 0)
+                        {
+                            exits2.ForEach(c =>
+                            {
+                                dynamicFormSectionAttributeSectionSelected.Remove(c);
+                            });
+                        }
+                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
+                        if (exits1 == null)
+                        {
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
+                        }
                     }
                     else
                     {
-                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
+                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
                         if (exits1 == null)
                         {
-                            dynamicFormSectionAttributeSectionSelected.Add(valeExits);
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                         }
                     }
                 }
@@ -3343,11 +3483,13 @@
         {
             if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
             {
-                int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
-                if (exists == true)
+                var exits1 = dynamicFormSectionAttributeSectionSelected.Where(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
+                if (exits1 != null && exits1.Count() > 0)
                 {
-                    dynamicFormSectionAttributeSectionSelected.RemoveAt(index);
+                    exits1.ForEach(c =>
+                    {
+                        dynamicFormSectionAttributeSectionSelected.Remove(c);
+                    });
                 }
             }
         }
@@ -3793,6 +3935,38 @@
                    b.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-SectionInfo-{randomNum}-{a.DynamicFormSectionId}"));
                    b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionInfoClick(a)));
                    b.AddAttribute(i + 1, "title", "Click Here Show Instruction");
+                   b.AddAttribute(i + 1, "aria-hidden", true);
+                   b.CloseElement();
+               }
+               if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+               {
+                   var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
+                   b.OpenElement(i + 1, "i");
+                   if (sectionLock != null)
+                   {
+                       if (sectionLock.LockedUserId != applicationUser.UserID)
+                       {
+                           isReadonly = sectionLock.IsLocked == true ? true : isReadonly;
+                           isReadonly = isReadonly == true ? false : isReadonly;
+                       }
+                       else
+                       {
+                           b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                           b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                       }
+                       a.DynamicFormDataSectionLock = sectionLock;
+                       b.AddAttribute(i + 1, "class", sectionLock.IsLocked == true ? "fa fa-lock" : "fa fa-unlock");
+                   }
+                   else
+                   {
+                       b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                       b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                       b.AddAttribute(i + 1, "class", "fa fa-unlock");
+                   }
+                   if (sectionLock != null && sectionLock.IsLocked == true && !string.IsNullOrEmpty(sectionLock?.LockedUser))
+                   {
+                       b.AddAttribute(i + 1, "title", "Locked By:" + sectionLock?.LockedUser);
+                   }
                    b.AddAttribute(i + 1, "aria-hidden", true);
                    b.CloseElement();
                }
@@ -4506,7 +4680,10 @@
                        layoutItemBuilders.CloseComponent();
                        if (s.DropDownTypeId == "Data Source")
                        {
-                           if (s.DataSourceTable != "FinishedProdOrderLine")
+                           if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                           {
+                           }
+                           else
                            {
                                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                                layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
@@ -4549,7 +4726,7 @@
                            layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                            layoutItemBuilders.CloseComponent();
                        }
-                       if (s.DataSourceTable == "FinishedProdOrderLine")
+                       if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                        {
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                            layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -4754,7 +4931,10 @@
                    layoutItemBuilders.CloseComponent();
                    if (s.DropDownTypeId == "Data Source")
                    {
-                       if (s.DataSourceTable != "FinishedProdOrderLine")
+                       if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                       {
+                       }
+                       else
                        {
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                            layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
@@ -4797,7 +4977,7 @@
                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                        layoutItemBuilders.CloseComponent();
                    }
-                   if (s.DataSourceTable == "FinishedProdOrderLine")
+                   if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                    {
                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                        layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -4959,8 +5139,11 @@
            layoutItemBuilders.CloseComponent();
            if (s.DropDownTypeId == "Data Source")
            {
-               if (s.DataSourceTable != "FinishedProdOrderLine")
+               if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                {
+               }
+               else
+                {
                    layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                    layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
                    layoutItemBuilders.AddAttribute(2, "Caption", "Company");
@@ -5002,7 +5185,7 @@
                layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                layoutItemBuilders.CloseComponent();
            }
-           if (s.DataSourceTable == "FinishedProdOrderLine")
+           if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
            {
                layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -5179,7 +5362,10 @@
            layoutItemBuilders1.CloseComponent();
            if (s.DropDownTypeId == "Data Source")
            {
-               if (s.DataSourceTable != "FinishedProdOrderLine")
+               if (ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+               {
+               }
+               else
                {
                    layoutItemBuilders1.OpenComponent<DxListEditorColumn>(2);
                    layoutItemBuilders1.AddAttribute(2, "FieldName", "CompanyName");
@@ -5222,7 +5408,7 @@
                layoutItemBuilders1.AddAttribute(7, "Caption", "Designation");
                layoutItemBuilders1.CloseComponent();
            }
-           if (ff.DataSourceTable == "FinishedProdOrderLine")
+           if (ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
            {
                layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
                layoutItemBuilders1.AddAttribute(8, "FieldName", "Description2");
@@ -5729,7 +5915,10 @@
                    layoutItemBuilders.CloseComponent();
                    if (q.DropDownTypeId == "Data Source")
                    {
-                       if (q.DataSourceTable != "FinishedProdOrderLine")
+                       if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                       {
+                       }
+                       else
                        {
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                            layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
@@ -5772,7 +5961,7 @@
                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                        layoutItemBuilders.CloseComponent();
                    }
-                   if (q.DataSourceTable == "FinishedProdOrderLine")
+                   if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                    {
                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                        layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -5847,7 +6036,10 @@
                    layoutItemBuilders.CloseComponent();
                    if (q.DropDownTypeId == "Data Source")
                    {
-                       if (q.DataSourceTable != "FinishedProdOrderLine")
+                       if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                       {
+                       }
+                       else
                        {
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                            layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
@@ -5890,7 +6082,7 @@
                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                        layoutItemBuilders.CloseComponent();
                    }
-                   if (q.DataSourceTable == "FinishedProdOrderLine")
+                   if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                    {
                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                        layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -5995,8 +6187,11 @@
                    layoutItemBuilders.CloseComponent();
                    if (q.DropDownTypeId == "Data Source")
                    {
-                       if (q.DataSourceTable != "FinishedProdOrderLine")
+                       if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                        {
+                       }
+                       else
+                        {
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(2);
                            layoutItemBuilders.AddAttribute(2, "FieldName", "CompanyName");
                            layoutItemBuilders.AddAttribute(2, "Caption", "Company");
@@ -6039,7 +6234,7 @@
                        layoutItemBuilders.AddAttribute(7, "Caption", "Designation");
                        layoutItemBuilders.CloseComponent();
                    }
-                   if (q.DataSourceTable == "FinishedProdOrderLine")
+                   if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                    {
                        layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                        layoutItemBuilders.AddAttribute(8, "FieldName", "Description2");
@@ -7052,6 +7247,42 @@
                 });
             }
         }
+        if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
+        {
+            List<DynamicFormSectionAttributeSection> dynamicFormSectionAttributeSections = new List<DynamicFormSectionAttributeSection>();
+            dynamicFormSectionAttributeSections = dynamicFormSectionAttributeSectionSelected.Where(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).ToList();
+            if (dynamicFormSectionAttributeSections != null && dynamicFormSectionAttributeSections.Count() > 0)
+            {
+
+                dynamicFormSectionAttributeSections.ForEach(r =>
+                {
+                    dynamicFormSectionAttributeSectionSelected.Remove(r);
+                });
+
+            }
+        }
+        if (str != null && str.Count() > 0)
+        {
+            if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
+            {
+                str.ToList().ForEach(a =>
+                {
+                    if (a > 0)
+                    {
+                        var valuess = "Attr_" + a;
+                        if (!string.IsNullOrEmpty(s.DataSourceTable))
+                        {
+                            valuess = s.DataSourceTable + "_" + a;
+                        }
+                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).ToList();
+                        if (valeExits != null && valeExits.Count() > 0)
+                        {
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
+                        }
+                    }
+                });
+            }
+        }
     }
     void RemoveApplicationMasterParentSingleAllItem(ApplicationMasterParent applicationMasterParent, DynamicFormSectionAttribute dynamicFormSectionAttribute, List<ApplicationMasterParent> nameDatas)
     {
@@ -7107,32 +7338,32 @@
             if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
             {
                 var valuess = s.DataSourceTable + "_" + str;
-                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionSelectionById == valuess);
+                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).ToList();
                 if (valeExits != null)
                 {
-                    var exits2 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
-                    if (exits2 != null)
+                    var exits2 = dynamicFormSectionAttributeSectionSelected.Where(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).ToList();
+                    if (exits2 != null && exits2.Count() > 0)
                     {
-                        int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
-                        dynamicFormSectionAttributeSectionSelected[index] = valeExits;
+                        if (exits2 != null && exits2.Count() > 0)
+                        {
+                            exits2.ForEach(c =>
+                            {
+                                dynamicFormSectionAttributeSectionSelected.Remove(c);
+                            });
+                        }
+                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
+                        if (exits1 == null)
+                        {
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
+                        }
                     }
                     else
                     {
-                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
+                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
                         if (exits1 == null)
                         {
-                            dynamicFormSectionAttributeSectionSelected.Add(valeExits);
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                         }
-                    }
-
-                }
-                else
-                {
-                    int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
-                    var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
-                    if (exists == true)
-                    {
-                        dynamicFormSectionAttributeSectionSelected.RemoveAt(index);
                     }
                 }
             }
@@ -7141,11 +7372,13 @@
         {
             if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
             {
-                int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId);
-                var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
-                if (exists == true)
+                var exits1 = dynamicFormSectionAttributeSectionSelected.Where(q => q.DynamicFormSectionAttributeId == s.DynamicFormSectionAttributeId).ToList();
+                if (exits1 != null && exits1.Count() > 0)
                 {
-                    dynamicFormSectionAttributeSectionSelected.RemoveAt(index);
+                    exits1.ForEach(c =>
+                    {
+                        dynamicFormSectionAttributeSectionSelected.Remove(c);
+                    });
                 }
             }
         }
@@ -7180,10 +7413,10 @@
                         {
                             valuess = dynamicFormSectionAttribute.DataSourceTable + "_" + a;
                         }
-                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                        if (valeExits != null)
+                        var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
+                        if (valeExits != null && valeExits.Count() > 0)
                         {
-                            dynamicFormSectionAttributeSectionSelected.Add(valeExits);
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                         }
                     }
                 });
@@ -7201,32 +7434,32 @@
             if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
             {
                 var valuess = dynamicFormSectionAttribute.DataSourceTable + "_" + str;
-                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionSelectionById == valuess);
+                var valeExits = _AttributeHeader.DynamicFormSectionAttributeSections.Where(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
                 if (valeExits != null)
                 {
-                    var exits2 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                    if (exits2 != null)
+                    var exits2 = dynamicFormSectionAttributeSectionSelected.Where(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
+                    if (exits2 != null && exits2.Count() > 0)
                     {
-                        int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                        dynamicFormSectionAttributeSectionSelected[index] = valeExits;
+                        if (exits2 != null && exits2.Count() > 0)
+                        {
+                            exits2.ForEach(c =>
+                            {
+                                dynamicFormSectionAttributeSectionSelected.Remove(c);
+                            });
+                        }
+                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
+                        if (exits1 == null)
+                        {
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
+                        }
                     }
                     else
                     {
-                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess);
+                        var exits1 = dynamicFormSectionAttributeSectionSelected.FirstOrDefault(q => q.DynamicFormSectionSelectionById == valuess && q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
                         if (exits1 == null)
                         {
-                            dynamicFormSectionAttributeSectionSelected.Add(valeExits);
+                            dynamicFormSectionAttributeSectionSelected.AddRange(valeExits);
                         }
-                    }
-
-                }
-                else
-                {
-                    int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                    var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
-                    if (exists == true)
-                    {
-                        dynamicFormSectionAttributeSectionSelected.RemoveAt(index);
                     }
                 }
             }
@@ -7235,11 +7468,13 @@
         {
             if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
             {
-                int index = dynamicFormSectionAttributeSectionSelected.FindIndex(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                var exists = dynamicFormSectionAttributeSectionSelected.ElementAtOrDefault(index) != null;
-                if (exists == true)
+                var exits1 = dynamicFormSectionAttributeSectionSelected.Where(q => q.DynamicFormSectionAttributeId == dynamicFormSectionAttribute.DynamicFormSectionAttributeId).ToList();
+                if (exits1 != null && exits1.Count() > 0)
                 {
-                    dynamicFormSectionAttributeSectionSelected.RemoveAt(index);
+                    exits1.ForEach(c =>
+                    {
+                        dynamicFormSectionAttributeSectionSelected.Remove(c);
+                    });
                 }
             }
         }

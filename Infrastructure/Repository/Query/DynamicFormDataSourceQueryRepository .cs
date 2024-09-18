@@ -608,16 +608,16 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.OptStatus='Production In Progress' AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID in(" + string.Join(',', plantIds) + ");";
+                        query += "where t1.OptStatus='Production In Progress'  AND CAST(t1.StartingDate as DATE)>='01-05-2023' AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.OptStatus='Production In Progress'  AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID=" + CompanyId + ";\r\n";
+                        query += "Where t1.OptStatus='Production In Progress'   AND CAST(t1.StartingDate as DATE)>='01-05-2023' AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += "\n\rWhere t1.OptStatus='Production In Progress' AND (t1.BatchNo is not null AND t1.BatchNo!='');\r\n";
+                    query += "\n\rWhere t1.OptStatus='Production In Progress'  AND CAST(t1.StartingDate as DATE)>='01-05-2023' AND (t1.BatchNo is not null AND t1.BatchNo!='');\r\n";
                 }
                 //using (var connection = CreateConnection())
                 //{
@@ -644,16 +644,16 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID in(" + string.Join(',', plantIds) + ");";
+                        query += "where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='')  AND CAST(t1.StartingDate as DATE)>='01-05-2023' AND t1.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='') AND t1.CompanyID=" + CompanyId + ";\r\n";
+                        query += "Where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='')  AND CAST(t1.StartingDate as DATE)>='01-05-2023' AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += "\n\rWhere (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='');\r\n";
+                    query += "\n\rWhere (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null)  AND CAST(t1.StartingDate as DATE)>='01-05-2023' AND (t1.BatchNo is not null AND t1.BatchNo!='');\r\n";
                 }
                 //using (var connection = CreateConnection())
                 //{
@@ -1177,12 +1177,12 @@ namespace Infrastructure.Repository.Query
                 else if (DataSource == "FinishedProdOrderLine")
                 {
                     query += "select 'FinishedProdOrderLine' as DropDownTypeId,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
-                    query += "Where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null) AND (t1.BatchNo is not null AND t1.BatchNo!='')\r";
+                    query += "Where (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null)  AND CAST(t1.StartingDate as DATE)>='01-05-2023' AND (t1.BatchNo is not null AND t1.BatchNo!='')\r";
                 }
                 else if (DataSource == "FinishedProdOrderLineProductionInProgress")
                 {
                     query += "select 'FinishedProdOrderLineProductionInProgress' as DropDownTypeId,\r\nt1.FinishedProdOrderLineID as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.ItemNo as AttributeDetailName,\r\nt1.Description,t1.Description2,t1.ReplanRefNo,t1.BatchNo,FORMAT(t1.StartingDate, 'dd-MMM-yyyy') as StartingDate,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate,t1.ProductCode,t1.ProductName  from FinishedProdOrderLine t1 \r\nJOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
-                    query += "Where t1.OptStatus='Production In Progress' AND (t1.BatchNo is not null AND t1.BatchNo!='')\r";
+                    query += "Where t1.OptStatus='Production In Progress'  AND CAST(t1.StartingDate as DATE)>='01-05-2023' AND (t1.BatchNo is not null AND t1.BatchNo!='')\r";
                 }
                 else
                 {

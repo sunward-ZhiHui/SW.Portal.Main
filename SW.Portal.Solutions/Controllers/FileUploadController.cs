@@ -548,87 +548,7 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(ReportdocumentId.ToString());
         }
-        //[HttpPost("MobileFileQCUpload")]
-        //public async Task<ResponseModel> MobileFileQCUpload([FromForm] Models.UploadModel value)
-        //{
-        //    long documentId = 0;
-        //    ResponseModel response = new ResponseModel();
-        //    if (!Request.ContentType.StartsWith("multipart/form-data", StringComparison.OrdinalIgnoreCase))
-        //    {
-        //        response.IsSuccess = false;
-        //        response.Message = "Invalid content type.";
-        //        return response;
-        //    }
-
-        //    var file = Request.Form.Files[0];
-        //    if (file == null || file.Length == 0)
-        //    {
-        //        response.IsSuccess = false;
-        //        response.Message = "No file uploaded.";
-        //        return response;
-        //    }
-        //  //  string chunkMetadata = Request.Form["chunkMetadata"];
-
-        //    // Set BasePath
-        //    var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + value.SessionId;
-
-        //    try
-        //    {
-        //      // if (!string.IsNullOrEmpty(chunkMetadata))
-        //       // {
-                    
-        //           // var metaDataObject = JsonSerializer.Deserialize<ChunkMetadata>(chunkMetadata);
-
-        //            // Use tmp File for Upload
-        //          //  var tempFilePath = Path.Combine(serverPaths, metaDataObject.FileGuid + ".tmp");
-
-        //            // Create UploadFolder
-        //            if (!System.IO.Directory.Exists(serverPaths))
-        //            {
-        //                System.IO.Directory.CreateDirectory(serverPaths);
-        //            }
-
-        //            // Removes temporary files 
-        //            //RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
-
-        //            // Save FileStream
-                   
-        //               var ext = file.FileName.Split(".").Last();
-        //               var fileName1 = file.FileName + "." + ext;
-        //               var serverPath = serverPaths + @"\" + fileName1;
-
-        //                // Upload finished - overwrite/copy file and remove tempFile
-        //                //System.IO.File.Copy(tempFilePath, Path.Combine(serverPaths, serverPath), true);
-        //                //System.IO.File.Delete(tempFilePath);
-        //                Documents documents = new Documents();
-        //                documents.UploadDate = DateTime.Now;
-        //                documents.AddedByUserId = value.addedByUserId;
-        //                documents.AddedDate = DateTime.Now;
-        //                documents.SessionId =  value.SessionId;
-        //                documents.IsLatest = true;
-        //                documents.IsTemp = true;
-        //                documents.FileName = file.FileName;
-        //                documents.ContentType = file.ContentType;
-        //                documents.FileSize = file.Length;
-        //                documents.SourceFrom = "Mobile";
-        //                documents.SwProfileTypeId = 0;
-        //                documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
-        //                var response1 = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
-        //                documentId = response1.DocumentId;
-        //                //files = null;
-        //                //chunkMetadata = null;
-        //                System.GC.Collect();
-        //                GC.SuppressFinalize(this);
-                    
-                
-        //    }
-        //    catch (Exception e)
-        //    {
-        //       // return BadRequest(e.Message);
-        //    }
-        //    return response;
-        //}
-
+        
        [HttpPost("MobileFileProfileTypeMultiple")]
 
         public async Task<ResponseModel> MobileFileProfileTypeMultiple([FromForm] Models.FileProfileTypeModel value)
@@ -650,7 +570,7 @@ namespace SW.Portal.Solutions.Controllers
                     response.Message = "No file uploaded.";
                     return response;
                 }
-
+               
 
                 var sessionID = value.SessionId;
                 var addedByUserId = value.UserID;

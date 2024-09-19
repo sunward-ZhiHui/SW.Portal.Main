@@ -20,6 +20,25 @@ namespace Infrastructure.Repository.Query
 
         }
 
+        public async  Task<IReadOnlyList<TimeSheetForQC>> GetAllQCTimeSheetAsync(long QCTimeSheetID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("QCTimeSheetID", QCTimeSheetID);
+                var query = @"select SessionID From TimeSheetForQC Where QCTimesheetID = @QCTimeSheetID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<TimeSheetForQC>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<long> Insert(TimeSheetForQC timeSheetForQC)
         {
             try

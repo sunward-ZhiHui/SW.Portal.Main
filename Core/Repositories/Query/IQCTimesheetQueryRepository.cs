@@ -11,5 +11,6 @@ namespace Core.Repositories.Query
     {
         Task<long> Insert(TimeSheetForQC timeSheetForQC);
         Task<long> Update(TimeSheetForQC timeSheetForQC);
+        Task<IReadOnlyList<TimeSheetForQC>> GetAllQCTimeSheetAsync(long QCTimeSheetID);
     }
 }

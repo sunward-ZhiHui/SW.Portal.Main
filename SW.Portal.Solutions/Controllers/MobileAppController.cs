@@ -19,10 +19,12 @@ namespace SW.Portal.Solutions.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IFbOutputCartonsQueryRepository _FbOutputCartonsQueryRepository;
-        public MobileAppController(IMediator mediator, IFbOutputCartonsQueryRepository FbOutputCartonsQueryRepository)
+        private readonly IQCTimesheetQueryRepository _qcTimeSheetQueryRepository;
+        public MobileAppController(IMediator mediator, IFbOutputCartonsQueryRepository FbOutputCartonsQueryRepository, IQCTimesheetQueryRepository qcTimeSheetQueryRepository)
         {
             _mediator = mediator;
             _FbOutputCartonsQueryRepository = FbOutputCartonsQueryRepository;
+            _qcTimeSheetQueryRepository = qcTimeSheetQueryRepository;
         }
         [HttpGet("GetFbOutputCartonsList")]
         public async Task<ActionResult<Services.ResponseModel<List<FbOutputCartons>>>> GetFbOutputCartonsList()
@@ -378,6 +380,24 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
 
+        }
+        [HttpGet("GetQCListByID")]
+        public async Task<ActionResult<Services.ResponseModel<List<TimeSheetForQC>>>> GetQCListByID(long QCTimesheetID)
+        {
+            var response = new Services.ResponseModel<TimeSheetForQC>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _qcTimeSheetQueryRepository.GetAllQCTimeSheetAsync(QCTimesheetID);
+                response.Results = (List<TimeSheetForQC>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
         }
     }
 }

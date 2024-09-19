@@ -60,6 +60,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<long>> GetActionTagMultipleAsync(long TopicId)
+        {
+            try
+            {
+                var query = @"SELECT ActionID FROM EmailActionTagMultiple WHERE TopicId = @TopicId";
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<long>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
         public async Task<bool> GetTagLockInfoAsync(long TopicId)
         {
             try
@@ -132,7 +151,27 @@ namespace Infrastructure.Repository.Query
 
                     try
                         {
-                            var parameters = new DynamicParameters();
+
+                        var deleteQuery = "DELETE FROM EmailActionTagMultiple WHERE TopicID = @TopicId";
+                        await connection.ExecuteAsync(deleteQuery, new { TopicId = emailActivityCatgorys.TopicId });
+
+                        if (emailActivityCatgorys.ActionTagIds != null && emailActivityCatgorys.ActionTagIds.Any())
+                        {
+                            var insertActionTagQuery = @"
+                            INSERT INTO EmailActionTagMultiple (TopicID, ActionID)
+                            VALUES (@TopicID, @ActionID)";
+
+                            foreach (var actionId in emailActivityCatgorys.ActionTagIds)
+                            {
+                                if (actionId.HasValue) // Check if the ActionID is not null
+                                {
+                                    await connection.ExecuteAsync(insertActionTagQuery,
+                                        new { TopicID = emailActivityCatgorys.TopicId, ActionID = actionId });
+                                }
+                            }
+                        }
+
+                        var parameters = new DynamicParameters();
                             parameters.Add("ID", emailActivityCatgorys.ID);
                             parameters.Add("TopicId", emailActivityCatgorys.TopicId);
                             parameters.Add("GroupTag", emailActivityCatgorys.GroupTag);

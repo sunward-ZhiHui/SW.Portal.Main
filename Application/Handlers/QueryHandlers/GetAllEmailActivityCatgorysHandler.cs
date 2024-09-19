@@ -38,6 +38,21 @@ namespace Application.Handlers.QueryHandlers
             
         }
     }
+    public class GetGetActionTagMultipleHandler : IRequestHandler<GetActionTagMultiple, List<long>>
+    {
+
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetGetActionTagMultipleHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<List<long>> Handle(GetActionTagMultiple request, CancellationToken cancellationToken)
+        {
+            return (List<long>)await _emailactyqueryRepository.GetActionTagMultipleAsync(request.TopicId);
+
+        }
+    }
+    
     public class GetTagLockInfoHandler : IRequestHandler<GetTagLockInfo, bool>
     {
 

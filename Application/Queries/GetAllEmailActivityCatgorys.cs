@@ -22,6 +22,14 @@ namespace Application.Queries
             this.TopicId = TopicId;
         }
     }
+    public class GetActionTagMultiple : PagedRequest, IRequest<List<long>>
+    {
+        public long TopicId { get; set; }
+        public GetActionTagMultiple(long TopicId)
+        {
+            this.TopicId = TopicId;
+        }
+    }
     public class GetTagLockInfo : IRequest<bool>
     {
         public long TopicId { get; set; }

@@ -5563,7 +5563,7 @@ namespace Infrastructure.Repository.Query
 
                 if (dynamicFormWorkFlowApproval.SortOrderAnotherBy > dynamicFormWorkFlowApproval.SortBy)
                 {
-                    query = "SELECT* FROM DynamicFormWorkFlowApproval Where DynamicFormWorkFlowId = @DynamicFormWorkFlowId  AND SortBy>=@SortOrderByFrom and SortBy<@SortOrderByTo order by SortBy asc";
+                    query = "SELECT * FROM DynamicFormWorkFlowApproval Where DynamicFormWorkFlowId = @DynamicFormWorkFlowId  AND SortBy>=@SortOrderByFrom and SortBy<@SortOrderByTo order by SortBy asc";
 
                 }
                 using (var connection = CreateConnection())

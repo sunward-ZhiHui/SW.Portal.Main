@@ -305,6 +305,7 @@
          ShowCloseButton="true"
          HeaderText="Link Documents"
          CloseOnOutsideClick="false"
+         Closed="EulaLinkDocumentsClosed"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <LinkDocumentsList @ref="refLinkDocumentsList" selectedFiles="@selectedFiles"></LinkDocumentsList>
@@ -2074,6 +2075,10 @@
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         Blukdeletepopup = false;
+    }
+    async Task EulaLinkDocumentsClosed()
+    {
+        await loadFileProfileData();
     }
     void EulaPopupDocumentClosed(PopupClosedEventArgs args)
     {

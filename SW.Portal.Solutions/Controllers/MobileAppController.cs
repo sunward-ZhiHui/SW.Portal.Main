@@ -1,4 +1,5 @@
 ﻿using AC.SD.Core.Data;
+using Application.Queries;
 using Application.Queries.Base;
 using ChartJs.Blazor.ChartJS.Common.Axes;
 using Core.Entities;
@@ -293,6 +294,90 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
+        }
+        [HttpPost]
+        [Route("InsertQCTimesheet")]
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<TimeSheetForQC>>>> InsertQCTimesheet([FromBody] TimeSheetForQC timeSheetForQC)
+        {
+            var response = new Services.ResponseModel<long>();
+
+            try
+            {
+
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                var lst = new CreateQCTimesheetQuery()
+                {
+
+
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    ItemName = timeSheetForQC.ItemName,
+                    RefNo = timeSheetForQC.RefNo,
+                    Stage = timeSheetForQC.Stage,
+                    TestName = timeSheetForQC.TestName,
+                    QRcode = timeSheetForQC.QRcode,
+                    DetailEntry = timeSheetForQC.DetailEntry,
+                    Comment = timeSheetForQC.Comment,
+
+                    AddedByUserID = timeSheetForQC.AddedByUserID,
+
+                };
+
+                var Result = await _mediator.Send(lst);
+
+
+                response.Result = Result;
+
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.Result = 0;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+
+        }
+        [HttpPost]
+        [Route("UpdateQCTimesheet")]
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<TimeSheetForQC>>>> UpdateQCTimesheet([FromBody] TimeSheetForQC timeSheetForQC)
+        {
+            var response = new Services.ResponseModel<long>();
+
+            try
+            {
+
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                var lst = new UpdateQCTimesheetQuery()
+                {
+
+                    Comment = timeSheetForQC.Comment,
+                   QCTimesheetID = timeSheetForQC.QCTimesheetID,
+                    ModifiedDate = DateTime.Now,
+                   ModifiedByUserID = timeSheetForQC.ModifiedByUserID
+
+                };
+
+                var Result = await _mediator.Send(lst);
+
+
+                response.Result = Result;
+
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.Result = 0;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+
         }
     }
 }

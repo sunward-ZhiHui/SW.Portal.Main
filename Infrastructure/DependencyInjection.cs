@@ -173,6 +173,7 @@ namespace Infrastructure
             services.AddScoped<IJobScheduleQueryRepository, JobScheduleQueryRepository>();
             services.AddScoped<IApplicationPermissionListQueryRepository, ApplicationPermissionListQueryRepository>();
             services.AddScoped<IMemoQueryRepository, MemoQueryRepository>();
+            services.AddScoped<IQCTimesheetQueryRepository, QCTimeSheetQueryRepository>();
             return services;
         }
     }

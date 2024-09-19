@@ -18,7 +18,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem IconCssClass="fa fa-eye" Text="View" Click="@onPreview" Enabled=@ViewEnabled />
-                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />             
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
             </Items>
         </DxMenu>
     </div>
@@ -28,41 +28,67 @@
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
+                Text="Fetching Data...">
 
     <DxGrid @ref="Grid" Data="@_productionEntry" KeyFieldName="ProductionEntryID"
-           
-        EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+            EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
             VirtualScrollingEnabled="true"
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        style="height: calc(100vh - 220px);"
-        CssClass="ch-360" 
-        AutoExpandAllGroupRows="true"
-        SelectionMode="GridSelectionMode.Multiple"
-        RowClick="OnRowClick"
-        CustomizeElement="Grid_CustomizeElement"
-        FocusedRowEnabled="true"
-        AllowSelectRowByClick="true"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-         SelectedDataItemsChanged="@SelectedDataItemsChanged"
-           >
-    <Columns>
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="ch-360"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            RowClick="OnRowClick"
+            CustomizeElement="Grid_CustomizeElement"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged">
+        <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+             @* <DxGridDataColumn FieldName="Company" /> *@
             <DxGridDataColumn FieldName="LocationName" Width="180px" />
-        <DxGridDataColumn FieldName="ProductionOrderNo" Caption="Production Order" Width="180px" />
-        <DxGridDataColumn FieldName="Deascription" />
-        <DxGridDataColumn FieldName="BatchNo" />
-        <DxGridDataColumn FieldName="StartDate" />
-        <DxGridDataColumn FieldName="ActualStartDate" Caption="Actual Date"/>
-        <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
-    </Columns>
-</DxGrid>
+            <DxGridDataColumn FieldName="ProductionOrderNo" Caption="Production Order" Width="180px" />
+             @* <DxGridDataColumn FieldName="ItemName" /> *@
+            <DxGridDataColumn FieldName="Deascription" Caption="Description" />
+            <DxGridDataColumn FieldName="BatchNo" />
+            <DxGridDataColumn FieldName="StartDate">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ViewProductionEntry)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.StartDate.HasValue && item.StartDate != DateTime.MinValue)
+                        {
+                            startDate = item.StartDate?.ToString("dd-MMM-yyyy hh.mm tt");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ActualStartDate" Caption="Actual Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ViewProductionEntry)context.DataItem;
+                        var actualStartDate = string.Empty;
+                        if (item.ActualStartDate.HasValue && item.ActualStartDate != DateTime.MinValue)
+                        {
+                            actualStartDate = item.ActualStartDate?.ToString("dd-MMM-yyyy hh.mm tt");
+                        }
+                    }
+                    @actualStartDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="LocationName" />
+        </TotalSummary>
+    </DxGrid>
 </DxLoadingPanel>
 
 
@@ -71,43 +97,43 @@
          HeaderText="CRT"
          Width="900px">
     <BodyContentTemplate>
-       <img src="@image1" width="460" height="345">
+        <img src="@image1" width="460" height="345">
         <img src="@image2" width="460" height="345">
-      @*  <div class="slideshow-container">
+        @*  <div class="slideshow-container">
 
-            <div class="mySlides fade ">
-                <div class="numbertext">1 / 3</div>
-                <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
-                <div class="text">Caption Text</div>
-            </div>
+        <div class="mySlides fade ">
+        <div class="numbertext">1 / 3</div>
+        <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
+        <div class="text">Caption Text</div>
+        </div>
 
-            <div class="mySlides fade">
-                <div class="numbertext">2 / 3</div>
-                <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
-                <div class="text">Caption Two</div>
-            </div>
+        <div class="mySlides fade">
+        <div class="numbertext">2 / 3</div>
+        <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
+        <div class="text">Caption Two</div>
+        </div>
 
-            <div class="mySlides fade">
-                <div class="numbertext">3 / 3</div>
-                <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
-                <div class="text">Caption Three</div>
-            </div>
+        <div class="mySlides fade">
+        <div class="numbertext">3 / 3</div>
+        <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
+        <div class="text">Caption Three</div>
+        </div>
 
-            <a class="prev" onclick="plusSlides(-1)">❮</a>
-            <a class="next" onclick="plusSlides(1)">❯</a>
+        <a class="prev" onclick="plusSlides(-1)">❮</a>
+        <a class="next" onclick="plusSlides(1)">❯</a>
 
         </div>
         <br>
 
         <div style="text-align:center">
-            <span class="dot" onclick="currentSlide(1)"></span>
-            <span class="dot" onclick="currentSlide(2)"></span>
-            <span class="dot" onclick="currentSlide(3)"></span>
+        <span class="dot" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        <span class="dot" onclick="currentSlide(3)"></span>
         </div>*@
 
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-      
+
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
     </FooterContentTemplate>
 </DxPopup>
@@ -138,7 +164,7 @@
 
             ViewEnabled = true;
 
-        } 
+        }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
@@ -156,7 +182,7 @@
     void onPreview()
     {
 
-        image1 = LiveUrl + _selectedItems.RoomStatus ;
+        image1 = LiveUrl + _selectedItems.RoomStatus;
         image2 = LiveUrl + _selectedItems.RoomStatus1;
         PopupVisible = true;
     }

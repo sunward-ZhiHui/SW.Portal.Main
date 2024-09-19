@@ -319,7 +319,7 @@
         {
             isTagLock = _isTagLock;
         }
-       
+
 
 
 
@@ -606,10 +606,10 @@
             }
 
             EditEnabled = true;
-            
+
         }
 
-       
+
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -725,7 +725,7 @@
             EditEnabled = false;
             AddEnabled = false;
             DeleteEnabled = false;
-            
+
         }
         else
         {
@@ -740,9 +740,9 @@
 
             }
         }
-       
 
-      
+
+
     }
     public void Dispose()
     {
@@ -760,9 +760,9 @@
             {
                 if(_selectedItems.CategoryTag != null)
                 {
-                    selectcategory = _categoryTagItems[0];                    
+                    selectcategory = _categoryTagItems.Where(x => x.ApplicationMasterChildId == _selectedItems.CategoryTag).SingleOrDefault();
                 }
-                
+
             }
         }
 
@@ -777,7 +777,9 @@
             {
                 if(_selectedItems.ActionTag != null)
                 {
-                    _selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
+                    //_selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
+                   
+                    _selectedItems.ActionTag = _actionTagItems.Where(x => x.ApplicationMasterChildId == _selectedItems.ActionTag.Value).Select(x => x.ApplicationMasterChildId).SingleOrDefault();
                 }
                            
             }

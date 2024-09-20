@@ -1145,12 +1145,13 @@
         if (fileTypeData != null)
         {
             moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false;
-            //isCreateSubFolder = false;
+            IsGrantAdminPermission = false;
             isCreateDynamicDocumentEnabled = false;
-            //isCreateSubFolder = false;
-            isProfileInfoEnabled = false; isMoveEnabled = "display:none;";
+            isCreateSubFolder = false;isEdit = false; isDelete = false; 
+            isProfileInfoEnabled = false; isMoveEnabled = "display:none;";isFilterMore = "display:none";
             if (fileTypeData != null)
             {
+                isFilterMore = "";
                 var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID, null));
                 if (documentPermissionModels != null)
                 {
@@ -1167,8 +1168,9 @@
                                 isVisibleParentMore = "";
                             }
                             moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; isProfileInfoEnabled = true;
-                            //isEdit = true; isDelete = true; isCreateSubFolder = true;
-                            //  IsGrantAdminPermission = true;
+                            isEdit = true; isDelete = true; 
+                            isCreateSubFolder = true;
+                              IsGrantAdminPermission = true;
                             if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                             {
                                 isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
@@ -1244,7 +1246,7 @@
                         {
                             if (documentSearchModel.Type != "Search")
                             {
-                                //  isCreateSubFolder = true;
+                                 isCreateSubFolder = true;
                             }
                         }
                     }
@@ -1332,7 +1334,7 @@
                         {
                             uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                             checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
-                            renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true; IsGrantAdminPermission = true;
+                            renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true; //IsGrantAdminPermission = true;
                             if (_ParentselectedItems != null && _selectedItems.IsDynamicFromData == true)
                             {
                                 formdetailsEnabled = true;
@@ -1382,10 +1384,10 @@
                             {
                                 shareEnabled = true;
                             }
-                            if (permissionData.IsGrantAdminPermission == true)
-                            {
-                                IsGrantAdminPermission = true;
-                            }
+                            // if (permissionData.IsGrantAdminPermission == true)
+                            // {
+                            //     IsGrantAdminPermission = true;
+                            // }
 
                             if (_selectedItems.IsLocked == true)
                             {

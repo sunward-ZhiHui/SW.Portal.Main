@@ -129,9 +129,8 @@
                               SearchMode="ListSearchMode.AutoSearch"
                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                               CssClass="cw-480">
-                        <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
-                      
-                    </DxTagBox> *@
+                        <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />                      
+                    </DxTagBox>     *@                
                    
                      <DxComboBox Data="@_actionTagItems"
                                 NullText="Select Action..."                                
@@ -298,8 +297,7 @@
         PanelVisible = true;       
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
-
+        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));       
 
         var _isTagLock = await Mediator.Send(new GetTagLockInfo(TopicId));
 
@@ -505,6 +503,7 @@
                         ModifiedByUserID = applicationUser.UserID,
                         ModifiedDate = DateTime.Now,
                         AddedDate = editModel.AddedDate,
+                        ActionTagIds = editModel.ActionTagIds,
                         SessionId = editModel.SessionId,
 
                     };
@@ -667,6 +666,17 @@
                 }
 
             }
+
+            // var actionTagMultiple = await Mediator.Send(new GetActionTagMultiple(TopicId));
+            // if (actionTagMultiple.Count > 0)
+            // {
+            //     _selectedItems.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
+            // }
+            // else
+            // {
+            //     _selectedItems.ActionTagIds = new List<long?>();
+            // }
+
 
             Grid.StartEditDataItemAsync(_selectedItems);
 

@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using Dapper;
@@ -18,6 +19,35 @@ namespace Infrastructure.Repository.Query
             : base(configuration)
         {
 
+        }
+
+        public async Task<IReadOnlyList<TimeSheetForQC>> GetAllAsync()
+        {
+            try
+            {
+              
+                var query = @"select AU.UserName as AddedBy,DC.DocumentID,DC.FilePath,DC.IsNewPath,DC.SessionID as DocumentSessionId,DC.IsLocked,DC.LockedByUserId,
+                            DC.UniqueSessionID,DC.ContentType,DC.FileName,QC.ItemName,QC.RefNo,QC.Stage,QC.AddedDate,
+                            QC.QRcode,QC.TestName,QC.SessionID,QC.QCTimesheetID,QC.Comment,AE.EmailTopicSessionId,AE.SessionId as ActivitySessionID
+                            From TimeSheetForQC QC
+                            Left Join Documents DC on DC.SessionID = QC.SessionID
+                            Left Join ApplicationUser AU on AU.UserID = QC.AddedByUserID 
+                            Left Join ActivityEmailTopics AE On AE.ActivityMasterId = QC.QCTimesheetID And AE.ActivityType ='TimeSheetForQC'
+                            and AE.DocumentSessionId IS Not Null
+
+                            ";
+
+                using (var connection = CreateConnection())
+                {
+                   return(await connection.QueryAsync<TimeSheetForQC>(query)).ToList();
+
+              
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
 
         public async  Task<IReadOnlyList<TimeSheetForQC>> GetAllQCTimeSheetAsync(long QCTimeSheetID)
@@ -132,6 +162,71 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+
+        public async Task<long> UpdateStatus(long ID, long StatusID,long ModifiedByUserID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+
+                    try
+                    {
+                        var Date = DateTime.Now;
+                        var parameters = new DynamicParameters();
+
+                        parameters.Add("ID", ID);
+                        parameters.Add("ModifiedByUserID", ModifiedByUserID);
+                        parameters.Add("ModifiedDate", Date);
+                        parameters.Add("StatusID", StatusID);
+                       
+
+                        var query = @"Update  TimeSheetForQC  Set ActivityStatusId = @StatusID, ModifiedByUserID = @ModifiedByUserID,ModifiedDate  = @ModifiedDate
+                                         where QCTimesheetID = @ID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<TimeSheetForQC>> GetMultipleQueryAsync(long? QCTimesheetID)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("QCTimeSheetID", QCTimesheetID);
+                var query = @"select ActivityEmailTopicID,ActivityType,EmailTopicSessionId,ActivityMasterId,SessionId from ActivityEmailTopics where documentsessionid is not null AND ActivityType='TimeSheetForQC' AND ActivityMasterId = @QCTimesheetID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<TimeSheetForQC>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+            
         }
     }
 }

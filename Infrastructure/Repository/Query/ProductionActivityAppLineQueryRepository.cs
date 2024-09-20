@@ -671,6 +671,10 @@ namespace Infrastructure.Repository.Query
                         {
                             query += "Delete from  IpirAppSupportDoc WHERE SessionId=@SessionId;";
                         }
+                        if (value.Type == "TimeSheet For QC")
+                        {
+                            query += "Delete from  TimeSheetQCAppSupportDoc WHERE SessionId=@SessionId;";
+                        }
                         query += "Update Documents Set Islatest=0  Where SessionId=@SessionId;";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         return value;

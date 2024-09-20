@@ -573,6 +573,10 @@ namespace Infrastructure.Repository.Query
                         {
                             await InsertIpirAppSupportDocLink(value);
                         }
+                        if (value.Type == "TimeSheet For QC")
+                        {
+                            await InsertQCTimeAppSupportDocLink(value);
+                        }
                         if (docId > 0)
                         {
                             if (value.FileProfileTypeId > 0 && userRole != null && userRole.Count > 0)
@@ -777,6 +781,43 @@ namespace Infrastructure.Repository.Query
                             var linkquery = "INSERT INTO [IpirAppSupportDoc](IpirAppID,Type,DocumentId,SessionId) " +
                            "OUTPUT INSERTED.IpirAppSupportDocId VALUES " +
                           "(@IpirAppID,@Type,@DocumentId,@SessionId)";
+                            await connection.ExecuteAsync(linkquery, LinkDocparameters);
+                        }
+                        connection.Close();
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsUploadModel> InsertQCTimeAppSupportDocLink(DocumentsUploadModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var DocuId = await GetDocumentIdByPathName(value);
+                        if (DocuId != null)
+                        {
+                            var LinkDocparameters = new DynamicParameters();
+                            LinkDocparameters.Add("QCTimesheetID", value.QCTimesheetID);
+                            LinkDocparameters.Add("SessionId", DocuId.SessionId, DbType.Guid);
+                            LinkDocparameters.Add("Type", value.Type, DbType.String);
+                            LinkDocparameters.Add("DocumentId", DocuId.DocumentId);
+                            var linkquery = "INSERT INTO [TimeSheetQCAppSupportDoc](QCTimesheetID,Type,DocumentId,SessionId) " +
+                           "OUTPUT INSERTED.QCTimeSheetSupportDocID VALUES " +
+                          "(@QCTimesheetID,@Type,@DocumentId,@SessionId)";
                             await connection.ExecuteAsync(linkquery, LinkDocparameters);
                         }
                         connection.Close();
@@ -1135,6 +1176,13 @@ namespace Infrastructure.Repository.Query
                         values.FileSessionId = value.FileSessionId;
                         values.FilePath = value.FilePath;
                         await InsertIpirAppSupportDocLink(values);
+                    }
+                    if (values.Type == "TimeSheet For QC")
+                    {
+                        values.SessionId = value.FileSessionId;
+                        values.FileSessionId = value.FileSessionId;
+                        values.FilePath = value.FilePath;
+                        await InsertQCTimeAppSupportDocLink(values);
                     }
                     if (docId > 0)
                     {

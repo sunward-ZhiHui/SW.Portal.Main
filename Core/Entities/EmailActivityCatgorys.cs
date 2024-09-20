@@ -19,6 +19,7 @@ namespace Core.Entities
         public long? GroupTag { get; set; }
         public long? CategoryTag { get; set; }
         public long? ActionTag { get; set; }
+        public IEnumerable<long?> ActionTagIds { get; set; } = new List<long?>();
         public string? GroupName { get; set; }
         public string? CategoryName { get; set; }
         public string? ActionName { get; set; }
@@ -40,10 +41,8 @@ namespace Core.Entities
         [NotMapped]
         public long? UserTagTopicId { get; set; }
         [NotMapped]
-        public long? UserTagAddedByUserID { get; set; }
-        [NotMapped]
-       // [Required]
-        public IEnumerable<long> ActionTagIds { get; set; }
+        public long? UserTagAddedByUserID { get; set; }    
+        
     }
 
 

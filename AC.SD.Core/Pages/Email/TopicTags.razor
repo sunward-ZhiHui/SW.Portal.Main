@@ -129,9 +129,8 @@
                               SearchMode="ListSearchMode.AutoSearch"
                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                               CssClass="cw-480">
-                        <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
-                      
-                    </DxTagBox> *@
+                        <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />                      
+                    </DxTagBox>     *@                
                    
                      <DxComboBox Data="@_actionTagItems"
                                 NullText="Select Action..."                                
@@ -298,8 +297,7 @@
         PanelVisible = true;       
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
-
+        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));       
 
         var _isTagLock = await Mediator.Send(new GetTagLockInfo(TopicId));
 
@@ -319,7 +317,7 @@
         {
             isTagLock = _isTagLock;
         }
-       
+
 
 
 
@@ -505,6 +503,7 @@
                         ModifiedByUserID = applicationUser.UserID,
                         ModifiedDate = DateTime.Now,
                         AddedDate = editModel.AddedDate,
+                        ActionTagIds = editModel.ActionTagIds,
                         SessionId = editModel.SessionId,
 
                     };
@@ -606,10 +605,10 @@
             }
 
             EditEnabled = true;
-            
+
         }
 
-       
+
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -668,6 +667,17 @@
 
             }
 
+            // var actionTagMultiple = await Mediator.Send(new GetActionTagMultiple(TopicId));
+            // if (actionTagMultiple.Count > 0)
+            // {
+            //     _selectedItems.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
+            // }
+            // else
+            // {
+            //     _selectedItems.ActionTagIds = new List<long?>();
+            // }
+
+
             Grid.StartEditDataItemAsync(_selectedItems);
 
 
@@ -725,7 +735,7 @@
             EditEnabled = false;
             AddEnabled = false;
             DeleteEnabled = false;
-            
+
         }
         else
         {
@@ -740,9 +750,9 @@
 
             }
         }
-       
 
-      
+
+
     }
     public void Dispose()
     {
@@ -760,9 +770,9 @@
             {
                 if(_selectedItems.CategoryTag != null)
                 {
-                    selectcategory = _categoryTagItems[0];                    
+                    selectcategory = _categoryTagItems.Where(x => x.ApplicationMasterChildId == _selectedItems.CategoryTag).SingleOrDefault();
                 }
-                
+
             }
         }
 
@@ -777,7 +787,9 @@
             {
                 if(_selectedItems.ActionTag != null)
                 {
-                    _selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
+                    //_selectedItems.ActionTag = _actionTagItems[0].ApplicationMasterChildId;
+                   
+                    _selectedItems.ActionTag = _actionTagItems.Where(x => x.ApplicationMasterChildId == _selectedItems.ActionTag.Value).Select(x => x.ApplicationMasterChildId).SingleOrDefault();
                 }
                            
             }

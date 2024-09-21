@@ -171,6 +171,12 @@ namespace Infrastructure.Repository.Query
                     query = "select t1.SessionID,t1.DocumentID from documents t1 JOIN IpirAppSupportDoc t2 ON t1.DocumentID=t2.DocumentID where t2.IpirAppID=@IpirAppID";
 
                 }
+                if (Type == "TimeSheet For QC")
+                {
+                    parameters.Add("QCTimesheetID", ProductionActivityAppLineId);
+                    query = "select t1.SessionID,t1.DocumentID from documents t1 JOIN TimeSheetQCAppSupportDoc t2 ON t1.DocumentID=t2.DocumentID where t2.QCTimesheetID=@QCTimesheetID";
+
+                }
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<Documents>(query, parameters)).ToList();

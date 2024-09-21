@@ -1,0 +1,268 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@using global::Core.Entities.Views;
+@inject IJSRuntime jsRuntime
+@implements IAsyncDisposable
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitProductionFormExternally" Enabled="SaveEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
+
+    <DataAnnotationsValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Start Date:" ColSpanMd="6">
+            <DxDateEdit NullText="Select a Start Date..." @bind-Date="@Data.AddedDate" CssClass="cw-320" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Subject" ColSpanMd="6">
+            <DxTextBox @bind-Text="@Data.SubjectName" CssClass="cw-480" />
+            <ValidationMessage For="@(() => Data.SubjectName)" />
+        </DxFormLayoutItem>
+      
+            <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
+            <DxComboBox Data="@_ManuFactureProcessLines"
+                        NullText="Select Manufacturing Process..."
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterChildId"
+                        Value="Data.ManufacturingProcessId"
+                        ValueExpression="@(() => Data.ManufacturingProcessId )"
+                        ValueChanged="@((long? plant) => SelectedItemManuFactureChanged(plant))"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.ManufacturingProcessId)" />
+        </DxFormLayoutItem>
+        
+        <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
+            <DxComboBox Data="@_categoryItems"
+                        NullText="Select Category ..."
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterChildId"
+                        ValueChanged="@((long? plant) => SelectedItemCategoryChanged(plant))"
+                        Value="Data.CategoryActionId"
+                        ValueExpression="@(() => Data.CategoryActionId )"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.CategoryActionId)" />
+        </DxFormLayoutItem>
+
+        <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
+            <DxComboBox Data="@_actionItems"
+                        NullText="Select ActionDropdown..."
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterChildId"
+                        @bind-Value="Data.ActionId"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="To" ColSpanMd="6">
+            <DxTagBox Data="_TousersList"
+                      NullText="Select To Users..."
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      ValueFieldName="UserID"
+                      TextFieldName="FirstName"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      EditFormat="{0}-{1}"
+                      ShowValidationIcon="true"
+                      Values="Data.ToId"
+                      ValuesExpression="@(() => Data.ToId )"
+                      ValuesChanged="@((IEnumerable<long?> values) => onSelectedToItemsChanged(values))"
+                      ListRenderMode="ListRenderMode.Virtual">
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+            </DxTagBox>
+            <ValidationMessage For="@(() => Data.ToId)" />
+        </DxFormLayoutItem>
+
+        <DxFormLayoutItem Caption="CC" ColSpanMd="6">
+            <DxTagBox Data="_CcusersList"
+                      NullText="Select CC Users..."
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      ValueFieldName="UserID"
+                      TextFieldName="FirstName"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      EditFormat="{0}-{1}"
+                      ShowValidationIcon="true"
+                      Values="Data.CcId"
+                      ValuesExpression="@(() => Data.CcId )"
+                      ValuesChanged="@((IEnumerable<long?> values) => onSelectedCCItemsChanged(values))"
+                      ListRenderMode="ListRenderMode.Virtual">
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+            </DxTagBox>
+            <ValidationMessage For="@(() => Data.CcId)" />
+        </DxFormLayoutItem>
+    </DxFormLayout>
+</EditForm>
+@code {
+    EditContext _editContext;
+    [Parameter]
+    public TimeSheetForQC selectedFiles { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    bool SaveEnabled { get; set; } = true;
+    private List<ApplicationMasterChildModel> _ManuFactureProcessLines;
+    private List<ApplicationMasterChildModel> _categoryItems;
+    private List<ApplicationMasterChildModel> _actionItems;
+    ActivityEmailTopicsModel Data = new ActivityEmailTopicsModel();
+    private List<ViewEmployee>? _TousersList;
+    private List<ViewEmployee>? _AllusersList;
+    private List<ViewEmployee>? _CcusersList;
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        Data.AddedDate = DateTime.Now;
+        Data.ManufacturingProcessId = selectedFiles.ManufacturingProcessChildId;
+        Data.CategoryActionId = selectedFiles.ProdActivityCategoryChildID;
+        Data.ActivityType = "TimeSheetForQC";
+        Data.ActionId = selectedFiles.ProdActivityActionChildD;
+        _ManuFactureProcessLines = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105"));
+        if (selectedFiles.ManufacturingProcessChildId > 0)
+        {
+            _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectedFiles.ManufacturingProcessChildId));
+            if (selectedFiles.ProdActivityCategoryChildID > 0)
+            {
+                _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectedFiles.ProdActivityCategoryChildID));
+
+            }
+        }
+        _TousersList = await Mediator.Send(new GetAllEmployeeQuery());
+        _AllusersList = await Mediator.Send(new GetAllEmployeeQuery());
+        _CcusersList = await Mediator.Send(new GetAllEmployeeQuery());
+        StateHasChanged();
+    }
+    async Task SelectedItemManuFactureChanged(long? selectItem)
+    {
+        Data.ManufacturingProcessId = selectItem;
+        _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
+        Data.CategoryActionId = null;  Data.ActionId = null;
+        if (selectItem > 0)
+        {
+            _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem));
+        }
+        StateHasChanged();
+    }
+    async Task SelectedItemCategoryChanged(long? selectItem)
+    {
+        Data.CategoryActionId = selectItem;
+        _actionItems = new List<ApplicationMasterChildModel>();
+        Data.ActionId = null;
+        if (selectItem > 0)
+        {
+            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem));
+        }
+    }
+    private async Task SubmitProductionFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleProductionFormValidSubmit();
+        }
+    }
+    async Task HandleProductionFormValidSubmit()
+    {
+        SaveEnabled = false;
+        Data.IsDraft = false;
+        Data.SessionId = Guid.NewGuid();
+        Data.StatusCodeId = 1;
+        Data.AddedByUserID = applicationUser.UserID;
+        Data.ModifiedByUserId = applicationUser.UserID;
+        Data.AddedDate = DateTime.Now;
+        Data.ModifiedDate = DateTime.Now;
+        Data.ActivityMasterId = selectedFiles.QCTimesheetID;
+        Data.DocumentSessionId = selectedFiles.SessionId;
+        Data.Comment = selectedFiles.Comment;
+        Data.BackURL = "/QCTimeSheetListPage/" + selectedFiles.SessionId;
+        var request = await Mediator.Send(new InserProductionActivityEmail(Data));
+        if (request.ActivityEmailTopicID > 0)
+        {
+            SaveEnabled = true;
+            toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            var url = NavigationManager.BaseUri + "CreateEmail/" + Data.SessionId;
+            await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            onBack();
+        }
+        StateHasChanged();
+    }
+    void onBack()
+    {
+        DisposeAsync();
+        RevokeBack?.Invoke();
+
+    }
+    void onSelectedToItemsChanged(IEnumerable<long?> values)
+    {
+        Data.ToId = values;
+        if (values != null && values.Count() > 0 && _AllusersList != null)
+        {
+            var ids = values;
+            _CcusersList = _AllusersList.Where(w => !ids.Contains(w.UserID)).ToList();
+        }
+        else
+        {
+            _CcusersList = _AllusersList;
+        }
+        StateHasChanged();
+    }
+    void onSelectedCCItemsChanged(IEnumerable<long?> values)
+    {
+        Data.CcId = values;
+        if (values != null && values.Count() > 0 && _AllusersList != null)
+        {
+            var ids = values.ToList();
+            _TousersList = _AllusersList.Where(w => !ids.Contains(w.UserID)).ToList();
+        }
+        else
+        {
+            _TousersList = _AllusersList;
+        }
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        //  System.GC.Collect();
+        _ManuFactureProcessLines?.Clear();
+        _categoryItems?.Clear();
+        _actionItems?.Clear();
+        Data = new ActivityEmailTopicsModel();
+        _TousersList?.Clear();
+        _AllusersList?.Clear();
+        _CcusersList?.Clear();
+        //GC.SuppressFinalize(this);
+    }
+}
+

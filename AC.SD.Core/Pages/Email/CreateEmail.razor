@@ -327,7 +327,19 @@ else
                                 <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Action" ColSpanMd="12">
-                                <DxComboBox Data="@_actionTagItems"
+                                <DxTagBox Data="_actionTagItems"
+                                          @bind-Values="CategoryData.ActionTagIds"
+                                          NullText="Select Action"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="ApplicationMasterChildId"
+                                          TextFieldName="Value"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          CssClass="cw-480">
+                                    <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
+                                </DxTagBox>
+                                @*  <DxComboBox Data="@_actionTagItems"
                                             NullText="Select Action..."
                                             Enabled="@isEnabled"
                                             ListRenderMode="ListRenderMode.Virtual"
@@ -339,7 +351,7 @@ else
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                             @bind-Value="@CategoryData.ActionTag">
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => CategoryData.ActionTag)" />
+                                <ValidationMessage For="@(() => CategoryData.ActionTag)" /> *@
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="12">
                                 <DxComboBox Data="@_AllCategory"
@@ -2272,6 +2284,7 @@ else
                     //UserTag = CategoryData.UserTag,
                     CategoryTag = CategoryData.CategoryTag,
                     ActionTag = CategoryData.ActionTag,
+                    ActionTagIds = CategoryData.ActionTagIds,
                     //actName = CategoryData.Name,
                     actName = OthersTagName,
                     UserTag = UserTagName,
@@ -2448,7 +2461,7 @@ else
             await CategoryTagChange(-1);
         }
     }
-    async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    async Task selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
 
         if (applicationMasterChildModel != null)
@@ -2466,11 +2479,16 @@ else
     {
         if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1)
         {
+            CategoryData.ActionTagIds = new List<long?>();
+             _categoryTagItems = null;
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
         }
         else
-        {
+        {             
             CategoryData.GroupTag = 0;
+            _actionTagItems = null;
+            _categoryTagItems = null;
+            CategoryData.ActionTagIds = new List<long?>();
         }
         StateHasChanged();
     }
@@ -2478,11 +2496,14 @@ else
     {
         if (ApplicationMasterChildID != null && ApplicationMasterChildID != -1)
         {
+            CategoryData.ActionTagIds = new List<long?>();            
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
         }
         else
         {
             CategoryData.CategoryTag = 0;
+            _actionTagItems = null;
+            CategoryData.ActionTagIds = new List<long?>();
         }
         StateHasChanged();
     }

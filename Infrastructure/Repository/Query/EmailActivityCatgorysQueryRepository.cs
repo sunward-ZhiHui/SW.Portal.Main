@@ -50,10 +50,30 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId);
 
+                List<EmailActivityCatgorys> res = new List<EmailActivityCatgorys>();
+
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();                    
+                    res = (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();
                 }
+
+
+                foreach (var items in res)
+                {
+                    var query1 = @"select AMC.Value from EmailActionTagMultiple ETM
+                                    LEFT JOIN ApplicationMasterChild AMC on AMC.ApplicationMasterChildID = ETM.ActionID
+                                    WHERE ETM.TopicID  = @TopicId";
+                    var parameters1 = new DynamicParameters();
+                    parameters1.Add("TopicId", TopicId);
+
+                    using (var connection = CreateConnection())
+                    {                        
+                        var subQueryResults  = (await connection.QueryAsync<string>(query1, parameters1)).ToList();
+                        items.ActionNames = subQueryResults;
+                    }
+                }
+
+                return res;
             }
             catch (Exception exp)
             {

@@ -110,6 +110,8 @@ namespace Core.Entities
         [NotMapped]
         public long ActionTag { get; set; }
         [NotMapped]
+        public IEnumerable<long?> ActionTagIds { get; set; } = new List<long?>();
+        [NotMapped]
         public string? actName { get; set; }
         [NotMapped]
         public string? ActivityType { get; set;}

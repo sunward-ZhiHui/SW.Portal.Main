@@ -1895,6 +1895,8 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("GroupTag", EmailTopics.GroupTag);
                         parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
                         parameterss.Add("ActionTag", EmailTopics.ActionTag);
+                        parameterss.Add("ActionTagIds", string.Join(",", EmailTopics.ActionTagIds));
+
                         parameterss.Add("ActName", EmailTopics.actName);
                         parameterss.Add("ActivityType", EmailTopics.ActivityType);
                         parameterss.Add("UserTag", EmailTopics.UserTag);

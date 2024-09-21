@@ -146,8 +146,8 @@
                                                 
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />                                                    
                                                    
-                                                <DxMenuItem Text="Tags" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
-                                                    <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
+                                                    <DxMenuItem Text="Tags" Enabled="isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                             </Items>
                                         </DxMenu>
@@ -168,7 +168,7 @@
                                                 <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
 
                                                 <DxMenuItem Text="Group List" Enabled="@isEnabled" class="@((isMenuvisible == "AddGroupParticipants" ? "tActive": "taddgroupparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddGroupParticipants"))" />
-                                                <DxMenuItem Text="Tags" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                <DxMenuItem Text="Tags" Enabled="isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
                                                 @*  <DxMenuItem>
@@ -217,6 +217,33 @@
                                                                     {
                                                                         <span class=" handline tagbg">@Tagitem.ActionName</span>
                                                                     }
+
+                                                                     @* @if (Tagitem.ActionNames != null && Tagitem.ActionNames.Any())
+                                                                     {
+                                                                        @foreach (var items in Tagitem.ActionNames)
+                                                                        {
+                                                                            <span class="handline tagbg">
+                                                                                @items
+                                                                            </span>
+                                                                        }
+                                                                     } *@
+
+                                                                  @*    
+                                                                    @if (Tagitem.ActionNames != null && Tagitem.ActionNames.Any())
+                                                                    {
+                                                                            @foreach (var (itemss, index) in Tagitem.ActionNames.Select((value, i) => (value, i)))
+                                                                            {
+                                                                                @if (index < 3)
+                                                                                {
+                                                                                    <span class="handline tagbg">@itemss</span>
+                                                                                }
+                                                                            }
+                                                                            @if (Tagitem.ActionNames.Count > 3)
+                                                                            {
+                                                                            <span id="showActionTagMultiple" class="handline tagbg more-dots" @onclick="() => ShowActionMultipleFlyout()">...</span>
+                                                                            }
+                                                                           
+                                                                    } *@
 
                                                                     @if (!string.IsNullOrWhiteSpace(Tagitem.Name))
                                                                     {
@@ -915,6 +942,37 @@
         </div>
     </div>
 </div>
+
+<DxFlyout @bind-IsOpen="@isOpenActionTagMultiplePop"                    
+          PositionTarget=@($"#showActionTagMultiple")
+          Position="FlyoutPosition.Left"
+          CloseOnOutsideClick="true"
+          FooterVisible="false">
+    <BodyTextTemplate>
+       <div>
+            @if (_headTopic_Tag != null && _headTopic_Tag.Any())
+            {
+                @foreach (var Tagitem in _headTopic_Tag)
+                {
+
+                    @if (Tagitem.ActionNames != null && Tagitem.ActionNames.Any())
+                    {                   
+                        <div class="list-container">
+                            @foreach (var items in Tagitem.ActionNames)
+                            {
+                                <div class="list-item"> @items</div>
+                            }
+                        
+                        </div>
+                    }
+                }
+            }
+       </div>
+    </BodyTextTemplate>
+    <FooterTextTemplate>
+        <DxButton Text="close" Click="@context.CloseCallback" />
+    </FooterTextTemplate>
+</DxFlyout>
 
 <DxFlyout @bind-IsOpen="@isOpenSubjectPop"                    
           PositionTarget=@($"#showOpenSubject_{CurrentEmailConversations?.ID}")
@@ -2709,6 +2767,7 @@
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
     bool isOpenSubjectPop { get; set; } = false;
+    bool isOpenActionTagMultiplePop { get; set; } = false;   
     bool isOpenSubjectNamePop { get; set; } = false;
     string dynamicShowSubject = "showOpenSubject_";    
     Selection? selection; 
@@ -2770,6 +2829,15 @@
         //await JSRuntime.InvokeVoidAsync("adjustHeight", setHeight);
         await JSRuntime.InvokeVoidAsync("setHeight", selector, setHeight);
     }
+    private List<string>? _actionTagMultiple;
+    private async Task ShowActionMultipleFlyout()
+    {
+        // _actionTagMultiple = null;
+        // var itemslist = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
+        // _actionTagMultiple = itemslist[0].ActionNames;
+        
+        isOpenActionTagMultiplePop = true;
+    }   
     private void ShowSubjectFlyout(EmailConversations emailConversations) {
         CurrentEmailConversations = emailConversations;
         isOpenSubjectPop = true;
@@ -4907,7 +4975,7 @@
 
         isEnabled = true;
         isTodoEnabled = true;
-        isTagEnabled = false;
+        isTagEnabled = true;
         isEllipsis = true;
         isCommand = true;
         // _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
@@ -5014,7 +5082,7 @@
 
         isEnabled = true;
         isTodoEnabled = true;
-        isTagEnabled = false;
+        isTagEnabled = true;
         isEllipsis = true;
         isCommand = true;
         //_participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));

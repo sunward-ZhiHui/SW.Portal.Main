@@ -213,10 +213,10 @@
                                                                         <span class=" handline tagbg">@Tagitem.CategoryName</span>
                                                                     }
                                                                     
-                                                                    @if(Tagitem.ActionName != null)
+                                                                   @*  @if(Tagitem.ActionName != null)
                                                                     {
                                                                         <span class=" handline tagbg">@Tagitem.ActionName</span>
-                                                                    }
+                                                                    } *@
 
                                                                      @* @if (Tagitem.ActionNames != null && Tagitem.ActionNames.Any())
                                                                      {
@@ -228,7 +228,7 @@
                                                                         }
                                                                      } *@
 
-                                                                  @*    
+                                                                     
                                                                     @if (Tagitem.ActionNames != null && Tagitem.ActionNames.Any())
                                                                     {
                                                                             @foreach (var (itemss, index) in Tagitem.ActionNames.Select((value, i) => (value, i)))
@@ -243,7 +243,7 @@
                                                                             <span id="showActionTagMultiple" class="handline tagbg more-dots" @onclick="() => ShowActionMultipleFlyout()">...</span>
                                                                             }
                                                                            
-                                                                    } *@
+                                                                    }
 
                                                                     @if (!string.IsNullOrWhiteSpace(Tagitem.Name))
                                                                     {
@@ -960,7 +960,7 @@
                         <div class="list-container">
                             @foreach (var items in Tagitem.ActionNames)
                             {
-                                <div class="list-item"> @items</div>
+                                <div class="list-item ptagtodotag"> @items</div>
                             }
                         
                         </div>
@@ -2836,7 +2836,7 @@
         // var itemslist = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
         // _actionTagMultiple = itemslist[0].ActionNames;
         
-        isOpenActionTagMultiplePop = true;
+        //isOpenActionTagMultiplePop = true;
     }   
     private void ShowSubjectFlyout(EmailConversations emailConversations) {
         CurrentEmailConversations = emailConversations;
@@ -4802,13 +4802,15 @@
             }
         }
 
-    }
+    }  
     public async void onloadTagsList()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
+        _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
         _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
         _headTopic_UserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup),applicationUser.UserID));
         await JSRuntime.InvokeAsync<string>("hideLoading");
+        StateHasChanged();
     }
 
     private async Task LoadData()
@@ -5164,7 +5166,8 @@
 
     protected override async void OnInitialized()
     {
-        plist = await Mediator.Send(new GetAllEmployeeListQuery());
+        plist = await Mediator.Send(new GetAllEmployeeListQuery());        
+        await InvokeAsync(StateHasChanged);
         //NavigationManager.LocationChanged += OnLocationChanged;
 
     }    
@@ -5313,7 +5316,7 @@
     {
 
         cancellationTokenSource?.Cancel();
-        cancellationTokenSource?.Dispose();
+        cancellationTokenSource?.Dispose();        
 
         if (RefAssignAll is IAsyncDisposable asyncDisposableRefAssignAll)
         {

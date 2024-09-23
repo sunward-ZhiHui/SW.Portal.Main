@@ -12,6 +12,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
 @implements IDisposable;
+@inject DataRefreshService RefreshService
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -21,7 +22,7 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled/>
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
             </Items>
         </DxMenu>
@@ -76,7 +77,7 @@
                         {
                             @foreach (var items in item.ActionNames)
                             {
-                                <span class="ptagtodo">
+                                <span class="ptagtodotag">
                                     @items
                                 </span>
                             }
@@ -264,7 +265,11 @@
                 if (_currentEditModel != null)
                 {
                     _currentEditModel.ActionTagIds = new List<long?>();
-                    _selectedItems.ActionTagIds = new List<long?>();
+                    if (_selectedItems != null)
+                    {
+                        _selectedItems.ActionTagIds = new List<long?>();
+                    }
+
                     _actionTagItems = null;
                 }
             }
@@ -311,7 +316,11 @@
                 if (_currentEditModel != null)
                 {
                     _currentEditModel.ActionTagIds = new List<long?>();
-                    _selectedItems.ActionTagIds = new List<long?>();
+                    if(_selectedItems != null)
+                    {
+                        _selectedItems.ActionTagIds = new List<long?>();
+                    }
+                    
                 }
             }
 
@@ -350,13 +359,16 @@
 
         if (_isTagLock)
         {
-            if (_topicCategorys[0].AddedByUserID == applicationUser.UserID)
+            if (_topicCategorys.Count > 0)
             {
-                isTagLock = false;
-            }
-            else
-            {
-                isTagLock = _isTagLock;
+                if (_topicCategorys[0].AddedByUserID == applicationUser.UserID)
+                {
+                    isTagLock = false;
+                }
+                else
+                {
+                    isTagLock = _isTagLock;
+                }
             }
 
         }
@@ -422,6 +434,7 @@
             StateHasChanged();
         }
         loadTagsList?.Invoke();
+        
         StateHasChanged();
 
     }   
@@ -501,6 +514,7 @@
                         GroupTag = editModel.GroupTag,
                         CategoryTag = editModel.CategoryTag,
                         ActionTag = editModel.ActionTag,
+                        ActionTagIds = editModel.ActionTagIds,
                         //Name = editModel.Name,
                         Name = othersTagName,
                         TopicId = TopicId,
@@ -751,7 +765,7 @@
 
                     if (item is EmailActivityCatgorys emailActivityCatgorys)
                     {
-                        var request = new DeleteTopicCategoryQery(emailActivityCatgorys.ID);
+                        var request = new DeleteTopicCategoryQery(emailActivityCatgorys.ID,emailActivityCatgorys.TopicId);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         AddEnabled=true;

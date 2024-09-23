@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 public class DataRefreshService
 {
-    public event Func<Task> OnRefreshRequested;
+    public event Func<Task> OnRefreshRequested;    
 
     public async Task RequestRefreshAsync()
     {
@@ -12,4 +12,5 @@ public class DataRefreshService
             await OnRefreshRequested.Invoke();
         }
     }
+   
 }

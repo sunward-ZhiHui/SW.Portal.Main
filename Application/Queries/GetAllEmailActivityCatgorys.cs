@@ -69,9 +69,11 @@ namespace Application.Queries
     public class DeleteTopicCategoryQery : PagedRequest, IRequest<long>
     {
         public long ID { get; set; }
-        public DeleteTopicCategoryQery(long ID)
+        public long TopicID { get; set; }
+        public DeleteTopicCategoryQery(long ID,long TopicId)
         {
             this.ID = ID;
+            this.TopicID = TopicId;
         }
     }
     public class GetAllemailCategory : PagedRequest, IRequest<List<EmailActivityCatgorys>>

@@ -127,7 +127,28 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                         {
-                            var parameters = new DynamicParameters();
+
+                        var deleteQuery = "DELETE FROM EmailActionTagMultiple WHERE TopicID = @TopicID";
+                        await connection.ExecuteAsync(deleteQuery, new { TopicID = emailActivityCatgorys.TopicId });
+
+                        if (emailActivityCatgorys.ActionTagIds != null && emailActivityCatgorys.ActionTagIds.Any())
+                        {
+                            var insertActionTagQuery = @"
+                            INSERT INTO EmailActionTagMultiple (TopicID, ActionID)
+                            VALUES (@TopicID, @ActionID)";
+
+                            foreach (var actionId in emailActivityCatgorys.ActionTagIds)
+                            {
+                                if (actionId.HasValue) // Check if the ActionID is not null
+                                {
+                                    await connection.ExecuteAsync(insertActionTagQuery,
+                                        new { TopicID = emailActivityCatgorys.TopicId, ActionID = actionId });
+                                }
+                            }
+                        }
+
+
+                        var parameters = new DynamicParameters();
                             parameters.Add("TopicId", emailActivityCatgorys.TopicId);
                             parameters.Add("GroupTag", emailActivityCatgorys.GroupTag);
                             parameters.Add("CategoryTag", emailActivityCatgorys.CategoryTag);
@@ -172,8 +193,8 @@ namespace Infrastructure.Repository.Query
                     try
                         {
 
-                        var deleteQuery = "DELETE FROM EmailActionTagMultiple WHERE TopicID = @TopicId";
-                        await connection.ExecuteAsync(deleteQuery, new { TopicId = emailActivityCatgorys.TopicId });
+                        var deleteQuery = "DELETE FROM EmailActionTagMultiple WHERE TopicID = @TopicID";
+                        await connection.ExecuteAsync(deleteQuery, new { TopicID = emailActivityCatgorys.TopicId });
 
                         if (emailActivityCatgorys.ActionTagIds != null && emailActivityCatgorys.ActionTagIds.Any())
                         {
@@ -226,7 +247,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
-        public async Task<long> DeleteAsync(long id)
+        public async Task<long> DeleteAsync(long id, long TopicId)
         {
             try
             {
@@ -234,7 +255,12 @@ namespace Infrastructure.Repository.Query
                 {  
                     try
                         {
-                            var parameters = new DynamicParameters();
+
+                        var deleteQuery = "DELETE FROM EmailActionTagMultiple WHERE TopicID = @TopicID";
+                        await connection.ExecuteAsync(deleteQuery, new { TopicID = TopicId });
+
+
+                        var parameters = new DynamicParameters();
                             parameters.Add("id", id);
 
                             var query = "DELETE  FROM EmailActivityCatgorys WHERE ID = @id";

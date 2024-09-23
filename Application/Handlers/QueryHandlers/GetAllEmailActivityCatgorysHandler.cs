@@ -108,7 +108,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteTopicCategoryQery request, CancellationToken cancellationToken)
         {
-            var newlist = await _emailactyqueryRepository.DeleteAsync(request.ID);
+            var newlist = await _emailactyqueryRepository.DeleteAsync(request.ID,request.TopicID);
             return newlist;
         }
     }

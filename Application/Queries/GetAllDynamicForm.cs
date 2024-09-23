@@ -694,7 +694,19 @@ namespace Application.Queries
         }
 
     }
-    
+    public class InsertCloneDynamicForm : PagedRequest, IRequest<DynamicForm>
+    {
+        public DynamicForm DynamicForm { get; set; }
+        public bool? IsWithoutForm { get; set; }
+        public long? UserId { get; set; }
+        public InsertCloneDynamicForm(DynamicForm dynamicForm, bool? isWithoutForm, long? userId)
+        {
+            this.DynamicForm = dynamicForm;
+            this.IsWithoutForm= isWithoutForm;
+            this.UserId = userId;
+        }
+
+    }
 
 }
 

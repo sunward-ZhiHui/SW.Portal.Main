@@ -1,0 +1,355 @@
+﻿@using Application.Queries;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@implements IAsyncDisposable
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject NavigationManager NavigationManager
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Close" IconCssClass="fa fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+        <div class="cw-480" style="margin-top:10px;margin-bottom:10px;">
+            <EditForm EditContext="this._editContext" Context="EditFormContext">
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="Current Form Name" ColSpanMd="10">
+                        <DxTextBox @bind-Text="@FormName" Enabled=false ShowValidationIcon="true"></DxTextBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="User Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.AddedBy" ShowValidationIcon="true" Enabled=false />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Date" ColSpanMd="6">
+                        <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" Enabled=false />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6" >
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="NavCompany"
+                                    ValueFieldName="PlantID"
+                                    @bind-Value="@Data.CompanyId"
+                                    Enabled=false
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Company Code"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.CompanyId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Profile" ColSpanMd="6">
+                        <DxComboBox Data="@_documentProfileNoList"
+                                    NullText="Select Profile..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="ProfileID"
+                                    Enabled=false
+                                    @bind-Value="@Data.ProfileId"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Abbreviation)"
+                                                    Caption="Abbreviation" />
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.SampleDocumentNo)"
+                                                    Caption="Sample Document No" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.ProfileId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Screen Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.ScreenID" ShowValidationIcon="true"></DxTextBox>
+
+                        <ValidationMessage For="@(() => Data.ScreenID)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Form Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true"></DxTextBox>
+                        <ValidationMessage For="@(() => Data.Name)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Approval Level" ColSpanMd="6" >
+                        <DxCheckBox @bind-Checked="@Data.IsApproval" Enabled=false></DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Is Grid Form" ColSpanMd="6" >
+                        <DxCheckBox @bind-Checked="@Data.IsGridForm" Enabled=false></DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SW Library" ColSpanMd="10" Visible="@Data.IsUpload">
+                        <DxTextBox NullText="SW Library..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480" Enabled=false>
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpenss")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                        <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+
+
+        </div>
+    </div>
+
+
+</div>
+<DxFlyout @bind-IsOpen=IsFileProfileTypeFilterDocOpen
+          PositionTarget=@($"#flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpenss")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select SW Library"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeClick"
+                            SelectionMode="TreeListSelectionMode.Single"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@CloneFormpopup"
+         ShowFooter="true"
+         HeaderText="Clone Form"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="400px">
+    <BodyContentTemplate>
+        <p>
+            Are You Clone this Form?
+        </p>
+        <dl>
+            <dt>Instructions</dt>
+            <dd>- Its Long Processiong..It takes more time...</dd>
+            <dd>- If Checkbox is checked Clone from <span style="font-weight:bold;">Master Form and all Form Data</span>.If Checkbox is uncheck clone only <span style="font-weight:bold;">Master Form</span>.</dd>
+            <dd>- If Form Data Clone without Email and Documents data.</dd>
+        </dl>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxCheckBox @bind-Checked="@ClonecheckBox" Enabled="isEnabled" style="margin-right: 100px;">With Form Data</DxCheckBox>
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Enabled="isEnabled" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Enabled="isEnabled" Text="Yes" Click="HandleValidSubmit" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public DynamicForm? DynamicForm { get; set; }
+    [Parameter]
+    public ApplicationUser? applicationUser { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    DynamicForm Data = new DynamicForm();
+    EditContext _editContext;
+    private List<ViewPlants>? _plantItems;
+    public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public bool IsFileProfileTypeFilterDocOpen { get; set; }
+    string? LinkFilterFileprofiletypeName { get; set; } = null;
+    string? FormName { get; set; } = null;
+    public bool CloneFormpopup { get; set; } = false; public bool ClonecheckBox { get; set; } = false; public bool isEnabled { get; set; } = true;
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
+        if (DynamicForm != null)
+        {
+            Data.OldDynamicFormId = (long?)DynamicForm.ID;
+            FormName = DynamicForm.Name;
+            Data.AddedBy = applicationUser.UserName;
+            Data.ModifiedByUserID = applicationUser.UserID;
+            Data.AddedByUserID = applicationUser.UserID;
+            Data.AddedDate = DateTime.Now;
+            Data.ModifiedDate = DateTime.Now;
+            Data.ModifiedBy = applicationUser.UserName;
+            Data.ScreenID = DynamicForm.ScreenID;
+            //Data.Name = DynamicForm.Name;
+            Data.SessionId = Guid.NewGuid();
+            Data.StatusCodeID = 1;
+            Data.IsUpload = true;
+            Data.FileProfileTypeId = DynamicForm.FileProfileTypeId;
+            Data.CompanyId = DynamicForm.CompanyId;
+            Data.ProfileId = DynamicForm.ProfileId;
+            Data.IsGridForm = DynamicForm.IsGridForm;
+            if (Data.IsUpload == true && DynamicForm.FileProfileTypeId > 0)
+            {
+                var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, DynamicForm.FileProfileTypeId);
+                LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            }
+            Data.IsApproval = DynamicForm.IsApproval == true ? true : false;
+        }
+
+    }
+    private void SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            CloneFormpopup = true;
+            StateHasChanged();
+        }
+    }
+    async Task HandleValidSubmit()
+    {
+        await cloneWithOutData();
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    async Task cloneWithOutData()
+    {
+        try
+        {
+            if (Data != null)
+            {
+                isEnabled = false;
+                var result = await Mediator.Send(new InsertCloneDynamicForm(Data, ClonecheckBox, applicationUser.UserID));
+                if (result != null && result.CloneDynamicFormId > 0)
+                {
+                    CloneFormpopup = false;
+                    onBack();
+                    toastService.ShowToast("Form Cloned Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm/" + result.SessionId);
+                }
+                else
+                {
+                    CloneFormpopup = false;
+                    onBack();
+                    toastService.ShowToast("Form Cloned UnSuccess.", AC.SD.Core.Services.ToastLevel.Error);
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception exp)
+        {
+            CloneFormpopup = false;
+            onBack();
+            toastService.ShowToast("Form Cloned UnSuccess.Insert Error", AC.SD.Core.Services.ToastLevel.Error);
+            // throw new Exception(exp.Message, exp);
+
+        }
+    }
+    void OnButtonFileProfileTypeLinDocClick()
+    {
+        IsFileProfileTypeFilterDocOpen = true;
+    }
+    void OnRowTreeClick(TreeListRowClickEventArgs e)
+    {
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+        }
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
+    }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel>
+        foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }
+}

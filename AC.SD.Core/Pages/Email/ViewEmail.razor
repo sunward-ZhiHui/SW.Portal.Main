@@ -233,12 +233,12 @@
                                                                     {
                                                                             @foreach (var (itemss, index) in Tagitem.ActionNames.Select((value, i) => (value, i)))
                                                                             {
-                                                                                @if (index < 3)
+                                                                                @if (index < 2)
                                                                                 {
                                                                                     <span class="handline tagbg">@itemss</span>
                                                                                 }
                                                                             }
-                                                                            @if (Tagitem.ActionNames.Count > 3)
+                                                                            @if (Tagitem.ActionNames.Count > 2)
                                                                             {
                                                                             <span id="showActionTagMultiple" class="handline tagbg more-dots" @onclick="() => ShowActionMultipleFlyout()">...</span>
                                                                             }
@@ -945,11 +945,11 @@
 
 <DxFlyout @bind-IsOpen="@isOpenActionTagMultiplePop"                    
           PositionTarget=@($"#showActionTagMultiple")
-          Position="FlyoutPosition.Left"
+          Position="FlyoutPosition.Bottom"
           CloseOnOutsideClick="true"
           FooterVisible="false">
     <BodyTextTemplate>
-       <div>
+       <div style="width:350px;">
             @if (_headTopic_Tag != null && _headTopic_Tag.Any())
             {
                 @foreach (var Tagitem in _headTopic_Tag)
@@ -958,11 +958,10 @@
                     @if (Tagitem.ActionNames != null && Tagitem.ActionNames.Any())
                     {                   
                         <div class="list-container">
-                            @foreach (var items in Tagitem.ActionNames)
+                            @foreach (var items in Tagitem.ActionNames.Skip(2)) // Skip the first two and display the rest
                             {
-                                <div class="list-item ptagtodotag"> @items</div>
-                            }
-                        
+                                <div class="list-item"> @items</div>
+                            }                     
                         </div>
                     }
                 }
@@ -2832,11 +2831,8 @@
     private List<string>? _actionTagMultiple;
     private async Task ShowActionMultipleFlyout()
     {
-        // _actionTagMultiple = null;
-        // var itemslist = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
-        // _actionTagMultiple = itemslist[0].ActionNames;
         
-        //isOpenActionTagMultiplePop = true;
+        isOpenActionTagMultiplePop = true;
     }   
     private void ShowSubjectFlyout(EmailConversations emailConversations) {
         CurrentEmailConversations = emailConversations;

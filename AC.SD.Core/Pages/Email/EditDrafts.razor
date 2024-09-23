@@ -394,10 +394,24 @@ else
 
 
                             <DxFormLayoutItem Caption="Action" ColSpanMd="12">
-                                <DxComboBox Data="@_actionTagItems"
+                                <DxTagBox Data="@_actionTagItems"
+                                          @bind-Values="CategoryData.ActionTagIds"
+                                          NullText="Select Action"
+                                          Enabled="@isEnabled"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="ApplicationMasterChildId"
+                                          TextFieldName="Value"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          CssClass="cw-480">
+                                    <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
+                                </DxTagBox>
+
+                               @*  <DxComboBox Data="@_actionTagItems"
                                             NullText="Select Action..."
                                             Enabled="@isEnabled"
-                                                AllowUserInput = "true"
+                                            AllowUserInput = "true"
                                              ListRenderMode="ListRenderMode.Virtual"
                                             SearchMode="ListSearchMode.AutoSearch"
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -407,7 +421,7 @@ else
                                 @bind-Value="@CategoryData.ActionTag"
                                 @bind-Text = "@Text">
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => CategoryData.ActionTag)" />
+                                <ValidationMessage For="@(() => CategoryData.ActionTag)" /> *@
                             </DxFormLayoutItem>
 
 
@@ -1331,6 +1345,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
+        
+       
+
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
@@ -1452,17 +1469,45 @@ else
                         var lists = new ApplicationMasterChildModel();
                         lists.ApplicationMasterChildId =_TagEmailList[0].GroupTag.Value;
                         selectgrouptagItems = lists;
-
-
+                        if(CategoryData != null)
+                        {
+                            CategoryData.CategoryTag = _TagEmailList == null ? null : _TagEmailList[0].CategoryTag;
+                        }
+                        
                         // selectgrouptagItems = _TagEmailList[0];
-                         if (_TagEmailList[0].CategoryTag != 0)
+                         if (_TagEmailList[0].GroupTag != 0)
                          {
                             GroupTagChangedEdit(_TagEmailList[0].GroupTag);
                          }
-                         if (_TagEmailList[0].ActionTag != 0)
-                         {
+                         // if (_TagEmailList[0].ActionTag != 0)
+                         // {
+                         //    CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+                         // }
+
+                        var TId = _AllCategory[2].ID;
+
+                        var actionTagMultiple = await Mediator.Send(new GetActionTagMultiple(TId));
+                        if (actionTagMultiple.Count > 0)
+                        {
                             CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
-                         }
+
+                            if(CategoryData != null)
+                            {
+                                CategoryData.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
+                            }
+                            
+                        }
+                        else
+                        {
+                             CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+
+                            if (CategoryData != null)
+                            {
+                                CategoryData.ActionTagIds = new List<long?>();
+                            }
+                            
+                        }
+
                     }
                 }
 
@@ -1486,6 +1531,9 @@ else
                 CategoryData.CategoryTag = _TagEmailList == null ? null : _TagEmailList[0].CategoryTag;
                 CategoryData.ActionTag = _TagEmailList == null ? null : _TagEmailList[0].ActionTag;
                 CategoryData.Name = _TagEmailList == null ? null : _TagEmailList[0].Name;
+
+               
+              
 
                 if (_TagEmailList != null)
                 {
@@ -1747,6 +1795,7 @@ else
                     //actName =CategoryData.Name,
                     GroupTag = CategoryData.GroupTag,
                     ActionTag = CategoryData.ActionTag,
+                    ActionTagIds = CategoryData.ActionTagIds,
                     CategoryTag = CategoryData.CategoryTag,
                     //UserTag = CategoryData.UserTag,
                 actName = OthersTagName,
@@ -1906,7 +1955,7 @@ else
         {
             selectgrouptagItems = applicationMasterChildModel;
             CategoryData.GroupTag = applicationMasterChildModel.ApplicationMasterChildId;
-            GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
+            GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId,1);
             //_categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
         }
         else
@@ -1923,17 +1972,28 @@ else
             selectCategory = applicationMasterChildModel;
             CategoryData.CategoryTag = applicationMasterChildModel.ApplicationMasterChildId;
             // _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
-            CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
+            CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId,1);
         }
         else
         {
             CategoryTagChange(-1);
         }
     }
-    async void GroupTagChanged(long? ApplicationMasterChildId)
+    async void GroupTagChanged(long? ApplicationMasterChildId,int ck = 0)
     {
         if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1)
         {
+            if(ck == 1)
+            {
+                if(CategoryData !=null)
+                {
+                    CategoryData.ActionTagIds = new List<long?>();
+                }                
+                _actionTagItems = null;
+                
+            }
+
+            _categoryTagItems = null;
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
 
         }
@@ -1941,6 +2001,10 @@ else
         {
             selectCategory = null;
             CategoryData.GroupTag = null;
+            _categoryTagItems = null;
+            _actionTagItems = null;            
+            CategoryData.ActionTagIds = new List<long?>();
+            
         }
         StateHasChanged();
     }
@@ -1951,7 +2015,8 @@ else
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
             if(_categoryTagItems.Count > 0)
             {
-                selectCategory = _categoryTagItems[0];
+                //selectCategory = _categoryTagItems[0];
+                selectCategory = _categoryTagItems.Where(x => x.ApplicationMasterChildId == CategoryData.CategoryTag).SingleOrDefault();
             }
         }
 
@@ -1973,10 +2038,20 @@ else
 
         StateHasChanged();
     }
-    async void CategoryTagChange(long? ApplicationMasterChildID)
+    async void CategoryTagChange(long? ApplicationMasterChildID, int ck = 0)
     {
         if (ApplicationMasterChildID != null && ApplicationMasterChildID != -1)
         {
+            if(ck == 1)
+            {
+                if(CategoryData !=null)
+                {
+                    CategoryData.ActionTagIds = new List<long?>();
+                }                
+                _actionTagItems = null;
+                
+            }
+
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
         }
         else
@@ -1984,6 +2059,8 @@ else
             CategoryData.ActionTag = null;
             Text = null;
             CategoryData.CategoryTag = null;
+            _actionTagItems = null;
+            CategoryData.ActionTagIds = new List<long?>();
         }
         StateHasChanged();
     }

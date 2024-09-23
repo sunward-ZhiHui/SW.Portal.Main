@@ -361,8 +361,7 @@
         <EditFormTemplate Context="EditFormContext">
             <DataAnnotationsValidator />
             @{
-                var types = (ToDoNotesHistory)EditFormContext.EditModel;
-
+                var types = (ToDoNotesHistory)EditFormContext.EditModel;                
                  // if(types.Users != null)
                  // {
                  //     string userIdsString = types.Users; // Assuming UserIds is a string
@@ -424,7 +423,7 @@
                 <DxFormLayoutItem Caption="DueDate:" ColSpanMd="6">
                     <DxDateEdit @bind-Date="@types.DueDate" TimeSectionVisible="true" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Remainder Date:" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Remind Date:" ColSpanMd="6">
                     <DxDateEdit @bind-Date="@types.RemainDate" TimeSectionVisible="true" />
                 </DxFormLayoutItem>
 

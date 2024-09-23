@@ -16,7 +16,7 @@ namespace Core.Entities
         public long ID { get; set; }
         public long NotesId { get; set; }      
         public string? Description { get; set; }
-        public DateTime? DueDate { get; set; }
+        public DateTime? DueDate { get; set; } = DateTime.Today.AddHours(8);
         public DateTime? RemainDate { get; set; }
         public bool Completed { get; set; }
         public string Url { get; set; }

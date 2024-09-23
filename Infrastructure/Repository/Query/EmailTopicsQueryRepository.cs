@@ -1823,7 +1823,8 @@ namespace Infrastructure.Repository.Query
 
                         parameterss.Add("GroupTag", EmailTopics.GroupTag);
                         parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
-                        parameterss.Add("ActionTag", EmailTopics.ActionTag);
+                        parameterss.Add("ActionTag", EmailTopics.ActionTag);                        
+                        parameterss.Add("ActionTagIds", string.Join(",", EmailTopics.ActionTagIds));
                         parameterss.Add("actName", EmailTopics.actName);
                         parameterss.Add("UserTag", EmailTopics.UserTag);
                         parameterss.Add("UserTagId", EmailTopics.UserTagId);

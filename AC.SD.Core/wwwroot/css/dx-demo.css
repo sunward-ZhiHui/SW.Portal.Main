@@ -22,6 +22,28 @@ body,
 .dxbl-btn.dxbl-lg {
     --dxbl-btn-line-height: 1.5rem;
 }
+
+.ptagtodotag {
+    display: block; /* Each span on a new line */
+    margin-bottom: 5px;
+    background: #e5e5e5;
+    padding: 3px;
+    border-radius: 4px;    
+    font-size: 12px;
+    color: black;   
+    position: relative;
+}
+
+    .ptagtodotag::before {
+        content: counter(step-counter) ". "; /* Add numbers before each item */
+        counter-increment: step-counter; /* Increment the counter for each item */
+    }
+
+div {
+    counter-reset: step-counter; /* Initialize the counter */
+}
+
+
 .ptagtodo {
     margin-right: 5px;
     background: #e5e5e5;

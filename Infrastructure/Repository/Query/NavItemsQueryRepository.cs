@@ -655,8 +655,8 @@ namespace Infrastructure.Repository.Query
                     }
                     else
                     {
-                        var query = "INSERT INTO [FinishedProdOrderLine](OptStatus,ItemId,ItemNo,CompanyId,Status,ProdOrderNo,Description,Description2,ReplanRefNo,OrderLineNo,StartingDate,ManufacturingDate,ExpirationDate,ProductCode,ProductName) OUTPUT INSERTED.FinishedProdOrderLineId VALUES " +
-                            "(@OptStatus,@ItemId,@ItemNo,@CompanyId,@Status,@ProdOrderNo,@Description,@Description2,@ReplanRefNo,@OrderLineNo,@StartingDate,@ManufacturingDate,@ExpirationDate,@ProductCode,@ProductName)";
+                        var query = "INSERT INTO [FinishedProdOrderLine](BatchNo,OptStatus,ItemId,ItemNo,CompanyId,Status,ProdOrderNo,Description,Description2,ReplanRefNo,OrderLineNo,StartingDate,ManufacturingDate,ExpirationDate,ProductCode,ProductName) OUTPUT INSERTED.FinishedProdOrderLineId VALUES " +
+                            "(@BatchNo,@OptStatus,@ItemId,@ItemNo,@CompanyId,@Status,@ProdOrderNo,@Description,@Description2,@ReplanRefNo,@OrderLineNo,@StartingDate,@ManufacturingDate,@ExpirationDate,@ProductCode,@ProductName)";
                         lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     }
                     return lastInsertedRecordId;

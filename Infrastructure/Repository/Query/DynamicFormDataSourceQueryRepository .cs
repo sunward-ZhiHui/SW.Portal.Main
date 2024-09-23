@@ -653,7 +653,7 @@ namespace Infrastructure.Repository.Query
                 }
                 else
                 {
-                    query += "\n\rWhere (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null)  AND CAST(t1.StartingDate as DATE)>'05-31-2023' AND (t1.BatchNo is not null AND t1.BatchNo!='');\r\n";
+                    query += "\n\rWhere (t1.OptStatus='quarantine' OR t1.OptStatus='' OR t1.OptStatus is null)  AND CAST(t1.StartingDate as DATE)>'05-31-2023'  AND (t1.BatchNo is not null AND t1.BatchNo!='');\r\n";
                 }
                 //using (var connection = CreateConnection())
                 //{

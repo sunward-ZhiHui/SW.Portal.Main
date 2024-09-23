@@ -3,8 +3,7 @@ using System.Threading.Tasks;
 
 public class DataRefreshService
 {
-    public event Func<Task> OnRefreshRequested;
-    public event Func<Task> OnRefreshEmailHeader;
+    public event Func<Task> OnRefreshRequested;    
 
     public async Task RequestRefreshAsync()
     {
@@ -13,12 +12,5 @@ public class DataRefreshService
             await OnRefreshRequested.Invoke();
         }
     }
-
-    public async Task RequestRefreshEmailHeaderAsync()
-    {
-        if (OnRefreshEmailHeader != null)
-        {
-            await OnRefreshEmailHeader.Invoke();
-        }
-    }
+   
 }

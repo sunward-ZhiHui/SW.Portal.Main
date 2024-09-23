@@ -434,8 +434,7 @@
             StateHasChanged();
         }
         loadTagsList?.Invoke();
-
-        await RefreshService.RequestRefreshEmailHeaderAsync();
+        
         StateHasChanged();
 
     }   

@@ -96,6 +96,7 @@ namespace Core.Entities
         public long? GridDropDownDynamicFormID { get; set; }
         public string? GridDropDownDynamicFormName { get; set; }
         public bool IsDynamicFormGridDropdownMultiple { get; set; } = false;
+        public long? NewDynamicFormSectionAttributeId { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {

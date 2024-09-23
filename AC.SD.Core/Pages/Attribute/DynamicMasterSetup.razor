@@ -15,8 +15,8 @@
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
 <style scoped>
-    .formCountClass{
-        color:red;
+    .formCountClass {
+        color: red;
     }
 </style>
 <div class="card w-100" style="margin-bottom:10px;">
@@ -32,7 +32,8 @@
                 <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Reports" IconCssClass="fa fa-file" Click="@OpenReports" Enabled="@EditEnabled" />
-            </Items>
+@*                 <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditCloneEnabled" />
+ *@            </Items>
         </DxMenu>
     </div>
 </div>
@@ -90,6 +91,7 @@
          ShowFooter="true"
          HeaderText="CRT"
          Closed="EulaPopupClosed"
+         CloseOnEscape="false"
          Width="300px">
     <BodyContentTemplate>
         <p>
@@ -116,7 +118,20 @@
 
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@Clonepopup"
+         ShowFooter="false"
+         HeaderText="Clone"
+         ShowCloseButton="true"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormCloneForm DynamicForm="@_selectedItems" applicationUser="@applicationUser" RevokeBack="ClonepopupClose"></DynamicFormCloneForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
 
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     private DynamicFormReports refDynamicFormReports;
     private IDisposable? DynamicFormPage1;
@@ -127,7 +142,7 @@
     private DynamicForm _selectedItems;
     bool EditEnabled { get; set; } = false; bool DynamicFormReportsBypopup { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
-    bool Blukdeletepopup { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false; bool Clonepopup { get; set; } = false; bool EditCloneEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
 
@@ -153,7 +168,7 @@
     }
     public void ClearData()
     {
-        
+
         refDynamicFormReports?.DisposeAsync();
         _dynamicForm?.Clear();
         _selectedItems = null;
@@ -162,7 +177,7 @@
 
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         ClearData();
         // Suppress finalization
         //GC.SuppressFinalize(this);
@@ -171,13 +186,23 @@
     {
         try
         {
-            PanelVisible = true;
+            PanelVisible = true; EditCloneEnabled = false;
             EditEnabled = false; DeleteEnabled = false;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
-
+            //StateHasChanged();
             if (_dynamicForm != null && _dynamicForm.Count > 0)
             {
+
+                EditEnabled = true;
+                DeleteEnabled = true;
                 _selectedItems = _dynamicForm.FirstOrDefault();
+                if (_selectedItems.IsGridForm == false)
+                {
+                    EditCloneEnabled = true;
+                }
+                Grid.ClearSelection();
+                StateHasChanged();
+                //Grid.SetFocusedRowIndex(0);
             }
             PanelVisible = false;
             StateHasChanged();
@@ -199,7 +224,11 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
         EditEnabled = true;
-        DeleteEnabled = true;
+        DeleteEnabled = true; EditCloneEnabled = false;
+        if (_selectedItems.IsGridForm == false)
+        {
+            EditCloneEnabled = true;
+        }
     }
     void OpenNewForm()
     {
@@ -266,4 +295,14 @@
     {
         DynamicFormReportsBypopup = true;
     }
+    void addCloneOpen()
+    {
+        Clonepopup = true;
+    }
+    void ClonepopupClose()
+    {
+        Clonepopup = false;
+        StateHasChanged();
+    }
+
 }

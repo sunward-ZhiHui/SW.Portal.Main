@@ -48,11 +48,40 @@ namespace Core.Entities
         public string? ProfileName { get; set; }
         public bool? IsGridForm { get; set; } = false;
         public int? FormDataCount { get; set; }
+        public long? CloneDynamicFormId { get; set; }
+        public long? OldDynamicFormId { get; set; }
     }
     public class AddTempSectionAttribute
     {
         public long? ID { get; set; }
         public string? DynamicAttributeName { get; set; }
         public Type? DataType { get; set; }
+    }
+    public class DynamicFormDataListItems
+    {
+        public DynamicForm DynamicForm { get; set; } = new DynamicForm();
+        public List<DynamicFormSection> DynamicFormSection { get; set; } = new List<DynamicFormSection>();
+        public List<DynamicFormApproval> DynamicFormApproval { get; set; } = new List<DynamicFormApproval>();
+        public List<DynamicFormWorkFlow> DynamicFormWorkFlow { get; set; } = new List<DynamicFormWorkFlow>();
+        public List<DynamicFormWorkFlowSection> DynamicFormWorkFlowSection { get; set; } = new List<DynamicFormWorkFlowSection>();
+        public List<DynamicFormWorkFlowApproval> DynamicFormWorkFlowApproval { get; set; } = new List<DynamicFormWorkFlowApproval>();
+        public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute { get; set; } = new List<DynamicFormSectionAttribute>();
+        public List<DynamicFormSectionAttributeSectionParent> DynamicFormSectionAttributeSectionParent { get; set; } = new List<DynamicFormSectionAttributeSectionParent>();
+        public List<DynamicFormSectionAttributeSection> DynamicFormSectionAttributeSection { get; set; } = new List<DynamicFormSectionAttributeSection>();
+        public List<DynamicFormSectionSecurity> DynamicFormSectionSecurity { get; set; } = new List<DynamicFormSectionSecurity>();
+        public List<DynamicFormSectionAttributeSecurity> DynamicFormSectionAttributeSecurity { get; set; } = new List<DynamicFormSectionAttributeSecurity>();
+
+        public List<DynamicFormData> DynamicFormData { get; set; } = new List<DynamicFormData>();
+        public List<DynamicFormData> DynamicFormDataGrid { get; set; } = new List<DynamicFormData>();
+        public List<DynamicFormApproved> DynamicFormApproved { get; set; } = new List<DynamicFormApproved>();
+        public List<DynamicFormApprovedChanged> DynamicFormApprovedChanged { get; set; } = new List<DynamicFormApprovedChanged>();
+        public List<DynamicFormDataSectionLock> DynamicFormDataSectionLock { get; set; } = new List<DynamicFormDataSectionLock>();
+        public List<DynamicFormWorkFlowForm> DynamicFormWorkFlowForm { get; set; } = new List<DynamicFormWorkFlowForm>();
+        public List<DynamicFormWorkFlowSectionForm> DynamicFormWorkFlowSectionForm { get; set; } = new List<DynamicFormWorkFlowSectionForm>();
+        public List<DynamicFormWorkFlowFormDelegate> DynamicFormWorkFlowFormDelegate { get; set; } = new List<DynamicFormWorkFlowFormDelegate>();
+        public List<DynamicFormWorkFlowApprovedForm> DynamicFormWorkFlowApprovedForm { get; set; } = new List<DynamicFormWorkFlowApprovedForm>();
+        public List<DynamicFormWorkFlowApprovedFormChanged> DynamicFormWorkFlowApprovedFormChanged { get; set; } = new List<DynamicFormWorkFlowApprovedFormChanged>();
+
+        public string? DynamicFormDataIds{ get; set; }
     }
 }

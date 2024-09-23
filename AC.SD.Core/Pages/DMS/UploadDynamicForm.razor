@@ -3129,64 +3129,64 @@
     public async ValueTask DisposeAsync()
     {
         //System.GC.Collect();
-        refUploadDoumentDynamicFiles?.DisposeAsync();
-        refDynamicFormFilterByForm?.DisposeAsync();
-        refDynamicFormApprovedFormList?.DisposeAsync();
-        refDynamicFormDataWorkFlowFormList?.DisposeAsync();
-        dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm();
-        _selectedDynamicFormWorkFlowItems = null;
-        DynamicFormWorkFlowItems = null;
-        _ParentselectedItems = null;
-        FolderPathLists?.Clear();
-        _dynamicform = null;
-        _dynamicformData = null;
-        _AttributeHeader = null;
-        if (Data != null)
-        {
-            Data = null;
-        }
-        if (SpinData != null)
-        {
-            SpinData = null;
-        }
-        dynamicFormData = new DynamicFormData();
-        dynamicFormApproval = new DynamicFormApproved();
-        _dynamicFormApprovedList?.Clear();
-        dic = new Dictionary<string, string>();
-        fileProfileTypeDocumentsAll?.Clear();
-        _fileProfileselectedlstItems = null;
-        documentSearchModel = new DocumentSearchModel();
-        _plantItems?.Clear();
-        _divisionItems?.Clear();
-        _departmentItems?.Clear();
-        _sectionItems?.Clear();
-        _subSectionItems?.Clear();
-        documentProfileNoSeriesData = null;
-        Datas = new DynamicFormProfile();
-        _dynamicFormWorkFlowSection?.Clear();
-        _dynamicFormWorkFlowSectionNoWorkFlow?.Clear();
-        _sequenceNoList?.Clear();
-        _dynamicFormWorkFlowFormList?.Clear();
-        _dynamicFormSectionList?.Clear();
-        DynamicFormInfoSection = new DynamicFormSection();
-        _dynamicFormDropDown?.Clear();
-        DataClassTypeList?.Clear(); DataClassObjectNameList?.Clear();
-        addTempSectionAttributes?.Clear();
-        DynamicFormDataUploadByPermissions?.Clear();
-        jsonObjs = null;
-        plantNames?.Clear(); plantIds?.Clear();
-        PlantDependencySubAttributeDetails?.Clear();
-        ApplicationMasterParentDetails?.Clear();
-        soCustomerType?.Clear();
-        _userEmployee = null;
-        _filterDynamicFormSection = null;
-        _filterDynamicFormSectionAttribute = null;
-        _attributeFilterDetailsList?.Clear();
-        _DynamicFormSectionIds?.Clear();
-        dynamicFormSectionAttributeSectionSelected?.Clear();
-        _dynamicFormWorkFlowFormListItems?.Clear();
-        _dynamicFormWorkFlowApprovedFormList?.Clear();
-        _dynamicFormWorkFlowApprovedFormOne = null; dynamicFormSectionData = null;
+        // refUploadDoumentDynamicFiles?.DisposeAsync();
+        // refDynamicFormFilterByForm?.DisposeAsync();
+        // refDynamicFormApprovedFormList?.DisposeAsync();
+        // refDynamicFormDataWorkFlowFormList?.DisposeAsync();
+        // dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm();
+        // _selectedDynamicFormWorkFlowItems = null;
+        // DynamicFormWorkFlowItems = null;
+        // _ParentselectedItems = null;
+        // FolderPathLists?.Clear();
+        // _dynamicform = null;
+        // _dynamicformData = null;
+        // _AttributeHeader = null;
+        // if (Data != null)
+        // {
+        //     Data = null;
+        // }
+        // if (SpinData != null)
+        // {
+        //     SpinData = null;
+        // }
+        // dynamicFormData = new DynamicFormData();
+        // dynamicFormApproval = new DynamicFormApproved();
+        // _dynamicFormApprovedList?.Clear();
+        // dic = new Dictionary<string, string>();
+        // fileProfileTypeDocumentsAll?.Clear();
+        // _fileProfileselectedlstItems = null;
+        // documentSearchModel = new DocumentSearchModel();
+        // _plantItems?.Clear();
+        // _divisionItems?.Clear();
+        // _departmentItems?.Clear();
+        // _sectionItems?.Clear();
+        // _subSectionItems?.Clear();
+        // documentProfileNoSeriesData = null;
+        // Datas = new DynamicFormProfile();
+        // _dynamicFormWorkFlowSection?.Clear();
+        // _dynamicFormWorkFlowSectionNoWorkFlow?.Clear();
+        // _sequenceNoList?.Clear();
+        // _dynamicFormWorkFlowFormList?.Clear();
+        // _dynamicFormSectionList?.Clear();
+        // DynamicFormInfoSection = new DynamicFormSection();
+        // _dynamicFormDropDown?.Clear();
+        // DataClassTypeList?.Clear(); DataClassObjectNameList?.Clear();
+        // addTempSectionAttributes?.Clear();
+        // DynamicFormDataUploadByPermissions?.Clear();
+        // jsonObjs = null;
+        // plantNames?.Clear(); plantIds?.Clear();
+        // PlantDependencySubAttributeDetails?.Clear();
+        // ApplicationMasterParentDetails?.Clear();
+        // soCustomerType?.Clear();
+        // _userEmployee = null;
+        // _filterDynamicFormSection = null;
+        // _filterDynamicFormSectionAttribute = null;
+        // _attributeFilterDetailsList?.Clear();
+        // _DynamicFormSectionIds?.Clear();
+        // dynamicFormSectionAttributeSectionSelected?.Clear();
+        // _dynamicFormWorkFlowFormListItems?.Clear();
+        // _dynamicFormWorkFlowApprovedFormList?.Clear();
+        // _dynamicFormWorkFlowApprovedFormOne = null; dynamicFormSectionData = null;
         //GC.SuppressFinalize(this);
     }
     void EulaPopupWorkFlowClosed()

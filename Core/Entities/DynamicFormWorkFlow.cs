@@ -129,6 +129,7 @@ namespace Core.Entities
         public IEnumerable<long>? SelectDynamicFormSectionIDs { get; set; } = new List<long>();
         public long? CurrentApprovalUserId { get; set; }
         public string? CurrentApprovalUserName { get; set; }
+        public long? NewDynamicFormWorkFlowFormId { get; set; }
     }
     public class DynamicFormDataUploadByPermission
     {
@@ -159,5 +160,11 @@ namespace Core.Entities
         [Required(ErrorMessage = "User Name is required")]
         public long? UserID { get; set; }
         public string? UserName { get; set; }
+    }
+    public class DynamicFormWorkFlowSectionForm
+    {
+        public long DynamicFormWorkFlowSectionFormId { get; set; }
+        public long? DynamicFormWorkFlowFormID { get; set; }
+        public long? DynamicFormSectionID { get; set; }
     }
 }

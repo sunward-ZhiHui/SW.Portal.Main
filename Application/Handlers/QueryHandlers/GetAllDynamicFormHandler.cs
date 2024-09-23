@@ -1197,4 +1197,19 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class InsertCloneDynamicFormHandler : IRequestHandler<InsertCloneDynamicForm, DynamicForm>
+    {
+        private readonly IDynamicFormDataQueryRepository _queryRepository;
+        public InsertCloneDynamicFormHandler(IDynamicFormDataQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicForm> Handle(InsertCloneDynamicForm request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertCloneDynamicForm(request.DynamicForm,request.IsWithoutForm,request.UserId);
+
+
+        }
+    }
 }

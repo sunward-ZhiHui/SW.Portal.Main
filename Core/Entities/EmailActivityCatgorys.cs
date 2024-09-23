@@ -23,6 +23,7 @@ namespace Core.Entities
         public string? GroupName { get; set; }
         public string? CategoryName { get; set; }
         public string? ActionName { get; set; }
+        public List<string> ActionNames { get; set; } = new List<string>();
         public string Description { get; set; }
         public DateTime AddedDate { get; set; }
         public long? ModifiedByUserID { get; set; }

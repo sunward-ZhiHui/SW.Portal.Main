@@ -66,7 +66,24 @@
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="GroupName" Caption="Group" />
             <DxGridDataColumn FieldName="CategoryName" Caption="Category" />
-            <DxGridDataColumn FieldName="ActionName" Caption="Action" />
+            <DxGridDataColumn FieldName="ActionTagIds" Caption="Action">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailActivityCatgorys)context.DataItem;
+                    }
+                    <div style="margin-top: 10px; margin-bottom: 10px;">                       
+                        @if (item.ActionNames != null && item.ActionNames.Any())
+                        {
+                            @foreach (var items in item.ActionNames)
+                            {
+                                <span class="ptagtodo">
+                                    @items
+                                </span>
+                            }
+                        }
+                    </div> 
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="Name" Caption="Others" />
           
             <DxGridCommandColumn Width="160px" Visible="false" />
@@ -74,7 +91,8 @@
         
         <EditFormTemplate Context="EditFormContext">
             @{
-                var types = (EmailActivityCatgorys)EditFormContext.EditModel;
+                //var types = (EmailActivityCatgorys)EditFormContext.EditModel;
+                var types = _currentEditModel;
             }
             <DxFormLayout CssClass="w-100">
 
@@ -103,23 +121,22 @@
                                 NullText="Select Category..."
                                 Enabled="@isEnabled"
                                 ListRenderMode="ListRenderMode.Virtual"
-                                    SearchMode="ListSearchMode.AutoSearch"
-                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                    AllowUserInput = "true"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                AllowUserInput = "true"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterChildId"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              
-                                 Value="@selectcategory"
-                                    ValueExpression="@(() => selectcategory )"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"                              
+                                Value="@selectcategory"
+                                ValueExpression="@(() => selectcategory )"
                                 ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
                     </DxComboBox>
                      <DxSpinEdit   @bind-Value="@types.CategoryTag" ShowValidationIcon="true" style="display:none;" />
                     <ValidationMessage For="@(() => types.CategoryTag)" />
                 </DxFormLayoutItem>
 
-                <DxFormLayoutItem Caption="Action" ColSpanMd="6">
-                  @*   <DxTagBox Data="_actionTagItems"
+                <DxFormLayoutItem Caption="Action" ColSpanMd="12">
+                    <DxTagBox Data="_actionTagItems"
                               @bind-Values="types.ActionTagIds"
                               NullText="Select Action"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -130,9 +147,9 @@
                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                               CssClass="cw-480">
                         <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />                      
-                    </DxTagBox>     *@                
+                    </DxTagBox>                    
                    
-                     <DxComboBox Data="@_actionTagItems"
+                    @*  <DxComboBox Data="@_actionTagItems"
                                 NullText="Select Action..."                                
                                 SearchMode="ListSearchMode.AutoSearch"
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -141,7 +158,7 @@
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ActionTag">
                     </DxComboBox> 
-                    <ValidationMessage For="@(() => types.ActionTag)" />
+                    <ValidationMessage For="@(() => types.ActionTag)" /> *@
                 </DxFormLayoutItem>
 
 
@@ -220,27 +237,39 @@
     private List<ApplicationMasterChildModel>? _categoryTagItems;
     private List<ApplicationMasterChildModel>? _actionTagItems;
     bool isTagLock { get; set; }
+    private EmailActivityCatgorys _currentEditModel;
 
 
-    void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    async Task selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
 
         if (applicationMasterChildModel != null)
         {
             selectGroupItems = applicationMasterChildModel;
-            GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
+            await GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId,1);
             //_categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
         }
         else
         {
-            GroupTagChanged(-1);
-            CategoryTagChange(-1);
+            await GroupTagChanged(-1);
+            await CategoryTagChange(-1);
         }
     }
-    async void GroupTagChanged(long? ApplicationMasterChildId)
+    async Task GroupTagChanged(long? ApplicationMasterChildId,int ck = 0)
     {
         if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1 && ApplicationMasterChildId != 0)
         {
+            if(ck == 1)
+            {
+                if (_currentEditModel != null)
+                {
+                    _currentEditModel.ActionTagIds = new List<long?>();
+                    _selectedItems.ActionTagIds = new List<long?>();
+                    _actionTagItems = null;
+                }
+            }
+
+            _categoryTagItems = null;
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
         }
         else
@@ -249,38 +278,56 @@
             _categoryTagItems = null;
             selectcategory = null;
             _actionTagItems = null;
+            if (_currentEditModel != null)
+            {
+                _currentEditModel.ActionTagIds = new List<long?>();
+            }
         }
 
         StateHasChanged();
     }
-    void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    async Task selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
 
         if (applicationMasterChildModel != null)
         {
             selectcategory = applicationMasterChildModel;
             // _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
-            CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
+            await CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId,1);
         }
         else
         {
-            CategoryTagChange(-1);
+            await CategoryTagChange(-1);            
         }
 
         StateHasChanged();
     }
-    async void CategoryTagChange(long? ApplicationMasterChildID)
+    async Task CategoryTagChange(long? ApplicationMasterChildID,int ck = 0)
     {
         if (ApplicationMasterChildID != null && ApplicationMasterChildID != -1)
         {
-            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+            if(ck == 1)
+            {
+                if (_currentEditModel != null)
+                {
+                    _currentEditModel.ActionTagIds = new List<long?>();
+                    _selectedItems.ActionTagIds = new List<long?>();
+                }
+            }
+
+            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));            
         }
         else
         {
             selectcategory = null;
             _selectedItems.CategoryTag = null;
             _actionTagItems = null;
-            //_selectedItems.ActionTag = null;
+            //_selectedItems.ActionTagIds = new List<long?>();    
+            if (_currentEditModel != null)
+            {                
+                _currentEditModel.ActionTagIds = new List<long?>();
+            }
+
         }
 
         StateHasChanged();
@@ -546,8 +593,10 @@
         }       
 
     }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        _currentEditModel = (EmailActivityCatgorys)e.EditModel;
+
         if (e.IsNew)
         {
 
@@ -570,8 +619,8 @@
                 isEnabled = false;
             }
 
-            GroupTagChanged(editModel.GroupTag);            
-            CategoryTagChange(editModel.CategoryTag);
+            await GroupTagChanged(editModel.GroupTag);            
+            await CategoryTagChange(editModel.CategoryTag);
         }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -667,15 +716,17 @@
 
             }
 
-            // var actionTagMultiple = await Mediator.Send(new GetActionTagMultiple(TopicId));
-            // if (actionTagMultiple.Count > 0)
-            // {
-            //     _selectedItems.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
-            // }
-            // else
-            // {
-            //     _selectedItems.ActionTagIds = new List<long?>();
-            // }
+            var actionTagMultiple = await Mediator.Send(new GetActionTagMultiple(TopicId));
+            if (actionTagMultiple.Count > 0)
+            {
+                _selectedItems.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
+                //_currentEditModel.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
+            }
+            else
+            {
+                 _selectedItems.ActionTagIds = new List<long?>();
+                //_currentEditModel.ActionTagIds = new List<long?>();
+            }
 
 
             Grid.StartEditDataItemAsync(_selectedItems);

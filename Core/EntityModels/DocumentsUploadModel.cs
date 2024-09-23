@@ -61,5 +61,7 @@ namespace Core.EntityModels
         public long? IpirAppId { get; set; }
         [Required(ErrorMessage = "Reserve is Required")]
         public long? NumberSeriesId { get; set; } = 0;
+
+        public long? QCTimesheetID { get; set;} 
     }
 }

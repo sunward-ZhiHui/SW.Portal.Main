@@ -1,0 +1,453 @@
+﻿@page "/QCTimeSheetListPage"
+@page "/QCTimeSheetListPage/{MainSessionId:guid}"
+
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@inject AC.SD.Core.Services.ToastService toastService
+@using BlazorBarcodeScanner.ZXing.JS
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime jsRuntime
+@inject ClipboardService ClipboardService
+@implements IAsyncDisposable
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+<style scoped>
+    .zxing-video-container > video {
+        width: 100%;
+        height: auto;
+    }
+</style>
+<div class="card w-100 tooltips" style="margin-bottom:10px;">
+    <div class="card-body p-0 tooltiptops">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+
+                        
+                        <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" id=@($"flyout-overview-target-container-ActivityStatusMaster") >
+                         <Items>
+                               
+                                <DxMenuItem Text="Copy Link" Click="onCopy" IconCssClass="fa fa-link"  Enabled ="@CopyLinkEnable"/>
+                                <DxMenuItem Text="CheckOut" Click="onCheckOut" IconCssClass="fa fa-check-square"  Enabled ="@CheckOutEnable"/>                             
+                                <DxMenuItem Text="View File" Click="onView" IconCssClass="fa fa-eye"  Enabled="@ViewFileEnable" />
+                                <DxMenuItem Text="Mail" IconCssClass="fa fa-envelope" Click="onEmailOpen"  Enabled = "@MailEnable"/>                              
+                                <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust"  Enabled="@SupportingDocumentEnable"/>
+                                <DxMenuItem Text="Update Status" IconCssClass="fa fa-info" Click="@(_ => OnClickActivityStatusOpen("Update Status"))" Enabled="@UpdateStatusEnable" />
+                            </Items>
+                         </DxMenuItem>
+                    </Items> 
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid"
+            Data="_TimeSheetForQC"
+            KeyFieldName="QCTimesheetID"
+            EditMode="GridEditMode.EditForm"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" CustomizeElement="Grid_CustomizeElement"
+            RowClick="OnRowClick"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            CssClass="ch-360"
+            style="height: calc(100vh - 200px);" VirtualScrollingEnabled="true">
+        <Columns>
+            <DxGridDataColumn Caption="" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TimeSheetForQC)context.DataItem;
+                    }
+                    @*   <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;color:green" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>*@
+                    @if (item.IsLocked == true)
+                    {
+                        <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
+                    }
+                    else
+                    {
+                        <i class="fa fa-lock-open" aria-hidden="true" style="padding:5px;margin-right: 5px;"></i>
+                    } 
+                    @if (item.DocumentID > 0)
+                    {
+                        <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@item.FileName"></i>
+                    }
+                    @if (item.EmailTopicSessionId != null)
+                    {
+                        <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1976d2" title="@item.FileName"></i>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn Caption="Date&Time" FieldName="AddedDate" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TimeSheetForQC)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn Caption="Staff Name" FieldName="AddedBy" MinWidth="180" />
+            <DxGridDataColumn Caption="Item Name" FieldName="ItemName" MinWidth="180" />
+            <DxGridDataColumn Caption="Ref No" FieldName="RefNo" MinWidth="180" />
+            <DxGridDataColumn Caption="Stage" FieldName="Stage" MinWidth="180" />
+            <DxGridDataColumn Caption="Test Name" FieldName="TestName" MinWidth="180" />
+            <DxGridDataColumn Caption="Comment" FieldName="Comment" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TimeSheetForQC)context.DataItem;
+                        var comments = string.IsNullOrEmpty(item.Comment) ? "" : (item.Comment.Length > 50 ? (new string(item.Comment.Take(50).ToArray())) : item.Comment);
+                    }
+                    @* <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>
+                    *@
+                    <span title="@item.Comment">@comments</span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+           
+
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+        </TotalSummary>
+
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@ActivityEmailPopup"
+         ShowFooter="false"
+         HeaderText="Activity Email"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <QCTimeSheetEmail @ref="refActivityEmails" selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseHistoryPopup"></QCTimeSheetEmail>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+
+<DxFlyout @bind-IsOpen=IsActivityStatusMasterOpen
+          PositionTarget=@($"#flyout-overview-target-container-ActivityStatusMaster")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Update Status"
+          FooterVisible="true"
+          CloseOnOutsideClick="false"
+          FooterCssClass="custom-flyout-footer"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+           
+                <DxFormLayoutItem Caption="Activity Status" ColSpanMd="12">
+                    <DxComboBox Data="@_ActivityStatusItem"
+                                NullText="Select Activity Status..."
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="Data.ActivityStatusId"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                </DxFormLayoutItem>
+            
+          
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsActivityStatusMasterOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateActivityMasterStatus()) />
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@SupportingDocumentsPopup"
+         ShowFooter="true"
+         HeaderText="Supporting Documents"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <QCSupportingDocuments @ref="refSupportingDocuments" selectedFiles="@_selectedItems"></QCSupportingDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public Guid? MainSessionId { get; set; }
+    private List<View_ApplicationMasterDetail> _ActivityStatusItem;
+    bool IsActivityStatusMasterOpen { get; set; } = false;
+    public ApplicationUser applicationUser { get; private set; }
+    bool ActivityEmailPopup { get; set; } = false;
+    private QCTimeSheetEmail refActivityEmails;
+    private string? DocumentViewUrl;
+    public bool PanelVisible { get; set; } = false;
+    IGrid? Grid { get; set; }
+    private string? ServerUrl;
+    private TimeSheetForQC? _selectedItems;
+    TimeSheetForQC Data = new TimeSheetForQC();
+    public List<TimeSheetForQC> _TimeSheetForQC { get; set; }
+    DocumentsModel _documentsItems = new DocumentsModel();
+    public bool SupportingDocumentsPopup { get; set; } = false;
+    public bool MailEnable { get; set; } = true;
+    public bool CopyLinkEnable { get; set; } = false;
+    public bool ViewFileEnable { get; set; } = false;
+    public bool SupportingDocumentEnable { get; set; } = true;
+    public bool CheckOutEnable { get; set; } = false;
+    public bool UpdateStatusEnable { get; set; } = true;
+    private QCSupportingDocuments refSupportingDocuments;
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        PanelVisible = true;
+
+        await onLoadDataList();
+        PanelVisible = false;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await onLoadDataList();
+        base.OnParametersSet();
+    }
+    async Task onLoadDataList()
+    {
+        var listData = await Mediator.Send(new GetQCTimeSheetQuery());
+        if (MainSessionId != null)
+        {
+            var appLines = listData.Where(w => w.SessionId == MainSessionId).ToList();
+            _TimeSheetForQC = appLines != null && appLines.Count > 0 ? appLines : listData;
+        }
+        else
+        {
+            _TimeSheetForQC = listData;
+        }
+
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "QCTimesheetID");
+        _selectedItems = _TimeSheetForQC.FirstOrDefault(f => f.QCTimesheetID == (long?)UniqueId);
+        if(_selectedItems.DocumentID > 0)
+        {
+            CopyLinkEnable = true;ViewFileEnable = true;CheckOutEnable = true;
+        }
+        else
+        {
+            CopyLinkEnable = false; ViewFileEnable = false; CheckOutEnable = false;
+        }
+        if(_selectedItems.IsLocked == true)
+        {
+            CopyLinkEnable = false; ViewFileEnable = false; CheckOutEnable = false;
+            SupportingDocumentEnable = false;UpdateStatusEnable = false;MailEnable = false;
+
+        }
+        else if (_selectedItems.DocumentID > 0 && _selectedItems.IsLocked == true)
+        {
+            CopyLinkEnable = false; ViewFileEnable = false; CheckOutEnable = false;
+            SupportingDocumentEnable = false; UpdateStatusEnable = false; MailEnable = false;
+        }
+        else
+        {
+            SupportingDocumentEnable = true; UpdateStatusEnable = true; MailEnable = true;
+        }
+
+        StateHasChanged();
+    }
+
+    async Task onEmailOpen()
+    {
+        if (_selectedItems != null)
+        {
+
+            var list = await Mediator.Send(new GetActivityQuery(_selectedItems.QCTimesheetID));
+            if(list.Count > 0)
+            {
+                Data.IsPartialEmailCreated = true;
+                if (_selectedItems.EmailTopicSessionId != null)
+                {
+                    Data.IsEmailCreated = true;
+                }
+                else
+                {
+                    Data.IsEmailCreated = false;
+                }
+            }
+            else
+            {
+                Data.IsPartialEmailCreated = false;
+            }
+
+            if (Data.IsEmailCreated == true && Data.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItems.EmailTopicSessionId;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else if (Data.IsEmailCreated == false && Data.IsPartialEmailCreated == true)
+            {
+                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.ActivitySessionID;
+                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                ActivityEmailPopup = true;
+            }
+           
+        }
+    }
+    private async Task onCopy()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+        }
+    }
+    void onSupportingDocuments()
+    {
+        SupportingDocumentsPopup = true;        
+    }
+    async Task onCheckOut()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
+        {
+            _documentsItems.DocumentID = _selectedItems.DocumentID;
+            _selectedItems.IsLocked = true;
+            _selectedItems.LockedByUserId = applicationUser.UserID;
+            _selectedItems.LockedByUser = applicationUser.UserName;
+            await Mediator.Send(new GetFileProfileTypeCheckOut(_documentsItems));
+            _selectedItems.IsLocked = true;
+            _selectedItems.LockedByUserId = applicationUser.UserID;
+            _selectedItems.LockedByUser = applicationUser.UserName;
+            await permissinSetMainProfile();
+            await Download();
+        }
+    }
+    async Task permissinSetMainProfile()
+    {
+        CopyLinkEnable = false; ViewFileEnable = false; CheckOutEnable = false;
+        SupportingDocumentEnable = false; UpdateStatusEnable = false; MailEnable = false;
+        StateHasChanged();
+    }
+
+    async Task Download()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            }
+        }
+    }
+    async void onView()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+
+        }
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    void OnClickActivityStatusOpen(string? type)
+    {
+        IsActivityStatusMasterOpen = true;
+    }
+    void CloseHistoryPopup()
+    {
+
+        ActivityEmailPopup = false;
+        //  PopupVisible = false;
+        SupportingDocumentsPopup = false;
+        // OperatorsPopup = false; IsCheckerPopUp = false;
+        InvokeAsync(onLoadDataList);
+        StateHasChanged();
+    }
+    async Task OnUpdateActivityMasterStatus()
+    {
+
+        await Mediator.Send(new UpdateStatusQuery(_selectedItems.QCTimesheetID, Data.ActivityStatusId.Value, applicationUser.UserID));
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsActivityStatusMasterOpen = false;
+
+        await onLoadDataList();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_TimeSheetForQC != null)
+        {
+            _TimeSheetForQC.Clear();
+            _TimeSheetForQC = null;
+        }
+        refSupportingDocuments?.DisposeAsync();
+        refActivityEmails?.DisposeAsync();
+        _ActivityStatusItem?.Clear();
+        _selectedItems = null;
+    }
+}
+
+

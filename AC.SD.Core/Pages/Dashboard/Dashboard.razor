@@ -529,10 +529,17 @@
 
     void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
     {
-        // if (args.FormType == SchedulerAppointmentFormType.CompactEditForm)
-        // {
-        //     args.Cancel = true;
-        // }
+        if (args.FormType == SchedulerAppointmentFormType.CompactEditForm)
+        {
+            //args.Cancel = true;
+
+            var resource = args.Appointment.ResourceId?.ToString();
+            
+            if (resource != "2")
+            {
+                args.Cancel = true;
+            }
+        }
     }
 
     async Task AppointmentInserting(SchedulerAppointmentOperationEventArgs e)

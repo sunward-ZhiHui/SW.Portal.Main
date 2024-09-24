@@ -208,4 +208,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _DynamicFormQueryRepository.DeleteItemBatchInfo(request.ItemBatchInfo);
         }
     }
+    public class GetNavprodOrderLineListQueryHandler : IRequestHandler<GetNavprodOrderLineListQuery, NavprodOrderLine>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public GetNavprodOrderLineListQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<NavprodOrderLine> Handle(GetNavprodOrderLineListQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetNavprodOrderLineList(request.CompanyId);
+
+        }
+    }
 }

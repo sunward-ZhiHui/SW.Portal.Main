@@ -131,4 +131,12 @@ namespace Application.Queries
             this.ItemBatchInfo = itemBatchInfo;
         }
     }
+    public class GetNavprodOrderLineListQuery : PagedRequest, IRequest<NavprodOrderLine>
+    {
+        public long? CompanyId { get; set; }
+        public GetNavprodOrderLineListQuery(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
 }

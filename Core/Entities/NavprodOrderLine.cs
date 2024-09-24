@@ -32,5 +32,7 @@ namespace Core.Entities
         public string TopicId { get; set; }
         [NotMapped]
         public string? ProdOrderNoDesc { get; set; }
+        public string? LocationCode { get; set; }
+        public string? ProductionBOMNo { get; set; }
     }
 }

@@ -31,5 +31,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ItemBatchInfo>> GetNavItemBatchNoByItemByAllAsync();
         Task<ItemBatchInfo> InsertOrUpdateBatchInfo(ItemBatchInfo itemBatchInfo);
         Task<ItemBatchInfo> DeleteItemBatchInfo(ItemBatchInfo itemBatchInfo);
+        Task<NavprodOrderLine> GetNavprodOrderLineList(long? CompanyId);
     }
 }

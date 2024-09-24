@@ -38,7 +38,11 @@
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                         <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
-                        <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
                     </Items>
                 </DxMenu>
             </div>
@@ -230,8 +234,53 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
+<DxPopup @bind-Visible="@Clonepopup"
+         ShowFooter="false"
+         HeaderText="Clone"
+         ShowCloseButton="true"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormCloneForm DynamicForm="@_dynamicFormData" applicationUser="@applicationUser" RevokeBack="ClonepopupClose"></DynamicFormCloneForm>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         CloseOnEscape="false"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_dynamicFormData.ID))" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@DynamicFormReportsBypopup"
+         ShowFooter="false"
+         ShowCloseButton="true"
+         HeaderText="Filter"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Closed="EulaPopupClosed"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormReports @ref="refDynamicFormReports" _dynamicform="@_dynamicFormData"></DynamicFormReports>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-    private IDisposable? DynamicFormPage7;
+    private IDisposable? DynamicFormPage7; private DynamicFormReports refDynamicFormReports;
     bool EditEnabled { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
@@ -247,9 +296,9 @@
     private bool loading;
     private string MyID = "myid";
     long? EmployeeIds { get; set; }
-    bool EditEnabledTab { get; set; } = false;
-    bool IsApprovalEnabled { get; set; } = false;
-    int ActiveSubTabIndex { get; set; } = 0;
+    bool EditEnabledTab { get; set; } = false; bool DynamicFormReportsBypopup { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false; bool IsApprovalEnabled { get; set; } = false; bool Clonepopup { get; set; } = false;
+    int ActiveSubTabIndex { get; set; } = 0;bool Blukdeletepopup { get; set; } = false;
     private DynamicForm Data = new DynamicForm();
     View_SalesOrderMasterPricing _salesOrderItem = new View_SalesOrderMasterPricing();
     public ApplicationUser applicationUser { get; private set; }
@@ -314,6 +363,7 @@
     }
     public async ValueTask DisposeAsync()
     {
+        refDynamicFormReports?.DisposeAsync();
         DynamicFormPage7?.Dispose();
        // System.GC.Collect();
         fileProfileTypeDocumentsAll?.Clear();
@@ -429,6 +479,30 @@
             NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _dynamicFormData.SessionID);
         }
     }
+    async Task OpenOdataUrl()
+    {
+        if (_dynamicFormData != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _dynamicFormData.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    void AddNewForm()
+    {
+        if (_dynamicFormData != null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + _dynamicFormData.SessionID);
+        }
+    }
+    void addCloneOpen()
+    {
+        Clonepopup = true;
+    }
+    void ClonepopupClose()
+    {
+        Clonepopup = false;
+        StateHasChanged();
+    }
     void ResetForm()
     {
         dynamicFormId = -1;
@@ -446,6 +520,37 @@
             await OnParametersSetLoadAsync();
         }
 
+    }
+    void addDetailDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+        DynamicFormReportsBypopup = false;
+    }
+    async Task bulkDelete(long id)
+    {
+        try
+        {
+            var request = new DeleteDynamicForm(id);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Delete record Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");
+        }
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    void OpenReports()
+    {
+        DynamicFormReportsBypopup = true;
     }
     void BackPermissionPopUp(bool? Status)
     {

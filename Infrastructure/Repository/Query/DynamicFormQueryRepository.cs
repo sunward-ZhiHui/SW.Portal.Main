@@ -543,8 +543,9 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.ID,\r\nt1.Name,\r\nt1.ScreenID,\r\nt1.SessionID,\r\nt1.AttributeID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.IsApproval,\r\nt1.IsUpload,\r\nt1.FileProfileTypeID,\r\nt1.IsProfileNoGenerate,\r\nt1.IsMultipleUpload,\r\nt1.CompanyID,\r\nt1.ProfileID,\r\nt1.IsGridForm,\r\nt1.IsDeleted,\n\rt5.PlantCode as CompanyName from DynamicForm t1 \r\n" +
+                var query = "select t6.UserName as AddedBy,t1.ID,\r\nt1.Name,\r\nt1.ScreenID,\r\nt1.SessionID,\r\nt1.AttributeID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.IsApproval,\r\nt1.IsUpload,\r\nt1.FileProfileTypeID,\r\nt1.IsProfileNoGenerate,\r\nt1.IsMultipleUpload,\r\nt1.CompanyID,\r\nt1.ProfileID,\r\nt1.IsGridForm,\r\nt1.IsDeleted,\n\rt5.PlantCode as CompanyName from DynamicForm t1 \r\n" +
                     "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
+                    "LEFT JOIN ApplicationUser t6 ON t6.UserID=t1.AddedByUserID\r\n" +
                     "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())

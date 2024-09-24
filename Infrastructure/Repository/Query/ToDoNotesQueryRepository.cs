@@ -25,7 +25,8 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("userId", userId);
-                var query = "SELECT DISTINCT Notes FROM ToDoNotes where AddedByUserID = @userId ";
+                // var query = "SELECT DISTINCT Notes FROM ToDoNotes where AddedByUserID = @userId ";
+                var query = "SELECT DISTINCT Notes,Min(ID)  as ID FROM TodoNotes WHERE Notes IS NOT NULL  AND  AddedByUserID =  @userId AND Notes != '' Group By Notes";
 
                 using (var connection = CreateConnection())
                 {
@@ -145,6 +146,47 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+        public async Task<string> UpdateNoteAsync(string selectNotes, string Notes, long userid)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var Date = DateTime.Now;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("selectNotes", selectNotes);
+
+                        parameters.Add("Notes", Notes);
+                        parameters.Add("ModifiedByUserID",userid);
+                        parameters.Add("Date", Date);
+
+
+
+                        var query = @"Update ToDoNotes SET Notes = @Notes,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@Date  WHERE Notes = @selectNotes";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected.ToString();
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
         public async Task<long> DeleteAsync(long id)
         {
             try
@@ -238,6 +280,30 @@ namespace Infrastructure.Repository.Query
                     
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ToDoNotes>> GetAllNotesAsync(long UserId, string notes)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("userId", UserId);
+                parameters.Add("notes", notes);
+                // var query = "SELECT DISTINCT Notes FROM ToDoNotes where AddedByUserID = @userId ";
+                var query = @"select EC.Name as SubTopic,ET.TopicName as MainTopic,TN.ID,TN.Notes,TN.TopicId From ToDoNotes  TN 
+                                inner Join EmailConversations EC on EC.ID = TN.TopicId
+                                Left Join EmailTopics ET ON ET.ID = EC.TopicID
+                                where TN.Notes = @notes and TN.TopicID > 0 and TN.AddedByUserID = @userId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ToDoNotes>(query, parameters)).ToList();
+                }
             }
             catch (Exception exp)
             {

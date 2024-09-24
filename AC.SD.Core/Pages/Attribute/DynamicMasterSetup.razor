@@ -32,8 +32,8 @@
                 <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Reports" IconCssClass="fa fa-file" Click="@OpenReports" Enabled="@EditEnabled" />
-@*                 <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditCloneEnabled" />
- *@            </Items>
+                <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditCloneEnabled" />
+              </Items>
         </DxMenu>
     </div>
 </div>
@@ -186,7 +186,7 @@
     {
         try
         {
-            PanelVisible = true; EditCloneEnabled = false;
+            PanelVisible = true; EditCloneEnabled = true;
             EditEnabled = false; DeleteEnabled = false;
             _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
             //StateHasChanged();
@@ -224,7 +224,7 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
         EditEnabled = true;
-        DeleteEnabled = true; EditCloneEnabled = false;
+        DeleteEnabled = true; EditCloneEnabled = true;
         if (_selectedItems.IsGridForm == false)
         {
             EditCloneEnabled = true;
@@ -281,6 +281,7 @@
             var request = new DeleteDynamicForm(id);
             await Mediator.Send(request);
             Blukdeletepopup = false;
+            toastService.ShowToast("Delete record Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
         }
         catch (Exception eq)

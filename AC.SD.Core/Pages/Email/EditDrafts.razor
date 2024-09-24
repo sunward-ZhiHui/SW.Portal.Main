@@ -1345,8 +1345,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
-        
-       
+
+
 
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
@@ -1473,23 +1473,24 @@ else
                         {
                             CategoryData.CategoryTag = _TagEmailList == null ? null : _TagEmailList[0].CategoryTag;
                         }
-                        
-                        // selectgrouptagItems = _TagEmailList[0];
-                         if (_TagEmailList[0].GroupTag != 0)
-                         {
-                            GroupTagChangedEdit(_TagEmailList[0].GroupTag);
-                         }
-                         // if (_TagEmailList[0].ActionTag != 0)
-                         // {
-                         //    CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
-                         // }
 
-                        var TId = _AllCategory[2].ID;
+                        // selectgrouptagItems = _TagEmailList[0];
+                        if (_TagEmailList[0].GroupTag != 0)
+                        {
+                            GroupTagChangedEdit(_TagEmailList[0].GroupTag);
+                        }
+
+                        // if (_TagEmailList[0].ActionTag != 0)
+                        // {
+                        //    CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+                        // }
+
+                        var TId = _TagEmailList[0].TopicId;
 
                         var actionTagMultiple = await Mediator.Send(new GetActionTagMultiple(TId));
                         if (actionTagMultiple.Count > 0)
                         {
-                            CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+                           await CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
 
                             if(CategoryData != null)
                             {
@@ -2022,7 +2023,7 @@ else
 
         StateHasChanged();
     }
-    async void CategoryTagChangeEdit(long? ApplicationMasterChildID)
+    async Task CategoryTagChangeEdit(long? ApplicationMasterChildID)
     {
         if (ApplicationMasterChildID != null)
         {

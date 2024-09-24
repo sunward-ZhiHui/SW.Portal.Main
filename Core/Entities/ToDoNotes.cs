@@ -20,6 +20,10 @@ namespace Core.Entities
         [NotMapped]
         public string ModifiedBy { get; set; }
         [NotMapped]
-        public string AddedBy { get; set; }        
+        public string AddedBy { get; set; }
+        [NotMapped]
+        public string? MainTopic { get; set; }
+        [NotMapped]
+        public string? SubTopic { get; set; }
     }
 }

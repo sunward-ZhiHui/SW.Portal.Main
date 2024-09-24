@@ -1,0 +1,340 @@
+﻿@using Application.Queries
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@inject IJSRuntime JSRuntime;
+@using System.Collections.Generic
+@using System.Reflection;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+@inject HttpClient httpClient;
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.IO;
+@using System.ComponentModel;
+@using System;
+@using System.Linq;
+@using global::Core.Repositories.Query
+@implements IAsyncDisposable;
+
+
+<div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+    <div class="card w-100" style="margin-bottom:10px;">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Enabled="@EditEnabled" Click="@addUseredit" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Enabled="@DeleteEnabled" Click="@addDelete" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="UserGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_NotesLst"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                KeyFieldName="ID"
+                EditModelSaving="Grid_EditModelSaving"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Single"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
+            <Columns>
+               
+                <DxGridDataColumn FieldName="Notes" MinWidth="80" />
+
+
+            </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var plant = (ToDoNotes)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+
+                    <DxFormLayoutItem Caption="Notes :" ColSpanMd="6">
+                        <DxTextBox @bind-Text="plant.Notes" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.Notes)" />
+                    </DxFormLayoutItem>
+
+
+                </DxFormLayout>
+            </EditFormTemplate>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+
+<DxPopup @bind-Visible="@deletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+           Do you want to Deleting this record will remove all associated data.
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@BlukDelete"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+           Do you want to delete this Record?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnBlukDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@TopicListpopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="900px">
+    <BodyContentTemplate>
+        <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+            <div class="card w-100" style="margin-bottom:10px;">
+                <div class="card-body p-0">
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Desktop">
+                        <Items>
+                          
+                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Enabled="@TopicDeleteEnabled" Click="@OnTopicDelete" />
+                        </Items>
+                    </DxMenu>
+                </div>
+            </div>
+            <DxLoadingPanel @bind-Visible="PanelVisible"
+                            IsContentBlocked="true"
+                            ApplyBackgroundShading="true"
+                            IndicatorAreaVisible="false"
+                            Text="Fetching Data...">
+                <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                        Data="_TopicList"
+                        ShowGroupPanel="true" ShowGroupedColumns="true"
+                        KeyFieldName="ID"
+                        EditModelSaving="Grid_EditModelSaving"
+                        CustomizeElement="Grid_CustomizeElement"
+                        ShowSearchBox="true"
+                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                        PageSizeSelectorVisible="true"
+                        PageSizeSelectorAllRowsItemVisible="true"
+                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                        PageSize="20"
+                        SelectionMode="GridSelectionMode.Multiple"
+                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                        AutoExpandAllGroupRows="true"
+                        CssClass="ch-360"
+                        style="height: calc(100vh - 270px);"
+                        FocusedRowEnabled="false"
+                      
+                        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                        AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
+                    <Columns>
+
+                        <DxGridSelectionColumn Width="60px" AllowSelectAll="true"></DxGridSelectionColumn>
+                        <DxGridDataColumn FieldName="MainTopic" Caption="Main Subject" MinWidth="80" />
+                        <DxGridDataColumn FieldName="SubTopic" Caption="Sub Subject" MinWidth="80" />
+                        <DxGridDataColumn FieldName="Notes" MinWidth="80" />
+                    </Columns>
+                    <TotalSummary>
+                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Notes" />
+                    </TotalSummary>
+                </DxGrid>
+            </DxLoadingPanel>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+       
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    IGrid? Grid { get; set; }
+    bool PanelVisible { get; set; }
+    IGrid? UserGrid { get; set; }
+    public List<ToDoNotes>? _TopicList;
+    internal List<ToDoNotes>? _NotesLst;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    private ToDoNotes _selectedItems;
+    bool deletepopup { get; set; } = false;
+    bool BlukDelete { get; set; } = false;
+    bool TopicDeleteEnabled { get; set; } = false;
+    bool TopicListpopup { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _NotesLst = await Mediator.Send(new GetAllToDoNotes(applicationUser.UserID));
+        PanelVisible = false;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _NotesLst.FirstOrDefault(f => f.ID ==(long?) UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+        StateHasChanged();
+
+    }
+
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editmodel = (ToDoNotes)e.EditModel;
+        if (e.IsNew)
+        {
+        }
+        else
+        {
+
+            var ans = await Mediator.Send (new EditNotesQuery(_selectedItems.Notes,editmodel.Notes,applicationUser.UserID));
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+
+
+        }
+    }
+    void addUseredit()
+    {
+        UserGrid?.StartEditDataItemAsync(_selectedItems);
+    }
+    async void addDelete()
+    {
+
+        _TopicList = await Mediator.Send(new GetTopicTodoList(applicationUser.UserID, _selectedItems.Notes));
+        if (_TopicList.Count > 1)
+        {
+            TopicListpopup = true;
+        }
+        else
+        {
+            deletepopup = true;
+        }
+        StateHasChanged();
+
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        deletepopup = false;
+        BlukDelete = false;
+        TopicListpopup =false;
+        SelectedDataItems = null;
+
+    }
+    public async void OnDelete()
+    {
+
+        var request = new GetAllDelete(_selectedItems.ID);
+        await Mediator.Send(request);
+
+
+        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        deletepopup = false;
+        await UpdateDataAsync();
+        StateHasChanged();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 0)
+        {
+            TopicDeleteEnabled = true;
+        }
+
+
+    }
+    void OnTopicDelete()
+    {
+        BlukDelete = true;
+    }
+    async  void OnBlukDelete()
+    {
+       
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is ToDoNotes ToDoNotes)
+                    {
+
+                        var request = new GetAllDelete(ToDoNotes.ID);
+                        await Mediator.Send(request);
+                          BlukDelete = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                        StateHasChanged();
+                    }
+
+                }
+            }
+        
+
+        await UpdateDataAsync();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_NotesLst != null)
+        {
+            _NotesLst.Clear();
+            _NotesLst = null;
+        }
+        _TopicList?.Clear();
+        _TopicList = null;
+        _selectedItems = null;
+    }
+}

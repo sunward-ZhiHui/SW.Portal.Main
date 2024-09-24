@@ -31,12 +31,33 @@ namespace Application.Queries
             TopicId = topicId;
         }
     }
-
+    public class GetTopicTodoList : PagedRequest, IRequest<List<ToDoNotes>>
+    {
+        public long UserID { get; set; }
+        public string notes { get; set; }
+        public GetTopicTodoList(long UserID, string notes)
+        {
+            this.UserID = UserID;
+           this.notes = notes;
+        }
+    }
     public class CreateToDoNotesQuery : ToDoNotes, IRequest<long>
     {
     }
     public class EditToDoNotesQuery : ToDoNotes, IRequest<long>
     {
+    }
+    public class EditNotesQuery : PagedRequest, IRequest<string>
+    {
+        public string selectNotes { get; set; }
+        public string Notes { get; set; }
+        public long UserID { get; set; }
+        public EditNotesQuery(string selectNotes, string Notes,long UserID)
+        {
+            this.selectNotes = selectNotes;
+            this.Notes = Notes;
+            this.UserID = UserID;
+        }
     }
 
     public class DeleteToDoNotesQuery : PagedRequest, IRequest<long>

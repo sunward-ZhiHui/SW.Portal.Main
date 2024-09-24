@@ -38,6 +38,20 @@ namespace Application.Handlers.QueryHandlers
             
         }
     }
+    public class GetTopicToDoNotesHandler : IRequestHandler<GetTopicTodoList, List<ToDoNotes>>
+    {
+
+        private readonly IToDoNotesQueryRepository _toDoNotesQueryRepository;
+        public GetTopicToDoNotesHandler(IToDoNotesQueryRepository toDoNotesQueryRepository)
+        {
+            _toDoNotesQueryRepository = toDoNotesQueryRepository;
+        }
+        public async Task<List<ToDoNotes>> Handle(GetTopicTodoList request, CancellationToken cancellationToken)
+        {
+            return (List<ToDoNotes>)await _toDoNotesQueryRepository.GetAllNotesAsync(request.UserID, request.notes);
+
+        }
+    }
     public class CreateToDoNotesHandler : IRequestHandler<CreateToDoNotesQuery, long>
     {
         private readonly IToDoNotesQueryRepository _toDoNotesQueryRepository;
@@ -67,7 +81,20 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+    public class EditNotesHandler : IRequestHandler<EditNotesQuery, string>
+    {
+        private readonly IToDoNotesQueryRepository _toDoNotesQueryRepository;
+        public EditNotesHandler(IToDoNotesQueryRepository toDoNotesQueryRepository)
+        {
+            _toDoNotesQueryRepository = toDoNotesQueryRepository;
+        }
 
+        public async Task<string> Handle(EditNotesQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _toDoNotesQueryRepository.UpdateNoteAsync(request.selectNotes,request.Notes,request.UserID);
+            return newlist;
+        }
+    }
     public class DeleteToDoNotesHandler : IRequestHandler<DeleteToDoNotesQuery, long>
     {
         private readonly IToDoNotesQueryRepository _toDoNotesQueryRepository;

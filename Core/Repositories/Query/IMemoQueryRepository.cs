@@ -20,5 +20,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<Memo>> GetAllByUserAsync(long? userId);
         Task<IReadOnlyList<MemoUser>> GetMemoUserByMemoIdync(long? MemoId);
         Task<Memo> InsertCloneMemo(Memo memo);
+        Task<Memo> GetMemoSessionList(Guid? SessionID);
     }
 }

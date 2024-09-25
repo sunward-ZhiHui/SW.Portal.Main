@@ -34,19 +34,8 @@ namespace Infrastructure.Repository.Query
             try
             {
                 List<Memo> Memolist = new List<Memo>(); List<MemoUser> MemoUser = new List<MemoUser>();
-                var query = "select t1.*,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID\r\n;";
+                var query = "select t1.MemoID,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID\r\n;";
                 query += "select * from MemoUser;";
-                /* query += "select t1.MemoUserId,\r\nt1.MemoId,\r\nt1.UserType,\r\nt1.UserID,\r\nt1.UserGroupID,\r\nt1.LevelID,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\n" +
-                     "t5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\n" +
-                     "t8.Name as DesignationName,\r\n" +
-                     "CONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\n" +
-                     "from MemoUser t1\r\n" +
-                      "LEFT JOIN Memo t2 ON t1.MemoId=t2.MemoID\r\n" +
-                     "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
-                     "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n" +
-                     "JOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
-                     "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
-                     "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n;";*/
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query);
@@ -81,6 +70,64 @@ namespace Infrastructure.Repository.Query
                     });
                 }
                 return Memolist;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<Memo> GetMemoSessionList(Guid? SessionID)
+        {
+            try
+            {
+                Memo Memolist = new Memo(); List<MemoUser> MemoUser = new List<MemoUser>();
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", SessionID);
+                try
+                {
+                    var query = "select t1.MemoID,t1.MemoContent,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID where t1.SessionID=@SessionID\r\n;";
+
+                    using (var connection = CreateConnection())
+                    {
+                        var results = await connection.QueryMultipleAsync(query, parameters);
+                        Memolist = results.Read<Memo>().FirstOrDefault();
+                        if (Memolist != null)
+                        {
+                            parameters.Add("MemoId", Memolist.MemoId);
+                            var query1 = "select * from MemoUser where MemoId=@MemoId;";
+                            MemoUser = (await connection.QueryAsync<MemoUser>(query1,parameters)).ToList();
+                        }
+                    }
+                    if (Memolist != null)
+                    {
+                        var MemoUsers = MemoUser.Where(w => w.MemoId == Memolist.MemoId && w.UserType != "CC User").ToList();
+                        var MemoccUsers = MemoUser.Where(w => w.MemoId == Memolist.MemoId && w.UserType == "CC User").ToList();
+                        Memolist.UserType = MemoUsers != null && MemoUsers.Count > 0 ? MemoUsers.FirstOrDefault()?.UserType : "User";
+                        if (string.IsNullOrEmpty(Memolist.UserType))
+                        {
+                            Memolist.UserType = "User";
+                        }
+                        if (MemoUsers != null && MemoUsers.Count() > 0)
+                        {
+                            Memolist.SelectUserIDs = MemoUsers.Where(w => w.UserId > 0).Select(s => s.UserId).Distinct().ToList();
+                            Memolist.SelectUserGroupIDs = MemoUsers.Where(w => w.UserGroupId > 0).Select(s => s.UserGroupId).Distinct().ToList();
+                            Memolist.SelectLevelMasterIDs = MemoUsers.Where(w => w.LevelId > 0).Select(s => s.LevelId).Distinct().ToList();
+                            Memolist.MemoUserList = MemoUsers;
+                            // Memolist.UserNameLists = string.Join(',', MemoUsers.Select(z => z.FirstName).ToList());
+                            // Memolist.AcknowledgeUserNameLists = string.Join(',', MemoUsers.Where(w => w.IsAcknowledgement == true).Select(z => z.FirstName).ToList());
+                            Memolist.AcknowledgeUserIDs = MemoUsers.Where(w => w.UserId > 0 && w.IsAcknowledgement == true).Select(s => s.UserId).Distinct().ToList();
+                        }
+                        if (MemoccUsers != null && MemoccUsers.Count() > 0)
+                        {
+                            Memolist.SelectCCUserIDs = MemoccUsers.Where(w => w.UserId > 0).Select(s => s.UserId).Distinct().ToList();
+                        }
+                    }
+                    return Memolist;
+                }
+                catch (Exception exp)
+                {
+                    throw new Exception(exp.Message, exp);
+                }
             }
             catch (Exception exp)
             {
@@ -391,8 +438,11 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                     {
+                        var PreviousMemoId = memo.MemoId;
                         var parameters = new DynamicParameters();
                         parameters.Add("MemoId", memo.MemoId);
+                        parameters.Add("PreviousMemoId", PreviousMemoId);
+                        parameters.Add("PreviousStatusCodeID", 2731);
                         parameters.Add("Subject", memo.Subject, DbType.String);
                         parameters.Add("MemoContent", memo.MemoContent, DbType.String);
                         parameters.Add("IsAttachment", memo.IsAttachment == true ? true : null);
@@ -405,11 +455,12 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("StatusCodeID", memo.StatusCodeId);
                         var query = "INSERT INTO Memo(StartDate,Subject,MemoContent,IsAttachment,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
                             "OUTPUT INSERTED.MemoId VALUES " +
-                            "(@StartDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
+                            "(@StartDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID);";
                         memo.MemoId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        var query1 = string.Empty;
                         if (memo.MemoUserList != null && memo.MemoUserList.Count() > 0)
                         {
-                            var query1 = string.Empty;
+                            
                             memo.MemoUserList.ForEach(s =>
                             {
                                 string? userId = s.UserId == null ? "null" : s.UserId.ToString();
@@ -418,10 +469,11 @@ namespace Infrastructure.Repository.Query
                                 query1 += "INSERT INTO [MemoUser](MemoId,UserId,UserType,UserGroupId,LevelId) OUTPUT INSERTED.MemoUserId " +
                                       "VALUES (" + memo.MemoId + "," + userId + ",'" + s.UserType + "'," + userGroupId + "," + levelId + ");";
                             });
-                            if (!string.IsNullOrEmpty(query1))
-                            {
-                                await connection.QuerySingleOrDefaultAsync<long>(query1, null);
-                            }
+                        }
+                        query1 += "Update Memo set  StatusCodeID=@PreviousStatusCodeID where MemoId=@PreviousMemoId;\r\n;";
+                        if (!string.IsNullOrEmpty(query1))
+                        {
+                            await connection.QuerySingleOrDefaultAsync<long>(query1, parameters);
                         }
                         return memo;
                     }

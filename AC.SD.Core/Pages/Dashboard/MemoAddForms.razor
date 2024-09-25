@@ -1,0 +1,349 @@
+﻿@using Application.Queries;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@* @implements IAsyncDisposable
+ *@@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@page "/memos/memosForm"
+@page "/memos/memosForm/{SessionIds:guid}"
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+        <div class="cw-480" style="margin-top:10px;margin-bottom:10px;">
+            <EditForm EditContext="this._editContext" Context="EditFormContext">
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="Type" ColSpanMd="10">
+                        <DxRadioGroup Items="@TemplateUploadOptions"
+                                      Value="@Data.UserType"
+                                      ValueExpression="@(() => Data.UserType )"
+                                      ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value))"
+                                      Layout="RadioGroupLayout.Horizontal"
+                                      Enabled="@isEnabled"
+                                      CssClass="dx-demo-radio-group" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Users" ColSpanMd="10" Visible="UserEnabled">
+                        <DxTagBox Data="_usersList"
+                                  @bind-Values="Data.SelectUserIDs"
+                                  NullText="Select To..."
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="UserID"
+                                  TextFieldName="FirstName"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  EditFormat="{0}-{1}-{3}"
+                                  Enabled="@isEnabled"
+                                  ListRenderMode="ListRenderMode.Virtual">
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                        </DxTagBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="User Group" ColSpanMd="10" Visible="UserGroupEnabled">
+                        <DxTagBox Data="_userGroupsList"
+                                  @bind-Values="Data.SelectUserGroupIDs"
+                                  NullText="Select To..."
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="UserGroupId"
+                                  TextFieldName="Name"
+                                  Enabled="@isEnabled"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  ListRenderMode="ListRenderMode.Virtual">
+                            <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                            <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+                        </DxTagBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Level Master" ColSpanMd="12" Visible="LevelEnabled">
+                        <DxTagBox Data="_levelMasterLists"
+                                  @bind-Values="Data.SelectLevelMasterIDs"
+                                  NullText="Select To..."
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="LevelID"
+                                  TextFieldName="Name"
+                                  Enabled="@isEnabled"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  ListRenderMode="ListRenderMode.Virtual">
+                            <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
+                        </DxTagBox>
+                    </DxFormLayoutItem>
+                    @*  <DxFormLayoutItem Caption="CC Users" ColSpanMd="6">
+                    <DxTagBox Data="_usersList"
+                    @bind-Values="Data.SelectCCUserIDs"
+                    NullText="Select To..."
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    ValueFieldName="UserID"
+                    TextFieldName="FirstName"
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    EditFormat="{0}-{1}-{3}"
+                    ListRenderMode="ListRenderMode.Virtual">
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                    </DxTagBox>
+                    </DxFormLayoutItem> *@
+                    <DxFormLayoutItem Caption="Subject" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.Subject" />
+                        <ValidationMessage For="@(() => Data.Subject)" />
+                    </DxFormLayoutItem>
+                    @* <DxFormLayoutItem Caption="Is Attachment" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="Data.IsAttachment"></DxCheckBox>
+                    </DxFormLayoutItem> *@
+                    <DxFormLayoutItem Caption="Start Date" ColSpanMd="6">
+                        <DxDateEdit @bind-Date="@Data.StartDate" />
+                        <ValidationMessage For="@(() => Data.StartDate)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Memo Status" ColSpanMd="6">
+                        <DxComboBox Data="@_memoStatusList"
+                                    NullText="Select Memo Status..."
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="CodeValue"
+                                    ValueFieldName="CodeId"
+                                    ShowValidationIcon="true"
+                                    @bind-Value="@Data.StatusCodeId" />
+                        <ValidationMessage For="@(() => Data.StatusCodeId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Content" ColSpanMd="12">
+
+                        <DxHtmlEditor @bind-Markup="@Data.MemoContent" MarkupType="HtmlEditorMarkupType.Html" Height="200px" Width="100%" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<DxPopup @ref="popup" HeaderText="Message" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+@code {
+    [Parameter]
+    public Guid? SessionIds { get; set; }
+    string? errorMessage; DxPopup? popup; bool UserEnabled { get; set; } = false;
+    bool UserGroupEnabled { get; set; } = false; bool PopupVisible { get; set; } = false;
+    bool LevelEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
+    public Memo? MemoData { get; set; }
+    public ApplicationUser? applicationUser { get; set; }
+    Memo Data = new Memo();
+    EditContext _editContext;
+    private List<ViewEmployee>? _usersList { get; set; }
+    private List<UserGroup> _userGroupsList { get; set; }
+    public List<ViewLevel> _levelMasterLists { get; set; }
+    public List<MemoUser> _MemoUserList { get; set; }
+    private List<CodeMaster> _memoStatusList { get; set; }
+    IEnumerable<string> TemplateUploadOptions = new[] { "User", "User Group", "Level" };
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _memoStatusList = await Mediator.Send(new GetAllCodeMasterQuery("MemoStatus"));
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        _userGroupsList = await Mediator.Send(new GetUserGroups());
+        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
+
+        StateHasChanged();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (applicationUser != null)
+        {
+            await OnParametersSetLoadAsync();
+        }
+        base.OnParametersSet();
+    }
+    async Task OnParametersSetLoadAsync()
+    {
+        addForm();
+        MemoData = await Mediator.Send(new GetMemoBySession(SessionIds));
+        if (MemoData != null && MemoData.MemoId > 0)
+        {
+            Data.StatusCodeId = MemoData.StatusCodeId;
+            Data.UserType = MemoData.UserType;
+            Data.SelectUserGroupIDs = MemoData.SelectUserGroupIDs;
+            Data.SelectUserIDs = MemoData.SelectUserIDs;
+            Data.SelectLevelMasterIDs = MemoData.SelectLevelMasterIDs;
+            Data.MemoId = MemoData.MemoId;
+            Data.Subject = MemoData.Subject;
+            Data.StartDate = MemoData.StartDate;
+            Data.IsAttachment = MemoData.IsAttachment;
+            Data.AddedDate = MemoData.AddedDate;
+            Data.SessionId = MemoData.SessionId;
+            Data.ModifiedDate = MemoData.ModifiedDate;
+            Data.AddedByUserId = MemoData.AddedByUserId;
+            Data.ModifiedByUserId = MemoData.ModifiedByUserId;
+            Data.SelectCCUserIDs = MemoData.SelectCCUserIDs;
+            Data.AcknowledgeUserIDs = MemoData.AcknowledgeUserIDs;
+            Data.MemoContent = string.Empty;
+            isEnabled = true;
+            if (MemoData.UserType == "User")
+            {
+                UserEnabled = true;
+            }
+            if (MemoData.UserType == "User Group")
+            {
+                UserGroupEnabled = true;
+            }
+            if (MemoData.UserType == "Level")
+            {
+                LevelEnabled = true;
+            }
+            if (MemoData.AcknowledgeUserIDs.Count() > 0)
+            {
+                isEnabled = false;
+            }
+            Data.MemoContent = MemoData.MemoContent;
+        }
+        StateHasChanged();
+    }
+    async Task addNew()
+    {
+        if (SessionIds != null)
+        {
+            NavigationManager.NavigateTo("memos/memosForm");
+        }
+        else
+        {
+            _editContext = new EditContext(Data);
+            await OnParametersSetLoadAsync();
+        }
+
+    }
+    void addForm()
+    {
+        Data.StatusCodeId = 2730;
+        Data.UserType = "User";
+        Data.SelectUserGroupIDs = new List<long?>();
+        Data.SelectUserIDs = new List<long?>();
+        Data.SelectLevelMasterIDs = new List<long?>();
+        Data.MemoId = 0;
+        Data.Subject = null;
+        Data.MemoContent = string.Empty;
+        Data.StartDate = null;
+        Data.IsAttachment = false;
+        Data.AddedDate = DateTime.Now;
+        Data.SessionId = Guid.NewGuid();
+        Data.ModifiedDate = DateTime.Now;
+        Data.AddedByUserId = applicationUser.UserID;
+        Data.ModifiedByUserId = applicationUser.UserID;
+        Data.SelectCCUserIDs = new List<long?>();
+        Data.AcknowledgeUserIDs = new List<long?>();
+        UserEnabled = true;
+        isEnabled = true;
+        StateHasChanged();
+    }
+    void OnTemplateUploadGroupValueChanged(string? radioValue)
+    {
+        UserEnabled = false; UserGroupEnabled = false; LevelEnabled = false;
+        Data.UserType = radioValue;
+        Data.SelectUserGroupIDs = new List<long?>();
+        Data.SelectUserIDs = new List<long?>();
+        Data.SelectLevelMasterIDs = new List<long?>();
+        if (radioValue == "User")
+        {
+            UserEnabled = true;
+        }
+        if (radioValue == "User Group")
+        {
+            UserGroupEnabled = true;
+        }
+        if (radioValue == "Level")
+        {
+            LevelEnabled = true;
+        }
+        StateHasChanged();
+    }
+    void onBack()
+    {
+        NavigationManager.NavigateTo("memos");
+    }
+    async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await OnEditModelSaving();
+        }
+    }
+    async Task OnEditModelSaving()
+    {
+        var editModel = Data;
+        var createReq = new InsertOrUpdateMemo
+            {
+                MemoId = editModel.MemoId,
+                Subject = editModel.Subject,
+                MemoContent = editModel.MemoContent,
+                StartDate = editModel.StartDate,
+                IsAttachment = editModel.IsAttachment,
+                AddedDate = DateTime.Now,
+                SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
+                ModifiedDate = DateTime.Now,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = applicationUser.UserID,
+                StatusCodeId = editModel.StatusCodeId,
+                SelectLevelMasterIDs = editModel.SelectLevelMasterIDs,
+                SelectUserGroupIDs = editModel.SelectUserGroupIDs,
+                SelectUserIDs = editModel.SelectUserIDs,
+                UserType = editModel.UserType,
+                SelectCCUserIDs = editModel.SelectCCUserIDs,
+                AcknowledgeUserIDs = editModel.AcknowledgeUserIDs,
+            };
+
+        try
+        {
+            var result = await Mediator.Send(createReq);
+            if (editModel.MemoId > 0)
+            {
+                toastService.ShowToast("Record Update Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                Data.MemoId = editModel.MemoId;
+            }
+            else
+            {
+                Data.MemoId = editModel.MemoId;
+                toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                NavigationManager.NavigateTo("memos/memosForm/" + createReq.SessionId + "");
+            }
+        }
+        catch (Exception eq)
+        {
+            errorMessage = eq.Message;
+            PopupVisible = true;
+
+        }
+
+    }
+    void ClosePopup()
+    {
+        PopupVisible = false;
+    }
+}

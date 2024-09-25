@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentViewer", "DocumentV
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DynamicFormConsoleApp", "DynamicFormConsoleApp\DynamicFormConsoleApp.csproj", "{51C77EC8-F764-45FB-8244-EAD2A70A1BCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NavFuncSyncConsoleApp", "NavFuncSyncConsoleApp\NavFuncSyncConsoleApp.csproj", "{CE13E1E9-C9B8-47EA-8ADF-376152FC9AC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NavFuncSyncConsoleApp", "NavFuncSyncConsoleApp\NavFuncSyncConsoleApp.csproj", "{CE13E1E9-C9B8-47EA-8ADF-376152FC9AC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

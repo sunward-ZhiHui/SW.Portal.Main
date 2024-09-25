@@ -104,4 +104,16 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetDynamicFormBySessionHandler : IRequestHandler<GetMemoBySession, Memo>
+    {
+        private readonly IMemoQueryRepository _queryRepository;
+        public GetDynamicFormBySessionHandler(IMemoQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<Memo> Handle(GetMemoBySession request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetMemoSessionList(request.SesionId);
+        }
+    }
 }

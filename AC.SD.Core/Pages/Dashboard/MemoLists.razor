@@ -9,6 +9,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using global::Core.Entities.Views;
 @implements IAsyncDisposable
+@inject NavigationManager NavigationManager
 <style>
     .alt-item > td {
         background-color: rgba(0, 0, 0, 0.05);
@@ -29,9 +30,9 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@AttachmentEnabled" />
+                <DxMenuItem Text="Attachment" IconCssClass="fa fa-paperclip" Click="@addAttachment" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Memo Users" IconCssClass="fa fa-users" Click="@addMemoUsers" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditCloneEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -55,8 +56,6 @@
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             RowDoubleClick="OnRowDoubleClick"
             AllowSelectRowByClick="true"
-            CustomizeEditModel="Grid_CustomizeEditModel"
-            EditModelSaving="@OnEditModelSaving"
             style="height: calc(100vh - 220px);"
             CssClass="ch-360">
         <Columns>
@@ -70,121 +69,11 @@
                     <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.MemoId}") title="View Content" onclick="@(() => OnButtonSortOrderByClick(item))"></i>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="IsAttachment" Width="30%" />
+            @* <DxGridDataColumn FieldName="IsAttachment" Width="30%" /> *@
             <DxGridDataColumn FieldName="AddedDate" Caption="AddedDate" Width="30%" />
             <DxGridDataColumn FieldName="AddedByUser" Caption="AddedBy" Width="30%" />
             <DxGridDataColumn FieldName="StatusCode" Caption="Memo Status" Width="30%" />
         </Columns>
-        <EditFormTemplate Context="EditFormContext">
-            @{
-                var types = (Memo)EditFormContext.EditModel;
-            }
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Type" ColSpanMd="6">
-                    <DxRadioGroup Items="@TemplateUploadOptions"
-                                  Value="@types.UserType"
-                                  ValueExpression="@(() => types.UserType )"
-                                  ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(types,value))"
-                                  Layout="RadioGroupLayout.Horizontal"
-                                  Enabled="@isEnabled"
-                                  CssClass="dx-demo-radio-group" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Users" ColSpanMd="6" Visible="UserEnabled">
-                    <DxTagBox Data="_usersList"
-                              @bind-Values="types.SelectUserIDs"
-                              NullText="Select To..."
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              ValueFieldName="UserID"
-                              TextFieldName="FirstName"
-                              SearchMode="ListSearchMode.AutoSearch"
-                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                              EditFormat="{0}-{1}-{3}"
-                              Enabled="@isEnabled"
-                              ListRenderMode="ListRenderMode.Virtual">
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                    </DxTagBox>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="User Group" ColSpanMd="6" Visible="UserGroupEnabled">
-                    <DxTagBox Data="_userGroupsList"
-                              @bind-Values="types.SelectUserGroupIDs"
-                              NullText="Select To..."
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              ValueFieldName="UserGroupId"
-                              TextFieldName="Name"
-                              Enabled="@isEnabled"
-                              SearchMode="ListSearchMode.AutoSearch"
-                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                              ListRenderMode="ListRenderMode.Virtual">
-                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
-                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
-                    </DxTagBox>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Level Master" ColSpanMd="6" Visible="LevelEnabled">
-                    <DxTagBox Data="_levelMasterLists"
-                              @bind-Values="types.SelectLevelMasterIDs"
-                              NullText="Select To..."
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              ValueFieldName="LevelID"
-                              TextFieldName="Name"
-                              Enabled="@isEnabled"
-                              SearchMode="ListSearchMode.AutoSearch"
-                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                              ListRenderMode="ListRenderMode.Virtual">
-                        <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
-                        <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
-                    </DxTagBox>
-                </DxFormLayoutItem>
-                @*  <DxFormLayoutItem Caption="CC Users" ColSpanMd="6">
-                <DxTagBox Data="_usersList"
-                @bind-Values="types.SelectCCUserIDs"
-                NullText="Select To..."
-                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                ValueFieldName="UserID"
-                TextFieldName="FirstName"
-                SearchMode="ListSearchMode.AutoSearch"
-                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                EditFormat="{0}-{1}-{3}"
-                ListRenderMode="ListRenderMode.Virtual">
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                </DxTagBox>
-                </DxFormLayoutItem> *@
-                <DxFormLayoutItem Caption="Subject" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@types.Subject" />
-                    <ValidationMessage For="@(() => types.Subject)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Is Attachment" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="types.IsAttachment"></DxCheckBox>
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Start Date" ColSpanMd="6">
-                    <DxDateEdit @bind-Date="@types.StartDate" />
-                    <ValidationMessage For="@(() => types.StartDate)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Memo Status" ColSpanMd="6">
-                    <DxComboBox Data="@_memoStatusList"
-                                NullText="Select Memo Status..."
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                TextFieldName="CodeValue"
-                                ValueFieldName="CodeId"
-                                ShowValidationIcon="true"
-                                @bind-Value="@types.StatusCodeId" />
-                    <ValidationMessage For="@(() => types.StatusCodeId)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Content" ColSpanMd="12">
-
-                    <DxHtmlEditor @bind-Markup="@types.MemoContent" MarkupType="HtmlEditorMarkupType.Html" Height="200px" Width="100%" />
-                </DxFormLayoutItem>
-            </DxFormLayout>
-        </EditFormTemplate>
-
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Subject" />
         </TotalSummary>
@@ -321,7 +210,7 @@
          Width="300px">
     <BodyContentTemplate>
         <p>
-            Are you clone this record?
+            Are you sure clone this record?
         </p>
         <span style="font-weight:bold;">@_selectedItems?.Subject</span>
     </BodyContentTemplate>
@@ -330,8 +219,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="cloneMemo" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@MemoAddpopup"
+         ShowFooter="false"
+         HeaderText="Clone"
+         ShowCloseButton="true"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <MemoCloneForms MemoData="@_selectedItems" applicationUser="@applicationUser" RevokeBack="MemopopupClose"></MemoCloneForms>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-    bool isEnabled { get; set; } = true;
+    bool EditCloneEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true; bool MemoAddpopup { get; set; } = false;
     bool PanelSubVisible { get; set; } = false;
     bool IsMemoOpen { get; set; } = false; bool MemoUserpopup { get; set; } = false;
     IEnumerable<string> TemplateUploadOptions = new[] { "User", "User Group", "Level" };
@@ -346,7 +250,7 @@
     private List<Memo> _MemoList;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
-    private Memo _selectedItems;
+    private Memo _selectedItems; private Memo _selectedAddItems;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private Memo _selectAttributelst; private Memo _selectAttributelsts { get; set; }
     string? errorMessage;
@@ -376,7 +280,7 @@
         try
         {
             PanelVisible = true; AttachmentEnabled = false;
-            EditEnabled = false; DeleteEnabled = false;
+            EditEnabled = false; DeleteEnabled = false; EditCloneEnabled = false;
             _MemoList = await Mediator.Send(new GetAllMemoQuery()); isEnabled = true;
             AddEnabled = true;
             if (_MemoList != null && _MemoList.Count > 0)
@@ -384,9 +288,9 @@
                 _selectedItems = _MemoList.FirstOrDefault();
                 EditEnabled = true;
                 DeleteEnabled = true;
-                if (_selectedItems.IsAttachment == true)
+                if (_selectedItems.StatusCodeId == 2730)
                 {
-                    AttachmentEnabled = true;
+                    EditCloneEnabled = true;
                 }
                 if (_selectedItems.AcknowledgeUserIDs.Count() > 0)
                 {
@@ -405,40 +309,26 @@
 
         }
     }
-    void OnButtonSortOrderByClick(Memo dynamicFormSection)
+    async Task OnButtonSortOrderByClick(Memo dynamicFormSection)
     {
-        _selectAttributelsts = dynamicFormSection;
-        IsMemoOpen = true;
-    }
-    void OnTemplateUploadGroupValueChanged(Memo types, string? radioValue)
-    {
-        UserEnabled = false; UserGroupEnabled = false; LevelEnabled = false;
-        types.UserType = radioValue;
-        types.SelectUserGroupIDs = new List<long?>();
-        types.SelectUserIDs = new List<long?>();
-        types.SelectLevelMasterIDs = new List<long?>();
-        if (radioValue == "User")
+        if (dynamicFormSection != null && dynamicFormSection.SessionId != null)
         {
-            UserEnabled = true;
+            var result = await Mediator.Send(new GetMemoBySession(dynamicFormSection.SessionId));
+            if (result != null)
+            {
+                _selectAttributelsts = result;
+                IsMemoOpen = true;
+            }
         }
-        if (radioValue == "User Group")
-        {
-            UserGroupEnabled = true;
-        }
-        if (radioValue == "Level")
-        {
-            LevelEnabled = true;
-        }
-        StateHasChanged();
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "MemoId");
         _selectedItems = _MemoList.FirstOrDefault(f => f.MemoId == (long?)UniqueId);
         DeleteEnabled = true; EditEnabled = true; AttachmentEnabled = false; isEnabled = true;
-        if (_selectedItems.IsAttachment == true)
+        if (_selectedItems.StatusCodeId == 2730)
         {
-            AttachmentEnabled = true;
+            EditCloneEnabled = true;
         }
         if (_selectedItems.AcknowledgeUserIDs.Count() > 0)
         {
@@ -455,6 +345,11 @@
     {
         AttachmentPopUp = false;
         StateHasChanged();
+    }
+    void MemopopupClose()
+    {
+        MemoAddpopup = false;
+        InvokeAsync(UpdateDataAsync);
     }
     async void ClosePopup()
     {
@@ -479,64 +374,11 @@
     }
     void addNew()
     {
-        Grid.StartEditNewRowAsync();
-
-    }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
-    {
-        var navitems = (Memo)e.EditModel;
-        UserEnabled = false; UserGroupEnabled = false; LevelEnabled = false;
-        if (e.IsNew)
-        {
-            navitems.StatusCodeId = 2730;
-            navitems.UserType = "User";
-            UserEnabled = true;
-            isEnabled = true;
-        }
-        else
-        {
-            isEnabled = true;
-            if (navitems.UserType == "User")
-            {
-                UserEnabled = true;
-            }
-            if (navitems.UserType == "User Group")
-            {
-                UserGroupEnabled = true;
-            }
-            if (navitems.UserType == "Level")
-            {
-                LevelEnabled = true;
-            }
-            if (navitems.AcknowledgeUserIDs.Count() > 0)
-            {
-                isEnabled = false;
-            }
-        }
+        NavigationManager.NavigateTo("memos/memosForm");
     }
     void addEdit()
     {
-        // if (SelectedDataItems != null)
-        // {
-
-        //     if (SelectedDataItems.Count == 1)
-        //     {
-
-        //         foreach (object item in SelectedDataItems)
-        //         {
-        //             if (item is Memo dataselectItems)
-        //             {
-        //                 _selectAttributelst = _MemoList.FirstOrDefault(f => f.MemoId == dataselectItems.MemoId);
-        //             }
-        //         }
-        //         Grid.StartEditDataItemAsync(_selectAttributelst);
-        //     }
-        //     else
-        //     {
-        Grid.StartEditDataItemAsync(_selectedItems);
-        //}
-        // }
-
+        NavigationManager.NavigateTo("memos/memosForm/" + _selectedItems.SessionId);
     }
     void addDelete()
     {
@@ -592,54 +434,6 @@
         }
 
     }
-    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        var editModel = (Memo)e.EditModel;
-        var createReq = new InsertOrUpdateMemo
-            {
-                MemoId = editModel.MemoId,
-                Subject = editModel.Subject,
-                MemoContent = editModel.MemoContent,
-                StartDate = editModel.StartDate,
-                IsAttachment = editModel.IsAttachment,
-                AddedDate = DateTime.Now,
-                SessionId = editModel.SessionId == null ? Guid.NewGuid() : editModel.SessionId,
-                ModifiedDate = DateTime.Now,
-                AddedByUserId = applicationUser.UserID,
-                ModifiedByUserId = applicationUser.UserID,
-                StatusCodeId = editModel.StatusCodeId,
-                SelectLevelMasterIDs = editModel.SelectLevelMasterIDs,
-                SelectUserGroupIDs = editModel.SelectUserGroupIDs,
-                SelectUserIDs = editModel.SelectUserIDs,
-                UserType = editModel.UserType,
-                SelectCCUserIDs = editModel.SelectCCUserIDs,
-                AcknowledgeUserIDs = editModel.AcknowledgeUserIDs,
-            };
-
-        try
-        {
-            var result = await Mediator.Send(createReq);
-            if (editModel.MemoId > 0)
-            {
-                toastService.ShowToast("Record Update Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                await UpdateDataAsync();
-            }
-            else
-            {
-                toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                await UpdateDataAsync();
-            }
-
-        }
-        catch (Exception eq)
-        {
-
-            errorMessage = eq.Message;
-            PopupVisible = true;
-
-        }
-
-    }
     async Task addMemoUsers()
     {
         if (_selectedItems != null)
@@ -657,7 +451,9 @@
     }
     void addCloneOpen()
     {
-        Clonepopup = true;
+        MemoAddpopup = true;
+        StateHasChanged();
+        //Clonepopup = true;
     }
     async Task cloneMemo()
     {

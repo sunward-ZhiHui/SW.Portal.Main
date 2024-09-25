@@ -62,4 +62,13 @@ namespace Application.Queries
             this.Memo = memo;
         }
     }
+    public class GetMemoBySession : PagedRequest, IRequest<Memo>
+    {
+        public string? SearchString { get; set; }
+        public Guid? SesionId { get; set; }
+        public GetMemoBySession(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
+    }
 }

@@ -254,8 +254,8 @@ namespace Infrastructure.Service
                     var prodCodes = result.ToList();
                     prodCodes.ForEach(b =>
                     {
-                        var exits = ItemBatchInfo.Where(f => f.BatchNo == b.Batch_No && f.LocationCode == b.Location_Code ).Count();
-                        if (exits ==0)
+                        var exits = ItemBatchInfo.Where(f => f.BatchNo == b.Batch_No && f.LocationCode == b.Location_Code).Count();
+                        if (exits == 0)
                         {
                             ItemBatchInfo.Add(new Core.Entities.ItemBatchInfo
                             {
@@ -671,6 +671,82 @@ namespace Infrastructure.Service
             {
                 throw ex;
             }
+        }
+        public async Task<List<NavprodOrderLine>> GetNAVProdOrderLine(string company, long companyid, List<NavprodOrderLine> productionLinelist)
+        {
+
+            List<NavprodOrderLine> prodNotStartList = new List<NavprodOrderLine>();
+            var fromMonth = DateTime.Today;
+            var year = fromMonth.Year - 1;
+            var tomonth = DateTime.Today.AddMonths(6);
+            var context = new NAVService(_configuration, company);
+            int pageSize = 1000;
+            int page = 0;
+
+            while (true)
+            {
+                var nquery = context.Context.ProdOrderLineList.Where(w => w.Status == "Released").Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<NAV.ProdOrderLineList> query = (DataServiceQuery<NAV.ProdOrderLineList>)nquery;
+
+                TaskFactory<IEnumerable<NAV.ProdOrderLineList>> taskFactory = new TaskFactory<IEnumerable<NAV.ProdOrderLineList>>();
+                IEnumerable<NAV.ProdOrderLineList> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+                prodCodes.ForEach(f =>
+                {
+                    if (f.Line_No > 0)
+                    {
+                        string refNo = String.Empty;
+                        if (!string.IsNullOrEmpty(f.Prod_Order_No))
+                        {
+                            var refPlanNo = f.Prod_Order_No.Split("-");
+                            if (refPlanNo.Length == 1)
+                            {
+                                refNo = refPlanNo[0];
+                            }
+                            else
+                            {
+                                refNo = refPlanNo[0] + "-" + refPlanNo[1];
+                            }
+                            if (!string.IsNullOrEmpty(refNo))
+                            {
+                                var exitsData = prodNotStartList.Where(s => s.ItemNo == f.Item_No && s.RePlanRefNo == refNo && s.ProdOrderNo == f.Prod_Order_No).Count();
+                                if (exitsData == 0)
+                                {
+                                    var exist = productionLinelist.Where(p => p.ItemNo == f.Item_No && p.RePlanRefNo == refNo && p.CompanyId == companyid && p.ProdOrderNo == f.Prod_Order_No).FirstOrDefault();
+                                    if (exist == null)
+                                    {
+                                        var prodNotStart = new NavprodOrderLine
+                                        {
+                                            RePlanRefNo = refNo,
+                                            CompanyId = companyid,
+                                            ProdOrderNo = f.Prod_Order_No,
+                                            OrderLineNo = f.Line_No,
+                                            ItemNo = f.Item_No,
+                                            Description = f.Description,
+                                            Description1 = f.Description_2,
+                                            CompletionDate = f.Completion_Date == DateTime.MinValue ? null : f.Completion_Date,
+                                            RemainingQuantity = f.Remaining_Quantity,
+                                            BatchNo = f.Batch_No,
+                                            Status = f.Status,
+                                            OutputQty = f.Finished_Quantity,
+                                            StartDate = f.Starting_Date == DateTime.MinValue ? null : f.Starting_Date,
+                                            LastSyncDate = DateTime.Now,
+                                        };
+
+                                        prodNotStartList.Add(prodNotStart);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                if (prodCodes.Count < 1000)
+                    break;
+                page++;
+            }
+
+            return prodNotStartList;
         }
     }
 }

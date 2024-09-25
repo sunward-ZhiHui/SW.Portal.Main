@@ -195,50 +195,99 @@
     </div>
 </EditForm>
 
-
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormNavprodOrderLine" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm id="@NavprodOrderLineId" @ref="NavprodOrderLineForm" EditContext="this._editNavprodOrderLineContext" OnValidSubmit="@HandleNavprodOrderLineValidSubmit"
+          Context="EditFormContext">
+    <DataAnnotationsValidator />
+    <div class="card-body">
+        <div class="row">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Production Activity ProdOrderNo-Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="NavCompanyName"
+                                ValueFieldName="PlantID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@navprodOrderLine.CompanyId" ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => navprodOrderLine.CompanyId)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </div>
+    </div>
+</EditForm>
 
 @code{
-    internal string MyID = "myForm"; internal string MyItemID = "MyItemID";
+    internal string MyID = "myForm"; internal string MyItemID = "MyItemID"; internal string NavprodOrderLineId = "NavprodOrderLineForm";
     internal string MyItemBatchID = "myForm"; internal string FinishedProdOrderLineID = "myForms";
-    internal EditForm? myForm; internal EditForm? FinishedProdOrderLineForm;
+    internal EditForm? myForm; internal EditForm? FinishedProdOrderLineForm; internal EditForm? NavprodOrderLineForm;
     internal EditForm? myItemBatchForm;
     internal EditForm? myItemForm;
     private List<ViewPlants>? _plantItems;
     public ApplicationUser applicationUser { get; private set; }
     EditContext? _editContext;    
-    EditContext? _editItemBatchContext;
+    EditContext? _editItemBatchContext; EditContext? _editNavprodOrderLineContext;
     EditContext? _editItemContext; EditContext? _editFinishedProdOrderLineContext;
     IEnumerable<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
     string Text { get; set; } = "RawMatItem";
 
     Model? Data { get; set; } = new Model();
     ItemBatchModel? DataItemBatch { get; set; } = new ItemBatchModel();
-    FinishedProdOrderLine FinishedProdOrderLines { get; set; } = new FinishedProdOrderLine();
+    FinishedProdOrderLineFormModel FinishedProdOrderLines { get; set; } = new FinishedProdOrderLineFormModel();
+    NavprodOrderLineFormModel navprodOrderLine = new NavprodOrderLineFormModel();
     string? NavCompanyName { get; set; }
     string? NavItemBatchCompanyName { get; set; }
     DataItemModel? DataItem = new DataItemModel();
     public class Model
-    {  [Required] 
+    {
+        [Required(ErrorMessage = "Company Name is required")]
         public long? PlantID { get; set; }
         [Required]
         public string? Value { get; set; }
     }
     public class DataItemModel
     {
-        [Required]
+        [Required(ErrorMessage = "Company Name is required")]
         public long? PlantID { get; set; }
     }
     public class ItemBatchModel
     {
-        [Required]
+        [Required(ErrorMessage = "Company Name is required")]
         public long? PlantID { get; set; }
+    }
+    public class FinishedProdOrderLineFormModel
+    {
+        [Required(ErrorMessage = "Company Name is required")]
+        public long? CompanyId { get; set; }
+    }
+    public class NavprodOrderLineFormModel
+    {
+        [Required(ErrorMessage = "Company Name is required")]
+        public long? CompanyId { get; set; }
     }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
-        _editItemContext = new EditContext(DataItem);
+        _editItemContext = new EditContext(DataItem); _editNavprodOrderLineContext = new EditContext(navprodOrderLine);
         _editItemBatchContext = new EditContext(DataItemBatch); _editFinishedProdOrderLineContext = new EditContext(FinishedProdOrderLines);
-         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
     }
     private async Task SubmitFormExternally()
@@ -294,9 +343,9 @@
             _plantItems.Clear();
             _plantItems = null;
         }
-            Types = null;
+        Types = null;
     }
-    
+
 
     private async Task SubmitFormFinishedProdOrderLine()
     {
@@ -310,6 +359,20 @@
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var result = await Mediator.Send(new GetFinishedProdOrderLineQuery(FinishedProdOrderLines.CompanyId));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private async Task SubmitFormNavprodOrderLine()
+    {
+        if (_editNavprodOrderLineContext.Validate())
+        {
+
+            await this.HandleNavprodOrderLineValidSubmit();
+        }
+    }
+    async Task HandleNavprodOrderLineValidSubmit()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        var result = await Mediator.Send(new GetNavprodOrderLineListQuery(navprodOrderLine.CompanyId));
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
 }

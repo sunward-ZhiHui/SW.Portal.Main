@@ -88,6 +88,35 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        [HttpGet("InsertOrUpdateNavprodOrderLine")]
+        public async Task<ActionResult<Services.ResponseModel<List<NavprodOrderLine>>>> InsertOrUpdateNavprodOrderLine()
+        {
+            var response = new Services.ResponseModel<NavprodOrderLine>();
+            List<NavprodOrderLine> itemBatchInfo = new List<NavprodOrderLine>();
+            var plantDatas = await GetPlatDatas();
+            if (plantDatas != null && plantDatas.Count() > 0)
+            {
+                foreach (var item in plantDatas)
+                {
+                    await _mediator.Send(new GetNavprodOrderLineListQuery(item.PlantID));
+                }
+            }
+            response.ResponseCode = Services.ResponseCode.Success;
+            response.Results = itemBatchInfo;
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = itemBatchInfo;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 
 

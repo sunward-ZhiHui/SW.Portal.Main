@@ -696,5 +696,102 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<NavprodOrderLine>> GetNavprodOrderLineAsync(long? CompanyId)
+        {
+            List<NavprodOrderLine> NavprodOrderLineList = new List<NavprodOrderLine>();
+            try
+            {
+                var query = "select  * from NavprodOrderLine where  CompanyId= " + CompanyId;
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<NavprodOrderLine>(query)).ToList();
+                    NavprodOrderLineList = result != null ? result : new List<NavprodOrderLine>();
+                }
+                return NavprodOrderLineList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<NavprodOrderLine> GetNavprodOrderLineList(long? CompanyId)
+        {
+            try
+            {
+                NavprodOrderLine finishedProdOrderLine = new NavprodOrderLine();
+                var NavprodOrderLineData = await GetNavprodOrderLineAsync(CompanyId);
+                var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                if (plantData != null)
+                {
+                    List<NavprodOrderLine> NavprodOrderLineDatas = NavprodOrderLineData != null ? NavprodOrderLineData.ToList() : new List<NavprodOrderLine>();
+                    var lst = await _salesOrderService.GetNAVProdOrderLine(plantData.NavCompanyName, plantData.PlantID, NavprodOrderLineDatas);
+                    if (lst != null && lst.Count > 0)
+                    {
+                        foreach (var s in lst)
+                        {
+                            await InsertNavprodOrderLine(s);
+                        }
+                    }
+                }
+                finishedProdOrderLine.NavprodOrderLineId = 1;
+                return finishedProdOrderLine;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> InsertNavprodOrderLine(NavprodOrderLine finishedProdOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("NAVProdOrderLineId", finishedProdOrderLine.NavprodOrderLineId);
+                    parameters.Add("Status", finishedProdOrderLine.Status, DbType.String);
+                    parameters.Add("ProdOrderNo", finishedProdOrderLine.ProdOrderNo, DbType.String);
+                    parameters.Add("OrderLineNo", finishedProdOrderLine.OrderLineNo);
+                    parameters.Add("ItemNo", finishedProdOrderLine.ItemNo, DbType.String);
+                    parameters.Add("Description", finishedProdOrderLine.Description, DbType.String);
+                    parameters.Add("Description1", finishedProdOrderLine.Description1, DbType.String);
+                    parameters.Add("CompletionDate", finishedProdOrderLine.CompletionDate, DbType.DateTime);
+                    parameters.Add("RemainingQuantity", finishedProdOrderLine.RemainingQuantity);
+                    parameters.Add("UnitofMeasureCode", finishedProdOrderLine.UnitofMeasureCode, DbType.String);
+                    parameters.Add("LastSyncDate", finishedProdOrderLine.LastSyncDate, DbType.DateTime);
+                    parameters.Add("BatchNo", finishedProdOrderLine.BatchNo, DbType.String);
+                    parameters.Add("LastSyncUserId", finishedProdOrderLine.LastSyncUserId);
+                    parameters.Add("ReplanRefNo", finishedProdOrderLine.RePlanRefNo, DbType.String);
+                    parameters.Add("StartDate", finishedProdOrderLine.StartDate, DbType.DateTime);
+                    parameters.Add("OutputQty", finishedProdOrderLine.OutputQty);
+                    parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
+                   // parameters.Add("LocationCode", finishedProdOrderLine.LocationCode,DbType.String);
+                   // parameters.Add("ProductionBOMNo", finishedProdOrderLine.ProductionBOMNo,DbType.String);
+                    var lastInsertedRecordId = finishedProdOrderLine.NavprodOrderLineId;
+                    if (lastInsertedRecordId > 0)
+                    {
+                        var query1 = "Update  NavprodOrderLine SET Status=@Status,ProdOrderNo=@ProdOrderNo,OrderLineNo=@OrderLineNo,ItemNo=@ItemNo,Description=@Description,Description1=@Description1,CompletionDate=@CompletionDate," +
+                            "RemainingQuantity=@RemainingQuantity,UnitofMeasureCode=@UnitofMeasureCode,LastSyncDate=@LastSyncDate,BatchNo=@BatchNo," +
+                            "LastSyncUserId=@LastSyncUserId,ReplanRefNo=@ReplanRefNo,StartDate=@StartDate,OutputQty=@OutputQty,CompanyId=@CompanyId  WHERE NAVProdOrderLineId =@NAVProdOrderLineId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [NavprodOrderLine](Status,ProdOrderNo,OrderLineNo,ItemNo,Description,Description1,CompletionDate,RemainingQuantity,UnitofMeasureCode,LastSyncDate,BatchNo,LastSyncUserId,ReplanRefNo,StartDate,OutputQty,CompanyId) " +
+                            "OUTPUT INSERTED.NAVProdOrderLineId VALUES " +
+                            "(@ProductionBOMNo,@LocationCode,@Status,@ProdOrderNo,@OrderLineNo,@ItemNo,@Description,@Description1,@CompletionDate,@RemainingQuantity,@UnitofMeasureCode,@LastSyncDate,@BatchNo,@LastSyncUserId,@ReplanRefNo,@StartDate,@OutputQty,@CompanyId)";
+                        lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    return lastInsertedRecordId;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

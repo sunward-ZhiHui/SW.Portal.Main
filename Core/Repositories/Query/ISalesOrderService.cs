@@ -21,5 +21,6 @@ namespace Core.Repositories.Query
         Task<List<Navitems>> GetNavItemsAdd(ViewPlants company);
         Task<string> GetNAVStockBalance(StockBalanceSearch StockBalanceSearch);
         Task<List<FinishedProdOrderLine>> FinishedProdOrderLineAsync(string company, long companyid, List<FinishedProdOrderLine> finishedProdOrderLines,List<Navitems> navitems);
+        Task<List<NavprodOrderLine>> GetNAVProdOrderLine(string company, long companyid, List<NavprodOrderLine> navprodOrderLines);
     }
 }

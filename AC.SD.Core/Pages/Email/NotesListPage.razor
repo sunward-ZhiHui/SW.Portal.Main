@@ -82,7 +82,7 @@
             </EditFormTemplate>
             <TotalSummary>
                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
-            </TotalSummary>
+            </TotalSummary> 
         </DxGrid>
     </DxLoadingPanel>
 </div>
@@ -91,7 +91,7 @@
          ShowFooter="true"
          HeaderText="CRT"
          Closed="EulaPopupClosed"
-         Width="300px">
+         Width="300px" CloseOnOutsideClick="false">
     <BodyContentTemplate>
         <p>
            Do you want to Deleting this record will remove all associated data.
@@ -106,7 +106,8 @@
          ShowFooter="true"
          HeaderText="CRT"
          Closed="EulaPopupClosed"
-         Width="300px">
+         Width="300px"
+         CloseOnOutsideClick="false">
     <BodyContentTemplate>
         <p>
            Do you want to delete this Record?
@@ -122,16 +123,17 @@
          ShowFooter="true"
          HeaderText="CRT"
          Closed="EulaPopupClosed"
-         Width="900px">
-    <BodyContentTemplate>
-        <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+         Width="900px"
+         CloseOnOutsideClick="false">
+   <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
+
             <div class="card w-100" style="margin-bottom:10px;">
                 <div class="card-body p-0">
                     <DxMenu CollapseItemsToHamburgerMenu="true"
                             CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                             DisplayMode="MenuDisplayMode.Desktop">
                         <Items>
-                          
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Enabled="@TopicEditEnabled" Click="@topicedit" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Enabled="@TopicDeleteEnabled" Click="@OnTopicDelete" />
                         </Items>
                     </DxMenu>
@@ -147,7 +149,7 @@
                         Data="_TopicList"
                         ShowGroupPanel="true" ShowGroupedColumns="true"
                         KeyFieldName="ID"
-                        EditModelSaving="Grid_EditModelSaving"
+                        EditModelSaving="Grid_TopicEditModelSaving"
                         CustomizeElement="Grid_CustomizeElement"
                         ShowSearchBox="true"
                         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -160,8 +162,9 @@
                         AutoExpandAllGroupRows="true"
                         CssClass="ch-360"
                         style="height: calc(100vh - 270px);"
-                        FocusedRowEnabled="false"
-                      
+                        FocusedRowEnabled="true"
+                        RowClick="OnTopicRowClick"
+                       
                         SelectedDataItemsChanged="@SelectedDataItemsChanged"
                         AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
                     <Columns>
@@ -171,19 +174,44 @@
                         <DxGridDataColumn FieldName="SubTopic" Caption="Sub Subject" MinWidth="80" />
                         <DxGridDataColumn FieldName="Notes" MinWidth="80" />
                     </Columns>
+                    <EditFormTemplate Context="EditFormContext">
+                        @{
+                            var types = (ToDoNotes)EditFormContext.EditModel;
+                        }
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="Notes:" ColSpanMd="12">
+                             
+                                <DxComboBox Data="@_NotesLst"
+                                            NullText="Select Notes..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            AllowUserInput="true"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Notes"
+                                            ValueFieldName="Notes"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            @bind-Value="types.Notes"
+                                            @bind-Text="@NotesName"
+                                            ShowValidationIcon="true">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => NotesName)" />
+                            </DxFormLayoutItem>
+                            <ValidationSummary />
+                        </DxFormLayout>
+                    </EditFormTemplate>
                     <TotalSummary>
                         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Notes" />
-                    </TotalSummary>
+                    </TotalSummary> 
                 </DxGrid>
             </DxLoadingPanel>
-        </div>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
-       
-    </FooterContentTemplate>
+        <DxButton style="margin-right: 10px;margin-top: 10px; margin-left: 780px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="ClosePopUp" />
+    </div>
+ @*  <FooterContentTemplate>
+      
+ </FooterContentTemplate>   *@ 
 </DxPopup>
 @code {
+    string NotesName { get; set; } = "";
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     IGrid? UserGrid { get; set; }
@@ -198,6 +226,9 @@
     bool BlukDelete { get; set; } = false;
     bool TopicDeleteEnabled { get; set; } = false;
     bool TopicListpopup { get; set; } = false;
+    bool TopicEditEnabled { get; set; } = false;
+    private ToDoNotes? _selectedTopicItems;
+    public ToDoNotes _selectlst;
     protected override async Task OnInitializedAsync()
     {
 
@@ -229,6 +260,34 @@
         }
 
     }
+    async Task Grid_TopicEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editmodel = (ToDoNotes)e.EditModel;
+        if (e.IsNew)
+        {
+        }
+        else
+        {
+
+
+            var UpdateReq = new EditToDoNotesQuery
+                {
+                    ID = _selectedTopicItems.ID,
+                    Notes = NotesName,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+
+
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await TopicList();
+            await UpdateDataAsync();
+
+
+        }
+    }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editmodel = (ToDoNotes)e.EditModel;
@@ -250,10 +309,22 @@
     {
         UserGrid?.StartEditDataItemAsync(_selectedItems);
     }
-    async void addDelete()
+    void topicedit()
     {
 
+
+        Grid?.StartEditDataItemAsync(_selectedTopicItems);
+
+
+    }
+    async Task TopicList()
+    {
         _TopicList = await Mediator.Send(new GetTopicTodoList(applicationUser.UserID, _selectedItems.Notes));
+    }
+    async void addDelete()
+    {
+        await TopicList();
+
         if (_TopicList.Count > 1)
         {
             TopicListpopup = true;
@@ -294,6 +365,12 @@
         {
             TopicDeleteEnabled = true;
         }
+        if (_selectedTopicItems != null && SelectedDataItems.Count > 1)
+        {
+            TopicEditEnabled = false;
+
+        }
+       
 
 
     }
@@ -303,28 +380,42 @@
     }
     async  void OnBlukDelete()
     {
-       
-            if (SelectedDataItems != null)
+
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
             {
-                foreach (object item in SelectedDataItems)
+
+                if (item is ToDoNotes ToDoNotes)
                 {
 
-                    if (item is ToDoNotes ToDoNotes)
-                    {
-
-                        var request = new GetAllDelete(ToDoNotes.ID);
-                        await Mediator.Send(request);
-                          BlukDelete = false;
-                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        Grid.SetFocusedRowIndex(0);
-                        StateHasChanged();
-                    }
-
+                    var request = new GetAllDelete(ToDoNotes.ID);
+                    await Mediator.Send(request);
+                    BlukDelete = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    Grid.SetFocusedRowIndex(0);
+                    StateHasChanged();
                 }
+
             }
-        
+        }
+
 
         await UpdateDataAsync();
+    }
+    void OnTopicRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedTopicItems = _TopicList.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        NotesName = _selectedTopicItems.Notes;
+        TopicEditEnabled = true;
+        StateHasChanged();
+
+    }
+    void ClosePopUp()
+    {
+        TopicListpopup = false;
+        StateHasChanged();
     }
     public async ValueTask DisposeAsync()
     {

@@ -37,7 +37,6 @@
 @using System.Threading.Tasks
 @using System.Threading
 @using System.Timers;
-@using DevExpress.Blazor.RichEdit;
 @inject HttpClient httpClient;
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
@@ -166,10 +165,28 @@
                                 @((MarkupString)htmlContent)
                             }
                         </div>
-                        @* <CopyToClipboardButton Text="htmlContent" />*@
-                        @*    <p class="uk-text-success">
+
+
+                       @*  @{
+                            
+                            using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+                            byte[] fileContent1 = item.FileData;
+                            server.LoadDocument(fileContent1);
+                            server.Options.Export.Html.EmbedImages = true;
+                            byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Rtf);
+
+                            item.FileData = fileContents;
+                        }
+
+                        <DxRichEdit CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="richEdit" DocumentContent="@item.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+ *@
+
+
+
+                         @* <CopyToClipboardButton Text="htmlContent" />
+                            <p class="uk-text-success">
                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-                </p>*@
+                </p> *@
 
                         @if (item.documents.Any())
                         {
@@ -385,6 +402,7 @@
 
 
 @code {
+    DxRichEdit? richEdit { get; set; }
     [Parameter]
     public Guid ConSessionId { get; set; }
     [Parameter]
@@ -412,6 +430,37 @@
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
         StateHasChanged();
+    }   
+    void OnCustomizeToolbar(IToolbar toolbar)
+    {
+
+        toolbar.Groups.Clear();
+
+        // Inserts the File group at the first position in the group collection
+        //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
+        toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+        toolbar.Groups.Add(3, RichEditToolbarGroupNames.Picture);
+        toolbar.Groups.Add(4, RichEditToolbarGroupNames.Table);
+
+        IBarGroup clipboardGroup = toolbar.Groups[1];
+        clipboardGroup.Items.Add(5, RichEditBarItemNames.FontUnderline);
+        clipboardGroup.Items.Add(6, RichEditBarItemNames.HighlightText);
+        clipboardGroup.Items.Add(7, RichEditBarItemNames.ClipboardMenu);
+        clipboardGroup.Items.Add(8, RichEditBarItemNames.ClearFormatting);
+        clipboardGroup.Items.Add(9, RichEditBarItemNames.FontStrikeout);
+        clipboardGroup.Items.Add(10, RichEditBarItemNames.FontScriptMenu);
+
+
+        IBarGroup replace = toolbar.Groups[4];
+        replace.Items.Add(1, RichEditBarItemNames.ChangeCaseMenu);
+        replace.Items.Add(2, RichEditBarItemNames.Replace);
+
+        IBarGroup undoRedoGroup = toolbar.Groups[0];
+        undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
+
+
     }
     protected override async Task OnParametersSetAsync()
     {

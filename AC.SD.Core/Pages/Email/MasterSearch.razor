@@ -107,6 +107,7 @@
           AnimationType="FlyoutAnimationType.Fade"
           PreventCloseOnPositionTargetClick="true"
           FooterVisible="true"
+          
           FooterCssClass="custom-flyout-footer"
           Width="max(25vw, 550px)"
           CloseOnOutsideClick=false
@@ -114,7 +115,7 @@
     <BodyContentTemplate Context="PopupContext">
         <div class="custom-flyout-body" style="width:100%">
              <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
-                <DxFormLayout CssClass="w-100">
+                <DxFormLayout  CssClass="w-100">
                     <DataAnnotationsValidator />                   
                     <DxFormLayoutItem Caption="From" ColSpanMd="12">
                         <DxTagBox Data="_Allparticipant"
@@ -195,7 +196,19 @@
                                     ValueFieldName="Value"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.ActionTag">
-                        </DxComboBox>
+                        </DxComboBox> 
+                       @*  <DxTagBox Data="_actionTagItemss"
+                                  @bind-Values="Data.ActionTagIds"
+                                  NullText="Select Action"
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="ApplicationMasterChildId"
+                                  TextFieldName="Value"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  CssClass="cw-480">
+                            <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
+                        </DxTagBox> *@
                         <ValidationMessage For="@(() => Data.ActionTag)" />
                     </DxFormLayoutItem>
 

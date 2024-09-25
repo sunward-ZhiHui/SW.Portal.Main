@@ -25,5 +25,7 @@ namespace Core.Entities
         public string? Name { get; set; }
         public string? UserTag { get; set; }
         public bool UnArchive { get; set; }
+        [NotMapped]
+        public IEnumerable<long?> ActionTagIds { get; set; } = new List<long?>();
     }
 }

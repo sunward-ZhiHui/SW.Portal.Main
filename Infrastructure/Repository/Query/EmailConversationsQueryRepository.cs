@@ -568,10 +568,22 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId, DbType.Int64);
 
+                //using (var connection = CreateConnection())
+                //{
+                //    return await connection.QuerySingleAsync<long>("sp_Select_Email_NotificationCount",parameters,commandType: CommandType.StoredProcedure);
+                //}
+
                 using (var connection = CreateConnection())
                 {
-                    return await connection.QuerySingleAsync<long>("sp_Select_Email_NotificationCount",parameters,commandType: CommandType.StoredProcedure);
+                    var commandTimeout = 300; // Set timeout in seconds (e.g., 5 minutes)
+                    return await connection.QuerySingleAsync<long>(
+                        "sp_Select_Email_NotificationCount",
+                        parameters,
+                        commandType: CommandType.StoredProcedure,
+                        commandTimeout: commandTimeout
+                    );
                 }
+
             }
             catch (Exception exp)
             {

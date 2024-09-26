@@ -565,6 +565,20 @@ namespace Infrastructure.Repository.Query
             //var attributeDetails = new List<AttributeDetails>();
             try
             {
+                var query1 = string.Empty;
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query1 += "Where b1.CompanyID in(" + string.Join(',', plantIds) + ")\r";
+                    }
+                    else
+                    {
+                        query1 += "Where b1.CompanyID=" + CompanyId + "\r";
+                    }
+                }
+                var queryIn = "\r\nselect \r\n(case when (SUBSTRING(bb2.ProductName, 0, CHARINDEX(',', bb2.ProductName)))='' then  bb2.ProductName ELSE  (SUBSTRING(bb2.ProductName, 0, CHARINDEX(',', bb2.ProductName))) END) as ItemBatchNoId\r\nfrom\r\n(select bb1.*,\r\nProductName = STUFF(( SELECT ',' + CAST(md.ItemBatchId AS VARCHAR(MAX)) FROM ItemBatchInfo md   WHERE md.CompanyID=bb1.CompanyId AND md.BatchNo=bb1.BatchNo   Order by md.ItemBatchId asc FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')\r\nfrom(select b1.BatchNo,b1.CompanyId from ItemBatchInfo b1  " + query1 + " group by b1.BatchNo,b1.CompanyId)bb1) bb2\r\n\r\n";
                 var query = string.Empty;
                 query += "select CONCAT('ItemBatchInfo_',t1.ItemBatchId) as AttributeDetailNameId,'ItemBatchInfo' as DropDownTypeId,t1.ItemBatchId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.BatchNo as AttributeDetailName,CONCAT(t3.No,'||',t3.Description) as Description from ItemBatchInfo t1 JOIN Plant t2 ON t1.CompanyId=t2.PlantID JOIN NavItems t3 ON t3.ItemId=t1.ItemId\r\n";
                 if (CompanyId > 0)
@@ -572,16 +586,16 @@ namespace Infrastructure.Repository.Query
                     if (plantCode == "swgp")
                     {
                         plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
-                        query += "where t1.CompanyID in(" + string.Join(',', plantIds) + ");";
+                        query += "where t1.ItemBatchId IN(" + queryIn + ") AND t1.CompanyID in(" + string.Join(',', plantIds) + ");";
                     }
                     else
                     {
-                        query += "Where t1.CompanyID=" + CompanyId + ";\r\n";
+                        query += "Where t1.ItemBatchId IN(" + queryIn + ") AND t1.CompanyID=" + CompanyId + ";\r\n";
                     }
                 }
                 else
                 {
-                    query += ";\r\n";
+                    query += "Where t1.ItemBatchId IN(" + queryIn + ");\r\n";
                 }
                 //using (var connection = CreateConnection())
                 //{
@@ -1460,7 +1474,13 @@ namespace Infrastructure.Repository.Query
                     {
                         query = query.Remove(query.Length - 5);
                     }
-                    using (var connection = CreateConnection())
+                    if (DataSource == "ItemBatchInfo")
+                    {
+                        var queryIn = "\r\nselect \r\n(case when (SUBSTRING(bb2.ProductName, 0, CHARINDEX(',', bb2.ProductName)))='' then  bb2.ProductName ELSE  (SUBSTRING(bb2.ProductName, 0, CHARINDEX(',', bb2.ProductName))) END) as ItemBatchNoId\r\nfrom\r\n(select bb1.*,\r\nProductName = STUFF(( SELECT ',' + CAST(md.ItemBatchId AS VARCHAR(MAX)) FROM ItemBatchInfo md   WHERE md.CompanyID=bb1.CompanyId AND md.BatchNo=bb1.BatchNo   Order by md.ItemBatchId asc FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')\r\nfrom(select b1.BatchNo,b1.CompanyId from ItemBatchInfo b1   group by b1.BatchNo,b1.CompanyId)bb1) bb2\r\n\r\n";
+
+                        query += "AND t1.ItemBatchId IN("+ queryIn + ")";
+                    }
+                        using (var connection = CreateConnection())
                     {
                         var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
                         attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();

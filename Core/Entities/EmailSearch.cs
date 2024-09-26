@@ -27,5 +27,24 @@ namespace Core.Entities
         public bool UnArchive { get; set; }
         [NotMapped]
         public IEnumerable<long?> ActionTagIds { get; set; } = new List<long?>();
+        [NotMapped]
+        public string? AllParticipantCondition { get; set; }
+        public string? SubjectCondition { get; set; }
+        public string? SubjectLike { get; set; }
+        public string? GroupLike { get; set; }
+        public string? CategoryLike { get; set; }
+        public string? ActionLike { get; set; }
+        public string? OtherLike { get; set; }
+        public string? GroupCondition { get; set; }
+        public string? CategoryCondition { get; set; }
+        public string? ActionCondition { get; set; }
+        public string? OtherTagCondition { get; set; }
+        public string? FromDateCondition { get; set; }
+        public string? ToDateCondition { get; set; }
+    }
+    public class DropDownModel
+    {
+        public string? Value { get; set; }
+        public string? Text { get; set; }
     }
 }

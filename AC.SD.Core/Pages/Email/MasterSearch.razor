@@ -296,7 +296,7 @@
             <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="From" ColSpanMd="9">
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="User" ColSpanMd="9">
                         <DxTagBox Data="_Allparticipant"
                                   @bind-Values="Data.FromIds"
                                   NullText="Select To..."
@@ -325,7 +325,7 @@
                         <DxTextBox @bind-Text="@Data.BySubject" ShowValidationIcon="true" />
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
                         <DxComboBox Data="@LikeList"
                             TextFieldName="Text"
                              ValueFieldName="Value"
@@ -361,7 +361,7 @@
                         @*   <DxSpinEdit  @bind-Value="@Data.GroupTag" ShowValidationIcon="true" style="display:none;" /> *@
                         <ValidationMessage For="@(() => Data.GroupTag)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
                         <DxComboBox Data="@LikeList"
                                     TextFieldName="Text"
                                     ValueFieldName="Value"
@@ -392,7 +392,7 @@
                         @*  <DxSpinEdit   @bind-Value="@Data.CategoryTag" ShowValidationIcon="true" style="display:none;" /> *@
                         <ValidationMessage For="@(() => Data.CategoryTag)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
                         <DxComboBox Data="@LikeList"
                                     TextFieldName="Text"
                                     ValueFieldName="Value"
@@ -432,7 +432,7 @@
                         </DxTagBox> *@
                         <ValidationMessage For="@(() => Data.ActionTag)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
                         <DxComboBox Data="@LikeList"
                                     TextFieldName="Text"
                                     ValueFieldName="Value"
@@ -476,7 +476,7 @@
                     <ValidationMessage For="@(() => Data.UserTag)" />
                     </DxFormLayoutItem> *@
 
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
                         <DxComboBox Data="@LikeList"
                                     TextFieldName="Text"
                                     ValueFieldName="Value"
@@ -488,24 +488,18 @@
                         <DxComboBox Data="@ConditionList"  @bind-Value="Data.OtherTagCondition" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.OtherTagCondition)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="From" ColSpanMd="9">
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="From" ColSpanMd="6">
                         @*<DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>*@
                         <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
                         <ValidationMessage For="@(() => Data.FilterFrom)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem  CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
-                        <DxComboBox Data="@ConditionList"   @bind-Value="Data.FromDateCondition" ShowValidationIcon="true" />
-                        <ValidationMessage For="@(() => Data.FromDateCondition)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="To" ColSpanMd="9">
+                  
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="To" ColSpanMd="6">
                         <DxDateEdit NullText="Select To Date..." @bind-Date="@Data.FilterTo" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinDateFrom" />
                         @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
                         <ValidationMessage For="@(() => Data.FilterTo)" />*@
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
-                        <DxComboBox Data="@ConditionList"  @bind-Value="Data.ToDateCondition" ShowValidationIcon="true" />
-                        <ValidationMessage For="@(() => Data.ToDateCondition)" />
-                    </DxFormLayoutItem>
+                    
                     <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Archive" ColSpanMd="12">
                         <DxCheckBox @bind-Checked="@Data.UnArchive"></DxCheckBox>
                         @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
@@ -661,12 +655,24 @@
                 UserTag = data.UserTag,
                 FilterFrom = Data.FilterFrom,
                 FilterTo = Data.FilterTo,
-                UnArchive = Data.UnArchive
+                UnArchive = Data.UnArchive,
+                AllParticipantCondition = Data.AllParticipantCondition,
+                SubjectCondition = Data.SubjectCondition,
+                GroupCondition = Data.GroupCondition,
+                CategoryCondition = Data.CategoryCondition,
+                ActionCondition = Data.ActionCondition,
+                OtherTagCondition = Data.OtherTagCondition,
+               
+                SubjectLike = Data.SubjectLike,
+                GroupLike = Data.GroupLike,
+                CategoryLike = Data.CategoryLike,
+                ActionLike = Data.ActionLike,
+                OtherLike = Data.OtherLike
         };
 
         _emailTopicAll = await Mediator.Send(request);
-
-        IsSearchInfoOpen = false;
+         IsSearchOpen = false;
+       // IsSearchInfoOpen = false;
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
 
@@ -679,8 +685,7 @@
         Data.CategoryCondition = "AND";
         Data.ActionCondition = "AND";
         Data.OtherTagCondition = "AND";
-        Data.FromDateCondition = "AND";
-        Data.ToDateCondition = "AND";
+     
         Data.SubjectLike = "=";
         Data.GroupLike = "=";
         Data.CategoryLike = "=";

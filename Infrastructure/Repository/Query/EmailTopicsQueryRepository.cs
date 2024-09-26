@@ -459,6 +459,20 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("Name", emailSearch.Name);
                         parameters.Add("UserTag", emailSearch.UserTag);
 
+                        parameters.Add("fromidsConditionType", emailSearch.AllParticipantCondition);
+                        parameters.Add("GroupTagConditionType", emailSearch.GroupCondition);
+                        parameters.Add("CategoryTagConditionType", emailSearch.CategoryCondition);
+                        parameters.Add("ActionTagConditionType", emailSearch.ActionCondition);
+                        parameters.Add("NameConditionType", emailSearch.OtherTagCondition);
+                        parameters.Add("subjectConditionType", emailSearch.SubjectCondition);
+                       // parameters.Add("FromDateCondition", emailSearch.FromDateCondition);
+                     //   parameters.Add("ToDateCondition", emailSearch.ToDateCondition);
+                        parameters.Add("subjectConditionTypeLike", emailSearch.SubjectLike);
+                        parameters.Add("GroupTagConditionTypeLike", emailSearch.GroupLike);
+                        parameters.Add("CategoryTagConditionTypeLike", emailSearch.CategoryLike);
+                        parameters.Add("ActionTagConditionTypeLike", emailSearch.ActionLike);
+                        parameters.Add("NameConditionTypeLike", emailSearch.OtherLike);
+
                         parameters.Add("filterFrom", emailSearch.FilterFrom);
                         parameters.Add("filterTo", emailSearch.FilterTo);
                         parameters.Add("UnArchive", emailSearch.UnArchive);

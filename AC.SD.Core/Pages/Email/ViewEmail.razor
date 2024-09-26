@@ -51,7 +51,12 @@
 @using System.Text.Json.Serialization;
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @inject DataRefreshService RefreshService
-
+<style>
+    .txtEditorMsg {
+        height: calc(100vh - 530px);
+        background-color: white;
+    }
+</style>
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
     <div class="main-container">

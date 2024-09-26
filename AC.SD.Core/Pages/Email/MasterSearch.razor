@@ -107,12 +107,14 @@
           AnimationType="FlyoutAnimationType.Fade"
           PreventCloseOnPositionTargetClick="true"
           FooterVisible="true"
+          
           FooterCssClass="custom-flyout-footer"
           Width="max(25vw, 550px)"
           CloseOnOutsideClick=false
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
-        <div class="custom-flyout-body" style="width:100%">
+        <div class="custom-flyout-body" style="width:100%"> 
+       
              <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />                   
@@ -195,13 +197,25 @@
                                     ValueFieldName="Value"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.ActionTag">
-                        </DxComboBox>
+                        </DxComboBox> 
+                       @*  <DxTagBox Data="_actionTagItemss"
+                                  @bind-Values="Data.ActionTagIds"
+                                  NullText="Select Action"
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="ApplicationMasterChildId"
+                                  TextFieldName="Value"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  CssClass="cw-480">
+                            <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
+                        </DxTagBox> *@
                         <ValidationMessage For="@(() => Data.ActionTag)" />
                     </DxFormLayoutItem>
 
                     
 
-                    <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="12">
+                    <DxFormLayoutItem Caption="Others Tag" ColSpanMd="12">
                         <DxComboBox Data="@_AllCategory"
                                     AllowUserInput="true"
                                     NullText="Select Others Tag..."
@@ -249,7 +263,7 @@
                     </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
-        </div>
+         </div> 
     </BodyContentTemplate>
     <FooterContentTemplate>
         <div class="w-100">
@@ -265,7 +279,256 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
+<DxFlyout @bind-IsOpen=IsSearchOpen
+          PositionTarget=@($"#flyout-overview-target-container-Filter-info")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 800px)"
+        
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
 
+            <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="From" ColSpanMd="9">
+                        <DxTagBox Data="_Allparticipant"
+                                  @bind-Values="Data.FromIds"
+                                  NullText="Select To..."
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="UserID"
+                                  TextFieldName="Name"
+                                  EditFormat="{0}-{1}"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  SearchMode="ListSearchMode.AutoSearch"
+                                  SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                  CssClass="cw-480">
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                        </DxTagBox>
+                        <ValidationMessage For="@(() => Data.FromIds)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList" @bind-Value="Data.AllParticipantCondition"   ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.AllParticipantCondition)" />
+                    </DxFormLayoutItem>
+
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Subject" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.BySubject" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                        <DxComboBox Data="@LikeList"
+                            TextFieldName="Text"
+                             ValueFieldName="Value"
+                                   
+                                    @bind-Value="Data.SubjectLike" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.SubjectLike)" />
+                    </DxFormLayoutItem>
+
+                    @*<DxFormLayoutItem Caption="Tag" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@Data.ByTag" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>   *@
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList" @bind-Value="Data.SubjectCondition"  ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.SubjectCondition)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Group" ColSpanMd="6">
+                        <DxComboBox Data="@_groupTagItemss"
+                                    NullText="Select Group..."
+                                    AllowUserInput="true"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="Value"
+                                    Enabled="@isEnabled"
+                                    Value="@selectGroupItem"
+                                    ValueExpression="@(() => selectGroupItem )"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChangeddd(applicationMasterChildModel))"
+                                    ShowValidationIcon="true">
+                        </DxComboBox>
+                        @*   <DxSpinEdit  @bind-Value="@Data.GroupTag" ShowValidationIcon="true" style="display:none;" /> *@
+                        <ValidationMessage For="@(() => Data.GroupTag)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                        <DxComboBox Data="@LikeList"
+                                    TextFieldName="Text"
+                                    ValueFieldName="Value"
+                                  
+                                    @bind-Value="Data.GroupLike" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.GroupLike)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList"  @bind-Value="Data.GroupCondition" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.GroupCondition)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Category" ColSpanMd="6">
+                        <DxComboBox Data="@_categoryTagItemss"
+                                    NullText="Select Category..."
+                                    Enabled="@isEnabled"
+                                    AllowUserInput="true"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="Value"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    Value="@selectCategory"
+                                    ValueExpression="@(() => selectCategory )"
+                                    ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChangedd(applicationMasterChildModel))">
+                        </DxComboBox>
+                        @*  <DxSpinEdit   @bind-Value="@Data.CategoryTag" ShowValidationIcon="true" style="display:none;" /> *@
+                        <ValidationMessage For="@(() => Data.CategoryTag)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                        <DxComboBox Data="@LikeList"
+                                    TextFieldName="Text"
+                                    ValueFieldName="Value"
+                                  
+                                    @bind-Value="Data.CategoryLike" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.CategoryLike)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList" @bind-Value="Data.CategoryCondition" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.CategoryCondition)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Action" ColSpanMd="6">
+                        <DxComboBox Data="@_actionTagItemss"
+                                    NullText="Select Action..."
+                                    Enabled="@isEnabled"
+                                    AllowUserInput="true"
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="Value"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.ActionTag">
+                        </DxComboBox>
+                        @*  <DxTagBox Data="_actionTagItemss"
+                        @bind-Values="Data.ActionTagIds"
+                        NullText="Select Action"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        ValueFieldName="ApplicationMasterChildId"
+                        TextFieldName="Value"
+                        ListRenderMode="ListRenderMode.Virtual"
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
+                        </DxTagBox> *@
+                        <ValidationMessage For="@(() => Data.ActionTag)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                        <DxComboBox Data="@LikeList"
+                                    TextFieldName="Text"
+                                    ValueFieldName="Value"
+                                  
+                                    @bind-Value="Data.ActionLike" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.ActionLike)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList"  @bind-Value="Data.ActionCondition" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.ActionCondition)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Others Tag" ColSpanMd="6">
+                        <DxComboBox Data="@_AllCategory"
+                                    AllowUserInput="true"
+                                    NullText="Select Others Tag..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="Name"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.Name"
+                                    @bind-Text="@Data.Name" ShowValidationIcon="true">
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.Name)" />
+                    </DxFormLayoutItem>
+                    @*  <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
+                    <DxComboBox Data="@_UserTagList"
+                    AllowUserInput="true"
+                    NullText="Select User Tag..."
+                    ListRenderMode="ListRenderMode.Virtual"
+                    SearchMode="ListSearchMode.AutoSearch"
+                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                    TextFieldName="UserTag"
+                    ValueFieldName="UserTag"
+                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    @bind-Value="@Data.UserTag"
+                    @bind-Text="@Data.UserTag" ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Data.UserTag)" />
+                    </DxFormLayoutItem> *@
+
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Like:" ColSpanMd="3">
+                        <DxComboBox Data="@LikeList"
+                                    TextFieldName="Text"
+                                    ValueFieldName="Value"
+                                  
+                                    @bind-Value="Data.OtherLike" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.OtherLike)" />
+                    </DxFormLayoutItem> 
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList"  @bind-Value="Data.OtherTagCondition" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.OtherTagCondition)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="From" ColSpanMd="9">
+                        @*<DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>*@
+                        <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
+                        <ValidationMessage For="@(() => Data.FilterFrom)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem  CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList"   @bind-Value="Data.FromDateCondition" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.FromDateCondition)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="To" ColSpanMd="9">
+                        <DxDateEdit NullText="Select To Date..." @bind-Date="@Data.FilterTo" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinDateFrom" />
+                        @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
+                        <ValidationMessage For="@(() => Data.FilterTo)" />*@
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="" ColSpanMd="3">
+                        <DxComboBox Data="@ConditionList"  @bind-Value="Data.ToDateCondition" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.ToDateCondition)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Archive" ColSpanMd="12">
+                        <DxCheckBox @bind-Checked="@Data.UnArchive"></DxCheckBox>
+                        @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
+                        <ValidationMessage For="@(() => Data.FilterTo)" />*@
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSearchOpen = false) />
+                <button style="float:right;" type="submit" form="@MyID" disabled="@loading" class="dxbl-btn dxbl-btn-primary popup-button">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    } Apply
+                </button>
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     ApplicationMasterChildModel selectGroupItem {get;set;}
     ApplicationMasterChildModel selectCategory { get; set; }
@@ -291,6 +554,7 @@
     bool isEnabled { get; set; } = true;
 
     bool IsSearchInfoOpen { get; set; } = false;
+    bool IsSearchOpen { get; set; } = false;
     public string? MSearchText { get; set; }
     [Parameter]
     public string? MyDayFilterText { get; set; }
@@ -313,6 +577,9 @@
     public Action<List<string>>? ToTopicIds { get; set; }
     [Parameter]
     public Action EnableUnArchiveAll { get; set; }
+  
+    List<string> ConditionList = new List<string>() { "AND", "OR" };
+    List<DropDownModel> LikeList = new List<DropDownModel>();
     void selectedGroupTagChangeddd(ApplicationMasterChildModel applicationMasterChildModel)
     {
         selectGroupItem = applicationMasterChildModel;
@@ -405,6 +672,21 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+        Data.AllParticipantCondition = "AND";
+        Data.SubjectCondition = "AND";
+        Data.GroupCondition = "AND";
+        Data.CategoryCondition = "AND";
+        Data.ActionCondition = "AND";
+        Data.OtherTagCondition = "AND";
+        Data.FromDateCondition = "AND";
+        Data.ToDateCondition = "AND";
+        Data.SubjectLike = "=";
+        Data.GroupLike = "=";
+        Data.CategoryLike = "=";
+        Data.ActionLike = "=";
+        Data.OtherLike = "=";
+            
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");       
 
         _Allparticipant = await Mediator.Send(new GetAllEmployeeListQuery());
@@ -422,9 +704,9 @@
         {
            await loadLibaryList(MyDayFilterText);
         }
-
         //NavigationManager.LocationChanged += OnLocationChanged;
-
+        LikeList.Add(new DropDownModel(){ Value = "=" ,Text ="Equal(=)"});
+        LikeList.Add(new DropDownModel() { Value = "<>", Text = "Not Equal(!=)" });
     }
     void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
@@ -502,7 +784,8 @@
     }
     void OnSearchInfoClick()
     {
-        IsSearchInfoOpen = true;
+       // IsSearchInfoOpen = true;
+        IsSearchOpen = true;
     }
    
 

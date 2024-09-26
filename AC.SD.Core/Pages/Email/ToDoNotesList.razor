@@ -251,9 +251,11 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
+                <DxMenuItem Text="Close" Visible="@CloseStatus" IconCssClass="fa fa-check" Click="@onClose" />
+                <DxMenuItem Text="Open" IconCssClass="fa fa-check-square" Click="@onOpen" Visible="@OpenStatus" />
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
 
-                <DxMenu Visible="@CloseStatus">
+              @*   <DxMenu Visible="@CloseStatus">
                     <Items>
 
                 <DxMenuItem Text="Close" IconCssClass="fa fa-check" Click="@onClose" style="@CompeleteStyle"  />
@@ -264,7 +266,7 @@
                     <Items>
                 <DxMenuItem Text="Open" IconCssClass="fa fa-check-square" Click="@onOpen" style="@CompeleteStyle" />
                     </Items>
-                </DxMenu> 
+                </DxMenu>  *@
 
             </Items>
         </DxMenu>

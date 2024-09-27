@@ -4506,6 +4506,7 @@
                    {
                        editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                    }
+                   editor.AddAttribute(j + 1, "style", "margin-left:25px;");
                    editor.AddAttribute(j + 1, "ValueExpression", lambda);
                    editor.AddAttribute(j + 1, "Layout", s.RadioLayout == "Vertical" ? RadioGroupLayout.Vertical : RadioGroupLayout.Horizontal);
                    editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, (str) => OnRadioChangedItem(str, property, attributeDetailss, a, s)));
@@ -4547,6 +4548,7 @@
                    {
                        editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                    }
+                   editor.AddAttribute(j + 1, "style", "margin-left:25px;");
                    editor.AddAttribute(j + 1, "ValueExpression", lambda);
                    editor.AddAttribute(j + 1, "Layout", s.RadioLayout == "Vertical" ? RadioGroupLayout.Vertical : RadioGroupLayout.Horizontal);
                    editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, (str) => OnRadioChangedItem(str, property, attributeDetailss, a, s)));
@@ -5946,6 +5948,7 @@
                   editor1.AddAttribute(m + 1, "Value", valueDataSub);
                   //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                   editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
+                  editor1.AddAttribute(m + 1, "style", "margin-left:25px;");
                   editor1.AddAttribute(m + 1, "Layout", q.AttributeRadioLayout == "Vertical" ? RadioGroupLayout.Vertical : RadioGroupLayout.Horizontal);
                   editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
                   if (q.IsRequired == true)

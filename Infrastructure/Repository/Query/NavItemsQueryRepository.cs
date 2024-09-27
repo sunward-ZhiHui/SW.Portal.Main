@@ -780,7 +780,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var query = "INSERT INTO [NavprodOrderLine](Status,ProdOrderNo,OrderLineNo,ItemNo,Description,Description1,CompletionDate,RemainingQuantity,UnitofMeasureCode,LastSyncDate,BatchNo,LastSyncUserId,ReplanRefNo,StartDate,OutputQty,CompanyId) " +
                             "OUTPUT INSERTED.NAVProdOrderLineId VALUES " +
-                            "(@ProductionBOMNo,@LocationCode,@Status,@ProdOrderNo,@OrderLineNo,@ItemNo,@Description,@Description1,@CompletionDate,@RemainingQuantity,@UnitofMeasureCode,@LastSyncDate,@BatchNo,@LastSyncUserId,@ReplanRefNo,@StartDate,@OutputQty,@CompanyId)";
+                            "(@Status,@ProdOrderNo,@OrderLineNo,@ItemNo,@Description,@Description1,@CompletionDate,@RemainingQuantity,@UnitofMeasureCode,@LastSyncDate,@BatchNo,@LastSyncUserId,@ReplanRefNo,@StartDate,@OutputQty,@CompanyId)";
                         lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     }
                     return lastInsertedRecordId;

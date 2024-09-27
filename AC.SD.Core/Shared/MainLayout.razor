@@ -201,11 +201,15 @@
     {
         //await JSRuntime.InvokeVoidAsync("registerServiceWorker");
         //await JSRuntime.InvokeVoidAsync("initializeFirebase");
-              
+
     }      
     private async Task RefreshDataAsync()
     {
-        _emailNotificationCount = await Mediator.Send(new GetEmailNotificationCount(applicationUser.UserID));
+        if (applicationUser != null)
+        {
+            _emailNotificationCount = await Mediator.Send(new GetEmailNotificationCount(applicationUser.UserID));
+        }
+       
         await InvokeAsync(StateHasChanged);
     }
     private async Task GoViewEmail()

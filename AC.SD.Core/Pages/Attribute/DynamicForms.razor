@@ -4602,6 +4602,7 @@
                      editor.AddAttribute(j + 1, "TextFieldName", "AttributeDetailName");
                      editor.AddAttribute(j + 1, "ValueFieldName", "AttributeDetailID");
                      editor.AddAttribute(j + 1, "Value", valueData);
+                     editor.AddAttribute(j + 1, "style", "margin-left:25px;");
                      if (isAccessOnly == true)
                      {
                          editor.AddAttribute(j + 1, "Enabled", isReadonly);
@@ -4643,6 +4644,7 @@
                      editor.AddAttribute(j + 1, "TextFieldName", "AttributeDetailName");
                      editor.AddAttribute(j + 1, "ValueFieldName", "AttributeDetailID");
                      editor.AddAttribute(j + 1, "Value", valueData);
+                     editor.AddAttribute(j + 1, "style", "margin-left:25px;");
                      if (isAccessOnly == true)
                      {
                          editor.AddAttribute(j + 1, "Enabled", isReadonly);
@@ -6051,6 +6053,7 @@
                             editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
                             editor1.AddAttribute(m + 1, "Layout", q.AttributeRadioLayout == "Vertical" ? RadioGroupLayout.Vertical : RadioGroupLayout.Horizontal);
                             editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { propertySub.SetValue(Data, str); }));
+                            editor1.AddAttribute(m + 1, "style", "margin-left:25px;");
                             if (q.IsRequired == true)
                             {
                                 if (valueDataSub == null)

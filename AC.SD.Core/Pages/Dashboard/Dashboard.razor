@@ -322,18 +322,18 @@
     }
     async Task TimeFilter(bool status)
     {
-       var  _data1 = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
+        var  _data1 = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
         if (_data1 != null)
         {
-           //  _filteredData = _data
-           // .Where(appointment =>
-           //     appointment.StatusType == "EmailDueDate" ||
-           //     appointment.StatusType == "TodoDueDate")
-           // .Select(appointment =>
-           // {
-           //     appointment.AllDay = !status;  // Set AllDay to 0
-           //     return appointment;
-           // }).ToList();
+            //  _filteredData = _data
+            // .Where(appointment =>
+            //     appointment.StatusType == "EmailDueDate" ||
+            //     appointment.StatusType == "TodoDueDate")
+            // .Select(appointment =>
+            // {
+            //     appointment.AllDay = !status;  // Set AllDay to 0
+            //     return appointment;
+            // }).ToList();
 
             _filteredData = _data1
            .Select(appointment =>
@@ -434,22 +434,25 @@
     protected override async void OnInitialized()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _data = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
-        _filteredData = _data.ToList();
-        DataStorage.AppointmentsSource = _data.ToList();
+        if(applicationUser != null)
+        {
+            _data = await Mediator.Send(new GetAppointmentList(applicationUser.UserID));
+            _filteredData = _data.ToList();
+            DataStorage.AppointmentsSource = _data.ToList();
 
 
-        userTagList = _data
-       .Where(a => !string.IsNullOrEmpty(a.UserTag))
-       .Select(a => a.UserTag)
-       .Distinct()
-       .ToList();
+            userTagList = _data
+           .Where(a => !string.IsNullOrEmpty(a.UserTag))
+           .Select(a => a.UserTag)
+           .Distinct()
+           .ToList();
 
-        otherTagList = _data
-            .Where(a => !string.IsNullOrEmpty(a.OtherTag))
-            .Select(a => a.OtherTag)
-            .Distinct()
-            .ToList();
+            otherTagList = _data
+                .Where(a => !string.IsNullOrEmpty(a.OtherTag))
+                .Select(a => a.OtherTag)
+                .Distinct()
+                .ToList();            
+        }     
 
 
         StateHasChanged();

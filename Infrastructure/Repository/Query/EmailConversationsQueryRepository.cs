@@ -569,13 +569,14 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("UserId", UserId, DbType.Int64);
 
                 using (var connection = CreateConnection())
-                {
-                    return await connection.QuerySingleAsync<long>("sp_Select_Email_NotificationCount",parameters,commandType: CommandType.StoredProcedure);
+                {                    
+                    return await connection.QuerySingleAsync<long>("sp_Select_Email_NotificationCount",parameters,commandType: CommandType.StoredProcedure,commandTimeout: 300);
                 }
             }
-            catch (Exception exp)
+            catch (Exception)
             {
-                throw new Exception(exp.Message, exp);
+                // Log the exception if needed, but return 0 on failure
+                return 0;
             }
         }
 

@@ -39,8 +39,7 @@ namespace Core.Entities
         public string? CategoryCondition { get; set; }
         public string? ActionCondition { get; set; }
         public string? OtherTagCondition { get; set; }
-        public string? FromDateCondition { get; set; }
-        public string? ToDateCondition { get; set; }
+      
     }
     public class DropDownModel
     {

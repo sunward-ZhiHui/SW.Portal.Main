@@ -671,8 +671,8 @@
         };
 
         _emailTopicAll = await Mediator.Send(request);
-         IsSearchOpen = false;
-       // IsSearchInfoOpen = false;
+       // IsSearchOpen = false;
+       IsSearchInfoOpen = false;
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
 
@@ -789,8 +789,8 @@
     }
     void OnSearchInfoClick()
     {
-       // IsSearchInfoOpen = true;
-        IsSearchOpen = true;
+        IsSearchInfoOpen = true;
+       // IsSearchOpen = true;
     }
    
 

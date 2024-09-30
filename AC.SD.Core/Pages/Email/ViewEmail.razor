@@ -2836,7 +2836,7 @@
     private List<string>? _actionTagMultiple;
     private async Task ShowActionMultipleFlyout()
     {
-        
+
         isOpenActionTagMultiplePop = true;
     }   
     private void ShowSubjectFlyout(EmailConversations emailConversations) {
@@ -3824,7 +3824,12 @@
 
             AssigntoIdss = cList[0].ToIds.HasValue ? new List<long> { cList[0].ToIds.Value } : new List<long>();
             AssignccIdss = cList[0].CcIds != null ? cList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
-
+            // foreach(var id in AssignccIdss)
+            // {
+            //     AssigntoIdss.Add(id);
+            // }
+            
+            // AssignccIdss = new List<long>();
         }
         else
         {
@@ -3843,6 +3848,7 @@
 
             AssigntoIdss = ToOnlyList[0].ToIds.HasValue ? new List<long> { ToOnlyList[0].ToIds.Value } : new List<long>();
             AssignccIdss = ToOnlyList[0].CcIds != null ? ToOnlyList[0].CcIds.Split(',').Select(long.Parse).ToList() : new List<long>();
+
         }
 
 

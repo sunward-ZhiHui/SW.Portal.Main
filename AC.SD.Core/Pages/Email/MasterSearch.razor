@@ -671,8 +671,8 @@
         };
 
         _emailTopicAll = await Mediator.Send(request);
-       // IsSearchOpen = false;
-       IsSearchInfoOpen = false;
+       IsSearchOpen = false;
+      // IsSearchInfoOpen = false;
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
 
@@ -781,7 +781,20 @@
                 ByTag = null,
                 FilterFrom = null,
                 FilterTo = null,
-                UnArchive = false
+                UnArchive = false,
+                AllParticipantCondition = "OR",
+                SubjectCondition = "OR",
+                GroupCondition = "OR",
+                CategoryCondition = "OR",
+                ActionCondition = "OR",
+                OtherTagCondition = "OR",
+
+                SubjectLike = "=",
+                GroupLike = "=",
+                CategoryLike = "=",
+                ActionLike = "=",
+               OtherLike = "="
+                
             };
         _emailTopicAll = await Mediator.Send(request);
         StateHasChanged();
@@ -789,8 +802,8 @@
     }
     void OnSearchInfoClick()
     {
-        IsSearchInfoOpen = true;
-       // IsSearchOpen = true;
+       // IsSearchInfoOpen = true;
+        IsSearchOpen = true;
     }
    
 

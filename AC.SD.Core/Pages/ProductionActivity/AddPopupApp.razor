@@ -92,19 +92,19 @@
             <ValidationMessage For="@(() => Data.ProdActivityCategoryChildId)" />
         </DxFormLayoutItem>
 
-        <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
-            <DxComboBox Data="@_actionItems"
-                        NullText="Select ActionDropdown..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterChildId"
-                        ValueChanged="@((long? plant) => SelectedItemActionChanged(plant))"
-                        Value="@Data.ProdActivityActionChildD"
-                        ValueExpression="@(() => Data.ProdActivityActionChildD )"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-        </DxFormLayoutItem>
+         @* <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
+             <DxComboBox Data="@_actionItems"
+                         NullText="Select ActionDropdown..."
+                         SearchMode="ListSearchMode.AutoSearch"
+                         SearchFilterCondition="ListSearchFilterCondition.Contains"
+                         TextFieldName="Value"
+                         ValueFieldName="ApplicationMasterChildId"
+                         ValueChanged="@((long? plant) => SelectedItemActionChanged(plant))"
+                         Value="@Data.ProdActivityActionChildD"
+                         ValueExpression="@(() => Data.ProdActivityActionChildD )"
+                         ShowValidationIcon="true">
+             </DxComboBox>
+         </DxFormLayoutItem> *@
         <DxFormLayoutItem Caption="Template Upload:" ColSpanMd="6">
             <DxRadioGroup Items="@TemplateUploadOptions"
                           Value="@Data.IsTemplateUploadFlag"
@@ -127,17 +127,6 @@
             </DxComboBox>
             <ValidationMessage For="@(() => Data.ProductActivityCaseLineId)" />
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
-            <DxComboBox Data="@_ActivityResult"
-                        NullText="Select Activity Result..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterDetailID"
-                        @bind-Value="Data.ProdActivityResultId"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-        </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="6">
             <DxComboBox Data="@_ActivityStatusItem"
                         NullText="Select Activity Status..."
@@ -149,6 +138,18 @@
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="12">
+            <DxTagBox Data="@_ActivityResult"
+                        NullText="Select Activity Result..."
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+                        @bind-Values="Data.ProdActivityResultIds"
+                        ShowValidationIcon="true">
+            </DxTagBox>
+        </DxFormLayoutItem>
+       
         <DxFormLayoutItem Caption="Activity Master" ColSpanMd="12">
             <DxTagBox NullText="Select Activity Master..."
                       Data="@_ActivityMaster"
@@ -248,6 +249,7 @@
             Data.IsTemplateUploadFlag = _selectedEditItems.IsTemplateUploadFlag;
             Data.ProductActivityCaseLineId = _selectedEditItems.ProductActivityCaseLineId;
             Data.ProdActivityResultId = _selectedEditItems.ProdActivityResultId;
+            Data.ProdActivityResultIds = _selectedEditItems.ProdActivityResultIds;
             Data.ActivityStatusId = _selectedEditItems.ActivityStatusId;
             Data.ActivityMasterIds = _selectedEditItems.ActivityMasterIds;
             Data.LineComment = _selectedEditItems.LineComment;
@@ -289,7 +291,7 @@
         Data.ProdActivityCategoryChildId = null;
         Data.ProdActivityActionChildD = null;
         Data.FileProfileTypeId = null;
-        Data.ProdActivityResultId = null;
+        Data.ProdActivityResultId = null; Data.ProdActivityResultIds = new List<long?>();
         Data.ActivityStatusId = null;
         Data.LineComment = null;
         Data.NavprodOrderLineId = null;
@@ -298,7 +300,7 @@
         Data.IsTemplateUpload = false;
         Data.IsTemplateUploadFlag = "No";
         Data.ProductActivityCaseLineId = null;
-        Data.ActivityMasterIds = null;
+        Data.ActivityMasterIds = new List<long?>();
         UploadSessionId = null;
         uploadEnabled = false;
         addEnabled = true; saveEnabled = true;
@@ -423,6 +425,7 @@
                 IsTemplateUploadFlag = Data.IsTemplateUpload == true ? "Yes" : "No",
                 ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0 ? Data.ProductActivityCaseLineId : null,
                 ActivityMasterIds = Data.ActivityMasterIds,
+                ProdActivityResultIds=Data.ProdActivityResultIds,
             };
 
         var result = await Mediator.Send(request);

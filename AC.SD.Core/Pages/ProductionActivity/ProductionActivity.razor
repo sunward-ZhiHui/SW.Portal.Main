@@ -199,10 +199,10 @@
                                         </DxGridDataColumn>
                                         <DxGridDataColumn Caption="Type" FieldName="Type" MinWidth="180" />
                                         <DxGridDataColumn Caption="ProfileNo" FieldName="ActivityProfileNo" MinWidth="180" />
-                                        <DxGridDataColumn Caption="Date" FieldName="AddedDate" MinWidth="180" />
+                                        <DxGridDataColumn Caption="Date" FieldName="AddedDate" MinWidth="180" SortIndex="0" SortOrder="GridColumnSortOrder.Descending"/>
                                         <DxGridDataColumn Caption="Process" FieldName="ManufacturingProcessChild" MinWidth="180" />
                                         <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />
-                                        <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" />
+                                        <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" Visible="false" />
                                         <DxGridDataColumn Caption="Comment" FieldName="LineComment" MinWidth="180">
                                             <CellDisplayTemplate>
                                                 @{

@@ -1,0 +1,151 @@
+﻿@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using global::Core.EntityModels;
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Transfer" IconCssClass="fa fa-exchange" Click="@updateFormApproval" Enabled="@updateFormApprovalEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelFormApprovalVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="TransferFromApprovalGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="dynamicFormWorkFlowApprovalItems"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="DynamicFormApprovedId"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            VirtualScrollingEnabled="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 420px);"
+            FocusedRowEnabled="true"
+            SelectedDataItemsChanged="@SelectedFormApprovalDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="DynamicFormApprovedId" Visible="false" />
+            <DxGridDataColumn FieldName="DynamicFormName" Caption="Form Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="170" />
+            <DxGridDataColumn FieldName="CurrentUserName" Caption="Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="StatusName" Caption="Status" MinWidth="100" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FormName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+
+    [Parameter]
+    public ResetPermissionModel? Data { get; set; }
+    public List<DynamicFormData> dynamicFormWorkFlowApprovalItems { get; set; }
+    bool PanelFormApprovalVisible { get; set; }
+    IGrid? TransferFromApprovalGrid { get; set; }
+    bool updateFormApprovalEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedFormApprovalDataItems { get; set; }
+    private DynamicFormData _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await loadFromApproveds();
+    }
+
+    public async Task loadFromApproved(ResetPermissionModel data)
+    {
+        Data = data;
+        await loadFromApproveds();
+    }
+    async Task loadFromApproveds()
+    {
+        try
+        {
+            updateFormApprovalEnabled = false;
+            PanelFormApprovalVisible = true;
+            dynamicFormWorkFlowApprovalItems = await Mediator.Send(new GetDynamicFormDataApprovalList(Data.FromUserId));
+            if (dynamicFormWorkFlowApprovalItems != null && dynamicFormWorkFlowApprovalItems.Count > 0)
+            {
+                updateFormApprovalEnabled = true;
+                _selectedItems = dynamicFormWorkFlowApprovalItems.FirstOrDefault();
+                TransferFromApprovalGrid?.SetFocusedRowIndex(0);
+            }
+            PanelFormApprovalVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void SelectedFormApprovalDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedFormApprovalDataItems = SelectedToItems;
+    }
+    async Task updateFormApproval()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedFormApprovalDataItems != null)
+            {
+                foreach (object item in SelectedFormApprovalDataItems)
+                {
+                    if (item is DynamicFormData dataItem)
+                    {
+                        ids.Add(dataItem.DynamicFormApprovedId);
+                    }
+
+                }
+                if (Data.ToUserId > 0)
+                {
+                    if (ids != null && ids.Count > 0)
+                    {
+                        var request = new UpdateTransferDynamicFormApproval(ids, Data.ToUserId);
+                        await Mediator.Send(request);
+                        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadFromApproveds();
+                        TransferFromApprovalGrid?.ClearSelection();
+                        TransferFromApprovalGrid.SetFocusedRowIndex(0);
+                        StateHasChanged();
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Must Select To User", AC.SD.Core.Services.ToastLevel.Warning);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        dynamicFormWorkFlowApprovalItems?.Clear();
+        SelectedFormApprovalDataItems = null;
+        _selectedItems = null;
+    }
+}

@@ -84,7 +84,14 @@ namespace Application.Queries
     {
 
     }
-
+    public class UpdateFormulaTextBox : PagedRequest, IRequest<DynamicFormSectionAttribute>
+    {
+        public DynamicFormSectionAttribute DynamicFormSectionAttribute { get; set; }
+        public UpdateFormulaTextBox(DynamicFormSectionAttribute dynamicFormSectionAttribute)
+        {
+            this.DynamicFormSectionAttribute = dynamicFormSectionAttribute;
+        }
+    }
 
     public class GetDynamicFormSectionAttribute : PagedRequest, IRequest<List<DynamicFormSectionAttribute>>
     {
@@ -707,6 +714,14 @@ namespace Application.Queries
         }
 
     }
-
+    public class GetDynamicFormSectionAttributeForSpinEdit : PagedRequest, IRequest<List<DynamicFormSectionAttribute>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormSectionAttributeForSpinEdit(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    
 }
 

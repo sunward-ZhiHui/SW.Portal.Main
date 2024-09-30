@@ -51,5 +51,6 @@ namespace Core.Entities
         public IEnumerable<long?> SelectLevelMasterIDs { get; set; } = new List<long?>();
         [NotMapped]
         public string? Type { get; set; }
+        public string? FormName { get; set; }
     }
 }

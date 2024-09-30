@@ -57,6 +57,8 @@ namespace Core.Entities
         public long? DynamicFormDataId { get; set; }
         public long? DynamicFormWorkFlowFormId { get; set; }
         public bool? IsNextFlow { get; set; } = false;
+        public string? DynamicFormName { get; set; }
+        public string? DynamicFormSectionName { get; set; }
     }
     public class DynamicFormWorkFlowSection
     {

@@ -33,5 +33,8 @@ namespace Core.Entities
         public string? DelegateApproveAllUserName { get; set; }
         [Required(ErrorMessage = "User Name is Required")]
         public long? DelegateApproveAllUserId { get; set; }
+        public string? DynamicFormName { get; set; }
+        public string? DynamicFormSectionName { get; set; }
+        public int? SequenceNo { get; set; }
     }
 }

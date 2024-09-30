@@ -1,0 +1,216 @@
+﻿@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using global::Core.EntityModels;
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Transfer" IconCssClass="fa fa-exchange" Click="@updateFormApproval" Enabled="@updateFormApprovalEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteFormApprovalDelete" Enabled="@DeleteFromApprovalEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelFormApprovalVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="TransferFromApprovalGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="dynamicFormWorkFlowApprovalItems"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="DynamicFormApprovalId"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            VirtualScrollingEnabled="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 420px);"
+            FocusedRowEnabled="true"
+            SelectedDataItemsChanged="@SelectedFormApprovalDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="DynamicFormApprovalId" Visible="false" />
+            <DxGridDataColumn FieldName="FormName" Caption="Form Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="ApprovalUser" Caption="Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="100" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FormName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@BlukdeleteFormApprovalPopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+
+    [Parameter]
+    public ResetPermissionModel? Data { get; set; }
+    public List<DynamicFormApproval> dynamicFormWorkFlowApprovalItems { get; set; }
+    bool PanelFormApprovalVisible { get; set; }
+    IGrid? TransferFromApprovalGrid { get; set; }
+    bool updateFormApprovalEnabled { get; set; } = false; bool BlukdeleteFormApprovalPopup { get; set; } = false;
+    bool DeleteFromApprovalEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedFormApprovalDataItems { get; set; }
+    private DynamicFormApproval _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await loadFromApprovals();
+    }
+
+    public async Task loadFromApproval(ResetPermissionModel data)
+    {
+        Data = data;
+        await loadFromApprovals();
+    }
+    async Task loadFromApprovals()
+    {
+        try
+        {
+            updateFormApprovalEnabled = false;
+            PanelFormApprovalVisible = true; DeleteFromApprovalEnabled = false;
+            dynamicFormWorkFlowApprovalItems = await Mediator.Send(new GetTransferDynamicFormApproval(Data.FromUserId));
+            if (dynamicFormWorkFlowApprovalItems != null && dynamicFormWorkFlowApprovalItems.Count > 0)
+            {
+                updateFormApprovalEnabled = true; DeleteFromApprovalEnabled = true;
+                _selectedItems = dynamicFormWorkFlowApprovalItems.FirstOrDefault();
+                TransferFromApprovalGrid?.SetFocusedRowIndex(0);
+            }
+            PanelFormApprovalVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void SelectedFormApprovalDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedFormApprovalDataItems = SelectedToItems;
+    }
+    async void ClosePopup()
+    {
+        PanelFormApprovalVisible = false;
+        await loadFromApprovals();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedFormApprovalDataItems = null;
+        BlukdeleteFormApprovalPopup = false;
+        PanelFormApprovalVisible = false;
+    }
+    async Task updateFormApproval()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedFormApprovalDataItems != null)
+            {
+                foreach (object item in SelectedFormApprovalDataItems)
+                {
+                    if (item is DynamicFormApproval dataItem)
+                    {
+                        ids.Add(dataItem.DynamicFormApprovalId);
+                    }
+
+                }
+                if (Data.ToUserId > 0)
+                {
+                    if (ids != null && ids.Count > 0)
+                    {
+                        var request = new UpdateTransferDynamicFormApproval(ids, Data.ToUserId);
+                        await Mediator.Send(request);
+                        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadFromApprovals();
+                        TransferFromApprovalGrid?.ClearSelection();
+                        TransferFromApprovalGrid.SetFocusedRowIndex(0);
+                        StateHasChanged();
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Must Select To User", AC.SD.Core.Services.ToastLevel.Warning);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    void deleteFormApprovalDelete()
+    {
+        BlukdeleteFormApprovalPopup = true;
+    }
+    async Task bulkDelete()
+    {
+        List<DynamicFormApproval> ids = new List<DynamicFormApproval>();
+        try
+        {
+            if (SelectedFormApprovalDataItems != null)
+            {
+                foreach (object item in SelectedFormApprovalDataItems)
+                {
+                    if (item is DynamicFormApproval dataItem)
+                    {
+                        ids.Add(dataItem);
+                    }
+
+                }
+                if (ids != null && ids.Count > 0)
+                {
+                    var request = new DeleteTransferDynamicFormApproval(ids);
+                    await Mediator.Send(request);
+                    BlukdeleteFormApprovalPopup = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadFromApprovals();
+                    TransferFromApprovalGrid?.ClearSelection();
+                    TransferFromApprovalGrid?.SetFocusedRowIndex(0);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            BlukdeleteFormApprovalPopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        dynamicFormWorkFlowApprovalItems?.Clear();
+        SelectedFormApprovalDataItems = null;
+        _selectedItems = null;
+    }
+}

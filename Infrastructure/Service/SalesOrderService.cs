@@ -748,5 +748,72 @@ namespace Infrastructure.Service
 
             return prodNotStartList;
         }
+
+
+        public async Task<List<NavprodOrderLine>> GetFinishedProdOrderLineToNAVProdOrderLine(string company, long companyid, List<NavprodOrderLine> productionLinelist)
+        {
+
+            List<NavprodOrderLine> prodNotStartList = new List<NavprodOrderLine>();
+            var fromMonth = DateTime.Today;
+            var year = fromMonth.Year - 1;
+            var tomonth = DateTime.Today.AddMonths(6);
+            var context = new NAVService(_configuration, company);
+            int pageSize = 1000;
+            int page = 0;
+
+            while (true)
+            {
+                var nquery = context.Context.FinishedProdOrderLine.Where(w => w.g_optStatus == "Approved" || w.g_optStatus == "").Skip(page * pageSize).Take(pageSize);
+                DataServiceQuery<NAV.FinishedProdOrderLine> query = (DataServiceQuery<NAV.FinishedProdOrderLine>)nquery;
+
+                TaskFactory<IEnumerable<NAV.FinishedProdOrderLine>> taskFactory = new TaskFactory<IEnumerable<NAV.FinishedProdOrderLine>>();
+                IEnumerable<NAV.FinishedProdOrderLine> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+                prodCodes.ForEach(f =>
+                {
+                    if (f.Line_No > 0)
+                    {
+                        string refNo = f.Replan_Ref_No;
+                        if (!string.IsNullOrEmpty(refNo))
+                        {
+                            var exitsData = prodNotStartList.Where(s => s.ItemNo == f.Item_No && s.RePlanRefNo == refNo && s.ProdOrderNo == f.Prod_Order_No).Count();
+                            if (exitsData == 0)
+                            {
+                                var exist = productionLinelist.Where(p => p.ItemNo == f.Item_No && p.RePlanRefNo == refNo && p.CompanyId == companyid && p.ProdOrderNo == f.Prod_Order_No).FirstOrDefault();
+                                if (exist == null)
+                                {
+                                    var prodNotStart = new NavprodOrderLine
+                                    {
+                                        RePlanRefNo = refNo,
+                                        CompanyId = companyid,
+                                        ProdOrderNo = f.Prod_Order_No,
+                                        OrderLineNo = f.Line_No,
+                                        ItemNo = f.Item_No,
+                                        Description = f.Description,
+                                        Description1 = f.Description_2,
+                                        //  CompletionDate = f.Completion_Date == DateTime.MinValue ? null : f.Completion_Date,
+                                        //  RemainingQuantity = f.Remaining_Quantity,
+                                        BatchNo = f.Batch_No,
+                                        Status = "Released",
+                                        //  OutputQty = f.Finished_Quantity,
+                                        StartDate = f.Starting_Date == DateTime.MinValue ? null : f.Starting_Date,
+                                        LastSyncDate = DateTime.Now,
+                                    };
+
+                                    prodNotStartList.Add(prodNotStart);
+                                }
+                            }
+                        }
+
+                    }
+                });
+                if (prodCodes.Count < 1000)
+                    break;
+                page++;
+            }
+
+            return prodNotStartList;
+        }
     }
 }

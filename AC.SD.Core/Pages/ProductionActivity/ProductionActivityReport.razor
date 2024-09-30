@@ -52,6 +52,7 @@
                                 <DxMenuItem Text="Non compliance" Click="@(_ => onOperators("NonCompliance","Non-Compliance"))" IconCssClass="fa fa-gavel" Visible="NonComplianceEnabled" />
                                 <DxMenuItem Text="Operator" Click="@(_ => onOperators("RestrictOperator","Operator"))" IconCssClass="fa fa-tasks" Visible="OperatorEnabled" />
                                 <DxMenuItem Text="Update Status" IconCssClass="fa fa-info" Click="@(_ => OnClickActivityStatusOpen("Update Status"))" Visible="UpdateStatusEnabled" />
+                                <DxMenuItem Text="Activity Result" IconCssClass="fa fa-info" Click="@(_ => OnClickActivityStatusOpen("Activity Result"))" Visible="UpdateStatusEnabled" />
                             </Items>
                         </DxMenuItem>
                     </Items>
@@ -112,7 +113,7 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180" Visible = "false" />
-            <DxGridDataColumn Caption="Date&Time" FieldName="AddedDate" MinWidth="180">
+            <DxGridDataColumn Caption="Date&Time" FieldName="AddedDate" MinWidth="180" SortIndex="0" SortOrder="GridColumnSortOrder.Descending">
                 <CellDisplayTemplate>
                     @{
                         var item = (ProductActivityAppModel)context.DataItem;
@@ -124,8 +125,9 @@
             <DxGridDataColumn Caption="Ticket No" FieldName="ProdOrderNoDesc" MinWidth="180" />
             <DxGridDataColumn Caption="Location/Batch Info." FieldName="LocationName" MinWidth="180" />
             <DxGridDataColumn Caption="Company" FieldName="CompanyName" MinWidth="180" Visible ="false" />
+            <DxGridDataColumn Caption="Process" FieldName="ManufacturingProcessChild" MinWidth="180"  />
             <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />
-            <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" />
+            <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" Visible="false" />
             <DxGridDataColumn Caption="Comment" FieldName="LineComment" MinWidth="180">
                 <CellDisplayTemplate>
                     @{
@@ -138,7 +140,7 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
            
-            <DxGridDataColumn Caption="Process" FieldName="ManufacturingProcessChild" MinWidth="180" Visible ="false"/>
+           
             <DxGridDataColumn Caption="Activity Master" FieldName="ActivityMaster" MinWidth="180" />
             <DxGridDataColumn Caption="Activity Status" FieldName="ActivityStatus" MinWidth="180" />
             <DxGridDataColumn Caption="Result" FieldName="ProdActivityResult" MinWidth="180" />
@@ -146,7 +148,7 @@
 
         </Columns>
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProdOrderNoDesc" />
         </TotalSummary>
 
     </DxGrid>
@@ -321,6 +323,20 @@
                               CssClass="cw-480" />
                 </DxFormLayoutItem>
             }
+            @if (ActivityStatusMasterType == "Activity Result")
+            {
+                <DxFormLayoutItem Caption="Activity Result" ColSpanMd="12">
+                    <DxTagBox NullText="Select Activity Master..."
+                              Data="@_ActivityResult"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              TextFieldName="Value"
+                              ValueFieldName="ApplicationMasterDetailID"
+                              @bind-Values="@_selectedDescriptionItems.ProdActivityResultIds"
+                              CssClass="cw-480" />
+                </DxFormLayoutItem>
+            }
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -422,18 +438,18 @@
                 </DxComboBox>
             </DxFormLayoutItem>
 
-            <DxFormLayoutItem Caption="Action:" ColSpanMd="12">
-                <DxComboBox Data="@_actionItems"
-                            NullText="Select ActionDropdown..."
-                            SearchMode="ListSearchMode.AutoSearch"
-                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                            TextFieldName="Value"
-                            ValueFieldName="ApplicationMasterChildId"
-                            @bind-Value="FilterData.ProdActivityActionChildD"
-                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                            ShowValidationIcon="true">
-                </DxComboBox>
-            </DxFormLayoutItem>
+           @*   <DxFormLayoutItem Caption="Action:" ColSpanMd="12">
+                 <DxComboBox Data="@_actionItems"
+                             NullText="Select ActionDropdown..."
+                             SearchMode="ListSearchMode.AutoSearch"
+                             SearchFilterCondition="ListSearchFilterCondition.Contains"
+                             TextFieldName="Value"
+                             ValueFieldName="ApplicationMasterChildId"
+                             @bind-Value="FilterData.ProdActivityActionChildD"
+                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                             ShowValidationIcon="true">
+                 </DxComboBox>
+             </DxFormLayoutItem> *@
             <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="12">
                 <DxComboBox Data="@_ActivityResult"
                             NullText="Select Activity Result..."
@@ -577,7 +593,7 @@
     public bool NonComplianceEnabled { get; set; } = false;
     public bool OperatorEnabled { get; set; } = false; public bool UpdateStatusEnabled { get; set; } = false;
     public bool EmailActivityEnabled { get; set; } = false;
-    public bool ActivityInfoEnabled { get; set; } = false;
+    public bool ActivityInfoEnabled { get; set; } = false; public bool ActivityResultEnabled { get; set; } = false;
     public bool ActivityEmailSubjectPopup { get; set; } = false;
     private List<View_ApplicationMasterDetail> _ActivityStatusItem;
     private List<View_ApplicationMasterDetail> _ActivityMaster;
@@ -621,7 +637,7 @@
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false; IsChecker = false;
-        NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+        NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;ActivityResultEnabled = false;
         _AppLines = new List<ProductActivityAppModel>();
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
         FilterData.AddedByUserID = applicationUser.UserID;
@@ -671,7 +687,7 @@
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false; IsChecker = false;
-        NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+        NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;ActivityResultEnabled = false;
         if (_selectedItems != null)
         {
             if (_selectedItems.IsActionPermission == true)
@@ -681,7 +697,7 @@
                 //     isVisibleMore = "";
                 //     EditEnabled = true; DeleteEnabled = true;
                 //     NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;IsChecker = true;
-                //     NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;
+                //     NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;ActivityResultEnabled = true;
                 //     if (_selectedItems.IsLocked == true)
                 //     {
                 //         CheckOutEnabled = false;
@@ -689,7 +705,7 @@
                 //         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                 //         HistoryEnabled = false;
                 //         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker = true;
-                //         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+                //         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;ActivityResultEnabled = true;
                 //     }
                 //     else
                 //     {
@@ -715,7 +731,7 @@
                 //     EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                 //     HistoryEnabled = false;
                 //     viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker = false;
-                //     NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+                //     NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;ActivityResultEnabled = true;
                 // }
                 // else
                 // {
@@ -732,7 +748,7 @@
                             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                             HistoryEnabled = false;
                             viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false;
-                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; IsChecker = false;
+                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; IsChecker = false; ActivityResultEnabled = true;
                         }
                         else
                         {
@@ -807,6 +823,14 @@
                             else
                             {
                                 MailEnabled = true;
+                            }
+                            if (actionItem.IsActivityResult == true && actionItem.IsActivityResult != null)
+                            {
+                                ActivityResultEnabled = true;
+                            }
+                            else
+                            {
+                                ActivityResultEnabled = false;
                             }
                             if (actionItem.IsActivityInfo == true && actionItem.IsActivityInfo != null)
                             {
@@ -924,7 +948,7 @@
         {
             EmailActivityEnabled = true;
         }
-        NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;
+        NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true; ActivityResultEnabled = true;
         if (_selectedItems.IsLocked == true)
         {
             CheckOutEnabled = false;
@@ -932,7 +956,7 @@
             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
             HistoryEnabled = false; EmailActivityEnabled = false;
             viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; IsChecker = false;
-            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; ActivityResultEnabled = false;
         }
         else
         {
@@ -1255,6 +1279,7 @@
         _selectedDescriptionItems.ProductionActivityAppLineId = _selectedItems.ProductionActivityAppLineId;
         _selectedDescriptionItems.ActivityStatusId = _selectedItems.ActivityStatusId;
         _selectedDescriptionItems.ActivityMasterIds = _selectedItems.ActivityMasterIds;
+        _selectedDescriptionItems.ProdActivityResultIds = _selectedItems.ProdActivityResultIds;
         _selectedDescriptionItems.ModifiedDate = DateTime.Now;
         _selectedDescriptionItems.ModifiedByUserID = applicationUser.UserID;
 
@@ -1271,6 +1296,12 @@
         if (ActivityStatusMasterType == "Activity Info")
         {
             await Mediator.Send(new UpdateActivityMaster(_selectedDescriptionItems));
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            IsActivityStatusMasterOpen = false;
+        }
+        if (ActivityStatusMasterType == "Activity Result")
+        {
+            await Mediator.Send(new UpdateActivityResult(_selectedDescriptionItems));
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             IsActivityStatusMasterOpen = false;
         }

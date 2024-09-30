@@ -189,7 +189,20 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+    public class UpdateFormulaTextBoxHandler : IRequestHandler<UpdateFormulaTextBox, DynamicFormSectionAttribute>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateFormulaTextBoxHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
 
+        }
+        public async Task<DynamicFormSectionAttribute> Handle(UpdateFormulaTextBox request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateFormulaTextBox(request.DynamicFormSectionAttribute);
+
+        }
+    }
     public class GetDynamicFormSectionAttributeHandler : IRequestHandler<GetDynamicFormSectionAttribute, List<DynamicFormSectionAttribute>>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
@@ -1211,5 +1224,19 @@ namespace Application.Handlers.QueryHandlers
 
 
         }
+    }
+    public class GetDynamicFormSectionAttributeForSpinEditHandler : IRequestHandler<GetDynamicFormSectionAttributeForSpinEdit, List<DynamicFormSectionAttribute>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormSectionAttributeForSpinEditHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormSectionAttribute>> Handle(GetDynamicFormSectionAttributeForSpinEdit request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormSectionAttribute>)await _dynamicFormQueryRepository.GetDynamicFormSectionAttributeForSpinEditAsync(request.Id);
+        }
+
+
     }
 }

@@ -12,6 +12,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable
 
+
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -23,6 +24,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Add Control Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Control Section" IconCssClass="fa fa-user-lock" Click="@addValuePermission" Enabled="@IsDynamicFormAttributeEnabled" />
+               @*  <DxMenuItem Text="Add Formula" IconCssClass="fa fa-calculator" Click="@OpenAddFormulaPopup" Enabled="@IsFormulaEnabled" /> *@
             </Items>
         </DxMenu>
     </div>
@@ -331,6 +333,7 @@
 
                     <DxMemo @bind-Text="@types.FormToolTips" Rows="5" />
                 </DxFormLayoutItem>
+                
             </DxFormLayout>
         </EditFormTemplate>
 
@@ -411,7 +414,22 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@AddFormulaPopup"
+         ShowFooter="false"
+         HeaderText="Add Formula"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <DynamicFormSectionAttributeFormula @ref="refDynamicFormSectionAttributeFormula" Items="@Items" SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser" RevokeBack="CloseAddFormulaPopup"></DynamicFormSectionAttributeFormula>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddFormulaPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    public bool AddFormulaPopup { get; set; } = false;
+    private DynamicFormSectionAttributeFormula refDynamicFormSectionAttributeFormula;
     private DynamicFormSectionAttributeSectionForm refDynamicFormSectionAttributeSectionForm;
     private DynamicFormSectionAttributeSecuritys refDynamicFormSectionAttributeSecuritys;
     [Parameter]
@@ -423,7 +441,7 @@
     public long? DynamicFormSectionId { get; set; }
     bool PanelAttibuteVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeData;
+    private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeData; 
     IGrid? SMAttributeGrid { get; set; }
     private DynamicFormSectionAttribute _selectedAttributeItems;
     IEnumerable<string> TemplateUploadOptions = new[] { "Vertical", "Horizontal" };
@@ -453,7 +471,7 @@
     bool addPermissionEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false; bool isApplicationMasterParentEnabled { get; set; } = false;
     bool isFormCountUsed { get; set; } = true; private List<AttributeHeaderDataSource> _attributeHeaderDataSource; bool isDataSource { get; set; } = false;
     private List<global::Core.Entities.ApplicationMaster> _applicationMasterItems; private List<ApplicationMasterParent>? _applicationMasterParentItems;
-    bool IsDynamicFormAttributeEnabled { get; set; } = false;
+    bool IsDynamicFormAttributeEnabled { get; set; } = false; bool IsFormulaEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -483,6 +501,16 @@
     void addValuePermission()
     {
         AddControlSectionPopup = true;
+        StateHasChanged();
+    }
+    void OpenAddFormulaPopup()
+    {
+        AddFormulaPopup = true;
+    }
+    void CloseAddFormulaPopup()
+    {
+        AddFormulaPopup = false;
+        StateHasChanged();
     }
     public async Task loadChildData(long? dynamicFormIds)
     {
@@ -700,7 +728,7 @@
         try
         {
             PanelAttibuteVisible = true; AddEnabled = false;
-            EditEnabled = false; DeleteEnabled = false; IsDynamicFormAttributeEnabled = false;
+            EditEnabled = false; DeleteEnabled = false; IsDynamicFormAttributeEnabled = false; IsFormulaEnabled = false;
 
             if (DynamicFormSectionId > 0)
             {
@@ -728,6 +756,10 @@
                         {
                             IsDynamicFormAttributeEnabled = true;
                         }
+                    }
+                    if (_selectedAttributeItems.ControlTypeId == 2701)
+                    {
+                        IsFormulaEnabled = true;
                     }
                 }
             }
@@ -889,6 +921,7 @@
                 isDynamicFormGridDropdownMultiple = editModel.IsDynamicFormGridDropdownMultiple == true ? true : false;
             }
         }
+
         if (e.IsNew)
         {
             var createReq = new InsertOrUpdateDynamicFormSectionAttribute
@@ -983,7 +1016,6 @@
                     GridDropDownDynamicFormID = GridDropDownDynamicFormIDs,
                     IsDynamicFormGridDropdown = IsDynamicFormGridDropdownEnabledd,
                     IsDynamicFormGridDropdownMultiple = isDynamicFormGridDropdownMultiple,
-
                 };
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -1054,7 +1086,7 @@
         //{
         //   DeleteEnabled = false;
         // }
-        IsDynamicFormAttributeEnabled = false;
+        IsDynamicFormAttributeEnabled = false; IsFormulaEnabled = false;
         if (_selectedAttributeItems.ControlTypeId == 2702 || _selectedAttributeItems.ControlTypeId == 2708)
         {
             if (_selectedAttributeItems.DataSourceTable != "DynamicGrid" && _selectedAttributeItems.DataSourceTable != "ApplicationMaster" && _selectedAttributeItems.DataSourceTable != "ApplicationMasterParent")
@@ -1067,7 +1099,11 @@
                 IsDynamicFormAttributeEnabled = true;
             }
         }
-        StateHasChanged();
+        if (_selectedAttributeItems.ControlTypeId == 2701)
+        {
+            IsFormulaEnabled = true;
+        }
+            StateHasChanged();
 
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -1204,20 +1240,20 @@
         refDynamicFormSectionAttributeSecuritys?.DisposeAsync();
         SelectedDataItems = null;
         _dynamicFormSectionAttributeData?.Clear();
-        _selectedAttributeItems=null;
+        _selectedAttributeItems = null;
         TemplateUploadOptions = null;
-        _selectAttributelst=null;
+        _selectAttributelst = null;
         sortOrderAttributeSectionList?.Clear();
         colSpanLists?.Clear();
         _attributeHeaderData?.Clear(); ; _dynamicForm?.Clear();
         _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
         dynamicFormSectionSpinEdit?.Clear();
         _attributeHeaderDataSource?.Clear();
-        _applicationMasterItems?.Clear();  _applicationMasterParentItems?.Clear();
+        _applicationMasterItems?.Clear(); _applicationMasterParentItems?.Clear();
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         ClearDAta();
         //GC.SuppressFinalize(this);
     }

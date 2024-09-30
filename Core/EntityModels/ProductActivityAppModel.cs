@@ -90,6 +90,7 @@ namespace Core.EntityModels
 
         public List<long?> RoutineInfoIds { get; set; } = new List<long?>();
         public IEnumerable<long?> ActivityMasterIds { get; set; } = new List<long?>();
+        public IEnumerable<long?> ProdActivityResultIds { get; set; } = new List<long?>();
         public string? ActivityMaster { get; set; }
         public string? ActivityResult { get; set; }
         public string? ActivityStatus { get; set; }
@@ -131,6 +132,7 @@ namespace Core.EntityModels
         public List<ProductActivityCaseCategoryMultiple> ProductActivityCaseCategoryMultiple { get; set; } = new List<ProductActivityCaseCategoryMultiple>();
         public List<ProductActivityCaseActionMultiple> ProductActivityCaseActionMultiple { get; set; } = new List<ProductActivityCaseActionMultiple>();
         public List<ProductActivityCase> ProductActivityCase { get; set; } = new List<ProductActivityCase>();
+        public List<ActivityResultMultiple> ActivityResultMultiple { get; set; } = new List<ActivityResultMultiple>();
     }
     public class MultipleProductioRoutineAppLineItemLists
     {

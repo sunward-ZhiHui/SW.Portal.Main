@@ -149,6 +149,7 @@
         Data.ActivityType = "productionactivity";
         Data.ActionId = selectedFiles.ProdActivityActionChildD;
         _ManuFactureProcessLines = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105"));
+        StateHasChanged();
         if (selectedFiles.ManufacturingProcessChildId > 0)
         {
             _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectedFiles.ManufacturingProcessChildId));
@@ -167,7 +168,7 @@
     {
         Data.ManufacturingProcessId = selectItem;
         _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
-        Data.CategoryActionId = null; Data.ManufacturingProcessId = null; Data.ActionId = null;
+        Data.CategoryActionId = null; Data.ActionId = null;
         if (selectItem > 0)
         {
             _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem));
@@ -217,7 +218,6 @@
     }
     void onBack()
     {
-        DisposeAsync();
         RevokeBack?.Invoke();
 
     }

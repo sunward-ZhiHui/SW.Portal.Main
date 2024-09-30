@@ -43,5 +43,7 @@ namespace Core.Entities
         public IEnumerable<long?> SelectUserGroupIDs { get; set; } = new List<long?>();
         [NotMapped]
         public IEnumerable<long?> SelectLevelMasterIDs { get; set; } = new List<long?>();
+        public string? FormName { get; set; }
+        public string? SectionName { get; set; }
     }
 }

@@ -87,5 +87,149 @@ namespace Application.Queries
             
         }
     }
+    public class GetTransferDynamicFormWorkFlow : PagedRequest, IRequest<List<DynamicFormWorkFlow>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormWorkFlow(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormWorkFlow : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormWorkFlow(List<long?> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
 
+    public class GetTransferDynamicFormWorkFlowApproval : PagedRequest, IRequest<List<DynamicFormWorkFlowApproval>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormWorkFlowApproval(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormWorkFlowApproval : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormWorkFlowApproval(List<long?> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+    public class GetTransferDynamicFormSectionSecurity : PagedRequest, IRequest<List<DynamicFormSectionSecurity>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormSectionSecurity(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormSectionSecurity : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormSectionSecurity(List<long?> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+    public class DeleteTransferDynamicFormSectionSecurity : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public DeleteTransferDynamicFormSectionSecurity(List<long?> ids)
+        {
+            this.Ids = ids;
+        }
+    }
+
+    public class GetTransferDynamicFormSectionAttributeSecurity : PagedRequest, IRequest<List<DynamicFormSectionAttributeSecurity>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormSectionAttributeSecurity(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormSectionAttributeSecurity : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormSectionAttributeSecurity(List<long?> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+    public class DeleteTransferDynamicFormSectionAttributeSecurity : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public DeleteTransferDynamicFormSectionAttributeSecurity(List<long?> ids)
+        {
+            this.Ids = ids;
+        }
+    }
+
+    public class GetTransferDynamicFormSectionAttributeSection : PagedRequest, IRequest<List<DynamicFormSectionAttributeSection>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormSectionAttributeSection(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateDynamicFormSectionAttributeSection : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateDynamicFormSectionAttributeSection(List<long?> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+    public class DeleteDynamicFormSectionAttributeSection : PagedRequest, IRequest<List<DynamicFormSectionAttributeSection>>
+    {
+        public List<DynamicFormSectionAttributeSection> Ids { get; set; }
+        public DeleteDynamicFormSectionAttributeSection(List<DynamicFormSectionAttributeSection> ids)
+        {
+            this.Ids = ids;
+        }
+    }
+
+
+    public class GetTransferDynamicFormApproval : PagedRequest, IRequest<List<DynamicFormApproval>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormApproval(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class DeleteTransferDynamicFormApproval : PagedRequest, IRequest<List<DynamicFormApproval>>
+    {
+        public List<DynamicFormApproval> Ids { get; set; }
+        public DeleteTransferDynamicFormApproval(List<DynamicFormApproval> ids)
+        {
+            this.Ids = ids;
+        }
+    }
+    public class UpdateTransferDynamicFormApproval : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormApproval(List<long?> ids,long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
 }

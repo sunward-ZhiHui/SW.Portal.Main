@@ -28,5 +28,6 @@ namespace Core.Entities
         public int? ApprovedCountUsed { get; set; } = 0;
         [NotMapped]
         public int? Approved { get; set; }
+        public string? FormName { get; set; }
     }
 }

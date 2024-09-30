@@ -69,6 +69,12 @@
                                 <DxFormLayoutTabPage Caption="Email Conversations">
                                     <TransferPermissionsEmailConversationParticipant @ref="refTransferPermissionsEmailConversationParticipant" Data="@Data"></TransferPermissionsEmailConversationParticipant>
                                 </DxFormLayoutTabPage>
+                               @*  <DxFormLayoutTabPage Caption="Dynamic Form Master">
+                                    <DynamicFormTransferTab @ref="refDynamicFormTransferTab" Data="@Data"></DynamicFormTransferTab>
+                                </DxFormLayoutTabPage>
+                                <DxFormLayoutTabPage Caption="Dynamic Form Data">
+                                    <DynamicFormDataTransferTab @ref="refDynamicFormDataTransferTab" Data="@Data"></DynamicFormDataTransferTab>
+                                </DxFormLayoutTabPage> *@
                             </DxFormLayoutTabPages>
                         </DxFormLayout>
                     </div>
@@ -81,6 +87,8 @@
     ViewEmployee CurrentFromUser { get; set; }
     ViewEmployee CurrentToUser { get; set; }
     private TransferUserGroups refResetUserGroups;
+    private DynamicFormTransferTab refDynamicFormTransferTab;
+    private DynamicFormDataTransferTab refDynamicFormDataTransferTab;
     private TransferPermissionDocumentUserRole refTransferPermissionDocumentUserRole;
     private TransferPermissionsEmailConversationParticipant refTransferPermissionsEmailConversationParticipant;
     private List<ViewEmployee> _usersList { get; set; }
@@ -159,6 +167,16 @@
             ActiveSubTabIndex = tabIndex;
             await refTransferPermissionsEmailConversationParticipant.loadEmailConversations(Data);
         }
+        if (tabIndex == 3)
+        {
+            ActiveSubTabIndex = tabIndex;
+            await refDynamicFormTransferTab.loadDynamicFormData(Data);
+        }
+        if (tabIndex == 4)
+        {
+            ActiveSubTabIndex = tabIndex;
+            await refDynamicFormDataTransferTab.loadDynamicFormDataForm(Data);
+        }
     }
     void OnTabClick(TabClickEventArgs e)
     {
@@ -194,5 +212,6 @@
         refResetUserGroups?.DisposeAsync();
         refTransferPermissionDocumentUserRole?.DisposeAsync();
         refTransferPermissionsEmailConversationParticipant?.DisposeAsync();
+        refDynamicFormTransferTab?.DisposeAsync();
     }
 }

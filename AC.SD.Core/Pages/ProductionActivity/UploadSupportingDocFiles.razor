@@ -245,18 +245,39 @@
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
-                <DxTreeView @ref="_treeView"
-                            @bind-FilterString="FilterString"
-                            Data="@fileProfileTypeDocumentsAll"
-                            AllowSelectNodes="true"
-                            AfterExpand="@AfterExpand"
-                            SelectionChanged="@SelectionChanged">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId" />
-                    </DataMappings>
-                </DxTreeView>
+                 @* <DxTreeView @ref="_treeView"
+                             @bind-FilterString="FilterString"
+                             Data="@fileProfileTypeDocumentsAll"
+                             AllowSelectNodes="true"
+                             AfterExpand="@AfterExpand"
+                             SelectionChanged="@SelectionChanged">
+                     <DataMappings>
+                         <DxTreeViewDataMapping Text="FileName"
+                                                Key="DocumentID"
+                                                ParentKey="ParentId" />
+                     </DataMappings>
+                 </DxTreeView> *@
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeClick"
+                            SelectionMode="TreeListSelectionMode.Single"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
             </DxFormLayoutItem>
 
         </DxFormLayout>
@@ -575,6 +596,23 @@
             IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
             await loadData(nodeName, "No");
 
+        }
+        StateHasChanged();
+    }
+    async void OnRowTreeClick(TreeListRowClickEventArgs e)
+    {
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+            FileProfileTypeId = nodeName.FileProfileTypeId;
+            DocSessionId = nodeName.SessionID;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
+            FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
+            await loadData(nodeName, "No");
+            IsFileProfileTypeOpen = false;
         }
         StateHasChanged();
     }

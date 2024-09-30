@@ -20,6 +20,7 @@ namespace Core.EntityModels
         public bool? IsViewHistory { get; set; }
         public bool? IsNonCompliance { get; set; }
         public bool? IsActivityInfo { get; set; }
+        public bool? IsActivityResult { get; set; }
         public bool? IsViewFile { get; set; }
         public long? ProductActivityCaseResponsDutyId { get; set; }
         public long? UserID { get; set; }

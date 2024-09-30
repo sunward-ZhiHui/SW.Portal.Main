@@ -136,6 +136,19 @@ namespace Application.Handlers.QueryHandlers
             return await _productionactivityQueryRepository.UpdateActivityMaster(request.ProductActivityAppModel);
         }
     }
+    public class UpdateActivityResultHandler : IRequestHandler<UpdateActivityResult, ProductActivityAppModel>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public UpdateActivityResultHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductActivityAppModel> Handle(UpdateActivityResult request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateActivityResult(request.ProductActivityAppModel);
+        }
+    }
+
     public class UpdateActivityStatusHandler : IRequestHandler<UpdateActivityStatus, ProductActivityAppModel>
     {
         private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;

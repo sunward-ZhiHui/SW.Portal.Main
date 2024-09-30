@@ -42,7 +42,7 @@
                             <DxFormLayout>
                                 <DxFormLayoutItem Caption="Users" ColSpanMd="10">
                                     <DxTagBox Data="_usersList"
-                                    @bind-Values="Data.SelectUserIDs"
+                                              @bind-Values="Data.SelectUserIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserID"
@@ -67,9 +67,7 @@
                                 </DxFormLayoutItem>
                             </DxFormLayout>
                         </EditForm>
-                        <div class="col-md-12">
-                            <PermissionSectionList @ref="refDocumentUserRoleListsUser" DynamicFormSectionId="@dynamicFormSectionId"></PermissionSectionList>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -87,7 +85,7 @@
                             <DxFormLayout>
                                 <DxFormLayoutItem Caption="User Group" ColSpanMd="10">
                                     <DxTagBox Data="_userGroupsList"
-                                    @bind-Values="Data.SelectUserGroupIDs"
+                                              @bind-Values="Data.SelectUserGroupIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               ValueFieldName="UserGroupId"
@@ -109,9 +107,7 @@
                             </DxFormLayout>
                         </EditForm>
                     </div>
-                    <div class="col-md-12">
-                        <PermissionSectionList @ref="refDocumentUserRoleListsUserGroup" DynamicFormSectionId="@dynamicFormSectionId"></PermissionSectionList>
-                    </div>
+
                 </div>
             </div>
         </DxTabPage>
@@ -128,7 +124,7 @@
                             <DxFormLayout>
                                 <DxFormLayoutItem Caption="Level Master" ColSpanMd="10">
                                     <DxTagBox Data="_levelMasterLists"
-                                    @bind-Values="Data.SelectLevelMasterIDs"
+                                              @bind-Values="Data.SelectLevelMasterIDs"
                                               NullText="Select To..."
                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                               SearchMode="ListSearchMode.AutoSearch"
@@ -152,18 +148,17 @@
                         </EditForm>
 
                     </div>
-                    <div class="col-md-12">
-                        <PermissionSectionList @ref="refDocumentUserRoleListsLevel" DynamicFormSectionId="@dynamicFormSectionId"></PermissionSectionList>
-                    </div>
+
                 </div>
             </div>
         </DxTabPage>
     </DxTabs>
+    <div class="col-md-12">
+        <PermissionSectionList @ref="refDocumentUserRoleListsUser" DynamicFormSectionId="@dynamicFormSectionId"></PermissionSectionList>
+    </div>
 </div>
 @code {
     private PermissionSectionList? refDocumentUserRoleListsUser;
-    private PermissionSectionList? refDocumentUserRoleListsUserGroup;
-    private PermissionSectionList? refDocumentUserRoleListsLevel;
     [Parameter]
     public DynamicFormSection SelectedItems { get; set; }
     [Parameter]
@@ -230,34 +225,32 @@
         if (e.TabIndex == 0)
         {
             Data.Type = "User";
-            await refDocumentUserRoleListsUser.loadData(dynamicFormSectionId);
+
         }
         if (e.TabIndex == 1)
         {
             Data.Type = "UserGroup";
-            await refDocumentUserRoleListsUserGroup.loadData(dynamicFormSectionId);
         }
         if (e.TabIndex == 2)
         {
             Data.Type = "Level";
-            await refDocumentUserRoleListsLevel.loadData(dynamicFormSectionId);
         }
-
+        await refDocumentUserRoleListsUser.loadData(dynamicFormSectionId);
         StateHasChanged();
     }
     void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
     {
-        ActiveTabSecIndex = 0;
+      //  ActiveTabSecIndex = 0;
         StateHasChanged();
     }
     void onSelectedUserGroupItemsChanged(IEnumerable<UserGroup> values)
     {
-        ActiveTabSecIndex = 1;
+       // ActiveTabSecIndex = 1;
         StateHasChanged();
     }
     void onSelectedLevelItemsChanged(IEnumerable<ViewLevel> values)
     {
-        ActiveTabSecIndex = 2;
+       // ActiveTabSecIndex = 2;
         StateHasChanged();
     }
     async Task HandleValidSubmit()
@@ -289,18 +282,7 @@
             {
                 Data.SelectUserIDs = null; Data.SelectLevelMasterIDs = null; Data.SelectUserGroupIDs = null;
                 toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                if (Data.Type == "User")
-                {
-                    await refDocumentUserRoleListsUser.loadData(dynamicFormSectionId);
-                }
-                if (Data.Type == "UserGroup")
-                {
-                    await refDocumentUserRoleListsUserGroup.loadData(dynamicFormSectionId);
-                }
-                if (Data.Type == "Level")
-                {
-                    await refDocumentUserRoleListsLevel.loadData(dynamicFormSectionId);
-                }
+                await refDocumentUserRoleListsUser.loadData(dynamicFormSectionId);
                 loading = false;
             }
         }
@@ -310,10 +292,8 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         refDocumentUserRoleListsUser?.DisposeAsync();
-        refDocumentUserRoleListsUserGroup?.DisposeAsync();
-        refDocumentUserRoleListsLevel?.DisposeAsync();
         Data = new DynamicFormSectionSecurity();
         _usersList?.Clear();
         _userGroupsList?.Clear();

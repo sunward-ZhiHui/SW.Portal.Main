@@ -106,6 +106,7 @@ namespace Core.Entities
         public long? DynamicFormGridId { get; set; }
         public List<DynamicFormDataSectionLock> DynamicFormDataSectionLock { get; set; } = new List<DynamicFormDataSectionLock>();
         public long? NewDynamicFormDataId { get; set; }
+        public long? DynamicFormApprovedId { get; set; }
     }
     public class DynamicFormProfile
     {

@@ -1,0 +1,207 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@* @implements IAsyncDisposable *@
+<script>
+    function callButtonFunction(texts) {
+        var cursorPos = $('#TextareaSpinInsert').prop('selectionStart');
+        console.log(cursorPos);
+        var v = $('#TextareaSpinInsert').val();
+        v = v.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+        var textBefore = v.substring(0, cursorPos);
+        var textAfter = v.substring(cursorPos, v.length);
+        var display = textBefore + texts + textAfter;
+        $('#TextareaSpinInsert').val(display);
+        setTimeout(function () {
+            $('#TextareaSpinInsert').focus();
+            // $('#TextareaSpinInsert').setSelectionRange(cursorPos, cursorPos);
+            // const input = document.getElementById('TextareaSpinInsert');
+            // input.focus();
+            // input.setSelectionRange(cursorPos);
+        }, 1000);
+
+        return display;
+    }
+    function setTextareaSpinInsert(display) {
+        setTimeout(function () {
+            display = display.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+            $('#TextareaSpinInsert').removeAttr('style');
+            $('#TextareaSpinInsert').css("width", "100%");
+            $('#TextareaSpinInsert').val(display);
+        }, 2000);
+    }
+    function setTextareaSpinInsertNew() {
+        setTimeout(function () {
+            $('#TextareaSpinInsert').removeAttr('style');
+            $('#TextareaSpinInsert').css("width", "100%");
+            $('#TextareaSpinInsert').val('');
+        }, 2000);
+    }
+    function setTextareaSpinFocus() {
+        $('#TextareaSpinInsert').focus();
+    }
+    function GetTextareaSpinFocus() {
+        var value = $('#TextareaSpinInsert').val();
+        console.log(value);
+        value = value.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+        $('#TextareaSpinInsert').val(value);
+        return value;
+    }
+</script>
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+    <div class="cw-480" style="margin-top:10px;margin-bottom:20px;">
+        <EditForm EditContext="this._editContext" Context="EditFormContext">
+            <DxFormLayout CssClass="w-100">
+                <DataAnnotationsValidator />
+                <DxFormLayoutItem Caption="Formula Set Item Data" ColSpanMd="10">
+                    <DxComboBox Data="@_dynamicFormSectionAttributeSpinData"
+                                NullText="Select Formula Set Item Data..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="DisplayName"
+                                ValueFieldName="DynamicFormSectionAttributeId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                Value="@Data.FormulaDynamicSectionAttributeId"
+                                ValueExpression="@(() => Data.FormulaDynamicSectionAttributeId )"
+                                ValueChanged="@((long? plant) => onChangedDynamicFormSectionAttributeSpinData(plant))"
+                                ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(DynamicFormSectionAttribute.DisplayName)"
+                                                Caption="Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(DynamicFormSectionAttribute.SectionName)"
+                                                Caption="Section Name" />
+                            <DxListEditorColumn FieldName="@nameof(DynamicFormSectionAttribute.IsSpinEditType)"
+                                                Caption="SpinEdit Type" />
+                            <DxListEditorColumn FieldName="@nameof(DynamicFormSectionAttribute.AttributeName)"
+                                                Caption="Attribute Name" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Data.FormulaDynamicSectionAttributeId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Operators" ColSpanMd="11">
+                    <div class="card w-100">
+                        <div class="card-body">
+                            <DxToolbar ItemClick="@OnItemClick">
+                                <Items>
+                                    <DxToolbarItem Name="+" Text="+" RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ToolbarItemRenderStyleMode.Plain" BeginGroup="true" style="font-size:20px;font-weight:bold;" />
+                                    <DxToolbarItem Name="-" Text="-" Tooltip="Minus" RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ToolbarItemRenderStyleMode.Plain" BeginGroup="true" style="font-size:20px;font-weight:bold;" />
+                                    <DxToolbarItem Name="*" Text="*" Tooltip="Multiply" RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ToolbarItemRenderStyleMode.Plain" BeginGroup="true" style="font-size:20px;font-weight:bold;" />
+                                    <DxToolbarItem Name="/" Text="/" Tooltip="Divide" RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ToolbarItemRenderStyleMode.Plain" BeginGroup="true" style="font-size:20px;font-weight:bold;" />
+                                    <DxToolbarItem Name="%" Text="%" Tooltip="Mod" RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ToolbarItemRenderStyleMode.Plain" BeginGroup="true" style="font-size:20px;font-weight:bold;" />
+                                    <DxToolbarItem Name="^" Text="^" Tooltip="Power" RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ToolbarItemRenderStyleMode.Plain" BeginGroup="true" style="font-size:20px;font-weight:bold;" />
+                                    <DxToolbarItem Name="(" Text="(" Tooltip="Open Round Bracket" RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ToolbarItemRenderStyleMode.Plain" BeginGroup="true" style="font-size:20px;font-weight:bold;" />
+                                    <DxToolbarItem Name=")" Text=")" Tooltip="Close Round Bracket" RenderStyle="ButtonRenderStyle.Info" RenderStyleMode="ToolbarItemRenderStyleMode.Plain" BeginGroup="true" style="font-size:20px;font-weight:bold;" />
+                                </Items>
+                            </DxToolbar>
+                        </div>
+                    </div>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Formula TextBox" ColSpanMd="12">
+                    <textarea rows="5" id="TextareaSpinInsert" style="width:100%;display:none;" @onkeyup="@((e) => onchangeFormulaTextBox())"></textarea>
+                    <DxMemo @bind-Text="@Data.FormulaTextBox" style="display:none;" />
+                    <ValidationMessage For="@(() => Data.FormulaTextBox)" style="font-weight:bold;" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditForm>
+    </div>
+</div>
+@code {
+    EditContext _editContext;
+    [Parameter]
+    public Action? RevokeBack { get; set; }
+    [Parameter]
+    public DynamicFormSectionAttribute SelectedItems { get; set; }
+    [Parameter]
+    public DynamicFormSection Items { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeSpinData;
+    DynamicFormSectionAttribute Data = new DynamicFormSectionAttribute();
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        Data.DynamicFormSectionAttributeId = SelectedItems.DynamicFormSectionAttributeId;
+        Data.FormulaTextBox = SelectedItems.FormulaTextBox;
+        Data.DisplayName = SelectedItems.DisplayName;
+        Data.AttributeId = SelectedItems.AttributeId; Data.GridDropDownDynamicFormID = 0;
+        Data.FormulaDynamicSectionAttributeId = SelectedItems.FormulaDynamicSectionAttributeId;
+        _dynamicFormSectionAttributeSpinData = await Mediator.Send(new GetDynamicFormSectionAttributeForSpinEdit(Items.DynamicFormId));
+        await jsRuntime.InvokeVoidAsync("setTextareaSpinInsert", SelectedItems.FormulaTextBox);
+    }
+    async Task OnItemClick(ToolbarItemClickEventArgs e)
+    {
+        var result = await jsRuntime.InvokeAsync<string>("callButtonFunction", e.ItemName);
+        Data.FormulaTextBox = result;
+    }
+    async Task onChangedDynamicFormSectionAttributeSpinData(long? dynamicFormSectionAttributeId)
+    {
+        Data.FormulaDynamicSectionAttributeId = dynamicFormSectionAttributeId;
+        if (dynamicFormSectionAttributeId > 0)
+        {
+            var NameList = _dynamicFormSectionAttributeSpinData.FirstOrDefault(f => f.DynamicFormSectionAttributeId == dynamicFormSectionAttributeId);
+            var nameSet = "$" + NameList.DynamicFormSectionAttributeId;
+            Data.FormulaTextBox = string.IsNullOrEmpty(Data.FormulaTextBox) ? "" : Data.FormulaTextBox;
+            var result = await jsRuntime.InvokeAsync<string>("callButtonFunction", nameSet);
+            Data.FormulaTextBox = result;
+        }
+        await jsRuntime.InvokeVoidAsync("setTextareaSpinFocus");
+        StateHasChanged();
+    }
+    async Task onchangeFormulaTextBox()
+    {
+        Data.FormulaTextBox = await jsRuntime.InvokeAsync<string>("GetTextareaSpinFocus");
+    }
+    void backUrl()
+    {
+        RevokeBack?.Invoke();
+    }
+    private async Task SubmitFormExternally()
+    {
+        try
+        {
+            if (_editContext.Validate())
+            {
+                await this.HandleValidSubmit();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task HandleValidSubmit()
+    {
+        var request = await Mediator.Send(new UpdateFormulaTextBox(Data));
+        if (request.DynamicFormSectionAttributeId > 0)
+        {
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+    }
+}

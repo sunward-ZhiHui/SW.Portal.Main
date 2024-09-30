@@ -1,0 +1,164 @@
+﻿@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using global::Core.EntityModels;
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Transfer" IconCssClass="fa fa-exchange" Click="@updateUserGroup" Enabled="@UpdateWorkFlowEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelWorkFlowVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="TransferPermissionsWorkFlowGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="dynamicFormWorkFlowItems"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="DynamicFormWorkFlowId"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            VirtualScrollingEnabled="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 420px);"
+            FocusedRowEnabled="true"
+            SelectedDataItemsChanged="@SelectedDynamicFormWorkFlowDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="DynamicFormWorkFlowId" Visible="false" />
+            <DxGridDataColumn FieldName="DynamicFormName" Caption="Form Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="DynamicFormSectionName" Caption="Section Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="170" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DynamicFormName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+
+@code {
+
+    [Parameter]
+    public ResetPermissionModel? Data { get; set; }
+    public List<DynamicFormWorkFlow> dynamicFormWorkFlowItems { get; set; }
+    bool PanelWorkFlowVisible { get; set; }
+    IGrid? TransferPermissionsWorkFlowGrid { get; set; }
+    bool UpdateWorkFlowEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDynamicFormWorkFlowDataItems { get; set; }
+    private DynamicFormWorkFlow _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await loadWorkFlowDatas();
+    }
+
+    public async Task loadWorkFlowData(ResetPermissionModel data)
+    {
+        Data = data;
+        await loadWorkFlowDatas();
+    }
+    async Task loadWorkFlowDatas()
+    {
+        try
+        {
+            UpdateWorkFlowEnabled = false;
+            PanelWorkFlowVisible = true;
+            dynamicFormWorkFlowItems = await Mediator.Send(new GetTransferDynamicFormWorkFlow(Data.FromUserId));
+            if (dynamicFormWorkFlowItems != null && dynamicFormWorkFlowItems.Count > 0)
+            {
+                UpdateWorkFlowEnabled = true;
+                _selectedItems = dynamicFormWorkFlowItems.FirstOrDefault();
+                // TransferPermissionsWorkFlowGrid?.ClearSelection();
+                TransferPermissionsWorkFlowGrid?.SetFocusedRowIndex(0);
+            }
+            PanelWorkFlowVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void SelectedDynamicFormWorkFlowDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDynamicFormWorkFlowDataItems = SelectedToItems;
+    }
+    async void ClosePopup()
+    {
+        PanelWorkFlowVisible = false;
+        await loadWorkFlowDatas();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDynamicFormWorkFlowDataItems = null;
+        PanelWorkFlowVisible = false;
+    }
+    async Task updateUserGroup()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedDynamicFormWorkFlowDataItems != null)
+            {
+                foreach (object item in SelectedDynamicFormWorkFlowDataItems)
+                {
+                    if (item is DynamicFormWorkFlow dataItem)
+                    {
+                        ids.Add(dataItem.DynamicFormWorkFlowId);
+                    }
+
+                }
+                if (Data.ToUserId > 0)
+                {
+                    if (ids != null && ids.Count > 0)
+                    {
+                        var request = new UpdateTransferDynamicFormWorkFlow(ids, Data.ToUserId);
+                        await Mediator.Send(request);
+                        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadWorkFlowDatas();
+                        TransferPermissionsWorkFlowGrid?.ClearSelection();
+                        TransferPermissionsWorkFlowGrid.SetFocusedRowIndex(0);
+                        StateHasChanged();
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Must Select To User", AC.SD.Core.Services.ToastLevel.Warning);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+
+        dynamicFormWorkFlowItems?.Clear();
+        SelectedDynamicFormWorkFlowDataItems = null;
+        _selectedItems = null;
+    }
+}

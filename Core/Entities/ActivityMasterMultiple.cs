@@ -17,4 +17,13 @@ namespace Core.Entities
         [NotMapped]
         public string? AcitivityMasterName { get; set; }
     }
+    public class ActivityResultMultiple
+    {
+        [Key]
+        public long ActivityResultMultipleId { get; set; }
+        public long? AcitivityResultID { get; set; }
+        public long? ProductionActivityAppLineId { get; set; }
+        [NotMapped]
+        public string? AcitivityResultName { get; set; }
+    }
 }

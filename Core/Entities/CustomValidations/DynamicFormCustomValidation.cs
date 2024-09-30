@@ -7,10 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
+using System;
+using org.matheval;
+using Expression = org.matheval.Expression;
 namespace Core.Entities.CustomValidations
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -273,5 +277,70 @@ namespace Core.Entities.CustomValidations
             }
         }
     }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormSectionAttributeFormulaCustomValidation : ValidationAttribute
+    {
 
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var datas = (DynamicFormSectionAttribute)validationContext.ObjectInstance;
+                if (!string.IsNullOrEmpty(datas.FormulaTextBox))
+                {
+                    var values = datas.FormulaTextBox.Split("$");
+                    var formulaText = datas.FormulaTextBox;
+                    List<string> list = new List<string>();
+                    if (values.Length > 0)
+                    {
+                        foreach (var item in values)
+                        {
+                            if (!string.IsNullOrEmpty(item))
+                            {
+                                list.Add(Regex.Match(item, @"\d+").Value);
+                            }
+                        }
+                        list = list.Distinct().ToList();
+                        if (list.Count > 0)
+                        {
+                            int i = 65;
+                            list.ForEach(s =>
+                            {
+                                if (!string.IsNullOrEmpty(s))
+                                {
+                                    string strAlpha = ((char)i).ToString();
+                                    formulaText = formulaText.Replace("$" + s, strAlpha.ToLower());
+                                    i++;
+                                }
+                            });
+                            Expression expressions = new Expression(formulaText);
+                            int j = 65;
+                            list.ForEach(s =>
+                            {
+                                if (!string.IsNullOrEmpty(s))
+                                {
+                                    string strAlpha = ((char)j).ToString();
+                                    expressions.Bind(strAlpha.ToLower(), 10);
+                                    j++;
+                                }
+                            });
+                            List<String> errors = expressions.GetError();
+
+                            if (errors.Count == 0)
+                            {
+                                object valuess = expressions.Eval<object>();
+                                var val = valuess;
+                            }
+                            else
+                            {
+                                return new ValidationResult(errors[0], new[] { validationContext.MemberName });
+                            }
+                        }
+                    }
+                }
+
+            }
+            return ValidationResult.Success;
+        }
+    }
 }

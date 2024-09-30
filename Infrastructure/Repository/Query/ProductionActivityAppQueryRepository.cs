@@ -414,20 +414,20 @@ namespace Infrastructure.Repository.Query
                         long? ProfileId = null;
                         if (PPAlist.ProfileId > 0)
                         {
-                           
+
                         }
                         else
                         {
                             if (PPAlist.ManufacturingProcessChildId > 0)
                             {
                                 var profileData = await GetProductActivityCaseAsync(PPAlist.ManufacturingProcessChildId);
-                                
+
                                 if (profileData != null && profileData.ProfileId > 0)
                                 {
                                     ProfileId = profileData.ProfileId;
-                                     ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = profileData.ProfileId, AddedByUserID = PPAlist.AddedByUserID, StatusCodeID = 710, Title = "Production Activity" });
+                                    ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = profileData.ProfileId, AddedByUserID = PPAlist.AddedByUserID, StatusCodeID = 710, Title = "Production Activity" });
                                 }
-                               
+
                             }
                         }
                         parameters.Add("ProfileId", ProfileId);
@@ -451,24 +451,39 @@ namespace Infrastructure.Repository.Query
                         if (PPAlist.ProductionActivityAppLineId > 0)
                         {
                             var Deletequery = "DELETE  FROM ActivityMasterMultiple WHERE ProductionActivityAppLineId = " + PPAlist.ProductionActivityAppLineId + ";";
+                            Deletequery += "DELETE  FROM ActivityResultMultiple WHERE ProductionActivityAppLineId = " + PPAlist.ProductionActivityAppLineId + ";";
                             await connection.ExecuteAsync(Deletequery);
                         }
+                        var querys = string.Empty;
                         if (PPAlist.ActivityMasterIds != null)
                         {
                             var listData = PPAlist.ActivityMasterIds.ToList();
                             if (listData.Count > 0)
                             {
-                                var querys = string.Empty;
+
                                 listData.ForEach(s =>
                                 {
                                     querys += "INSERT INTO [ActivityMasterMultiple](AcitivityMasterId,ProductionActivityAppLineId) " +
                                                         "VALUES ( " + s + "," + PPAlist.ProductionActivityAppLineId + ");\r\n";
                                 });
-                                if (!string.IsNullOrEmpty(querys))
-                                {
-                                    await connection.ExecuteAsync(querys, null);
-                                }
+
                             }
+                        }
+                        if (PPAlist.ProdActivityResultIds != null)
+                        {
+                            var listData = PPAlist.ProdActivityResultIds.ToList();
+                            if (listData.Count > 0)
+                            {
+                                listData.ForEach(s =>
+                                {
+                                    querys += "INSERT INTO [ActivityResultMultiple](AcitivityResultId,ProductionActivityAppLineId) " +
+                                                        "VALUES ( " + s + "," + PPAlist.ProductionActivityAppLineId + ");\r\n";
+                                });
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(querys))
+                        {
+                            await connection.ExecuteAsync(querys, null);
                         }
                         return PPAlist.ProductionActivityAppLineId.Value;
                     }
@@ -536,7 +551,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<ProductionActivityRoutineAppModel> GetAllRoutineListAsync(long? CompanyId, string? Replanrefno, long? locationId,bool? TimeSheetAction,string LotNo,string ItemName)
+        public async Task<ProductionActivityRoutineAppModel> GetAllRoutineListAsync(long? CompanyId, string? Replanrefno, long? locationId, bool? TimeSheetAction, string LotNo, string ItemName)
         {
             try
             {
@@ -549,7 +564,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ItemName", ItemName);
                 var query = "";
 
-                if(TimeSheetAction == true)
+                if (TimeSheetAction == true)
                 {
                     query = "SELECT * FROM ProductionActivityRoutineApp WHERE CompanyId=@CompanyId   AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0)) AND ItemName = @ItemName AND LotNo = @LotNo";
                 }
@@ -557,7 +572,7 @@ namespace Infrastructure.Repository.Query
                 {
                     query = "SELECT * FROM ProductionActivityRoutineApp WHERE CompanyId=@CompanyId AND ProdOrderNo=@ProdOrderNo  AND (TimeSheetAction = @TimeSheetAction OR (TimeSheetAction = 1 AND @TimeSheetAction IS NULL) OR (TimeSheetAction IS NULL AND @TimeSheetAction = 0))";
                 }
-              
+
                 if (locationId > 0)
                 {
                     query += " AND locationId=@locationId";
@@ -593,9 +608,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("TimeSheetAction", PPAlist.TimeSheetAction);
                         parameters.Add("LotNo", PPAlist.LotNo);
                         parameters.Add("ItemName", PPAlist.ItemName);
-                       
 
-                        var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId,PPAlist.TimeSheetAction, PPAlist.LotNo,PPAlist.ItemName);
+
+                        var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId, PPAlist.TimeSheetAction, PPAlist.LotNo, PPAlist.ItemName);
                         if (lists != null)
                         {
                             PPAlist.ProductionActivityRoutineAppId = lists.ProductionActivityRoutineAppId;
@@ -638,13 +653,13 @@ namespace Infrastructure.Repository.Query
                             if (PPAlist.ManufacturingProcessChildId > 0)
                             {
                                 var profileData = await GetProductActivityCaseAsync(PPAlist.ManufacturingProcessChildId);
-                                
+
                                 if (profileData != null && profileData.ProfileId > 0)
                                 {
-                                    ProfileId=profileData.ProfileId;
+                                    ProfileId = profileData.ProfileId;
                                     ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = profileData.ProfileId, AddedByUserID = PPAlist.AddedByUserID, StatusCodeID = 710, Title = "Production Activity" });
                                 }
-                                
+
                             }
                         }
                         parameters.Add("ProfileId", ProfileId);

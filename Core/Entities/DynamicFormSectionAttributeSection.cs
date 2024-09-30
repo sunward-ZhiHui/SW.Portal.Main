@@ -17,6 +17,11 @@ namespace Core.Entities
         public string? DynamicFormSectionSelectionById { get; set; }
         public long? DynamicFormSectionAttributeId { get; set; }
         public int? SequenceNo { get;set; }
+        public string? DisplayName { get; set; }
+        public string? UserName { get; set; }
+        public string? DynamicFormSectionSelectionBySectionName { get; set; }
+        public string? SectionName { get; set; }
+        public string? FormName { get; set; }
     }
     public class DynamicFormSectionAttributeSectionParent
     {

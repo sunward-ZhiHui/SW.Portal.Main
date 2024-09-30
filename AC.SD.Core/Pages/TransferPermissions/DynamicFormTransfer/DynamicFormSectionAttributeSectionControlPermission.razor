@@ -1,0 +1,218 @@
+﻿@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using global::Core.EntityModels;
+@inject AC.SD.Core.Services.ToastService toastService
+@implements IAsyncDisposable
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Transfer" IconCssClass="fa fa-exchange" Click="@updateSecAttrControlPermission" Enabled="@updateSecAttrControlPermissionEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteSecAttrControlPermissionDelete" Enabled="@DeleteAttrControlPerEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelSecAttrControlPermissionVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="TransferAttributeSectionControlPermissionGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="dynamicFormWorkFlowApprovalItems"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="DynamicFormSectionAttributeSectionId"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            VirtualScrollingEnabled="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 420px);"
+            FocusedRowEnabled="true"
+            SelectedDataItemsChanged="@SelectedSecAttrControlPermissionDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="DynamicFormSectionAttributeSectionId" Visible="false" />
+            <DxGridDataColumn FieldName="FormName" Caption="Form Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="SectionName" Caption="Section Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="UserName" Caption="Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="DynamicFormSectionSelectionBySectionName" Caption="Section Selection Name" MinWidth="100" />
+            <DxGridDataColumn FieldName="DisplayName" Caption="Display Name" MinWidth="100" />            
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FormName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@BlukdeleteSecAttrControlPermissionPopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+
+    [Parameter]
+    public ResetPermissionModel? Data { get; set; }
+    public List<DynamicFormSectionAttributeSection> dynamicFormWorkFlowApprovalItems { get; set; }
+    bool PanelSecAttrControlPermissionVisible { get; set; }
+    IGrid? TransferAttributeSectionControlPermissionGrid { get; set; }
+    bool updateSecAttrControlPermissionEnabled { get; set; } = false; bool BlukdeleteSecAttrControlPermissionPopup { get; set; } = false;
+    bool DeleteAttrControlPerEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedSecAttrControlPermissionDataItems { get; set; }
+    private DynamicFormSectionAttributeSection _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await loadAttributeSectionControlPermissions();
+    }
+
+    public async Task loadAttributeSectionControlPermission(ResetPermissionModel data)
+    {
+        Data = data;
+        await loadAttributeSectionControlPermissions();
+    }
+    async Task loadAttributeSectionControlPermissions()
+    {
+        try
+        {
+            updateSecAttrControlPermissionEnabled = false;
+            PanelSecAttrControlPermissionVisible = true; DeleteAttrControlPerEnabled = false;
+            dynamicFormWorkFlowApprovalItems = await Mediator.Send(new GetTransferDynamicFormSectionAttributeSection(Data.FromUserId));
+            if (dynamicFormWorkFlowApprovalItems != null && dynamicFormWorkFlowApprovalItems.Count > 0)
+            {
+                updateSecAttrControlPermissionEnabled = true; DeleteAttrControlPerEnabled = true;
+                _selectedItems = dynamicFormWorkFlowApprovalItems.FirstOrDefault();
+                TransferAttributeSectionControlPermissionGrid?.SetFocusedRowIndex(0);
+            }
+            PanelSecAttrControlPermissionVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void SelectedSecAttrControlPermissionDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedSecAttrControlPermissionDataItems = SelectedToItems;
+    }
+    async void ClosePopup()
+    {
+        PanelSecAttrControlPermissionVisible = false;
+        await loadAttributeSectionControlPermissions();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedSecAttrControlPermissionDataItems = null;
+        BlukdeleteSecAttrControlPermissionPopup = false;
+        PanelSecAttrControlPermissionVisible = false;
+    }
+    async Task updateSecAttrControlPermission()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedSecAttrControlPermissionDataItems != null)
+            {
+                foreach (object item in SelectedSecAttrControlPermissionDataItems)
+                {
+                    if (item is DynamicFormSectionAttributeSection dataItem)
+                    {
+                        ids.Add(dataItem.DynamicFormSectionAttributeSectionId);
+                    }
+
+                }
+                if (Data.ToUserId > 0)
+                {
+                    if (ids != null && ids.Count > 0)
+                    {
+                        var request = new UpdateDynamicFormSectionAttributeSection(ids, Data.ToUserId);
+                        await Mediator.Send(request);
+                        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadAttributeSectionControlPermissions();
+                        TransferAttributeSectionControlPermissionGrid?.ClearSelection();
+                        TransferAttributeSectionControlPermissionGrid.SetFocusedRowIndex(0);
+                        StateHasChanged();
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Must Select To User", AC.SD.Core.Services.ToastLevel.Warning);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    void deleteSecAttrControlPermissionDelete()
+    {
+        BlukdeleteSecAttrControlPermissionPopup = true;
+    }
+    async Task bulkDelete()
+    {
+        List<DynamicFormSectionAttributeSection?> ids = new List<DynamicFormSectionAttributeSection?>();
+        try
+        {
+            if (SelectedSecAttrControlPermissionDataItems != null)
+            {
+                foreach (object item in SelectedSecAttrControlPermissionDataItems)
+                {
+                    if (item is DynamicFormSectionAttributeSection dataItem)
+                    {
+                        ids.Add(dataItem);
+                    }
+
+                }
+                if (ids != null && ids.Count > 0)
+                {
+                    var request = new DeleteDynamicFormSectionAttributeSection(ids);
+                    await Mediator.Send(request);
+                    BlukdeleteSecAttrControlPermissionPopup = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadAttributeSectionControlPermissions();
+                    TransferAttributeSectionControlPermissionGrid?.ClearSelection();
+                    TransferAttributeSectionControlPermissionGrid?.SetFocusedRowIndex(0);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            BlukdeleteSecAttrControlPermissionPopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        dynamicFormWorkFlowApprovalItems?.Clear();
+        SelectedSecAttrControlPermissionDataItems = null;
+        _selectedItems = null;
+    }
+}

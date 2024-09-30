@@ -103,6 +103,16 @@ namespace Application.Queries
 
         }
     }
+    public class UpdateActivityResult : PagedRequest, IRequest<ProductActivityAppModel>
+    {
+        public ProductActivityAppModel ProductActivityAppModel { get; private set; }
+        public UpdateActivityResult(ProductActivityAppModel productActivityAppModel)
+        {
+            this.ProductActivityAppModel = productActivityAppModel;
+
+        }
+    }
+
     public class UpdateActivityStatus : PagedRequest, IRequest<ProductActivityAppModel>
     {
         public ProductActivityAppModel ProductActivityAppModel { get; private set; }

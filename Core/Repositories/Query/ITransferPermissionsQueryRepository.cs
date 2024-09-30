@@ -22,6 +22,23 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<EmailConversations>> GetTransferPermissionsEmailConversationParticipant(long? userIds);
         Task<EmailConversations> UpdateTransferPermissionsEmailConversationParticipant(List<EmailConversations> ids, long? userId);
         Task InsertEmailTransferHistory(long fromUserId, long toUserId, long emailConversationId, long topicId, long addedByUserId);
+        Task<IReadOnlyList<DynamicFormWorkFlow>> GetTransferDynamicFormWorkFlow(long? userIds);
+        Task<List<long?>> UpdateTransferDynamicFormWorkFlow(List<long?> ids, long? userId);
 
+        Task<IReadOnlyList<DynamicFormWorkFlowApproval>> GetTransferDynamicFormWorkFlowApproval(long? userIds);
+        Task<List<long?>> UpdateTransferDynamicFormWorkFlowApproval(List<long?> ids, long? userId);
+        Task<IReadOnlyList<DynamicFormSectionSecurity>> GetTransferDynamicFormSectionSecurity(long? userIds);
+        Task<List<long?>> UpdateTransferDynamicFormSectionSecurity(List<long?> ids, long? userId);
+        Task<List<long?>> DeleteTransferDynamicFormSectionSecurity(List<long?> ids);
+        Task<IReadOnlyList<DynamicFormSectionAttributeSecurity>> GetTransferDynamicFormSectionAttributeSecurity(long? userIds);
+        Task<List<long?>> UpdateTransferDynamicFormSectionAttributeSecurity(List<long?> ids, long? userId);
+        Task<List<long?>> DeleteTransferDynamicFormSectionAttributeSecurity(List<long?> ids);
+        Task<IReadOnlyList<DynamicFormSectionAttributeSection>> GetTransferDynamicFormSectionAttributeSection(long? userIds);
+        Task<List<long?>> UpdateDynamicFormSectionAttributeSection(List<long?> ids, long? userId);
+        Task<List<DynamicFormSectionAttributeSection>> DeleteDynamicFormSectionAttributeSection(List<DynamicFormSectionAttributeSection> ids);
+
+        Task<IReadOnlyList<DynamicFormApproval>> GetTransferDynamicFormApproval(long? userIds);
+        Task<List<DynamicFormApproval>> DeleteTransferDynamicFormApproval(List<DynamicFormApproval> ids);
+        Task<List<long?>> UpdateTransferDynamicFormApproval(List<long?> ids,long? userId);
     }
 }

@@ -16,6 +16,7 @@
     <PackageReference Include="Google.Cloud.Firestore" Version="3.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="org.matheval" Version="1.0.0.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -665,17 +665,19 @@
     }
     async Task onGetExitingFile()
     {
-        DocumentSearchModel documentSearchModels = new DocumentSearchModel();
-        documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
-        List<long?> list1 = new List<long?>();
-        list1.Add(Data.FileProfileTypeId);
-        documentSearchModels.FileProfileTypeIds = list1;
-        var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
-        if (docList != null && docList.Count() > 0)
+        if (Data.FileProfileTypeId > 0)
         {
-            documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
+            DocumentSearchModel documentSearchModels = new DocumentSearchModel();
+            documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
+            List<long?> list1 = new List<long?>();
+            list1.Add(Data.FileProfileTypeId);
+            documentSearchModels.FileProfileTypeIds = list1;
+            var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
+            if (docList != null && docList.Count() > 0)
+            {
+                documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
+            }
         }
-
     }
     async Task SubmitFormExternally()
     {

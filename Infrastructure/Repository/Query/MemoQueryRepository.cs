@@ -35,7 +35,7 @@ namespace Infrastructure.Repository.Query
             {
                 List<Memo> Memolist = new List<Memo>(); List<MemoUser> MemoUser = new List<MemoUser>();
                 var query = "select t1.MemoID,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID\r\n;";
-                query += "select * from MemoUser;";
+                query += "select  t1.* from MemoUser t1  JOIN Employee t2 ON t2.UserID=t1.UserID\r\nLEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus where (t3.Value!='Resign' or t3.Value is null);";
                 using (var connection = CreateConnection())
                 {
                     var results = await connection.QueryMultipleAsync(query);
@@ -94,7 +94,7 @@ namespace Infrastructure.Repository.Query
                         if (Memolist != null)
                         {
                             parameters.Add("MemoId", Memolist.MemoId);
-                            var query1 = "select * from MemoUser where MemoId=@MemoId;";
+                            var query1 = "select  t1.* from MemoUser t1  JOIN Employee t2 ON t2.UserID=t1.UserID\r\nLEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus where (t3.Value!='Resign' or t3.Value is null) AND  t1.MemoId=@MemoId;";
                             MemoUser = (await connection.QueryAsync<MemoUser>(query1,parameters)).ToList();
                         }
                     }
@@ -191,7 +191,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from UserGroupUser";
+                var query = "select t1.* from UserGroupUser t1 JOIN Employee t2 ON t1.UserID=t2.UserID LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus where (t3.Value!='Resign' or t3.Value is null)\r\n";
 
                 using (var connection = CreateConnection())
                 {
@@ -211,7 +211,8 @@ namespace Infrastructure.Repository.Query
                 var query = "select  t1.LevelID,t1.DesignationID,t3.UserID from Designation t1 \r\n" +
                     "JOIN LevelMaster t2 ON t1.LevelID=t2.LevelID\r\n" +
                     "JOIN Employee t3 ON t3.DesignationID=t1.DesignationID " +
-                    "where t1.LevelID in(" + string.Join(',', LevelIds) + ")"; ;
+                    "LEFT JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID=t3.AcceptanceStatus " +
+                    "where (t4.Value!='Resign' or t4.Value is null) AND t1.LevelID in(" + string.Join(',', LevelIds) + ")"; ;
 
                 using (var connection = CreateConnection())
                 {
@@ -233,7 +234,8 @@ namespace Infrastructure.Repository.Query
                     "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
                     "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\nJOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
                     "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
-                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\nwhere  t1.MemoId =" + MemoId + "";
+                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\nLEFT JOIN ApplicationMasterDetail t9 ON t9.ApplicationMasterDetailID=t6.AcceptanceStatus " +
+                    "where  (t9.Value!='Resign' or t9.Value is null) AND t1.MemoId =" + MemoId + "";
                 using (var connection = CreateConnection())
                 {
                     memoUsers = (await connection.QueryAsync<MemoUser>(query, null)).ToList();

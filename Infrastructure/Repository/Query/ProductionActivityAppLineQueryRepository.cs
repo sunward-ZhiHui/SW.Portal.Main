@@ -20,6 +20,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static iText.IO.Image.Jpeg2000ImageData;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -81,6 +82,64 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ViewEmployee>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ActivityEmailTopics> GetExitsRoutineEmailTopics(long? ProductionActivityRoutineAppLineId)
+        {
+            try
+            {
+                var query = "select ActivityEmailTopicID,ActivityType,EmailTopicSessionId,ActivityMasterId,SessionId from ActivityEmailTopics where documentsessionid is not null AND ActivityType='RoutineActivity' AND ActivityMasterId in(" + string.Join(',', ProductionActivityRoutineAppLineId) + ");";
+
+
+                using (var connection = CreateConnection())
+                {
+                    var emailcreated = await connection.QueryFirstOrDefaultAsync<ActivityEmailTopics>(query);
+                    if (emailcreated != null)
+                    {
+                        emailcreated.IsPartialEmailCreated = true;
+                        emailcreated.EmailActivitySessionId = emailcreated.SessionId;
+                        if (emailcreated.EmailTopicSessionId != null)
+                        {
+                            emailcreated.EmailSessionId = emailcreated.EmailTopicSessionId;
+                            emailcreated.IsEmailCreated = true;
+                        }
+                    }
+
+                    return emailcreated;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ActivityEmailTopics> GetExitsActivityEmailTopics(long? ProductionActivityAppLineId)
+        {
+            try
+            {
+                var query = "select ActivityEmailTopicID,ActivityType,EmailTopicSessionId,ActivityMasterId,SessionId from ActivityEmailTopics where documentsessionid is not null AND ActivityType='productionactivity' AND ActivityMasterId in(" + string.Join(',', ProductionActivityAppLineId) + ");";
+
+
+                using (var connection = CreateConnection())
+                {
+                    var emailcreated = await connection.QueryFirstOrDefaultAsync<ActivityEmailTopics>(query);
+                    if (emailcreated != null)
+                    {
+                        emailcreated.IsPartialEmailCreated = true;
+                        emailcreated.EmailActivitySessionId = emailcreated.SessionId;
+                        if (emailcreated.EmailTopicSessionId != null)
+                        {
+                            emailcreated.EmailSessionId = emailcreated.EmailTopicSessionId;
+                            emailcreated.IsEmailCreated = true;
+                        }
+                    }
+
+                    return emailcreated;
                 }
             }
             catch (Exception exp)
@@ -224,7 +283,7 @@ namespace Infrastructure.Repository.Query
                 }
                 if (value.ProdActivityResultId > 0)
                 {
-                   // query += "\n\rAND t1.ProdActivityResultID=@ProdActivityResultId";
+                    // query += "\n\rAND t1.ProdActivityResultID=@ProdActivityResultId";
                 }
                 if (value.ActivityStatusId > 0)
                 {
@@ -411,8 +470,8 @@ namespace Infrastructure.Repository.Query
                         productActivityApp.ActivityStatusId = s.ActivityStatusId;
                         productActivityApp.ActivityStatus = s.ActivityStatusId > 0 && applicationMasterDetail != null && applicationMasterDetail.Count() > 0 ? applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == s.ActivityStatusId)?.Value : string.Empty;
                         productActivityApp.ManufacturingProcessId = s.ManufacturingProcessId;
-                       // productActivityApp.ProdActivityResultId = s.ProdActivityResultId;
-                       // productActivityApp.ProdActivityResult = s.ProdActivityResultId > 0 && applicationMasterDetail != null && applicationMasterDetail.Count() > 0 ? applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == s.ProdActivityResultId)?.Value : string.Empty;
+                        // productActivityApp.ProdActivityResultId = s.ProdActivityResultId;
+                        // productActivityApp.ProdActivityResult = s.ProdActivityResultId > 0 && applicationMasterDetail != null && applicationMasterDetail.Count() > 0 ? applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == s.ProdActivityResultId)?.Value : string.Empty;
                         productActivityApp.ManufacturingProcess = s.ManufacturingProcess;
                         productActivityApp.CompanyId = s.CompanyId;
                         productActivityApp.CompanyName = s.CompanyName;

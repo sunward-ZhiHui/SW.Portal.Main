@@ -486,6 +486,7 @@
     public bool NonComplianceEnabled { get; set; } = false;
     public bool OperatorEnabled { get; set; } = false;
     ProductActivityAppModel FilterData = new ProductActivityAppModel();
+    ActivityEmailTopicsModel ActivityEmailTopics = new ActivityEmailTopicsModel();
     protected override async Task OnInitializedAsync()
     {
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
@@ -1060,19 +1061,46 @@
     {
         if (_selectedItems != null)
         {
-            if (_selectedItems.IsEmailCreated == true && _selectedItems.IsPartialEmailCreated == true)
+            var emailExits = await Mediator.Send(new GetExitsActivityEmailTopics(_selectedItems.ProductionActivityAppLineId));
+            if (emailExits != null)
             {
-                var url = NavigationManager.BaseUri + "ViewEmail/" + _selectedItems.EmailSessionId;
-                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
-            }
-            else if (_selectedItems.IsEmailCreated == false && _selectedItems.IsPartialEmailCreated == true)
-            {
-                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.EmailActivitySessionId;
-                await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                if (emailExits.IsEmailCreated == true && emailExits.IsPartialEmailCreated == true)
+                {
+                    var url = NavigationManager.BaseUri + "ViewEmail/" + emailExits.EmailSessionId;
+                    await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                else if (emailExits.IsEmailCreated == false && emailExits.IsPartialEmailCreated == true)
+                {
+                    var url = NavigationManager.BaseUri + "CreateEmail/" + emailExits.EmailActivitySessionId;
+                    await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
             }
             else
             {
-                ActivityEmailPopup = true;
+                ActivityEmailTopics.SubjectName = _selectedItems.ProdOrderNoDesc;
+                ActivityEmailTopics.ManufacturingProcessId = _selectedItems.ManufacturingProcessChildId;
+                ActivityEmailTopics.CategoryActionId = _selectedItems.ProdActivityCategoryChildId;
+                ActivityEmailTopics.ActivityType = "productionactivity";
+                ActivityEmailTopics.ActionId = _selectedItems.ProdActivityActionChildD;
+                ActivityEmailTopics.IsDraft = false;
+                ActivityEmailTopics.SessionId = Guid.NewGuid();
+                ActivityEmailTopics.StatusCodeId = 1;
+                ActivityEmailTopics.AddedByUserID = applicationUser.UserID;
+                ActivityEmailTopics.ModifiedByUserId = applicationUser.UserID;
+                ActivityEmailTopics.AddedDate = DateTime.Now;
+                ActivityEmailTopics.ModifiedDate = DateTime.Now;
+                ActivityEmailTopics.ActivityMasterId = _selectedItems.ProductionActivityAppLineId;
+                ActivityEmailTopics.DocumentSessionId = _selectedItems.LineSessionId;
+                ActivityEmailTopics.Comment = _selectedItems.LineComment;
+                ActivityEmailTopics.BackURL = "/ProductionActivityReport/" + _selectedItems.LineSessionId;
+                var request = await Mediator.Send(new InserProductionActivityEmail(ActivityEmailTopics));
+                if (request.ActivityEmailTopicID > 0)
+                {
+                    toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    var url = NavigationManager.BaseUri + "CreateEmail/" + ActivityEmailTopics.SessionId;
+                    await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                //ActivityEmailPopup = true;
             }
         }
     }

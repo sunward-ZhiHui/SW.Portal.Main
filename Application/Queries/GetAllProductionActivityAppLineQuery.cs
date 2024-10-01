@@ -280,4 +280,20 @@ namespace Application.Queries
 
         }
     }
+    public class GetExitsActivityEmailTopics : PagedRequest, IRequest<ActivityEmailTopics>
+    {
+        public long? ActivityMasterId { get; set; }
+        public GetExitsActivityEmailTopics(long? activityMasterId)
+        {
+            this.ActivityMasterId = activityMasterId;
+        }
+    }
+    public class GetExitsRoutineEmailTopics : PagedRequest, IRequest<ActivityEmailTopics>
+    {
+        public long? ActivityMasterId { get; set; }
+        public GetExitsRoutineEmailTopics(long? activityMasterId)
+        {
+            this.ActivityMasterId = activityMasterId;
+        }
+    }
 }

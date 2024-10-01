@@ -380,6 +380,29 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    
 
+    public class GetExitsActivityEmailTopicsHandler : IRequestHandler<GetExitsActivityEmailTopics, ActivityEmailTopics>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public GetExitsActivityEmailTopicsHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ActivityEmailTopics> Handle(GetExitsActivityEmailTopics request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.GetExitsActivityEmailTopics(request.ActivityMasterId);
+        }
+    }
+    public class GetExitsRoutineTopicsHandler : IRequestHandler<GetExitsRoutineEmailTopics, ActivityEmailTopics>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public GetExitsRoutineTopicsHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ActivityEmailTopics> Handle(GetExitsRoutineEmailTopics request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.GetExitsRoutineEmailTopics(request.ActivityMasterId);
+        }
+    }
 }

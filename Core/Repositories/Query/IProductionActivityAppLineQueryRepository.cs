@@ -33,5 +33,8 @@ namespace Core.Repositories.Query
         Task<ProductionActivityCheckedDetailsModel> DeleteProductionActivityCheckedDetails(ProductionActivityCheckedDetailsModel value);
 
         Task<IReadOnlyList<ProductionActivityAppLine>> GetProductionActivityEmailList(long? ProductionActivityAppLineId);
+        Task<ActivityEmailTopics> GetExitsActivityEmailTopics(long? ProductionActivityAppLineId);
+        Task<ActivityEmailTopics> GetExitsRoutineEmailTopics(long? ProductionActivityRoutineAppLineId);
+        
     }
 }

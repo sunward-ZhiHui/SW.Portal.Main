@@ -36,7 +36,14 @@ namespace Core.Entities
         [NotMapped]
         public string ActionName { get; set;}
         public string BackURL { get; set; }
-        public bool? IsDraft { get; set; }       
-
+        public bool? IsDraft { get; set; }
+        [NotMapped]
+        public bool? IsPartialEmailCreated { get; set; } = false;
+        [NotMapped]
+        public bool? IsEmailCreated { get; set; } = false;
+        [NotMapped]
+        public Guid? EmailSessionId { get; set; }
+        [NotMapped]
+        public Guid? EmailActivitySessionId { get; set; }
     }
 }

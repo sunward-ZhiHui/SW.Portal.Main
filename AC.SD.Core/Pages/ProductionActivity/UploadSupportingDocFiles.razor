@@ -35,7 +35,7 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUploadFilesUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-file" id="attachmentSelectButton" Enabled="@isFilesUpload" Click="onGetExitingFile" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-file" id="attachmentSelectButton" Enabled="@isFilesUpload" />
                         <DxMenuItem Text="Select Image" IconCssClass="fa fa-file" Click="@onImageToPdfSelectFile" Enabled="@isImageUpload" />
                         <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="SubmitFormExternally" Enabled="@Uploadloading" />
                     </Items>
@@ -245,18 +245,18 @@
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
-                 @* <DxTreeView @ref="_treeView"
-                             @bind-FilterString="FilterString"
-                             Data="@fileProfileTypeDocumentsAll"
-                             AllowSelectNodes="true"
-                             AfterExpand="@AfterExpand"
-                             SelectionChanged="@SelectionChanged">
-                     <DataMappings>
-                         <DxTreeViewDataMapping Text="FileName"
-                                                Key="DocumentID"
-                                                ParentKey="ParentId" />
-                     </DataMappings>
-                 </DxTreeView> *@
+                @* <DxTreeView @ref="_treeView"
+                @bind-FilterString="FilterString"
+                Data="@fileProfileTypeDocumentsAll"
+                AllowSelectNodes="true"
+                AfterExpand="@AfterExpand"
+                SelectionChanged="@SelectionChanged">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                Key="DocumentID"
+                ParentKey="ParentId" />
+                </DataMappings>
+                </DxTreeView> *@
                 <DxTreeList Data="fileProfileTypeDocumentsAll"
                             VirtualScrollingEnabled="true"
                             ShowFilterRow="true"
@@ -613,6 +613,7 @@
             IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
             await loadData(nodeName, "No");
             IsFileProfileTypeOpen = false;
+            await onGetExitingFile();
         }
         StateHasChanged();
     }
@@ -876,51 +877,59 @@
             _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
         }
     }
-    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    async Task AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-
         var MyMessagess = string.Empty;
         if (files != null && files.ToList().Count() > 0)
         {
-            if (IsDuplicateUpload == false)
-            {
-                files.ToList().ForEach(s =>
-                {
-                    if (documentsFiles.Contains(s.Name))
-                    {
-                        MyMessagess += s.Name + " file was Removed.\n\r";
-
-                        uploadComponent.RemoveFile(s);
-                    }
-                });
-            }
             AttachmentUploadVisible = files.ToList().Count > 0;
             SelectedFiles.AddRange(files);
             SelectedFilesCount = files.ToList().Count; //Count current files
+           // await onGetExitingFile();
+        }
+        StateHasChanged();
+    }
+    async Task onGetExitingFile()
+    {
+        var MyMessagess = string.Empty;
+        if (Data.FileProfileTypeId > 0)
+        {
+            DocumentSearchModel documentSearchModels = new DocumentSearchModel();
+            documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
+            List<long?> list1 = new List<long?>();
+            list1.Add(Data.FileProfileTypeId);
+            documentSearchModels.FileProfileTypeIds = list1;
+            var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
+            uploadComponent.ReloadAllFiles();
+            if (SelectedFiles != null && SelectedFiles.Count() > 0)
+            {
+                SelectedFiles.ToList().ForEach(s =>
+                {
+                    if (!string.IsNullOrEmpty(s.Name))
+                    {
+                        if (docList != null && docList.Count() > 0)
+                        {
+                            var exits = docList.Where(w => w.FileName != null && w.FileName != "").FirstOrDefault(f => f.FileName.ToLower() == s.Name.ToLower());
+                            if (exits != null)
+                            {
+                                MyMessagess += s.Name + " file was Removed.\n\r";
+                                SelectedFiles.Remove(s);
+                                uploadComponent.RemoveFile(s);
+                            }
+                        }
+                    }
+                });
+            }
             if (!string.IsNullOrEmpty(MyMessagess))
             {
                 var msg = "File Already Exits." + MyMessagess;
                 toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
             }
         }
-        StateHasChanged();
-    }
-    async Task onGetExitingFile()
-    {
-        DocumentSearchModel documentSearchModels = new DocumentSearchModel();
-        documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
-        List<long?> list1 = new List<long?>();
-        list1.Add(Data.FileProfileTypeId);
-        documentSearchModels.FileProfileTypeIds = list1;
-        var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
-        if (docList != null && docList.Count() > 0)
-        {
-            documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
-        }
-
     }
     async Task SubmitFormExternally()
     {
+        await onGetExitingFile();
         if (_editContext.Validate())
         {
             await this.HandleValidSubmit();
@@ -973,7 +982,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         fileProfileTypeModels = null;
         _plantItems?.Clear();
         _divisionItems?.Clear();
@@ -987,6 +996,6 @@
         fileProfileTypeDocumentsAll?.Clear();
         documentsFiles?.Clear();
         refUploadFileImagesToPdf?.DisposeAsync();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
 }

@@ -546,6 +546,7 @@
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             await loadData(nodeName, "No");
             IsFileProfileTypeOpen = false;
+            await onGetExitingFile();
         }
         StateHasChanged();
     }
@@ -650,8 +651,9 @@
             _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
         }
     }
-    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    async Task AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
+
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
@@ -659,7 +661,7 @@
         {
             if (SelectedFilesCount == 1)
             {
-
+                await onGetExitingFile();
             }
             else
             {
@@ -667,10 +669,12 @@
                 toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
             }
         }
+
         StateHasChanged();
     }
     async Task SubmitFormExternally()
     {
+        await onGetExitingFile();
         if (_editContext.Validate())
         {
             await this.HandleValidSubmit();
@@ -708,6 +712,44 @@
     async Task onImageToPdfSelectFile()
     {
         await refUploadFileImagesToPdf.clickOpenFileImageToPdf();
+    }
+    async Task onGetExitingFile()
+    {
+        var MyMessagess = string.Empty;
+        if (Data.FileProfileTypeId > 0)
+        {
+            DocumentSearchModel documentSearchModels = new DocumentSearchModel();
+            documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
+            List<long?> list1 = new List<long?>();
+            list1.Add(Data.FileProfileTypeId);
+            documentSearchModels.FileProfileTypeIds = list1;
+            var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
+            uploadComponent.ReloadAllFiles();
+            if (SelectedFiles != null && SelectedFiles.Count() > 0)
+            {
+                SelectedFiles.ToList().ForEach(s =>
+                {
+                    if (!string.IsNullOrEmpty(s.Name))
+                    {
+                        if (docList != null && docList.Count() > 0)
+                        {
+                            var exits = docList.Where(w => w.FileName != null && w.FileName != "").FirstOrDefault(f => f.FileName.ToLower() == s.Name.ToLower());
+                            if (exits != null)
+                            {
+                                MyMessagess += s.Name + " file was Removed.\n\r";
+                                SelectedFiles.Remove(s);
+                                uploadComponent.RemoveFile(s);
+                            }
+                        }
+                    }
+                });
+            }
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
     }
     async Task SubmitImagesFormExternally()
     {

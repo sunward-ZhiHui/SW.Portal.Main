@@ -209,6 +209,7 @@
     }
     void OnFileUploadStart(FileUploadStartEventArgs e)
     {
+        SelectedFilesCount = SelectedFiles.Count();
         if (SelectedFilesCount > 0)
         {
             if (SelectedFilesCount == 1)
@@ -226,60 +227,91 @@
             }
         }
     }
+    async Task AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        SelectedFiles = new List<UploadFileInfo>();
+        var MyMessagess = string.Empty;
+        SelectedFiles.AddRange(files);
+        AttachmentCheckInUploadVisible = files.ToList().Count > 0;
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        if (SelectedFilesCount > 0)
+        {
+            var fileList = SelectedFiles.Select(s => s.Name.ToLower()).Distinct().ToList();
+            fileList.ToList().ForEach(s =>
+            {
+                List<UploadFileInfo> FilesList = SelectedFiles.Where(w => w.Name.ToLower() == s.ToLower()).ToList();
+                if (FilesList != null && FilesList.Count() > 0)
+                {
+                    int i = 0;
+                    FilesList.ForEach(e =>
+                    {
+                        if (i > 0)
+                        {
+                            MyMessagess += e.Name + " file was Removed.\n\r";
+                            SelectedFiles.Remove(e);
+                            uploadCheckInComponent.RemoveFile(e);
+                        }
+                        i++;
+                    });
+
+                }
+            });
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+            }
+            if (SelectedFilesCount == 1)
+            {
+
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+            await onGetExitingFile();
+        }
+
+        StateHasChanged();
+    }
     async Task onGetExitingFile()
     {
-        DocumentSearchModel documentSearchModels = new DocumentSearchModel();
-        documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
-        List<long?> list1 = new List<long?>();
-        list1.Add(Data.FileProfileTypeId);
-        documentSearchModels.FileProfileTypeIds = list1;
-        var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
-        if (docList != null && docList.Count() > 0)
-        {
-            documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
-        }
-
-    }
-    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
-    {
         var MyMessagess = string.Empty;
-        if (files != null && files.ToList().Count() > 0)
+        if (Data.FileProfileTypeId > 0)
         {
-            // if (IsDuplicateUpload == false)
-            // {
-            //     files.ToList().ForEach(s =>
-            //     {
-            //         if (documentsFiles.Contains(s.Name))
-            //         {
-            //             MyMessagess += s.Name + " file was Removed.\n\r";
-
-            //             uploadCheckInComponent.RemoveFile(s);
-            //         }
-            //     });
-            // }
-            AttachmentCheckInUploadVisible = files.ToList().Count > 0;
-            SelectedFiles.AddRange(files);
-            SelectedFilesCount = files.ToList().Count; //Count current files
-            if (SelectedFilesCount > 0)
+            DocumentSearchModel documentSearchModels = new DocumentSearchModel();
+            documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
+            List<long?> list1 = new List<long?>();
+            list1.Add(Data.FileProfileTypeId);
+            documentSearchModels.FileProfileTypeIds = list1;
+            var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
+            uploadCheckInComponent.ReloadAllFiles();
+            if (SelectedFiles != null && SelectedFiles.Count() > 0)
             {
-                if (SelectedFilesCount == 1)
+                SelectedFiles.ToList().ForEach(s =>
                 {
-
-                }
-                else
-                {
-                    var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
-                    toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
-                }
+                    if (!string.IsNullOrEmpty(s.Name))
+                    {
+                        if (docList != null && docList.Count() > 0)
+                        {
+                            var exits = docList.Where(w => w.FileName != null && w.FileName != "").FirstOrDefault(f => f.FileName.ToLower() == s.Name.ToLower());
+                            if (exits != null)
+                            {
+                                MyMessagess += s.Name + " file was Removed.\n\r";
+                                SelectedFiles.Remove(s);
+                                uploadCheckInComponent.RemoveFile(s);
+                            }
+                        }
+                    }
+                });
             }
-            // if (!string.IsNullOrEmpty(MyMessagess))
-            // {
-            //     var msg = "File Already Exits." + MyMessagess;
-            //     toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
-            // }
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+            }
         }
-
-        InvokeAsync(StateHasChanged);
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
     {
@@ -327,6 +359,7 @@
     {
         if (_editContext.Validate())
         {
+            SelectedFilesCount = SelectedFiles.Count();
             if (SelectedFilesCount > 0)
             {
                 if (SelectedFilesCount == 1)

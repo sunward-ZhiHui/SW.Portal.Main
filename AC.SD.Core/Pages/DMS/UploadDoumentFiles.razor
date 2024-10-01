@@ -32,7 +32,7 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentSelectButton" Enabled="@isSelectFile" Click="onGetExitingFile" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentSelectButton" Enabled="@isSelectFile" />
                         <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="@onsubmitUploadFromClick" Enabled="@loading" />
                     </Items>
                 </DxMenu>
@@ -675,6 +675,7 @@
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
             await loadData(nodeName, applicationUser);
+            await onGetExitingFile();
         }
         IsFileProfileTypeOpen = false;
         StateHasChanged();
@@ -736,6 +737,7 @@
     async Task SucessFailure()
     {
         int sucessFail = SuccessUplodCount + FailureUplodCount;
+        SelectedFilesCount = SelectedFiles.Count();
         if (SelectedFilesCount > 0)
         {
             if (SelectedFilesCount == sucessFail)
@@ -1070,37 +1072,48 @@
         }
         dropDownBox.HideDropDown();
     }
-    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    async Task AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-
+        SelectedFiles = new List<UploadFileInfo>();
         var MyMessagess = string.Empty;
         if (files != null && files.ToList().Count() > 0)
         {
-            if (IsDuplicateUpload == false)
-            {
-                files.ToList().ForEach(s =>
-                {
-                    if (documentsFiles.Contains(s.Name))
-                    {
-                        MyMessagess += s.Name + " file was Removed.\n\r";
-
-                        uploadComponent.RemoveFile(s);
-                    }
-                });
-            }
             AttachmentUploadVisible = files.ToList().Count > 0;
             SelectedFiles.AddRange(files);
             SelectedFilesCount = files.ToList().Count; //Count current files
+            var fileList = SelectedFiles.Select(s => s.Name.ToLower()).Distinct().ToList();
+            fileList.ToList().ForEach(s =>
+            {
+                List<UploadFileInfo> FilesList = SelectedFiles.Where(w => w.Name.ToLower() == s.ToLower()).ToList();
+                if (FilesList != null && FilesList.Count() > 0)
+                {
+                    int i = 0;
+                    FilesList.ForEach(e =>
+                    {
+                        if (i > 0)
+                        {
+                            MyMessagess += e.Name + " file was Removed.\n\r";
+                            SelectedFiles.Remove(e);
+                            uploadComponent.RemoveFile(e);
+                        }
+                        i++;
+                    });
+
+                }
+            });
             if (!string.IsNullOrEmpty(MyMessagess))
             {
                 var msg = "File Already Exits." + MyMessagess;
                 toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+
             }
+            await onGetExitingFile();
         }
-        InvokeAsync(StateHasChanged);
+        StateHasChanged();
     }
     async Task onGetExitingFile()
     {
+        var MyMessagess = string.Empty;
         if (Data.FileProfileTypeId > 0)
         {
             DocumentSearchModel documentSearchModels = new DocumentSearchModel();
@@ -1109,16 +1122,35 @@
             list1.Add(Data.FileProfileTypeId);
             documentSearchModels.FileProfileTypeIds = list1;
             var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
-            if (docList != null && docList.Count() > 0)
+            uploadComponent.ReloadAllFiles();
+            if (SelectedFiles != null && SelectedFiles.Count() > 0)
             {
-                documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
+                SelectedFiles.ToList().ForEach(s =>
+                {
+                    if (!string.IsNullOrEmpty(s.Name))
+                    {
+                        if (docList != null && docList.Count() > 0)
+                        {
+                            var exits = docList.Where(w => w.FileName != null && w.FileName != "").FirstOrDefault(f => f.FileName.ToLower() == s.Name.ToLower());
+                            if (exits != null)
+                            {
+                                MyMessagess += s.Name + " file was Removed.\n\r";
+                                SelectedFiles.Remove(s);
+                                uploadComponent.RemoveFile(s);
+                            }
+                        }
+                    }
+                });
+            }
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
             }
         }
-        else
-        {
-            toastService.ShowToast("Must Select SW Library", AC.SD.Core.Services.ToastLevel.Error);
-        }
+        StateHasChanged();
     }
+   
     public void onsubmitUploadFromClick()
     {
         if (_editContext.Validate())

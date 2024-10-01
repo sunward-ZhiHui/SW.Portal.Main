@@ -29,18 +29,18 @@
     <div class="card-body p-0">
         <div class="row">
             <div class="">
-               
+
                 <DxMenu CollapseItemsToHamburgerMenu="true"
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUploadFilesUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-file" id="attachmentSelectButton" Enabled="@isFilesUpload" Click="onGetExitingFile" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-file" id="attachmentSelectButton" Enabled="@isFilesUpload" />
                         <DxMenuItem Text="Select Image" IconCssClass="fa fa-file" Click="@onImageToPdfSelectFile" Enabled="@isImageUpload" />
                         <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="SubmitFormExternally" Enabled="@Uploadloading" />
                     </Items>
                 </DxMenu>
-               
+
             </div>
         </div>
     </div>
@@ -61,7 +61,7 @@
                                       CssClass="dx-demo-radio-group" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="New File Name" ColSpanMd="6" Visible="@isTemplateUploadTypeImages">
-                        <DxTextBox @bind-Text="@Data.ChangeNewFileName"  ShowValidationIcon="true" />
+                        <DxTextBox @bind-Text="@Data.ChangeNewFileName" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.ChangeNewFileName)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
@@ -108,9 +108,10 @@
                                     TextFieldName="Name"
                                     ValueFieldName="DivisionID"
                                     Enabled="isDivision"
-                                    ValueChanged="@((long? plantSelect) => SelectedItemDivisionChanged(plantSelect))"
                                     Value="Data.DivisionId"
-                                    ValueExpression="@(() => Data.DivisionId )" ShowValidationIcon="true">
+                                    ValueExpression="@(() => Data.DivisionId )"
+                                    ValueChanged="@((long? plantSelect) => SelectedItemDivisionChanged(plantSelect))"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
                                                     Caption="Name"
@@ -132,9 +133,10 @@
                                     TextFieldName="DepartmentName"
                                     ValueFieldName="DepartmentId"
                                     Enabled="isDepartment"
-                                    ValueChanged="@((long? plantSelect) => SelectedItemDepartementChanged(plantSelect))"
                                     Value="Data.DepartmentId"
-                                    ValueExpression="@(() => Data.DepartmentId )" ShowValidationIcon="true">
+                                    ValueExpression="@(() => Data.DepartmentId )"
+                                    ValueChanged="@((long? plantSelect) => SelectedItemDepartementChanged(plantSelect))"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
                                                     Caption="Name"
@@ -156,9 +158,10 @@
                                     TextFieldName="SectionName"
                                     ValueFieldName="SectionId"
                                     Enabled="isSection"
-                                    ValueChanged="@((long? plantSelect) => SelectedItemSectionChanged(plantSelect))"
                                     Value="Data.SectionId"
-                                    ValueExpression="@(() => Data.SectionId )" ShowValidationIcon="true">
+                                    ValueExpression="@(() => Data.SectionId )"
+                                    ValueChanged="@((long? plantSelect) => SelectedItemSectionChanged(plantSelect))"
+                                    ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
                                                     Caption="Name"
@@ -241,18 +244,39 @@
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="">
-                <DxTreeView @ref="_treeView"
+                @*  <DxTreeView @ref="_treeView"
                 @bind-FilterString="FilterString"
-                            Data="@fileProfileTypeDocumentsAll"
-                            AllowSelectNodes="true"
-                            AfterExpand="@AfterExpand"
-                            SelectionChanged="@SelectionChanged">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId" />
-                    </DataMappings>
-                </DxTreeView>
+                Data="@fileProfileTypeDocumentsAll"
+                AllowSelectNodes="true"
+                AfterExpand="@AfterExpand"
+                SelectionChanged="@SelectionChanged">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                Key="DocumentID"
+                ParentKey="ParentId" />
+                </DataMappings>
+                </DxTreeView> *@
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            CssClass="max-h-480"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            RowClick="OnRowTreeClick"
+                            SelectionMode="TreeListSelectionMode.Single"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch">
+                    <Columns>
+                        <DxTreeListDataColumn FieldName="FileName" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
             </DxFormLayoutItem>
 
         </DxFormLayout>
@@ -265,7 +289,63 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
+<DxPopup @bind-Visible="@failedDocumentPopup"
+         ShowFooter="true"
+         HeaderText="Failed Document"
+         Closed="EulaPopupMoveDocumentClosed"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+            <div class="card-body p-0">
+                <div class="row">
+                    <div class="">
+                        <DxMenu CollapseItemsToHamburgerMenu="true"
+                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                DisplayMode="MenuDisplayMode.Desktop">
+                            <Items>
+                                <DxMenuItem Text="Generate No" IconCssClass="fa fa-reply" Click="@GenerateNoOnClick" />
+                            </Items>
+                        </DxMenu>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <DxGrid Data="Data.FailedDocumentsUploadModels" KeyFieldName="Index" ShowSearchBox="true"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                ValidationEnabled="true"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360" style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                AllowSelectRowByClick="true">
+            <Columns>
+                @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+                <DxGridDataColumn FieldName="Index" MinWidth="80" Visible="false" />
+                <DxGridDataColumn FieldName="FileName" Caption="FileName" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+                <DxGridDataColumn FieldName="FileSizes" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+                <DxGridDataColumn FieldName="Type" Caption="Type" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            </Columns>
+        </DxGrid>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool failedDocumentPopup { get; set; } = false;
+    int SuccessUplodCount { get; set; } = 0; int FailureUplodCount { get; set; } = 0;
+    private List<UploadFileInfo> SuccessFiles { get; set; } = new List<UploadFileInfo>();
+    private List<UploadFileInfo> FailedFiles { get; set; } = new List<UploadFileInfo>();
     IEnumerable<string> TemplateUploadOptions = new[] { "Files", "Images" };
     private UploadFileImagesToPdfTimeSheet refUploadFileImagesToPdfRoutine;
     public DocumentsModel selectedFiles { get; set; }
@@ -320,7 +400,7 @@
     {
         _editContext = new EditContext(Data);
         Data.TemplateUploadType = "Files";
-        UploadSessionId =Guid.NewGuid();
+        UploadSessionId = Guid.NewGuid();
         isFilesUpload = true;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         await loadFileDataFirst();
@@ -345,7 +425,7 @@
     async Task OnTemplateUploadGroupValueChanged(string? radioValue)
     {
         Data.TemplateUploadType = radioValue;
-        TabType = radioValue;isTemplateUploadTypeImages = false;
+        TabType = radioValue; isTemplateUploadTypeImages = false;
         if (radioValue == "Files")
         {
             Data.ChangeNewFileName = "Empty";
@@ -503,13 +583,31 @@
             IsFileProfileTypeOpen = false;
             var nodeName = e.NodeInfo.DataItem as DocumentsModel;
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
-            FileProfileTypeId= nodeName.FileProfileTypeId;
+            FileProfileTypeId = nodeName.FileProfileTypeId;
             DocSessionId = nodeName.SessionID;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
             await loadData(nodeName, "No");
-
+            await onGetExitingFile();
+        }
+        StateHasChanged();
+    }
+    async void OnRowTreeClick(TreeListRowClickEventArgs e)
+    {
+        var itemId = (long?)e.TreeList.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        var nodeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == itemId);
+        if (nodeName != null)
+        {
+            Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+            FileProfileTypeId = nodeName.FileProfileTypeId;
+            DocSessionId = nodeName.SessionID;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
+            FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
+            await loadData(nodeName, "No");
+            IsFileProfileTypeOpen = false;
+            await onGetExitingFile();
         }
         StateHasChanged();
     }
@@ -535,40 +633,188 @@
     }
     async Task isUploadSuccess(FileUploadEventArgs e)
     {
-
-        CurrentUplodCount++;
-        var filesessionIds = new Guid(e.FileInfo.Guid);
-        Data.SessionId = filesessionIds;
-        Data.FileSessionId = filesessionIds;
-        Data.ProductionActivityRoutineAppLineId = ProductionActivityRoutineAppLineId;
-        Data.SourceFrom = "FileProfile";
-        Data.Type = "Production Routine";
-        var ext = e.FileInfo.Name.Split(".").Last();
-        Data.FilePath = @"Documents\" + UploadSessionId + @"\" + filesessionIds + "." + ext;
-        DocumentsUploadModel documentsUploadModel = new DocumentsUploadModel();
-        documentsUploadModel.SessionId = filesessionIds;
-        documentsUploadModel.FileSessionId = filesessionIds;
-        documentsUploadModel.FilePath = Data.FilePath;
-        Data.DocumentsUploadModels.Add(documentsUploadModel);
-        //var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
+        //FailedFiles.Add(e.FileInfo);
+        //FailureUplodCount++;
+        SuccessFiles.Add(e.FileInfo);
+        SuccessUplodCount++;
         MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
-        if (CurrentUplodCount >= SelectedFilesCount)
+        await SucessFailure();
+    }
+    void EulaPopupMoveDocumentClosed()
+    {
+        failedDocumentPopup = false;
+    }
+    // async Task isUploadSuccess(FileUploadEventArgs e)
+    // {
+
+    //     CurrentUplodCount++;
+    //     var filesessionIds = new Guid(e.FileInfo.Guid);
+    //     Data.SessionId = filesessionIds;
+    //     Data.FileSessionId = filesessionIds;
+    //     Data.ProductionActivityRoutineAppLineId = ProductionActivityRoutineAppLineId;
+    //     Data.SourceFrom = "FileProfile";
+    //     Data.Type = "Production Routine";
+    //     var ext = e.FileInfo.Name.Split(".").Last();
+    //     Data.FilePath = @"Documents\" + UploadSessionId + @"\" + filesessionIds + "." + ext;
+    //     DocumentsUploadModel documentsUploadModel = new DocumentsUploadModel();
+    //     documentsUploadModel.SessionId = filesessionIds;
+    //     documentsUploadModel.FileSessionId = filesessionIds;
+    //     documentsUploadModel.FilePath = Data.FilePath;
+    //     Data.DocumentsUploadModels.Add(documentsUploadModel);
+    //     var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
+    //     MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+    //     toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+    //     SelectedFilesCount = SelectedFiles.Count();
+    //     if (CurrentUplodCount >= SelectedFilesCount)
+    //     {
+    //         MyMessage = "All File is Uploaded. Pls Wait Document No is Generating...";
+    //         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+    //         var responses = await Mediator.Send(new UpdateDocumentNoDocumentBySession(Data));
+    //         if (responses.FileProfileTypeId > 0)
+    //         {
+    //             await Task.Delay(5000);
+    //             MyMessage = "All File is Uploaded. Pls Wait Document No Generated";
+    //             toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+    //             Message = "Upload";
+    //             Uploadloading = true; isFilesUpload = true;
+    //             backUploadFilesUrl();
+    //         }
+    //     }
+
+    // }
+    async Task SucessFailure()
+    {
+        int sucessFail = SuccessUplodCount + FailureUplodCount;
+        SelectedFilesCount = SelectedFiles.Count();
+        if (SelectedFilesCount > 0)
         {
-            MyMessage = "All File is Uploaded. Pls Wait Document No is Generating...";
-            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
-            var responses = await Mediator.Send(new UpdateDocumentNoDocumentBySession(Data));
-            if (responses.FileProfileTypeId > 0)
+            if (SelectedFilesCount == sucessFail)
             {
-                await Task.Delay(5000);
-                MyMessage = "All File is Uploaded. Pls Wait Document No Generated";
-                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
-                Message = "Upload";
-                Uploadloading = true; isFilesUpload = true;
-                backUploadFilesUrl();
+                if (SuccessFiles.Count() > 0 || FailedFiles.Count() > 0)
+                {
+                    if (SuccessFiles.Count() > 0)
+                    {
+                        int i = 1;
+                        SuccessFiles.ForEach(s =>
+                        {
+                            var filesessionIds = new Guid(s.Guid);
+                            var ext = s.Name.Split(".").Last();
+                            var filePath = @"Documents\" + UploadSessionId + @"\" + filesessionIds + "." + ext;
+                            DocumentsUploadModel documentsUploadModel = new DocumentsUploadModel();
+                            documentsUploadModel.SessionId = filesessionIds;
+                            documentsUploadModel.FileSessionId = filesessionIds;
+                            documentsUploadModel.FileName = s.Name;
+                            documentsUploadModel.Type = s.Type;
+                            documentsUploadModel.FileSizes = FormatSize(s.Size);
+                            documentsUploadModel.Index = i;
+
+                            documentsUploadModel.FilePath = filePath;
+                            Data.DocumentsUploadModels.Add(documentsUploadModel);
+                            Data.FailedDocumentsUploadModels.Add(documentsUploadModel);
+                            i++;
+                        });
+                        Data.ProductionActivityRoutineAppLineId = ProductionActivityRoutineAppLineId;
+                        Data.SourceFrom = "FileProfile";
+                        Data.Type = "Production Routine";
+                        MyMessage = "All File is Uploaded. Pls Wait Document No is Generating...";
+                        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+                        var responses = await Mediator.Send(new UpdateDocumentNoDocumentBySession(Data));
+                        if (responses.FileProfileTypeId > 0)
+                        {
+                            await Task.Delay(5000);
+                            MyMessage = "All File is Uploaded. Pls Wait Document No Generated";
+                            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+                            Message = "Upload";
+                            Uploadloading = true; isFilesUpload = true;
+                            backUploadFilesUrl();
+                            await loadFailureFilesList();
+                            StateHasChanged();
+                        }
+                    }
+                    else
+                    {
+                        await loadFailureFilesList();
+                    }
+                }
             }
         }
+    }
+    public static string FormatSize(decimal bytes)
+    {
+        string[] suffixes = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
+        int counter = 0;
+        decimal number = (decimal)bytes;
+        while (Math.Round(number / 1024) >= 1)
+        {
+            number = number / 1024;
+            counter++;
+        }
+        return string.Format("{0:n1} {1}", number, suffixes[counter]);
+    }
+    async Task loadFailureFilesList()
+    {
+        if (FailedFiles.Count() > 0)
+        {
 
+            int i = 1;
+            FailedFiles.ForEach(s =>
+            {
+                var filesessionIds = new Guid(s.Guid);
+                var ext = s.Name.Split(".").Last();
+                var filePath = @"Documents\" + UploadSessionId + @"\" + filesessionIds + "." + ext;
+
+                DocumentsUploadModel documentsUploadModel = new DocumentsUploadModel();
+                documentsUploadModel.FileName = s.Name;
+                documentsUploadModel.Type = s.Type;
+                documentsUploadModel.FileSizes = FormatSize(s.Size);
+                documentsUploadModel.SessionId = filesessionIds;
+                documentsUploadModel.FileSessionId = filesessionIds;
+                documentsUploadModel.Index = i;
+
+                documentsUploadModel.FilePath = filePath;
+                Data.FailedDocumentsUploadModels.Add(documentsUploadModel);
+                i++;
+            });
+            var lists = await Mediator.Send(new GetUploadedButNoProfileNo(Data));
+            if (Data.FailedDocumentsUploadModels != null && Data.FailedDocumentsUploadModels.Count() > 0)
+            {
+                Data.DocumentsUploadModels = new List<DocumentsUploadModel>();
+                Data.FailedDocumentsUploadModels.ForEach(a =>
+                {
+                    var exits = lists.FirstOrDefault(f => f.FilePath == a.FilePath);
+                    if (exits != null)
+                    {
+                        Data.DocumentsUploadModels.AddRange(Data.FailedDocumentsUploadModels);
+                    }
+                });
+                if (Data.DocumentsUploadModels.Count() > 0)
+                {
+                    failedDocumentPopup = true;
+                }
+            }
+            // backUrl();
+            failedDocumentPopup = true;
+        }
+        StateHasChanged();
+    }
+    async Task GenerateNoOnClick()
+    {
+
+        Data.DocumentsUploadModels = new List<DocumentsUploadModel>();
+        Data.DocumentsUploadModels.AddRange(Data.FailedDocumentsUploadModels);
+        var responses = await Mediator.Send(new UpdateDocumentNoDocumentBySession(Data));
+        if (responses.FileProfileTypeId > 0)
+        {
+            //await Task.Delay(5000);
+            MyMessage = "All File is Uploaded. Pls Wait Document No Generated";
+            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+            Message = "Upload";
+            Uploadloading = true; isFilesUpload = true;
+            failedDocumentPopup = false;
+            backUploadFilesUrl();
+        }
+        StateHasChanged();
     }
     void OnUploadError(FileUploadErrorEventArgs e)
     {
@@ -630,37 +876,48 @@
             _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
         }
     }
-    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    async Task AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-
+        SelectedFiles = new List<UploadFileInfo>();
         var MyMessagess = string.Empty;
         if (files != null && files.ToList().Count() > 0)
         {
-            if (IsDuplicateUpload == false)
-            {
-                files.ToList().ForEach(s =>
-                {
-                    if (documentsFiles.Contains(s.Name))
-                    {
-                        MyMessagess += s.Name + " file was Removed.\n\r";
-
-                        uploadComponent.RemoveFile(s);
-                    }
-                });
-            }
             AttachmentUploadVisible = files.ToList().Count > 0;
             SelectedFiles.AddRange(files);
             SelectedFilesCount = files.ToList().Count; //Count current files
+            var fileList = SelectedFiles.Select(s => s.Name.ToLower()).Distinct().ToList();
+            fileList.ToList().ForEach(s =>
+            {
+                List<UploadFileInfo> FilesList = SelectedFiles.Where(w => w.Name.ToLower() == s.ToLower()).ToList();
+                if (FilesList != null && FilesList.Count() > 0)
+                {
+                    int i = 0;
+                    FilesList.ForEach(e =>
+                    {
+                        if (i > 0)
+                        {
+                            MyMessagess += e.Name + " file was Removed.\n\r";
+                            SelectedFiles.Remove(e);
+                            uploadComponent.RemoveFile(e);
+                        }
+                        i++;
+                    });
+
+                }
+            });
             if (!string.IsNullOrEmpty(MyMessagess))
             {
                 var msg = "File Already Exits." + MyMessagess;
                 toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+
             }
+            await onGetExitingFile();
         }
         StateHasChanged();
     }
     async Task onGetExitingFile()
     {
+        var MyMessagess = string.Empty;
         if (Data.FileProfileTypeId > 0)
         {
             DocumentSearchModel documentSearchModels = new DocumentSearchModel();
@@ -669,11 +926,33 @@
             list1.Add(Data.FileProfileTypeId);
             documentSearchModels.FileProfileTypeIds = list1;
             var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
-            if (docList != null && docList.Count() > 0)
+            uploadComponent.ReloadAllFiles();
+            if (SelectedFiles != null && SelectedFiles.Count() > 0)
             {
-                documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
+                SelectedFiles.ToList().ForEach(s =>
+                {
+                    if (!string.IsNullOrEmpty(s.Name))
+                    {
+                        if (docList != null && docList.Count() > 0)
+                        {
+                            var exits = docList.Where(w => w.FileName != null && w.FileName != "").FirstOrDefault(f => f.FileName.ToLower() == s.Name.ToLower());
+                            if (exits != null)
+                            {
+                                MyMessagess += s.Name + " file was Removed.\n\r";
+                                SelectedFiles.Remove(s);
+                                uploadComponent.RemoveFile(s);
+                            }
+                        }
+                    }
+                });
+            }
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
             }
         }
+        StateHasChanged();
     }
     async Task SubmitFormExternally()
     {
@@ -686,7 +965,7 @@
     {
         if (Data.TemplateUploadType == "Files")
         {
-            if (SelectedFilesCount > 0)
+            if (SelectedFiles.Count()> 0)
             {
                 uploadComponent.UploadAllFiles();
             }
@@ -710,7 +989,7 @@
     {
         Uploadloading = false; isImageUpload = false; Message = "Uploading...";
         var response = await refUploadFileImagesToPdfRoutine.uploadImagesToPdf(DocSessionId, Data);
-        if (response=="Done")
+        if (response == "Done")
         {
             Message = "Upload";
             Uploadloading = true; isImageUpload = true;
@@ -727,48 +1006,22 @@
         }
         StateHasChanged();
     }
-
     public async ValueTask DisposeAsync()
     {
-        if (_plantItems != null)
-        {
-            _plantItems.Clear();
-            _plantItems = null;
-        }
-
-        if (_divisionItems != null)
-        {
-            _divisionItems.Clear();
-            _divisionItems = null;
-        }
-
-        if (_departmentItems != null)
-        {
-            _departmentItems.Clear();
-            _departmentItems = null;
-        }
-
-        if (_sectionItems != null)
-        {
-            _sectionItems.Clear();
-            _sectionItems = null;
-        }
-
-        if (_subSectionItems != null)
-        {
-            _subSectionItems.Clear();
-            _subSectionItems = null;
-        }
-        if (fileProfileTypeDocumentsAll != null)
-        {
-            fileProfileTypeDocumentsAll.Clear();
-            fileProfileTypeDocumentsAll = null;
-        }
-        Data = null;
-        TempSetIds = null;
+        //System.GC.Collect();
+        fileProfileTypeModels = null;
+        _plantItems?.Clear();
+        _divisionItems?.Clear();
+        _departmentItems?.Clear();
+        _sectionItems?.Clear();
+        _subSectionItems?.Clear();
+        Data = new DocumentsUploadModel();
+        TempSetIds?.Clear();
         documentProfileNoSeriesData = null;
-        SelectedFiles = null;
-        // System.GC.Collect();
+        SelectedFiles?.Clear();
+        fileProfileTypeDocumentsAll?.Clear();
+        documentsFiles?.Clear();
+        refUploadFileImagesToPdfRoutine?.DisposeAsync();
         // GC.SuppressFinalize(this);
     }
 }

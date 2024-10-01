@@ -705,6 +705,7 @@
     async Task SucessFailure()
     {
         int sucessFail = SuccessUplodCount + FailureUplodCount;
+        SelectedFilesCount = SelectedFiles.Count();
         if (SelectedFilesCount > 0)
         {
             if (SelectedFilesCount == sucessFail)
@@ -879,13 +880,40 @@
     }
     async Task AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
+        SelectedFiles = new List<UploadFileInfo>();
         var MyMessagess = string.Empty;
         if (files != null && files.ToList().Count() > 0)
         {
             AttachmentUploadVisible = files.ToList().Count > 0;
             SelectedFiles.AddRange(files);
             SelectedFilesCount = files.ToList().Count; //Count current files
-           // await onGetExitingFile();
+            var fileList = SelectedFiles.Select(s => s.Name.ToLower()).Distinct().ToList();
+            fileList.ToList().ForEach(s =>
+            {
+                List<UploadFileInfo> FilesList = SelectedFiles.Where(w => w.Name.ToLower() == s.ToLower()).ToList();
+                if (FilesList != null && FilesList.Count() > 0)
+                {
+                    int i = 0;
+                    FilesList.ForEach(e =>
+                    {
+                        if (i > 0)
+                        {
+                            MyMessagess += e.Name + " file was Removed.\n\r";
+                            SelectedFiles.Remove(e);
+                            uploadComponent.RemoveFile(e);
+                        }
+                        i++;
+                    });
+
+                }
+            });
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+                
+            }
+            await onGetExitingFile();
         }
         StateHasChanged();
     }
@@ -926,10 +954,10 @@
                 toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
             }
         }
+        StateHasChanged();
     }
     async Task SubmitFormExternally()
     {
-        await onGetExitingFile();
         if (_editContext.Validate())
         {
             await this.HandleValidSubmit();
@@ -939,7 +967,7 @@
     {
         if (Data.TemplateUploadType == "Files")
         {
-            if (SelectedFilesCount > 0)
+            if (SelectedFiles.Count() > 0)
             {
                 uploadComponent.UploadAllFiles();
             }

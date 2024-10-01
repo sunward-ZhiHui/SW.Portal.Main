@@ -583,6 +583,7 @@
         var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
         MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        SelectedFilesCount = SelectedFiles.Count();
         if (CurrentUplodCount >= SelectedFilesCount)
         {
             Message = "Upload";
@@ -653,28 +654,56 @@
     }
     async Task AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-
+        SelectedFiles = new List<UploadFileInfo>();
+        var MyMessagess = string.Empty;
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
         if (SelectedFilesCount > 0)
         {
+            var fileList = SelectedFiles.Select(s => s.Name.ToLower()).Distinct().ToList();
+            if (fileList.Count() > 0)
+            {
+                fileList.ToList().ForEach(s =>
+                {
+                    List<UploadFileInfo> FilesList = SelectedFiles.Where(w => w.Name.ToLower() == s.ToLower()).ToList();
+                    if (FilesList != null && FilesList.Count() > 0)
+                    {
+                        int i = 0;
+                        FilesList.ForEach(e =>
+                        {
+                            if (i > 0)
+                            {
+                                MyMessagess += e.Name + " file was Removed.\n\r";
+                                SelectedFiles.Remove(e);
+                                uploadComponent.RemoveFile(e);
+                            }
+                            i++;
+                        });
+                    }
+                });
+            }
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+            }
             if (SelectedFilesCount == 1)
             {
-                await onGetExitingFile();
+
             }
             else
             {
                 var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
                 toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
             }
+            await onGetExitingFile();
         }
 
         StateHasChanged();
     }
     async Task SubmitFormExternally()
     {
-        await onGetExitingFile();
         if (_editContext.Validate())
         {
             await this.HandleValidSubmit();
@@ -684,6 +713,7 @@
     {
         if (Data.TemplateUploadType == "Files")
         {
+            SelectedFilesCount = SelectedFiles.Count();
             if (SelectedFilesCount > 0)
             {
                 if (SelectedFilesCount == 1)

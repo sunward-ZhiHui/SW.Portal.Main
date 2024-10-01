@@ -61,6 +61,9 @@
        
        @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
     </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProductionOrderNo" />
+        </TotalSummary>
 </DxGrid>
 </DxLoadingPanel>
 @code {

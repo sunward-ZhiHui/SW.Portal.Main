@@ -1,4 +1,5 @@
 ﻿@using AC.SD.Core.Data.Account;
+@using AC.SD.Core.Pages.Dashboard
 @using Application.Constant;
 @using Application.Queries;
 @using global::Core.Repositories.Query;
@@ -44,8 +45,13 @@
         </div>
        
         <div class="demo-btn-container d-flex">
-            <span class="fas fa-bell" @onclick="() => GoViewEmail()" title="Email Assign To" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
+          @*   <span class="fas fa-bell" @onclick="() => GoViewEmail()" title="Email Assign To" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
                 <span class="notifcationcount">@_emailNotificationCount</span>
+            </span> *@
+           
+        
+            <span class="fas fa-bell" @onclick="() => OpenPopup()" Id=@($"flyout-overview-target-container-Filter-info") title ="Email Assign To" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
+                <span class="notifcationcount">@_NotificationCount</span>
             </span>
             <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
                       RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="menu-icon-user-profile menu-icon"></DxButton>
@@ -145,6 +151,30 @@
     <DxPopup @bind-Visible="@MessageVisible"
              HeaderText="@MessageHeader"
              BodyText="@MessageBody" />
+
+
+
+    <DxFlyout @bind-IsOpen=IsNotificationCount
+              PositionTarget=@($"#flyout-overview-target-container-Filter-info")
+              RestrictionTarget="#Navigation-Flyout-Customization"
+              AnimationType="FlyoutAnimationType.Fade"
+              PreventCloseOnPositionTargetClick="true"
+              FooterVisible="false"
+              
+              Width="250px"
+              CloseOnOutsideClick=true
+              Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+        <BodyContentTemplate Context="PopupContext">
+            <span @onclick="() => GoViewEmail()" style="cursor: pointer;"> <p>Email AssignTo : <span>@_emailNotificationCount</span></p></span>
+            <span @onclick="() => GoMemo()" style="cursor: pointer;"> <p>Memo : <span>@_memoNotificationCount</span></p></span>
+            <span @onclick="() => GoWorkFlow()" style="cursor: pointer;"> <p>WorkFlow : <span>@_WorkflowNotificationCount</span></p></span>
+            <span @onclick="() => GoApproval()" style="cursor: pointer;"> <p>Approval : <span>@_approvelNotificationCount</span></p></span>
+        </BodyContentTemplate>
+        <FooterContentTemplate>
+            
+           
+        </FooterContentTemplate>
+    </DxFlyout>
 </div>
 @functions {
 
@@ -155,6 +185,7 @@
 }
 
 @code {
+    public  bool IsNotificationCount { get; set; } = false;
     string errorMsg = "";
     static readonly int DateTimeNowYear = DateTime.Now.Year;
     UpdatePassword updatePassword = new UpdatePassword();
@@ -179,7 +210,16 @@
     public RenderFragment<Exception>? ErrorContent { get; set; }
     internal bool loading;
     public ApplicationUser? applicationUser { get; internal set; }
+    private List<Memo> _MemoList;
+    private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormListItems;
     long _emailNotificationCount { get; set; }
+    long _memoNotificationCount { get; set; }
+    long _WorkflowNotificationCount { get; set; }
+    long _approvelNotificationCount { get; set; }
+    long _NotificationCount { get; set; }
+    private List<DynamicForm> _dynamicForm;
+    private List<DynamicFormDataWrokFlow> _WorkFlowdynamicForm;
+   
     protected string ThemeName
     {
         get { return _themeName; }
@@ -209,7 +249,27 @@
         {
             _emailNotificationCount = await Mediator.Send(new GetEmailNotificationCount(applicationUser.UserID));
         }
-       
+
+        await InvokeAsync(StateHasChanged);
+    }
+    private async Task OpenPopup()
+    {
+        IsNotificationCount =true;
+        StateHasChanged();
+    }
+    private async Task GoApproval()
+    {
+        NavigationManager.NavigateTo($"DynamicFormApprovedMainList");
+        await InvokeAsync(StateHasChanged);
+    }
+    private async Task GoMemo()
+    {
+        NavigationManager.NavigateTo($"Dashboard");
+        await InvokeAsync(StateHasChanged);
+    }
+    private async Task GoWorkFlow()
+    {
+        NavigationManager.NavigateTo($"DynamicFormWorkFlowList");
         await InvokeAsync(StateHasChanged);
     }
     private async Task GoViewEmail()
@@ -219,13 +279,19 @@
     }
     protected override async void OnInitialized()
     {
-        
+
         ThemeName = Themes.ActiveTheme.Name;
         //NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
+        _MemoList = await Mediator.Send(new GetAllMemoByUserQuery(applicationUser.UserID));
+        _memoNotificationCount = _MemoList.Count;
+        _WorkFlowdynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
+        _WorkflowNotificationCount = _WorkFlowdynamicForm.Count;
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
+        _approvelNotificationCount = _dynamicForm.Count;
         RefreshService.OnRefreshRequested += RefreshDataAsync;
         await RefreshDataAsync();
+        _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount;
 
         await InvokeAsync(StateHasChanged);
     }

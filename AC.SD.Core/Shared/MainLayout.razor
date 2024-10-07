@@ -131,7 +131,7 @@
             </span> *@
            
         
-            <span class="fas fa-bell" @onclick="() => OpenPopup()" Id=@($"flyout-overview-target-container-Notification-info") title ="Email Assign To" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
+            <span class="fas fa-bell" @onclick="() => OpenPopup()" Id=@($"flyout-overview-target-container-Notification-info") title ="Notifications" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
                 <span class="notifcationcount">@_NotificationCount</span>
             </span>
             <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
@@ -368,21 +368,25 @@
     {
         NavigationManager.NavigateTo($"DynamicFormApprovedMainList");
         await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
     }
     private async Task GoMemo()
     {        
         NavigationManager.NavigateTo($"Dashboard/4");
         await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
     }
     private async Task GoWorkFlow()
     {
         NavigationManager.NavigateTo($"DynamicFormWorkFlowList");
         await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
     }
     private async Task GoViewEmail()
     {
         NavigationManager.NavigateTo($"ViewEmail");
         await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
     }
     protected override async void OnInitialized()
     {

@@ -88,7 +88,11 @@
         }
 
     }
-    
+    protected override async Task OnParametersSetAsync()
+    {
+        ActiveTabIndex = ActiveIndex;
+        base.OnParametersSet();       
+    }    
     void OnTabClick(TabClickEventArgs e)
     {
         // var indexid = e.TabIndex;

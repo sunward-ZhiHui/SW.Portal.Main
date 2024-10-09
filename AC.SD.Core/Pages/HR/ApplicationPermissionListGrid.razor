@@ -20,6 +20,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="ReArrange Order" IconCssClass="fa fa-refresh" Click="@OnRefresh" />
             </Items>
         </DxMenu>
     </div>
@@ -145,6 +146,10 @@
         PanelVisible = false;
         await UpdateDataAsync();
 
+    }
+    private async Task OnRefresh()
+    {
+        await jsRuntime.InvokeVoidAsync("location.reload");
     }
 
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)

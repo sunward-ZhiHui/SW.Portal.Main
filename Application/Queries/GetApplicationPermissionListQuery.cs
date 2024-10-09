@@ -33,4 +33,28 @@ namespace Application.Queries
         }
     }
    
+    public class GetApplicationByParentIDListQuery : PagedRequest, IRequest<List<ApplicationPermission>>
+    {
+        public string ParentID { get; set; }
+        public GetApplicationByParentIDListQuery(string ParentID)
+        {
+            this.ParentID = ParentID;
+        }
+    }
+    public class GetApplicationByParentListQuery : PagedRequest, IRequest<List<ApplicationPermission>>
+    {
+
+    }
+    public class GetApplicationBySessionIDListQuery : PagedRequest, IRequest<List<ApplicationPermission>>
+    {
+        public Guid? Sessionid { get; set; }
+        public GetApplicationBySessionIDListQuery(Guid? Sessionid)
+        {
+            this.Sessionid = Sessionid;
+        }
+    }
+    public class CreateApplicationPermissionQuery : ApplicationPermission, IRequest<long>
+    {
+
+    }
 }

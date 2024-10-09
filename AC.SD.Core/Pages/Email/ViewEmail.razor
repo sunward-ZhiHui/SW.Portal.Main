@@ -3026,7 +3026,7 @@
     {
         public string? UserTag { get; set; }
         public long? UserTagId { get; set; }  
-     
+
         public IEnumerable<long?> UserTagIds { get; set; } = new List<long?>();
     }
     private class ModelClose
@@ -3658,14 +3658,15 @@
 
 
             //  dataUserTag.UserTag = _getUserTag[0].UserTag;
-          //  dataUserTag.UserTagId = _getUserTag[0].UserTagId;
-           dataUserTag.UserTagIds = _getUserTag.Select(s => s.UserTagId).ToList();
-       
+            //  dataUserTag.UserTagId = _getUserTag[0].UserTagId;
+            dataUserTag.UserTagIds = _getUserTag.Select(s => s.UserTagId).ToList();
+
         }
         else
         {
             dataUserTag.UserTag = null;
             dataUserTag.UserTagId = null;
+            dataUserTag.UserTagIds = null;
         }
 
         await JSRuntime.InvokeAsync<string>("hideLoading");

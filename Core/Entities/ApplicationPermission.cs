@@ -15,7 +15,7 @@ namespace Core.Entities
         [Required(ErrorMessage = "Page Name is Required")]
         public string PermissionName { get; set; }
         public string PermissionCode { get; set; }
-        public long ParentID { get; set; }        
+        public long? ParentID { get; set; }        
         public int PermissionLevel { get; set; }
         public string ControllerName { get; set; }
         public string ActionName { get; set; }

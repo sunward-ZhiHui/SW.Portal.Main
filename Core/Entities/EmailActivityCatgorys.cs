@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities.CustomValidations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,7 +16,8 @@ namespace Core.Entities
         public long TopicId { get; set; }
         //[EitherRequired("Name", "GroupTag", ErrorMessage = "Either Others or GroupTag is required.")]
         public string Name { get; set; }
-        public string UserTag { get; set; }       
+       [UserTagNameCustomValidation]
+        public string? UserTag { get; set; }       
         public long? GroupTag { get; set; }
         public long? CategoryTag { get; set; }
         public long? ActionTag { get; set; }
@@ -42,8 +44,10 @@ namespace Core.Entities
         [NotMapped]
         public long? UserTagTopicId { get; set; }
         [NotMapped]
-        public long? UserTagAddedByUserID { get; set; }    
-        
+        public long? UserTagAddedByUserID { get; set; }
+        [NotMapped]
+        public IEnumerable<long?> UserTagIds { get; set; } = new List<long?>();
+
     }
 
 

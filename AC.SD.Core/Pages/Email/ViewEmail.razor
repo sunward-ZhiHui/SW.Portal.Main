@@ -257,13 +257,28 @@
 
                                                                 }
                                                             }
-                                                            @if (_headTopic_UserTag != null && _headTopic_UserTag.Any())
+                                                            @*  @if (_headTopic_UserTag != null && _headTopic_UserTag.Any())
                                                             {                                                                    
                                                                 @if (!string.IsNullOrWhiteSpace(_headTopic_UserTag[0].UserTag))
                                                                 {
                                                                     <span class="handline usertag">@_headTopic_UserTag[0].UserTag</span>
                                                                 }                                                                                                                                
-                                                            }
+                                                            }  *@
+                                                            @if (_headTopic_UserTag != null && _headTopic_UserTag.Any())
+                                                            {
+                                                                @foreach (var (itemss, index) in _headTopic_UserTag.Select((value, i) => (value, i)))
+                                                                {
+                                                                    @if (index < 2)
+                                                                    {
+                                                                        <span class="handline usertag">@itemss.UserTag</span>
+                                                                    }
+                                                                }
+                                                                @if (_headTopic_UserTag.Count > 2)
+                                                                {
+                                                                    <span id="showUserTagMultiple" class="handline usertag more-dots" @onclick="() => ShowUserMultipleFlyout()">...</span>
+                                                                }
+
+                                                            } 
                                                         </div>  
                                                        
                                                         <span class="mailbox-read-time pull-right" style="float: right; margin-top: -23px; margin-right: 40px;">@Application.Common.Helper.Helper.FormatDateTime(@item.StartDate)</span>
@@ -977,7 +992,36 @@
         <DxButton Text="close" Click="@context.CloseCallback" />
     </FooterTextTemplate>
 </DxFlyout>
+<DxFlyout @bind-IsOpen="@isOpenUserTagMultiplePop"
+          PositionTarget=@($"#showUserTagMultiple")
+          Position="FlyoutPosition.Bottom"
+          CloseOnOutsideClick="true"
+          FooterVisible="false">
+    <BodyTextTemplate>
+        <div style="width:350px;">
+            @if (_headTopic_UserTag != null && _headTopic_UserTag.Any())
+            {
+                 var userlist = _headTopic_UserTag.Skip(2);
+                @foreach (var useritem in userlist)
+                {
+                   
+                    @if (useritem.UserTag != null && useritem.UserTag.Any())
+                    {
+                        <div class="list-container">
 
+
+                            <div class="list-item"> @useritem.UserTag</div>
+                            
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </BodyTextTemplate>
+    <FooterTextTemplate>
+        <DxButton Text="close" Click="@context.CloseCallback" />
+    </FooterTextTemplate>
+</DxFlyout>
 <DxFlyout @bind-IsOpen="@isOpenSubjectPop"                    
           PositionTarget=@($"#showOpenSubject_{CurrentEmailConversations?.ID}")
           Position="FlyoutPosition.Left"
@@ -1145,7 +1189,7 @@
                     <div class="col-md-12" style="padding-bottom: 12px">  
                     <DxFormLayout>
                        <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
-                                <DxComboBox Data="@_UserTagList"
+                              @*   <DxComboBox Data="@_UserTagList"
                                     AllowUserInput="true"
                                     NullText="Select User Tag..."
                                     ListRenderMode="ListRenderMode.Virtual"                                  
@@ -1154,7 +1198,20 @@
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@dataUserTag.UserTag"
                                     @bind-Text="@UserTagTxt">
-                                </DxComboBox>
+                                </DxComboBox> *@
+                                <DxTagBox Data="_UserTagList"
+                                         @bind-Values="dataUserTag.UserTagIds"
+                                       
+                                          NullText="Select User Tag"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="ID"
+                                          TextFieldName="UserTag"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          CssClass="cw-480">
+                                    <DxListEditorColumn FieldName="@nameof(EmailActivityCatgorys.UserTag)" Caption="User Tag" />
+                                </DxTagBox>
                                 @* <ValidationMessage For="@(() => dataUserTag.UserTag)" /> *@
                             </DxFormLayoutItem>
                     </DxFormLayout>
@@ -2771,7 +2828,8 @@
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
     bool isOpenSubjectPop { get; set; } = false;
-    bool isOpenActionTagMultiplePop { get; set; } = false;   
+    bool isOpenActionTagMultiplePop { get; set; } = false; 
+    bool isOpenUserTagMultiplePop { get; set; } = false;
     bool isOpenSubjectNamePop { get; set; } = false;
     string dynamicShowSubject = "showOpenSubject_";    
     Selection? selection; 
@@ -2838,6 +2896,11 @@
     {
 
         isOpenActionTagMultiplePop = true;
+    }   
+    private async Task ShowUserMultipleFlyout()
+    {
+
+        isOpenUserTagMultiplePop = true;
     }   
     private void ShowSubjectFlyout(EmailConversations emailConversations) {
         CurrentEmailConversations = emailConversations;
@@ -2962,7 +3025,9 @@
     private class UserTagData
     {
         public string? UserTag { get; set; }
-        public long? UserTagId { get; set; }        
+        public long? UserTagId { get; set; }  
+     
+        public IEnumerable<long?> UserTagIds { get; set; } = new List<long?>();
     }
     private class ModelClose
     {
@@ -3590,8 +3655,12 @@
 
         if(_getUserTag.Count > 0)
         {
-            dataUserTag.UserTag = _getUserTag[0].UserTag;
-            dataUserTag.UserTagId = _getUserTag[0].UserTagId;
+
+
+            //  dataUserTag.UserTag = _getUserTag[0].UserTag;
+          //  dataUserTag.UserTagId = _getUserTag[0].UserTagId;
+           dataUserTag.UserTagIds = _getUserTag.Select(s => s.UserTagId).ToList();
+       
         }
         else
         {
@@ -3662,48 +3731,58 @@
     }
     async void SubmitUserTag()
     {
-        var usertag = dataUserTag;
-        if(dataUserTag.UserTagId != null)
-        {
-
-            var UpdateReq = new UpdateUserTag
+       // var usertag = dataUserTag;
+          var UpdateReq = new CreateUserTagMultipleQuery
             {                
-                UserTagId = dataUserTag.UserTagId,
+                UserTagIds = dataUserTag.UserTagIds,
                 //UserTag = dataUserTag.UserTag,
-                UserTag = UserTagTxt,
-                ModifiedByUserID = applicationUser.UserID,
-                ModifiedDate = DateTime.Now
+                TopicId =_headTopic[0].ID,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now
             };
+        var result = await Mediator.Send(UpdateReq);
+         toastService.ShowToast("User Tag Updated Successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        // if(dataUserTag.UserTagId != null)
+        // {
 
-            var result = await Mediator.Send(UpdateReq);
-            if (result == 1)
-            {
-                isUserTagChange = false;
-                onShowPopupMessage("success", "User Tag Updated Successfully");
-            }            
-        }
-        else
-        {
-            var UpdateReq = new CreateUserTag
-                {
-                    TopicId = long.Parse(@SelectedGroup),
-                    //UserTag = dataUserTag.UserTag,
-                    UserTag = UserTagTxt,
-                    AddedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now
-                };
+        //     var UpdateReq = new UpdateUserTag
+        //     {                
+        //         UserTagId = dataUserTag.UserTagId,
+        //         //UserTag = dataUserTag.UserTag,
+        //         UserTag = UserTagTxt,
+        //         ModifiedByUserID = applicationUser.UserID,
+        //         ModifiedDate = DateTime.Now
+        //     };
 
-            var result = await Mediator.Send(UpdateReq);
-            if (result == 1)
-            {
-                isUserTagChange = false;
-                onShowPopupMessage("success", "Added User Tag Successfully");
-            }
-        }
+        //     var result = await Mediator.Send(UpdateReq);
+        //     if (result == 1)
+        //     {
+        //         isUserTagChange = false;
+        //         onShowPopupMessage("success", "User Tag Updated Successfully");
+        //     }            
+        // }
+        // else
+        // {
+        //     var UpdateReq = new CreateUserTag
+        //         {
+        //             TopicId = long.Parse(@SelectedGroup),
+        //             //UserTag = dataUserTag.UserTag,
+        //             UserTag = UserTagTxt,
+        //             AddedByUserID = applicationUser.UserID,
+        //             AddedDate = DateTime.Now
+        //         };
 
+        //     var result = await Mediator.Send(UpdateReq);
+        //     if (result == 1)
+        //     {
+        //         isUserTagChange = false;
+        //         onShowPopupMessage("success", "Added User Tag Successfully");
+        //     }
+        // }
+        isUserTagChange = false;
         onloadTagsList();
-        IsOpenFlyout = false;
-        StateHasChanged(); 
+         IsOpenFlyout = false;
+       StateHasChanged(); 
     }
 
     async void SubmitSubjectDueDate()

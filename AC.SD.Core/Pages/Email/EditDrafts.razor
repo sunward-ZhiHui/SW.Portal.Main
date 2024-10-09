@@ -461,7 +461,7 @@ else
                           
 
                             <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
-                                <DxComboBox Data="@_UserTagList"
+                               @*  <DxComboBox Data="@_UserTagList"
                                           
                                             NullText="Select User Tag..."
                                            AllowUserInput = "true"
@@ -472,7 +472,19 @@ else
                                             ValueFieldName="UserTag"                                            
                                             @bind-Value="@CategoryData.UserTag"
                                             @bind-Text="@UserTagName">
-                                </DxComboBox>
+                                </DxComboBox> *@
+                                <DxTagBox Data="_UserTagList"
+                                          @bind-Values="CategoryData.UserTagIds"
+                                          NullText="Select User Tag"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="ID"
+                                          TextFieldName="UserTag"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          CssClass="cw-480">
+                                    <DxListEditorColumn FieldName="@nameof(EmailActivityCatgorys.UserTag)" Caption="User Tag" />
+                                </DxTagBox>
                                 @* <ValidationMessage For="@(() => CategoryData.UserTag)" /> *@
                             </DxFormLayoutItem>
 
@@ -1490,23 +1502,23 @@ else
                         var actionTagMultiple = await Mediator.Send(new GetActionTagMultiple(TId));
                         if (actionTagMultiple.Count > 0)
                         {
-                           await CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+                            await CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
 
                             if(CategoryData != null)
                             {
                                 CategoryData.ActionTagIds = actionTagMultiple.Select(id => (long?)id);
                             }
-                            
+
                         }
                         else
                         {
-                             CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
+                            CategoryTagChangeEdit(_TagEmailList[0].CategoryTag);
 
                             if (CategoryData != null)
                             {
                                 CategoryData.ActionTagIds = new List<long?>();
                             }
-                            
+
                         }
 
                     }
@@ -1533,8 +1545,8 @@ else
                 CategoryData.ActionTag = _TagEmailList == null ? null : _TagEmailList[0].ActionTag;
                 CategoryData.Name = _TagEmailList == null ? null : _TagEmailList[0].Name;
 
-               
-              
+
+
 
                 if (_TagEmailList != null)
                 {
@@ -1546,6 +1558,7 @@ else
                     {
                         CategoryData.UserTag = _getUserTag[0].UserTag;
                         CategoryData.UserTagId = _getUserTag[0].UserTag == null ? 0 : _getUserTag[0].UserTagId;
+                        CategoryData.UserTagIds = _getUserTag.Select(f => f.UserTagId).ToList();
                     }
                 }
 
@@ -1797,6 +1810,7 @@ else
                     GroupTag = CategoryData.GroupTag,
                     ActionTag = CategoryData.ActionTag,
                     ActionTagIds = CategoryData.ActionTagIds,
+                UserTagIds = CategoryData.UserTagIds,
                     CategoryTag = CategoryData.CategoryTag,
                     //UserTag = CategoryData.UserTag,
                 actName = OthersTagName,

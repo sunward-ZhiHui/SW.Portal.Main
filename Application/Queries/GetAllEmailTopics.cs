@@ -571,4 +571,8 @@ namespace Application.Queries
             this.ID = Id;
         }
     }
+    public class CreateUserTagMultipleQuery : EmailActivityCatgorys, IRequest<long>
+    {
+    }
+   
 }

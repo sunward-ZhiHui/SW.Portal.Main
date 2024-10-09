@@ -182,5 +182,18 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+    public class DeleteUserTagHandler : IRequestHandler<DeleteUserTagQery, long>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public DeleteUserTagHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
 
+        public async Task<long> Handle(DeleteUserTagQery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.DeleteUserTagAsync(request.ID);
+            return newlist;
+        }
+    }
 }

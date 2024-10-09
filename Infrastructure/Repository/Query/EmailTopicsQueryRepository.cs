@@ -19,6 +19,7 @@ using System.Reflection.Metadata;
 using Infrastructure.Data;
 using Microsoft.VisualBasic;
 using System.Data.SqlTypes;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace Infrastructure.Repository.Query
 {
@@ -1839,6 +1840,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
                         parameterss.Add("ActionTag", EmailTopics.ActionTag);                        
                         parameterss.Add("ActionTagIds", string.Join(",", EmailTopics.ActionTagIds));
+                        parameterss.Add("UserTagIds", string.Join(",", EmailTopics.UserTagIds));
                         parameterss.Add("actName", EmailTopics.actName);
                         parameterss.Add("UserTag", EmailTopics.UserTag);
                         parameterss.Add("UserTagId", EmailTopics.UserTagId);
@@ -1896,8 +1898,8 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("Urgent", EmailTopics.Urgent);
                         parameterss.Add("OverDue", EmailTopics.OverDue);
                         parameterss.Add("DueDate", EmailTopics.DueDate);
-                      
 
+                        parameterss.Add("UserTagIds", string.Join(",", EmailTopics.UserTagIds));
 
 
                         parameterss.Add("To", EmailTopics.To);
@@ -2968,6 +2970,76 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+
+        public  async Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+
+                        var deleteQuery = "DELETE FROM EmailUserTagMultiple WHERE TopicID = @TopicID";
+                        await connection.ExecuteAsync(deleteQuery, new { TopicID = emailActivityCatgorys.TopicId });
+
+                        if (emailActivityCatgorys.UserTagIds != null && emailActivityCatgorys.UserTagIds.Any())
+                        {
+                            var insertActionTagQuery = @"
+                            INSERT INTO EmailUserTagMultiple (TopicID, UserTagID,AddedByUserID,AddedDate)
+                            VALUES (@TopicID, @UserTagID,@AddedByUserID,@AddedDate)";
+
+                            foreach (var usertagid in emailActivityCatgorys.UserTagIds)
+                            {
+                                if (usertagid.HasValue) // Check if the ActionID is not null
+                                {
+                                    await connection.ExecuteAsync(insertActionTagQuery,
+                                        new { TopicID = emailActivityCatgorys.TopicId, UserTagID = usertagid,AddedByUserID = emailActivityCatgorys.AddedByUserID,AddedDate = emailActivityCatgorys.AddedDate});
+                                }
+                            }
+                        }
+
+
+                        return emailActivityCatgorys.TopicId;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+
+        public  EmailActivityCatgorys GetUserAsync(string Usertag)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("Usertag", Usertag);
+
+                var query = "select LOWER(UserTag) as UserTag From EmailTopicUserTags where UserTag = @Usertag";
+
+
+               
+                using (var connection = CreateConnection())
+                {
+                    return connection.QueryFirstOrDefault<EmailActivityCatgorys>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+           
         }
     }
     

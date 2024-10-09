@@ -28,8 +28,9 @@
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="true" />
                     <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Enabled ="@EditEnabled" Click="@addUseredit"/>
-                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Visible="false" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 </Items>
             </DxMenu>
         </div>
@@ -87,15 +88,34 @@
         </DxGrid>
     </DxLoadingPanel>
 </div>
+
+
+<DxPopup @bind-Visible="@deletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Deleting this record will remove all associated data.
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
 
     bool PanelVisible { get; set; }
     IGrid? UserGrid { get; set; }
-  
+
     internal List<EmailActivityCatgorys>? _userTags;
     public ApplicationUser? applicationUser { get; private set; }
     bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     private EmailActivityCatgorys _selectedItems;
+    public bool deletepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
 
@@ -113,6 +133,7 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserTag");
         _selectedItems = _userTags.FirstOrDefault(f => f.UserTag == UniqueId);
         EditEnabled = true;
+        DeleteEnabled = true;
         StateHasChanged();
 
     }
@@ -129,6 +150,18 @@
         var editmodel = (EmailActivityCatgorys)e.EditModel;
         if (e.IsNew)
         {
+            var UpdateReq = new CreateUserTag
+                {
+                    TopicId = 0,
+                    //UserTag = dataUserTag.UserTag,
+                    UserTag = editmodel.UserTag,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now
+            };
+
+                var result = await Mediator.Send(UpdateReq);
+
+            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
         else
         {
@@ -137,12 +170,41 @@
 
 
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();
+           
         }
+        await UpdateDataAsync();
     }
     void addUseredit()
     {
         UserGrid?.StartEditDataItemAsync(_selectedItems);
+    }
+    void addDelete()
+    {
+        deletepopup = true;
+    }
+    void addNew()
+    {
+
+        if (UserGrid != null)
+        {
+            UserGrid.StartEditNewRowAsync();
+        }
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+      
+        deletepopup = false;
+    }
+    public async void OnDelete()
+    {
+
+        var request = new DeleteUserTagQery(_selectedItems.ID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+       
+        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        deletepopup = false;
+        StateHasChanged();
     }
     public async ValueTask DisposeAsync()
     {

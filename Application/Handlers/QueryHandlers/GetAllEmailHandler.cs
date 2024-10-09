@@ -1092,4 +1092,18 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class CreateEmailUserTagHandler : IRequestHandler<CreateUserTagMultipleQuery, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailactyqueryRepository;
+        public CreateEmailUserTagHandler(IEmailTopicsQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+
+        public async Task<long> Handle(CreateUserTagMultipleQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.InsertUserTagMultiple(request);
+            return newlist;
+        }
+    }
 }

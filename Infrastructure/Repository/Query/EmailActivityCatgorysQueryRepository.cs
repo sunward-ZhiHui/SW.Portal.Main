@@ -306,7 +306,11 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT UserTag, ID as UserTagId,TopicId as UserTagTopicId,AddedByUserID as UserTagAddedByUserID FROM EmailTopicUserTags where TopicID = @TopicID and AddedByUserID = @UserID";
+                // var query = "SELECT UserTag, ID as UserTagId,TopicId as UserTagTopicId,AddedByUserID as UserTagAddedByUserID FROM EmailTopicUserTags where TopicID = @TopicID and AddedByUserID = @UserID";
+                var query = @"
+                            SELECT ETU.UserTag , ET.UserTagID as UserTagId, ET.TopicID as UserTagTopicId,ET.AddedByUserID as UserTagAddedByUserID FROM EmailUserTagMultiple ET
+                            Left join EmailTopicUserTags ETU ON ETU.ID = ET.UserTagID
+                            where ET.TopicID = @TopicID and ET.AddedByUserID = @UserID";
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicID", TopicID);
                 parameters.Add("UserID", UserID);
@@ -387,6 +391,38 @@ namespace Infrastructure.Repository.Query
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
                         return rowsAffected.ToString();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> DeleteUserTagAsync(long ID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var query = "";
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", ID);
+
+
+                        query += "DELETE FROM EmailUserTagMultiple WHERE UserTagID = @id;";
+                         query += "DELETE  FROM EmailTopicUserTags WHERE ID = @id;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
                     }
                     catch (Exception exp)
                     {

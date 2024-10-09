@@ -53,7 +53,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
               
-                var query = "SELECT * FROM ApplicationPermission WHERE ParentID=60400";
+                var query = "SELECT * FROM ApplicationPermission WHERE ParentID=60400 ORDER BY PermissionOrder";
 
                 using (var connection = CreateConnection())
                 {
@@ -74,23 +74,23 @@ namespace Infrastructure.Repository.Query
                 {
                     var checkLink = await GetApplicationPermissionTop1Async();
                     long? permissionid = 0;
-                    string nextPermissionLevel = "A01";
+                    //string nextPermissionLevel = "A01";
 
-                    var allPermissions = await GetAllAsync();
-                    var nextpermission = allPermissions.OrderByDescending(p => p.PermissionOrder).FirstOrDefault();
+                    //var allPermissions = await GetAllAsync();
+                    //var nextpermission = allPermissions.OrderByDescending(p => p.PermissionOrder).FirstOrDefault();
 
                     if (checkLink != null && checkLink.PermissionID > 0)
                     {
                         permissionid = (long)checkLink.PermissionID + 1;
-                        
-                        if(nextpermission != null)
-                        {
-                            if (!string.IsNullOrEmpty(nextpermission.PermissionOrder))
-                            {
-                                int currentLevelNumber = int.Parse(nextpermission.PermissionOrder.Substring(1));
-                                nextPermissionLevel = "A" + (currentLevelNumber + 1).ToString();
-                            }
-                        }                        
+
+                        //if (nextpermission != null)
+                        //{
+                        //    if (!string.IsNullOrEmpty(nextpermission.PermissionOrder))
+                        //    {
+                        //        int currentLevelNumber = int.Parse(nextpermission.PermissionOrder.Substring(1));
+                        //        nextPermissionLevel = "A" + (currentLevelNumber + 1).ToString();
+                        //    }
+                        //}
 
                     }
 
@@ -100,7 +100,8 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("PermissionID", permissionid);                        
                         parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
                         parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
-                        parameters.Add("PermissionLevel", nextPermissionLevel, DbType.String);
+                        //parameters.Add("PermissionLevel", nextPermissionLevel, DbType.String);
+                        parameters.Add("PermissionLevel", applicationPermission.PermissionOrder);
 
                         var query = "INSERT INTO ApplicationPermission(PermissionID,PermissionURL,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,Component,Name,IsCmsApp,IsMobile,IsPermissionURL) VALUES (@PermissionID,@PermissionURL,@PermissionName,60400,1,@PermissionLevel,1,1,1,'PortalUrl','PortalUrl',1,0,1)";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
@@ -132,9 +133,10 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("PermissionID", applicationPermission.PermissionID, DbType.Int64);
                         parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
-                        parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);                           
+                        parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
+                        parameters.Add("PermissionOrder", applicationPermission.PermissionOrder, DbType.String);
 
-                        var query = "UPDATE ApplicationPermission SET PermissionURL = @PermissionURL ,PermissionName = @PermissionName WHERE PermissionID = @PermissionID";
+                        var query = "UPDATE ApplicationPermission SET PermissionURL = @PermissionURL ,PermissionName = @PermissionName,PermissionOrder = @PermissionOrder WHERE PermissionID = @PermissionID";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 

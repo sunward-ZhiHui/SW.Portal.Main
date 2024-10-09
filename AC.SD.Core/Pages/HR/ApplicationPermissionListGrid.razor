@@ -56,6 +56,7 @@
         <Columns>            
             <DxGridDataColumn FieldName="PermissionName" Caption="Page Name" MinWidth="80"></DxGridDataColumn>
             <DxGridDataColumn FieldName="PermissionURL" Caption="Page URL" />
+            <DxGridDataColumn FieldName="PermissionOrder" Caption="Order" />
         </Columns> 
         <EditFormTemplate Context="EditFormContext">
             @{
@@ -67,9 +68,13 @@
                     <DxTextBox @bind-Text="@department.PermissionName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => department.PermissionName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Page URL" ColSpanMd="9">
+                <DxFormLayoutItem Caption="Page URL" ColSpanMd="7">
                     <DxTextBox @bind-Text="@department.PermissionURL" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => department.PermissionURL)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Order" ColSpanMd="2">
+                    <DxTextBox @bind-Text="@department.PermissionOrder" />
+                    <ValidationMessage For="@(() => department.PermissionOrder)" />
                 </DxFormLayoutItem>
 
             </DxFormLayout>
@@ -175,7 +180,8 @@
             var request = new CreateApplicationPermissionListQuery
                 {
                     PermissionName = editableDepartment.PermissionName,
-                    PermissionURL = editableDepartment.PermissionURL                   
+                    PermissionURL = editableDepartment.PermissionURL,
+                    PermissionOrder = editableDepartment.PermissionOrder
                 };
             await Mediator.Send(request);
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -187,7 +193,8 @@
                 {
                     PermissionID=editableDepartment.PermissionID,                    
                     PermissionName = editableDepartment.PermissionName,
-                    PermissionURL = editableDepartment.PermissionURL
+                    PermissionURL = editableDepartment.PermissionURL,
+                    PermissionOrder = editableDepartment.PermissionOrder
                 };
             await Mediator.Send(request);
             toastService.ShowToast("Record update Successfully", AC.SD.Core.Services.ToastLevel.Success);

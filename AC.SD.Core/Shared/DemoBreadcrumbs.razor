@@ -61,7 +61,7 @@
 
 
             //var returnUrls = NavigationManager.Uri;
-           // var returnUrl = Uri.EscapeDataString(returnUrls);
+            // var returnUrl = Uri.EscapeDataString(returnUrls);
             await _localStorageService.SetItem("ReturnUrl", returnUrl);
 
 
@@ -73,8 +73,8 @@
             _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
             BreadcrumbsGenerate();
         }
-        
-       
+
+
 
         NavigationManager.LocationChanged += OnLocationChanged;
         //UpdateItems(NavigationManager.Uri)dashboard;
@@ -99,12 +99,34 @@
         Items.Add(new(HomePageTitle, ""));
         if (UrlList.Length > 0 && UrlList[0] != null)
         {
-            if (UrlList[0] != "login")
+            if (UrlList[0] == "portalurl")
+            {
+                var list1 = _appPermissionItems.FirstOrDefault(f => f.Component != null && f.Component.ToLower() == UrlList[0] && f.UniqueSessionID.ToString() == UrlList[1]);
+                if (list1 != null)
+                {
+
+                    if (list1.ParentID != null)
+                    {
+                        var list2 = _appPermissionItems.FirstOrDefault(f => f.PermissionID == list1.ParentID);
+                        if (list2 != null)
+                        {
+                            Items.Add(new(list2.Title, ""));
+                        }
+                    }                   
+                    Items.Add(new(list1.Title, ""));
+
+                }
+            }
+            else if (UrlList[0] == "login")
+            {
+
+            }
+            else
             {
                 var list1 = _appPermissionItems.FirstOrDefault(f => f.Component != null && f.Component.ToLower() == UrlList[0]);
                 if (list1 != null)
                 {
-                    
+
                     if (list1.ParentID != null)
                     {
                         var list2 = _appPermissionItems.FirstOrDefault(f => f.PermissionID == list1.ParentID);
@@ -122,7 +144,7 @@
                 }
                 else
                 {
-                    if (isDevelopmentMode==false)
+                    if (isDevelopmentMode == false)
                     {
                         portalMenuModelData = list1;
                         PopupVisible = true;

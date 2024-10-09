@@ -20,6 +20,7 @@ namespace Core.Entities
         public string? DetailEntry { get; set; }
         public string? Comment { get; set; }
         public bool? QRcode { get; set; }
+        public string? SpecificTestName { get;set; }
         public long? ActivityStatusId { get; set; }
         [NotMapped]
         public long DocumentID { get; set; }

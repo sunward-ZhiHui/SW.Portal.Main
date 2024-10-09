@@ -1,4 +1,6 @@
-﻿@page "/applicationPermissionLists"
+﻿@page "/applicationTest"
+@page "/applicationTest/{MainSessionId:guid}"
+
 @using Application.Queries;
 @using MediatR
 @inject IMediator Mediator
@@ -10,6 +12,8 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IAsyncDisposable;
+@inject NavigationManager NavigationManager
+
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -20,9 +24,27 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                <DxMenuItem Text="ReArrange Order" IconCssClass="fa fa-refresh" Click="@OnRefresh" />
+                @* <DxMenuItem Text="Back URL" IconCssClass="fa fa-Share" Click="@OnBack" Enabled="@BackEnabled" />
+                <DxMenuItem Text="ReArrange Order" IconCssClass="fa fa-refresh" Click="@OnRefresh" /> *@ 
             </Items>
         </DxMenu>
+    </div>
+</div>
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0" style="@onShowMain">
+
+            <DxMenu Data="@FolderPathListsItems" ItemClick="OnItemClick"
+                    DisplayMode="MenuDisplayMode.Auto">
+                <DataMappings>
+                    <DxMenuDataMapping Text="PermissionName"
+                                       Children="Children"
+                                       BeginGroup="BeginGroup"
+                                       CssClass="CssClass"
+                                       Enabled="Enabled" />
+                </DataMappings>
+            </DxMenu>
+        </div>
     </div>
 </div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
@@ -54,17 +76,17 @@
             RowClick="OnRowClick"
             RowDoubleClick="OnRowDoubleClick"
             AllowSelectRowByClick="true">
-        <Columns>            
+        <Columns>
             <DxGridDataColumn FieldName="PermissionName" Caption="Page Name" MinWidth="80"></DxGridDataColumn>
             <DxGridDataColumn FieldName="PermissionURL" Caption="Page URL" />
             <DxGridDataColumn FieldName="PermissionOrder" Caption="Order" />
-        </Columns> 
+        </Columns>
         <EditFormTemplate Context="EditFormContext">
             @{
                 var department = (ApplicationPermission)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-      
+
                 <DxFormLayoutItem Caption="Page Name" ColSpanMd="3">
                     <DxTextBox @bind-Text="@department.PermissionName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => department.PermissionName)" />
@@ -113,18 +135,20 @@
 
 </DxPopup>
 @code {
-  
+    [Parameter]
+    public Guid? MainSessionId { get; set; }
     bool isEnabled { get; set; } = true;
     bool PanelVisible { get; set; }
-
+    private List<ApplicationPermission> _Data;
     private List<ApplicationPermission> _TreeData;
     private ApplicationPermission _selectedItems;
     public ApplicationUser? applicationUser { get; private set; }
-   
+    string onShowMain = "";
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = true;
     bool DeleteEnabled { get; set; } = true;
+    bool BackEnabled { get; set; } = false;
     string? DeleteerrorMessage;
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
@@ -132,19 +156,18 @@
     long? companyId = null;
     string companyName = "";
     bool ExportSelectedRowsOnly { get; set; }
-
+    string? ParentID { get; set; } 
+    List<ApplicationPermission> FolderPathListsItems = new List<ApplicationPermission>();
+    List<ApplicationPermission> FolderPathLists = new List<ApplicationPermission>();
     //   private List<ViewDivision> _divisions;
 
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        _TreeData = await Mediator.Send(new GetApplicationPermissionListQuery());
 
+        await LoadDataAsync();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("templeUser");
-        //await jsRuntime.InvokeAsync<string>("hideLoading");
-
         PanelVisible = false;
-        await UpdateDataAsync();
 
     }
     private async Task OnRefresh()
@@ -158,22 +181,54 @@
         {
             var newmaster = (ApplicationPermission)e.EditModel;
         }
-        
-    }
 
+    }
+    async Task LoadDataAsync()
+    {
+        _TreeData = await Mediator.Send(new GetApplicationByParentListQuery()); 
+        ApplicationPermission dc = new ApplicationPermission();
+        dc.PermissionName = "Main";
+        FolderPathLists = new List<ApplicationPermission>(); FolderPathListsItems = new List<ApplicationPermission>();
+        FolderPathListsItems.Add(dc);
+    }
 
     async Task UpdateDataAsync()
     {
 
 
         PanelVisible = true;
-        _TreeData = await Mediator.Send(new GetApplicationPermissionListQuery());
+
+        _TreeData = await Mediator.Send(new GetApplicationByParentIDListQuery(ParentID));
+
         PanelVisible = false;
 
         StateHasChanged();
 
     }
+    async void OnItemClick(MenuItemClickEventArgs e)
+    {
+        var data = (ApplicationPermission)e.ItemInfo.Data;
 
+        if (data.PermissionName != "Main")
+        {
+            await GetListBySession(data.UniqueSessionID);
+            if (_Data.Count > 0)
+            {
+                var id = _Data[0].PermissionID;
+                ParentID = id.ToString();
+
+                var masterslist = FolderPathListsItems.Where(s => s.UniqueSessionID != MainSessionId).ToList();
+                FolderPathListsItems = masterslist;
+                StateHasChanged();
+            }
+            NavigationManager.NavigateTo("applicationTest/" + data.UniqueSessionID);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            OnBack();
+        }
+    }
 
 
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -182,8 +237,11 @@
         var editableDepartment = (ApplicationPermission)e.EditModel;
         if (e.IsNew)
         {
-            var request = new CreateApplicationPermissionListQuery
+            var request = new CreateApplicationPermissionQuery
                 {
+
+
+                    ParentID = string.IsNullOrEmpty(ParentID) ? (long?)null : long.Parse(ParentID),
                     PermissionName = editableDepartment.PermissionName,
                     PermissionURL = editableDepartment.PermissionURL,
                     PermissionOrder = editableDepartment.PermissionOrder
@@ -191,19 +249,32 @@
             await Mediator.Send(request);
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
+
+
+
+
+
         }
         else
         {
             var request = new EditApplicationPermissionListQuery
                 {
-                    PermissionID=editableDepartment.PermissionID,                    
+                    PermissionID = editableDepartment.PermissionID,
                     PermissionName = editableDepartment.PermissionName,
                     PermissionURL = editableDepartment.PermissionURL,
                     PermissionOrder = editableDepartment.PermissionOrder
                 };
             await Mediator.Send(request);
             toastService.ShowToast("Record update Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();
+            ParentID =_selectedItems.ParentID.ToString();
+            if(ParentID != "")
+            {
+                await UpdateDataAsync();
+            }
+            else
+            {
+                await LoadDataAsync();
+            }
         }
 
 
@@ -211,7 +282,7 @@
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
         var editableDepartment = (ApplicationPermission)e.DataItem;
-        var request = new DeleteApplicationPermissionListQuery(editableDepartment.PermissionID,editableDepartment.PermissionID);
+        var request = new DeleteApplicationPermissionListQuery(editableDepartment.PermissionID, editableDepartment.PermissionID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
@@ -238,10 +309,35 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PermissionID");
         _selectedItems = _TreeData.FirstOrDefault(f => f.PermissionID == (long?)UniqueId);
     }
-    void OnRowDoubleClick(GridRowClickEventArgs e)
+    async  void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        OnRowClick(e);
-        addEdit();
+        if(_selectedItems != null && _selectedItems?.UniqueSessionID != null)
+        {
+            await GetListBySession(_selectedItems.UniqueSessionID);
+            if (_Data.Count > 0)
+            {
+                var id = _Data[0].PermissionID;
+                ParentID = id.ToString();
+                BackEnabled = true;
+                ApplicationPermission dc = new ApplicationPermission();
+                dc.PermissionName = _Data[0].PermissionName;
+                dc.UniqueSessionID = _selectedItems.UniqueSessionID;
+                FolderPathListsItems.Add(dc);
+            }
+            NavigationManager.NavigateTo($"applicationTest/" + _selectedItems.UniqueSessionID);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            OnRowClick(e);
+            addEdit();
+        }
+
+    }
+    async Task GetListBySession(Guid? SessionID)
+    {
+        _Data = await Mediator.Send(new GetApplicationBySessionIDListQuery(SessionID));
+       
     }
     void addNew()
     {
@@ -270,16 +366,21 @@
     {
         Blukdeletepopup = true;
     }
-   
+    async void OnBack()
+    {
+        NavigationManager.NavigateTo($"applicationTest");
+        await LoadDataAsync();
+    }
 
     async Task bulkDelete()
     {
         if (_selectedItems != null)
         {
-            var request = new DeleteApplicationPermissionListQuery(_selectedItems.PermissionID,_selectedItems.PermissionID);
+            var request = new DeleteApplicationPermissionListQuery(_selectedItems.PermissionID, _selectedItems.PermissionID);
             await Mediator.Send(request);
-            await UpdateDataAsync();
-            Grid.SetFocusedRowIndex(0);
+           // await UpdateDataAsync();
+            await LoadDataAsync();
+           
             Blukdeletepopup = false;
         }
 
@@ -298,6 +399,6 @@
 
         SelectedDataItems = null;
         _selectedItems = null;
-       
+
     }
 }

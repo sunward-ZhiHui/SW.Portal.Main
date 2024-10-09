@@ -103,4 +103,14 @@ namespace Application.Queries
             this.UserID = UserID;
         }
     }
+    public class DeleteUserTagQery : PagedRequest, IRequest<long>
+    {
+        public long ID { get; set; }
+      
+        public DeleteUserTagQery(long ID)
+        {
+            this.ID = ID;
+           
+        }
+    }
 }

@@ -11,6 +11,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Repository.Query
 {
@@ -53,7 +54,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
               
-                var query = "SELECT * FROM ApplicationPermission WHERE ParentID=60400";
+                var query = "SELECT * FROM ApplicationPermission WHERE ParentID=60400 ORDER BY PermissionOrder";
 
                 using (var connection = CreateConnection())
                 {
@@ -74,23 +75,23 @@ namespace Infrastructure.Repository.Query
                 {
                     var checkLink = await GetApplicationPermissionTop1Async();
                     long? permissionid = 0;
-                    string nextPermissionLevel = "A01";
+                    //string nextPermissionLevel = "A01";
 
-                    var allPermissions = await GetAllAsync();
-                    var nextpermission = allPermissions.OrderByDescending(p => p.PermissionOrder).FirstOrDefault();
+                    //var allPermissions = await GetAllAsync();
+                    //var nextpermission = allPermissions.OrderByDescending(p => p.PermissionOrder).FirstOrDefault();
 
                     if (checkLink != null && checkLink.PermissionID > 0)
                     {
                         permissionid = (long)checkLink.PermissionID + 1;
-                        
-                        if(nextpermission != null)
-                        {
-                            if (!string.IsNullOrEmpty(nextpermission.PermissionOrder))
-                            {
-                                int currentLevelNumber = int.Parse(nextpermission.PermissionOrder.Substring(1));
-                                nextPermissionLevel = "A" + (currentLevelNumber + 1).ToString();
-                            }
-                        }                        
+
+                        //if (nextpermission != null)
+                        //{
+                        //    if (!string.IsNullOrEmpty(nextpermission.PermissionOrder))
+                        //    {
+                        //        int currentLevelNumber = int.Parse(nextpermission.PermissionOrder.Substring(1));
+                        //        nextPermissionLevel = "A" + (currentLevelNumber + 1).ToString();
+                        //    }
+                        //}
 
                     }
 
@@ -100,7 +101,8 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("PermissionID", permissionid);                        
                         parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
                         parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
-                        parameters.Add("PermissionLevel", nextPermissionLevel, DbType.String);
+                        //parameters.Add("PermissionLevel", nextPermissionLevel, DbType.String);
+                        parameters.Add("PermissionLevel", applicationPermission.PermissionOrder);
 
                         var query = "INSERT INTO ApplicationPermission(PermissionID,PermissionURL,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,Component,Name,IsCmsApp,IsMobile,IsPermissionURL) VALUES (@PermissionID,@PermissionURL,@PermissionName,60400,1,@PermissionLevel,1,1,1,'PortalUrl','PortalUrl',1,0,1)";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
@@ -132,9 +134,10 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("PermissionID", applicationPermission.PermissionID, DbType.Int64);
                         parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
-                        parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);                           
+                        parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
+                        parameters.Add("PermissionOrder", applicationPermission.PermissionOrder, DbType.String);
 
-                        var query = "UPDATE ApplicationPermission SET PermissionURL = @PermissionURL ,PermissionName = @PermissionName WHERE PermissionID = @PermissionID";
+                        var query = "UPDATE ApplicationPermission SET PermissionURL = @PermissionURL ,PermissionName = @PermissionName,PermissionOrder = @PermissionOrder WHERE PermissionID = @PermissionID";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 
@@ -169,6 +172,102 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ApplicationPermission>> GetAllListByParentIDAsync(string parentID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("parentID", parentID);
+
+                var query = "SELECT * FROM ApplicationPermission WHERE ParentID = @parentID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationPermission>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ApplicationPermission>> GetAllListByParentAsync()
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                var query = "SELECT * FROM ApplicationPermission WHERE ParentID IS NULL";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationPermission>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ApplicationPermission>> GetAllListBySessionIDAsync(Guid? SessionID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", SessionID);
+
+                var query = "SELECT ParentID,PermissionID,PermissionName FROM ApplicationPermission WHERE UniqueSessionID = @SessionID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationPermission>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> InsertPermission(ApplicationPermission applicationPermission)
+        {
+            using (var connection = CreateConnection())
+            {
+                var checkLink = await GetApplicationPermissionTop1Async();
+                long? permissionid = 0;
+              
+
+                if (checkLink != null && checkLink.PermissionID > 0)
+                {
+                    permissionid = (long)checkLink.PermissionID + 1;
+
+                   
+                }
+                try
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("PermissionID", permissionid);
+                    parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
+                    parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
+                    parameters.Add("ParentID", applicationPermission.ParentID);
+                    //parameters.Add("PermissionLevel", nextPermissionLevel, DbType.String);
+                    parameters.Add("PermissionLevel", applicationPermission.PermissionOrder);
+
+                    var query = @"INSERT INTO ApplicationPermission(PermissionID,PermissionURL,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,Component,Name,IsCmsApp,IsMobile,IsPermissionURL)
+                                  VALUES (@PermissionID,@PermissionURL,@PermissionName,@ParentID,1,@PermissionLevel,1,1,1,'PortalUrl','PortalUrl',1,0,1)";
+                    var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                    return rowsAffected;
+                }
+                catch (Exception exp)
+                {
+                    throw new Exception(exp.Message, exp);
+                }
             }
         }
     }

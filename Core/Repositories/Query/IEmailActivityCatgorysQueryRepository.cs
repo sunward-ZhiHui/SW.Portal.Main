@@ -21,7 +21,7 @@ namespace Core.Repositories.Query
         Task<long> DeleteAsync(long id,long TopicId);
         Task<string> UpdateOtherAsync(string othertag,string Name);
         Task<string> UpdateuserAsync(string userTag, string Name);
-
+        Task<long> DeleteUserTagAsync(long ID);
         Task<List<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID);
         Task<List<EmailActivityCatgorys>> GetByUserTagAsync(long TopicID,long UserID);
         

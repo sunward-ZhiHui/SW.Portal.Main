@@ -69,5 +69,62 @@ namespace Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class GetApplicationPermissioHandler : IRequestHandler<GetApplicationByParentIDListQuery, List<ApplicationPermission>>
+    {
+        private readonly IApplicationPermissionListQueryRepository _rolepermissionQueryRepository;
 
+        public GetApplicationPermissioHandler(IApplicationPermissionListQueryRepository rolepermissionQueryRepository)
+        {
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+
+        public async Task<List<ApplicationPermission>> Handle(GetApplicationByParentIDListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationPermission>)await _rolepermissionQueryRepository.GetAllListByParentIDAsync(request.ParentID);
+        }
+    }
+    public class GetApplicationPermissioParntHandler : IRequestHandler<GetApplicationByParentListQuery, List<ApplicationPermission>>
+    {
+        private readonly IApplicationPermissionListQueryRepository _rolepermissionQueryRepository;
+
+        public GetApplicationPermissioParntHandler(IApplicationPermissionListQueryRepository rolepermissionQueryRepository)
+        {
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+
+        public async Task<List<ApplicationPermission>> Handle(GetApplicationByParentListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationPermission>)await _rolepermissionQueryRepository.GetAllListByParentAsync();
+        }
+    }
+    public class GetApplicationPermissioBySessionHandler : IRequestHandler<GetApplicationBySessionIDListQuery, List<ApplicationPermission>>
+    {
+        private readonly IApplicationPermissionListQueryRepository _rolepermissionQueryRepository;
+
+        public GetApplicationPermissioBySessionHandler(IApplicationPermissionListQueryRepository rolepermissionQueryRepository)
+        {
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+
+        public async Task<List<ApplicationPermission>> Handle(GetApplicationBySessionIDListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationPermission>)await _rolepermissionQueryRepository.GetAllListBySessionIDAsync(request.Sessionid);
+        }
+    }
+    public class CreateApplicationPermissionHandler : IRequestHandler<CreateApplicationPermissionQuery, long>
+    {
+        private readonly IApplicationPermissionListQueryRepository _rolepermissionQueryRepository;
+        public CreateApplicationPermissionHandler(IApplicationPermissionListQueryRepository rolepermissionQueryRepository)
+        {
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateApplicationPermissionQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _rolepermissionQueryRepository.InsertPermission(request);
+            return newlist;
+
+        }
+
+    }
 }

@@ -321,7 +321,7 @@ namespace SW.Portal.Solutions.Controllers
                     QRcode = timeSheetForQC.QRcode,
                     DetailEntry = timeSheetForQC.DetailEntry,
                     Comment = timeSheetForQC.Comment,
-
+                    SpecificTestName = timeSheetForQC.SpecificTestName,
                     AddedByUserID = timeSheetForQC.AddedByUserID,
 
                 };

@@ -27,22 +27,22 @@
                         <Dashboard></Dashboard>
                     </div>
                 </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="Dynamic Form Approval" Click="OnTabClick">
+                <DxFormLayoutTabPage Caption="Dynamic Form Approval" Click="OnDynamicFormApprovalClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <DynamicFormPendingApproval @ref="refDynamicFormPendingApproval"></DynamicFormPendingApproval>
                     </div>
                 </DxFormLayoutTabPage>                
-                <DxFormLayoutTabPage Caption="Approved Status" Click="OnTabClick">
+                <DxFormLayoutTabPage Caption="Approved Status" Click="OnApprovedStatusClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <ApprovalDynamicDataForm @ref="refApprovalDynamicDataForm"></ApprovalDynamicDataForm>
                     </div>
                 </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="Dynamic Form Section Approval" Click="OnTabClick">
+                <DxFormLayoutTabPage Caption="Dynamic Form Section Approval" Click="OnDynamicFormSectionApprovalClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <DynamicFormSectionApprovedPage @ref="refDynamicFormWorkFlowSectionApprovals"></DynamicFormSectionApprovedPage>
                     </div>
                 </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="Memo" Click="OnTabClick">
+                <DxFormLayoutTabPage Caption="Memo" Click="OnMemoClick">
                     <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
                         <MemoUserLists @ref="refMemoLists"></MemoUserLists>
                     </div>
@@ -88,12 +88,45 @@
         }
 
     }
-
+    protected override async Task OnParametersSetAsync()
+    {
+        ActiveTabIndex = ActiveIndex;
+        base.OnParametersSet();       
+    }    
     void OnTabClick(TabClickEventArgs e)
     {
+        NavigationManager.NavigateTo($"Dashboard/0");
         // var indexid = e.TabIndex;
         // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
-        // StateHasChanged();
+        StateHasChanged();
+    }
+    void OnDynamicFormApprovalClick(TabClickEventArgs e)
+    {
+        NavigationManager.NavigateTo($"Dashboard/1");
+        // var indexid = e.TabIndex;
+        // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
+        StateHasChanged();
+    }
+    void OnApprovedStatusClick(TabClickEventArgs e)
+    {
+        NavigationManager.NavigateTo($"Dashboard/2");
+        // var indexid = e.TabIndex;
+        // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
+        StateHasChanged();
+    }
+    void OnDynamicFormSectionApprovalClick(TabClickEventArgs e)
+    {
+        NavigationManager.NavigateTo($"Dashboard/3");
+        // var indexid = e.TabIndex;
+        // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
+        StateHasChanged();
+    }
+    void OnMemoClick(TabClickEventArgs e)
+    {
+        NavigationManager.NavigateTo($"Dashboard/4");
+        // var indexid = e.TabIndex;
+        // NavigationManager.NavigateTo($"myday/{e.TabIndex}");
+        StateHasChanged();
     }
     public async ValueTask DisposeAsync()
     {

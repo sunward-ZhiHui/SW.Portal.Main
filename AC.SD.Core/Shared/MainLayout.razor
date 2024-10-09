@@ -1,4 +1,5 @@
 ﻿@using AC.SD.Core.Data.Account;
+@using AC.SD.Core.Pages.Dashboard
 @using Application.Constant;
 @using Application.Queries;
 @using global::Core.Repositories.Query;
@@ -28,6 +29,87 @@
         border-radius: 4px;
         letter-spacing: 2px;
     }
+
+    .list-container1 {
+        padding: 15px;
+       /*  background-color: #ffffff;     */  
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .list-item1 {
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f9fafb;
+        border-left: 0px solid #007bff;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+        .list-item1:hover {
+            transform: translateY(-3px);
+            background-color: #f0f8ff;
+        }
+
+        .list-item1 p {
+            margin: 0;
+            margin-left: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+        }
+
+        .list-item1 span {
+            background-color: #007bff;
+            color: #fff;
+            padding: 3px 7px;
+            border-radius: 20px;
+            font-size: 11px;            
+        }
+
+        .list-item1 i {
+            font-size: 14px;
+            color: #007bff;
+        }
+
+
+
+
+
+    .lwptoc_header {
+        text-align: center;
+        background: #4f78a4;
+        color: #fff;
+        margin: 0;
+        padding: 12px 15px 10px;
+        letter-spacing: .5px;
+        border-radius: 3px 3px 0 0;
+        font-weight: 800;
+        font-size: .9em;
+        text-transform: uppercase;
+    }
+
+    .lwptoc_toggle {
+        text-transform: uppercase;
+        font-size: 14px;
+        letter-spacing: .5px;
+        margin-left: 3px;
+    }
+
+    .lwptoc_item li {
+        list-style: disc;
+        margin: 10px 20px 10px 35px;
+        padding: 0;
+        line-height: 1.1;
+        font-size: 14.5px;
+        font-weight: 800;
+    }
+
+
 </style>
 <Toast />
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
@@ -44,8 +126,13 @@
         </div>
        
         <div class="demo-btn-container d-flex">
-            <span class="fas fa-bell" @onclick="() => GoViewEmail()" title="Email Assign To" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
+          @*   <span class="fas fa-bell" @onclick="() => GoViewEmail()" title="Email Assign To" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
                 <span class="notifcationcount">@_emailNotificationCount</span>
+            </span> *@
+           
+        
+            <span class="fas fa-bell" @onclick="() => OpenPopup()" Id=@($"flyout-overview-target-container-Notification-info") title ="Notifications" style="cursor: pointer; font-size: 17px; margin-right: 22px; margin-left: 10px; color: white;    margin-top: 5px;">
+                <span class="notifcationcount">@_NotificationCount</span>
             </span>
             <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
                       RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="menu-icon-user-profile menu-icon"></DxButton>
@@ -145,6 +232,56 @@
     <DxPopup @bind-Visible="@MessageVisible"
              HeaderText="@MessageHeader"
              BodyText="@MessageBody" />
+
+
+
+    <DxFlyout @bind-IsOpen=IsNotificationCount
+              PositionTarget=@($"#flyout-overview-target-container-Notification-info")
+              RestrictionTarget="#Navigation-Flyout-Customization"
+              AnimationType="FlyoutAnimationType.Fade"
+              PreventCloseOnPositionTargetClick="true"
+              FooterVisible="false"
+              
+              Width="250px"
+              CloseOnOutsideClick=true
+              Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+        <BodyContentTemplate Context="PopupContext">
+            
+            <div class="flyouthead" style="width:100%;">
+                <div class="lwptoc_header">
+                    <b class="lwptoc_title">Notifications</b> <span class="lwptoc_toggle">                        
+                    </span>
+                </div>
+                <div class="" style="background: #e7e7e7;">
+                    <div class="list-container1">
+                        <div class="list-item1" @onclick="() => GoViewEmail()">
+                            <i class="fa fa-envelope"></i>
+                            <p>Email AssignTo <span>@_emailNotificationCount</span></p>
+                        </div>
+                        <div class="list-item1" @onclick="() => GoMemo()">
+                            <i class="fa fa-sticky-note"></i>
+                            <p>Memo <span>@_memoNotificationCount</span></p>
+                        </div>
+                        <div class="list-item1" @onclick="() => GoWorkFlow()">
+                            <i class="fa fa-sitemap"></i>
+                            <p>WorkFlow <span>@_WorkflowNotificationCount</span></p>
+                        </div>
+                        <div class="list-item1" @onclick="() => GoApproval()">
+                            <i class="fa fa-check-circle"></i>
+                            <p>Approval <span>@_approvelNotificationCount</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </BodyContentTemplate>
+        <FooterContentTemplate>
+            
+           
+        </FooterContentTemplate>
+    </DxFlyout>
 </div>
 @functions {
 
@@ -155,6 +292,7 @@
 }
 
 @code {
+    public  bool IsNotificationCount { get; set; } = false;
     string errorMsg = "";
     static readonly int DateTimeNowYear = DateTime.Now.Year;
     UpdatePassword updatePassword = new UpdatePassword();
@@ -179,7 +317,16 @@
     public RenderFragment<Exception>? ErrorContent { get; set; }
     internal bool loading;
     public ApplicationUser? applicationUser { get; internal set; }
+    private List<Memo> _MemoList;
+    private List<DynamicFormWorkFlowForm>? _dynamicFormWorkFlowFormListItems;
     long _emailNotificationCount { get; set; }
+    long _memoNotificationCount { get; set; }
+    long _WorkflowNotificationCount { get; set; }
+    long _approvelNotificationCount { get; set; }
+    long _NotificationCount { get; set; }
+    private List<DynamicForm> _dynamicForm;
+    private List<DynamicFormDataWrokFlow> _WorkFlowdynamicForm;
+
     protected string ThemeName
     {
         get { return _themeName; }
@@ -209,23 +356,53 @@
         {
             _emailNotificationCount = await Mediator.Send(new GetEmailNotificationCount(applicationUser.UserID));
         }
-       
+
         await InvokeAsync(StateHasChanged);
+    }
+    private async Task OpenPopup()
+    {
+        IsNotificationCount =true;
+        StateHasChanged();
+    }
+    private async Task GoApproval()
+    {
+        NavigationManager.NavigateTo($"DynamicFormApprovedMainList");
+        await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
+    }
+    private async Task GoMemo()
+    {        
+        NavigationManager.NavigateTo($"Dashboard/4");
+        await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
+    }
+    private async Task GoWorkFlow()
+    {
+        NavigationManager.NavigateTo($"DynamicFormWorkFlowList");
+        await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
     }
     private async Task GoViewEmail()
     {
         NavigationManager.NavigateTo($"ViewEmail");
         await InvokeAsync(StateHasChanged);
+        IsNotificationCount = false;
     }
     protected override async void OnInitialized()
     {
-        
+
         ThemeName = Themes.ActiveTheme.Name;
         //NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
+        _MemoList = await Mediator.Send(new GetAllMemoByUserQuery(applicationUser.UserID));
+        _memoNotificationCount = _MemoList.Count;
+        _WorkFlowdynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
+        _WorkflowNotificationCount = _WorkFlowdynamicForm.Count;
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
+        _approvelNotificationCount = _dynamicForm.Count;
         RefreshService.OnRefreshRequested += RefreshDataAsync;
         await RefreshDataAsync();
+        _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount;
 
         await InvokeAsync(StateHasChanged);
     }

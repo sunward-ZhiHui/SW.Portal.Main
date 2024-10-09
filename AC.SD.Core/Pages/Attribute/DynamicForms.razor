@@ -3885,7 +3885,7 @@
             if (value != null)
             {
                 dynamic eod = value;
-                returnData = (string)eod.AttributeDetailName;
+                returnData = (string)eod.DisplayItemsQuery;
             }
         }
         return returnData.TrimEnd(',');
@@ -3923,7 +3923,7 @@
                 foreach (var item in collection)
                 {
                     dynamic eod = item;
-                    returnData += (string)eod.AttributeDetailName + ",";
+                    returnData += (string)eod.DisplayItemsQuery + ",";
                 }
 
             }
@@ -4869,15 +4869,27 @@
                                      dynamic eod = v;
                                      var vv = eod.DynamicFormId;
                                      var AttributeDetailIds = eod.AttributeDetailID;
+                                     string listone = string.Empty;
+                                     if (gridlistss != null && gridlistss.Count() > 0)
+                                     {
+                                         var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                         g1.ForEach(q =>
+                                         {
+                                             var byName = (IDictionary<string, object>)v;
+                                             var names = (string)byName[q.Value]?.ToString();
+                                             listone += names + "|";
+                                         });
+                                     }
+                                     eod.DisplayItemsQuery = listone;
                                      if ((long?)vv == s.DynamicFormGridDropDownId)
                                      {
-                                         _dynamicformObjectDataList.Add(v);
+                                         _dynamicformObjectDataList.Add(eod);
                                      }
                                      if (values > 0)
                                      {
                                          if ((long?)values == (long?)AttributeDetailIds)
                                          {
-                                             DataGridObject.GetType().GetProperty(DataDynamicAttributeName).SetValue(DataGridObject, v);
+                                             DataGridObject.GetType().GetProperty(DataDynamicAttributeName).SetValue(DataGridObject, eod);
                                          }
                                      }
                                  }
@@ -5130,14 +5142,26 @@
                                  {
                                      dynamic eod = v;
                                      var vv = eod.DynamicFormId;
+                                     string listone = string.Empty;
+                                     if (gridlistss != null && gridlistss.Count() > 0)
+                                     {
+                                         var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                         g1.ForEach(q =>
+                                         {
+                                             var byName = (IDictionary<string, object>)v;
+                                             var names = (string)byName[q.Value]?.ToString();
+                                             listone += names + "|";
+                                         });
+                                     }
+                                     eod.DisplayItemsQuery = listone;
                                      if ((long?)vv == s.DynamicFormGridDropDownId)
                                      {
-                                         _dynamicformObjectDataList.Add(v);
+                                         _dynamicformObjectDataList.Add(eod);
                                      }
                                      var AttributeDetailIds = eod.AttributeDetailID;
                                      if (listDatas.Contains((long?)AttributeDetailIds))
                                      {
-                                         _selecteddynamicformObjectDataList.Add(v);
+                                         _selecteddynamicformObjectDataList.Add(eod);
                                      }
                                  }
 
@@ -7820,7 +7844,7 @@
     }
     void OnRadioAppMasterMultipleChangedItem(IEnumerable<long?> str, PropertyInfo propertyAppMaster, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
-         propertyAppMaster.SetValue(Data, str);
+        propertyAppMaster.SetValue(Data, str);
         if (_AttributeHeader.DynamicFormSectionAttributeSections.Count > 0)
         {
             List<DynamicFormSectionAttributeSection> dynamicFormSectionAttributeSections = new List<DynamicFormSectionAttributeSection>();
@@ -7859,7 +7883,7 @@
     }
     void OnRadioAppMasterChangedItem(long? str, PropertyInfo propertyAppMaster, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
-         propertyAppMaster.SetValue(Data, str);
+        propertyAppMaster.SetValue(Data, str);
         // if (dynamicFormSectionAttribute.DataSourceTable == "ApplicationMaster")
         // {
         DynamicFormSectionAttributeSection dynamicFormSectionAttributeSection = new DynamicFormSectionAttributeSection();

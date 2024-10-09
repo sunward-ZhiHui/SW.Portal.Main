@@ -162,5 +162,15 @@ namespace Core.Entities
         public List<ViewEmployee> Employee { get; set; } = new List<ViewEmployee>();
         public List<View_NavItems> NavItems { get; set; } = new List<View_NavItems>();
     }
-
+    public class DropDownBoxGridModel
+    {
+        public string? AttrName { get; set; }
+        public int? DataGridColumn { get; set; }
+        public int GridPageIndex { get; set; } = 0;
+        public int PageSize { get; set; } = 10;
+        public int SortIndex { get; set; } = -1;
+        public string? SearchText { get; set; }
+        public int SortOrder { get; set; } = 0;
+        public string? FilterRowValue { get; set; }
+    }
 }

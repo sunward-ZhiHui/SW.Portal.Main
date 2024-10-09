@@ -150,7 +150,6 @@ namespace Application.Queries
             this.Ids = ids;
         }
     }
-
     public class GetTransferDynamicFormSectionAttributeSecurity : PagedRequest, IRequest<List<DynamicFormSectionAttributeSecurity>>
     {
         public long? UserIds { get; set; }
@@ -177,7 +176,6 @@ namespace Application.Queries
             this.Ids = ids;
         }
     }
-
     public class GetTransferDynamicFormSectionAttributeSection : PagedRequest, IRequest<List<DynamicFormSectionAttributeSection>>
     {
         public long? UserIds { get; set; }
@@ -204,8 +202,6 @@ namespace Application.Queries
             this.Ids = ids;
         }
     }
-
-
     public class GetTransferDynamicFormApproval : PagedRequest, IRequest<List<DynamicFormApproval>>
     {
         public long? UserIds { get; set; }
@@ -227,6 +223,80 @@ namespace Application.Queries
         public List<long?> Ids { get; set; }
         public long? UserIds { get; set; }
         public UpdateTransferDynamicFormApproval(List<long?> ids,long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+    public class GetTransferDynamicFormApproved : PagedRequest, IRequest<List<DynamicFormApproved>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormApproved(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormApproved : PagedRequest, IRequest<DynamicFormApproved>
+    {
+        public List<DynamicFormApproved> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormApproved(List<DynamicFormApproved> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+    public class GetTransferDynamicFormWorkFlowForm : PagedRequest, IRequest<List<DynamicFormWorkFlowForm>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormWorkFlowForm(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormDataWorkFlowForm : PagedRequest, IRequest<DynamicFormWorkFlowForm>
+    {
+        public List<DynamicFormWorkFlowForm> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormDataWorkFlowForm(List<DynamicFormWorkFlowForm> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+
+    public class GetTransferDynamicFormDataLock : PagedRequest, IRequest<List<DynamicFormData>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormDataLock(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormDataLock : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormDataLock(List<long?> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+
+    public class GetTransferDynamicFormDataSectionLock : PagedRequest, IRequest<List<DynamicFormDataSectionLock>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormDataSectionLock(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormDataSectionLock : PagedRequest, IRequest<List<long?>>
+    {
+        public List<long?> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormDataSectionLock(List<long?> ids, long? userIds)
         {
             this.Ids = ids;
             this.UserIds = userIds;

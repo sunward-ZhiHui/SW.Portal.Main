@@ -82,6 +82,7 @@ namespace AC.ShippingDocument.Reporting
                  services.AddSingleton<ReportingCustomConfigurationProvider, ReportingCustomConfigurationProvider>();
                 services.AddSingleton<DocumentUploadServices, DocumentUploadServices>();
                 services.AddSingleton<TreeGenerateRecursive, TreeGenerateRecursive>();
+                services.AddSingleton<DataGridDynamicForm, DataGridDynamicForm>();
                 //DevExpress.Blazor.CompatibilitySettings.ComboBoxCompatibilityMode = true;
                 //DevExpress.Blazor.CompatibilitySettings.TagBoxCompatibilityMode = true;
 

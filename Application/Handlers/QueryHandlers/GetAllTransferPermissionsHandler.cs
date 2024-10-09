@@ -327,4 +327,104 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
     }
 
+
+    public class GetTransferDynamicFormApprovedHandler : IRequestHandler<GetTransferDynamicFormApproved, List<DynamicFormApproved>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public GetTransferDynamicFormApprovedHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<DynamicFormApproved>> Handle(GetTransferDynamicFormApproved request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormApproved>)await _queryRepository.GetTransferDynamicFormApproved(request.UserIds);
+        }
+    }
+    public class UpdateTransferDynamicFormApprovedHandler : IRequestHandler<UpdateTransferDynamicFormApproved, DynamicFormApproved>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public UpdateTransferDynamicFormApprovedHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<DynamicFormApproved> Handle(UpdateTransferDynamicFormApproved request, CancellationToken cancellationToken)
+        {
+            return  await _queryRepository.UpdateTransferDynamicFormApproved(request.Ids, request.UserIds);
+        }
+    }
+
+    public class GetTransferDynamicFormWorkFlowFormHandler : IRequestHandler<GetTransferDynamicFormWorkFlowForm, List<DynamicFormWorkFlowForm>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public GetTransferDynamicFormWorkFlowFormHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowForm>> Handle(GetTransferDynamicFormWorkFlowForm request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowForm>)await _queryRepository.GetTransferDynamicFormWorkFlowForm(request.UserIds);
+        }
+    }
+    public class UpdateTransferDynamicFormDataWorkFlowFormHandler : IRequestHandler<UpdateTransferDynamicFormDataWorkFlowForm, DynamicFormWorkFlowForm>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public UpdateTransferDynamicFormDataWorkFlowFormHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<DynamicFormWorkFlowForm> Handle(UpdateTransferDynamicFormDataWorkFlowForm request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateTransferDynamicFormDataWorkFlowForm(request.Ids, request.UserIds);
+        }
+    }
+
+    public class GetTransferDynamicFormDataLockHandler : IRequestHandler<GetTransferDynamicFormDataLock, List<DynamicFormData>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public GetTransferDynamicFormDataLockHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<DynamicFormData>> Handle(GetTransferDynamicFormDataLock request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormData>)await _queryRepository.GetTransferDynamicFormDataLock(request.UserIds);
+        }
+    }
+    public class UpdateTransferDynamicFormDataLockHandler : IRequestHandler<UpdateTransferDynamicFormDataLock, List<long?>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public UpdateTransferDynamicFormDataLockHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<long?>> Handle(UpdateTransferDynamicFormDataLock request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateTransferDynamicFormDataLock(request.Ids, request.UserIds);
+        }
+    }
+
+    public class GetTransferDynamicFormDataSectionLockHandler : IRequestHandler<GetTransferDynamicFormDataSectionLock, List<DynamicFormDataSectionLock>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public GetTransferDynamicFormDataSectionLockHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<DynamicFormDataSectionLock>> Handle(GetTransferDynamicFormDataSectionLock request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataSectionLock>)await _queryRepository.GetTransferDynamicFormDataSectionLock(request.UserIds);
+        }
+    }
+    public class UpdateTransferDynamicFormDataSectionLockHandler : IRequestHandler<UpdateTransferDynamicFormDataSectionLock, List<long?>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public UpdateTransferDynamicFormDataSectionLockHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<long?>> Handle(UpdateTransferDynamicFormDataSectionLock request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateTransferDynamicFormDataSectionLock(request.Ids, request.UserIds);
+        }
+    }
 }

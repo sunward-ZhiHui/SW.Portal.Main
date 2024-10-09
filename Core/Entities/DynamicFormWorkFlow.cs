@@ -132,6 +132,13 @@ namespace Core.Entities
         public long? CurrentApprovalUserId { get; set; }
         public string? CurrentApprovalUserName { get; set; }
         public long? NewDynamicFormWorkFlowFormId { get; set; }
+        public bool? IsPendingApproval { get; set; } = false;
+        public string? ProfileNo { get; set; }
+        public string? FormName { get; set; }
+        public bool? IsDelegateUser { get; set; } = false;
+        public long? DelegateWorkFlowFormChangedId { get; set; }
+        public Guid? FormSessionId { get; set; }
+        public Guid? FormDataSessionId { get; set; }
     }
     public class DynamicFormDataUploadByPermission
     {
@@ -168,5 +175,6 @@ namespace Core.Entities
         public long DynamicFormWorkFlowSectionFormId { get; set; }
         public long? DynamicFormWorkFlowFormID { get; set; }
         public long? DynamicFormSectionID { get; set; }
+        public string? SectionName { get; set; }
     }
 }

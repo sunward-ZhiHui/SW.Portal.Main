@@ -4176,14 +4176,24 @@ namespace Infrastructure.Repository.Query
                                 s.DelegateSectionUserName = dynamicFormWorkFlowFormDelegateData.UserName;
                                 s.UserId = dynamicFormWorkFlowFormDelegateData.UserID;
                             }
-
-                            if (s.DynamicFormWorkFlowFormTotalCount > 0)
+                            if(s.DynamicFormWorkFlowFormTotalCount==0)
+                            {
+                                if (s.IsWorkFlowDone == 1)
+                                {
+                                    s.IsWorkFlowFormDone = 1;
+                                }
+                            }
+                            else
                             {
                                 if (s.DynamicFormWorkFlowFormTotalCount == s.DynamicFormWorkFlowFormCount)
                                 {
                                     s.IsWorkFlowFormDone = 1;
                                 }
                             }
+                           // if (s.DynamicFormWorkFlowFormTotalCount > 0)
+                           // {
+                                
+                           // }
                         });
                     }
                 }

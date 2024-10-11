@@ -1,20 +1,707 @@
 ﻿@page "/dynamicMainForm"
-@using Newtonsoft.Json;
-@using Newtonsoft.Json.Linq;
-@code {
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@using System.Linq.Expressions
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection;
+@inject IMediator Mediator
+@using MediatR
+<h2>Edit Form</h2>
+<style>
+    .templateGrid {
+        border-width: 0;
+        width: 800px;
+        height: 350px
+    }
+</style>
+<div class="card cw-480">
+    <EditForm Model="@Data"
+              OnValidSubmit="@HandleValidSubmit"
+              OnInvalidSubmit="@HandleInvalidSubmit"
+              Context="EditFormContext">
+        <DataAnnotationsValidator />
+        <div class="card-header text-center py-3">
+            <h4>Register with DevExpress</h4>
+            <p class="tm-8 mb-0 fw-normal fs-825">
+                Create a new account to see it in action
+            </p>
+        </div>
+        <div class="card-body">
+            @CreateEditFormFields()
+        </div>
+    </EditForm>
+</div>
+<p class="tm-8 cw-480 mt-2">
+    @FormSubmitResult
+</p>
 
+@code {
+        IGrid? TransferPermissionsWorkFlowGrid { get; set; }
+        string FormSubmitResult = "";
+        UserDatas Data { get; set; } = new UserDatas();
+    private List<ViewEmployee>? _usersAllList;
+    private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
+    public class UserDatas
+    {
+        public long? SingleSelectId { get; set; }
+        public object SingleObject { get; set; }
+        public List<long?> MultipleSelectIds { get; set; }
+        public object MultipleObjects { get; set; }
+        public List<long?> MultipleSelectOneIds { get; set; }
+        public object MultipleOneObjects { get; set; }
+    }
+    // public class ViewEmployee
+    // {
+    //     public long? UserID { get; set; }
+    //     public string? FirstName { get; set; }
+    //     public string? LastName { get; set; }
+    //     public string? NickName { get; set; }
+    //     public string? DesignationName { get; set; }
+    //     public string? CompanyName { get; set; }
+    //     public bool Checked { get; set; } = true;
+    // }
+    int GridPageIndex { get; set; } = 0;
+    int PageSize { get; set; } = 10;
+    int SortIndex { get; set; } = -1;
+    string searchText { get; set; }
+    int SortOrder { get; set; } = 0;
+    string FilterRowValue { get; set; }
+    public List<ViewEmployee> loadUserLists()
+    {
+        List<ViewEmployee> ViewEmployee = new List<ViewEmployee>();
+        ViewEmployee ViewEmployee1 = new ViewEmployee();
+        ViewEmployee1.UserID = 1; ViewEmployee1.FirstName = "Test FirstName1"; ViewEmployee1.LastName = "Test LastName1"; ViewEmployee1.NickName = "Test NickName1";
+        ViewEmployee1.DesignationName = "Test DesignationName1"; ViewEmployee1.CompanyName = "Test CompanyName1";
+        ViewEmployee.Add(ViewEmployee1);
+        ViewEmployee ViewEmployee2 = new ViewEmployee();
+        ViewEmployee2.UserID = 2; ViewEmployee2.FirstName = "Test FirstName2"; ViewEmployee2.LastName = "Test LastName2"; ViewEmployee2.NickName = "Test NickName2";
+        ViewEmployee2.DesignationName = "Test DesignationName2"; ViewEmployee2.CompanyName = "Test CompanyName2";
+        ViewEmployee.Add(ViewEmployee2);
+        ViewEmployee ViewEmployee3 = new ViewEmployee();
+        ViewEmployee3.UserID = 3; ViewEmployee3.FirstName = "Test FirstName3"; ViewEmployee3.LastName = "Test LastName3"; ViewEmployee3.NickName = "Test NickName3";
+        ViewEmployee3.DesignationName = "Test DesignationName3"; ViewEmployee3.CompanyName = "Test CompanyName3";
+        ViewEmployee.Add(ViewEmployee3);
+        ViewEmployee ViewEmployee4 = new ViewEmployee();
+        ViewEmployee4.UserID = 4; ViewEmployee4.FirstName = "Test FirstName4"; ViewEmployee4.LastName = "Test LastName4"; ViewEmployee4.NickName = "Test NickName4";
+        ViewEmployee4.DesignationName = "Test DesignationName4"; ViewEmployee4.CompanyName = "Test CompanyName4";
+        ViewEmployee.Add(ViewEmployee4);
+        ViewEmployee ViewEmployee5 = new ViewEmployee();
+        ViewEmployee5.UserID = 5; ViewEmployee5.FirstName = "Test FirstName5"; ViewEmployee5.LastName = "Test LastName5"; ViewEmployee5.NickName = "Test NickName5";
+        ViewEmployee5.DesignationName = "Test DesignationName5"; ViewEmployee5.CompanyName = "Test CompanyName5";
+        ViewEmployee.Add(ViewEmployee5);
+        ViewEmployee ViewEmployee6 = new ViewEmployee();
+        ViewEmployee6.UserID = 6; ViewEmployee6.FirstName = "Test FirstName6"; ViewEmployee6.LastName = "Test LastName6"; ViewEmployee6.NickName = "Test NickName6";
+        ViewEmployee6.DesignationName = "Test DesignationName6"; ViewEmployee6.CompanyName = "Test CompanyName6";
+        ViewEmployee.Add(ViewEmployee6);
+        ViewEmployee ViewEmployee7 = new ViewEmployee();
+        ViewEmployee7.UserID = 7; ViewEmployee7.FirstName = "Test FirstName7"; ViewEmployee7.LastName = "Test LastName7"; ViewEmployee7.NickName = "Test NickName7";
+        ViewEmployee7.DesignationName = "Test DesignationName7"; ViewEmployee7.CompanyName = "Test CompanyName7";
+        ViewEmployee.Add(ViewEmployee7);
+
+        return ViewEmployee;
+    }
     protected override async Task OnInitializedAsync()
     {
-        var url = "https://portal.sunwardpharma.com:8423/api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=cc0228a7-0ed4-421f-b78b-a816ad373586";
-        var result = await restApi(url);
+        _usersAllList = await Mediator.Send(new GetAllEmployeeQuery());
+        long? id = 1;
+        Data.GetType().GetProperty("SingleSelectId").SetValue(Data, id);
+        Data.GetType().GetProperty("SingleObject").SetValue(Data, _usersAllList.FirstOrDefault(f => f.UserID == 1));
+        List<long?> ids = new List<long?>() { 1, 2, 3, 4 };
+        Data.GetType().GetProperty("MultipleSelectIds").SetValue(Data, ids);
+        Data.GetType().GetProperty("MultipleObjects").SetValue(Data, _usersAllList.Where(f => ids.Contains(f.UserID)).ToList());
     }
-    async Task<object> restApi(string? Url)
+    void HandleValidSubmit()
     {
-        using (HttpClient client = new HttpClient())
+
+        FormSubmitResult = "You have been registred successully.";
+    }
+    void HandleInvalidSubmit()
+    {
+        FormSubmitResult = "Please correct all errors";
+    }
+    string? QueryPlantText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value is ViewEmployee value)
         {
-            var result = await client.GetAsync(Url);
-            var jsonString = await result.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<object>(jsonString);
+            if (value != null)
+            {
+                returnData = value?.FirstName;
+            }
+        }
+        return returnData.TrimEnd(',');
+    }
+    string? QueryMultipleText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        List<long?> ids = new List<long?>();
+        string? returnData = string.Empty;
+        if (arg.Value != null)
+        {
+            List<ViewEmployee> collection = (List<ViewEmployee>)arg.Value;
+
+            if (collection != null && collection.Count() > 0)
+            {
+                foreach (var item in collection)
+                {
+                    returnData += item?.FirstName + ",";
+                }
+
+            }
+        }
+
+        return returnData.TrimEnd(',');
+    }
+    void GridSelectedDataItemsChanged(IReadOnlyList<object> selectedItems, IDropDownBox dropDownBox, PropertyInfo propertyData)
+    {
+        List<ViewEmployee> selectedAllItems = new List<ViewEmployee>();
+        if (selectedItems != null)
+        {
+            foreach (object item in selectedItems)
+            {
+                if (item is ViewEmployee dataselectItems)
+                {
+                    selectedAllItems.Add(dataselectItems);
+                }
+            }
+        }
+        dropDownBox.BeginUpdate();
+        dropDownBox.Value = selectedAllItems;
+        dropDownBox.EndUpdate();
+        // dropDownBox.HideDropDown();
+    }
+    void GridSelectedDataItemChanged(object selectedItems, IDropDownBox dropDownBox, PropertyInfo propertyData)
+    {
+        dropDownBox.BeginUpdate();
+        dropDownBox.Value = selectedItems;
+        dropDownBox.EndUpdate();
+        //dropDownBox.HideDropDown();
+    }
+    void OnValueChanged(object? newValue, PropertyInfo propertyData)
+    {
+        long? Id = null;
+        if (newValue is ViewEmployee value)
+        {
+            if (value != null)
+            {
+                Id = value?.UserID;
+            }
+        }
+        Data.GetType().GetProperty("SingleSelectId").SetValue(Data, Id);
+        Data.GetType().GetProperty("SingleObject").SetValue(Data, newValue);
+        //propertyData.SetValue(Data, newValue);
+    }
+    void OnMultipleValueChanged(object? newValue, string propertyIds, string propertyName)
+    {
+        List<long?> ids = new List<long?>();
+        Data.GetType().GetProperty(propertyName).SetValue(Data, null);
+        if (newValue != null)
+        {
+            List<ViewEmployee> collection = (List<ViewEmployee>)newValue;
+            if (collection != null && collection.Count() > 0)
+            {
+                Data.GetType().GetProperty(propertyName).SetValue(Data, newValue);
+                foreach (var item in collection)
+                {
+                    ids.Add(item.UserID);
+                }
+            }
+        }
+        Data.GetType().GetProperty(propertyIds).SetValue(Data, ids);
+        //propertyData.SetValue(Data, newValue);
+    }
+    void OnCheckedAllValueChanged(bool radioValue, PropertyInfo propertyData)
+    {
+        propertyData.SetValue(Data, radioValue);
+    }
+    void OnPageIndexChanged(int newPageIndex, string AttrName)
+    {
+        var exits = _DropDownBoxGridModel.Where(f => f.AttrName == AttrName).FirstOrDefault();
+        if (exits != null)
+        {
+            exits.GridPageIndex = newPageIndex;
+        }
+        else
+        {
+            DropDownBoxGridModel dropDownBoxGridModel = new DropDownBoxGridModel();
+            dropDownBoxGridModel.GridPageIndex = newPageIndex;
+            dropDownBoxGridModel.AttrName = AttrName;
+            _DropDownBoxGridModel.Add(dropDownBoxGridModel);
         }
     }
+    void OnPageSizeChanged(int newPageSize, string AttrName)
+    {
+        var exits = _DropDownBoxGridModel.Where(f => f.AttrName == AttrName).FirstOrDefault();
+        if (exits != null)
+        {
+            exits.PageSize = newPageSize;
+        }
+        else
+        {
+            DropDownBoxGridModel dropDownBoxGridModel = new DropDownBoxGridModel();
+            dropDownBoxGridModel.PageSize = newPageSize;
+            dropDownBoxGridModel.AttrName = AttrName;
+            _DropDownBoxGridModel.Add(dropDownBoxGridModel);
+        }
+    }
+    void OnSearchTextChanged(string newSearchText, string AttrName)
+    {
+        var exits = _DropDownBoxGridModel.Where(f => f.AttrName == AttrName).FirstOrDefault();
+        if (exits != null)
+        {
+            exits.SearchText = newSearchText;
+        }
+        else
+        {
+            DropDownBoxGridModel dropDownBoxGridModel = new DropDownBoxGridModel();
+            dropDownBoxGridModel.SearchText = newSearchText;
+            dropDownBoxGridModel.AttrName = AttrName;
+            _DropDownBoxGridModel.Add(dropDownBoxGridModel);
+        }
+    }
+    void FilterCriteriaChanged(object args, string AttrName, int? DataGridColumn)
+    {
+        var exits = _DropDownBoxGridModel.Where(f => f.AttrName == AttrName).FirstOrDefault();
+        if (exits != null)
+        {
+            exits.DataGridColumn = DataGridColumn;
+            exits.FilterRowValue = (string)args;
+        }
+        else
+        {
+            DropDownBoxGridModel dropDownBoxGridModel = new DropDownBoxGridModel();
+            dropDownBoxGridModel.FilterRowValue = (string)args;
+            dropDownBoxGridModel.AttrName = AttrName;
+            dropDownBoxGridModel.DataGridColumn = DataGridColumn;
+            _DropDownBoxGridModel.Add(dropDownBoxGridModel);
+        }
+    }
+    void OnSortIndexChanged(int newSortIndex, string AttrName, int? DataGridColumn)
+    {
+        var exits = _DropDownBoxGridModel.Where(f => f.AttrName == AttrName).FirstOrDefault();
+        if (exits != null)
+        {
+            exits.DataGridColumn = DataGridColumn;
+            exits.SortIndex = newSortIndex;
+        }
+        else
+        {
+            DropDownBoxGridModel dropDownBoxGridModel = new DropDownBoxGridModel();
+            dropDownBoxGridModel.DataGridColumn = DataGridColumn;
+            dropDownBoxGridModel.SortIndex = newSortIndex;
+            dropDownBoxGridModel.AttrName = AttrName;
+            _DropDownBoxGridModel.Add(dropDownBoxGridModel);
+        }
+    }
+    void OnSortOrderChanged(GridColumnSortOrder gridColumnSortOrder, string AttrName, int? DataGridColumn)
+    {
+        var sortOrder = Enum.GetName(gridColumnSortOrder.GetType(), gridColumnSortOrder);
+        var exits = _DropDownBoxGridModel.Where(f => f.AttrName == AttrName).FirstOrDefault();
+        if (exits != null)
+        {
+            exits.SortOrder = sortOrder == "Ascending" ? 1 : 2;
+            exits.DataGridColumn = DataGridColumn;
+        }
+        else
+        {
+            DropDownBoxGridModel dropDownBoxGridModel = new DropDownBoxGridModel();
+            dropDownBoxGridModel.SortOrder = sortOrder == "Ascending" ? 1 : 2;
+            dropDownBoxGridModel.AttrName = AttrName;
+            _DropDownBoxGridModel.Add(dropDownBoxGridModel);
+        }
+    }
+    void OnRowclick(GridRowClickEventArgs e, IDropDownBox dropDownBox)
+    {
+        // var values = dropDownBox.Value;
+        // var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserID");
+        // var valuess = _usersAllList.FirstOrDefault(f => f.UserID == (long?)UniqueId);
+    }
+    void OnDropDownVisibleChanges(bool value)
+    {
+    }
+    public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
+    {
+        try
+        {
+            var propertyList = typeof(UserDatas).GetProperties();
+            formLayoutBuilder.OpenComponent<DxFormLayout>(0);
+            formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
+            {
+                layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(1);
+                layoutItemBuilder.AddAttribute(1, "Caption", "Personal Information");
+                layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
+                {
+                    int i = 0;
+                    foreach (var property in propertyList)
+                    {
+                        var GridDropBoxData = _DropDownBoxGridModel.FirstOrDefault(f => f.AttrName == property.Name);
+                        if (property.Name == "SingleObject")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+
+                            itemBuilder.AddAttribute(i++, "Caption", "DropDownBox Single Selection");
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+
+                            var access = Expression.Property(Expression.Constant(Data), property.Name);
+                            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(property.PropertyType), access);
+
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                var j = 0;
+
+                                var access1 = Expression.Property(Expression.Constant(Data), property.Name);
+                                var lambda1 = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(object)), access1);
+                                var propertyDependency = Data.GetType().GetProperty(property.Name);
+                                var valueData = propertyDependency.GetValue(Data);
+                                int n = 0;
+                                editor.OpenComponent<DxDropDownBox>(j++);
+                                editor.AddAttribute(j++, "DropDownWidthMode", DropDownWidthMode.ContentOrEditorWidth);
+                                editor.AddAttribute(j++, "Value", valueData);
+                                editor.AddAttribute(j++, "ValueExpression", lambda1);
+                                editor.AddAttribute(j++, "DropDownVisible", false);
+                                editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<object>(this, str => OnValueChanged(str, propertyDependency)));
+                                editor.AddAttribute(j++, "DropDownVisibleChanged", EventCallback.Factory.Create<bool>(this, str => OnDropDownVisibleChanges(str)));
+                                editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(j++, "QueryDisplayText", QueryPlantText);
+                                editor.AddAttribute(j++, "CssClass", "cw-480");
+                                editor.AddAttribute(j++, "DropDownBodyTemplate", (RenderFragment<DropDownBoxTemplateContext>)((context) => (b) =>
+                            {
+                                b.OpenComponent<DxGrid>(n++);
+                                b.AddAttribute(n++, "Data", _usersAllList);
+                                b.AddAttribute(n++, "KeyFieldName", "UserID");
+                                b.AddAttribute(n++, "HighlightRowOnHover", true);
+                                b.AddAttribute(n++, "SearchTextParseMode", GridSearchTextParseMode.GroupWordsByAnd);
+                                b.AddAttribute(n++, "SelectionMode", GridSelectionMode.Single);
+                                b.AddAttribute(n++, "AllowSelectRowByClick", true);
+                                b.AddAttribute(n++, "RowClick", EventCallback.Factory.Create<GridRowClickEventArgs>(this, item => OnRowclick(item, context.DropDownBox)));
+                                b.AddAttribute(n++, "FocusedRowEnabled", true);
+                                b.AddAttribute(n++, "TextWrapEnabled", false);
+                                b.AddAttribute(n++, "CssClass", "templateGrid");
+                                b.AddAttribute(n++, "PagerNavigationMode", PagerNavigationMode.InputBox);
+                                b.AddAttribute(n++, "PageSizeSelectorVisible", true);
+                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.Mixed);
+                                b.AddAttribute(n++, "PageSizeSelectorAllRowsItemVisible", true);
+                                b.AddAttribute(n++, "PageSizeSelectorItems", new int[] { 5, 10, 20 });
+                                b.AddAttribute(n++, "PageSize", GridDropBoxData != null ? GridDropBoxData.PageSize : 10);
+                                b.AddAttribute(n++, "PageSizeChanged", EventCallback.Factory.Create<int>(this, item => OnPageSizeChanged(item, property.Name)));
+                                b.AddAttribute(n++, "searchText", GridDropBoxData != null ? GridDropBoxData.SearchText : null);
+                                b.AddAttribute(n++, "SearchTextChanged", EventCallback.Factory.Create<string>(this, item => OnSearchTextChanged(item, property.Name)));
+                                b.AddAttribute(n++, "PageIndex", GridDropBoxData != null ? GridDropBoxData.GridPageIndex : 0);
+                                b.AddAttribute(n++, "PageIndexChanged", EventCallback.Factory.Create<int>(this, item => OnPageIndexChanged(item, property.Name)));
+                                b.AddAttribute(n++, "ShowSearchBox", true);
+                                b.AddAttribute(n++, "SelectedDataItem", context.DropDownBox.Value as ViewEmployee);
+                                b.AddAttribute(n++, "SelectedDataItemChanged", EventCallback.Factory.Create<object>(this, item => GridSelectedDataItemChanged(item, context.DropDownBox, property)));
+                                b.AddAttribute(n++, "Columns", (RenderFragment)((layoutItemBuilders) =>
+                                {
+                                    layoutItemBuilders.OpenComponent<DxGridSelectionColumn>(0);
+                                    layoutItemBuilders.AddAttribute(0, "AllowSelectAll", true);
+                                    layoutItemBuilders.AddAttribute(1, "Width", "60px");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(1);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "FirstName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "FirstName");
+                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortOrder : 0);
+                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.FilterRowValue : null);
+                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name,1)));
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(2);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "LastName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "LastName");
+                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortOrder : 0);
+                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.FilterRowValue : null);
+                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(3);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "NickName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "NickName");
+                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 3)));
+                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.SortOrder : 0);
+                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 3 ? GridDropBoxData.FilterRowValue : null);
+                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 3)));
+                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 3)));
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(4);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "DesignationName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "DesignationName");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(5);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "CompanyName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "CompanyName");
+                                    layoutItemBuilders.CloseComponent();
+                                }));
+                                b.CloseComponent();
+                            }));
+                                editor.CloseComponent();
+
+
+                            })));
+                            itemBuilder.CloseComponent();
+                            itemBuilder.OpenElement(i++, "div");
+                            itemBuilder.AddAttribute(i++, "class", "text-danger");
+                            itemBuilder.OpenComponent(i++, typeof(ValidationMessage<>).MakeGenericType(property.PropertyType));
+                            itemBuilder.AddAttribute(i++, "For", lambda);
+                            itemBuilder.CloseComponent();
+                            itemBuilder.CloseElement();
+                        }
+                        if (property.Name == "MultipleObjects")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+
+                            itemBuilder.AddAttribute(i++, "Caption", "DropDownBox Multiple Selection");
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+
+                            var access = Expression.Property(Expression.Constant(Data), property.Name);
+                            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(property.PropertyType), access);
+
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                // string ItemsName = "";
+                                var j = 0;
+                                var access1 = Expression.Property(Expression.Constant(Data), property.Name);
+                                var lambda1 = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(object)), access1);
+                                var propertyDependency = Data.GetType().GetProperty(property.Name);
+                                var valueData = propertyDependency.GetValue(Data);
+                                int n = 0;
+                                editor.OpenComponent<DxDropDownBox>(j++);
+                                editor.AddAttribute(j++, "DropDownWidthMode", DropDownWidthMode.ContentWidth);
+                                editor.AddAttribute(j++, "Value", valueData);
+                                editor.AddAttribute(j++, "ValueExpression", lambda1);
+                                editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<object>(this, str => OnMultipleValueChanged(str, "MultipleSelectIds", property.Name)));
+                                editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(j++, "QueryDisplayText", QueryMultipleText);
+                                editor.AddAttribute(j++, "CssClass", "cw-480");
+                                editor.AddAttribute(j++, "DropDownBodyTemplate", (RenderFragment<DropDownBoxTemplateContext>)((context) => (b) =>
+                            {
+                                b.OpenComponent<DxGrid>(n++);
+                                b.AddAttribute(n++, "Data", _usersAllList);
+                                b.AddAttribute(n++, "searchText", GridDropBoxData != null ? GridDropBoxData.SearchText : null);
+                                b.AddAttribute(n++, "SearchTextChanged", EventCallback.Factory.Create<string>(this, item => OnSearchTextChanged(item, property.Name)));
+                                b.AddAttribute(n++, "PageIndex", GridDropBoxData != null ? GridDropBoxData.GridPageIndex : 0);
+                                b.AddAttribute(n++, "PageIndexChanged", EventCallback.Factory.Create<int>(this, item => OnPageIndexChanged(item, property.Name)));
+                                b.AddAttribute(n++, "ShowFilterRow", false);
+                                b.AddAttribute(n++, "KeyFieldName", "UserID");
+                                b.AddAttribute(n++, "HighlightRowOnHover", true);
+                                b.AddAttribute(n++, "SearchTextParseMode", GridSearchTextParseMode.GroupWordsByOr);
+                                b.AddAttribute(n++, "SelectionMode", GridSelectionMode.Multiple);
+                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.Mixed);
+                                b.AddAttribute(n++, "AllowSelectRowByClick", true);
+                                b.AddAttribute(n++, "RowClick", EventCallback.Factory.Create<GridRowClickEventArgs>(this, item => OnRowclick(item, context.DropDownBox)));
+                                b.AddAttribute(n++, "FocusedRowEnabled", true);
+                                b.AddAttribute(n++, "ShowAllRows", false);
+                                b.AddAttribute(n++, "TextWrapEnabled", false);
+                                b.AddAttribute(n++, "CssClass", "templateGrid");
+                                b.AddAttribute(n++, "PagerNavigationMode", PagerNavigationMode.InputBox);
+                                b.AddAttribute(n++, "PageSizeSelectorVisible", true);
+                                b.AddAttribute(n++, "PageSizeSelectorAllRowsItemVisible", false);
+                                b.AddAttribute(n++, "PageSizeSelectorItems", new int[] { 5, 10, 20 });
+                                b.AddAttribute(n++, "PageSize", GridDropBoxData != null ? GridDropBoxData.PageSize : 10);
+                                b.AddAttribute(n++, "PageSizeChanged", EventCallback.Factory.Create<int>(this, item => OnPageSizeChanged(item, property.Name)));
+                                b.AddAttribute(n++, "ShowSearchBox", true);
+                                b.AddAttribute(n++, "SelectedDataItems", context.DropDownBox.Value as IEnumerable<ViewEmployee>);
+                                b.AddAttribute(n++, "SelectedDataItemsChanged", EventCallback.Factory.Create<IReadOnlyList<object>>(this, item => GridSelectedDataItemsChanged(item, context.DropDownBox, property)));
+                                b.AddAttribute(n++, "Columns", (RenderFragment)((layoutItemBuilders) =>
+                                {
+                                    layoutItemBuilders.OpenComponent<DxGridSelectionColumn>(0);
+                                    layoutItemBuilders.AddAttribute(0, "AllowSelectAll", true);
+                                    layoutItemBuilders.AddAttribute(1, "Width", "60px");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(1);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "FirstName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "FirstName");
+                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn==1 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortOrder : 0);
+                                    layoutItemBuilders.AddAttribute(0, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.FilterRowValue : null);
+                                    layoutItemBuilders.AddAttribute(6, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(7, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                    layoutItemBuilders.AddAttribute(8, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name,1)));
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(2);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "LastName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "LastName");
+                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortOrder : 0);
+                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.FilterRowValue : null);
+                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(3);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "NickName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "NickName");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(4);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "DesignationName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "DesignationName");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(5);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "CompanyName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "CompanyName");
+                                    layoutItemBuilders.CloseComponent();
+                                }));
+                                b.CloseComponent();
+                            }));
+                                editor.CloseComponent();
+
+                            })));
+                            itemBuilder.CloseComponent();
+                            itemBuilder.OpenElement(i++, "div");
+                            itemBuilder.AddAttribute(i++, "class", "text-danger");
+                            itemBuilder.OpenComponent(i++, typeof(ValidationMessage<>).MakeGenericType(property.PropertyType));
+                            itemBuilder.AddAttribute(i++, "For", lambda);
+                            itemBuilder.CloseComponent();
+                            itemBuilder.CloseElement();
+                        }
+                        if (property.Name == "MultipleOneObjects")
+                        {
+                            itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+
+                            itemBuilder.AddAttribute(i++, "Caption", "DropDownBox Multiple One Selection");
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+
+                            var access = Expression.Property(Expression.Constant(Data), property.Name);
+                            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(property.PropertyType), access);
+
+                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                            {
+                                // string ItemsName = "";
+                                var j = 0;
+                                var access1 = Expression.Property(Expression.Constant(Data), property.Name);
+                                var lambda1 = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(object)), access1);
+                                var propertyDependency = Data.GetType().GetProperty(property.Name);
+                                var valueData = propertyDependency.GetValue(Data);
+                                int n = 0;
+                                editor.OpenComponent<DxDropDownBox>(j++);
+                                editor.AddAttribute(j++, "DropDownWidthMode", DropDownWidthMode.ContentWidth);
+                                editor.AddAttribute(j++, "Value", valueData);
+                                editor.AddAttribute(j++, "ValueExpression", lambda1);
+                                editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<object>(this, str => OnMultipleValueChanged(str, "MultipleSelectOneIds", property.Name)));
+                                editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(j++, "QueryDisplayText", QueryMultipleText);
+                                editor.AddAttribute(j++, "CssClass", "cw-480");
+                                editor.AddAttribute(j++, "DropDownBodyTemplate", (RenderFragment<DropDownBoxTemplateContext>)((context) => (b) =>
+                            {
+                                b.OpenComponent<DxGrid>(n++);
+                                b.AddAttribute(n++, "Data", _usersAllList);
+                                b.AddAttribute(n++, "searchText", GridDropBoxData != null ? GridDropBoxData.SearchText : null);
+                                b.AddAttribute(n++, "SearchTextChanged", EventCallback.Factory.Create<string>(this, item => OnSearchTextChanged(item, property.Name)));
+                                b.AddAttribute(n++, "PageIndex", GridDropBoxData != null ? GridDropBoxData.GridPageIndex : 0);
+                                b.AddAttribute(n++, "PageIndexChanged", EventCallback.Factory.Create<int>(this, item => OnPageIndexChanged(item, property.Name)));
+                                b.AddAttribute(n++, "ShowFilterRow", false);
+                                b.AddAttribute(n++, "KeyFieldName", "UserID");
+                                b.AddAttribute(n++, "HighlightRowOnHover", true);
+                                b.AddAttribute(n++, "SearchTextParseMode", GridSearchTextParseMode.GroupWordsByOr);
+                                b.AddAttribute(n++, "SelectionMode", GridSelectionMode.Multiple);
+                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.Mixed);
+                                b.AddAttribute(n++, "AllowSelectRowByClick", true);
+                                b.AddAttribute(n++, "RowClick", EventCallback.Factory.Create<GridRowClickEventArgs>(this, item => OnRowclick(item, context.DropDownBox)));
+                                b.AddAttribute(n++, "FocusedRowEnabled", true);
+                                b.AddAttribute(n++, "ShowAllRows", false);
+                                b.AddAttribute(n++, "TextWrapEnabled", false);
+                                b.AddAttribute(n++, "CssClass", "templateGrid");
+                                b.AddAttribute(n++, "PagerNavigationMode", PagerNavigationMode.InputBox);
+                                b.AddAttribute(n++, "PageSizeSelectorVisible", true);
+                                b.AddAttribute(n++, "PageSizeSelectorAllRowsItemVisible", false);
+                                b.AddAttribute(n++, "PageSizeSelectorItems", new int[] { 5, 10, 20 });
+                                b.AddAttribute(n++, "PageSize", GridDropBoxData != null ? GridDropBoxData.PageSize : 10);
+                                b.AddAttribute(n++, "PageSizeChanged", EventCallback.Factory.Create<int>(this, item => OnPageSizeChanged(item, property.Name)));
+                                b.AddAttribute(n++, "ShowSearchBox", true);
+                                b.AddAttribute(n++, "SelectedDataItems", context.DropDownBox.Value as IEnumerable<ViewEmployee>);
+                                b.AddAttribute(n++, "SelectedDataItemsChanged", EventCallback.Factory.Create<IReadOnlyList<object>>(this, item => GridSelectedDataItemsChanged(item, context.DropDownBox, property)));
+                                b.AddAttribute(n++, "Columns", (RenderFragment)((layoutItemBuilders) =>
+                                {
+                                    layoutItemBuilders.OpenComponent<DxGridSelectionColumn>(0);
+                                    layoutItemBuilders.AddAttribute(0, "AllowSelectAll", true);
+                                    layoutItemBuilders.AddAttribute(1, "Width", "60px");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(1);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "FirstName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "FirstName");
+                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn ==1 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.SortOrder : 0);
+                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 1 ? GridDropBoxData.FilterRowValue : null);
+                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name,1)));
+                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name,1)));
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(2);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "LastName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "LastName");
+                                    layoutItemBuilders.AddAttribute(2, "AllowSort", true);
+                                    layoutItemBuilders.AddAttribute(3, "SortIndex", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortIndex : -1);
+                                    layoutItemBuilders.AddAttribute(4, "SortIndexChanged", EventCallback.Factory.Create<int>(this, item => OnSortIndexChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.AddAttribute(5, "SortOrder", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.SortOrder : 0);
+                                    layoutItemBuilders.AddAttribute(6, "FilterRowValue", GridDropBoxData != null && GridDropBoxData.DataGridColumn == 2 ? GridDropBoxData.FilterRowValue : null);
+                                    layoutItemBuilders.AddAttribute(7, "SortOrderChanged", EventCallback.Factory.Create<GridColumnSortOrder>(this, item => OnSortOrderChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.AddAttribute(8, "FilterMenuButtonDisplayMode", GridFilterMenuButtonDisplayMode.Always);
+                                    layoutItemBuilders.AddAttribute(9, "FilterRowValueChanged", EventCallback.Factory.Create<object>(this, item => FilterCriteriaChanged(item, property.Name, 2)));
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(3);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "NickName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "NickName");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(4);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "DesignationName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "DesignationName");
+                                    layoutItemBuilders.CloseComponent();
+                                    layoutItemBuilders.OpenComponent<DxGridDataColumn>(5);
+                                    layoutItemBuilders.AddAttribute(0, "FieldName", "CompanyName");
+                                    layoutItemBuilders.AddAttribute(1, "Caption", "CompanyName");
+                                    layoutItemBuilders.CloseComponent();
+                                }));
+                                b.CloseComponent();
+                            }));
+                                editor.CloseComponent();
+
+                            })));
+                            itemBuilder.CloseComponent();
+                            itemBuilder.OpenElement(i++, "div");
+                            itemBuilder.AddAttribute(i++, "class", "text-danger");
+                            itemBuilder.OpenComponent(i++, typeof(ValidationMessage<>).MakeGenericType(property.PropertyType));
+                            itemBuilder.AddAttribute(i++, "For", lambda);
+                            itemBuilder.CloseComponent();
+                            itemBuilder.CloseElement();
+                        }
+                    }
+                    itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                    itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                    {
+
+                        editor.OpenComponent<DxButton>(i++);
+                        editor.AddAttribute(i++, "SubmitFormOnClick", true);
+                        editor.AddAttribute(i++, "Text", "Register");
+                        editor.CloseComponent();
+                    })));
+
+                    itemBuilder.CloseComponent();
+                }));
+                layoutItemBuilder.CloseComponent();
+            }));
+            formLayoutBuilder.CloseComponent();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    };
+
 }
+

@@ -41,6 +41,14 @@ namespace Core.Entities
         public string? DelegateApproveAllUserName { get; set; }
         [Required(ErrorMessage = "User Name is Required")]
         public long? DelegateApproveAllUserId { get; set; }
+        public int? TotalApproval { get; set; }=0;
+        public int? CompletedApproval { get; set; } = 0;
+        public bool? IsPendingApproval { get; set; } = false;
+        public string? ProfileNo { get; set; }
+        public string? FormName { get; set; }
+        public bool? IsDelegateUser { get; set; } = false;
+        public Guid? FormSessionId { get; set; }
+        public Guid? FormDataSessionId { get; set; }
     }
 
 }

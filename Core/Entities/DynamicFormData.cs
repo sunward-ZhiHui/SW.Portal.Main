@@ -105,6 +105,7 @@ namespace Core.Entities
         public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();
         public long? DynamicFormGridId { get; set; }
         public List<DynamicFormDataSectionLock> DynamicFormDataSectionLock { get; set; } = new List<DynamicFormDataSectionLock>();
+        public List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems { get; set; } = new List<DynamicFormWorkFlowFormReportItems>();
         public long? NewDynamicFormDataId { get; set; }
         public long? DynamicFormApprovedId { get; set; }
     }

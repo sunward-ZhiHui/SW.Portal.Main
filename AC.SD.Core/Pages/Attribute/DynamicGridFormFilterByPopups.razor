@@ -1,0 +1,189 @@
+﻿@using global::Core.Entities;
+@using System.Dynamic;
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Auto">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                <DxMenuItem Text="Clear" IconCssClass="fa fa-remove" Click="@addEditClear" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid"
+            Data="_dynamicformObjectDataList"
+            EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            KeyFieldName="AttributeDetailID"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            style="height: calc(100vh - 200px);"
+            CssClass="w-100"
+            PageSize="20"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            RowClick="OnRowclick"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true">
+        <Columns>
+            @if (dataColumnNames != null && dataColumnNames.Count() > 0)
+            {
+                <DxGridSelectionColumn AllowSelectAll="true" MinWidth="20"></DxGridSelectionColumn>
+                foreach (var s in dataColumnNames)
+                {
+
+                    if (s.Value == "IsFileprofileTypeDocument")
+                    {
+
+                        <DxGridDataColumn Caption="" Visible="@s.IsVisible" MinWidth="40">
+                            <CellDisplayTemplate>
+                                @{
+                                    dynamic item = (ExpandoObject)context.DataItem;
+                                    var items = (int?)item.IsFileprofileTypeDocument;
+                                    var isDraft = (bool?)item.IsDraft;
+                                    var isLocked = (bool?)item.IsLocked;
+                                    var lockedUser = (string?)item.LockedUser;
+                                }
+                                @if (items > 0)
+                                {
+                                    <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@items"></i>
+                                }
+                                @if (isDraft != null)
+                                {
+                                    var emailName = isDraft == true ? "Draft" : "View Email";
+                                    <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@emailName"></i>
+                                }
+                                @if (isLocked == true)
+                                {
+                                    <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="Locked By:@lockedUser"></i>
+                                }
+                            </CellDisplayTemplate>
+                        </DxGridDataColumn>
+                    }
+                    else
+                    {
+                        if (s.Value == "ModifiedDate")
+                        {
+                            <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
+                                <CellDisplayTemplate>
+                                    @{
+                                        dynamic item = (ExpandoObject)context.DataItem;
+                                        DateTime? items = (DateTime?)item.ModifiedDate;
+                                    }
+                                    @(items != null ? Application.Common.Helper.Helper.FormatDateTime(items) : null)
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                        }
+                        else
+                        {
+                            <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                        }
+
+                    }
+                }
+
+            }
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    IGrid? Grid { get; set; }
+    bool PanelVisible { get; set; }
+    [Parameter]
+    public string? AttrName { get; set; }
+    [Parameter]
+    public DynamicFormSection DynamicFormSection { get; set; }
+    [Parameter]
+    public DynamicFormSectionAttribute DynamicFormSectionAttribute { get; set; }
+    [Parameter]
+    public string? DataSourceName { get; set; }
+    [Parameter]
+    public AttributeHeaderListModel _AttributeHeader { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public EventCallback<DropDownOptionsModel> OnItemSelected { get; set; }
+    DropDownOptionsModel dropDownOptionsModel = new DropDownOptionsModel();
+    List<DropDownOptionsModel?> dataColumnNames = new List<DropDownOptionsModel?>();
+    List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        dataColumnNames = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == DynamicFormSectionAttribute.DynamicFormGridDropDownId).FirstOrDefault()?.DropDownOptionsModels;
+        var collection = _AttributeHeader.DropDownOptionsGridListModel.ObjectData;
+        if (collection != null)
+        {
+            foreach (var v in (collection as IEnumerable<ExpandoObject>))
+            {
+                dynamic eod = v;
+                var vv = eod.DynamicFormId;
+                if ((long?)vv == DynamicFormSectionAttribute.DynamicFormGridDropDownId)
+                {
+                    _dynamicformObjectDataList.Add(v);
+                }
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void addEditClear()
+    {
+        Grid?.ClearSelection();
+        Grid?.SetFocusedRowIndex(0);
+        StateHasChanged();
+        dropDownOptionsModel.AttributeDetailID = 0;
+        dropDownOptionsModel.Value = AttrName;
+        OnItemSelected.InvokeAsync(dropDownOptionsModel);
+        StateHasChanged();
+    }
+    void backUrl()
+    {
+        RevokeBack?.Invoke();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        if (SelectedToItems != null)
+        {
+            foreach (object item in SelectedToItems)
+            {
+                if (item is ExpandoObject masterData)
+                {
+                    dynamic eod = masterData;
+                    dropDownOptionsModel.AttributeDetailID = (long)eod.AttributeDetailID;
+                    dropDownOptionsModel.Value = AttrName;
+                    OnItemSelected.InvokeAsync(dropDownOptionsModel);
+                }
+            }
+        }
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.DataRow)
+        {
+            e.Attributes["data-visible-index"] = e.VisibleIndex;
+        }
+    }
+    void OnRowclick(GridRowClickEventArgs e)
+    {
+        // var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
+    }
+}

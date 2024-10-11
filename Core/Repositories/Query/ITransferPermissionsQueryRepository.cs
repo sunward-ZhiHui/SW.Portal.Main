@@ -24,7 +24,6 @@ namespace Core.Repositories.Query
         Task InsertEmailTransferHistory(long fromUserId, long toUserId, long emailConversationId, long topicId, long addedByUserId);
         Task<IReadOnlyList<DynamicFormWorkFlow>> GetTransferDynamicFormWorkFlow(long? userIds);
         Task<List<long?>> UpdateTransferDynamicFormWorkFlow(List<long?> ids, long? userId);
-
         Task<IReadOnlyList<DynamicFormWorkFlowApproval>> GetTransferDynamicFormWorkFlowApproval(long? userIds);
         Task<List<long?>> UpdateTransferDynamicFormWorkFlowApproval(List<long?> ids, long? userId);
         Task<IReadOnlyList<DynamicFormSectionSecurity>> GetTransferDynamicFormSectionSecurity(long? userIds);
@@ -36,9 +35,18 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicFormSectionAttributeSection>> GetTransferDynamicFormSectionAttributeSection(long? userIds);
         Task<List<long?>> UpdateDynamicFormSectionAttributeSection(List<long?> ids, long? userId);
         Task<List<DynamicFormSectionAttributeSection>> DeleteDynamicFormSectionAttributeSection(List<DynamicFormSectionAttributeSection> ids);
-
         Task<IReadOnlyList<DynamicFormApproval>> GetTransferDynamicFormApproval(long? userIds);
         Task<List<DynamicFormApproval>> DeleteTransferDynamicFormApproval(List<DynamicFormApproval> ids);
-        Task<List<long?>> UpdateTransferDynamicFormApproval(List<long?> ids,long? userId);
+        Task<List<long?>> UpdateTransferDynamicFormApproval(List<long?> ids, long? userId);
+        Task<IReadOnlyList<DynamicFormApproved>> GetTransferDynamicFormApproved(long? userIds);
+        Task<DynamicFormApproved> UpdateTransferDynamicFormApproved(List<DynamicFormApproved> ids, long? userIds);
+        Task<IReadOnlyList<DynamicFormWorkFlowForm>> GetTransferDynamicFormWorkFlowForm(long? userIds);
+        Task<DynamicFormWorkFlowForm> UpdateTransferDynamicFormDataWorkFlowForm(List<DynamicFormWorkFlowForm> ids, long? userIds);
+        Task<IReadOnlyList<DynamicFormData>> GetTransferDynamicFormDataLock(long? userIds);
+        Task<List<long?>> UpdateTransferDynamicFormDataLock(List<long?> ids, long? userId);
+        Task<IReadOnlyList<DynamicFormDataSectionLock>> GetTransferDynamicFormDataSectionLock(long? userIds);
+        Task<List<long?>> UpdateTransferDynamicFormDataSectionLock(List<long?> ids, long? userId);
+        Task<IReadOnlyList<DynamicFormWorkFlowApprovedForm>> GetTransferDynamicFormWorkFlowFormApproved(long? userIds);
+        Task<DynamicFormWorkFlowApprovedForm> UpdateTransferDynamicFormDataWorkFlowFormApproved(List<DynamicFormWorkFlowApprovedForm> ids, long? userIds);
     }
 }

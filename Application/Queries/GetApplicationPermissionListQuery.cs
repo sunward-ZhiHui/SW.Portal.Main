@@ -57,4 +57,5 @@ namespace Application.Queries
     {
 
     }
+    
 }

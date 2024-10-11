@@ -21,7 +21,7 @@ namespace Core.Entities
         public string ActionName { get; set; }
         public string Icon { get; set; }
         public string MenuId { get; set; }
-        [Required(ErrorMessage = "Page URL is Required")]
+        //[Required(ErrorMessage = "Page URL is Required")]
         public string PermissionURL { get; set; }
         public string PermissionGroup { get; set; }
         [Required(ErrorMessage = "Is Required")]

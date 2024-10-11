@@ -221,7 +221,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionID", SessionID);
 
-                var query = "SELECT ParentID,PermissionID,PermissionName FROM ApplicationPermission WHERE UniqueSessionID = @SessionID";
+                var query = "SELECT ParentID,PermissionID,PermissionName,PermissionURL,PermissionOrder FROM ApplicationPermission WHERE UniqueSessionID = @SessionID";
 
                 using (var connection = CreateConnection())
                 {
@@ -252,14 +252,20 @@ namespace Infrastructure.Repository.Query
                 {
                     var parameters = new DynamicParameters();
                     parameters.Add("PermissionID", permissionid);
-                    parameters.Add("PermissionURL", applicationPermission.PermissionURL, DbType.String);
                     parameters.Add("PermissionName", applicationPermission.PermissionName, DbType.String);
                     parameters.Add("ParentID", applicationPermission.ParentID);
-                    //parameters.Add("PermissionLevel", nextPermissionLevel, DbType.String);
-                    parameters.Add("PermissionLevel", applicationPermission.PermissionOrder);
+                    parameters.Add("PermissionLevel", applicationPermission.PermissionLevel);
+                    parameters.Add("PermissionOrder", applicationPermission.PermissionOrder);
+                    parameters.Add("IsHeader", applicationPermission.IsHeader);
+                    parameters.Add("PermissionURL", applicationPermission.PermissionURL);
+                    parameters.Add("Component", applicationPermission.Component);
+                    parameters.Add("Name", applicationPermission.Name);
+                    parameters.Add("IsPermissionURL", applicationPermission.IsPermissionURL);
 
-                    var query = @"INSERT INTO ApplicationPermission(PermissionID,PermissionURL,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,Component,Name,IsCmsApp,IsMobile,IsPermissionURL)
-                                  VALUES (@PermissionID,@PermissionURL,@PermissionName,@ParentID,1,@PermissionLevel,1,1,1,'PortalUrl','PortalUrl',1,0,1)";
+                    var query = @"INSERT INTO ApplicationPermission
+                                 (PermissionID,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,IsCmsApp,IsMobile,IsPermissionURL,
+                                  Component,Name,PermissionURL)
+                                  VALUES (@PermissionID,@PermissionName,@ParentID,@PermissionLevel,@PermissionOrder,1,@IsHeader,1,1,0,@IsPermissionURL,@Component,@Name,@PermissionURL)";
                     var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
                     return rowsAffected;

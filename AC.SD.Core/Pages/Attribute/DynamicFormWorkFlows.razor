@@ -85,6 +85,7 @@
         <Columns>
            @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="DynamicFormWorkFlowId" Visible="false" />
+            <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
             <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
             <DxGridDataColumn FieldName="FullName" Caption="User" MinWidth="40" />
             <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
@@ -192,6 +193,9 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Parallel Workflow" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsParallelWorkflow"></DxCheckBox>
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>

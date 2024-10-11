@@ -27,4 +27,39 @@ namespace Core.EntityModels
         public bool? IsSubForm { get; set; } = false;
         public List<dynamic>? GridSingleItems { get; set; } = new List<dynamic>();
     }
+    public class DynamicFormWorkFlowFormReportItems
+    {
+        public long DynamicFormWorkFlowFormId { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public long? AssignedUserId { get; set; }
+        public DateTime? CompletedDate { get; set; }
+        public int? SequenceNo { get; set; }
+        public bool? IsAllowDelegateUserForm { get; set; } = false;
+        public bool? IsPendingApproval { get; set; } = false;
+        public bool? IsDelegateUser { get; set; } = false;
+        public long? DelegateUserId { get; set; }
+        public long? CurrentApprovalUserId { get; set; }
+        public string? AssignedUser { get; set; }
+        public string? DelegateUser { get; set; }
+        public string? CurrentApprovalUserName { get; set; }
+        public string? SectionName { get; set; }
+        public List<DynamicFormWorkFlowFormApprovedReportItems> DynamicFormWorkFlowFormApprovedReportItems { get; set; } = new List<DynamicFormWorkFlowFormApprovedReportItems>();
+    }
+    public class DynamicFormWorkFlowFormApprovedReportItems
+    {
+        public long DynamicFormWorkFlowApprovedFormId { get; set; }
+        public long? DynamicFormWorkFlowFormID { get; set; }
+        public bool? IsApproved { get; set; }
+        public string? ApprovedDescription { get; set; }
+        public DateTime? ApprovedDate { get; set; }
+        public int? SequenceNo { get; set; }
+        public bool? IsDelegateUser { get; set; } = false;
+        public bool? IsPendingApproval { get; set; } = false;
+        public long? AssignedUserId { get; set; }
+        public long? DelegateUserId { get; set; }
+        public long? CurrentApprovalUserId { get; set; }
+        public string? AssignedUser { get; set; }
+        public string? DelegateUser { get; set; }
+        public string? CurrentApprovalUserName { get; set; }
+    }
 }

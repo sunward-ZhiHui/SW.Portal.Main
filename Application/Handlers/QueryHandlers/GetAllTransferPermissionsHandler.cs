@@ -427,4 +427,30 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.UpdateTransferDynamicFormDataSectionLock(request.Ids, request.UserIds);
         }
     }
+
+
+    public class GetTransferDynamicFormWorkFlowFormApprovedHandler : IRequestHandler<GetTransferDynamicFormWorkFlowFormApproved, List<DynamicFormWorkFlowApprovedForm>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public GetTransferDynamicFormWorkFlowFormApprovedHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<DynamicFormWorkFlowApprovedForm>> Handle(GetTransferDynamicFormWorkFlowFormApproved request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormWorkFlowApprovedForm>)await _queryRepository.GetTransferDynamicFormWorkFlowFormApproved(request.UserIds);
+        }
+    }
+    public class UpdateTransferDynamicFormDataWorkFlowFormApprovedHandler : IRequestHandler<UpdateTransferDynamicFormDataWorkFlowFormApproved, DynamicFormWorkFlowApprovedForm>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public UpdateTransferDynamicFormDataWorkFlowFormApprovedHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<DynamicFormWorkFlowApprovedForm> Handle(UpdateTransferDynamicFormDataWorkFlowFormApproved request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateTransferDynamicFormDataWorkFlowFormApproved(request.Ids, request.UserIds);
+        }
+    }
 }

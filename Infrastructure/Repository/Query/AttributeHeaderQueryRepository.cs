@@ -2650,6 +2650,51 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<DynamicFormWorkFlowFormReportItems>> GetDynamicFormWorkFlowFormReport(List<long> Ids)
+        {
+            try
+            {
+                List<DynamicFormWorkFlowFormReportItems> result = new List<DynamicFormWorkFlowFormReportItems>();
+                List<DynamicFormWorkFlowFormApprovedReportItems> dynamicFormWorkFlowFormApprovedReportItems = new List<DynamicFormWorkFlowFormApprovedReportItems>();
+                List<DynamicFormWorkFlowSectionForm> DynamicFormWorkFlowSectionForm = new List<DynamicFormWorkFlowSectionForm>();
+                if (Ids.Count() > 0)
+                {
+                    var query = "select tt3.DynamicFormWorkFlowFormID,tt3.DynamicFormDataID,tt3.UserID as AssignedUserId,tt3.CompletedDate,tt3.SequenceNo,tt3.IsAllowDelegateUserForm,tt3.IsPendingApproval,tt3.IsDelegateUser,tt3.DelegateUserId,tt3.CurrentApprovalUserId,tt4.UserName as AssignedUser,tt5.UserName as DelegateUser,t4.UserName as CurrentApprovalUserName from (select tt2.* from(select tt1.*,(case when tt1.DelegateWorkFlowFormChangedId>0 THEN  1 ELSE  0 END) as IsDelegateUser,\r\n(case when tt1.DynamicFormWorkFlowFormTotalCount=tt1.DynamicFormWorkFlowFormCount THEN  0 ELSE  1 END) as IsPendingApproval,\r\n(case when tt1.DelegateUserId>0 THEN  tt1.DelegateUserId ELSE  tt1.UserID END) as CurrentApprovalUserId  from (select t1.*,\r\n(Select TOP(1) t2.UserID from DynamicFormWorkFlowFormDelegate t2 where t2.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID order by t2.DynamicFormWorkFlowFormDelegateID desc) as DelegateUserId,\r\n(Select TOP(1) t3.DynamicFormWorkFlowFormDelegateID from DynamicFormWorkFlowFormDelegate t3 where t3.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID order by t3.DynamicFormWorkFlowFormDelegateID desc) as DelegateWorkFlowFormChangedId,\r\n(select count(t5.DynamicFormWorkFlowFormID) from DynamicFormWorkFlowForm t5 where t5.DynamicFormDataID=t1.DynamicFormDataID) as DynamicFormWorkFlowFormTotalCount,\r\n(select count(t55.DynamicFormWorkFlowFormID) from DynamicFormWorkFlowForm t55 where t55.DynamicFormDataID=t1.DynamicFormDataID And t55.FlowStatusID=1) as DynamicFormWorkFlowFormCount\r\n from DynamicFormWorkFlowForm t1 )tt1 )tt2)tt3 " +
+                        "JOIN ApplicationUser t4 ON t4.UserID=tt3.CurrentApprovalUserId " +
+                        "LEFT JOIN ApplicationUser tt4 ON tt4.UserID=tt3.UserID " +
+                        "LEFT JOIN ApplicationUser tt5 ON tt5.UserID=tt3.DelegateUserId WHere tt3.DynamicFormDataID in(" + string.Join(',', Ids) + ");";
+
+                    using (var connection = CreateConnection())
+                    {
+                        result = (await connection.QueryAsync<DynamicFormWorkFlowFormReportItems>(query)).ToList();
+                        if (result != null && result.Count > 0)
+                        {
+                            var formIds = result.Select(s => s.DynamicFormWorkFlowFormId).ToList();
+                            var query1 = "select t1.*,t2.SectionName from DynamicFormWorkFlowSectionForm t1 JOIN DynamicFormSection t2 ON t1.DynamicFormSectionID=t2.DynamicFormSectionID\r\n where t1.DynamicFormWorkFlowFormId in(" + string.Join(',', formIds) + ");";
+                            query1 += "select tt3.DynamicFormWorkFlowApprovedFormID,tt3.DynamicFormWorkFlowFormID,tt3.IsApproved,tt3.ApprovedDescription,tt3.ApprovedDate,tt3.SequenceNo,tt3.IsDelegateUser,tt3.IsPendingApproval,tt3.UserID as AssignedUserId,tt3.DelegateUserId,tt3.CurrentApprovalUserId,tt5.UserName as AssignedUser,tt6.UserName as DelegateUser,tt4.UserName as CurrentApprovalUserName from(select tt2.* from(select tt1.*,\r\n(case when tt1.DynamicFormWorkFlowApprovedFormChangedId>0 THEN  1 ELSE  0 END) as IsDelegateUser,\r\n(case when tt1.DynamicFormWorkFlowFormTotalCount=tt1.DynamicFormWorkFlowFormCount THEN  0 ELSE  1 END) as IsPendingApproval,\r\n(case when tt1.DelegateUserId>0 THEN  tt1.DelegateUserId ELSE  tt1.UserID END) as CurrentApprovalUserId from(select t1.*,\r\n(Select TOP(1) t3.DynamicFormWorkFlowApprovedFormChangedID from DynamicFormWorkFlowApprovedFormChanged t3 where t3.DynamicFormWorkFlowApprovedFormID=t1.DynamicFormWorkFlowApprovedFormID order by t3.DynamicFormWorkFlowApprovedFormChangedID desc) as DynamicFormWorkFlowApprovedFormChangedId,\r\n(Select TOP(1) t2.UserID from DynamicFormWorkFlowApprovedFormChanged t2 where t2.DynamicFormWorkFlowApprovedFormID=t1.DynamicFormWorkFlowApprovedFormID order by t2.DynamicFormWorkFlowApprovedFormChangedID desc) as DelegateUserId,\r\n(select count(t5.DynamicFormWorkFlowFormID) from DynamicFormWorkFlowForm t5 where t5.DynamicFormDataID=t4.DynamicFormDataID) as DynamicFormWorkFlowFormTotalCount,\r\n(select count(t55.DynamicFormWorkFlowFormID) from DynamicFormWorkFlowForm t55 where t55.DynamicFormDataID=t4.DynamicFormDataID And t55.FlowStatusID=1) as DynamicFormWorkFlowFormCount,t4.SequenceNo\r\nfrom DynamicFormWorkFlowApprovedForm t1 JOIN DynamicFormWorkFlowForm t4 ON t4.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID )tt1)tt2)\r\ntt3 JOIN ApplicationUser tt4 ON tt4.UserID=tt3.CurrentApprovalUserId  \r\nLEFT JOIN ApplicationUser tt5 ON tt5.UserID=tt3.UserID " +
+                                "LEFT JOIN ApplicationUser tt6 ON tt6.UserID=tt3.DelegateUserId where tt3.DynamicFormWorkFlowFormId in(" + string.Join(',', formIds) + ");";
+                            var results = await connection.QueryMultipleAsync(query1);
+                            DynamicFormWorkFlowSectionForm = results.Read<DynamicFormWorkFlowSectionForm>().ToList();
+                            dynamicFormWorkFlowFormApprovedReportItems = results.Read<DynamicFormWorkFlowFormApprovedReportItems>().ToList();
+                        }
+                    }
+                    if (result != null && result.Count > 0)
+                    {
+                        result.ForEach(s =>
+                        {
+                            var res = DynamicFormWorkFlowSectionForm.Where(w => w.DynamicFormWorkFlowFormID == s.DynamicFormWorkFlowFormId && w.SectionName != null && w.SectionName != null).Select(a => a.SectionName).Distinct().ToList();
+                            s.SectionName = res != null && res.Count() > 0 ? string.Join(',', res) : string.Empty;
+                            s.DynamicFormWorkFlowFormApprovedReportItems = dynamicFormWorkFlowFormApprovedReportItems.Where(w => w.DynamicFormWorkFlowFormID == s.DynamicFormWorkFlowFormId).ToList();
+                        });
+                    }
+                }
+                return result;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<DynamicFormData>> GetAllDynamicFormAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, string? BasUrl)
         {
             var _dynamicformObjectDataList = new List<DynamicFormData>();
@@ -2661,6 +2706,7 @@ namespace Infrastructure.Repository.Query
                 List<Guid?> SessionIds = new List<Guid?>();
                 var parameters = new DynamicParameters();
                 List<ApplicationUser> appUsers = new List<ApplicationUser>();
+                List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems = new List<DynamicFormWorkFlowFormReportItems>();
                 var query = string.Empty;
                 if (DynamicFormSessionId != null)
                 {
@@ -2707,17 +2753,21 @@ namespace Infrastructure.Repository.Query
                             }
                             if (!string.IsNullOrEmpty(query1))
                             {
+                                List<long> DynamicFormDataIds = new List<long>();
                                 var results = await connection.QueryMultipleAsync(query1, parameters);
                                 dynamicFormData = results.Read<DynamicFormData>().ToList();
                                 userIds.AddRange(dynamicFormData.Where(w => w.AddedByUserID > 0).Select(s => s.AddedByUserID).ToList());
                                 userIds.AddRange(dynamicFormData.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
+                                DynamicFormDataIds.AddRange(dynamicFormData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
                                 dynamicFormGridData = results.Read<DynamicFormData>().ToList();
                                 if (dynamicFormGridData != null && dynamicFormGridData.Count() > 0)
                                 {
+                                    DynamicFormDataIds.AddRange(dynamicFormGridData.Where(w => w.DynamicFormDataId > 0).Select(s => s.DynamicFormDataId).ToList());
                                     userIds.AddRange(dynamicFormGridData.Where(w => w.AddedByUserID > 0).Select(s => s.AddedByUserID).ToList());
                                     userIds.AddRange(dynamicFormGridData.Where(w => w.ModifiedByUserID > 0).Select(s => s.ModifiedByUserID).ToList());
                                     Ids.AddRange(dynamicFormGridData.Where(w => w.DynamicFormId > 0).Select(s => s.DynamicFormId).Distinct().ToList());
                                 }
+                                DynamicFormWorkFlowFormReportItems = await GetDynamicFormWorkFlowFormReport(DynamicFormDataIds);
                                 if (userIds.Count() > 0)
                                 {
                                     var query2 = "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
@@ -2750,7 +2800,7 @@ namespace Infrastructure.Repository.Query
                             }
                             var PlantDependencySubAttributeDetails = await _dynamicFormDataSourceQueryRepository.GetDataSourceDropDownList(null, dataSourceTableIds, null, ApplicationMasterIds, ApplicationMasterParentIds != null ? ApplicationMasterParentIds : new List<long?>());
                             var PlantDependencySubAttributeDetailss = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.ToList() : new List<AttributeDetails>();
-                            _dynamicformObjectDataList = GetDynamicFormDataAllLists(_AttributeHeader, dynamicFormData, _dynamicForm, PlantDependencySubAttributeDetailss, BasUrl, dynamicFormGridData, appUsers);
+                            _dynamicformObjectDataList = GetDynamicFormDataAllLists(_AttributeHeader, dynamicFormData, _dynamicForm, PlantDependencySubAttributeDetailss, BasUrl, dynamicFormGridData, appUsers, DynamicFormWorkFlowFormReportItems);
                         }
                     }
                 }
@@ -2763,7 +2813,7 @@ namespace Infrastructure.Repository.Query
 
 
         }
-        private List<DynamicFormData> GetDynamicFormDataAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers)
+        private List<DynamicFormData> GetDynamicFormDataAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems)
         {
             var _dynamicformObjectDataList = new List<DynamicFormData>();
             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -2803,6 +2853,7 @@ namespace Infrastructure.Repository.Query
                         dynamicFormData.DynamicFormSectionGridAttributeId = r.DynamicFormSectionGridAttributeId;
                         dynamicFormData.DynamicFormSectionGridAttributeSessionId = r.DynamicFormSectionGridAttributeSessionId;
                         dynamicFormData.IsDraft = r.IsDraft;
+                        dynamicFormData.DynamicFormWorkFlowFormReportItems = dynamicFormWorkFlowFormReportItems.Where(w => w.DynamicFormDataId == r.DynamicFormDataId).OrderBy(o => o.SequenceNo).ToList();
                         objectDataList["dynamicFormDataId"] = r.DynamicFormDataId;
                         objectDataList["profileNo"] = r.ProfileNo;
                         objectDataList["name"] = _dynamicForm?.Name;
@@ -2851,7 +2902,7 @@ namespace Infrastructure.Repository.Query
                                         dynamicFormReportItems1.DynamicFormSectionGridAttributeSessionId = s.SessionId;
                                         var gridDataItem = dynamicFormGridData?.Where(a => a.DynamicFormDataGridId == r.DynamicFormDataId && a.DynamicFormId == s.DynamicFormGridDropDownId && a.DynamicFormSectionGridAttributeId == s.DynamicFormSectionAttributeId).OrderBy(o => o.GridSortOrderByNo).ToList();
                                         var _dynamicForms = _AttributeHeader.DynamicFormAll?.FirstOrDefault(f => f.ID == s.DynamicFormGridDropDownId);
-                                        var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers);
+                                        var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers, dynamicFormWorkFlowFormReportItems);
                                         var datass = res?.Select(s => s.ObjectDataItems).ToList();
                                         dynamicFormReportItems1.GridItems = res;
                                         dynamicFormReportItems1.GridSingleItems = datass != null ? datass : new List<dynamic?>();
@@ -3250,7 +3301,7 @@ namespace Infrastructure.Repository.Query
                                                                         List<long?> listData = itemDepValue.ToObject<List<long?>>();
 
                                                                         var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
-                                                                        if (dd.DataSourceTable == "FinishedProdOrderLine" ||dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                        if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                                                         {
                                                                             listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
                                                                         }
@@ -3318,7 +3369,7 @@ namespace Infrastructure.Repository.Query
                                                         {
                                                             listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
                                                         }
-                                                            ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                                        ValueSets = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                     }
                                                     else
                                                     {

@@ -17,6 +17,9 @@
                     <DxFormLayoutTabPage Caption="From Data Workflow">
                         <AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlow @ref="refTransferDynamicFormWorkFlow" Data="@Data"></AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlow>
                     </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="From Data Workflow Approved">
+                        <AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlowApproved @ref="refTransferDynamicFormWorkFlowApproved" Data="@Data"></AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlowApproved>
+                    </DxFormLayoutTabPage>
                     <DxFormLayoutTabPage Caption="From Data Lock">
                         <AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataLock @ref="refTransferDynamicFormDataLock" Data="@Data"></AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataLock>
                     </DxFormLayoutTabPage>
@@ -37,6 +40,7 @@
     private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataLock refTransferDynamicFormDataLock;
     private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataApproved refTransferDynamicFormDataApproved;
     private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlow refTransferDynamicFormWorkFlow;
+    private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlowApproved refTransferDynamicFormWorkFlowApproved;
     protected override async Task OnInitializedAsync()
     {
 
@@ -64,6 +68,10 @@
         {
             await refTransferDynamicFormDataSectionLock.loadDynamicFormDataSectionLock(Data);
         }
+        if (refTransferDynamicFormWorkFlowApproved != null)
+        {
+            await refTransferDynamicFormWorkFlowApproved.loadDynamicFormWorkFlowFormApproved(Data);
+        }
     }
     public async ValueTask DisposeAsync()
     {
@@ -71,5 +79,6 @@
         refTransferDynamicFormWorkFlow?.DisposeAsync();
         refTransferDynamicFormDataLock?.DisposeAsync();
         refTransferDynamicFormDataSectionLock?.DisposeAsync();
+        refTransferDynamicFormWorkFlowApproved?.DisposeAsync();
     }
 }

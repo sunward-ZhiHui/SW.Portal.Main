@@ -265,6 +265,26 @@ namespace Application.Queries
         }
     }
 
+    public class GetTransferDynamicFormWorkFlowFormApproved : PagedRequest, IRequest<List<DynamicFormWorkFlowApprovedForm>>
+    {
+        public long? UserIds { get; set; }
+        public GetTransferDynamicFormWorkFlowFormApproved(long? userIds)
+        {
+            this.UserIds = userIds;
+        }
+    }
+    public class UpdateTransferDynamicFormDataWorkFlowFormApproved : PagedRequest, IRequest<DynamicFormWorkFlowApprovedForm>
+    {
+        public List<DynamicFormWorkFlowApprovedForm> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferDynamicFormDataWorkFlowFormApproved(List<DynamicFormWorkFlowApprovedForm> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
+
+
     public class GetTransferDynamicFormDataLock : PagedRequest, IRequest<List<DynamicFormData>>
     {
         public long? UserIds { get; set; }

@@ -46,5 +46,7 @@ namespace Core.Repositories.Query
         Task<List<long?>> UpdateTransferDynamicFormDataLock(List<long?> ids, long? userId);
         Task<IReadOnlyList<DynamicFormDataSectionLock>> GetTransferDynamicFormDataSectionLock(long? userIds);
         Task<List<long?>> UpdateTransferDynamicFormDataSectionLock(List<long?> ids, long? userId);
+        Task<IReadOnlyList<DynamicFormWorkFlowApprovedForm>> GetTransferDynamicFormWorkFlowFormApproved(long? userIds);
+        Task<DynamicFormWorkFlowApprovedForm> UpdateTransferDynamicFormDataWorkFlowFormApproved(List<DynamicFormWorkFlowApprovedForm> ids, long? userIds);
     }
 }

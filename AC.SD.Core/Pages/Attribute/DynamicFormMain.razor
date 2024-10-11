@@ -379,6 +379,7 @@
                                 b.AddAttribute(n++, "CssClass", "templateGrid");
                                 b.AddAttribute(n++, "PagerNavigationMode", PagerNavigationMode.InputBox);
                                 b.AddAttribute(n++, "PageSizeSelectorVisible", true);
+                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.Mixed);
                                 b.AddAttribute(n++, "PageSizeSelectorAllRowsItemVisible", true);
                                 b.AddAttribute(n++, "PageSizeSelectorItems", new int[] { 5, 10, 20 });
                                 b.AddAttribute(n++, "PageSize", GridDropBoxData != null ? GridDropBoxData.PageSize : 10);
@@ -495,7 +496,7 @@
                                 b.AddAttribute(n++, "HighlightRowOnHover", true);
                                 b.AddAttribute(n++, "SearchTextParseMode", GridSearchTextParseMode.GroupWordsByOr);
                                 b.AddAttribute(n++, "SelectionMode", GridSelectionMode.Multiple);
-                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.AllPages);
+                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.Mixed);
                                 b.AddAttribute(n++, "AllowSelectRowByClick", true);
                                 b.AddAttribute(n++, "RowClick", EventCallback.Factory.Create<GridRowClickEventArgs>(this, item => OnRowclick(item, context.DropDownBox)));
                                 b.AddAttribute(n++, "FocusedRowEnabled", true);
@@ -607,7 +608,7 @@
                                 b.AddAttribute(n++, "HighlightRowOnHover", true);
                                 b.AddAttribute(n++, "SearchTextParseMode", GridSearchTextParseMode.GroupWordsByOr);
                                 b.AddAttribute(n++, "SelectionMode", GridSelectionMode.Multiple);
-                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.AllPages);
+                                b.AddAttribute(n++, "SelectAllCheckboxMode", GridSelectAllCheckboxMode.Mixed);
                                 b.AddAttribute(n++, "AllowSelectRowByClick", true);
                                 b.AddAttribute(n++, "RowClick", EventCallback.Factory.Create<GridRowClickEventArgs>(this, item => OnRowclick(item, context.DropDownBox)));
                                 b.AddAttribute(n++, "FocusedRowEnabled", true);

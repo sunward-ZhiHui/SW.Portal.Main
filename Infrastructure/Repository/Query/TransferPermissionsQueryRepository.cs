@@ -952,7 +952,89 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormWorkFlowApprovedForm>> GetTransferDynamicFormWorkFlowFormApproved(long? userIds)
+        {
+            try
+            {
+                List<DynamicFormWorkFlowApprovedForm> result = new List<DynamicFormWorkFlowApprovedForm>(); List<DynamicFormWorkFlowSectionForm> DynamicFormWorkFlowSectionForm = new List<DynamicFormWorkFlowSectionForm>();
+                userIds = userIds != null ? userIds : -1;
+                if (userIds > 0)
+                {
+                    var query = "select tt3.*,tt4.UserName as CurrentApprovalUserName from(select tt2.* from(select tt1.*,\r\n(case when tt1.DynamicFormWorkFlowApprovedFormChangedId>0 THEN  1 ELSE  0 END) as IsDelegateUser,\r\n(case when tt1.DynamicFormWorkFlowFormTotalCount=tt1.DynamicFormWorkFlowFormCount THEN  0 ELSE  1 END) as IsPendingApproval,\r\n(case when tt1.ApproverUserId>0 THEN  tt1.ApproverUserId ELSE  tt1.UserID END) as CurrentApprovalUserId from(select t1.*,\r\n(Select TOP(1) t3.DynamicFormWorkFlowApprovedFormChangedID from DynamicFormWorkFlowApprovedFormChanged t3 where t3.DynamicFormWorkFlowApprovedFormID=t1.DynamicFormWorkFlowApprovedFormID order by t3.DynamicFormWorkFlowApprovedFormChangedID desc) as DynamicFormWorkFlowApprovedFormChangedId,\r\n(Select TOP(1) t2.UserID from DynamicFormWorkFlowApprovedFormChanged t2 where t2.DynamicFormWorkFlowApprovedFormID=t1.DynamicFormWorkFlowApprovedFormID order by t2.DynamicFormWorkFlowApprovedFormChangedID desc) as ApproverUserId,\r\nt4.DynamicFormDataID,t4.SequenceNo,t4.FlowStatusID,t4.CompletedDate,t6.ProfileNo,t6.SessionID as FormDataSessionId,t7.SessionID as FormSessionId,t7.Name as FormName ,\r\n(select count(t5.DynamicFormWorkFlowFormID) from DynamicFormWorkFlowForm t5 where t5.DynamicFormDataID=t4.DynamicFormDataID) as DynamicFormWorkFlowFormTotalCount,\r\n(select count(t55.DynamicFormWorkFlowFormID) from DynamicFormWorkFlowForm t55 where t55.DynamicFormDataID=t4.DynamicFormDataID And t55.FlowStatusID=1) as DynamicFormWorkFlowFormCount\r\nfrom DynamicFormWorkFlowApprovedForm t1 JOIN DynamicFormWorkFlowForm t4 ON t4.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID JOIN DynamicFormData t6 ON t6.DynamicFormDataID=t4.DynamicFormDataID JOIN DynamicForm t7 ON t7.ID=t6.DynamicFormID Where (t6.IsDeleted is null OR t6.IsDeleted=0) AND (t7.IsDeleted is null OR t7.IsDeleted=0))tt1)tt2)\r\ntt3 " +
+                        "JOIN ApplicationUser tt4 ON tt4.UserID=tt3.CurrentApprovalUserId WHERE tt3.IsPendingApproval=1 AND (tt3.IsApproved is null OR tt3.IsApproved=0)  AND tt3.CurrentApprovalUserId=" + userIds + ";";
 
+                    using (var connection = CreateConnection())
+                    {
+                        result = (await connection.QueryAsync<DynamicFormWorkFlowApprovedForm>(query)).ToList();
+                        if (result != null && result.Count > 0)
+                        {
+                            var formIds = result.Select(s => s.DynamicFormWorkFlowFormID).ToList();
+                            var query1 = "select t1.*,t2.SectionName from DynamicFormWorkFlowSectionForm t1 JOIN DynamicFormSection t2 ON t1.DynamicFormSectionID=t2.DynamicFormSectionID\r\n where t1.DynamicFormWorkFlowFormId in(" + string.Join(',', formIds) + ");";
+                            DynamicFormWorkFlowSectionForm = (await connection.QueryAsync<DynamicFormWorkFlowSectionForm>(query1)).ToList();
+                        }
+                    }
+                    if (result != null && result.Count > 0)
+                    {
+                        result.ForEach(s =>
+                        {
+                            var res = DynamicFormWorkFlowSectionForm.Where(w => w.DynamicFormWorkFlowFormID == s.DynamicFormWorkFlowFormID && w.SectionName != null && w.SectionName != null).Select(a => a.SectionName).Distinct().ToList();
+                            s.SectionName = res != null && res.Count() > 0 ? string.Join(',', res) : string.Empty;
+                            
+                        });
+                    }
+                }
+                return result;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormWorkFlowApprovedForm> UpdateTransferDynamicFormDataWorkFlowFormApproved(List<DynamicFormWorkFlowApprovedForm> ids, long? userIds)
+        {
+            try
+            {
+                DynamicFormWorkFlowApprovedForm dynamicFormApproved = new DynamicFormWorkFlowApprovedForm();
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var query = string.Empty;
+                        if (ids != null && ids.Count() > 0)
+                        {
+                            ids.ForEach(s =>
+                            {
+                                var parameters = new DynamicParameters();
+                                if (s.IsDelegateUser == true)
+                                {
+                                    query += "Update DynamicFormWorkFlowApprovedFormChanged set userId=" + userIds + " WHERE  DynamicFormWorkFlowApprovedFormChangedID =" + s.DynamicFormWorkFlowApprovedFormChangedId + ";\n\r";
+                                }
+                                else
+                                {
+                                    query += "Update DynamicFormWorkFlowApprovedForm set userId=" + userIds + " WHERE  DynamicFormWorkFlowApprovedFormID =" + s.DynamicFormWorkFlowApprovedFormID + ";\n\r";
+                                }
+                            });
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                await connection.QuerySingleOrDefaultAsync<long>(query);
+                            }
+                        }
+                        return dynamicFormApproved;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DynamicFormData>> GetTransferDynamicFormDataLock(long? userIds)
         {
             try
@@ -975,6 +1057,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
         public async Task<IReadOnlyList<DynamicFormDataSectionLock>> GetTransferDynamicFormDataSectionLock(long? userIds)
         {
             try

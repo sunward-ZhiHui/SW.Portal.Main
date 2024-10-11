@@ -30,7 +30,7 @@
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="dynamicFormWorkFlowApprovalItems"
             ShowGroupPanel="true" ShowGroupedColumns="true"
-            KeyFieldName="DynamicFormWorkFlowFormId"
+            KeyFieldName="DynamicFormWorkFlowApprovedFormID"
             ShowSearchBox="true"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
@@ -49,10 +49,11 @@
             AllowSelectRowByClick="true">
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-            <DxGridDataColumn FieldName="DynamicFormWorkFlowFormId" Visible="false" />
+            <DxGridDataColumn FieldName="DynamicFormWorkFlowApprovedFormID" Visible="false" />
             <DxGridDataColumn FieldName="FormName" Caption="Form Name" MinWidth="100" />
             <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="100" />
             <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
+            <DxGridDataColumn FieldName="SequenceNo" Caption="SequenceNo" MinWidth="100" />
             <DxGridDataColumn FieldName="CurrentApprovalUserName" Caption="Name" MinWidth="100" />
             <DxGridDataColumn FieldName="IsDelegateUser" Caption="Is Delegate User" />
             <DxGridCommandColumn Width="160px" Visible="false" />
@@ -66,21 +67,21 @@
 
     [Parameter]
     public ResetPermissionModel? Data { get; set; }
-    public List<DynamicFormWorkFlowForm> dynamicFormWorkFlowApprovalItems { get; set; }
+    public List<DynamicFormWorkFlowApprovedForm> dynamicFormWorkFlowApprovalItems { get; set; }
     bool PanelFormApprovalVisible { get; set; }
     IGrid? TransferFromApprovalGrid { get; set; }
     bool updateFormApprovalEnabled { get; set; } = false; bool EditFormEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedFormApprovalDataItems { get; set; }
-    private DynamicFormWorkFlowForm _selectedItems;
+    private DynamicFormWorkFlowApprovedForm _selectedItems;
     protected override async Task OnInitializedAsync()
     {
-        await loadDynamicFormWorkFlowForms();
+        await loadDynamicFormWorkFlowFormApproveds();
     }
 
-    public async Task loadDynamicFormWorkFlowForm(ResetPermissionModel data)
+    public async Task loadDynamicFormWorkFlowFormApproved(ResetPermissionModel data)
     {
         Data = data;
-        await loadDynamicFormWorkFlowForms();
+        await loadDynamicFormWorkFlowFormApproveds();
     }
     async Task OpenNewForm()
     {
@@ -90,13 +91,13 @@
             await JS.InvokeVoidAsync("window.open", url, "_blank");
         }
     }
-    async Task loadDynamicFormWorkFlowForms()
+    async Task loadDynamicFormWorkFlowFormApproveds()
     {
         try
         {
             updateFormApprovalEnabled = false; EditFormEnabled = false;
             PanelFormApprovalVisible = true;
-            dynamicFormWorkFlowApprovalItems = await Mediator.Send(new GetTransferDynamicFormWorkFlowForm(Data.FromUserId));
+            dynamicFormWorkFlowApprovalItems = await Mediator.Send(new GetTransferDynamicFormWorkFlowFormApproved(Data.FromUserId));
             if (dynamicFormWorkFlowApprovalItems != null && dynamicFormWorkFlowApprovalItems.Count > 0)
             {
                 updateFormApprovalEnabled = true; EditFormEnabled = true;
@@ -113,8 +114,8 @@
     }
     void OnRowclick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormWorkFlowFormId");
-        _selectedItems = dynamicFormWorkFlowApprovalItems.FirstOrDefault(f => f.DynamicFormWorkFlowFormId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormWorkFlowApprovedFormID");
+        _selectedItems = dynamicFormWorkFlowApprovalItems.FirstOrDefault(f => f.DynamicFormWorkFlowApprovedFormID == (long?)UniqueId);
         updateFormApprovalEnabled = true; EditFormEnabled = true;
     }
     void SelectedFormApprovalDataItemsChanged(IReadOnlyList<object> SelectedToItems)
@@ -130,9 +131,9 @@
             {
                 foreach (object item in SelectedFormApprovalDataItems)
                 {
-                    if (item is DynamicFormWorkFlowForm dataselectItems)
+                    if (item is DynamicFormWorkFlowApprovedForm dataselectItems)
                     {
-                        _selectedItems = (DynamicFormWorkFlowForm)item;
+                        _selectedItems = (DynamicFormWorkFlowApprovedForm)item;
                     }
                 }
             }
@@ -141,14 +142,14 @@
     }
     async Task updateFormApproval()
     {
-        List<DynamicFormWorkFlowForm> ids = new List<DynamicFormWorkFlowForm>();
+        List<DynamicFormWorkFlowApprovedForm> ids = new List<DynamicFormWorkFlowApprovedForm>();
         try
         {
             if (SelectedFormApprovalDataItems != null)
             {
                 foreach (object item in SelectedFormApprovalDataItems)
                 {
-                    if (item is DynamicFormWorkFlowForm dataItem)
+                    if (item is DynamicFormWorkFlowApprovedForm dataItem)
                     {
                         ids.Add(dataItem);
                     }
@@ -158,10 +159,10 @@
                 {
                     if (ids != null && ids.Count > 0)
                     {
-                        var request = new UpdateTransferDynamicFormDataWorkFlowForm(ids, Data.ToUserId);
+                        var request = new UpdateTransferDynamicFormDataWorkFlowFormApproved(ids, Data.ToUserId);
                         await Mediator.Send(request);
                         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        await loadDynamicFormWorkFlowForms();
+                        await loadDynamicFormWorkFlowFormApproveds();
                         TransferFromApprovalGrid?.ClearSelection();
                         TransferFromApprovalGrid.SetFocusedRowIndex(0);
                         StateHasChanged();

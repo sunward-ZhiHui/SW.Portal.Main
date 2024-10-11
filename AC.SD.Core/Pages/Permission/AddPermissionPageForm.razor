@@ -1,0 +1,156 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime JSRuntime;
+@using System.Collections
+@using BlazorBarcodeScanner.ZXing.JS
+@using System.Text.Json;
+@using System.IO;
+@using System.Dynamic;
+@implements IAsyncDisposable
+@inject NavigationManager NavigationManager
+
+
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@ResetForm" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitProductionFormExternally" />
+                    </Items>
+                </DxMenu>
+            </div>
+         
+
+        </div>
+    </div>
+</div>
+@* <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4; padding-bottom:10px;">
+        <div class="cw-480" style="margin-top:10px;"> *@
+<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="SubmitProductionFormExternally">
+
+    <DataAnnotationsValidator />
+    <DxFormLayout CssClass="w-100">
+
+        <DxFormLayoutItem Caption="Page Name" ColSpanMd="12">
+            <DxTextBox @bind-Text="@Data.PermissionName" ShowValidationIcon="true" />
+            <ValidationMessage For="@(() => Data.PermissionName)" />
+        </DxFormLayoutItem>
+       
+        <DxFormLayoutItem Caption="Order" ColSpanMd="12">
+            <DxTextBox @bind-Text="@Data.PermissionOrder" />
+            <ValidationMessage For="@(() => Data.PermissionOrder)" />
+        </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Page URL" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@Data.PermissionURL" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => Data.PermissionURL)" />
+                </DxFormLayoutItem>
+    </DxFormLayout>
+</EditForm>
+  @*   </div>
+</div> *@
+@code {
+    [Parameter]
+    public bool? IsEdit { get; set; }
+    [Parameter]
+    public Guid? SessionIds { get; set; }
+    EditContext _editContext;
+    ApplicationPermission Data = new ApplicationPermission();
+    long? ParentID { get; set; }
+    private List<ApplicationPermission> _Data;
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public Action RevokeBackEdit { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        ParentID = 60400;
+        if (SessionIds != null)
+        {
+            _Data = await Mediator.Send(new GetApplicationBySessionIDListQuery(SessionIds));
+            ParentID = _Data[0].PermissionID;
+        }
+
+        if(SessionIds != null && IsEdit == true)
+        {
+
+            Data.PermissionName = _Data[0].PermissionName;
+            Data.PermissionURL = _Data[0].PermissionURL;
+            Data.PermissionOrder = _Data[0].PermissionOrder;
+            Data.PermissionID = _Data[0].PermissionID;
+            StateHasChanged();
+        }
+    }
+    private async Task SubmitProductionFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleProductionFormValidSubmit();
+        }
+    }
+    async Task HandleProductionFormValidSubmit()
+    {
+        if (SessionIds != null && IsEdit == true)
+        {
+            var request = new EditApplicationPermissionListQuery
+                {
+                    PermissionID = Data.PermissionID,
+                    PermissionName = Data.PermissionName,
+                    PermissionURL = Data.PermissionURL,
+                    PermissionOrder = Data.PermissionOrder
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record update Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            RevokeBackEdit?.Invoke();
+        }
+        else
+        {
+            var request = new CreateApplicationPermissionQuery
+                {
+
+
+                    ParentID = ParentID,
+                    PermissionName = Data.PermissionName,
+                    PermissionURL = Data.PermissionURL,
+                    Component = "PortalUrl",
+                    Name = "PortalUrl",
+                    PermissionLevel = 1,
+                    IsPermissionURL = true,
+                    IsHeader = false,
+                    PermissionOrder = Data.PermissionOrder
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            RevokeBack?.Invoke();
+
+        }
+       
+    }
+    void backUrl()
+    {
+        NavigationManager.NavigateTo("applicationTest");
+    }
+    void ResetForm()
+    {
+        Data = new ApplicationPermission();
+        
+        NavigationManager.NavigateTo("applicationTest/AddApplicationPage");
+    }
+    public async ValueTask DisposeAsync()
+    {
+        
+    }
+}

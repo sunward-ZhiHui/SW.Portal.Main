@@ -14,6 +14,18 @@
                     <DxFormLayoutTabPage Caption="From Data Approved">
                         <AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataApproved @ref="refTransferDynamicFormDataApproved" Data="@Data"></AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataApproved>
                     </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="From Data Workflow">
+                        <AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlow @ref="refTransferDynamicFormWorkFlow" Data="@Data"></AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlow>
+                    </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="From Data Workflow Approved">
+                        <AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlowApproved @ref="refTransferDynamicFormWorkFlowApproved" Data="@Data"></AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlowApproved>
+                    </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="From Data Lock">
+                        <AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataLock @ref="refTransferDynamicFormDataLock" Data="@Data"></AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataLock>
+                    </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="From Data Section Lock">
+                        <AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataSectionLock @ref="refTransferDynamicFormDataSectionLock" Data="@Data"></AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataSectionLock>
+                    </DxFormLayoutTabPage>
                 </DxFormLayoutTabPages>
             </DxFormLayout>
         </div>
@@ -24,8 +36,11 @@
     public ResetPermissionModel? Data { get; set; }
     int ActiveSubTabIndex { get; set; } = 0;
     int tabIndex { get; set; } = 0;
+    private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataSectionLock refTransferDynamicFormDataSectionLock;
+    private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataLock refTransferDynamicFormDataLock;
     private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormDataApproved refTransferDynamicFormDataApproved;
-    
+    private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlow refTransferDynamicFormWorkFlow;
+    private AC.SD.Core.Pages.TransferPermissions.DynamicFormDataTransfer.TransferDynamicFormWorkFlowApproved refTransferDynamicFormWorkFlowApproved;
     protected override async Task OnInitializedAsync()
     {
 
@@ -41,9 +56,29 @@
         {
             await refTransferDynamicFormDataApproved.loadFromApproved(Data);
         }
+        if (refTransferDynamicFormWorkFlow != null)
+        {
+            await refTransferDynamicFormWorkFlow.loadDynamicFormWorkFlowForm(Data);
+        }
+        if (refTransferDynamicFormDataLock != null)
+        {
+            await refTransferDynamicFormDataLock.loadDynamicFormDataLock(Data);
+        }
+        if (refTransferDynamicFormDataSectionLock != null)
+        {
+            await refTransferDynamicFormDataSectionLock.loadDynamicFormDataSectionLock(Data);
+        }
+        if (refTransferDynamicFormWorkFlowApproved != null)
+        {
+            await refTransferDynamicFormWorkFlowApproved.loadDynamicFormWorkFlowFormApproved(Data);
+        }
     }
     public async ValueTask DisposeAsync()
     {
         refTransferDynamicFormDataApproved?.DisposeAsync();
+        refTransferDynamicFormWorkFlow?.DisposeAsync();
+        refTransferDynamicFormDataLock?.DisposeAsync();
+        refTransferDynamicFormDataSectionLock?.DisposeAsync();
+        refTransferDynamicFormWorkFlowApproved?.DisposeAsync();
     }
 }

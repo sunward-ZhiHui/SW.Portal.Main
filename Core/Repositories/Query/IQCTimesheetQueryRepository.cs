@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.EntityModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<TimeSheetForQC>> GetAllQCTimeSheetAsync(long QCTimeSheetID);
         Task<long> UpdateStatus(long ID ,long StatusID,long ModifiedByUserID);
         Task<IReadOnlyList<TimeSheetForQC>> GetMultipleQueryAsync(long? QCTimesheetID);
+        Task<IReadOnlyList<view_QCAssignmentRM>> GetAllListByQRAsync(string Date,string Company);
     }
 }

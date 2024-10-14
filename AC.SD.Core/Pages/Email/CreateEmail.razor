@@ -370,7 +370,7 @@ else
                                 @* <ValidationMessage For="@(() => CategoryData.Name)" /> *@
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
-                                <DxComboBox Data="@_UserTagList"
+                               @*  <DxComboBox Data="@_UserTagList"
                                             NullText="Select User Tag..."
                                             ListRenderMode="ListRenderMode.Virtual"
                                             SearchMode="ListSearchMode.AutoSearch"
@@ -381,7 +381,19 @@ else
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                             @bind-Value="@CategoryData.UserTag"
                                             @bind-Text="@UserTagName">
-                                </DxComboBox>
+                                </DxComboBox> *@
+                                <DxTagBox Data="_UserTagList"
+                                          @bind-Values="CategoryData.UserTagIds"
+                                          NullText="Select User Tag"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="ID"
+                                          TextFieldName="UserTag"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          CssClass="cw-480">
+                                    <DxListEditorColumn FieldName="@nameof(EmailActivityCatgorys.UserTag)" Caption="User Tag" />
+                                </DxTagBox>
                                 @* <ValidationMessage For="@(() => CategoryData.UserTag)" /> *@
                             </DxFormLayoutItem>
 
@@ -1559,6 +1571,7 @@ else
             UserTagName = null;
 
             CategoryData.ActionTagIds = new List<long?>();
+             CategoryData.UserTagIds = new List<long?>();
             _actionTagItems = null;
             _categoryTagItems = null;
 
@@ -1640,6 +1653,7 @@ else
             OthersTagName = null;
             UserTagName = null;
             CategoryData.ActionTagIds = new List<long?>();
+            CategoryData.UserTagIds = new List<long?>();
             _actionTagItems = null;
             _categoryTagItems = null;
         }
@@ -1719,6 +1733,7 @@ else
             OthersTagName = null;
             UserTagName = null;
             CategoryData.ActionTagIds = new List<long?>();
+              CategoryData.UserTagIds = new List<long?>();
             _actionTagItems = null;
             _categoryTagItems = null;
         }
@@ -2297,9 +2312,11 @@ else
                     CategoryTag = CategoryData.CategoryTag,
                     ActionTag = CategoryData.ActionTag,
                     ActionTagIds = CategoryData.ActionTagIds,
+
                     //actName = CategoryData.Name,
                     actName = OthersTagName,
                     UserTag = UserTagName,
+                    UserTagIds =CategoryData.UserTagIds,
                     ActivityType = ActivityType,
                     UserType = Data.UserType,
                     ToUserGroup = sToUserGroup,

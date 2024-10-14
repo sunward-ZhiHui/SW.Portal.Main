@@ -47,6 +47,18 @@ namespace Core.Entities
         public int? FlowStatusID { get; set; }
         public long? ApproverUserId { get; set; }
         public string? ApproverUserName { get; set; }
+        public bool? IsPendingApproval { get; set; } = false;
+        public string? FormName { get; set; }
+        public bool? IsDelegateUser { get; set; } = false;
+        public long? DynamicFormWorkFlowApprovedFormChangedId { get; set; }
+        public Guid? FormSessionId { get; set; }
+        public Guid? FormDataSessionId { get; set; }
+        public int? SequenceNo { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public DateTime? CompletedDate { get; set; }
+        public long? CurrentApprovalUserId { get; set; }
+        public string? CurrentApprovalUserName { get; set; }
+        public string? SectionName { get; set; }
     }
     public class DynamicFormWorkFlowApprovedFormChanged
     {

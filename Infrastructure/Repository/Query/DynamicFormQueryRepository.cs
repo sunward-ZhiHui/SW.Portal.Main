@@ -1672,6 +1672,7 @@ namespace Infrastructure.Repository.Query
                             _dynamicFormWorkFlows.ForEach(s =>
                             {
                                 int? IsAllowDelegateUser = s.IsAllowDelegateUser == true ? 1 : null;
+                                int? IsParallelWorkflow = s.IsParallelWorkflow == true ? 1 : null;
                                 var query = string.Empty;
                                 int FlowStatusIDs = 0;
                                 var _dynamicFormWorkFlowSections = dataList.DynamicFormWorkFlowSection.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).ToList();
@@ -1680,10 +1681,18 @@ namespace Infrastructure.Repository.Query
                                 {
                                     query += ",IsAllowDelegateUserForm";
                                 }
+                                if (IsParallelWorkflow == 1)
+                                {
+                                    query += ",IsParallelWorkflow";
+                                }
                                 query += ") OUTPUT INSERTED.DynamicFormWorkFlowFormID VALUES (" + s.SequenceNo + "," + s.UserId + "," + dynamicFormDataId + "," + FlowStatusIDs;
                                 if (IsAllowDelegateUser == 1)
                                 {
                                     query += "," + IsAllowDelegateUser;
+                                }
+                                if (IsParallelWorkflow == 1)
+                                {
+                                    query += "," + IsParallelWorkflow;
                                 }
                                 query += ");\r\n";
                                 var ids = connection.QuerySingleOrDefault<long>(query, parameters);
@@ -1835,7 +1844,7 @@ namespace Infrastructure.Repository.Query
                             _dynamicFormApproval.ForEach(s =>
                             {
                                 query += "INSERT INTO DynamicFormApproved(DynamicFormDataID,ApprovedDescription,UserID,ApprovedSortBy)VALUES " +
-                                "("+dynamicFormData.DynamicFormDataId + ",'" + s.Description + "'," + s.ApprovalUserId + "," + s.SortOrderBy + ");\n\r";
+                                "(" + dynamicFormData.DynamicFormDataId + ",'" + s.Description + "'," + s.ApprovalUserId + "," + s.SortOrderBy + ");\n\r";
                             });
                             if (!string.IsNullOrEmpty(query))
                             {
@@ -3738,15 +3747,16 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SequenceNo", value.SequenceNo);
                         parameters.Add("UserId", value.UserId);
                         parameters.Add("IsAllowDelegateUser", value.IsAllowDelegateUser == true ? true : null);
+                        parameters.Add("IsParallelWorkflow", value.IsParallelWorkflow == true ? true : null);
                         if (value.DynamicFormWorkFlowId > 0)
                         {
-                            query = "UPDATE DynamicFormWorkFlow SET IsAllowDelegateUser=@IsAllowDelegateUser,DynamicFormId=@DynamicFormId,UserId=@UserId,SequenceNo=@SequenceNo,Type=@Type WHERE DynamicFormWorkFlowId = @DynamicFormWorkFlowId;\r\n";
+                            query = "UPDATE DynamicFormWorkFlow SET IsParallelWorkflow=@IsParallelWorkflow,IsAllowDelegateUser=@IsAllowDelegateUser,DynamicFormId=@DynamicFormId,UserId=@UserId,SequenceNo=@SequenceNo,Type=@Type WHERE DynamicFormWorkFlowId = @DynamicFormWorkFlowId;\r\n";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
                         else
                         {
-                            query = "INSERT INTO [DynamicFormWorkFlow](DynamicFormId,UserId,Type,SequenceNo,IsAllowDelegateUser) OUTPUT INSERTED.DynamicFormWorkFlowId " +
-                                               "VALUES (@DynamicFormId,@UserId,@Type,@SequenceNo,@IsAllowDelegateUser);\r\n";
+                            query = "INSERT INTO [DynamicFormWorkFlow](DynamicFormId,UserId,Type,SequenceNo,IsAllowDelegateUser,IsParallelWorkflow) OUTPUT INSERTED.DynamicFormWorkFlowId " +
+                                               "VALUES (@DynamicFormId,@UserId,@Type,@SequenceNo,@IsAllowDelegateUser,@IsParallelWorkflow);\r\n";
                             value.DynamicFormWorkFlowId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
                         if (value.DynamicFormWorkFlowId > 0)
@@ -3864,24 +3874,42 @@ namespace Infrastructure.Repository.Query
                             var _sequenceNoList = results.Where(w => w.IsWorkFlowDone == 0).Select(q => q.SequenceNo).Distinct().OrderBy(x => x).ToList();
                             if (_sequenceNoList.Count() > 0)
                             {
+                                var IsParallelWorkflows = results.Where(w => w.IsParallelWorkflow == true).Count();
                                 foreach (var itemss in _sequenceNoList)
                                 {
                                     var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
                                     if (notdata != null && notdata.Count > 0)
                                     {
                                         var dataAdd = notdata.FirstOrDefault(w => w.UserId == userId);
-                                        if (dataAdd != null)
+                                        if (IsParallelWorkflows > 0)
                                         {
-                                            item.StatusName = "Pending";
-                                            item.SectionName = string.Join(",", notdata.Select(s => s.SectionName).Distinct().ToList());
-                                            item.DynamicFormSectionIds = notdata.Select(s => s.DynamicFormSectionId).Distinct().ToList();
-                                            item.UserIds = string.Join(",", notdata.Select(s => s.UserId).Distinct().ToList());
-                                            item.UserNames = string.Join(",", notdata.Select(s => s.UserName).Distinct().ToList());
-                                            item.DynamicFormWorkFlowSections = notdata;
-                                            dataAdd.DynamicFormDataId = item.DynamicFormDataId;
-                                            dynamicFormWorkFlowSections.Add(item);
+                                            if (dataAdd != null)
+                                            {
+                                                item.StatusName = "Pending";
+                                                item.SectionName = string.Join(",", notdata.Select(s => s.SectionName).Distinct().ToList());
+                                                item.DynamicFormSectionIds = notdata.Select(s => s.DynamicFormSectionId).Distinct().ToList();
+                                                item.UserIds = string.Join(",", notdata.Select(s => s.UserId).Distinct().ToList());
+                                                item.UserNames = string.Join(",", notdata.Select(s => s.UserName).Distinct().ToList());
+                                                item.DynamicFormWorkFlowSections = notdata;
+                                                dataAdd.DynamicFormDataId = item.DynamicFormDataId;
+                                                dynamicFormWorkFlowSections.Add(item);
+                                            }
                                         }
-                                        break;
+                                        else
+                                        {
+                                            if (dataAdd != null)
+                                            {
+                                                item.StatusName = "Pending";
+                                                item.SectionName = string.Join(",", notdata.Select(s => s.SectionName).Distinct().ToList());
+                                                item.DynamicFormSectionIds = notdata.Select(s => s.DynamicFormSectionId).Distinct().ToList();
+                                                item.UserIds = string.Join(",", notdata.Select(s => s.UserId).Distinct().ToList());
+                                                item.UserNames = string.Join(",", notdata.Select(s => s.UserName).Distinct().ToList());
+                                                item.DynamicFormWorkFlowSections = notdata;
+                                                dataAdd.DynamicFormDataId = item.DynamicFormDataId;
+                                                dynamicFormWorkFlowSections.Add(item);
+                                            }
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -3910,7 +3938,7 @@ namespace Infrastructure.Repository.Query
                 if (dynamicFormDataIds.Count() > 0)
                 {
                     var parameters = new DynamicParameters();
-                    var query = "select t2.DynamicFormDataID,t1.DynamicFormWorkFlowFormID as DynamicFormWorkFlowID,t1.DynamicFormSectionId,t3.SectionName,(case when t2.UserID>0 Then CONCAT(case when t4.NickName is NULL then  t4.FirstName ELSE  t4.NickName END,' | ',t4.LastName) ELSE null END) as UserName,t1.DynamicFormWorkFlowSectionFormID as DynamicFormWorkFlowSectionID,t2.SequenceNo,t2.UserID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as IsWorkFlowDone\r\n" +
+                    var query = "select t2.IsParallelWorkflow,t2.DynamicFormDataID,t1.DynamicFormWorkFlowFormID as DynamicFormWorkFlowID,t1.DynamicFormSectionId,t3.SectionName,(case when t2.UserID>0 Then CONCAT(case when t4.NickName is NULL then  t4.FirstName ELSE  t4.NickName END,' | ',t4.LastName) ELSE null END) as UserName,t1.DynamicFormWorkFlowSectionFormID as DynamicFormWorkFlowSectionID,t2.SequenceNo,t2.UserID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as IsWorkFlowDone\r\n" +
                         "from DynamicFormWorkFlowSectionForm t1 \r\nJOIN DynamicFormSection t3 ON t3.DynamicFormSectionID=t1.DynamicFormSectionID  \r\n" +
                         "JOIN DynamicFormWorkFlowForm t2 ON t2.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID \r\n" +
                         "JOIN Employee t4 ON t4.UserID=t2.UserID  \r\n" +
@@ -3962,7 +3990,7 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
                 List<long?> dynamicformDataIds = new List<long?>();
                 query += "SELECT * FROM DynamicFormWorkFlowForm where FlowStatusID=1;";
-                query += "select t1.*,(select TOP(1) t2.UserID from DynamicFormWorkFlowApprovedFormChanged t2 where t1.DynamicFormWorkFlowApprovedFormID=t2.DynamicFormWorkFlowApprovedFormID  order by t2.DynamicFormWorkFlowApprovedFormChangedID desc) as DelegateUserId from DynamicFormWorkFlowApprovedForm t1;";
+                query += "select tt2.*,\r\n(case when tt2.DelegateUserId>0 Then tt2.DelegateUserId ELSE tt2.UserID END) as DelegateUserIds\r\nfrom(select tt1.* from(select t1.*,(select TOP(1) t2.UserID from DynamicFormWorkFlowApprovedFormChanged t2 where t1.DynamicFormWorkFlowApprovedFormID=t2.DynamicFormWorkFlowApprovedFormID  order by t2.DynamicFormWorkFlowApprovedFormChangedID desc) as DelegateUserId from DynamicFormWorkFlowApprovedForm t1)tt1)tt2;";
                 using (var connection = CreateConnection())
                 {
                     var QuerResult = await connection.QueryMultipleAsync(query);
@@ -3973,27 +4001,43 @@ namespace Infrastructure.Repository.Query
                 {
                     dynamicFormWorkFlowForm.ForEach(s =>
                     {
+                        var IsParallelWorkflow = dynamicFormWorkFlowForm.Where(q => q.DynamicFormDataId == s.DynamicFormDataId && q.IsParallelWorkflow == true).ToList();
                         var dynamicFormWorkFlowApprovedForms = dynamicFormWorkFlowApprovedForm.OrderBy(o => o.DynamicFormWorkFlowApprovedFormID).FirstOrDefault(w => w.DynamicFormWorkFlowFormID == s.DynamicFormWorkFlowFormId && w.IsApproved != true);
                         if (dynamicFormWorkFlowApprovedForms != null)
                         {
-                            dynamicFormWorkFlowApprovedForms.DynamicFormDataID = s.DynamicFormDataId;
-                            if (dynamicFormWorkFlowApprovedForms.DelegateUserId == null)
+                            if (IsParallelWorkflow.Count() > 0)
                             {
-                                if (dynamicFormWorkFlowApprovedForms.UserID == userId)
+                                dynamicFormWorkFlowApprovedForms.DynamicFormDataID = s.DynamicFormDataId;
+                                if (dynamicFormWorkFlowApprovedForms.DelegateUserIds == userId)
                                 {
-                                    dynamicFormWorkFlowApprovedForms.DelegateUserIds = userId;
                                     result.Add(dynamicFormWorkFlowApprovedForms);
                                 }
                             }
                             else
                             {
-                                if (dynamicFormWorkFlowApprovedForms.DelegateUserId == userId)
+                                dynamicFormWorkFlowApprovedForms.DynamicFormDataID = s.DynamicFormDataId;
+                                if (dynamicFormWorkFlowApprovedForms.DelegateUserIds == userId)
                                 {
-
-                                    dynamicFormWorkFlowApprovedForms.DelegateUserIds = dynamicFormWorkFlowApprovedForms.DelegateUserId;
                                     result.Add(dynamicFormWorkFlowApprovedForms);
                                 }
                             }
+                            //if (dynamicFormWorkFlowApprovedForms.DelegateUserId == null)
+                            //{
+                            //    if (dynamicFormWorkFlowApprovedForms.UserID == userId)
+                            //    {
+                            //        dynamicFormWorkFlowApprovedForms.DelegateUserIds = userId;
+                            //        result.Add(dynamicFormWorkFlowApprovedForms);
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (dynamicFormWorkFlowApprovedForms.DelegateUserId == userId)
+                            //    {
+
+                            //        dynamicFormWorkFlowApprovedForms.DelegateUserIds = dynamicFormWorkFlowApprovedForms.DelegateUserId;
+                            //        result.Add(dynamicFormWorkFlowApprovedForms);
+                            //    }
+                            //}
                         }
                     });
                     result = await GetDynamicFormWorkFlowApprovedDataFormByList(result);
@@ -4126,7 +4170,7 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
                 if (dynamicFormDataId > 0)
                 {
-                    query = "select t2.IsAllowDelegateUserForm as IsAllowDelegateUser,t1.DynamicFormWorkFlowFormID as DynamicFormWorkFlowID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as IsWorkFlowDone,t2.UserID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as FlowStatusID,t3.SectionName,t1.DynamicFormWorkFlowSectionFormID as DynamicFormWorkFlowSectionID,t2.DynamicFormDataId,t1.DynamicFormSectionID,t3.DynamicFormID,t2.SequenceNo,\r\n" +
+                    query = "select t2.IsParallelWorkflow,t2.IsAllowDelegateUserForm as IsAllowDelegateUser,t1.DynamicFormWorkFlowFormID as DynamicFormWorkFlowID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as IsWorkFlowDone,t2.UserID,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as FlowStatusID,t3.SectionName,t1.DynamicFormWorkFlowSectionFormID as DynamicFormWorkFlowSectionID,t2.DynamicFormDataId,t1.DynamicFormSectionID,t3.DynamicFormID,t2.SequenceNo,\r\n" +
                         "(case when t2.UserID>0 Then CONCAT(case when t4.NickName is NULL then  t4.FirstName ELSE  t4.NickName END,' | ',t4.LastName) ELSE null END) as UserName,t1.DynamicFormWorkFlowFormID,\r\n" +
                         "(select  count(t5.DynamicFormWorkFlowApprovedFormID) from DynamicFormWorkFlowApprovedForm t5 where  t5.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID) as DynamicFormWorkFlowFormTotalCount,\r\n(select  count(t6.DynamicFormWorkFlowApprovedFormID) from DynamicFormWorkFlowApprovedForm t6 where  t6.DynamicFormWorkFlowFormID=t1.DynamicFormWorkFlowFormID AND t6.IsApproved=1) as DynamicFormWorkFlowFormCount\n\r" +
                         "from DynamicFormWorkFlowSectionForm t1 \r\n" +
@@ -4136,7 +4180,7 @@ namespace Infrastructure.Repository.Query
                 }
                 else
                 {
-                    query = "select t2.IsAllowDelegateUser,t1.DynamicFormWorkFlowID,t3.SectionName,t1.DynamicFormWorkFlowSectionID,t1.DynamicFormSectionID,t2.DynamicFormID,t2.SequenceNo,(case when t2.UserID>0 Then CONCAT(case when t4.NickName is NULL then  t4.FirstName ELSE  t4.NickName END,' | ',t4.LastName) ELSE null END)  as UserName,t2.UserID,t2.UserGroupID,t2.LevelID,t2.Type," +
+                    query = "select t2.IsParallelWorkflow,t2.IsAllowDelegateUser,t1.DynamicFormWorkFlowID,t3.SectionName,t1.DynamicFormWorkFlowSectionID,t1.DynamicFormSectionID,t2.DynamicFormID,t2.SequenceNo,(case when t2.UserID>0 Then CONCAT(case when t4.NickName is NULL then  t4.FirstName ELSE  t4.NickName END,' | ',t4.LastName) ELSE null END)  as UserName,t2.UserID,t2.UserGroupID,t2.LevelID,t2.Type," +
                         "(SELECT (Count(t3.DynamicFormWorkFlowFormID)) from DynamicFormWorkFlowForm t3 WHERE t3.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID AND t3.FlowStatusID=1 AND t3.DynamicFormDataID=@dynamicFormDataId) as IsWorkFlowDone,\r\n" +
                         "(SELECT tt3.DynamicFormWorkFlowFormID from DynamicFormWorkFlowForm tt3 WHERE tt3.DynamicFormWorkFlowID=t1.DynamicFormWorkFlowID AND tt3.UserID=t2.UserID AND tt3.DynamicFormDataID=@dynamicFormDataId) as DynamicFormWorkFlowFormID\r\n \r\n" +
                         "from DynamicFormWorkFlowSection t1 \r\n" +
@@ -4176,14 +4220,24 @@ namespace Infrastructure.Repository.Query
                                 s.DelegateSectionUserName = dynamicFormWorkFlowFormDelegateData.UserName;
                                 s.UserId = dynamicFormWorkFlowFormDelegateData.UserID;
                             }
-
-                            if (s.DynamicFormWorkFlowFormTotalCount > 0)
+                            if (s.DynamicFormWorkFlowFormTotalCount == 0)
+                            {
+                                if (s.IsWorkFlowDone == 1)
+                                {
+                                    s.IsWorkFlowFormDone = 1;
+                                }
+                            }
+                            else
                             {
                                 if (s.DynamicFormWorkFlowFormTotalCount == s.DynamicFormWorkFlowFormCount)
                                 {
                                     s.IsWorkFlowFormDone = 1;
                                 }
                             }
+                            // if (s.DynamicFormWorkFlowFormTotalCount > 0)
+                            // {
+
+                            // }
                         });
                     }
                 }
@@ -4205,8 +4259,8 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormId", id);
                 parameters.Add("DynamicFormDataId", dynamicFormDataId);
                 //query += "SELECT IsAllowDelegateUserForm as IsAllowDelegateUser,DynamicFormWorkFlowFormID,\r\nDynamicFormWorkFlowSectionID,\r\nDynamicFormDataID,\r\nUserID,\r\nCompletedDate,\r\nFlowStatusID,\r\nSequenceNo,\r\nDynamicFormWorkFlowID FROM DynamicFormWorkFlowForm Where DynamicFormDataId = @DynamicFormDataId;";
-                query += "select tt2.*,\r\n(case when tt2.CurrentApprovalUserId>0 Then CONCAT(case when tt3.NickName is NULL then  tt3.FirstName ELSE  tt3.NickName END,' | ',tt3.LastName) ELSE null END) as CurrentApprovalUserName from(select tt1.*,(case when tt1.DelegateSectionUserId>0 THEN  tt1.DelegateSectionUserId ELSE  tt1.UserID END) as CurrentApprovalUserId from\r\n(select t1.*,\r\n(select TOP(1) t2.UserID from DynamicFormWorkFlowFormDelegate t2 where t1.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID  order by t2.DynamicFormWorkFlowFormDelegateID desc) as DelegateSectionUserId from DynamicFormWorkFlowForm t1   Where t1.DynamicFormDataId = @DynamicFormDataId)tt1 )tt2 JOIN  Employee tt3 ON tt3.UserID=tt2.CurrentApprovalUserId\r\n                                ";
-                query += "SELECT IsAllowDelegateUser,DynamicFormWorkFlowID,\r\nDynamicFormID,\r\nUserID,\r\nUserGroupID,\r\nLevelID,\r\nType,\r\nSequenceNo FROM DynamicFormWorkFlow Where DynamicFormId = @DynamicFormId order by SequenceNo asc;";
+                query += "select tt2.*,\r\n(case when tt2.CurrentApprovalUserId>0 Then CONCAT(case when tt3.NickName is NULL then  tt3.FirstName ELSE  tt3.NickName END,' | ',tt3.LastName) ELSE null END) as CurrentApprovalUserName from(select tt1.*,(case when tt1.DelegateSectionUserId>0 THEN  tt1.DelegateSectionUserId ELSE  tt1.UserID END) as CurrentApprovalUserId from\r\n(select t1.*,\r\n(select TOP(1) t2.UserID from DynamicFormWorkFlowFormDelegate t2 where t1.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID  order by t2.DynamicFormWorkFlowFormDelegateID desc) as DelegateSectionUserId from DynamicFormWorkFlowForm t1   Where t1.DynamicFormDataId = @DynamicFormDataId)tt1 )tt2 JOIN  Employee tt3 ON tt3.UserID=tt2.CurrentApprovalUserId\r\n ";
+                query += "SELECT IsParallelWorkflow,IsAllowDelegateUser,DynamicFormWorkFlowID,\r\nDynamicFormID,\r\nUserID,\r\nUserGroupID,\r\nLevelID,\r\nType,\r\nSequenceNo FROM DynamicFormWorkFlow Where DynamicFormId = @DynamicFormId order by SequenceNo asc;";
                 query += "SELECT DynamicFormWorkFlowSectionID,\r\nDynamicFormSectionID,\r\nDynamicFormWorkFlowID,\r\nDynamicFormDataID FROM DynamicFormWorkFlowSection;";
                 query += "SELECT DynamicFormWorkFlowApprovalID,\r\nDynamicFormWorkFlowID,\r\nUserID,\r\nSortBy FROM DynamicFormWorkFlowApproval;";
                 using (var connection = CreateConnection())
@@ -4337,18 +4391,27 @@ namespace Infrastructure.Repository.Query
                                     {
                                         var query = string.Empty;
                                         int? IsAllowDelegateUserForm = s.IsAllowDelegateUser == true ? 1 : null;
+                                        int? IsParallelWorkflow = s.IsParallelWorkflow == true ? 1 : null;
                                         var _dynamicFormWorkFlowSections = dataList.DynamicFormWorkFlowSection.Where(w => w.DynamicFormWorkFlowId == s.DynamicFormWorkFlowId).ToList();
                                         if (i == 0)
                                         {
                                             query += "INSERT INTO [DynamicFormWorkFlowForm](SequenceNo,UserId,DynamicFormDataID,FlowStatusID,CompletedDate,DynamicFormWorkFlowId";
                                             if (IsAllowDelegateUserForm == 1)
                                             {
-                                                query += "," + IsAllowDelegateUserForm;
+                                                query += ",IsAllowDelegateUserForm";
+                                            }
+                                            if (IsParallelWorkflow == 1)
+                                            {
+                                                query += ",IsParallelWorkflow";
                                             }
                                             query += ") OUTPUT INSERTED.DynamicFormWorkFlowFormID VALUES (" + s.SequenceNo + "," + s.UserId + "," + dynamicFormDataId + ",@FlowStatusID,@CompletedDate," + s.DynamicFormWorkFlowId;
                                             if (IsAllowDelegateUserForm == 1)
                                             {
                                                 query += "," + IsAllowDelegateUserForm;
+                                            }
+                                            if (IsParallelWorkflow == 1)
+                                            {
+                                                query += "," + IsParallelWorkflow;
                                             }
                                             query += ");\r\n";
                                         }
@@ -4357,12 +4420,20 @@ namespace Infrastructure.Repository.Query
                                             query += "INSERT INTO [DynamicFormWorkFlowForm](SequenceNo,UserId,DynamicFormDataID,DynamicFormWorkFlowId";
                                             if (IsAllowDelegateUserForm == 1)
                                             {
-                                                query += "," + IsAllowDelegateUserForm;
+                                                query += ",IsAllowDelegateUserForm";
+                                            }
+                                            if (IsParallelWorkflow == 1)
+                                            {
+                                                query += ",IsParallelWorkflow";
                                             }
                                             query += ") OUTPUT INSERTED.DynamicFormWorkFlowFormID VALUES (" + s.SequenceNo + "," + s.UserId + "," + dynamicFormDataId + "," + s.DynamicFormWorkFlowId;
                                             if (IsAllowDelegateUserForm == 1)
                                             {
                                                 query += "," + IsAllowDelegateUserForm;
+                                            }
+                                            if (IsParallelWorkflow == 1)
+                                            {
+                                                query += "," + IsParallelWorkflow;
                                             }
                                             query += ");\r\n";
 
@@ -4428,7 +4499,7 @@ namespace Infrastructure.Repository.Query
                 if (dynamicFormDataId > 0)
                 {
                     parameters.Add("DynamicFormDataID", dynamicFormDataId);
-                    var query = "select t2.IsAllowDelegateUserForm as IsAllowDelegateUser,t2.DynamicFormWorkFlowFormID as DynamicFormWorkFlowId,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as FlowStatusID, ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t2.DynamicFormDataID,t2.CompletedDate,t1.DynamicFormWorkFlowFormID,t2.DynamicFormWorkFlowSectionID,t2.UserID,(case when t2.UserID>0 Then CONCAT(case when t5.NickName is NULL then  t5.FirstName ELSE  t5.NickName END,' | ',t5.LastName) ELSE null END) as  CompletedBy,t2.SequenceNo," +
+                    var query = "select t2.IsParallelWorkflow,t2.IsAllowDelegateUserForm as IsAllowDelegateUser,t2.DynamicFormWorkFlowFormID as DynamicFormWorkFlowId,(case when t2.FlowStatusID>0 THEN t2.FlowStatusID ELSE 0 END) as FlowStatusID, ROW_NUMBER() OVER (ORDER BY (SELECT '1')) AS RowID,t2.DynamicFormDataID,t2.CompletedDate,t1.DynamicFormWorkFlowFormID,t2.DynamicFormWorkFlowSectionID,t2.UserID,(case when t2.UserID>0 Then CONCAT(case when t5.NickName is NULL then  t5.FirstName ELSE  t5.NickName END,' | ',t5.LastName) ELSE null END) as  CompletedBy,t2.SequenceNo," +
                          "(select  count(tt5.DynamicFormWorkFlowApprovedFormID) from DynamicFormWorkFlowApprovedForm tt5 where  tt5.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID) as DynamicFormWorkFlowFormTotalCount,\r\n(select  count(tt6.DynamicFormWorkFlowApprovedFormID) from DynamicFormWorkFlowApprovedForm tt6 where  tt6.DynamicFormWorkFlowFormID=t2.DynamicFormWorkFlowFormID AND tt6.IsApproved=1) as DynamicFormWorkFlowFormCount,\n\r" +
                         "\r\nt1.DynamicFormSectionID,t2.DynamicFormWorkFlowID,t3.SectionName,(case when t2.UserID>0 Then CONCAT(case when t5.NickName is NULL then  t5.FirstName ELSE  t5.NickName END,' | ',t5.LastName) ELSE null END) as DynamicFormWorkFlowUser from \r\n\r\n" +
                         "DynamicFormWorkFlowSectionForm t1 \r\n " +
@@ -4522,6 +4593,8 @@ namespace Infrastructure.Repository.Query
                                 dynamicFormWorkFlowForm.DynamicFormWorkFlowUser = a.UserName;
                                 dynamicFormWorkFlowForm.ActualUserId = a.UserId;
                                 dynamicFormWorkFlowForm.ActualUserName = a.UserName;
+                                dynamicFormWorkFlowForm.IsParallelWorkflow = a.IsParallelWorkflow
+                                ;
                                 dynamicFormWorkFlowSections.Add(dynamicFormWorkFlowForm);
                                 rowCount++;
                             });
@@ -5983,15 +6056,16 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SequenceNo", value.SequenceNo);
                         parameters.Add("UserId", value.UserId);
                         parameters.Add("IsAllowDelegateUserForm", value.IsAllowDelegateUser == true ? true : null);
+                        parameters.Add("IsParallelWorkflow", value.IsParallelWorkflow == true ? true : null);
                         if (value.DynamicFormWorkFlowId > 0)
                         {
-                            query = "UPDATE DynamicFormWorkFlowForm SET IsAllowDelegateUserForm=@IsAllowDelegateUserForm,DynamicFormDataId=@DynamicFormDataId,UserId=@UserId,SequenceNo=@SequenceNo WHERE DynamicFormWorkFlowFormId = @DynamicFormWorkFlowFormId;\r\n";
+                            query = "UPDATE DynamicFormWorkFlowForm SET IsParallelWorkflow=@IsParallelWorkflow,IsAllowDelegateUserForm=@IsAllowDelegateUserForm,DynamicFormDataId=@DynamicFormDataId,UserId=@UserId,SequenceNo=@SequenceNo WHERE DynamicFormWorkFlowFormId = @DynamicFormWorkFlowFormId;\r\n";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
                         else
                         {
-                            query = "INSERT INTO [DynamicFormWorkFlowForm](DynamicFormDataId,UserId,SequenceNo,IsAllowDelegateUserForm) OUTPUT INSERTED.DynamicFormWorkFlowFormId " +
-                                               "VALUES (@DynamicFormDataId,@UserId,@SequenceNo,@IsAllowDelegateUserForm);\r\n";
+                            query = "INSERT INTO [DynamicFormWorkFlowForm](DynamicFormDataId,UserId,SequenceNo,IsAllowDelegateUserForm,IsParallelWorkflow) OUTPUT INSERTED.DynamicFormWorkFlowFormId " +
+                                               "VALUES (@DynamicFormDataId,@UserId,@SequenceNo,@IsAllowDelegateUserForm,@IsParallelWorkflow);\r\n";
                             value.DynamicFormWorkFlowId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
                         if (value.DynamicFormWorkFlowId > 0)

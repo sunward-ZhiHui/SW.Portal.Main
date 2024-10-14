@@ -85,6 +85,7 @@
         <Columns>
            @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="DynamicFormWorkFlowId" Visible="false" />
+            <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
             <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
             <DxGridDataColumn FieldName="FullName" Caption="User" MinWidth="40" />
             <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="40" />
@@ -192,6 +193,9 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Parallel Workflow" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsParallelWorkflow"></DxCheckBox>
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
@@ -314,7 +318,18 @@
             navitems.DynamicFormId = dynamicFormId;
             if (_dynamicFormSectionAllData != null && _dynamicFormSectionAllData.Count() > 0)
             {
-                List<long> ids = _dynamicFormApprovalData != null && _dynamicFormApprovalData.Count() > 0 ? _dynamicFormApprovalData.FirstOrDefault()?.DynamicFormSectionAllIDs : new List<long>();
+                List<long> ids =  new List<long>();
+
+                if (_dynamicFormApprovalData != null && _dynamicFormApprovalData.Count() > 0)
+                {
+                    _dynamicFormApprovalData.ForEach(a =>
+                    {
+                        if (a.SelectDynamicFormSectionIDs != null && a.SelectDynamicFormSectionIDs.Count()>0)
+                        {
+                            ids.AddRange(a.SelectDynamicFormSectionIDs);
+                        }
+                    });
+                }
                 _dynamicFormSectionData = _dynamicFormSectionAllData.Where(w => !ids.Contains(w.DynamicFormSectionId)).ToList();
             }
         }

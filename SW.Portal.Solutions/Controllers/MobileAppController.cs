@@ -399,6 +399,24 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        [HttpGet("GetListFromQRCode")]
+        public async Task<ActionResult<Services.ResponseModel<List<view_QCAssignmentRM>>>> GetListFromQRCode(string Date , string company)
+        {
+            var response = new Services.ResponseModel<view_QCAssignmentRM>();
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                var userNotifications = await _qcTimeSheetQueryRepository.GetAllListByQRAsync(Date,company);
+                response.Results = (List<view_QCAssignmentRM>)userNotifications; // Assign the list of results
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
     }
 }
 

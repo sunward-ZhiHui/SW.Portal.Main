@@ -54,6 +54,7 @@
         RowDoubleClick="OnRowApprovalDoubleClick"
         SelectionMode="GridSelectionMode.Single">
     <Columns>
+        <DxGridDataColumn FieldName="IsParallelWorkflow" Caption="Is Parallel Workflow" MinWidth="30" />
         <DxGridDataColumn FieldName="IsAllowDelegateUser" Caption="Is Allow Change Section Approval" MinWidth="30" />
         <DxGridDataColumn FieldName="SequenceNo" GroupIndex="0" Caption="Sequence No" MinWidth="40" />
         <DxGridDataColumn FieldName="SectionName" Caption="Section Name" />
@@ -108,6 +109,9 @@
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Is Allow Update Delegate" ColSpanMd="6">
                 <DxCheckBox @bind-Checked="types.IsAllowDelegateUser"></DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Is Parallel Workflow" ColSpanMd="6">
+                <DxCheckBox @bind-Checked="types.IsParallelWorkflow"></DxCheckBox>
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditFormTemplate>
@@ -280,6 +284,7 @@
                     dynamicFormWorkFlowForm.FlowStatusID = listsItems[0].FlowStatusID;
                     dynamicFormWorkFlowForm.UserId = listsItems[0].UserId;
                     dynamicFormWorkFlowForm.IsAllowDelegateUser = listsItems[0].IsAllowDelegateUser;
+                    dynamicFormWorkFlowForm.IsParallelWorkflow = listsItems[0].IsParallelWorkflow;
                     dynamicFormWorkFlowForm.DynamicFormWorkFlowFormId = listsItems[0].DynamicFormWorkFlowFormId;
                     dynamicFormWorkFlowForm.DelegateSectionUserId = listsItems[0].DelegateSectionUserId;
                     dynamicFormWorkFlowForm.DelegateSectionUserName = listsItems[0].DelegateSectionUserName;

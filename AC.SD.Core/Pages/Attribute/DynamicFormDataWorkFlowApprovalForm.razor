@@ -16,7 +16,8 @@
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
-@if (SelectedItems.DynamicFormDataId > 0 && EditEnabledApproval == true)
+@if (SelectedItems.DynamicFormDataId > 0)
+   // @if (SelectedItems.DynamicFormDataId > 0 && EditEnabledApproval == true)
 {
     <div class="card w-100" style="margin-bottom:10px;">
         <div class="card-body p-0">
@@ -238,7 +239,7 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelVisible = true; AddEnabled = false;
+        PanelVisible = true; AddEnabled = true;
         EditEnabled = false; DeleteEnabled = false; EditDelegateEnabled = false;
         if (SelectedItems != null)
         {
@@ -246,7 +247,7 @@
             {
                 if (SelectedItems.IsNextFlow == true)
                 {
-                    AddEnabled = true;
+                   // AddEnabled = true;
                 }
             }
             if (SelectedItems.DynamicFormWorkFlowId > 0)

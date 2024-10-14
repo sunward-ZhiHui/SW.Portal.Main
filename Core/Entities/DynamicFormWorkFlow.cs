@@ -17,6 +17,7 @@ namespace Core.Entities
         [Required(ErrorMessage = "User Name is required")]
         public long? UserId { get; set; }
         public bool? IsAllowDelegateUser { get; set; } = false;
+        public bool? IsParallelWorkflow { get; set; } = false;
         public long? UserGroupId { get; set; }
         public long? LevelId { get; set; }
         [Required(ErrorMessage = "Sequence No is required")]
@@ -88,6 +89,7 @@ namespace Core.Entities
         public long? ActualUserId { get; set; }
         public long? DelegateSectionUserId { get; set; }
         public string? DelegateSectionUserName { get; set; }
+        public bool? IsParallelWorkflow { get; set; } = false;
     }
     public class DynamicFormWorkFlowForm
     {
@@ -118,6 +120,7 @@ namespace Core.Entities
         public int? FlowStatusID { get; set; }
         public bool? IsAllowDelegateUser { get; set; } = false;
         public bool? IsAllowDelegateUserForm { get; set; } = false;
+        public bool? IsParallelWorkflow { get; set; } = false;
         public string? ActualUserName { get; set; }
         public long? ActualUserId { get; set; }
         public long? DelegateSectionUserId { get; set; }

@@ -1129,47 +1129,94 @@
                                 var notCompleted = _dynamicFormWorkFlowSection.Where(w => w.IsWorkFlowFormDone == 0).OrderBy(x => x.SequenceNo).ToList();
                                 if (_sequenceNoList.Count() > 0)
                                 {
-                                    foreach (var itemss in _sequenceNoList)
+                                    var IsParallelWorkflowCount = _dynamicFormWorkFlowSection.Where(w => w.IsParallelWorkflow == true).Count();
+                                    if (IsParallelWorkflowCount > 0)
                                     {
-                                        var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
-                                        if (notdata != null && notdata.Count > 0)
+                                        foreach (var itemss in _sequenceNoList)
                                         {
-                                            //var dones=notdata.Where(w => w.IsWorkFlowDone == 0).ToList();
-                                            // if(dones!=null && dones.Count()>0)
-                                            // {
-                                            _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
-                                            break;
-                                            //  }
+                                            var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
+                                            if (notdata != null && notdata.Count > 0)
+                                            {
+                                                _dynamicFormWorkFlowSectionNoWorkFlow.AddRange(notdata);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        foreach (var itemss in _sequenceNoList)
+                                        {
+                                            var notdata = notCompleted.Where(w => w.SequenceNo == itemss).ToList();
+                                            if (notdata != null && notdata.Count > 0)
+                                            {
+                                                _dynamicFormWorkFlowSectionNoWorkFlow = notdata;
+                                                break;
+
+                                            }
                                         }
                                     }
                                 }
                                 isWorkflowEnabled = false; isSaveEnabled = false; isApprovalEnabled = false; isVisibleButton = false; IsUploadEnabled = false;
                                 if (notCompleted != null && notCompleted.Count() > 0)
                                 {
-                                    var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
-                                    if (_dynamicform.IsApproval == true)
+                                    var IsParallelWorkflowCount = notCompleted.Where(w => w.IsParallelWorkflow == true).Count();
+                                    if (IsParallelWorkflowCount > 0)
                                     {
-                                        isApprovalEnabled = true;
-                                        isVisibleButton = true;
-                                        if (_dynamicformData != null)
+                                        var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0  && f.UserId == applicationUser.UserID);
+                                        if (_dynamicform.IsApproval == true)
                                         {
-                                            CheckedApprovalData();
-                                        }
-                                    }
-                                    if (_dynamicformData == null)
-                                    {
-                                        isSaveEnabled = true;
-                                    }
-                                    if (exitss != null)
-                                    {
-                                        if (exitss.IsWorkFlowDone == 0)
-                                        {
-                                            isWorkflowEnabled = true; isSaveEnabled = true;
+                                            isApprovalEnabled = true;
+                                            isVisibleButton = true;
                                             if (_dynamicformData != null)
                                             {
-                                                if (isApproval == true)
+                                                CheckedApprovalData();
+                                            }
+                                        }
+                                        if (_dynamicformData == null)
+                                        {
+                                            isSaveEnabled = true;
+                                        }
+                                        if (exitss != null)
+                                        {
+                                            if (exitss.IsWorkFlowDone == 0)
+                                            {
+                                                isWorkflowEnabled = true; isSaveEnabled = true;
+                                                if (_dynamicformData != null)
                                                 {
-                                                    IsUploadEnabled = true;
+                                                    if (isApproval == true)
+                                                    {
+                                                        IsUploadEnabled = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var exitss = notCompleted.FirstOrDefault(f => f.IsWorkFlowDone == 0 && f.UserId == applicationUser.UserID);
+                                        if (_dynamicform.IsApproval == true)
+                                        {
+                                            isApprovalEnabled = true;
+                                            isVisibleButton = true;
+                                            if (_dynamicformData != null)
+                                            {
+                                                CheckedApprovalData();
+                                            }
+                                        }
+                                        if (_dynamicformData == null)
+                                        {
+                                            isSaveEnabled = true;
+                                        }
+                                        if (exitss != null)
+                                        {
+                                            if (exitss.IsWorkFlowDone == 0)
+                                            {
+                                                isWorkflowEnabled = true; isSaveEnabled = true;
+                                                if (_dynamicformData != null)
+                                                {
+                                                    if (isApproval == true)
+                                                    {
+                                                        IsUploadEnabled = true;
+                                                    }
                                                 }
                                             }
                                         }
@@ -1180,22 +1227,39 @@
                                 _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
                                 if (_dynamicFormWorkFlowSectionNoWorkFlow != null && _dynamicFormWorkFlowSectionNoWorkFlow.Count() > 0)
                                 {
-                                    var firsts = _dynamicFormWorkFlowSectionNoWorkFlow.FirstOrDefault();
-                                    var notapprovalExits = _dynamicFormWorkFlowApprovedFormList.FirstOrDefault(f => f.IsApproved != true);
-                                    if (notapprovalExits != null && notapprovalExits.FlowStatusID == 1)
+                                    var IsParallelWorkflowss = _dynamicFormWorkFlowSectionNoWorkFlow.Where(f => f.IsWorkFlowFormDone == 0 && f.IsParallelWorkflow==true).Count();
+                                    if(IsParallelWorkflowss>0)
                                     {
-                                        _dynamicFormWorkFlowApprovedFormOne = notapprovalExits;
-                                        if (notapprovalExits.UserID == applicationUser.UserID)
+                                        var notapprovalExits = _dynamicFormWorkFlowApprovedFormList.FirstOrDefault(f => f.IsApproved != true && f.FlowStatusID == 1 && f.UserID == applicationUser.UserID);
+                                        if (notapprovalExits != null)
                                         {
-                                            workflowStyle = "";
-                                            IsWorkflowApprovalApproved = true;
-                                            IsWorkflowApprovalRejected = true;
+                                            if (notapprovalExits.UserID == applicationUser.UserID)
+                                            {
+                                                _dynamicFormWorkFlowApprovedFormOne = notapprovalExits;
+                                                workflowStyle = "";
+                                                IsWorkflowApprovalApproved = true;
+                                                IsWorkflowApprovalRejected = true;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var notapprovalExits = _dynamicFormWorkFlowApprovedFormList.FirstOrDefault(f => f.IsApproved != true);
+                                        if (notapprovalExits != null && notapprovalExits.FlowStatusID == 1)
+                                        {
+                                            _dynamicFormWorkFlowApprovedFormOne = notapprovalExits;
+                                            if (notapprovalExits.UserID == applicationUser.UserID)
+                                            {
+                                                workflowStyle = "";
+                                                IsWorkflowApprovalApproved = true;
+                                                IsWorkflowApprovalRejected = true;
+                                            }
                                         }
                                     }
                                 }
                                 if (isGoWorkFlow == false)
                                 {
-                                    _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
+                                   // _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
                                 }
                             }
                         }

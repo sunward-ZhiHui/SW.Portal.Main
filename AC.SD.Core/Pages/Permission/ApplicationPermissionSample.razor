@@ -118,7 +118,9 @@
          Closed="EulaPopupClosed"
          Width="300px">
     <BodyContentTemplate>
+        <h style="color:Red">@_selectedItems.PermissionName</h>
         <p>
+           
             Do you want to delete
         </p>
     </BodyContentTemplate>
@@ -147,7 +149,7 @@
         <AddApplicationFolderForm SessionIds="@MainSessionId" IsEdit="@IsEdit" RevokeBack ="BackFolder"RevokeBackEdit ="BackEditFolder"></AddApplicationFolderForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+        @* <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" /> *@
        
     </FooterContentTemplate>
 </DxPopup>
@@ -160,7 +162,7 @@
         <AddPermissionPageForm SessionIds="@MainSessionId" IsEdit="@IsEdit" RevokeBack="BackPage" RevokeBackEdit="BackEditPage"></AddPermissionPageForm>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" />
+       @*  <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="Context.CloseCallback" /> *@
 
     </FooterContentTemplate>
 </DxPopup>
@@ -209,7 +211,7 @@
     {
         PanelVisible = true;
         await UpdateDataAsync();
-
+        
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("templeUser");
         PanelVisible = false;
 
@@ -263,13 +265,19 @@
             {
                 var id = _Data[0].PermissionID;
                 ParentID = id.ToString();
+                var lastlist = FolderPathListsItems.LastOrDefault();
+                if (lastlist?.PermissionName != data.PermissionName)
+                {
+                    var masterslist = FolderPathListsItems.Where(s => s.UniqueSessionID != MainSessionId).ToList();
+                    FolderPathListsItems = masterslist;
+                    StateHasChanged();
+                    await LoadDataAsync();
+                }
 
-                var masterslist = FolderPathListsItems.Where(s => s.UniqueSessionID != MainSessionId).ToList();
-                FolderPathListsItems = masterslist;
-                StateHasChanged();
+              
             }
-            NavigationManager.NavigateTo("applicationTest/" + data.UniqueSessionID);
-            await LoadDataAsync();
+            // NavigationManager.NavigateTo("applicationTest/" + data.UniqueSessionID);
+            
         }
         else
         {
@@ -277,6 +285,8 @@
 
 
         }
+        EditEnabled = false;
+        DeleteEnabled = false;
     }
 
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -324,6 +334,8 @@
                     FolderPathListsItems.Add(dc);
                 }
                 NavigationManager.NavigateTo($"applicationTest/" + _selectedItems.UniqueSessionID);
+                EditEnabled = false;
+                DeleteEnabled = false;
                 await LoadDataAsync();
             }
             else

@@ -228,5 +228,25 @@ namespace Infrastructure.Repository.Query
             }
             
         }
+
+        public async Task<IReadOnlyList<view_QCAssignmentRM>> GetAllListByQRAsync(string Date, string Company)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("Date", Date);
+                parameters.Add("Company", Company);
+                var query = @"select * from view_QCAssignmentRM where Date =@Date and Company =@Company";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<view_QCAssignmentRM>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
     }
 }

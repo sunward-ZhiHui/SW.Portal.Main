@@ -447,6 +447,14 @@ namespace Application.Queries
     {
     }
 
+    public class CreateNotifyPA : EmailNotifyPA, IRequest<long>
+    {
+    }
+
+    public class GetNotifyPAList : IRequest<List<EmailNotifyPA>>
+    {
+    }
+
     public class UpdateEmailTimelineEvent : EmailTimelineEvent, IRequest<long>
     {
     }

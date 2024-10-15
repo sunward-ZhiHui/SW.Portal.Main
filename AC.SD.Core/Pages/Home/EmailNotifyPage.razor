@@ -1,0 +1,142 @@
+﻿@using Application.Commands;
+@using Application.Common.Helper;
+@using Application.Queries;
+@using Application.Response;
+@using DevExpress.Export
+@using Microsoft.AspNetCore.Http;
+@using System.Text
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using MediatR
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+@inject HttpClient httpClient;
+@using System.Text.Json
+@using System.Text.Json.Serialization;
+@implements IAsyncDisposable
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>                
+                <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" Enabled="@PrintEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxGrid @ref="EmailNotifyPAGrid"
+        Data="_emailNotifyData"
+        ShowGroupPanel="true"
+        VirtualScrollingEnabled="false"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        KeyFieldName="ID"
+        CustomizeElement="Grid_CustomizeElement"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        TextWrapEnabled="false"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="w-100" style="height: calc(100vh - 285px);"
+        RowClick="OnRowClick"
+        RowDoubleClick="OnEmailDueRowClick"
+        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"        
+        AllowSelectRowByClick="true">
+    <Columns>
+        @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
+        <DxGridDataColumn FieldName="Name" Caption="Subject" FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />      
+    </Columns>
+
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+    </TotalSummary>
+</DxGrid>
+@code {
+    public bool PrintEnabled { get; set; } = false;
+    IGrid EmailNotifyPAGrid { get; set; }
+    private EmailNotifyPA? _selectedItems;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    [Parameter]
+    public int TabIndex { get; set; } = 1;
+   
+    private bool loading;
+    private List<EmailNotifyPA>? _emailNotifyData;
+    private string? BaseUrl;
+   
+    protected override async Task OnInitializedAsync()
+    {       
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        await JSRuntime.InvokeAsync<string>("showLoading");    
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _emailNotifyData = await Mediator.Send(new GetNotifyPAList());
+        //_openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow)
+        {           
+            if (e.VisibleIndex % 2 == 1)
+            {
+                e.CssClass = "alt-item non-selectable-row";               
+            }
+        }
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = null;
+        _selectedItems = _emailNotifyData.FirstOrDefault(f => f.ID == (long?)UniqueId);
+
+        if (_selectedItems != null)
+        {
+            
+        }
+        else
+        {
+           
+        }
+
+
+        PrintEnabled = true;
+
+        StateHasChanged();
+
+    }
+    async Task OnEmailDueRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        var SelectedGroup = UniqueId.ToString();
+
+        var lst = _emailNotifyData.Where(x => x.ID == long.Parse(SelectedGroup)).FirstOrDefault();
+
+        var url = BaseUrl + "ViewEmail/EmailNotifyPrint/" + lst.SessionId + "/" + lst.Page;
+        string script = $"window.open('{url}', '_blank');";
+        await JSRuntime.InvokeVoidAsync("eval", script);      
+     
+        StateHasChanged();
+    }
+    async void onPrintMainTopic()
+    {
+        var url = BaseUrl + "ViewEmail/EmailNotifyPrint/" + _selectedItems.SessionId + "/" + _selectedItems.Page;
+        string script = $"window.open('{url}', '_blank');";
+        await JSRuntime.InvokeVoidAsync("eval", script);
+    }
+   
+    public async ValueTask DisposeAsync()
+    {
+        
+    }
+
+}

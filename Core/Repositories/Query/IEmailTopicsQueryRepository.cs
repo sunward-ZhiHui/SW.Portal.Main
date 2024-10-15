@@ -59,7 +59,9 @@ namespace Core.Repositories.Query
         Task<long> InsertParticipant(TopicParticipant topicParticipant);
         Task<EmailTopics> GetTopicListAsync();
         Task<List<EmailDueDateHistory>> GetEmailDueDateHistoryList(long id);
-        Task<long> UpdateDueDate(EmailTopics EmailTopics);        
+        Task<long> UpdateDueDate(EmailTopics EmailTopics);      
+        Task<List<EmailNotifyPA>> GetNotifyPAAsync();
+        Task<long> CreateNotifyPAAsync(EmailNotifyPA emailNotifyPA);
         Task<long> CreateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys);        
         Task<long> UpdateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> InsertEmailDueDateHistory(EmailConversations emailConversations);

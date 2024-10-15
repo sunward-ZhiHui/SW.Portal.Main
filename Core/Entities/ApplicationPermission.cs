@@ -12,7 +12,7 @@ namespace Core.Entities
     {
         [Key]
         public long PermissionID { get; set; }
-        [Required(ErrorMessage = "Page Name is Required")]
+        [Required(ErrorMessage = "Name is Required")]
         public string PermissionName { get; set; }
         public string PermissionCode { get; set; }
         public long? ParentID { get; set; }        

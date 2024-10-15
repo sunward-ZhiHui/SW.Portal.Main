@@ -25,7 +25,7 @@
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
-                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                       @*  <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" /> *@
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@ResetForm" />
                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitProductionFormExternally" />
                     </Items>
@@ -140,7 +140,7 @@
     {
         Data = new ApplicationPermission();
 
-        NavigationManager.NavigateTo("applicationTest/AddApplicationFolder");
+       
     }
     public async ValueTask DisposeAsync()
     {

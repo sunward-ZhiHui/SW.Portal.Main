@@ -2,6 +2,7 @@
 @page "/AppointmentList"
 @using System.ComponentModel.DataAnnotations
 @using Application.Queries
+@using Google.Api
 @using global::Core.Entities
 @using global::Core.Entities.Views
 @using global::Core.EntityModels
@@ -9,13 +10,15 @@
 @using global::Core.Repositories.Query
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
 
 <DxScheduler @ref="Scheduler"
              @bind-StartDate="@StartDate" DataStorage="@DataStorage"
              @bind-ActiveViewType="@ActiveViewType"
              AppointmentFormShowing="OnAppointmentFormShowing"
              ValidateEditForm="true" CssClass="demo-sc-size"
-             @bind-AppointmentFormMode="@AppointmentFormMode">
+             @bind-AppointmentFormMode="@AppointmentFormMode"
+             AppointmentInserting="AppointmentInserting">
     <Views>
         <DxSchedulerWorkWeekView VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(19)))">
             <HorizontalAppointmentTemplate>
@@ -41,6 +44,7 @@
             </VerticalAppointmentTemplate>
         </DxSchedulerWorkWeekView>
     </Views>
+
     <AppointmentFormHeaderTemplate>
         <div class="popup-text-header">@context.Subject</div>
         <DxSchedulerSaveAppointmentChangesButton></DxSchedulerSaveAppointmentChangesButton>
@@ -73,19 +77,27 @@
         </DxSchedulerCustomFormLayoutItem>
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
-                <DxComboBox Data="@_plantItems"
-                            NullText="Select Company..."
-                            Value="@Data.CompanyID"
-                            ValueExpression="@(() => Data.CompanyID )"
-                            SearchMode="ListSearchMode.AutoSearch"
-                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                            ListRenderMode="ListRenderMode.Virtual"
-                            TextFieldName="Description"
-                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                            ValueFieldName="PlantID"
-                            ShowValidationIcon="true">
+                  <div style="margin-left: auto; margin-top: 14px;"> Company
+                    <DxTagBox Data="_Toparticipant"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              NullText="Select To..."
+                              Values="@Data.ToIds"
+                              ValuesExpression="@(() => Data.ToIds )"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserID"
+                              TextFieldName="Name"
+                            
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
 
-                </DxComboBox>
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+
+                    </DxTagBox>
+                </div>
             </Template>
         </DxSchedulerCustomFormLayoutItem>
     </AppointmentFormLayout>
@@ -106,6 +118,7 @@
         <DxSchedulerStartTimeFormLayoutItem></DxSchedulerStartTimeFormLayoutItem>
         <DxSchedulerEndDateFormLayoutItem></DxSchedulerEndDateFormLayoutItem>
         <DxSchedulerEndTimeFormLayoutItem></DxSchedulerEndTimeFormLayoutItem>
+
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
                 <div style="margin-left: auto; margin-top: 14px;">
@@ -116,21 +129,28 @@
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
                 <div style="margin-left: auto; margin-top: 14px;">
-                    Company
-                    <DxComboBox Data="@_plantItems"
-                                NullText="Select Company..."
-                              
-                                Value="@Data.CompanyID"
-                                ValueExpression="@(() => Data.CompanyID )"
-                                SearchMode="ListSearchMode.AutoSearch"
-                                SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                ListRenderMode="ListRenderMode.Virtual"
-                                TextFieldName="Description"
-                                ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
-                                ValueFieldName="PlantID"
-                                ShowValidationIcon="true">
+                    TO
+                    <DxTagBox Data="_Toparticipant"
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              NullText="Select To..."
+                              Values="@Data.ToIds"
+                              ValuesExpression="@(() => Data.ToIds )"
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserID"
+                              TextFieldName="Name"
+                           
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
 
-                    </DxComboBox>
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+
+                    </DxTagBox>
+
+                 
                 </div>
             </Template>
         </DxSchedulerCustomFormLayoutItem>
@@ -138,8 +158,9 @@
 </DxScheduler>
 
 @code {
-    private List<ViewPlants> _plantItems;
-    ProductionActivityModel Data = new ProductionActivityModel();
+    internal List<ViewEmployee>? _participant;
+    internal List<ViewEmployee>? _Toparticipant;
+    EmailTopics? Data { get; set; } = new EmailTopics();
     DxScheduler Scheduler { get; set; }
     SchedulerAppointmentFormMode AppointmentFormMode { get; set; } = SchedulerAppointmentFormMode.Both;
     List<SchedulerAppointmentFormMode> EditModes = Enum.GetValues(typeof(SchedulerAppointmentFormMode))
@@ -151,11 +172,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-       
-        _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        var getAllEmployeeListTask = Mediator.Send(new GetAllEmployeeListQuery());
+
+        var plist = await getAllEmployeeListTask;
+        _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
       
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        
     }
+      
 
     public class CustomAppointmentFormInfo : SchedulerAppointmentFormInfo
     {
@@ -171,10 +196,10 @@
             get { return IsAccepted(CustomFields); }
             set { CustomFields["IsAccepted"] = value; }
         }
-        public int Company
+        public long To
         {
-            get { return Company(CustomFields); }
-            set { CustomFields["Company"] = value; }
+            get { return To(CustomFields); }
+            set { CustomFields["To"] = value; }
         }
     }
     void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
@@ -182,10 +207,10 @@
         args.FormInfo = new CustomAppointmentFormInfo(args.Appointment, DataStorage, Scheduler);
     }
     static bool IsAccepted(DxExpandoDictionaryObject customFields) => true == (bool?)customFields["IsAccepted"];
-    static int Company(DxExpandoDictionaryObject customFields) =>(int) customFields["Company"];
+    static long To(DxExpandoDictionaryObject customFields) => (long)customFields["To"];
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
         {
-           // AppointmentsSource = AppointmentCollection.GetAppointments(),
+           AppointmentsSource = AppointmentCollection.GetAppointments(),
             AppointmentMappings = new DxSchedulerAppointmentMappings()
             {
                 Type = "AppointmentType",
@@ -195,10 +220,42 @@
                 AllDay = "AllDay",
                 Location = "Location",
                 Description = "Description",
+             
+             
                 CustomFieldMappings = new List<DxSchedulerCustomFieldMapping> {
                 new DxSchedulerCustomFieldMapping { Name = "IsAccepted", Mapping = "Accepted" },
-                  new DxSchedulerCustomFieldMapping { Name = "Company", Mapping = "Company" }
+                  new DxSchedulerCustomFieldMapping { Name = " To", Mapping = " To" }
             }
             }
         };
+   
+    async Task AppointmentInserting(SchedulerAppointmentOperationEventArgs e)
+    {
+        Appointment insertedItem = e.Appointment.SourceObject as Appointment;
+
+        if (insertedItem != null)
+        {
+            var InsertReq = new AddAppointment
+                {
+                    AppointmentType = insertedItem.AppointmentType,
+                    StartDate = insertedItem.StartDate,
+                    EndDate = insertedItem.EndDate,
+                    Caption = insertedItem.Caption,
+                    Label = insertedItem.Label,
+                    Status = insertedItem.Status,
+                    AllDay = insertedItem.AllDay,
+                    Location = insertedItem.Location,
+                    Description = insertedItem.Description,
+                    Recurrence = insertedItem.Recurrence,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    
+                };
+
+            var ans = await Mediator.Send(InsertReq);
+            toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            //await UpdateDataAsync();
+        }
+
+}
 }

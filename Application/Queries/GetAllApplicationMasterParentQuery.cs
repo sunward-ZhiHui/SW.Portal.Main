@@ -23,5 +23,12 @@ namespace Application.Queries
     {
 
     }
-
+    public class GetAllApplicationMasterChildNestedQuery : PagedRequest, IRequest<List<ApplicationMasterChildModel>>
+    {
+        public long? ApplicationMasterParentCodeId { get; set; }
+        public GetAllApplicationMasterChildNestedQuery(long? applicationMasterParentCodeId)
+        {
+            this.ApplicationMasterParentCodeId = applicationMasterParentCodeId;
+        }
+    }
 }

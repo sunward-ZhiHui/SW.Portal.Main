@@ -305,7 +305,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("AddedDate", appointment.AddedDate);
                         parameters.Add("Location", appointment.Location);
                         parameters.Add("Description", appointment.Description);
-
+                       
 
                         var query = @"INSERT INTO Appointment (AppointmentType,StartDate,EndDate,Caption,Label,Status,AllDay,Recurrence,AddedByUserID,AddedDate,Location,Description) VALUES (@AppointmentType,@StartDate,@EndDate,@Caption,@Label,@Status,@AllDay,@Recurrence,@AddedByUserID,@AddedDate,@Location,@Description)";
 

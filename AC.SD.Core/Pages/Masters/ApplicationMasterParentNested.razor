@@ -1,0 +1,64 @@
+﻿@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.EntityModels
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+<DxGrid @ref="GridNestedChild"
+        Data="_NestedApplicationChildItems"
+        KeyFieldName="ApplicationMasterChildId"
+        ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Single"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CustomizeElement="Grid_CustomizeElement"
+        FocusedRowEnabled="true"
+        style="height: calc(100vh - 300px);"
+        AllowSelectRowByClick="true"
+        CssClass="ch-360">
+    <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+        <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
+        <DxGridDataColumn FieldName="Value" Caption="Name" />
+        <DxGridDataColumn FieldName="Description" Caption="Description" />
+    </Columns>
+    <DetailRowTemplate>
+        <ApplicationMasterParentNested Items="(ApplicationMasterChildModel)context.DataItem" />
+    </DetailRowTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
+    </TotalSummary>
+</DxGrid>
+@code {
+    IGrid? GridNestedChild { get; set; }
+    [Parameter]
+    public ApplicationMasterChildModel Items { get; set; }
+    private List<ApplicationMasterChildModel> _NestedApplicationChildItems { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (Items != null)
+        {
+            _NestedApplicationChildItems = Items.Children;
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+                                    }

@@ -30,6 +30,6 @@ namespace Core.Entities
         public string StatusType { get; set; }
         public string UserTag { get; set; }
         public string OtherTag { get; set; }
-        public int? Company { get; set; }
+        public long? To { get; set; }
     }
 }

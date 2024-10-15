@@ -2,6 +2,7 @@
 @page "/AppointmentList"
 @using System.ComponentModel.DataAnnotations
 @using Application.Queries
+@using Google.Api
 @using global::Core.Entities
 @using global::Core.Entities.Views
 @using global::Core.EntityModels
@@ -9,13 +10,15 @@
 @using global::Core.Repositories.Query
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
 
 <DxScheduler @ref="Scheduler"
              @bind-StartDate="@StartDate" DataStorage="@DataStorage"
              @bind-ActiveViewType="@ActiveViewType"
              AppointmentFormShowing="OnAppointmentFormShowing"
              ValidateEditForm="true" CssClass="demo-sc-size"
-             @bind-AppointmentFormMode="@AppointmentFormMode">
+             @bind-AppointmentFormMode="@AppointmentFormMode"
+             AppointmentInserting="AppointmentInserting">
     <Views>
         <DxSchedulerWorkWeekView VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(19)))">
             <HorizontalAppointmentTemplate>
@@ -41,6 +44,7 @@
             </VerticalAppointmentTemplate>
         </DxSchedulerWorkWeekView>
     </Views>
+
     <AppointmentFormHeaderTemplate>
         <div class="popup-text-header">@context.Subject</div>
         <DxSchedulerSaveAppointmentChangesButton></DxSchedulerSaveAppointmentChangesButton>
@@ -73,9 +77,10 @@
         </DxSchedulerCustomFormLayoutItem>
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
-                <DxComboBox Data="@_plantItems"
+                  <div style="margin-left: auto; margin-top: 14px;"> Company 
+                <DxComboBox Data="@_plantItems" 
                             NullText="Select Company..."
-                            Value="@Data.CompanyID"
+                            Value="@Data.CompanyID" 
                             ValueExpression="@(() => Data.CompanyID )"
                             SearchMode="ListSearchMode.AutoSearch"
                             SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -83,9 +88,10 @@
                             TextFieldName="Description"
                             ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                             ValueFieldName="PlantID"
-                            ShowValidationIcon="true">
+                           >
 
                 </DxComboBox>
+                </div>
             </Template>
         </DxSchedulerCustomFormLayoutItem>
     </AppointmentFormLayout>
@@ -106,6 +112,7 @@
         <DxSchedulerStartTimeFormLayoutItem></DxSchedulerStartTimeFormLayoutItem>
         <DxSchedulerEndDateFormLayoutItem></DxSchedulerEndDateFormLayoutItem>
         <DxSchedulerEndTimeFormLayoutItem></DxSchedulerEndTimeFormLayoutItem>
+
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
                 <div style="margin-left: auto; margin-top: 14px;">
@@ -117,10 +124,10 @@
             <Template>
                 <div style="margin-left: auto; margin-top: 14px;">
                     Company
-                    <DxComboBox Data="@_plantItems"
+                    <DxComboBox Data="@_plantItems"  
                                 NullText="Select Company..."
-                              
-                                Value="@Data.CompanyID"
+                                ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant))"
+                                Value="@Data.CompanyID" 
                                 ValueExpression="@(() => Data.CompanyID )"
                                 SearchMode="ListSearchMode.AutoSearch"
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -128,9 +135,11 @@
                                 TextFieldName="Description"
                                 ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                                 ValueFieldName="PlantID"
-                                ShowValidationIcon="true">
+                            >
 
                     </DxComboBox>
+
+                 
                 </div>
             </Template>
         </DxSchedulerCustomFormLayoutItem>
@@ -138,6 +147,9 @@
 </DxScheduler>
 
 @code {
+    long? CompanyID;
+    private List<ProductionActivityApp> _productionActivities;
+    private List<NavprodOrderLineModel> _ponumberActivities;
     private List<ViewPlants> _plantItems;
     ProductionActivityModel Data = new ProductionActivityModel();
     DxScheduler Scheduler { get; set; }
@@ -151,7 +163,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-       
+    
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
       
@@ -185,7 +197,7 @@
     static int Company(DxExpandoDictionaryObject customFields) =>(int) customFields["Company"];
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
         {
-           // AppointmentsSource = AppointmentCollection.GetAppointments(),
+           AppointmentsSource = AppointmentCollection.GetAppointments(),
             AppointmentMappings = new DxSchedulerAppointmentMappings()
             {
                 Type = "AppointmentType",
@@ -195,10 +207,53 @@
                 AllDay = "AllDay",
                 Location = "Location",
                 Description = "Description",
+             
+             
                 CustomFieldMappings = new List<DxSchedulerCustomFieldMapping> {
                 new DxSchedulerCustomFieldMapping { Name = "IsAccepted", Mapping = "Accepted" },
                   new DxSchedulerCustomFieldMapping { Name = "Company", Mapping = "Company" }
             }
             }
         };
+    async Task SelectedItemPlantChanged(long? companyId)
+    {
+        Data.CompanyID = companyId;
+        // CompanyID = 0; Data.CompanyID = null;
+        if (companyId != null && companyId > 0)   
+        {
+            CompanyID = companyId;
+            Data.CompanyID = CompanyID;
+            _plantItems = await Mediator.Send(new GetAllPlantQuery());
+            
+        }
+    }
+    async Task AppointmentInserting(SchedulerAppointmentOperationEventArgs e)
+    {
+        Appointment insertedItem = e.Appointment.SourceObject as Appointment;
+
+        if (insertedItem != null)
+        {
+            var InsertReq = new AddAppointment
+                {
+                    AppointmentType = insertedItem.AppointmentType,
+                    StartDate = insertedItem.StartDate,
+                    EndDate = insertedItem.EndDate,
+                    Caption = insertedItem.Caption,
+                    Label = insertedItem.Label,
+                    Status = insertedItem.Status,
+                    AllDay = insertedItem.AllDay,
+                    Location = insertedItem.Location,
+                    Description = insertedItem.Description,
+                    Recurrence = insertedItem.Recurrence,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    Company = (int?)Data.CompanyID
+                };
+
+            var ans = await Mediator.Send(InsertReq);
+            toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            //await UpdateDataAsync();
+        }
+
+}
 }

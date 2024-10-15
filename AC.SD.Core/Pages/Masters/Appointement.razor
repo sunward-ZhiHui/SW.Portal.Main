@@ -80,6 +80,7 @@
                   <div style="margin-left: auto; margin-top: 14px;"> Company 
                 <DxComboBox Data="@_plantItems" 
                             NullText="Select Company..."
+                           ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant))"
                             Value="@Data.CompanyID" 
                             ValueExpression="@(() => Data.CompanyID )"
                             SearchMode="ListSearchMode.AutoSearch"

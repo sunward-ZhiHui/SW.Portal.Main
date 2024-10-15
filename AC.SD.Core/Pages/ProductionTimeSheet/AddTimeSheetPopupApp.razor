@@ -262,16 +262,22 @@
         //_ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(331));
         //_ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(334));
         IDictionary<string, object> dynamicsData = new ExpandoObject();
-        var time_sheet_lst = _ManuFactureProcessLines.Where(x => x.Value == "Timesheet").ToList();
-        timesheetMasterchildid = time_sheet_lst[0].ApplicationMasterChildId;
-        timesheetMasterParentid = time_sheet_lst[0].ApplicationMasterParentId.ToString();
-        dynamicsData[timesheetMasterParentid] = timesheetMasterchildid;
-
-        var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData, 108));
-        _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
-        _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
-        _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
-
+        var time_sheet_lst = _ManuFactureProcessLines.Where(x => x.Value == "Timesheet").FirstOrDefault();
+        if (time_sheet_lst != null)
+        {
+            Data.ManufacturingProcessChildId = time_sheet_lst.ApplicationMasterChildId;
+            timesheetMasterchildid = time_sheet_lst.ApplicationMasterChildId;
+            timesheetMasterParentid = time_sheet_lst.ApplicationMasterParentId.ToString();
+            dynamicsData[timesheetMasterParentid] = timesheetMasterchildid;
+            if (Data.ManufacturingProcessChildId > 0)
+            {
+                _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(Data.ManufacturingProcessChildId));
+            }
+            var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData, 108));
+            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+        }
         Category = "";
         Action = "";
         if (_selectedEditItems != null)
@@ -318,7 +324,7 @@
             await GetIsDoumentExits();
         }
     }
-    void addNewProductionForm()
+    async Task addNewProductionForm()
     {
         _editContext = new EditContext(Data);
         FileProfileTypeId = null;
@@ -339,6 +345,24 @@
         UploadSessionId = null;
         uploadEnabled = false;
         addEnabled = true; saveEnabled = true;
+        IDictionary<string, object> dynamicsData = new ExpandoObject();
+        var time_sheet_lst = _ManuFactureProcessLines.Where(x => x.Value == "Timesheet").FirstOrDefault();
+        
+        if (time_sheet_lst != null)
+        {
+            Data.ManufacturingProcessChildId = time_sheet_lst.ApplicationMasterChildId;
+            timesheetMasterchildid = time_sheet_lst.ApplicationMasterChildId;
+            timesheetMasterParentid = time_sheet_lst.ApplicationMasterParentId.ToString();
+            dynamicsData[timesheetMasterParentid] = timesheetMasterchildid;
+            if (Data.ManufacturingProcessChildId > 0)
+            {
+                _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(Data.ManufacturingProcessChildId));
+            }
+            var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData, 108));
+            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+        }
         StateHasChanged();
     }
     void SelectedItemplateItemsChanged(long? Itemss)
@@ -644,7 +668,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-        if(_ManuFactureProcessLines != null)
+        if (_ManuFactureProcessLines != null)
         {
             _ManuFactureProcessLines.Clear();
             _ManuFactureProcessLines = null;
@@ -698,7 +722,7 @@
         Data = null;
         DataLine = null;
 
-    //System.GC.Collect();
-       // GC.SuppressFinalize(this);
+        //System.GC.Collect();
+        // GC.SuppressFinalize(this);
     }
 }

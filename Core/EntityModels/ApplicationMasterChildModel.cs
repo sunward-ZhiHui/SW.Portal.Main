@@ -26,6 +26,8 @@ namespace Core.EntityModels
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public string? ApplicationMasterName { get; set; }
+        public string? ParentName { get; set; }
         public List<ApplicationMasterChildModel> Children { get; set; } = new List<ApplicationMasterChildModel>();
     }
 }

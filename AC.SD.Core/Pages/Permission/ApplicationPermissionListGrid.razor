@@ -1,5 +1,5 @@
-﻿@page "/applicationTest"
-@page "/applicationTest/{MainSessionId:guid}"
+﻿@page "/applicationPermissionLists"
+@page "/applicationPermissionLists/{MainSessionId:guid}"
 
 @using Application.Queries;
 @using MediatR
@@ -23,8 +23,8 @@
             <Items>
                 <DxMenuItem Text="Create Type" Position="ItemPosition.Start" >
                     <Items>
-                        <DxMenuItem Text="Add Folder" IconCssClass="fa fa-add" Click="onAddFloder" />
-                        <DxMenuItem Text="Add Page" IconCssClass="fa fa-plus-circle" Click="onAddPage"  />
+                        <DxMenuItem Text="Add Sitemap" IconCssClass="fa fa-add" Click="onAddFloder" />
+                        <DxMenuItem Text="Add Menu" IconCssClass="fa fa-plus-circle" Click="onAddPage"  />
                        
                        
                     </Items>
@@ -34,7 +34,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 @* <DxMenuItem Text="Back URL" IconCssClass="fa fa-Share" Click="@OnBack" Enabled="@BackEnabled" />*@ 
-                <DxMenuItem Text="ReArrange Order" IconCssClass="fa fa-refresh" Click="@OnRefresh" /> 
+                <DxMenuItem Text="Re-arrange Order" IconCssClass="fa fa-refresh" Click="@OnRefresh" /> 
             </Items>
         </DxMenu>
     </div>
@@ -333,7 +333,7 @@
                     dc.UniqueSessionID = _selectedItems.UniqueSessionID;
                     FolderPathListsItems.Add(dc);
                 }
-                NavigationManager.NavigateTo($"applicationTest/" + _selectedItems.UniqueSessionID);
+                NavigationManager.NavigateTo($"applicationPermissionLists/" + _selectedItems.UniqueSessionID);
                 EditEnabled = false;
                 DeleteEnabled = false;
                 await LoadDataAsync();
@@ -396,7 +396,7 @@
     }
     async void OnBack()
     {
-        NavigationManager.NavigateTo($"applicationTest");
+        NavigationManager.NavigateTo($"applicationPermissionLists");
         await UpdateDataAsync(); 
     }
 

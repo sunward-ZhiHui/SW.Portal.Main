@@ -266,6 +266,9 @@
 
                                                     </DxFormLayout>
                                                 </EditFormTemplate>
+                                                <TotalSummary>
+                                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
+                                                </TotalSummary>
                                             </DxGrid>
                                         </DxTabPage>
                                         <DxTabPage Text="@DisplayChild" Enabled="@childChildTabEnabled">
@@ -328,10 +331,51 @@
 
                                                     </DxFormLayout>
                                                 </EditFormTemplate>
+                                                <TotalSummary>
+                                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
+                                                </TotalSummary>
                                             </DxGrid>
                                         </DxTabPage>
                                     </DxTabs>
-
+                                    <div style="display:none;">
+                                    <DxGrid @ref="GridNestedChild"
+                                            Data="_NestedApplicationChildItems"
+                                            EditMode="GridEditMode.EditForm"
+                                            ShowGroupPanel="true"
+                                            ShowGroupedColumns="true"
+                                            ShowSearchBox="true"
+                                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                            PagerNavigationMode="PagerNavigationMode.InputBox"
+                                            KeyFieldName="ApplicationMasterChildId"
+                                            PageSizeSelectorVisible="true"
+                                            PageSizeSelectorAllRowsItemVisible="false"
+                                            PageSizeSelectorItems="@(new int[] { 5,10,20,30,50,100 })"
+                                            PageSize="20"
+                                            style="height: calc(100vh - 300px);"
+                                            CssClass="ch-360"
+                                            AllowSelectRowByClick="true"
+                                            CustomizeElement="Grid_CustomizeElement"
+                                            AutoExpandAllGroupRows="true"
+                                            FocusedRowEnabled="true"
+                                            SelectionMode="GridSelectionMode.Single"
+                                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+                                        <Columns>
+                                            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                                            <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
+                                            <DxGridDataColumn FieldName="ApplicationMasterName" GroupIndex="0" Caption="Master Name" />
+                                            <DxGridDataColumn FieldName="ParentName" GroupIndex="0" Caption="Parent Name" />
+                                            <DxGridDataColumn FieldName="Value" Caption="Name" />
+                                            <DxGridDataColumn FieldName="Description" Caption="Description" />
+                                        </Columns>
+                                              @* <DetailRowTemplate>
+                                                 <ApplicationMasterParentNested Items="(ApplicationMasterChildModel)context.DataItem" />
+                                             </DetailRowTemplate> *@
+                                       @*   <TotalSummary>
+                                             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
+                                         </TotalSummary> *@
+                                    </DxGrid>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -453,7 +497,9 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     public int ActiveTabIndex { get; set; } = 0;
+    IGrid? GridNestedChild { get; set; }
     IGrid? MasterGrid { get; set; }
     IGrid? Grid { get; set; }
     IGrid? GridChild { get; set; }
@@ -464,6 +510,7 @@
     private List<ApplicationMasterChildModel> _applicationMasterDetails { get; set; }
     private List<ApplicationMasterChildModel> _applicationChildItems { get; set; }
     private List<ApplicationMasterChildModel> _applicationChildChildItems { get; set; }
+    private List<ApplicationMasterChildModel> _NestedApplicationChildItems { get; set; }
     bool PanelVisible { get; set; }
     bool PanelVisibleMastersDetails { get; set; }
     private ApplicationMasterChildModel? _selectedItems;
@@ -629,7 +676,10 @@
                         }
                     }
                     await UpdateDataAsync();
+                    _NestedApplicationChildItems = await Mediator.Send(new GetAllApplicationMasterChildNestedQuery(masterData.ApplicationMasterParentCodeId));
+                    StateHasChanged();
                 }
+
             }
         }
     }
@@ -849,11 +899,13 @@
     }
     async Task ExportToExcel()
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+        if(GridNestedChild!=null)
+        {
+            await GridNestedChild.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
             {
-                ExportSelectedRowsOnly = true,
-                CustomizeCell = OnCustomizeCell
+                    ExportSelectedRowsOnly = ExportSelectedRowsOnly,
             });
+        }
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
@@ -1328,21 +1380,21 @@
             _applicationMasterDetails = null;
 
         }
-        if(_applicationChildItems != null)
+        if (_applicationChildItems != null)
         {
             _applicationChildItems.Clear();
             _applicationChildItems = null;
 
         }
-        if(_applicationChildChildItems != null)
+        if (_applicationChildChildItems != null)
         {
             _applicationChildChildItems.Clear();
             _applicationChildChildItems = null;
         }
-       
-      
+
+
         // GC.Collect();
-       // GC.WaitForPendingFinalizers();
-       // GC.Collect();
+        // GC.WaitForPendingFinalizers();
+        // GC.Collect();
     }
 }

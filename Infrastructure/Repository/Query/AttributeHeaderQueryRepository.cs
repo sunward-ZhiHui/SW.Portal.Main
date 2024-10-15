@@ -571,8 +571,8 @@ namespace Infrastructure.Repository.Query
 
                                                     });
                                                     var exitsCount = nameDatas.Where(w => w.ApplicationMasterChildId > 0).ToList();
-                                                    if (exitsCount.Count() == dynamicscounts)
-                                                    {
+                                                    //if (exitsCount.Count() == dynamicscounts)
+                                                   // {
                                                         exitsCount.ForEach(e =>
                                                         {
                                                             long? KeyValue = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Key);
@@ -591,12 +591,12 @@ namespace Infrastructure.Repository.Query
                                                                 {
                                                                     if (e.ApplicationMasterChildId != Value)
                                                                     {
-                                                                        DynamicFormDataIDs.Remove(f.DynamicFormDataId);
+                                                                       // DynamicFormDataIDs.Remove(f.DynamicFormDataId);
                                                                     }
                                                                 }
                                                             }
                                                         });
-                                                    }
+                                                    //}
                                                 }
                                             }
                                         }

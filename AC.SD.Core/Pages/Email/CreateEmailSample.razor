@@ -785,9 +785,12 @@ else
         if (values != null)
         {
             Data.ToIds = values;
-            var list = _CCparticipant.Where(p => !values.Contains(p.UserID.Value)).ToList();
-            _CCparticipant = list;
-            StateHasChanged();
+            if (Data.CCIds != null)
+            {
+                var list = Data.CCIds.Where(p => !values.Contains(p)).ToList();
+                Data.CCIds = list;
+                StateHasChanged();
+            }
             // Update _CCparticipant based on selected values from _Toparticipant
             // _CCparticipant = _participant.Except(values).ToList();
             // if (_participant != null && values != null)
@@ -1003,9 +1006,13 @@ else
         if (values != null)
         {
             Data.CCIds = values;
-            var list = _Toparticipant.Where(p => !values.Contains(p.UserID.Value)).ToList();
-            _Toparticipant =list;
-            StateHasChanged();
+            if( Data.ToIds != null)
+            {
+                var list = Data.ToIds.Where(p => !values.Contains(p)).ToList();
+                Data.ToIds = list;
+                StateHasChanged();
+            }
+          
             // Update _Toparticipant based on selected values from _CCparticipant
             //  _Toparticipant = _participant.Except(values).ToList();
             // if (_participant != null && values != null)

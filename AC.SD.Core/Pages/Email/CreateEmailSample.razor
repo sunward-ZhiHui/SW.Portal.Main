@@ -1,0 +1,2600 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using System.Text;
+@using global::Core.Repositories.Query;
+@using DevExpress.Blazor.ComboBox;
+@using DevExpress.Export;
+@using MediatR
+@inject NavigationManager NavigationManager
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@inject IJSRuntime JSRuntime;
+@using System.Collections.Generic
+@using System.Reflection;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+@inject HttpClient httpClient;
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.IO;
+@using System.ComponentModel;
+@using System;
+@using System.Linq;
+@page "/CreateEmailSample"
+@page "/CreateEmailSample/{ActiveSessionId}"
+@implements IAsyncDisposable;
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+@using global::Core.EntityModels;
+<style>
+    .zero-width-label label {
+        width: 0px !important
+    }
+
+    .supportDoc {
+        text-align: center;
+        font-size: 14px;
+        background: #3333;
+        color: black;
+        padding: 3px;
+        margin-bottom: 10px;
+    }
+
+    .txtEditorMsg {
+        height: calc(100vh - 530px);
+        background-color: white;
+    }
+   
+    .dxuc-file-list-view {
+        padding: 20px;
+    }
+
+    .dxuc-upload-icon {
+        display: none; /* or any other style to disable or hide the icon */
+    }
+
+    .replybox {
+        color: black;
+        border: 1px solid #dedede;
+        padding: 10px;
+        border-radius: 4px;
+        background: #eef2f0;
+        margin-bottom: 10px;
+        min-height: 60px;
+    }
+
+    .gbtn label {
+        display: none;
+    }
+</style>
+<div class="card w-100 tooltips" style="margin-bottom:10px;">
+    <div class="card-body p-0 tooltiptops">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => onBack())" Enabled="@BackEnabled" />
+                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onClearAll" />
+                        <DxMenuItem Text="Sent" Enabled="!isSending" IconCssClass="fa fa-save" Click="@SubmitSentForm">
+                            <div class="d-flex">
+                                <DxWaitIndicator Visible="isSending" />
+                                <span class="mx-2">@Message</span>
+                            </div>
+                        </DxMenuItem>
+                        <DxMenuItem Text="Draft" IconCssClass="fab fa-stack-overflow" Click="@SubmitDraftForm" />
+                        @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
+                        <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => addNew(0))" />*@
+                    </Items>
+                </DxMenu>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+    </div>
+</DxPopup>
+@if (isValidateSession)
+{
+    <div style="color:red; text-align:center;">Invalidate Session or Already Created</div>
+    NavigationManager.NavigateTo($"404", forceLoad: true);
+}
+else
+{
+    <div class="card cw-480 toolnext">
+        <EditForm id="@MyID" @ref="myForm" EditContext="this._editContext"
+                  OnValidSubmit="@HandleValidSubmit"
+                  OnInvalidSubmit="@HandleInvalidSubmit"
+                  Context="EditFormContext">
+            <DataAnnotationsValidator />
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <DxFormLayout CaptionPosition="CaptionPosition.Horizontal" CssClass="w-100">
+                            <DxFormLayoutItem Caption="From" ColSpanMd="12">
+                                <DxTextBox @bind-Text="@Data.From" spellcheck="true" ShowValidationIcon="true" Enabled=false />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="To" ColSpanMd="11">
+                                    <DxTagBox Data="_Toparticipant"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                              NullText="Select To..."
+                                              Values="@Data.ToIds"
+                                              ValuesExpression="@(() => Data.ToIds )"
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserID"
+                                              TextFieldName="Name"
+                                              ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual"
+                                              CssClass="cw-480">
+
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+
+                                    </DxTagBox>
+                                    <ValidationMessage For="@(() => Data.ToIds)" />
+                                </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn">
+                                    <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
+                                              Click="@(_ => OnButtonUserGroupToClick())">
+                                    </DxButton>
+                                </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="CC" ColSpanMd="11">
+                                <DxTagBox NullText="Select Cc..."
+                                          Data="_CCparticipant"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          ValueFieldName="UserID"
+                                          TextFieldName="Name"
+                                          Values="@Data.CCIds"
+                                          ValuesExpression="@(() =>  Data.CCIds )"
+                                          ValuesChanged="@((IEnumerable<long>? values) => onSelectedCCItemsChanged(values))"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          CssClass="cw-480">
+
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
+                                                        Caption="Name" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                                        Caption="Nick Name" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                                        Caption="Designation" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                                        Caption="Company"
+                                                        Width="100px" />
+
+
+                                </DxTagBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn">
+                                <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-cc-info")
+                                          Click="@(_ => OnButtonUserGroupCCClick())">
+                                </DxButton>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
+                                <DxComboBox Data="@_OnBehalfparticipant"
+                                            NullText="Select OnBehalf..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            Value="@selectBehalf"
+                                            ValueExpression="@(() => selectBehalf )"
+                                            TextFieldName="Name"
+                                            ValueFieldName="UserID"
+                                            ValueChanged="@((ViewEmployee viewEmployee) => onSelectedOnBehalfItemsChanged(viewEmployee))"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            ShowValidationIcon="true">
+                                    <Columns>
+
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
+                                                            Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                                            Caption="Nick Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                                            Caption="Designation" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                                            Caption="Company"
+                                                            Width="100px" />
+
+
+                                    </Columns>
+                                </DxComboBox>
+                                <DxSpinEdit @bind-Value="@Data.OnBehalf" ShowValidationIcon="true" style="display:none;" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
+                                <DxCheckBox CssClass="w-100"
+                                            @bind-Checked="@Data.IsAllowParticipants"
+                                            Alignment="default"
+                                            LabelPosition="LabelPosition.Right">
+                                    Allow Add Participants
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">
+                                <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Extend No Of Day" ColSpanMd="4">
+                                <DxSpinEdit @bind-Value="@Data.NoOfDays" MinValue="0"></DxSpinEdit>
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="" ColSpanMd="4">
+                                <DxCheckBox CssClass="w-100"
+                                            @bind-Checked="@Data.Urgent"
+                                            Alignment="default"
+                                            LabelPosition="LabelPosition.Right">
+                                    Urgent
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
+
+                         
+
+                             <DxFormLayoutItem Caption="Follow" ColSpanMd="4">
+                                <DxComboBox Data="@Follow"
+                                            NullText="Select Follow..."
+                                            @bind-Value="@Data.Follow"
+                                            CssClass="cw-480">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Data.Follow)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
+                                <DxCheckBox CssClass="w-100"
+                                            @bind-Checked="@Data.NotifyUser"
+                                            Alignment="default"
+                                            LabelPosition="LabelPosition.Right">
+                                    Notify User
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
+                                <DxCheckBox CssClass="w-100"
+                                            @bind-Checked="@Data.TagLock"
+                                            Alignment="default"
+                                            LabelPosition="LabelPosition.Right">
+                                    Tag Lock
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
+                                <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
+                                <ValidationMessage For="@(() => Data.TopicName)" />
+                            </DxFormLayoutItem>
+
+                            @if (ActiveSessionId != null)
+                            {
+
+                                string ActivityTypes = ActivityType == "FileProfileType" ? "Sunward Libraries" : ActivityType == "DynamicForm" ? DynamicFormName : "Activity";
+
+                                <DxFormLayoutItem Caption=" " ColSpanMd="12">
+                                    <div class="replybox">
+                                        <div style="font-weight: bold;">@ActivityTypes Comment</div>
+                                        <text>@ActComment</text>
+                                        <div style=" float: right; font-size: 12px;"> @ActUserName  , @ActAddedDate </div>
+                                    </div>
+                                </DxFormLayoutItem>
+                            }
+                            <DxFormLayoutItem ColSpanMd="12">
+                                <DxRichEdit DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+
+                            </DxFormLayoutItem>
+                        </DxFormLayout>
+                    </div>
+                    <div class="col-md-4">
+                        <DxFormLayout CaptionPosition="CaptionPosition.Horizontal" CssClass="w-100">
+                            <DxFormLayoutItem Caption="Group" ColSpanMd="12">
+                                <DxComboBox Data="@_groupTagItems"
+                                            NullText="Select Group..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            AllowUserInput ="true"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Value"
+                                            ValueFieldName="ApplicationMasterChildId"
+                                            Enabled="@isEnabled"
+                                           Value = "@selectgrouptagItems"
+                                            ValueExpression="@(() => selectgrouptagItems )"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
+                                            ShowValidationIcon="true">
+                                </DxComboBox>
+                                   <DxSpinEdit   @bind-Value="@CategoryData.GroupTag" ShowValidationIcon="true" style="display:none;" />
+                                <ValidationMessage For="@(() => CategoryData.GroupTag)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Category" ColSpanMd="12">
+                                <DxComboBox Data="@_categoryTagItems"
+                                            NullText="Select Category..."
+                                            Enabled="@isEnabled"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            AllowUserInput="true"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            Value="@selectCategory"
+                                            ValueExpression="@(() => selectCategory )"
+                                            TextFieldName="Value"
+                                            ValueFieldName="ApplicationMasterChildId"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
+                                </DxComboBox>
+                                <DxSpinEdit @bind-Value="@CategoryData.CategoryTag" ShowValidationIcon="true" style="display:none;" />
+                                <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Action" ColSpanMd="12">
+                                <DxTagBox Data="_actionTagItems"
+                                          @bind-Values="CategoryData.ActionTagIds"
+                                          NullText="Select Action"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="ApplicationMasterChildId"
+                                          TextFieldName="Value"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          CssClass="cw-480">
+                                    <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
+                                </DxTagBox>
+                                @*  <DxComboBox Data="@_actionTagItems"
+                                            NullText="Select Action..."
+                                            Enabled="@isEnabled"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            AllowUserInput="true"
+                                            TextFieldName="Value"
+                                            ValueFieldName="ApplicationMasterChildId"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            @bind-Value="@CategoryData.ActionTag">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => CategoryData.ActionTag)" /> *@
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="12">
+                                <DxComboBox Data="@_AllCategory"
+                                            NullText="Select Others Tag..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            AllowUserInput="true"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="Name"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            @bind-Value="@CategoryData.Name"
+                                            @bind-Text="@OthersTagName">
+                                </DxComboBox>
+                                @* <ValidationMessage For="@(() => CategoryData.Name)" /> *@
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
+                               @*  <DxComboBox Data="@_UserTagList"
+                                            NullText="Select User Tag..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                            AllowUserInput="true"
+                                            TextFieldName="UserTag"
+                                            ValueFieldName="UserTag"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            @bind-Value="@CategoryData.UserTag"
+                                            @bind-Text="@UserTagName">
+                                </DxComboBox> *@
+                                <DxTagBox Data="_UserTagList"
+                                          @bind-Values="CategoryData.UserTagIds"
+                                          NullText="Select User Tag"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="ID"
+                                          TextFieldName="UserTag"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          CssClass="cw-480">
+                                    <DxListEditorColumn FieldName="@nameof(EmailActivityCatgorys.UserTag)" Caption="User Tag" />
+                                </DxTagBox>
+                                @* <ValidationMessage For="@(() => CategoryData.UserTag)" /> *@
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem ColSpanMd="12">
+                                <DxFormLayout CssClass="w-100 ">
+                                    <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
+                                        <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                                        <div class="" style="overflow:auto; height: calc(100vh - 525px);">
+                                            <DxUpload @ref="uploadComponent" Name="files"
+                                                      Visible="@AttachmentUploadVisible"
+                                                      AcceptedFileTypes=@AcceptedFileTypes
+                                                      UploadMode="@UploadMode.OnButtonClick"
+                                                      FileUploadStart="OnFileUploadStart"
+                                                      ChunkSize="200000"
+                                                      AllowMultiFileUpload="true"
+                                                      ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                                      FileUploaded="@isUploadSuccess"
+                                                      FileUploadProgressChanged="@OnUploadProgressChanged"
+                                                      FileUploadStarted="@OnFileUploadStarted"
+                                                      FileUploadError="@OnUploadError">
+                                            </DxUpload>
+                                            <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
+                                        </div>
+                                        <div style="width:100%;">
+                                            @if (ActiveSessionId != null)
+                                            {
+                                                @if (_documentslst != null && _documentslst.Any())
+                                                {
+                                                    <ul class="d-flex flex-column-reverse todo-list">
+                                                        @foreach (var item in _documentslst)
+                                                        {
+
+                                                            <li class="doc_lst_view">
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                                                        @{
+                                                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                                                        }
+                                                                        <span style="font-size: 11px;">  @formattedFileSize</span>
+
+                                                                        @* <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>*@
+
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+
+                                                }
+
+                                                @if (_PADoclst != null && _PADoclst.Any())
+                                                {
+                                                    <div class="supportDoc"> Production Activity (Supporting Doc) </div>
+                                                    <ul class="d-flex flex-column-reverse todo-list">
+                                                        @foreach (var item in _PADoclst)
+                                                        {
+                                                            <li class="doc_lst_view">
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                                                        @{
+                                                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                                                        }
+                                                                        <span style="font-size: 11px;">  @formattedFileSize</span>
+
+                                                                        @* <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>*@
+
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+
+                                                }
+
+                                                @if (_PARoutineDoclst != null && _PARoutineDoclst.Any())
+                                                {
+                                                    <div class="supportDoc"> Production Routine Activity (Supporting Doc) </div>
+                                                    <ul class="d-flex flex-column-reverse todo-list">
+                                                        @foreach (var item in _PARoutineDoclst)
+                                                        {
+
+                                                            <li class="doc_lst_view">
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                                                        @{
+                                                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                                                        }
+                                                                        <span style="font-size: 11px;">  @formattedFileSize</span>
+
+                                                                        @* <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>*@
+
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+
+                                                }
+
+
+                                            }
+                                        </div>
+                                    </DxFormLayoutGroup>
+                                </DxFormLayout>
+                            </DxFormLayoutItem>
+                        </DxFormLayout>
+                        
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+
+    </div>
+}
+
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+
+    </BodyTemplate>
+</DxPopup>
+
+<DxFlyout @bind-IsOpen=IsUserGroupToOpen
+          PositionTarget=@($"#flyout-overview-target-container-user-group-to-info")
+          RestrictionTarget="#Navigation-Flyout-Customization-To"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
+                    <DxTagBox Data="_ToUserGroup"
+                         
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              TextFieldName="Name"
+                              Values="@TogroupValue"
+                              ValuesExpression="@(() => TogroupValue )"
+                              ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedToUserGroupItems_New_Changed(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUserGroupToOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+<DxFlyout @bind-IsOpen=IsUserGroupCCOpen
+          PositionTarget=@($"#flyout-overview-target-container-user-group-cc-info")
+          RestrictionTarget="#Navigation-Flyout-Customization-CC"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DxFormLayout>
+                <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
+                    <DxTagBox Data="_CCUserGroup"
+                              
+                              SearchMode="ListSearchMode.AutoSearch"
+                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                              NullText="Select To Group..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserGroupId"
+                              Values="@UserGroupValues"
+                              ValuesExpression="@(() => UserGroupValues )"
+                              TextFieldName="Name"
+                              ValuesChanged="@((IEnumerable<UserGroup> values) => onSelectedCCUserGroupItems_New_Changed(values))"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+
+                    </DxTagBox>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUserGroupCCOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+@code {
+    string UserTagName {get;set;}
+    string OthersTagName { get; set; }
+    // private PersistingComponentStateSubscription? subscription;
+    IEnumerable<UserGroup> UserGroupValues { get; set; }
+    IEnumerable<UserGroup> TogroupValue { get; set; }
+    IEnumerable<UserGroup> ccgroupValue { get; set; }
+
+    ApplicationMasterChildModel selectgrouptagItems { get; set; } 
+    ApplicationMasterChildModel selectCategory { get; set; }
+    IEnumerable<UserGroup> toUserGroupValues { get; set; }
+    ViewEmployee selectBehalf {get;set;}
+    //private PersistingComponentStateSubscription _subscription;
+    private string? _myData;
+    private int submitCount = 0;
+    bool IsUserGroupToOpen { get; set; } = false;
+    bool IsUserGroupCCOpen { get; set; } = false;
+    async Task OnButtonUserGroupToClick()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        var toids = Data.ToIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+        var ids = Data.CCIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+
+        ids.Add(applicationUser.UserID);
+        ids.AddRange(toids);
+        if (selectBehalf != null)
+        {
+            ids.Add(selectBehalf.UserID);
+        }
+
+        //_participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
+        _ToUserGroup = _participantUserGroup;
+        //_CCUserGroup = _participantUserGroup;
+
+        Data.ToUserGroupIds = null;
+        //Data.CCUserGroupIds = null;
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        IsUserGroupToOpen = true;
+    }
+
+    async Task OnButtonUserGroupCCClick()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        var toids = Data.ToIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+        var ids = Data.CCIds?.Select(id => (long?)id).ToList() ?? new List<long?>();
+
+        ids.Add(applicationUser.UserID);
+        ids.AddRange(toids);
+        if (selectBehalf != null)
+        {
+            ids.Add(selectBehalf.UserID);
+        }
+
+        //_participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+        _participantUserGroup = await Mediator.Send(new GetUserByFilterUserGroups(ids));
+        //_ToUserGroup = _participantUserGroup;
+        _CCUserGroup = _participantUserGroup;
+
+        //Data.ToUserGroupIds = null;
+        Data.CCUserGroupIds = null;
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        IsUserGroupCCOpen = true;
+    }
+
+    string PreferredLanguage { get; set; } = "Users";
+    IEnumerable<string> Languages = new[] { "Users", "Group" };
+    bool IsLanguageInstalled(string language) => language != "Group";
+    string GetOptionLabel(string language)
+    {
+        var result = language;
+        if (!IsLanguageInstalled(language))
+            result += " ";
+        return result;
+    }
+    string GetLegendCssClass(SizeMode sizeMode)
+    {
+        var result = "dx-demo-radio-group-label";
+        if (sizeMode != SizeMode.Medium)
+            result += sizeMode == SizeMode.Large ? " dx-demo-large" : " dx-demo-small";
+        return result;
+    }
+    IEnumerable<string> UserTypeOptions = new[] { "Users", "Group" };
+    async void OnUserTypeChanged(string? radioValue)
+    {
+        Data.UserType = radioValue;
+
+
+        if (radioValue == "Group")
+        {
+            await JSRuntime.InvokeAsync<string>("showLoading");
+
+            _participantUserGroup = await Mediator.Send(new GetAllUserGroups());
+            _ToUserGroup = _participantUserGroup;
+            _CCUserGroup = _participantUserGroup;
+
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+
+            Data.ToIds = null;
+            Data.CCIds = null;
+
+            Data.ToUserGroupIds = null;
+            Data.ToIds = new List<long> { -1 };
+
+        }
+        else
+        {
+            Data.ToUserGroupIds = null;
+            Data.CCUserGroupIds = null;
+
+            Data.ToUserGroupIds = new List<long> { -1 };
+            Data.ToIds = null;
+        }
+        StateHasChanged();
+    }
+
+    bool isSending = false;
+    EditContext? _editContext;
+    internal List<EmailActivityCatgorys>? _AllCategory = new List<EmailActivityCatgorys>();
+    internal List<EmailActivityCatgorys>? _UserTagList = new List<EmailActivityCatgorys>();
+    EmailActivityCatgorys? CategoryData { get; set; } = new EmailActivityCatgorys();
+    bool isEnabled { get; set; } = true;
+    bool isRadioGroup { get; set; } = true;
+    internal List<ApplicationMasterChildModel>? _groupTagItems;
+    internal List<ApplicationMasterChildModel>? _categoryTagItems;
+    internal List<ApplicationMasterChildModel>? _actionTagItems;
+    int SelectedFilesCount { get; set; }
+    int CurrentUplodCount { get; set; }
+    string? MyMessage { get; set; }
+    string Message = "Upload";
+    long applicationAddedByUserID { get; set; }
+    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        Message = "Uploading...";
+        if (draftId == 0)
+        {
+            loading = true;
+        }
+        else
+        {
+            loadingdraft = true;
+        }
+
+
+        var SessionId = _sessionId;
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId + "&IsNewSession=false&SourceFrom=Email";
+        e.UploadUrl = url;
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadProgressChanged(FileUploadEventArgs e)
+    {
+        var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+    void onSelectedToItemsChanged(IEnumerable<long>? values)
+    {
+
+        if (values != null)
+        {
+            Data.ToIds = values;
+            var list = _CCparticipant.Where(p => !values.Contains(p.UserID.Value)).ToList();
+            _CCparticipant = list;
+            StateHasChanged();
+            // Update _CCparticipant based on selected values from _Toparticipant
+            // _CCparticipant = _participant.Except(values).ToList();
+            // if (_participant != null && values != null)
+            // {
+            //     _CCparticipant = _participant.Where(p => !values.Contains(p.UserID.Value)).ToList();
+            // }
+        }
+        else
+        {
+            // Reset _CCparticipant to all participants if nothing is selected in _Toparticipant
+            _CCparticipant = _participant.ToList();
+            Data.ToIds = null;
+        }
+
+        UpdateOnBehalfParticipant();
+    }
+    void onSelectedToItemsChangedold(IEnumerable<ViewEmployee> values)
+    {
+
+        if (values != null)
+        {
+            Data.ToIds = values.Select(s => s.UserID.Value).ToList();
+            // Update _CCparticipant based on selected values from _Toparticipant
+            _CCparticipant = _participant.Except(values).ToList();
+        }
+        else
+        {
+            // Reset _CCparticipant to all participants if nothing is selected in _Toparticipant
+            _CCparticipant = _participant.ToList();
+            Data.ToIds = null;
+        }
+
+        UpdateOnBehalfParticipant();
+    }
+    void onSelectedToUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    {
+
+        if (values != null)
+        {
+            Data.ToUserGroupIds = values.Select(s => s.UserGroupId).ToList();
+            //var userIds = await Mediator.Send(new GetGroupByUserids(1));
+            onToChange_Change(values);
+
+            //_CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+
+            //_CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        IsUserGroupToOpen = false;
+
+        StateHasChanged();
+    }
+    void onSelectedCCUserGroupItems_New_Changed(IEnumerable<UserGroup> values)
+    {
+        if (values != null)
+        {
+            Data.CCUserGroupIds = values.Select(S => S.UserGroupId).ToList();
+            //var userIds = await Mediator.Send(new GetGroupByUserids(1));
+            onCCChange_Change(values);
+
+            //_CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+
+            // _CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        IsUserGroupCCOpen = false;
+
+        StateHasChanged();
+    }
+    async Task onToChange_Change(IEnumerable<UserGroup> values)
+    {
+        var groupid = values.Select(x => x.UserGroupId).LastOrDefault();
+        var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
+        // var userIdsList = userIds.Select(s=>s.UserID.Value).ToList();
+
+        var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
+        var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
+        if (Data.ToIds == null & Data.CCIds == null)
+        {
+            Data.ToIds = userIdsList;
+
+
+            if (_participant != null && userIds != null)
+            {
+                var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
+                onSelectedToItemsChanged(emplst.Select(s=>s.UserID.Value));
+            }
+            // _CCparticipant = _participant.Except(userIds, new ViewEmployeeComparer()).ToList();
+
+        }
+        else
+        {
+            IEnumerable<long> v1 = new List<long>();
+            if (Data.CCIds == null)
+            {
+                v1 = Data.ToIds.Concat(userIdsList).Distinct();
+            }
+            else if (Data.ToIds == null)
+            {
+                var T1 = Data.CCIds.Concat(userIdsList).Distinct();
+                v1 = T1.Except(Data.CCIds);
+            }
+            else
+            {
+                var L1 = Data.CCIds.Concat(Data.ToIds);
+                var L2 = L1.Concat(userIdsList).Distinct();
+                v1 = L2.Except(Data.CCIds).Distinct();
+            }
+
+            var combinedIds = v1;
+            Data.ToIds = combinedIds;
+
+            if (_participant != null && combinedIds != null)
+            {
+                var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                onSelectedToItemsChanged(emplst1.Select(s=>s.UserID.Value));
+            }
+        }
+
+
+        StateHasChanged();
+    }
+    public class ViewEmployeeComparer : IEqualityComparer<ViewEmployee>
+    {
+        public bool Equals(ViewEmployee x, ViewEmployee y)
+        {
+            // Assuming ViewEmployee has an Id property
+            return x.UserID == y.UserID;
+        }
+
+        public int GetHashCode(ViewEmployee obj)
+        {
+            return obj.UserID.GetHashCode();
+        }
+    }
+    async Task onCCChange_Change(IEnumerable<UserGroup> values)
+    {
+        var groupid = values.Select(x => x.UserGroupId).LastOrDefault();
+        var userIds = await Mediator.Send(new GetGroupByUserids(groupid));
+
+
+        var userIdsListss = userIds.Where(s => s.UserID.HasValue).Select(s => s.UserID.Value).ToList();
+        var userIdsList = userIdsListss.Where(id => id != applicationUser.UserID).ToList();
+
+        if (Data.CCIds == null && Data.ToIds == null)
+        {
+            Data.CCIds = userIdsList;
+
+            if (_participant != null && userIds != null)
+            {
+                var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
+                onSelectedCCItemsChanged(emplst.Select(s=>s.UserID.Value));
+            }
+
+        }
+        else
+        {
+            IEnumerable<long> v1 = new List<long>();
+            if (Data.CCIds == null)
+            {
+                var T1 = Data.ToIds.Concat(userIdsList).Distinct();
+                v1 = T1.Except(Data.ToIds);
+            }
+            else if (Data.ToIds == null)
+            {
+                v1 = Data.CCIds.Concat(userIdsList).Distinct();
+            }
+            else
+            {
+                var L1 = Data.CCIds.Concat(Data.ToIds);
+                var L2 = L1.Concat(userIdsList).Distinct();
+                v1 = L2.Except(Data.ToIds).Distinct();
+            }
+
+            var combinedIds = v1;
+            Data.CCIds = combinedIds;
+            if (_participant != null && combinedIds != null)
+            {
+                var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
+                onSelectedCCItemsChanged(emplst1.Select(s => s.UserID.Value));
+            }
+        }
+
+        StateHasChanged();
+    }
+    void onSelectedToUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+
+
+        if (values != null)
+        {
+            Data.ToUserGroupIds = values.Select(s => s.UserGroupId).ToList();
+            _CCUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+
+            _CCUserGroup = _participantUserGroup.ToList();
+        }
+
+        StateHasChanged();
+    }
+
+    void onSelectedCCItemsChanged(IEnumerable<long>? values)
+    {
+
+        if (values != null)
+        {
+            Data.CCIds = values;
+            var list = _Toparticipant.Where(p => !values.Contains(p.UserID.Value)).ToList();
+            _Toparticipant =list;
+            StateHasChanged();
+            // Update _Toparticipant based on selected values from _CCparticipant
+            //  _Toparticipant = _participant.Except(values).ToList();
+            // if (_participant != null && values != null)
+            // {
+                //_Toparticipant = _participant.Where(p => !values.Contains(p.UserID.Value)).ToList();
+           // }
+        }
+        else
+        {
+            // Reset _Toparticipant to all participants if nothing is selected in _CCparticipant
+            _Toparticipant = _participant.ToList();
+            Data.CCIds = null;
+        }
+
+        UpdateOnBehalfParticipant();
+    }
+    void onSelectedCCItemsChangedold(IEnumerable<ViewEmployee> values)
+    {
+
+        if (values != null)
+        {
+            Data.CCIds = values.Select(s=>s.UserID.Value).ToList();
+            // Update _Toparticipant based on selected values from _CCparticipant
+            _Toparticipant = _participant.Except(values).ToList();
+        }
+        else
+        {
+            // Reset _Toparticipant to all participants if nothing is selected in _CCparticipant
+            _Toparticipant = _participant.ToList();
+            Data.CCIds = null;
+        }
+
+        UpdateOnBehalfParticipant();
+    }
+
+    void onSelectedCCUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+
+        if (values != null)
+        {
+            Data.CCUserGroupIds = values.Select(s => s.UserGroupId).ToList();
+            _ToUserGroup = _participantUserGroup.Except(values).ToList();
+        }
+        else
+        {
+            _ToUserGroup = _participantUserGroup.ToList();
+        }
+        StateHasChanged();
+    }
+
+    void UpdateOnBehalfParticipant()
+    {       
+        IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+        IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+
+        // Update _OnBehalfparticipant based on the combined selected values
+        _OnBehalfparticipant = _participant.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+    }
+
+
+
+    void onSelectedOnBehalfItemsChanged(ViewEmployee values)
+    {
+        if (values != null)
+        {
+            Data.OnBehalf = values.UserID;
+            selectBehalf = values;
+        }
+        if (values != null)
+        {
+            var onbehalfitem = _participant.Where(c => c.UserID != values.UserID).ToList();
+
+            IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+            IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+
+            _Toparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+            _CCparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+
+
+        }
+        else
+        {
+            if(Data.OnBehalf != null)
+            {
+                var onbehalfitem = _participant.Where(c => c.UserID != Data.OnBehalf).ToList();
+
+                IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+                IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+
+                _Toparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+                _CCparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+            }
+            else
+            {
+                Data.OnBehalf = null;
+                selectBehalf = null;
+                IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+                IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+
+
+                _Toparticipant = _participant.Except(selectedCCParticipants).ToList();
+                _CCparticipant = _participant.Except(selectedTopParticipants).ToList();
+
+            }
+
+
+        }
+
+
+
+    }
+
+    bool IsDraftEnabled { get; set; } = false;
+    [Parameter]
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", "audio/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
+    internal DxUpload? uploadComponent;
+    Guid? _sessionId;
+    string? MyError { get; set; }
+    bool ErrorVisible { get; set; } = false;
+    bool isFileUpload = false;
+    int draftId = 0;
+    internal List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    bool AttachmentUploadVisible { get; set; } = false;
+    bool newAttachmentUploadVisible { get; set; } = false;
+    List<string>? Follow { get; set; }
+    string? SelectedFollow { get; set; }
+    internal EditForm? myForm;
+    internal string MyID = "myForm";
+    internal string MyToUserGroupID = "myToUserGroupForm";
+    List<int> selectedValues = new List<int>();
+    IGrid? Grid { get; set; }
+    internal bool loading;
+    internal bool loadingdraft;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    DxRichEdit? msgrichEdit { get; set; }
+    IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
+    bool IsOpen { get; set; } = false;
+    internal string? FileUrl;
+    internal string? ProductActivityBaseUrl;
+    internal string? BaseUrl;
+    bool BackEnabled { get; set; } = false;
+
+
+    bool ShowCheckboxes { get; set; } = true;
+    string FormSubmitResult = "";
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    bool isValidateSession = false;
+    internal long ActivityEmailTopicId;
+    EmailTopics? Data { get; set; } = new EmailTopics();
+    IEnumerable<EmailTopics>? _topics;
+    internal List<ViewEmployee>? _participant;
+    internal List<ActivityEmailTopics>? activityEmailTopics;
+    internal List<ViewEmployee>? _Allparticipant;
+    long? AppUserId;
+    internal List<ViewEmployee>? _Toparticipant;
+    internal List<ViewEmployee>? _CCparticipant;
+
+    internal List<UserGroup>? _participantUserGroup;
+    internal List<UserGroup>? _ToUserGroup;
+    internal List<UserGroup>? _CCUserGroup;
+
+    internal List<ViewEmployee>? _OnBehalfparticipant;
+    IEnumerable<ForumTypes>? _OnBehalf;
+    string? ActComment = "";
+    string? ActUserName = "";
+    string? ActivityType = "Email";
+    string? DynamicFormName = "DynamicFormName";
+    DateTime? ActAddedDate = DateTime.Now;
+    byte[]? replyboxHhtmlArray;
+    internal List<ApplicationUser> _applicationUsers;
+
+    List<long> participantIds = new List<long>();
+    List<long> selectedToIds = new List<long>();
+    List<long> SelectedCCIds = new List<long>();
+
+    List<string> sToIds = new List<string>();
+    List<string> sCCIds = new List<string>();
+
+    //List<ViewEmployee> ids = new List<ViewEmployee>();
+    [Parameter]
+    public string? ActiveSessionId { get; set; }
+    public bool IsActiveSessionId { get; set; } = false;
+
+    public ApplicationUser? applicationUser { get; internal set; }
+
+    IReadOnlyList<object>? SelectedDataItems { get; set; }
+    IReadOnlyList<object>? SelectedCCItems { get; set; }
+    IReadOnlyList<object>? SelectedToItems { get; set; }
+
+    IReadOnlyList<object>? SelectedToDataItems { get; set; }
+    IReadOnlyList<object>? SelectedCCDataItems { get; set; }
+
+    internal List<Documents>? _documentslst;
+    internal List<Documents>? _PADoclst;
+    internal List<Documents>? _PARoutineDoclst;
+
+    public static string FormatFileSize(long bytes)
+    {
+        var unit = 1024;
+        if (bytes < unit) { return $"{bytes} B"; }
+
+        var exp = (int)(Math.Log(bytes) / Math.Log(unit));
+        return $"{bytes / Math.Pow(unit, exp):F2} {("KMGTPE")[exp - 1]}B";
+    }
+    void onToChanged(IEnumerable<string> newTags)
+    {
+        sToIds = newTags.ToList();
+
+        List<string> concatList = sToIds.Concat(sCCIds).ToList();
+
+        //_CCparticipant = _Toparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
+        _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name + "-" + c.NickName)).ToList();
+        var todd = Data.ToIds;
+        var ccdd = Data.CCIds;
+
+        //foreach(var itm in Tags)
+        //{
+
+        //    _CCparticipant = _Toparticipant.Where(c => c.FirstName != itm).ToList();
+        //}
+    }
+    void onCcChanged(IEnumerable<string> newTags)
+    {
+        sCCIds = newTags.ToList();
+
+
+        List<string> concatList = sCCIds.Concat(sToIds).ToList();
+
+        //_Toparticipant = _CCparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
+        _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name + "-" + c.NickName)).ToList();
+
+
+
+        //foreach (var itm in Tags)
+        //{
+        //    _Toparticipant = _CCparticipant.Where(c => c.FirstName != itm).ToList();
+        //}
+    }
+    public string GetUploadUrl()
+    {
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+        //string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        string url = BaseUrl + "UploadDocumentsChunkFile?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
+        return url.ToString();
+    }
+    void onloadSession()
+    {
+        _sessionId = Guid.NewGuid();
+    }
+    internal async Task isUploadSuccess_old()
+    {
+        //uploadComponent.RemoveAllFiles();
+        //uploadComponent.CancelAllFilesUpload();
+        isFileUpload = false;
+        //await LoadData();
+    }
+    internal void isUploadSuccess(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        CurrentUplodCount++;
+        var draftIdsss = draftId;
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+
+
+            onCompletedUpload();
+        }
+        InvokeAsync(StateHasChanged);
+
+    }
+    void onCompletedUpload()
+    {
+        if (draftId == 0)
+        {
+            loading = false;
+        }
+        else
+        {
+            loadingdraft = false;
+        }
+
+        if (ActiveSessionId != null)
+        {
+            BackEnabled = false;
+            NavigationManager.NavigateTo($"CreateEmail");
+            //JSRuntime.InvokeAsync<string>("ReloadUrl");
+            onRestText_upload();
+        }
+        else
+        {
+            BackEnabled = false;
+            //JSRuntime.InvokeAsync<string>("ReloadUrl");
+            onRestText_upload();
+        }
+
+        //onRestText();
+        InvokeAsync(StateHasChanged);
+    }
+
+
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        MyError = e.RequestInfo.ResponseText;
+        ErrorVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+    protected void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        AttachmentUploadVisible = files.ToList().Count > 0;
+        SelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
+    }
+
+    internal async Task SubmitForm()
+    {
+        //myForm.OnSubmit();
+        // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
+        //await JSRuntime.InvokeVoidAsync("submitForm");
+        await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
+    }
+    internal void addNew(int id)
+    {
+        draftId = id;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (msgrichEdit != null)
+            {
+                await msgrichEdit.NewDocumentAsync();
+            }
+
+            if (_AllCategory != null)
+            {
+                _AllCategory.TrimExcess();
+            }
+
+            if (_UserTagList != null)
+            {
+                _UserTagList.TrimExcess();
+            }
+
+            if (_groupTagItems != null)
+            {
+                _groupTagItems.TrimExcess();
+            }
+
+            if (_UserTagList != null)
+            {
+                _UserTagList.TrimExcess();
+            }
+
+
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                window.submitForm = function () {
+                    document.getElementById('myForm').submit();
+                };
+            ");
+        }
+    }
+    async void OnCustomizeToolbar(IToolbar toolbar)
+    {
+        BarGroupCollection groups = toolbar.Groups;
+        toolbar.Groups.Clear();
+
+
+        // Inserts the File group at the first position in the group collection
+        //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
+        toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+        toolbar.Groups.Add(3, RichEditToolbarGroupNames.Picture);
+        toolbar.Groups.Add(4, RichEditToolbarGroupNames.Table);
+
+
+
+        IBarGroup clipboardGroup = toolbar.Groups[1];
+        clipboardGroup.Items.Add(5, RichEditBarItemNames.FontUnderline);
+        clipboardGroup.Items.Add(6, RichEditBarItemNames.HighlightText);
+        clipboardGroup.Items.Add(7, RichEditBarItemNames.ClipboardMenu);
+        clipboardGroup.Items.Add(8, RichEditBarItemNames.ClearFormatting);
+        clipboardGroup.Items.Add(9, RichEditBarItemNames.FontStrikeout);
+        clipboardGroup.Items.Add(10, RichEditBarItemNames.FontScriptMenu);
+
+
+        IBarGroup replace = toolbar.Groups[4];
+        replace.Items.Add(1, RichEditBarItemNames.ChangeCaseMenu);
+        replace.Items.Add(2, RichEditBarItemNames.Replace);
+
+
+        //AddFormattingGroup(groups);
+
+
+        IBarGroup fontGroup = toolbar.Groups[RichEditToolbarGroupNames.Font];
+        //IBarItem fontSizeItem = fontGroup.Items[RichEditBarItemNames.FontSize];
+
+        //// Assuming fontSizeItem has a property to set the font size
+        //fontSizeItem  = 18; // Assuming 18 is the desired font size
+
+
+        //IBarItem fontSizeItem = fontGroup.Items[RichEditBarItemNames.FontSize];
+        //if (fontSizeItem.Type == BarItemTypes.ComboBox)
+        //{
+        //    IBarComboBox fontSizeComboBox = (IBarComboBox)fontSizeItem;
+        //    fontSizeComboBox.Items.Clear();
+        //    fontSizeComboBox.Items.Add("12", "12");
+        //    fontSizeComboBox.Items.Add("14", "14");
+        //    fontSizeComboBox.Items.Add("18", "18");
+        //    fontSizeComboBox.Items.Add("24", "24");
+        //    fontSizeComboBox.AllowUserInput = false;
+        //    //fontSizeComboBox = 2; // Set the default font size
+        //    //int defaultFontSizeIndex = fontSizeComboBox.Items.IndexOf(2);
+        //}
+        //fontSizeItem.Text = "Font Size:";
+        //fontSizeItem.Tooltip = "Changes the selected text's font size.";
+
+
+
+
+        //AddFormattingGroup(toolbar.Groups);
+
+        IBarGroup undoRedoGroup = toolbar.Groups[0];
+        undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
+
+        if (ActiveSessionId != null)
+        {
+            var acttopics = await Mediator.Send(new GetActivityEmailTopics());
+            activityEmailTopics = acttopics;
+            //string sessionIdString = ActiveSessionId;
+            Guid activeSessionId = Guid.Parse(ActiveSessionId);
+            var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+
+
+
+        }
+    }
+
+    void AddFormattingGroup(BarGroupCollection groups)
+    {
+        IBarGroup formattingGroup = groups.AddCustomGroup();
+        formattingGroup.IconCssClass = "tb-icon tb-icon-settings";
+        //Adds a custom drop-down item
+    }
+
+    //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
+    //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
+
+    void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
+    {
+        SelectedDataItems = selectedDataItems;
+        SelectedCCItems = selectedDataItems;
+        SelectedToItems = selectedDataItems;
+        //onTicketSelectionChanged.InvokeAsync(selectedDataItems);
+        // OnSelectedToDataItemsChanged(null);
+        //OnSelectedCCDataItemsChanged(null);
+    }
+
+    void OnSelectedToDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+
+        if (SelectedToItems != null)
+        {
+            SelectedToDataItems = SelectedToItems;
+            if (SelectedDataItems != null)
+            {
+                List<object> newList = new List<object>(SelectedDataItems);
+                // Remove the selected items from the new list
+                newList.RemoveAll(item => SelectedToItems.Contains(item));
+                SelectedCCItems = newList;
+            }
+
+        }
+    }
+
+    void OnSelectedCCDataItemsChanged(IReadOnlyList<object> SelectedCCItems)
+    {
+
+        if (SelectedCCItems != null)
+        {
+            SelectedCCDataItems = SelectedCCItems;
+            if (SelectedDataItems != null)
+            {
+                List<object> newList = new List<object>(SelectedDataItems);
+                // Remove the selected items from the new list
+                newList.RemoveAll(item => SelectedCCItems.Contains(item));
+                SelectedToItems = newList;
+            }
+
+        }
+
+    }
+
+    internal void OnSelectionChanged(object args)
+    {
+
+
+        if (args != null)
+        {
+            var res = args;
+            var lst = @SelectedDataItems;
+            //ViewEmployee selectedEmployee = @SelectedDataItems as ViewEmployee;
+            ViewEmployee? selectedEmployee = SelectedDataItems as ViewEmployee;
+            if (selectedEmployee != null)
+            {
+                var lsts = selectedEmployee;
+
+            }
+        }
+    }
+    internal async void onRestText_old()
+    {
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+    }
+    internal async void onRestText_upload()
+    {
+        onloadSession();
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        UserGroupValues = null;
+        TogroupValue = null;
+        ccgroupValue = null;
+        selectCategory = null;
+        selectgrouptagItems = null;
+
+        selectBehalf = null;
+        toUserGroupValues = null;
+        SelectedToDataItems = null;
+        SelectedCCDataItems = null;
+        SelectedDataItems = null;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
+        Follow = new List<string>
+        {
+             "Follow Up","No Follow Up"
+        };
+
+        if (Data != null)
+        {
+            Data.Follow = Follow[1];
+            Data.Urgent = false;
+            Data.OverDue = false;
+            Data.IsAllowParticipants = true;
+            Data.NotifyUser = false;
+            Data.TagLock = false;
+            Data.TopicName = null;
+            Data.ToIds = null;
+            Data.CCIds = null;
+            Data.OnBehalf = null;
+            Data.DueDate = null;
+            Data.From = applicationUser.UserName;
+        }
+
+        if (CategoryData != null)
+        {
+            CategoryData.GroupTag = null;
+            CategoryData.ActionTag = null;
+            CategoryData.CategoryTag = null;
+            CategoryData.Name = null;
+            CategoryData.UserTag = null;
+            OthersTagName = null;
+            UserTagName = null;
+
+            CategoryData.ActionTagIds = new List<long?>();
+             CategoryData.UserTagIds = new List<long?>();
+            _actionTagItems = null;
+            _categoryTagItems = null;
+
+        }
+
+
+
+
+        BackEnabled = false;
+        IsDraftEnabled = true;
+        IsActiveSessionId = true;
+        //await Task.Delay(2000); // Delay for 2 seconds
+
+        if (msgrichEdit != null)
+        {
+            await msgrichEdit.NewDocumentAsync();
+        }
+
+        if (uploadComponent != null)
+        {
+            uploadComponent.RemoveAllFiles();
+        }
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.NavigateTo($"CreateEmail");
+        isSending = false;
+        submitCount = 0;
+
+    }
+    internal async void onClearAll()
+    {
+        onloadSession();
+        UserGroupValues = null;
+        TogroupValue = null;
+        ccgroupValue = null;
+        selectCategory = null;
+        selectgrouptagItems = null;
+        selectBehalf = null;
+        toUserGroupValues = null;
+        SelectedToDataItems = null;
+        SelectedCCDataItems = null;
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
+        Follow = new List<string>
+        {
+             "Follow Up","No Follow Up"
+        };
+
+
+
+        if (Data != null)
+        {
+            Data.Follow = Follow[1];
+            Data.Urgent = false;
+            Data.OverDue = false;
+            Data.IsAllowParticipants = true;
+            Data.NotifyUser = false;
+            Data.TagLock = false;
+            Data.TopicName = null;
+            Data.ToIds = null;
+            Data.CCIds = null;
+            Data.OnBehalf = null;
+            Data.DueDate = null;
+            Data.From = applicationUser.UserName;
+            Data.NoOfDays = 0;
+
+            OnUserTypeChanged("Users");
+        }
+
+        if (CategoryData != null)
+        {
+            CategoryData.GroupTag = null;
+            CategoryData.ActionTag = null;
+            CategoryData.CategoryTag = null;
+            CategoryData.Name = null;
+            CategoryData.UserTag = null;
+            OthersTagName = null;
+            UserTagName = null;
+            CategoryData.ActionTagIds = new List<long?>();
+            CategoryData.UserTagIds = new List<long?>();
+            _actionTagItems = null;
+            _categoryTagItems = null;
+        }
+
+
+
+        BackEnabled = false;
+        IsDraftEnabled = true;
+        IsActiveSessionId = true;
+        //await Task.Delay(2000); // Delay for 2 seconds
+
+        if (msgrichEdit != null)
+        {
+            await msgrichEdit.NewDocumentAsync();
+        }
+        if (uploadComponent != null)
+        {
+            uploadComponent.RemoveAllFiles();
+        }
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.NavigateTo($"CreateEmail");
+        isSending = false;
+        submitCount = 0;
+
+    }
+    internal async void onRestText()
+    {
+
+        //_editContext = new EditContext(Data);
+        onloadSession();
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        UserGroupValues = null;
+        TogroupValue = null;
+        ccgroupValue = null;
+        selectCategory = null;
+        selectgrouptagItems = null;
+       
+        selectBehalf = null;
+        toUserGroupValues = null;
+        SelectedToDataItems = null;
+        SelectedCCDataItems = null;
+        SelectedDataItems = null;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
+        Follow = new List<string>
+        {
+             "Follow Up","No Follow Up"
+        };
+
+        if (Data != null)
+        {
+            Data.Follow = Follow[1];
+            Data.Urgent = false;
+            Data.OverDue = false;
+            Data.IsAllowParticipants = true;
+            Data.NotifyUser = false;
+            Data.TagLock = false;
+            Data.TopicName = null;
+            Data.ToIds = null;
+            Data.CCIds = null;
+            Data.OnBehalf = null;
+            Data.DueDate = null;
+            Data.NoOfDays = 0;
+            Data.From = applicationUser.UserName;
+            OnUserTypeChanged("Users");
+        }
+
+        if (CategoryData != null)
+        {
+            CategoryData.GroupTag = null;
+            CategoryData.ActionTag = null;
+            CategoryData.CategoryTag = null;
+            CategoryData.Name = null;
+            CategoryData.UserTag = null;
+            OthersTagName = null;
+            UserTagName = null;
+            CategoryData.ActionTagIds = new List<long?>();
+              CategoryData.UserTagIds = new List<long?>();
+            _actionTagItems = null;
+            _categoryTagItems = null;
+        }
+
+
+        BackEnabled = false;
+        IsDraftEnabled = true;
+        IsActiveSessionId = true;
+        //await Task.Delay(2000); // Delay for 2 seconds
+        if (msgrichEdit != null)
+        {
+            await msgrichEdit.NewDocumentAsync();
+        }
+
+        //uploadComponent.RemoveAllFiles();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.NavigateTo($"CreateEmail");
+        isSending = false;
+        submitCount = 0;
+    }
+    internal void onSubmit()
+    {
+
+    }
+
+    internal void HandleSelectedRowsChanged(IEnumerable<ViewEmployee> selectedRows)
+    {
+        // Update the selected data items list
+        SelectedDataItems = selectedRows.ToList();
+
+        // Perform any necessary logic when the selection changes
+        Console.WriteLine($"Selected items count: {SelectedDataItems.Count}");
+    }
+
+    async Task OnDocumentLoaded(Document document)
+    {
+        await document.ChangeDefaultCharacterPropertiesAsync(properties =>
+        {
+            // properties.FontName = "Times New Roman";
+            properties.FontSize = 12;
+        });
+    }
+
+    private Task Persist()
+    {
+        // storing the data
+        //ApplicationState.PersistAsJson("myData", _myData);
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //_subscription = ApplicationState.RegisterOnPersisting(Persist);     
+        _editContext = new EditContext(Data);
+
+        //var tasks = new List<Task>();
+
+
+
+        onloadSession();
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+
+        bool IsUserGroup = Configuration.GetValue<bool>("DocumentsUrl:IsUserGroup");
+
+        // Now you can directly use IsUserGroup variable without parsing.
+        if (IsUserGroup)
+        {
+            isRadioGroup = true;
+        }
+        else
+        {
+            isRadioGroup = false;
+        }
+
+
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        if (applicationUser != null)
+        {
+            AppUserId = applicationUser.UserID;
+
+        }
+
+        Follow = new List<string>
+        {
+             "Follow Up","No Follow Up"
+        };
+
+        Data.Follow = Follow[1];
+        Data.Urgent = false;
+        Data.OverDue = false;
+        Data.IsAllowParticipants = true;
+        Data.NotifyUser = false;
+        Data.TagLock = false;
+        Data.UserType = "Users";
+        OnUserTypeChanged("Users");
+
+
+        // tasks.Add(Task.Run(async () =>
+        // {
+
+        if (applicationUser != null)
+        {
+            // _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
+            // _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
+            // _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
+            // var plist = await Mediator.Send(new GetAllEmployeeListQuery());
+
+
+            // //--- Task.Run ---//
+            // // Define the tasks
+            // var getAllCategoryTask = Task.Run(() => Mediator.Send(new GetAllEmailActivityCatgorys()));
+            // var getGroupTagItemsTask = Task.Run(() => Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122")));
+            // var getUserTagListTask = Task.Run(() => Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)));
+            // var getAllEmployeeListTask = Task.Run(() => Mediator.Send(new GetAllEmployeeListQuery()));
+
+            // // Await all tasks concurrently
+            // await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
+
+            // // Assign the results to your variables
+            // _AllCategory = await getAllCategoryTask;
+            // _groupTagItems = await getGroupTagItemsTask;
+            // _UserTagList = await getUserTagListTask;
+            // var plist = await getAllEmployeeListTask;
+
+
+
+
+            //-- Task.Factory.StartNew--//
+
+            // var getAllCategoryTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllEmailActivityCatgorys()));
+            // var getGroupTagItemsTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122")));
+            // var getUserTagListTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)));
+            // var getAllEmployeeListTask = Task.Factory.StartNew(() => Mediator.Send(new GetAllEmployeeListQuery()));
+
+            // // Await all tasks concurrently
+            // await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
+
+            // // Assign the results to your variables
+            // _AllCategory = await getAllCategoryTask.Result;
+            // _groupTagItems = await getGroupTagItemsTask.Result;
+            // _UserTagList = await getUserTagListTask.Result;
+            // var plist = await getAllEmployeeListTask.Result;
+
+
+            // Start tasks asynchronously without Task.Run if Mediator.Send is already async
+            var getAllCategoryTask = Mediator.Send(new GetAllEmailActivityCatgorys());
+            var getGroupTagItemsTask = Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
+            var getUserTagListTask = Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
+            var getAllEmployeeListTask = Mediator.Send(new GetAllEmployeeListQuery());
+
+            // Await all tasks concurrently
+            //await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
+            try
+            {
+                await Task.WhenAll(getAllCategoryTask, getGroupTagItemsTask, getUserTagListTask, getAllEmployeeListTask);
+            }
+            catch (Exception ex)
+            {
+                // Handle exception
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+
+
+            // Assign the results to your variables using await directly
+            _AllCategory = await getAllCategoryTask;
+            _groupTagItems = await getGroupTagItemsTask;
+            _UserTagList = await getUserTagListTask;
+            var plist = await getAllEmployeeListTask;
+
+
+
+
+            _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _Allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _CCparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _OnBehalfparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
+
+            Data.From = applicationUser.UserName;
+
+
+
+            if (ActiveSessionId != null)
+            {
+                Data.NotifyUser = true;
+                IsActiveSessionId = false;
+                isRadioGroup = false;
+                BackEnabled = true;
+                var acttopics = await Mediator.Send(new GetActivityEmailTopics());
+
+                //string sessionIdString = ActiveSessionId;
+                Guid activeSessionId = Guid.Parse(ActiveSessionId);
+                var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+
+                if (actItem.Count > 0)
+                {
+                    isValidateSession = false;
+                    //var docId = "70F019EC011241C9807C39BF2BE79136";
+                    //Guid docSessionId = Guid.Parse(docId);
+                    await GroupTagChanged(actItem[0].ManufacturingProcessId);
+                    await CategoryTagChange(actItem[0].CategoryActionId);
+                  
+                    
+
+                    var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
+                    ActUserName = Namelist[0].Name;
+                    ActAddedDate = actItem[0].AddedDate;
+                    ActivityType = actItem[0].ActivityType;
+                    CategoryData.GroupTag = actItem[0].ManufacturingProcessId;
+                    CategoryData.CategoryTag = actItem[0].CategoryActionId;
+                    CategoryData.ActionTag = actItem[0].ActionId;
+
+                    if (actItem[0].ActivityType != "FileProfileType")
+                    {
+                        Data.IsAllowParticipants = true;
+                    }
+
+                    if (actItem[0].DocumentSessionId != null)
+                    {
+                        var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
+                        _documentslst = documentslst;
+                    }
+
+                    if (actItem[0].ActivityType == "DynamicForm")
+                    {
+                        // var documentslst = await Mediator.Send(new GetDynamicFormDoc(actItem[0].SessionId.Value));
+                        // _documentslst = documentslst;
+
+                        var dynamicname = await Mediator.Send(new GetDynamicFormName(actItem[0].SessionId.Value));
+                        DynamicFormName = dynamicname[0].Name;
+                    }
+
+                    if (actItem[0].ActivityType == "ProductionActivity")
+                    {
+                        if (actItem[0].ActivityMasterId > 0)
+                        {
+                            _PADoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "ProductionActivity"));
+                        }
+
+                    }
+
+                    if (actItem[0].ActivityType == "RoutineActivity")
+                    {
+                        if (actItem[0].ActivityMasterId > 0)
+                        {
+                            _PARoutineDoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "RoutineActivity"));
+                        }
+                    }
+
+                    Data.TopicName = actItem[0].SubjectName;
+
+                    if (actItem[0].Comment != null)
+                    {
+                        ActComment = actItem[0].Comment;
+
+                        byte[] array1 = { 123, 92, 114, 116, 102, 49, 92, 100, 101, 102, 102, 48, 123, 92, 102, 111, 110, 116, 116, 98, 108, 123, 92, 102, 48, 32, 67, 97, 108, 105, 98, 114, 105, 59, 125, 125, 123, 92, 99, 111, 108, 111, 114, 116, 98, 108, 32, 59, 92, 114, 101, 100, 48, 92, 103, 114, 101, 101, 110, 48, 92, 98, 108, 117, 101, 50, 53, 53, 32, 59, 125, 123, 92, 42, 92, 100, 101, 102, 99, 104, 112, 32, 92, 102, 115, 50, 50, 125, 123, 92, 115, 116, 121, 108, 101, 115, 104, 101, 101, 116, 32, 123, 92, 113, 108, 92, 102, 115, 50, 50, 32, 78, 111, 114, 109, 97, 108, 59, 125, 123, 92, 42, 92, 99, 115, 49, 92, 102, 115, 50, 50, 32, 68, 101, 102, 97, 117, 108, 116, 32, 80, 97, 114, 97, 103, 114, 97, 112, 104, 32, 70, 111, 110, 116, 59, 125, 123, 92, 42, 92, 99, 115, 50, 92, 117, 108, 92, 102, 115, 50, 50, 92, 99, 102, 49, 32, 72, 121, 112, 101, 114, 108, 105, 110, 107, 59, 125, 123, 92, 42, 92, 116, 115, 51, 92, 116, 115, 114, 111, 119, 100, 92, 102, 115, 50, 50, 92, 113, 108, 92, 116, 115, 118, 101, 114, 116, 97, 108, 116, 92, 99, 108, 116, 120, 108, 114, 116, 98, 32, 78, 111, 114, 109, 97, 108, 32, 84, 97, 98, 108, 101, 59, 125, 125, 123, 92, 42, 92, 108, 105, 115, 116, 111, 118, 101, 114, 114, 105, 100, 101, 116, 97, 98, 108, 101, 125, 123, 92, 105, 110, 102, 111, 125, 92, 110, 111, 117, 105, 99, 111, 109, 112, 97, 116, 92, 115, 112, 108, 121, 116, 119, 110, 105, 110, 101, 92, 104, 116, 109, 97, 117, 116, 115, 112, 92, 101, 120, 112, 115, 104, 114, 116, 110, 92, 115, 112, 108, 116, 112, 103, 112, 97, 114, 92, 100, 101, 102, 116, 97, 98, 55, 50, 48, 92, 115, 101, 99, 116, 100, 92, 109, 97, 114, 103, 108, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 114, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 116, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 98, 115, 120, 110, 49, 52, 52, 48, 92, 104, 101, 97, 100, 101, 114, 121, 55, 50, 48, 92, 102, 111, 111, 116, 101, 114, 121, 55, 50, 48, 92, 112, 103, 119, 115, 120, 110, 49, 50, 50, 52, 48, 92, 112, 103, 104, 115, 120, 110, 49, 53, 56, 52, 48, 92, 99, 111, 108, 115, 49, 92, 99, 111, 108, 115, 120, 55, 50, 48, 92, 112, 97, 114, 100, 92, 112, 108, 97, 105, 110, 92, 113, 108, 123, 92, 102, 115, 50, 50, 92, 99, 102, 48, 32 };
+
+
+                        byte[] array2 = Encoding.UTF8.GetBytes(actItem[0].Comment);
+
+                        byte[] array3 = array1.Concat(array2).ToArray();
+
+                        byte[] array4 = { 125, 92, 102, 115, 50, 50, 92, 99, 102, 48, 92, 112, 97, 114, 125 };
+                        byte[] array5 = array3.Concat(array4).ToArray();
+
+
+                        //Data.FileData = array5;
+                    }
+
+                    ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
+                    List<long?> ToidList = new List<long?>();
+                    if (actItem[0].ToIds != null)
+                    {
+                        ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                    }
+
+                    var filteredToList = new List<ViewEmployee>();
+                    if (ToidList != null)
+                    {
+                        filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
+                    }
+
+
+                    //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
+                    IEnumerable<long> Totags = filteredToList.Select(s => (long)s.UserID).ToList();
+
+                    List<long?> CCidList = new List<long?>();
+                    if (actItem[0].CcIds != null)
+                    {
+                        CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                    }
+
+                    var filteredCCList = new List<ViewEmployee>();
+                    if (CCidList != null)
+                    {
+                        filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
+                    }
+
+                    //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
+                    IEnumerable<long> CCtags = filteredCCList.Select(s => (long)s.UserID).ToList();
+
+                    Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
+                    //v
+                    //sToIds = Totags.ToList();
+                    Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
+                    //v
+                    //sCCIds = CCtags.ToList();
+                }
+                else
+                {
+                    isValidateSession = true;
+                }
+
+            }
+            else
+            {
+                BackEnabled = false;
+                IsDraftEnabled = true;
+                IsActiveSessionId = true;
+            }
+            //}));
+        }
+        //await Task.WhenAll(tasks);
+
+
+
+        //NavigationManager.LocationChanged += OnLocationChanged;
+
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+
+        StateHasChanged();
+    }
+    internal async Task SubmitSentForm()
+    {
+        if (Data != null)
+        {
+            if (Data.ToIds == null)
+            {
+                Data.ToIds = null;
+            }
+            else if (Data.ToIds.Count() == 0)
+            {
+                Data.ToIds = null;
+            }
+        }
+
+
+        if (_editContext.Validate())
+        {
+            draftId = 0;
+            await this.HandleValidSubmit();
+        }
+    }
+    internal async Task SubmitDraftForm()
+    {
+        if (Data != null)
+        {
+            if (Data.ToIds == null)
+            {
+                Data.ToIds = null;
+            }
+            else if (Data.ToIds.Count() == 0)
+            {
+                Data.ToIds = null;
+            }
+        }
+
+        if (_editContext.Validate())
+        {
+            draftId = 1;
+            await this.HandleValidSubmit();
+        }
+    }
+
+    async Task HandleValidSubmit()
+    {
+        if (isSending)
+        {
+            return; // Prevent multiple submissions
+        }
+
+        if (submitCount == 0)
+        {
+            isSending = true;
+            await JSRuntime.InvokeAsync<string>("showLoading");
+            participantIds.Clear();
+            selectedToIds.Clear();
+            SelectedCCIds.Clear();
+
+            var lslsl = Data.ToIds;
+
+            if (Data.ToIds.Count() == 0)
+            {
+                Data.ToIds = null;
+                toastService.ShowToast("Please Select To", AC.SD.Core.Services.ToastLevel.Error);
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+                isSending = false;
+                return;
+            }
+
+            var sToIds = Data.ToIds;
+            var sCCIds = Data.CCIds;
+
+            List<long> concatList = null;
+            if (sCCIds != null)
+            {
+                concatList = sToIds.Concat(sCCIds).ToList();
+            }
+            else
+            {
+                concatList = sToIds.ToList();
+            }
+
+            //concatList = sToIds.Concat(sCCIds).ToList();
+
+            foreach (var itm in concatList)
+            {
+                var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
+
+                for (var i = 0; i < ls.Count; i++)
+                {
+                    participantIds.Add(ls[i].UserID.Value);
+                }
+            }
+
+            participantIds.Add(applicationUser.UserID);
+
+            if (Data.OnBehalf != null)
+            {
+                participantIds.Add(Data.OnBehalf.Value);
+            }
+
+            if (draftId == 0)
+            {
+                if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
+                {
+                    participantIds.Remove(applicationUser.UserID);
+                    applicationAddedByUserID = Data.OnBehalf.Value;
+                    Data.OnBehalf = applicationUser.UserID;
+                }
+                else
+                {
+                    applicationAddedByUserID = applicationUser.UserID;
+                }
+            }
+            else
+            {
+                applicationAddedByUserID = applicationUser.UserID;
+            }
+
+
+
+
+
+            foreach (var itm in sToIds)
+            {
+                var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
+
+                for (var i = 0; i < ls.Count; i++)
+                {
+                    selectedToIds.Add(ls[i].UserID.Value);
+                }
+            }
+            if (sCCIds != null)
+            {
+                foreach (var itm in sCCIds)
+                {
+                    var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
+
+                    for (var i = 0; i < ls.Count; i++)
+                    {
+                        SelectedCCIds.Add(ls[i].UserID.Value);
+                    }
+                }
+            }
+
+
+
+            byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+
+
+
+
+            if (fileContent.Length == 480)
+            {
+                toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+                isSending = false;
+                if (draftId == 0)
+                {
+                    loading = false;
+                }
+                else
+                {
+                    loadingdraft = false;
+                }
+                return;
+            }
+
+
+            await msgrichEdit.SaveDocumentAsync();
+            using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+            byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+            server.LoadDocument(fileContent1);
+            server.Options.Export.Html.EmbedImages = true;
+            byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
+
+            var plistuniquevalue = participantIds.Distinct().ToList();
+            string participantidsString = string.Join(",", plistuniquevalue); // convert the array to a comma-separated string
+            string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
+            string ccidsString = string.Join(",", SelectedCCIds); // convert the array to a comma-separated string
+
+            DateTime? nullableDateTime = DateTime.Now;
+
+            var susertype = Data.UserType;
+
+            var sToUserGroup = string.Join(",", Data.ToUserGroupIds);
+            var sCCUserGroup = "";
+            if (Data.CCUserGroupIds != null)
+            {
+                sCCUserGroup = string.Join(",", Data.CCUserGroupIds);
+            }
+            else
+            {
+                sCCUserGroup = "";
+            }
+
+            var sParticipantsUserGroup = "";
+            if (sCCUserGroup != null)
+            {
+                sParticipantsUserGroup = string.Join(",", sToUserGroup, sCCUserGroup);
+            }
+            else
+            {
+                sParticipantsUserGroup = string.Join(",", Data.ToUserGroupIds);
+            }
+
+
+
+
+
+            var createReq = new CreateEmailTopics
+                {
+                    TopicName = Data.TopicName,
+                    StartDate = DateTime.Now,
+                    OnBehalf = Data.OnBehalf,
+                    Follow = Data.Follow,
+                    Urgent = Data.Urgent,
+                    DueDate = Data.DueDate,
+                    OverDue = Data.OverDue,
+                    NoOfDays = Data.NoOfDays,
+                    IsAllowParticipants = Data.IsAllowParticipants,
+                    NotifyUser = Data.NotifyUser,
+                    TagLock = Data.TagLock,
+                    FileData = fileContents,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationAddedByUserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = _sessionId,
+                    Participants = participantidsString,
+                    To = toidsString,
+                    CC = ccidsString,
+                    ActivityEmailTopicId = ActivityEmailTopicId,
+                    isValidateSession = isValidateSession,
+                    OnDraft = draftId,
+                    GroupTag = CategoryData.GroupTag,
+                    //UserTag = CategoryData.UserTag,
+                    CategoryTag = CategoryData.CategoryTag,
+                    ActionTag = CategoryData.ActionTag,
+                    ActionTagIds = CategoryData.ActionTagIds,
+
+                    //actName = CategoryData.Name,
+                    actName = OthersTagName,
+                    UserTag = UserTagName,
+                    UserTagIds =CategoryData.UserTagIds,
+                    ActivityType = ActivityType,
+                    UserType = Data.UserType,
+                    ToUserGroup = sToUserGroup,
+                    CCUserGroup = sCCUserGroup,
+                    ParticipantsUserGroup = sParticipantsUserGroup
+
+                };
+
+
+            try
+            {
+                //_sessionId = createReq.SessionId;
+                var result = await Mediator.Send(createReq);
+
+                if (result != null)
+                {
+
+                    @if (draftId == 0)
+                    {
+                        var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));
+
+                        string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                        string url = BaseUrl + "SendMessage?id=" + convlist[0].ID;
+                        // Make a GET request to the controller action
+                        var response = await httpClient.GetAsync(url);
+
+                    }
+
+                    ///await Task.Delay(5000); // Delay for 5 seconds
+                    //   onShowPopupMessage("success", "Topic have been saved successully");
+                    ActivityEmailTopicId = 0;
+                    toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+
+
+                    if (SelectedFilesCount > 0)
+                    {
+                        uploadComponent.UploadAllFiles();
+                    }
+                    else
+                    {
+                        if (draftId == 0)
+                        {
+                            loading = false;
+                        }
+                        else
+                        {
+                            loadingdraft = false;
+                        }
+
+                        if (ActiveSessionId != null)
+                        {
+                            BackEnabled = false;
+                            NavigationManager.NavigateTo($"CreateEmail");
+                            //JSRuntime.InvokeAsync<string>("ReloadUrl");
+                            onRestText();
+                        }
+                        else
+                        {
+                            BackEnabled = false;
+                            //await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                            onRestText();
+                        }
+
+                        //onRestText();
+                        await JSRuntime.InvokeAsync<string>("hideLoading");
+                        isSending = false;
+                    }
+
+
+                }
+                else
+                {
+                    onShowPopupMessage("Error", result.ToString());
+                    await JSRuntime.InvokeAsync<string>("hideLoading");
+                    isSending = false;
+                }
+            }
+            catch (Exception eq)
+            {
+                onShowPopupMessage("Error", eq.Message);
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+                isSending = false;
+            }
+
+            submitCount++;
+            StateHasChanged();
+        }
+
+
+
+
+    }
+    internal async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        loadingdraft = false;
+        StateHasChanged();
+    }
+    void onClickParticipant()
+    {
+        //var lst = SelectedDataItems;
+        //PopupVisible = true;
+    }
+    void HandleInvalidSubmit()
+    {
+        FormSubmitResult = "";
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+
+    async void onBack()
+    {
+        Guid activeSessionId = Guid.Parse(ActiveSessionId);
+        var actItem = activityEmailTopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+
+
+        if (actItem[0].ActivityType == "FileProfileType")
+        {
+            var urls = BaseUrl + "fileprofiletype/" + actItem[0].BackURL + "/" + actItem[0].DocumentSessionId;
+            NavigationManager.NavigateTo(urls);
+            await JSRuntime.InvokeAsync<string>("ReloadUrl");
+        }
+        else
+        {
+            var url = ProductActivityBaseUrl + actItem[0].BackURL;
+            NavigationManager.NavigateTo(url);
+            await JSRuntime.InvokeAsync<string>("ReloadUrl");
+        }
+
+    }
+
+    async void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+
+            selectgrouptagItems = applicationMasterChildModel;
+            CategoryData.GroupTag = selectgrouptagItems.ApplicationMasterChildId;
+            await GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
+
+        }
+        else
+        {
+            await GroupTagChanged(-1);
+            await CategoryTagChange(-1);
+        }
+    }
+    async Task selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+
+        if (applicationMasterChildModel != null)
+        {
+            selectCategory = applicationMasterChildModel;
+            CategoryData.CategoryTag = selectCategory.ApplicationMasterChildId;
+            await CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
+        }
+        else
+        {
+            await CategoryTagChange(-1);
+        }
+    }
+    async Task GroupTagChanged(long? ApplicationMasterChildId)
+    {
+        if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1)
+        {
+            CategoryData.ActionTagIds = new List<long?>();
+             _categoryTagItems = null;
+            _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        }
+        else
+        {             
+            CategoryData.GroupTag = 0;
+            _actionTagItems = null;
+            _categoryTagItems = null;
+            CategoryData.ActionTagIds = new List<long?>();
+        }
+        StateHasChanged();
+    }
+    async Task CategoryTagChange(long? ApplicationMasterChildID)
+    {
+        if (ApplicationMasterChildID != null && ApplicationMasterChildID != -1)
+        {
+            CategoryData.ActionTagIds = new List<long?>();            
+            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        }
+        else
+        {
+            CategoryData.CategoryTag = 0;
+            _actionTagItems = null;
+            CategoryData.ActionTagIds = new List<long?>();
+        }
+        StateHasChanged();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        // Dispose of each list and clear the references
+        _AllCategory?.Clear();
+        _AllCategory = null;
+
+        _groupTagItems?.Clear();
+        _groupTagItems = null;
+
+        _UserTagList?.Clear();
+        _UserTagList = null;
+
+        _participant?.Clear();
+        _participant = null;
+
+        _Allparticipant?.Clear();
+        _Allparticipant = null;
+
+        _Toparticipant?.Clear();
+        _Toparticipant = null;
+
+        _CCparticipant?.Clear();
+        _CCparticipant = null;
+
+        _OnBehalfparticipant?.Clear();
+        _OnBehalfparticipant = null;
+
+        Console.WriteLine("Component Disposed");
+        
+        //GC.SuppressFinalize(this);
+        //GC.Collect();
+        //GC.WaitForPendingFinalizers();
+        //GC.Collect();
+        //GC.SuppressFinalize(this);
+        //_subscription.Dispose();        
+        //NavigationManager.LocationChanged -= OnLocationChanged;
+       // subscription?.Dispose();
+    }
+
+    //internal async Task OpenUrlInNewTab(string url)
+    //{
+    //    await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+    //}
+    //public async Task onDocDownload(long Id)
+    //{
+    //    var lst = _documentslst.FirstOrDefault(a => a.DocumentId == Id);
+
+
+    //    var url = FileUrl + lst.FilePath;
+    //    await OpenUrlInNewTab(url);
+
+    //}
+
+}
+
+

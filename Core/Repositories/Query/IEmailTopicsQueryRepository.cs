@@ -86,6 +86,7 @@ namespace Core.Repositories.Query
         Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> UpdateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> Delete(long id);
+        Task<long> DeleteNotify(long id);   
         Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys);
     }
 }

@@ -445,6 +445,7 @@ namespace SW.Portal.Solutions.Controllers
                             Comment = value.Comment,
                             SpecificTestName = result.SpecificTest,
                             AddedByUserID = value.UserID,
+                            Action =value.Action,
 
                         };
 

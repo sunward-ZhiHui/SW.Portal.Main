@@ -162,6 +162,7 @@
                                                 <DxGridDataColumn FieldName="ApplicationMasterDetailID" Visible="false" />
                                                 <DxGridDataColumn FieldName="Value" Caption="Name" />
                                                 <DxGridDataColumn FieldName="Description" Caption="Description" />
+                                                <DxGridDataColumn FieldName="StatusCode" Caption="Status Code" />
                                             </Columns>
                                             <EditFormTemplate Context="EditFormContext">
                                                 @{
@@ -176,7 +177,18 @@
                                                         <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
                                                         <ValidationMessage For="@(() => plant.Description)" />
                                                     </DxFormLayoutItem>
-
+                                                    <DxFormLayoutItem Caption="Status" ColSpanMd="12">
+                                                        <DxComboBox Data="@_stausItems"
+                                                                    NullText="Select Status..."
+                                                                    SearchMode="ListSearchMode.AutoSearch"
+                                                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                    TextFieldName="CodeValue"
+                                                                    ValueFieldName="CodeId"
+                                                                    @bind-Value="@plant.StatusCodeId"
+                                                                    ShowValidationIcon="true">
+                                                        </DxComboBox>
+                                                        <ValidationMessage For="@(() => plant.StatusCodeId)" />
+                                                    </DxFormLayoutItem>
                                                 </DxFormLayout>
                                             </EditFormTemplate>
                                             <TotalSummary>
@@ -251,7 +263,7 @@
     bool Blukdeletepopup { get; set; } = false;
     DxPopup? popup;
     public ApplicationUser applicationUser { get; private set; }
-    bool PopupVisible { get; set; } = false;
+    bool PopupVisible { get; set; } = false; private List<CodeMaster> _stausItems;
     string? DeleteerrorMessage;
     bool AddMasterEnabled { get; set; } = false;
     bool EditMasterEnabled { get; set; } = false; bool EditPermissionEnabled { get; set; } = false;
@@ -261,6 +273,12 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        if (_stausItems != null && _stausItems.Count() > 0)
+        {
+            List<int> idss = new List<int>() { 1, 2 };
+            _stausItems = _stausItems.Where(w => idss.Contains(w.CodeId)).ToList();
+        }
         await loadMAsterItems();
     }
     async Task loadMAsterItems()
@@ -330,7 +348,7 @@
         EditEnabled = false;
         DeleteEnabled = false;
         PanelVisibleMastersDetails = true;
-        _applicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterDetailQuery(_selectItems.ApplicationMasterCodeId));
+        _applicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterAllDetailQuery(_selectItems.ApplicationMasterCodeId));
         for (int i = 0; i < _applicationMasterDetails.Count; i++)
         {
             _applicationMasterDetails[i].Index = i + 1;
@@ -365,12 +383,18 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        var newplant = (View_ApplicationMasterDetail)e.EditModel;
         if (e.IsNew)
         {
-            var newplant = (View_ApplicationMasterDetail)e.EditModel;
+            
             newplant.ApplicationMasterID = _selectItems.ApplicationMasterId;
             newplant.Description = "";
             newplant.Value = "";
+            newplant.StatusCodeId = 1;
+        }
+        else
+        {
+            newplant.StatusCodeId = newplant.StatusCodeId == null ? 1 : newplant.StatusCodeId;
         }
     }
 
@@ -388,7 +412,7 @@
                     ModifiedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
-                    StatusCodeId = 1,
+                    StatusCodeId = editablePlant.StatusCodeId,
                     ProfileId = editablePlant.ProfileId,
                     FileProfileTypeId = editablePlant.FileProfileTypeId
                 };

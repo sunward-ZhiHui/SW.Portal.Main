@@ -236,6 +236,7 @@ namespace AC.SD.Core.Helpers
                         layoutItemBuilders.CloseComponent();
                     }
                 }));
+                b.AddAttribute(26, "ColumnResizeMode", DataGridColumnResizeMode.NextColumn);
                 b.CloseComponent();
             }));
         }

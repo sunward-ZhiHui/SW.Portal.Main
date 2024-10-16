@@ -785,12 +785,18 @@ else
         if (values != null)
         {
             Data.ToIds = values;
+            if (Data.CCIds != null)
+            {
+                var list = Data.CCIds.Where(p => !values.Contains(p)).ToList();
+                Data.CCIds = list;
+                StateHasChanged();
+            }
             // Update _CCparticipant based on selected values from _Toparticipant
             // _CCparticipant = _participant.Except(values).ToList();
-            if (_participant != null && values != null)
-            {
-                _CCparticipant = _participant.Where(p => !values.Contains(p.UserID.Value)).ToList();
-            }
+            // if (_participant != null && values != null)
+            // {
+            //     _CCparticipant = _participant.Where(p => !values.Contains(p.UserID.Value)).ToList();
+            // }
         }
         else
         {
@@ -1000,12 +1006,18 @@ else
         if (values != null)
         {
             Data.CCIds = values;
+            if (Data.ToIds != null)
+            {
+                var list = Data.ToIds.Where(p => !values.Contains(p)).ToList();
+                Data.ToIds = list;
+                StateHasChanged();
+            }
             // Update _Toparticipant based on selected values from _CCparticipant
             //  _Toparticipant = _participant.Except(values).ToList();
-            if (_participant != null && values != null)
-            {
-                _Toparticipant = _participant.Where(p => !values.Contains(p.UserID.Value)).ToList();
-            }
+            // if (_participant != null && values != null)
+            // {
+            //     _Toparticipant = _participant.Where(p => !values.Contains(p.UserID.Value)).ToList();
+            // }
         }
         else
         {

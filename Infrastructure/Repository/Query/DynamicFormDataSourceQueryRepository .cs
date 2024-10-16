@@ -246,7 +246,11 @@ namespace Infrastructure.Repository.Query
                 if (applicationMasterIds != null && applicationMasterIds.Count > 0)
                 {
                     applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };
-                    query += "where t1.ApplicationMasterId in(" + string.Join(',', applicationMasterIds) + ");";
+                    query += "where (t1.StatusCodeID=1 OR t1.StatusCodeID IS Null) AND t1.ApplicationMasterId in(" + string.Join(',', applicationMasterIds) + ");";
+                }
+                else
+                {
+                    query += "(t1.StatusCodeID=1 OR t1.StatusCodeID IS Null);";
                 }
                 //using (var connection = CreateConnection())
                 //{
@@ -270,11 +274,11 @@ namespace Infrastructure.Repository.Query
                 if (applicationMasterIds != null && applicationMasterIds.Count > 0)
                 {
                     applicationMasterIds = applicationMasterIds != null && applicationMasterIds.Count() > 0 ? applicationMasterIds : new List<long?>() { -1 };
-                    query += "WITH ApplicationMasterParent_cte AS (\r\n  SELECT\r\n    ApplicationMasterParentID,\r\n    ApplicationMasterName,\r\n    ApplicationMasterParentCodeID,\r\n    ParentID,\r\n    1 AS level\r\n  FROM ApplicationMasterParent\r\n  WHERE ApplicationMasterParentCodeID in(" + string.Join(',', applicationMasterIds) + ")\r\n  UNION ALL\r\n  SELECT\r\n    e.ApplicationMasterParentID,\r\n    e.ApplicationMasterName,\r\n    e.ApplicationMasterParentCodeID,\r\n    e.ParentID,\r\n    level + 1\r\n  FROM ApplicationMasterParent e\r\n  INNER JOIN ApplicationMasterParent_cte r\r\n    ON e.ParentID = r.ApplicationMasterParentCodeID\r\n)select CONCAT('ApplicationMasterParent_',t1.ApplicationMasterChildID) as AttributeDetailNameId,'ApplicationMasterParent' as DropDownTypeId,t1.ApplicationMasterChildID as AttributeDetailID,t1.Value as AttributeDetailName,t1.Description,t1.ApplicationMasterParentID as ApplicationMasterParentCodeId,t2.ApplicationMasterName as ApplicationMasterName,t1.ParentId,t3.Value as ParentName from ApplicationMasterChild  t1 JOIN ApplicationMasterParent t2 ON t1.ApplicationMasterParentID=t2.ApplicationMasterParentCodeID LEFT JOIN ApplicationMasterChild t3 ON t1.ParentID=t3.ApplicationMasterChildID where t1.ApplicationMasterParentID in(SELECT ApplicationMasterParentCodeID FROM ApplicationMasterParent_cte);";
+                    query += "WITH ApplicationMasterParent_cte AS (\r\n  SELECT\r\n    ApplicationMasterParentID,\r\n    ApplicationMasterName,\r\n    ApplicationMasterParentCodeID,\r\n    ParentID,\r\n    1 AS level\r\n  FROM ApplicationMasterParent\r\n  WHERE ApplicationMasterParentCodeID in(" + string.Join(',', applicationMasterIds) + ")\r\n  UNION ALL\r\n  SELECT\r\n    e.ApplicationMasterParentID,\r\n    e.ApplicationMasterName,\r\n    e.ApplicationMasterParentCodeID,\r\n    e.ParentID,\r\n    level + 1\r\n  FROM ApplicationMasterParent e\r\n  INNER JOIN ApplicationMasterParent_cte r\r\n    ON e.ParentID = r.ApplicationMasterParentCodeID\r\n)select CONCAT('ApplicationMasterParent_',t1.ApplicationMasterChildID) as AttributeDetailNameId,'ApplicationMasterParent' as DropDownTypeId,t1.ApplicationMasterChildID as AttributeDetailID,t1.Value as AttributeDetailName,t1.Description,t1.ApplicationMasterParentID as ApplicationMasterParentCodeId,t2.ApplicationMasterName as ApplicationMasterName,t1.ParentId,t3.Value as ParentName from ApplicationMasterChild  t1 JOIN ApplicationMasterParent t2 ON t1.ApplicationMasterParentID=t2.ApplicationMasterParentCodeID LEFT JOIN ApplicationMasterChild t3 ON t1.ParentID=t3.ApplicationMasterChildID where t1.StatusCodeID=1 AND t1.ApplicationMasterParentID in(SELECT ApplicationMasterParentCodeID FROM ApplicationMasterParent_cte);";
                 }
                 else
                 {
-                    query += "select CONCAT('ApplicationMasterParent_',t1.ApplicationMasterChildID) as AttributeDetailNameId,'ApplicationMasterParent' as DropDownTypeId,t1.ApplicationMasterChildID as AttributeDetailID,t1.Value as AttributeDetailName,t1.Description,t1.ApplicationMasterParentID as ApplicationMasterParentCodeId,t2.ApplicationMasterName as ApplicationMasterName,t1.ParentId,t3.Value as ParentName from ApplicationMasterChild  t1 JOIN ApplicationMasterParent t2 ON t1.ApplicationMasterParentID=t2.ApplicationMasterParentCodeID LEFT JOIN ApplicationMasterChild t3 ON t1.ParentID=t3.ApplicationMasterChildID;";
+                    query += "select CONCAT('ApplicationMasterParent_',t1.ApplicationMasterChildID) as AttributeDetailNameId,'ApplicationMasterParent' as DropDownTypeId,t1.ApplicationMasterChildID as AttributeDetailID,t1.Value as AttributeDetailName,t1.Description,t1.ApplicationMasterParentID as ApplicationMasterParentCodeId,t2.ApplicationMasterName as ApplicationMasterName,t1.ParentId,t3.Value as ParentName from ApplicationMasterChild  t1 JOIN ApplicationMasterParent t2 ON t1.ApplicationMasterParentID=t2.ApplicationMasterParentCodeID LEFT JOIN ApplicationMasterChild t3 ON t1.ParentID=t3.ApplicationMasterChildID where t1.StatusCodeID=1;";
                 }
                 //using (var connection = CreateConnection())
                 //{
@@ -1101,7 +1105,7 @@ namespace Infrastructure.Repository.Query
                         }
                         if (s.FilterTableName == "ApplicationMasterDetail" && !string.IsNullOrEmpty(s.ApplicationMasterCodeId))
                         {
-                            query += "JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID WHERE t2.ApplicationMasterCodeID=" + s.ApplicationMasterCodeId + "";
+                            query += "JOIN ApplicationMaster t2 ON t1.ApplicationMasterID=t2.ApplicationMasterID WHERE (t1.StatusCodeID=1 OR t1.StatusCodeID IS Null) AND t2.ApplicationMasterCodeID=" + s.ApplicationMasterCodeId + "";
                         }
                         if (last.Equals(s))
                         {
@@ -1478,9 +1482,9 @@ namespace Infrastructure.Repository.Query
                     {
                         var queryIn = "\r\nselect \r\n(case when (SUBSTRING(bb2.ProductName, 0, CHARINDEX(',', bb2.ProductName)))='' then  bb2.ProductName ELSE  (SUBSTRING(bb2.ProductName, 0, CHARINDEX(',', bb2.ProductName))) END) as ItemBatchNoId\r\nfrom\r\n(select bb1.*,\r\nProductName = STUFF(( SELECT ',' + CAST(md.ItemBatchId AS VARCHAR(MAX)) FROM ItemBatchInfo md   WHERE md.CompanyID=bb1.CompanyId AND md.BatchNo=bb1.BatchNo   Order by md.ItemBatchId asc FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')\r\nfrom(select b1.BatchNo,b1.CompanyId from ItemBatchInfo b1   group by b1.BatchNo,b1.CompanyId)bb1) bb2\r\n\r\n";
 
-                        query += "AND t1.ItemBatchId IN("+ queryIn + ")";
+                        query += "AND t1.ItemBatchId IN(" + queryIn + ")";
                     }
-                        using (var connection = CreateConnection())
+                    using (var connection = CreateConnection())
                     {
                         var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
                         attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();

@@ -26,7 +26,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select * from ApplicationMasterDetail";
+                var query = "select * from ApplicationMasterDetail WHERE (StatusCodeId=1 OR StatusCodeId IS Null);";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationMasterDetail>(query)).ToList();
@@ -39,6 +39,21 @@ namespace Infrastructure.Repository.Query
         }
 
         public async Task<IReadOnlyList<View_ApplicationMasterDetail>> GetApplicationMasterByCode(long? Id)
+        {
+            try
+            {
+                var query = "select * from view_ApplicationMasterDetail WHERE StatusCodeId=1 AND  ApplicationMasterCodeID =" + "'" + Id + "'";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_ApplicationMasterDetail>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<View_ApplicationMasterDetail>> GetApplicationMasterByAllCode(long? Id)
         {
             try
             {

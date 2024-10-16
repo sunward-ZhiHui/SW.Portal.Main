@@ -17,6 +17,7 @@ namespace Core.Entities.Views
         [Required(ErrorMessage = "Name is Required")]
         public string? Value { get; set; }
         public long? ApplicationMasterCodeID { get; set; }
+        [Required(ErrorMessage = "Status Code is Required")]
         public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
@@ -24,5 +25,6 @@ namespace Core.Entities.Views
         public DateTime? ModifiedDate { get; set; }
         public long? ProfileId { get; set; }
         public long? FileProfileTypeId { get; set; }
+        public string? StatusCode { get; set; }
     }
 }

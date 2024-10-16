@@ -579,6 +579,15 @@ namespace Application.Queries
             this.ID = Id;
         }
     }
+    public class DeleteNotifyQuery : Documents, IRequest<long>
+    {
+        public long ID { get; set; }
+
+        public DeleteNotifyQuery(long Id)
+        {
+            this.ID = Id;
+        }
+    }
     public class CreateUserTagMultipleQuery : EmailActivityCatgorys, IRequest<long>
     {
     }

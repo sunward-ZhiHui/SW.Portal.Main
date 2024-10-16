@@ -441,7 +441,8 @@ namespace Infrastructure.Repository.Query
                                         ProductActivityPermissionData.IsCopyLink = d.IsCopyLink;
                                         ProductActivityPermissionData.IsMail = d.IsMail;
                                         ProductActivityPermissionData.IsActivityInfo = d.IsActivityInfo;
-                                        ProductActivityPermissionData.IsActivityResult = true;
+                                        ProductActivityPermissionData.IsActivityResult = d.IsActivityResult;
+                                        ProductActivityPermissionData.IsEditComment = d.IsEditComment;
                                         ProductActivityPermissionData.IsNonCompliance = d.IsNonCompliance;
                                         ProductActivityPermissionData.IsSupportDocuments = d.IsSupportDocuments;
                                         ProductActivityPermissionData.UserID = d.UserID;

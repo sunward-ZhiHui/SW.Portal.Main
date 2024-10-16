@@ -1126,6 +1126,23 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class DeleteNotifyHandler : IRequestHandler<DeleteNotifyQuery, long>
+    {
+        private readonly IEmailTopicsQueryRepository _draftFileListQueryRepository;
+
+        public DeleteNotifyHandler(IEmailTopicsQueryRepository draftFileListQueryRepository, IQueryRepository<Documents> queryRepository)
+        {
+            _draftFileListQueryRepository = draftFileListQueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteNotifyQuery request, CancellationToken cancellationToken)
+        {
+            var req = await _draftFileListQueryRepository.DeleteNotify(request.ID);
+            return req;
+
+
+        }
+    }
     public class CreateEmailUserTagHandler : IRequestHandler<CreateUserTagMultipleQuery, long>
     {
         private readonly IEmailTopicsQueryRepository _emailactyqueryRepository;

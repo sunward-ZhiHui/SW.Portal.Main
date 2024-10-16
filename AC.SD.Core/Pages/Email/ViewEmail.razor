@@ -3236,15 +3236,21 @@
     void onSelectedToItemsChanged(IEnumerable<long>? values)
     {
         Data.AssigntoIds = values;
-        if (values != null)
-        {            
-            //_CCparticipant = _allparticipants.Except(values).ToList();
-            _CCparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        if (Data.AssignccIds != null)
+        {
+            var list = Data.AssignccIds.Where(p => !values.Contains(p)).ToList();
+            Data.AssignccIds = list;
+            StateHasChanged();
         }
-        else
-        {            
-            _CCparticipant = _allparticipants.ToList();
-        }
+        // if (values != null)
+        // {            
+        //     //_CCparticipant = _allparticipants.Except(values).ToList();
+        //     _CCparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        // }
+        // else
+        // {            
+        //     _CCparticipant = _allparticipants.ToList();
+        // }
     }
     void onSelectedToItemsChangedold(IEnumerable<ViewEmployee> values)
     {
@@ -3262,15 +3268,21 @@
     void onSelectedCCItemsChanged(IEnumerable<long>? values)
     {
         Data.AssignccIds = values;
-        if (values != null)
-        {            
-            //_Toparticipant = _allparticipants.Except(values).ToList();
-            _Toparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
-        }
-        else
-        {            
-            _Toparticipant = _allparticipants.ToList();
-        }
+         if (Data.AssigntoIds != null)
+            {
+                var list = Data.AssigntoIds.Where(p => !values.Contains(p)).ToList();
+            Data.AssigntoIds = list;
+                StateHasChanged();
+            }
+        // if (values != null)
+        // {            
+        //     //_Toparticipant = _allparticipants.Except(values).ToList();
+        //     _Toparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        // }
+        // else
+        // {            
+        //     _Toparticipant = _allparticipants.ToList();
+        // }
     }
 
     void onSelectedCCItemsChangedold(IEnumerable<ViewEmployee> values)
@@ -5690,7 +5702,7 @@
                     sCCIds = CCtags.ToList();
 
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
 
@@ -5915,7 +5927,7 @@
                     sCCIds = CCtags.ToList();
 
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
                     //_allparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
@@ -5992,7 +6004,7 @@
                     IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
                     sCCIds = CCtags.ToList();
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                    //_Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
                     #endregion
                 }
 

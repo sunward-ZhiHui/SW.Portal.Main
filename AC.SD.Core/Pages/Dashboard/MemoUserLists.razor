@@ -17,233 +17,240 @@
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutTabPage Caption="Acknowleged">
-                @if (_MemoList != null && _MemoList.Any())
-                {
-                    var _MemoAckList = _MemoList.Where(w => w.IsAcknowledgement == true).ToList();
-                    @if (_MemoAckList != null && _MemoAckList.Any())
+                <div style="margin-right: 10px;width:100%;overflow-x: hidden; overflow-y: auto; height: calc(100vh - 295px);">
+                    @if (_MemoList != null && _MemoList.Any())
                     {
-                        int i = 0;
-                        @foreach (var item in _MemoAckList)
+                        var _MemoAckList = _MemoList.Where(w => w.IsAcknowledgement == true).ToList();
+                        @if (_MemoAckList != null && _MemoAckList.Any())
                         {
-                            bool Expanded = i == 0 ? true : false;
-                            <DxFormLayoutGroup ColSpanMd="12" Caption="@item.Subject" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" AnimationType="LayoutAnimationType.Slide" Expanded=@Expanded>
-                                <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;width:100%;overflow-x: hidden; overflow-y: auto; height: calc(100vh - 580px);">
-                                    <div class="uk-card-header">
-                                        <div class="container-header" style="margin-left: -9px;">
-                                            <div class="left-column">
-                                            </div><!--!-->
 
-                                            <div class="right-column" style="width: 37%;">
-                                                <div class="shared-div">
-                                                    <div class="date-and-notes">
-                                                        <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Memo Date</span> @Application.Common.Helper.Helper.FormatDate(@item.StartDate)</div>
-                                                        @if (item.IsAcknowledgement == true)
-                                                        {
-                                                            <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Date of Acknowlege</span> @Application.Common.Helper.Helper.FormatDate(@item.AcknowledgementDate)</div>
-                                                        }
-                                                        else
-                                                        {
-                                                            <button type="button" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" onclick="@(() => OnAcknowledgeClick(item))" class="">
-                                                                <!--!--><i class="fa fa-check"></i> @(@item.IsAcknowledgement == true ? "Acknowledged" : "Acknowledge")
-                                                            </button>
-                                                        }
-                                                    </div><!--!-->
+                            int i = 0;
+                            @foreach (var item in _MemoAckList)
+                            {
+                                bool Expanded = i == 0 ? true : false;
+                                <DxFormLayoutGroup ColSpanMd="12" Caption="@item.Subject" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" AnimationType="LayoutAnimationType.Slide" Expanded=@Expanded>
+                                    <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="width:100%;">
+                                        <div class="uk-card-header">
+                                            <div class="container-header" style="margin-left: -9px;">
+                                                <div class="left-column">
+                                                </div><!--!-->
+
+                                                <div class="right-column" style="width: 37%;">
+                                                    <div class="shared-div">
+                                                        <div class="date-and-notes">
+                                                            <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Memo Date</span> @Application.Common.Helper.Helper.FormatDate(@item.StartDate)</div>
+                                                            @if (item.IsAcknowledgement == true)
+                                                            {
+                                                                <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Date of Acknowlege</span> @Application.Common.Helper.Helper.FormatDate(@item.AcknowledgementDate)</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button type="button" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" onclick="@(() => OnAcknowledgeClick(item))" class="">
+                                                                    <!--!--><i class="fa fa-check"></i> @(@item.IsAcknowledgement == true ? "Acknowledged" : "Acknowledge")
+                                                                </button>
+                                                            }
+                                                        </div><!--!-->
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div><div class="uk-card-body">
-                                        <div>
-                                            @((MarkupString)item.MemoContent)
-                                        </div>
-                                    </div>
-                                    @if (item.DocumentsData.Any())
-                                    {
-                                        <div class="uk-card-footer">
+                                        </div><div class="uk-card-body">
                                             <div>
-                                                <div class="">
-                                                    @foreach (var attachment in item.DocumentsData)
-                                                    {
-                                                        var contentType = attachment.ContentType != null ? attachment.ContentType.Split("/").First().ToLower() : "";
-                                                        <div class="tag handline">
-                                                            @if (attachment.Type == "Document")
-                                                            {
-                                                                @if (attachment.Extension == "xlsx" || attachment.Extension == "xls")
+                                                @((MarkupString)item.MemoContent)
+                                            </div>
+                                        </div>
+                                        @if (item.DocumentsData.Any())
+                                        {
+                                            <div class="uk-card-footer">
+                                                <div>
+                                                    <div class="">
+                                                        @foreach (var attachment in item.DocumentsData)
+                                                        {
+                                                            var contentType = attachment.ContentType != null ? attachment.ContentType.Split("/").First().ToLower() : "";
+                                                            <div class="tag handline">
+                                                                @if (attachment.Type == "Document")
                                                                 {
-                                                                    <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@attachment.FileName"></i>
-                                                                }
-                                                                else if (attachment.Extension == "ppt" || attachment.Extension == "pptx")
-                                                                {
-                                                                    <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@attachment.FileName"></i>
-                                                                }
-                                                                else if (attachment.Extension == "doc" || attachment.Extension == "docx")
-                                                                {
-                                                                    <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@attachment.FileName"></i>
-                                                                }
-                                                                else if (attachment.Extension == "pdf")
-                                                                {
-                                                                    <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@attachment.FileName"></i>
-                                                                }
-                                                                else if (attachment.Extension == "txt")
-                                                                {
-                                                                    <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
-                                                                }
-                                                                else
-                                                                {
-                                                                    if (contentType == "image")
+                                                                    @if (attachment.Extension == "xlsx" || attachment.Extension == "xls")
                                                                     {
-                                                                        <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@attachment.FileName"></i>
+                                                                        <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@attachment.FileName"></i>
                                                                     }
-                                                                    else if (contentType == "video")
+                                                                    else if (attachment.Extension == "ppt" || attachment.Extension == "pptx")
                                                                     {
-                                                                        <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                                        <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@attachment.FileName"></i>
                                                                     }
-                                                                    else if (contentType == "audio")
+                                                                    else if (attachment.Extension == "doc" || attachment.Extension == "docx")
                                                                     {
-                                                                        <i class="fa fa-file-audio" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                                        <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@attachment.FileName"></i>
+                                                                    }
+                                                                    else if (attachment.Extension == "pdf")
+                                                                    {
+                                                                        <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@attachment.FileName"></i>
+                                                                    }
+                                                                    else if (attachment.Extension == "txt")
+                                                                    {
+                                                                        <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
+                                                                        if (contentType == "image")
+                                                                        {
+                                                                            <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@attachment.FileName"></i>
+                                                                        }
+                                                                        else if (contentType == "video")
+                                                                        {
+                                                                            <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                                        }
+                                                                        else if (contentType == "audio")
+                                                                        {
+                                                                            <i class="fa fa-file-audio" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
+                                                                        }
                                                                     }
                                                                 }
-                                                            }
-                                                            @* <i class="fas fa-file" aria-hidden="true"></i> *@ @attachment.FileName
-                                                            <div class="options">
-                                                                <div class="download" @onclick="@(() => Download(attachment))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
-                                                                <div class="preview" @onclick="@(() => onView(attachment))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                                @* <i class="fas fa-file" aria-hidden="true"></i> *@ @attachment.FileName
+                                                                <div class="options">
+                                                                    <div class="download" @onclick="@(() => Download(attachment))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                                    <div class="preview" @onclick="@(() => onView(attachment))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    }
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    }
-                                </div>
-                            </DxFormLayoutGroup>
-                            i++;
+                                        }
+                                    </div>
+                                </DxFormLayoutGroup>
+                                i++;
+                            }
+
                         }
+                        else
+                        {
+                            <div style="padding: 10px;font-weight: bold;">
+                                No Records found.
+                            </div>
+                        }
+
                     }
-                    else
-                    {
-                        <div style="padding: 10px;font-weight: bold;">
-                            No Records found.
-                        </div>
-                    }
-                }
+                </div>
             </DxFormLayoutTabPage>
             <DxFormLayoutTabPage Caption="Not Acknowleged">
-                @if (_MemoList != null && _MemoList.Any())
-                {
-                    var _MemoAckList = _MemoList.Where(w => w.IsAcknowledgement != true).ToList();
-                    @if (_MemoAckList != null && _MemoAckList.Any())
+                <div style="margin-right: 10px;width:100%;overflow-x: hidden; overflow-y: auto; height: calc(100vh - 295px);">
+                    @if (_MemoList != null && _MemoList.Any())
                     {
-                        int i = 0;
-                        @foreach (var item in _MemoAckList)
+                        var _MemoAckList = _MemoList.Where(w => w.IsAcknowledgement != true).ToList();
+                        @if (_MemoAckList != null && _MemoAckList.Any())
                         {
-                            bool Expanded = i == 0 ? true : false;
-                            <DxFormLayoutGroup ColSpanMd="12" Caption="@item.Subject" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" AnimationType="LayoutAnimationType.Slide" Expanded=@Expanded>
-                                <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;width:100%;overflow-x: hidden; overflow-y: auto; height: calc(100vh - 580px);">
-                                    <div class="uk-card-header">
-                                        <div class="container-header" style="margin-left: -9px;">
-                                            <div class="left-column">
-                                            </div><!--!-->
+                            int i = 0;
+                            @foreach (var item in _MemoAckList)
+                            {
+                                bool Expanded = i == 0 ? true : false;
+                                <DxFormLayoutGroup ColSpanMd="12" Caption="@item.Subject" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" AnimationType="LayoutAnimationType.Slide" Expanded=@Expanded>
+                                    <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="width:100%;">
+                                        <div class="uk-card-header">
+                                            <div class="container-header" style="margin-left: -9px;">
+                                                <div class="left-column">
+                                                </div><!--!-->
 
-                                            <div class="right-column" style="width: 37%;">
-                                                <div class="shared-div">
-                                                    <div class="date-and-notes">
-                                                        <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Memo Date</span> @Application.Common.Helper.Helper.FormatDate(@item.StartDate)</div>
-                                                        @if (item.IsAcknowledgement == true)
-                                                        {
-                                                            <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Date of Acknowlege</span> @Application.Common.Helper.Helper.FormatDate(@item.AcknowledgementDate)</div>
-                                                        }
-                                                        else
-                                                        {
-                                                            <button type="button" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" onclick="@(() => OnAcknowledgeClick(item))" class="">
-                                                                <!--!--><i class="fa fa-check"></i> @(@item.IsAcknowledgement == true ? "Acknowledged" : "Acknowledge")
-                                                            </button>
-                                                        }
-                                                    </div><!--!-->
+                                                <div class="right-column" style="width: 37%;">
+                                                    <div class="shared-div">
+                                                        <div class="date-and-notes">
+                                                            <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Memo Date</span> @Application.Common.Helper.Helper.FormatDate(@item.StartDate)</div>
+                                                            @if (item.IsAcknowledgement == true)
+                                                            {
+                                                                <div class="" style="margin-right: 10px; font-size: 12px;"><!--!--><span style="font-weight:bold;"> Date of Acknowlege</span> @Application.Common.Helper.Helper.FormatDate(@item.AcknowledgementDate)</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button type="button" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" onclick="@(() => OnAcknowledgeClick(item))" class="">
+                                                                    <!--!--><i class="fa fa-check"></i> @(@item.IsAcknowledgement == true ? "Acknowledged" : "Acknowledge")
+                                                                </button>
+                                                            }
+                                                        </div><!--!-->
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div><div class="uk-card-body">
-                                        <div>
-                                            @((MarkupString)item.MemoContent)
-                                        </div>
-                                    </div>
-                                    @if (item.DocumentsData.Any())
-                                    {
-                                        <div class="uk-card-footer">
+                                        </div><div class="uk-card-body">
                                             <div>
-                                                <div class="">
-                                                    @foreach (var attachment in item.DocumentsData)
-                                                    {
-                                                        var contentType = attachment.ContentType != null ? attachment.ContentType.Split("/").First().ToLower() : "";
-                                                        <div class="tag handline">
-                                                            @if (attachment.Type == "Document")
-                                                            {
-                                                                @if (attachment.Extension == "xlsx" || attachment.Extension == "xls")
+                                                @((MarkupString)item.MemoContent)
+                                            </div>
+                                        </div>
+                                        @if (item.DocumentsData.Any())
+                                        {
+                                            <div class="uk-card-footer">
+                                                <div>
+                                                    <div class="">
+                                                        @foreach (var attachment in item.DocumentsData)
+                                                        {
+                                                            var contentType = attachment.ContentType != null ? attachment.ContentType.Split("/").First().ToLower() : "";
+                                                            <div class="tag handline">
+                                                                @if (attachment.Type == "Document")
                                                                 {
-                                                                    <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@attachment.FileName"></i>
-                                                                }
-                                                                else if (attachment.Extension == "ppt" || attachment.Extension == "pptx")
-                                                                {
-                                                                    <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@attachment.FileName"></i>
-                                                                }
-                                                                else if (attachment.Extension == "doc" || attachment.Extension == "docx")
-                                                                {
-                                                                    <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@attachment.FileName"></i>
-                                                                }
-                                                                else if (attachment.Extension == "pdf")
-                                                                {
-                                                                    <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@attachment.FileName"></i>
-                                                                }
-                                                                else if (attachment.Extension == "txt")
-                                                                {
-                                                                    <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
-                                                                }
-                                                                else
-                                                                {
-                                                                    if (contentType == "image")
+                                                                    @if (attachment.Extension == "xlsx" || attachment.Extension == "xls")
                                                                     {
-                                                                        <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@attachment.FileName"></i>
+                                                                        <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@attachment.FileName"></i>
                                                                     }
-                                                                    else if (contentType == "video")
+                                                                    else if (attachment.Extension == "ppt" || attachment.Extension == "pptx")
                                                                     {
-                                                                        <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                                        <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@attachment.FileName"></i>
                                                                     }
-                                                                    else if (contentType == "audio")
+                                                                    else if (attachment.Extension == "doc" || attachment.Extension == "docx")
                                                                     {
-                                                                        <i class="fa fa-file-audio" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                                        <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@attachment.FileName"></i>
+                                                                    }
+                                                                    else if (attachment.Extension == "pdf")
+                                                                    {
+                                                                        <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@attachment.FileName"></i>
+                                                                    }
+                                                                    else if (attachment.Extension == "txt")
+                                                                    {
+                                                                        <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
+                                                                        if (contentType == "image")
+                                                                        {
+                                                                            <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@attachment.FileName"></i>
+                                                                        }
+                                                                        else if (contentType == "video")
+                                                                        {
+                                                                            <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                                        }
+                                                                        else if (contentType == "audio")
+                                                                        {
+                                                                            <i class="fa fa-file-audio" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@attachment.FileName"></i>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@attachment.FileName"></i>
+                                                                        }
                                                                     }
                                                                 }
-                                                            }
-                                                            @* <i class="fas fa-file" aria-hidden="true"></i> *@ @attachment.FileName
-                                                            <div class="options">
-                                                                <div class="download" @onclick="@(() => Download(attachment))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
-                                                                <div class="preview" @onclick="@(() => onView(attachment))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                                @* <i class="fas fa-file" aria-hidden="true"></i> *@ @attachment.FileName
+                                                                <div class="options">
+                                                                    <div class="download" @onclick="@(() => Download(attachment))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                                    <div class="preview" @onclick="@(() => onView(attachment))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    }
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    }
-                                </div>
-                            </DxFormLayoutGroup>
+                                        }
+                                    </div>
+                                </DxFormLayoutGroup>
+                            }
+                        }
+                        else
+                        {
+                            <div style="padding: 10px;font-weight: bold;">
+                                No Records found.
+                            </div>
                         }
                     }
-                    else
-                    {
-                        <div style="padding: 10px;font-weight: bold;">
-                            No Records found.
-                        </div>
-                    }
-                }
+                </div>
             </DxFormLayoutTabPage>
         </DxFormLayout>
 

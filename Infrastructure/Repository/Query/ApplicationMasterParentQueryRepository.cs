@@ -75,7 +75,7 @@ namespace Infrastructure.Repository.Query
             {
                 var result=new List<ApplicationMasterChildModel>();
                 List<ApplicationMasterChildModel> applicationMasterChildModels = new List<ApplicationMasterChildModel>();
-                var query = "select t1.*,t2.ApplicationMasterName,t3.Value as ParentName from ApplicationMasterChild t1 \r\nJOIN ApplicationMasterParent t2 ON t2.ApplicationMasterParentCodeID=t1.ApplicationMasterParentID\r\nLEFT JOIN ApplicationMasterChild t3 ON t3.ApplicationMasterChildID=t1.ParentID where t1.ApplicationMasterParentID in(" + Ids + ")";
+                var query = "select t1.*,t2.ApplicationMasterName,t3.Value as ParentName from ApplicationMasterChild t1 \r\nJOIN ApplicationMasterParent t2 ON t2.ApplicationMasterParentCodeID=t1.ApplicationMasterParentID\r\nLEFT JOIN ApplicationMasterChild t3 ON t3.ApplicationMasterChildID=t1.ParentID where t1.StatusCodeID=1 AND t1.ApplicationMasterParentID in(" + Ids + ")";
                 using (var connection = CreateConnection())
                 {
                     result= (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();

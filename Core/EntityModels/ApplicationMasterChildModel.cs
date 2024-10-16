@@ -21,6 +21,7 @@ namespace Core.EntityModels
         public string? Description { get; set; }
         public long? ParentId { get; set; }
         public Guid? SessionId { get; set; }
+        [Required(ErrorMessage = "Status Code is Required")]
         public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
@@ -28,6 +29,7 @@ namespace Core.EntityModels
         public DateTime? ModifiedDate { get; set; }
         public string? ApplicationMasterName { get; set; }
         public string? ParentName { get; set; }
+        public string? StatusCode { get; set; }
         public List<ApplicationMasterChildModel> Children { get; set; } = new List<ApplicationMasterChildModel>();
     }
 }

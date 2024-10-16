@@ -24,6 +24,21 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetAllApplicationMasterAllDetailHandler : IRequestHandler<GetAllApplicationMasterAllDetailQuery, List<View_ApplicationMasterDetail>>
+    {
+        private readonly IApplicationMasterDetailQueryRepository _masterQueryRepository;
+        private readonly IQueryRepository<View_ApplicationMasterDetail> _queryRepository;
+        public GetAllApplicationMasterAllDetailHandler(IApplicationMasterDetailQueryRepository roleQueryRepository, IQueryRepository<View_ApplicationMasterDetail> queryRepository)
+        {
+            _masterQueryRepository = roleQueryRepository;
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_ApplicationMasterDetail>> Handle(GetAllApplicationMasterAllDetailQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_ApplicationMasterDetail>)await _masterQueryRepository.GetApplicationMasterByAllCode(request.Id);
+
+        }
+    }
     public class GetAllApplicationMasterHandler : IRequestHandler<GetAllApplicationMasterQuery, List<ApplicationMaster>>
     {
         private readonly IQueryRepository<ApplicationMaster> _queryRepository;

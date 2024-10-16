@@ -91,11 +91,12 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SessionId", timeSheetForQC.SessionId);
                         parameters.Add("AddedByUserID", timeSheetForQC.AddedByUserID);
                         parameters.Add("AddedDate", timeSheetForQC.AddedDate);
-                    
+                        parameters.Add("Action", timeSheetForQC.Action);
 
-                        var query = @"INSERT INTO TimeSheetForQC(ItemName,RefNo,Stage,TestName,QRcode,DetailEntry,Comment,SessionId,AddedByUserID,AddedDate,SpecificTestName)
+
+                        var query = @"INSERT INTO TimeSheetForQC(ItemName,RefNo,Stage,TestName,QRcode,DetailEntry,Comment,SessionId,AddedByUserID,AddedDate,SpecificTestName,Action)
                          OUTPUT  INSERTED.QCTimesheetID
-                         VALUES (@ItemName,@RefNo,@Stage,@TestName,@QRcode,@DetailEntry,@Comment,@SessionId,@AddedByUserID,@AddedDate,@SpecificTestName)";
+                         VALUES (@ItemName,@RefNo,@Stage,@TestName,@QRcode,@DetailEntry,@Comment,@SessionId,@AddedByUserID,@AddedDate,@SpecificTestName,@Action)";
                         var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                         var id  = insertedId;
 

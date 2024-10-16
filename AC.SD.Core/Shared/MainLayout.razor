@@ -355,6 +355,8 @@
         if (applicationUser != null)
         {
             _emailNotificationCount = await Mediator.Send(new GetEmailNotificationCount(applicationUser.UserID));
+
+            _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount;
         }
 
         await InvokeAsync(StateHasChanged);

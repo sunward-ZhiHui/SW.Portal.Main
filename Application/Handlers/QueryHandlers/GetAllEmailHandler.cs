@@ -693,6 +693,40 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class CreateNotifyPAHandler : IRequestHandler<CreateNotifyPA, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public CreateNotifyPAHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateNotifyPA request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.CreateNotifyPAAsync(request);
+            return req;
+        }
+    }
+
+    public class GetNotifyPAListHandler : IRequestHandler<GetNotifyPAList, List<EmailNotifyPA>>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public GetNotifyPAListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<List<EmailNotifyPA>> Handle(GetNotifyPAList request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.GetNotifyPAAsync();
+            return req;
+        }
+    }
+    
+
+
 
     public class CreateTimelineEventHandler : IRequestHandler<CreateEmailTimelineEvent, long>
     {
@@ -1087,6 +1121,23 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<long> Handle(DeleteDocumentFileQuery request, CancellationToken cancellationToken)
         {
             var req = await _draftFileListQueryRepository.Delete(request.ID);
+            return req;
+
+
+        }
+    }
+    public class DeleteNotifyHandler : IRequestHandler<DeleteNotifyQuery, long>
+    {
+        private readonly IEmailTopicsQueryRepository _draftFileListQueryRepository;
+
+        public DeleteNotifyHandler(IEmailTopicsQueryRepository draftFileListQueryRepository, IQueryRepository<Documents> queryRepository)
+        {
+            _draftFileListQueryRepository = draftFileListQueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteNotifyQuery request, CancellationToken cancellationToken)
+        {
+            var req = await _draftFileListQueryRepository.DeleteNotify(request.ID);
             return req;
 
 

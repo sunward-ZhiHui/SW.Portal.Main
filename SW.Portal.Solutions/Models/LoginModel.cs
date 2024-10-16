@@ -31,4 +31,15 @@
         public string? NewFilename { get; set; }
         public IFormCollection Files { get; set; }
     }
+    public class InsertTimeSheetQCModel
+    {
+        public string? Date { get; set; }
+        public string? Company { get; set; }
+        public string? FileName { get; set; }
+        public IFormFile? File { get; set; }
+        public long? UserID { get; set; }
+        public string? Comment { get; set; }
+        public string? Action { get; set; }
+
+    }
 }

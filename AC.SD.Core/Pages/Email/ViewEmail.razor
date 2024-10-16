@@ -1057,6 +1057,8 @@
                         <DxMenuItem IconCssClass="fa fa-archive" @onclick="onArchivePop" Text="Archive" Enabled="isUserGroup" />
                         <DxMenuItem IconCssClass="fa fa-tag" @onclick="onUserTagPop" Text="User Tag"/>
                         <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" />
+                        <DxMenuItem IconCssClass="fa fa-paperclip" @onclick="onNotifyPA" Text="Notify PA" />
+
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -3231,15 +3233,21 @@
     void onSelectedToItemsChanged(IEnumerable<long>? values)
     {
         Data.AssigntoIds = values;
-        if (values != null)
-        {            
-            //_CCparticipant = _allparticipants.Except(values).ToList();
-            _CCparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        if (Data.AssignccIds != null)
+        {
+            var list = Data.AssignccIds.Where(p => !values.Contains(p)).ToList();
+            Data.AssignccIds = list;
+            StateHasChanged();
         }
-        else
-        {            
-            _CCparticipant = _allparticipants.ToList();
-        }
+        // if (values != null)
+        // {            
+        //     //_CCparticipant = _allparticipants.Except(values).ToList();
+        //     _CCparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        // }
+        // else
+        // {            
+        //     _CCparticipant = _allparticipants.ToList();
+        // }
     }
     void onSelectedToItemsChangedold(IEnumerable<ViewEmployee> values)
     {
@@ -3257,15 +3265,21 @@
     void onSelectedCCItemsChanged(IEnumerable<long>? values)
     {
         Data.AssignccIds = values;
-        if (values != null)
-        {            
-            //_Toparticipant = _allparticipants.Except(values).ToList();
-            _Toparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
-        }
-        else
-        {            
-            _Toparticipant = _allparticipants.ToList();
-        }
+         if (Data.AssigntoIds != null)
+            {
+                var list = Data.AssigntoIds.Where(p => !values.Contains(p)).ToList();
+            Data.AssigntoIds = list;
+                StateHasChanged();
+            }
+        // if (values != null)
+        // {            
+        //     //_Toparticipant = _allparticipants.Except(values).ToList();
+        //     _Toparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        // }
+        // else
+        // {            
+        //     _Toparticipant = _allparticipants.ToList();
+        // }
     }
 
     void onSelectedCCItemsChangedold(IEnumerable<ViewEmployee> values)
@@ -3700,6 +3714,32 @@
         var url = BaseUrl + "ViewEmail/Emailprint/" + _headTopic[0].SessionId + "/" + isLeftMenuvisible;
         string script = $"window.open('{url}', '_blank');";
         await JSRuntime.InvokeVoidAsync("eval", script);
+    }
+    async void onNotifyPA()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        var UpdateReq = new CreateNotifyPA
+                {
+                    Name = _headTopic[0].TopicName,                    
+                    Page = isLeftMenuvisible,
+                    SessionId = _headTopic[0].SessionId,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now
+                };
+
+            var result = await Mediator.Send(UpdateReq);
+            if (result == 1)
+            {       
+                toastService.ShowToast("Record updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            else
+            {   
+                toastService.ShowToast("Record already updated.", AC.SD.Core.Services.ToastLevel.Success);
+            }    
+       IsOpenFlyout = false;
+       StateHasChanged(); 
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
     }
     async void onPrintSubjectPop()
     {    
@@ -5659,7 +5699,7 @@
                     sCCIds = CCtags.ToList();
 
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
 
@@ -5884,7 +5924,7 @@
                     sCCIds = CCtags.ToList();
 
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
                     //_allparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
@@ -5961,7 +6001,7 @@
                     IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
                     sCCIds = CCtags.ToList();
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                    //_Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
                     #endregion
                 }
 

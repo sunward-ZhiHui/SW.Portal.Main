@@ -2108,7 +2108,92 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }        
+        }
+
+        private async Task<bool> CheckNotifyPAList(Guid? Sessionid)
+        {
+            using (var connection = CreateConnection())
+            {
+                try
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Sessionid", Sessionid);                    
+
+                    var query = "SELECT 1 ID FROM EmailNotifyPA WHERE SessionID = @Sessionid";
+                    var result = await connection.QuerySingleOrDefaultAsync<int?>(query, parameters);
+                    
+                    return result.HasValue;
+                }
+                catch (Exception exp)
+                {
+                    throw new Exception(exp.Message, exp);
+                }
+            }
+        }
+        public async Task<List<EmailNotifyPA>> GetNotifyPAAsync()
+        {
+            try
+            {
+                var query = @"select * from EmailNotifyPA ORDER BY AddedDate DESC";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailNotifyPA>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> CreateNotifyPAAsync(EmailNotifyPA emailNotifyPA)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var rowsAffected = 0;
+
+                        var isExisting = await CheckNotifyPAList(emailNotifyPA.SessionId);
+
+
+                        if (!isExisting)
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("Name", emailNotifyPA.Name);
+                            parameters.Add("Page", emailNotifyPA.Page);
+                            parameters.Add("SessionId", emailNotifyPA.SessionId);
+                            parameters.Add("AddedByUserID", emailNotifyPA.AddedByUserID);
+                            parameters.Add("AddedDate", emailNotifyPA.AddedDate);
+
+                            var query = " INSERT INTO EmailNotifyPA (Name,Page,SessionId,AddedByUserID,AddedDate) VALUES (@Name,@Page,@SessionId,@AddedByUserID,@AddedDate)";
+
+                            rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        }
+                        else
+                        {
+                            rowsAffected = -1;
+                        }
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<long> CreateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys)
         {
             try
@@ -2971,7 +3056,41 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long> DeleteNotify(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ID", id);
 
+
+                        var query = "DELETE  FROM EmailNotifyPA WHERE ID = @ID";
+
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public  async Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys)
         {
             try

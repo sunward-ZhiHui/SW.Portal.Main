@@ -43,7 +43,7 @@
     <DataAnnotationsValidator />
     <DxFormLayout CssClass="w-100">
 
-        <DxFormLayoutItem Caption="Page Name" ColSpanMd="12">
+        <DxFormLayoutItem Caption="Menu Name" ColSpanMd="12">
             <DxTextBox @bind-Text="@Data.PermissionName" ShowValidationIcon="true" />
             <ValidationMessage For="@(() => Data.PermissionName)" />
         </DxFormLayoutItem>
@@ -52,7 +52,7 @@
             <DxTextBox @bind-Text="@Data.PermissionOrder" />
             <ValidationMessage For="@(() => Data.PermissionOrder)" />
         </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Page URL" ColSpanMd="12">
+                <DxFormLayoutItem Caption="Menu URL" ColSpanMd="12">
                     <DxTextBox @bind-Text="@Data.PermissionURL" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => Data.PermissionURL)" />
                 </DxFormLayoutItem>
@@ -141,7 +141,7 @@
     }
     void backUrl()
     {
-        NavigationManager.NavigateTo("applicationTest");
+        NavigationManager.NavigateTo("applicationPermissionLists");
     }
     void ResetForm()
     {

@@ -2134,7 +2134,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select * from EmailNotifyPA";
+                var query = @"select * from EmailNotifyPA ORDER BY AddedDate DESC";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<EmailNotifyPA>(query)).ToList();
@@ -3056,7 +3056,41 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long> DeleteNotify(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ID", id);
 
+
+                        var query = "DELETE  FROM EmailNotifyPA WHERE ID = @ID";
+
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public  async Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys)
         {
             try

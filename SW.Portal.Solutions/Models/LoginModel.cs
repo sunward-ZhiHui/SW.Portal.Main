@@ -39,6 +39,7 @@
         public IFormFile? File { get; set; }
         public long? UserID { get; set; }
         public string? Comment { get; set; }
+        public string? Action { get; set; }
 
     }
 }

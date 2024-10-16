@@ -14,12 +14,16 @@
                 <DxFormLayoutTabPage Caption="Email Access">
                     <DMSOpenAccess @ref="refDMSOpenAccessEmailAccess" AccessType="EmailAccess"></DMSOpenAccess>
                 </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Email OtherTag Access">
+                    <DMSOpenAccess @ref="refEmailOtherTagAccess" AccessType="EmailOtherTagAccess"></DMSOpenAccess>
+                </DxFormLayoutTabPage>
             </DxFormLayoutTabPages>
         </DxFormLayout>
     </div>
 </div>
 @code {
     private DMSOpenAccess? refDMSOpenAccess;
+    private DMSOpenAccess? refEmailOtherTagAccess;
     private DMSOpenAccess? refDMSOpenAccessEmailAccess; private GeneralOpenAccess? refGeneralOpenAccess;
     int ActiveTabIndex { get; set; } = 0;
     async void OnTabClick(TabClickEventArgs e)
@@ -35,6 +39,10 @@
         if (e.TabIndex == 2)
         {
             await refDMSOpenAccessEmailAccess.loadMainData("EmailAccess");
+        }
+        if (e.TabIndex == 3)
+        {
+            await refEmailOtherTagAccess.loadMainData("EmailOtherTagAccess");
         }
 
     }

@@ -949,7 +949,7 @@
             _dataFileProfileType.sessionId = nodeName.SessionID;
 
         }
-         if (_dataFileProfileType != null && _dataFileProfileType.ProfileId > 0)
+        if (_dataFileProfileType != null && _dataFileProfileType.ProfileId > 0)
         {
             _dataFileProfileType = _dataFileProfileType;
 
@@ -1270,7 +1270,15 @@
                 _selectlst = _topicDocList.FirstOrDefault();
                 //EditEnabled = true;
                 //DeleteEnabled = true;
-                PreviewEnabled = true;
+                if (_selectlst.FilterProfileTypeId != null)
+                {
+                    await CheckDocPermission(_selectlst.FilterProfileTypeId.Value, _selectlst.ReplaceDocumentId);
+                }
+                else
+                {
+                    PreviewEnabled = true;
+                }
+
                 docEnabled = true;
                 if(_selectlst != null)
                 {
@@ -1332,7 +1340,18 @@
                 _selectlst = _topicDocList.FirstOrDefault();
                 //EditEnabled = true;
                 //DeleteEnabled = true;
-                PreviewEnabled = true;
+                
+
+                if (_selectlst.FilterProfileTypeId != null)
+                {
+                    await CheckDocPermission(_selectlst.FilterProfileTypeId.Value, _selectlst.ReplaceDocumentId);
+                }
+                else
+                {
+                    PreviewEnabled = true;
+                }
+
+
                 docEnabled = true;
                 if (_selectlst != null)
                 {
@@ -1355,7 +1374,7 @@
             }
         }
     }
-    void OnRowClick(GridRowClickEventArgs e)
+    async void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentId");
         _selectlst = _topicDocList.FirstOrDefault(f => f.DocumentId == (long?)UniqueId);
@@ -1370,6 +1389,17 @@
             {
                 onProgressEnabled = false;
             }
+
+
+            if(_selectlst.FilterProfileTypeId != null)
+            {
+                await CheckDocPermission(_selectlst.FilterProfileTypeId.Value, _selectlst.ReplaceDocumentId);
+            }
+            else
+            {
+                PreviewEnabled = true;
+            }
+
         }
         else
         {
@@ -1377,6 +1407,34 @@
         }
 
 
+    }
+    async Task CheckDocPermission(long FileProfileTypeId, long DocumentID)
+    {
+        var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(FileProfileTypeId, applicationUser.UserID, DocumentID));
+        if (permissionData != null)
+        {
+            if (permissionData.IsPermissionExits == true)
+            {                
+                PreviewEnabled = true;
+            }
+            else
+            {
+                if (permissionData.IsEdit == true)
+                {
+                    PreviewEnabled = true;
+                }
+                if (permissionData.IsRead == true)
+                {
+                    PreviewEnabled = true;
+                }
+            }
+        }  
+        else
+        {
+            PreviewEnabled = false;
+        }
+
+        StateHasChanged();
     }
 
     async Task onBackToDMS(Documents item)

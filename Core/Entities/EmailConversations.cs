@@ -126,6 +126,10 @@ namespace Core.Entities
         public string? ContentType { get; set; }
         public string? FilePath { get; set; }
         public long? FileSize { get; set; }
+        public long? ReplaceDocumentId { get; set; }
+        public long? FilterProfileTypeID { get;set; }
+        public string? ProfileNo { get; set; }
+        public bool IsView { get; set; }
 
     }
     public class ReplyConversationModel

@@ -119,10 +119,16 @@
     public ApplicationUser? applicationUser { get; private set; }
     bool EditEnabled { get; set; } = false;
     private EmailActivityCatgorys _selectedItems;
+    private OpenAccessUserLink? _openAccessUserLink { get; set; }
     protected override async Task OnInitializedAsync()
     {
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        if(applicationUser != null)
+        {
+            _openAccessUserLink = await Mediator.Send(new GetEmailOtherTagAccessByUser(applicationUser.UserID));
+        }
+        
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
@@ -135,7 +141,8 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "Name");
         _selectedItems = _otherTags.FirstOrDefault(f => f.Name == UniqueId);
-        EditEnabled = true;
+
+        EditEnabled = _openAccessUserLink != null ? true : false;
         StateHasChanged();
 
     }

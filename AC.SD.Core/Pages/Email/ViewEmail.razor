@@ -496,10 +496,13 @@
                                                                     @foreach (var attachment in item.documents)
                                                                     {
                                                                         <div class="tag handline"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName
-                                                                            <div class="options">
-                                                                                <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
-                                                                                <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
-                                                                            </div>
+                                                                            @if (attachment.IsView)
+                                                                            {
+                                                                                <div class="options">
+                                                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                                                </div>
+                                                                            }
                                                                         </div>                                                                       
                                                                     }
                                                                 </div>

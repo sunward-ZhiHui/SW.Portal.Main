@@ -49,7 +49,15 @@ namespace Application.Queries
     public class GetEmailAccessByUser : PagedRequest, IRequest<OpenAccessUserLink>
     {
         public long? UserId { get; set; }
-        public GetEmailAccessByUser(long? userId)
+        public GetEmailAccessByUser(long? userId) 
+        {
+            this.UserId = userId;
+        }
+    }
+    public class GetEmailOtherTagAccessByUser : PagedRequest, IRequest<OpenAccessUserLink>
+    {
+        public long? UserId { get; set; }
+        public GetEmailOtherTagAccessByUser(long? userId)
         {
             this.UserId = userId;
         }

@@ -86,6 +86,19 @@ namespace Application.Handlers.QueryHandlers
             return await _queryRepository.GetEmailAccessByUser(request.UserId);
         }
     }
+    public class GetEmailOtherTagAccessByUserHandler : IRequestHandler<GetEmailOtherTagAccessByUser, OpenAccessUserLink>
+    {
+        private readonly ISettingsQueryRepository _queryRepository;
+        public GetEmailOtherTagAccessByUserHandler(ISettingsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<OpenAccessUserLink> Handle(GetEmailOtherTagAccessByUser request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetEmailOtherTagAccessByUser(request.UserId);
+        }
+    }
+    
     public class GetDocumentAccessTypeEmptyHandler : IRequestHandler<GetDocumentAccessTypeQuery, List<OpenAccessUserLink>>
     {
         private readonly ISettingsQueryRepository _queryRepository;

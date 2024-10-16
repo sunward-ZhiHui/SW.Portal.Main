@@ -58,6 +58,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<OpenAccessUserLink> GetEmailOtherTagAccessByUser(long? UserID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("UserID", UserID);
+                var query = "select t1.* from OpenAccessUserLink t1\r\nJOIN OpenAccessUser t2 ON t1.OpenAccessUserID=t2.OpenAccessUserID AND t2.AccessType='EmailOtherTagAccess'\r\nWHERE t1.UserID=@UserID";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<OpenAccessUserLink>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<OpenAccessUserLink>> GetAllAsync(long? OpenAccessUserId)
         {
             try
@@ -65,7 +83,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("OpenAccessUserId", OpenAccessUserId, DbType.String);
                 var query = "select t1.*,t2.AccessType,t3.Name as UserGroup,t3.Description as UserGroupDescription,t5.Name as LevelName,t6.NickName,t6.FirstName,t6.LastName,t7.Name as DepartmentName,t8.Name as DesignationName," +
-                    "CONCAT(case when t6.NickName is NULL then  t6.FirstName ELSE  t6.NickName END,' | ',t6.LastName) as FullName\r\n    from OpenAccessUserLink t1\r\n    " +
+                    "CONCAT(case when t6.NickName is NULL then  t6.FirstName ELSE  t6.FirstName END,' | ',t6.LastName) as FullName\r\n    from OpenAccessUserLink t1\r\n    " +
                     "JOIN OpenAccessUser t2 ON t1.OpenAccessUserID=t2.OpenAccessUserID\r\n    " +
                     "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n    " +
                     "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n    " +

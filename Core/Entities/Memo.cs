@@ -43,5 +43,6 @@ namespace Core.Entities
         public DateTime? AcknowledgementDate { get; set; }
         public string? AddedByUser { get; set; }
         public string? ModifiedByUser { get; set; }
+        public bool IsExpand { get; set; } = false;
     }
 }

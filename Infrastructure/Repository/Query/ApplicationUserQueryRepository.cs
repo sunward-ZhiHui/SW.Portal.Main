@@ -37,50 +37,65 @@ namespace Infrastructure.Repository.Query
                 var existing = await GetByUsers(LoginID);
                 if (existing != null)
                 {
-                    var query = "SELECT * FROM ApplicationUser WHERE LoginID = @LoginID and LoginPassword = @LoginPassword";
-                    var parameters = new DynamicParameters();
-                    parameters.Add("LoginID", LoginID);
-                    var password = EncryptDecryptPassword.Encrypt(Password);
-                    parameters.Add("LoginPassword", password);
-
-                    using (var connection = CreateConnection())
+                    if (existing.Locked)
                     {
-                        var user = await connection.QueryFirstOrDefaultAsync<ApplicationUser>(query, parameters);
-                        if (user == null)
-                        {
-                            if (existing.InvalidAttempts < 3)
-                            {
-                                //this.AddMessage("Invalid Password, " + (3 - existing.InvalidAttempts - 1) + " attempt(s) left.");
-                                existing.InvalidAttempts = existing.InvalidAttempts + 1;
-                                existing.Locked = false;
-                                user = await AttemptUpdate(existing.UserID, existing.InvalidAttempts, existing.Locked);
-                            }
-                            else
-                            {
-                                //this.AddMessage("Account locked.");                                                               
-                                existing.InvalidAttempts = existing.InvalidAttempts + 1;
-                                existing.Locked = true;
-                                user = await AttemptUpdate(existing.UserID, existing.InvalidAttempts, existing.Locked);
-                            }
+                        return existing;
+                    }
 
-                            return user;
-                        }
-                        else
+                    var checkResign = await GetByResignUser(LoginID);
+                    if (checkResign != null)
+                    {
+                        return checkResign;
+                    }
+                    else
+                    {
+                        var query = "SELECT * FROM ApplicationUser WHERE LoginID = @LoginID and LoginPassword = @LoginPassword";
+                        var parameters = new DynamicParameters();
+                        parameters.Add("LoginID", LoginID);
+                        var password = EncryptDecryptPassword.Encrypt(Password);
+                        parameters.Add("LoginPassword", password);
+
+                        using (var connection = CreateConnection())
                         {
-                            if(existing.Locked)
+                            var user = await connection.QueryFirstOrDefaultAsync<ApplicationUser>(query, parameters);
+                            if (user == null)
                             {
-                                return existing;
-                            }
-                            else
-                            {
-                                existing.Locked = false;
-                                existing.InvalidAttempts = 0;
-                                user = await AttemptUpdate(existing.UserID, existing.InvalidAttempts, existing.Locked);
+                                if (existing.InvalidAttempts < 3)
+                                {
+                                    //this.AddMessage("Invalid Password, " + (3 - existing.InvalidAttempts - 1) + " attempt(s) left.");
+                                    existing.InvalidAttempts = existing.InvalidAttempts + 1;
+                                    existing.Locked = false;
+                                    user = await AttemptUpdate(existing.UserID, existing.InvalidAttempts, existing.Locked);
+                                }
+                                else
+                                {
+                                    //this.AddMessage("Account locked.");                                                               
+                                    existing.InvalidAttempts = existing.InvalidAttempts + 1;
+                                    existing.Locked = true;
+                                    user = await AttemptUpdate(existing.UserID, existing.InvalidAttempts, existing.Locked);
+                                }
+
                                 return user;
                             }
-                           
+                            else
+                            {
+                                if (existing.Locked)
+                                {
+                                    return existing;
+                                }
+                                else
+                                {
+                                    existing.Locked = false;
+                                    existing.InvalidAttempts = 0;
+                                    user = await AttemptUpdate(existing.UserID, existing.InvalidAttempts, existing.Locked);
+                                    return user;
+                                }
+
+                            }
                         }
                     }
+
+                   
                 }
                 else
                 {
@@ -185,6 +200,27 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = "SELECT * FROM ApplicationUser WHERE LoginID = @LoginID";
+                var parameters = new DynamicParameters();
+                parameters.Add("LoginID", name, DbType.String);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ApplicationUser>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ApplicationUser> GetByResignUser(string name)
+        {
+            try
+            {
+                var query = @"SELECT AP.*,t3.Value as Status FROM ApplicationUser AP
+                            INNER JOIN Employee E on E.userid = AP.userid
+                            LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=E.AcceptanceStatus 
+                            where (t3.Value='Resign') AND AP.LoginID = @LoginID";
                 var parameters = new DynamicParameters();
                 parameters.Add("LoginID", name, DbType.String);
 

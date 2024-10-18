@@ -708,6 +708,22 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class UpdateNotifyPAHandler : IRequestHandler<UpdateNotifyPA, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateNotifyPAHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<long> Handle(UpdateNotifyPA request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateNotifyPAAsync(request);
+            return req;
+        }
+    }
+    
 
     public class GetNotifyPAListHandler : IRequestHandler<GetNotifyPAList, List<EmailNotifyPA>>
     {
@@ -724,8 +740,23 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
-    
+    public class GetByIdNotifyPAListHandler : IRequestHandler<GetByIdNotifyPAList, EmailNotifyPA>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
 
+        public GetByIdNotifyPAListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<EmailNotifyPA> Handle(GetByIdNotifyPAList request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.GetByIdNotifyPAAsync(request.sessionId);
+            return req;
+        }
+    }
+
+    
 
 
     public class CreateTimelineEventHandler : IRequestHandler<CreateEmailTimelineEvent, long>

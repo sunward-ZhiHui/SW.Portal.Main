@@ -396,12 +396,18 @@
         ThemeName = Themes.ActiveTheme.Name;
         //NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _MemoList = await Mediator.Send(new GetAllMemoByUserQuery(applicationUser.UserID));
-        _memoNotificationCount = _MemoList.Count;
-        _WorkFlowdynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
-        _WorkflowNotificationCount = _WorkFlowdynamicForm.Count;
-        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
-        _approvelNotificationCount = _dynamicForm.Count;
+        if(applicationUser != null)
+        {
+            _MemoList = await Mediator.Send(new GetAllMemoByUserQuery(applicationUser.UserID));
+            _memoNotificationCount = _MemoList.Count;
+            _WorkFlowdynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
+            _WorkflowNotificationCount = _WorkFlowdynamicForm.Count;
+            _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
+            _approvelNotificationCount = _dynamicForm.Count;
+            
+        }
+      
+       
         RefreshService.OnRefreshRequested += RefreshDataAsync;
         await RefreshDataAsync();
         _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount;

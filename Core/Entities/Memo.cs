@@ -23,6 +23,8 @@ namespace Core.Entities
         public long? AddedByUserId { get; set; }
         public DateTime AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
+        [Required(ErrorMessage = "Department is Required")]
+        public long? IssueDepartmentId {  get; set; }
         public DateTime? ModifiedDate { get; set; }
         [NotMapped]
         public string? UserType { get; set; }
@@ -44,5 +46,16 @@ namespace Core.Entities
         public string? AddedByUser { get; set; }
         public string? ModifiedByUser { get; set; }
         public bool IsExpand { get; set; } = false;
+        public string? IssueDepartment { get; set; }
+        [NotMapped]
+        public string? UserStatus { get; set; }
+        [NotMapped]
+        public string? UserName { get; set; }
+        [NotMapped]
+        public string? UserDepartment { get; set; }
+        [NotMapped]
+        public string? AcknowledgementDates { get; set; }
+        [NotMapped]
+        public string? StartDates { get; set; }
     }
 }

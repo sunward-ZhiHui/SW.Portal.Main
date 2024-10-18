@@ -116,4 +116,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.GetMemoSessionList(request.SesionId);
         }
     }
+    public class GetAllMemoReportQueryHandler : IRequestHandler<GetAllMemoReportQuery, List<Memo>>
+    {
+        private readonly IMemoQueryRepository _queryRepository;
+        public GetAllMemoReportQueryHandler(IMemoQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<Memo>> Handle(GetAllMemoReportQuery request, CancellationToken cancellationToken)
+        {
+            return (List<Memo>)await _queryRepository.GetMemoReportList();
+        }
+    }
 }

@@ -1,0 +1,137 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using global::Core.Entities.Views;
+@implements IAsyncDisposable
+@inject NavigationManager NavigationManager
+<style>
+    .alt-item > td {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .header-bold span {
+        font-weight: 700;
+    }
+
+</style>
+@page "/memoReports"
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Auto">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLSX" IconCssClass="fa fa-file-excel" Click="ExportXlsx_Click" />
+                    <DxMenuItem Position="ItemPosition.End" title="Export to XLS" IconCssClass="fa fa-file-excel" Click="ExportXls_Click" />
+                    <DxMenuItem Position="ItemPosition.End" title="Export to CSV" IconCssClass="fas fa-file-csv" Click="ExportCsv_Click" />
+                </Items>
+            </DxMenu>
+
+        </div>
+
+
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_MemoList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="MemoUserId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            AutoExpandAllGroupRows="true"
+            FocusedRowEnabled="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AllowSelectRowByClick="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            VirtualScrollingEnabled="true"
+            style="height: calc(100vh - 220px);"
+            CssClass="ch-360">
+        <Columns>
+            <DxGridDataColumn FieldName="MemoId" Caption="Memo No" Width="30%" GroupIndex="0" />
+            <DxGridDataColumn FieldName="StartDates" Caption="Start Date" Width="30%" />
+            <DxGridDataColumn FieldName="Subject" Caption="Subject" Width="30%" />
+            <DxGridDataColumn FieldName="IssueDepartment" Caption="Issue Department" Width="30%" />
+            <DxGridDataColumn FieldName="IsAcknowledgement" Caption="Is Acknowledgement" Width="30%" />
+            <DxGridDataColumn FieldName="UserName" Caption="Person Name" Width="30%" />
+            <DxGridDataColumn FieldName="UserDepartment" Caption="Person Department" Width="30%" />
+            <DxGridDataColumn FieldName="AcknowledgementDates" Caption="Date Of Acknowledgement" Width="30%" />
+
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Subject" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+@code {
+    bool ExportSelectedRowsOnly { get; set; }
+    private List<Memo> _MemoList;
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; } = true;
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisible = true;
+            _MemoList = await Mediator.Send(new GetAllMemoReportQuery());
+            PanelVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    async Task ExportCsv_Click()
+    {
+        await Grid.ExportToCsvAsync("ExportResult", new GridCsvExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    async Task ExportXls_Click()
+    {
+        await Grid.ExportToXlsAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly
+            });
+    }
+    public async ValueTask DisposeAsync()
+    {
+        _MemoList?.Clear();
+    }
+}

@@ -74,6 +74,18 @@
                 <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.EmailCreatedDate)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
+        <DxGridDataColumn FieldName="Comment" Caption="Comment" Width="80">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailNotifyPA)context.DataItem;
+                }
+                @if (item.Comment != null)
+                {
+                    <span class="fa fa-commenting" @onclick="@(() => onCommentMsg())"></span>
+                }
+
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
     </Columns>
 
     <TotalSummary>
@@ -98,6 +110,16 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="max(25vw, 550px)" @bind-Visible="@CommentPreview">
+    <BodyContentTemplate>
+        <div style="height: calc(100vh - 250px);overflow:auto;">
+            @{
+                @_selectedItems.Comment;
+            }
+        </div>
+    </BodyContentTemplate>
+</DxPopup>
+
 @code {
     public bool PrintEnabled { get; set; } = false;
     public bool DeleteEnabled { get; set; } = false;
@@ -111,7 +133,7 @@
     private bool loading;
     private List<EmailNotifyPA>? _emailNotifyData;
     private string? BaseUrl;
-
+    bool CommentPreview { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {       
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
@@ -197,6 +219,11 @@
             Blukdeletepopup = false;
             toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
+    }
+    async Task onCommentMsg()
+    {
+        var rlmsg = _selectedItems;
+        CommentPreview = true;
     }
     public async ValueTask DisposeAsync()
     {

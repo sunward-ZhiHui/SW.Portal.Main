@@ -453,7 +453,10 @@ namespace Application.Queries
     public class UpdateNotifyPA : EmailNotifyPA, IRequest<long>
     {
     }
-
+    public class UpdateCommentNotifyPA : EmailNotifyPA, IRequest<long>
+    {
+       
+    }
     public class GetNotifyPAList : IRequest<List<EmailNotifyPA>>
     {
     }

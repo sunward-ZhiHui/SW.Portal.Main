@@ -723,7 +723,22 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
-    
+    public class UpdateCommentNotifyPAHandler : IRequestHandler<UpdateCommentNotifyPA, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateCommentNotifyPAHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<long> Handle(UpdateCommentNotifyPA request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateCommentNotifyPAAsync(request);
+            return req;
+        }
+    }
+
 
     public class GetNotifyPAListHandler : IRequestHandler<GetNotifyPAList, List<EmailNotifyPA>>
     {

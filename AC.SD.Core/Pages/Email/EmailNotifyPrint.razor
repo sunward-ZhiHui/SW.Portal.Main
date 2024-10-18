@@ -47,7 +47,8 @@
 
 <div id="tableData">
     <div>
-        <button class="btn btn-primary" @onclick="PrintPage">Print</button>
+        <button class="btn btn-primary" @onclick="PrintPage" >Print</button>
+        <button class="btn btn-primary" @onclick="NotesPage" style="margin-left :1030px;">Notes</button>
         @if (_discussionList != null && _discussionList.Any())
         {
             @foreach (var item in _discussionList)
@@ -411,7 +412,24 @@
         }
     </div>
 </div>
-
+<DxWindow @bind-Visible="@NotesPopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         AllowDrag="true"
+          ShowCloseButton="true"
+         Width="500px" >
+    <BodyContentTemplate Context="NotesContext">
+        <DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="w-100">
+            <DxFormLayoutItem Caption="Comment :" ColSpanMd="12">
+                <DxMemo @bind-Text="@Comment"></DxMemo>
+          </DxFormLayoutItem>
+      </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+       
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Submit" Click="OnSubmit" />
+    </FooterContentTemplate>
+</DxWindow>
 
 @code {
     DxRichEdit? richEdit { get; set; }
@@ -421,7 +439,7 @@
     public Guid TopicSessionId { get; set; }
     [Parameter]
     public string? Page { get; set; }
-
+    public bool NotesPopup { get; set; } = false;
     string dynamicShowSubject = "showOpenSubject_";
     public List<EmailConversations>? _discussionList;
     internal List<Documents>? _topicDocList;
@@ -430,11 +448,42 @@
     internal string? ProductActivityBaseUrl;
     internal string? DocumentViewUrl;
     string SelectedGroup = "none";
-
+    public string? Comment { get; set; }
     async Task PrintPage()
     {
         //await JSRuntime.InvokeVoidAsync("printPage");
         await JSRuntime.InvokeVoidAsync("printFullPage");
+    }
+    async Task NotesPage()
+    {
+        //await JSRuntime.InvokeVoidAsync("printPage");
+        var list = await Mediator.Send(new GetByIdNotifyPAList(TopicSessionId));
+        if(list.Comment != null)
+        {
+            Comment = list.Comment;
+        }
+      
+        NotesPopup = true;
+        StateHasChanged();
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        NotesPopup = false;
+    }
+    async Task OnSubmit()
+    {
+        var UpdateReq = new UpdateCommentNotifyPA
+            {
+                SessionId = TopicSessionId,
+                Comment = Comment,
+                ModifiedByUserID = applicationUser.UserID,
+              ModifiedDate =DateTime.Now
+
+            };
+
+        var result = await Mediator.Send(UpdateReq);
+        NotesPopup = false;
+        toastService.ShowToast("Comment updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
     }
     protected override void OnInitialized()
     {

@@ -3220,6 +3220,43 @@ namespace Infrastructure.Repository.Query
             }
            
         }
+
+        public async Task<long> UpdateCommentNotifyPAAsync(EmailNotifyPA emailNotifyPA)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var Date = DateTime.Now;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("SessionID", emailNotifyPA.SessionId);
+                        parameters.Add("Comment", emailNotifyPA. Comment);
+                        parameters.Add("ModifiedByUserID", emailNotifyPA.ModifiedByUserID);
+                        parameters.Add("Date", emailNotifyPA.ModifiedDate);
+
+
+                        var query = "Update EmailNotifyPA SET Comment = @Comment ,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @Date WHERE SessionID = @SessionID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
     }
     
 }

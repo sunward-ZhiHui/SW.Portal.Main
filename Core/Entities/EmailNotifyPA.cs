@@ -25,5 +25,6 @@ namespace Core.Entities
         public DateTime? LastUpdateDate { get; set; }
         public Guid? SessionId { get; set; }
         public string? CategoryName { get; set; }
+        public string? Comment { get; set; }
     }
 }

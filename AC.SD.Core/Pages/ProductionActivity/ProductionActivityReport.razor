@@ -661,7 +661,7 @@
         if (_AppLines.Count() > 0)
         {
             _selectedItems = _AppLines.FirstOrDefault();
-            isVisibleMore = "";
+            //isVisibleMore = "";
             if (_selectedItems != null)
             {
                 if (_selectedItems.FileProfileTypeId > 0)
@@ -674,12 +674,12 @@
                 }
                 else
                 {
-                    uploadEnabled = true;
+                    //uploadEnabled = true;
                     UploadSessionId = _selectedItems.LineSessionId;
                     FileProfileTypeId = _selectedItems.LocationToSaveId;
 
                 }
-                await permissinSetMainProfile();
+               // await permissinSetMainProfile();
             }
             PanelVisible = false;
         }
@@ -688,8 +688,6 @@
     }
     async Task permissinSetMainProfile()
     {
-
-
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;

@@ -7,6 +7,7 @@ using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Entities;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 
 namespace Infrastructure.Repository.Query
@@ -23,57 +24,91 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-
-                var permissionQuery = @"Select  * from view_UserPermission where UserID = @UserID and IsDisplay=1 and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder;";
-                var DashboardQuery = @"Select  * from ApplicationPermission where PermissionID=60001 ";
+                var menuList = new List<PortalMenuModel>();
+                var permissionQuery = @"Select  * from view_UserPermission where   UserID = @UserID AND  IsDisplay=1 and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder;";
+                var DashboardQuery = @"Select  * from ApplicationPermission where PermissionID>=60001 ";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", Id, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
                     var query = permissionQuery + DashboardQuery;
                     var results = await connection.QueryMultipleAsync(query, parameters);
-
+                    var spUserPermissionList = new List<SpUserPermission>();
                     var applicationUser = results.Read<SpUserPermission>().ToList();
+                    var applicationAllUser = results.Read<SpUserPermission>().ToList();
                     if (applicationUser != null && applicationUser.Count > 0)
                     {
-                        var Dashboard = results.Read<SpUserPermission>().FirstOrDefault();
-                        if (Dashboard != null)
+                        applicationUser.ToList().ForEach(s =>
                         {
-                            var exits = applicationUser.FirstOrDefault(a => a.PermissionID == Dashboard.PermissionID);
-                            if (exits == null)
+                            getNested(s, applicationAllUser, spUserPermissionList);
+                        });
+                        if (spUserPermissionList != null && spUserPermissionList.Count > 0)
+                        {
+                            applicationUser.AddRange(spUserPermissionList);
+                            applicationUser = applicationUser.OrderBy(o => o.PermissionOrder).ToList();
+                            List<long> userIds = new List<long>();
+                            userIds = applicationUser.Select(o => o.PermissionID).Distinct().ToList();
+                            if (userIds.Count() > 0)
                             {
-                                applicationUser = applicationUser.Prepend(Dashboard).ToList();
+                                applicationUser = applicationAllUser.Where(w => userIds.Contains(w.PermissionID)).OrderBy(o => o.PermissionOrder).ToList();
                             }
                         }
+                        if (applicationAllUser != null && applicationAllUser.Count() > 0)
+                        {
+                            var Dashboard = applicationAllUser.FirstOrDefault(f => f.PermissionID == 60001);
+                            if (Dashboard != null)
+                            {
+                                var exits = applicationUser.FirstOrDefault(a => a.PermissionID == Dashboard.PermissionID);
+                                if (exits == null)
+                                {
+                                    applicationUser = applicationUser.Prepend(Dashboard).ToList();
+                                }
+                            }
+                        }
+                        applicationUser.ToList().ForEach(m =>
+                        {
+                            var menu = new PortalMenuModel
+                            {
+                                Header = m.PermissionName,
+                                Title = m.PermissionName,
+                                Group = null,
+                                Component = m.Component,
+                                Name = m.Name,
+                                MenuOrder = null,
+                                Icon = null,
+                                Items = null,
+                                ScreenID = m.ScreenID,
+                                ParentID = m.ParentID,
+                                IsPermissionURL = m.IsPermissionURL,
+                                UniqueSessionID = m.UniqueSessionID,
+                                PermissionID = m.PermissionID
+                            };
+                            menuList.Add(menu);
+                        });
                     }
 
-                    var menuList = new List<PortalMenuModel>();
-                    applicationUser.ToList().ForEach(m =>
-                    {
-                        var menu = new PortalMenuModel
-                        {
-                            Header = m.PermissionName,
-                            Title = m.PermissionName,
-                            Group = null,
-                            Component = m.Component,
-                            Name = m.Name,
-                            MenuOrder = null,
-                            Icon = null,
-                            Items = null,
-                            ScreenID = m.ScreenID,
-                            ParentID = m.ParentID,
-                            IsPermissionURL  = m.IsPermissionURL,
-                            UniqueSessionID = m.UniqueSessionID,
-                            PermissionID = m.PermissionID
-                        };
-                        menuList.Add(menu);
-                    });
                     return menuList.Where(w => w.Header != "HRMS App").ToList();
                 }
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public void getNested(SpUserPermission s, List<SpUserPermission> spUserPermissionsList, List<SpUserPermission> spUserPermissionList)
+        {
+            if (s.ParentID != null)
+            {
+                var exits = spUserPermissionsList.FirstOrDefault(f => f.PermissionID == s.ParentID);
+                if (exits != null)
+                {
+                    var exiss = spUserPermissionList.FirstOrDefault(f => f.PermissionID == exits.PermissionID);
+                    if (exiss == null)
+                    {
+                        spUserPermissionList.Add(exits);
+                    }
+                    getNested(exits, spUserPermissionsList, spUserPermissionList);
+                }
             }
         }
         public async Task<PortalMenuModel> GetByDashboardAsync()

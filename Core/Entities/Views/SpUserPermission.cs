@@ -29,5 +29,6 @@ namespace Core.Entities.Views
         public bool? IsCmsApp { get;set; }
         public bool IsPermissionURL { get; set; }
         public Guid UniqueSessionID { get; set; }
+        public long? UserId { get; set; }
     }
 }

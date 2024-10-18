@@ -141,7 +141,7 @@ namespace Infrastructure.Repository.Query
                 List<Memo> Memolist = new List<Memo>();
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", userId);
-                var query = "select t1.*,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate from Memo t1 JOIN MemoUser t2 ON t1.MemoID=t2.MemoID where t1.StatusCodeId=2730 AND t2.UserID=@UserID order by t1.AddedDate desc; \r\n";
+                var query = "select t1.*,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate from Memo t1 JOIN MemoUser t2 ON t1.MemoID=t2.MemoID where t1.StartDate >= dateadd(month, -6, getdate()) AND t1.StatusCodeId=2730 AND t2.UserID=@UserID order by t1.AddedDate desc; \r\n";
 
                 using (var connection = CreateConnection())
                 {

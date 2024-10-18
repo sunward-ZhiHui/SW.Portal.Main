@@ -55,7 +55,25 @@
         AllowSelectRowByClick="true">
     <Columns>
         @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
-        <DxGridDataColumn FieldName="Name" Caption="Subject" FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />      
+        <DxGridDataColumn FieldName="Name" Caption="Subject" FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
+        <DxGridDataColumn FieldName="CategoryName" Caption="Category Name" GroupIndex ="0" MinWidth="100" />
+        <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="100" />
+        <DxGridDataColumn FieldName="AddedDate" Width="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailNotifyPA)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.AddedDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="EmailCreatedDate" Width="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailNotifyPA)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.EmailCreatedDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
     </Columns>
 
     <TotalSummary>

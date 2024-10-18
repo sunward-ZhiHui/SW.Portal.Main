@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,5 +29,7 @@ namespace Core.Entities
         public bool IsPasswordChanged { get; set; }
         public DateTime? LastAccessDate { get; set; }
         public long? EmployeId { get; set; }
+        [NotMapped]
+        public string? Status { get; set; }
     }
 }

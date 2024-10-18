@@ -1,0 +1,154 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using Newtonsoft.Json;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager Navigator
+@implements IAsyncDisposable
+
+ 
+<div style="padding:10px;">
+
+    <EditForm Model="@Data" OnValidSubmit="@SubmitUserTag" class="w-800" Context="EditFormContext">
+        <DataAnnotationsValidator />
+        <div class="row">
+            <div class="col-md-12" style="padding-bottom: 12px">  
+                <DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="w-100">
+                    <DxFormLayoutItem Caption="Category:" ColSpanMd="12">
+                            <DxComboBox Data="@_notifyCategoryList"
+                                AllowUserInput="true"
+                                NullText="Select Category ..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@Data.NotifyTypeID"
+                                @bind-Text="@Text">
+                            </DxComboBox>                               
+                            <ValidationMessage For="@(() => Data.NotifyTypeID)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
+                        <DxMemo @bind-Text="@Data.Description" Rows="6"></DxMemo>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </div>
+            <div class="col-md-12">
+                
+            </div>
+            <div class="col-md-12">
+                <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+
+
+@code {
+
+    [Parameter]
+    public Action ClosePopNotify { get; set; }
+
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public string? Page { get; set; }
+    [Parameter]
+    public EmailTopics? topicList { get; set; }
+    EmailNotifyPA Data = new EmailNotifyPA();
+    private List<View_ApplicationMasterDetail>? _notifyCategoryList;
+    string? Text { get; set; }
+
+    async void SubmitUserTag()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+
+        if (Data.ID > 0)
+        {
+            var UpdateReq = new UpdateNotifyPA
+                {
+                    ID = Data.ID,
+                    NotifyTypeID = Data.NotifyTypeID,
+                    Description = Data.Description,                    
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now
+
+                };
+
+            var result = await Mediator.Send(UpdateReq);
+
+            toastService.ShowToast("Record updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+
+        }
+        else
+        {
+            var UpdateReq = new CreateNotifyPA
+                {
+                    Name = topicList.TopicName,
+                    Page = Page,
+                    NotifyTypeID = Data.NotifyTypeID,
+                    Description = Data.Description,
+                    SessionId = topicList.SessionId,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now
+
+                };
+
+            var result = await Mediator.Send(UpdateReq);
+
+            toastService.ShowToast("Record updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+
+
+        }
+        
+        Data = new EmailNotifyPA();
+        topicList = new EmailTopics();
+
+        ClosePopNotify?.Invoke();
+        StateHasChanged();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        var list = await Mediator.Send(new GetByIdNotifyPAList(topicList.SessionId.Value));
+
+        if(list != null)
+        {
+            Data.ID = list.ID;
+            Data.NotifyTypeID = list.NotifyTypeID;
+            Data.Description = list.Description;
+        }
+        else
+        {
+            Data.ID = 0;
+        }
+
+        _notifyCategoryList = await Mediator.Send(new GetAllApplicationMasterDetailQuery(403));
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Data = new EmailNotifyPA();
+        topicList = new EmailTopics();
+
+    }
+}

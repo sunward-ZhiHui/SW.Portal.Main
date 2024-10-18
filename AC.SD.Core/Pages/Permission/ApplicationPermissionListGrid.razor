@@ -86,8 +86,6 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true"
             Data="_TreeData"
             KeyFieldName="PermissionID"
-          
-           
             CustomizeEditModel="Grid_CustomizeEditModel"
             CustomizeElement="Grid_CustomizeElement"
             ShowSearchBox="true"
@@ -105,24 +103,23 @@
             RowDoubleClick="OnRowDoubleClick"
             AllowSelectRowByClick="true">
         <Columns>
-            @* <DxGridDataColumn FieldName="ActionName" Caption="Type" Width="100">
-                    <CellDisplayTemplate>
+            <DxGridDataColumn FieldName="ActionName" Caption=" " Width="25" AllowSort="false" AllowGroup="false" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Never">
+                <CellDisplayTemplate>
                     @{
-                        var item = (ApplicationPermission)context.DataItem; 
+                        var item = (ApplicationPermission)context.DataItem;
                     }
-                     @if (item.PermissionURL == null)
+                    @if (item.PermissionURL == null)
                     {
                         <div class="treeview-icon treeview-icon-folder"></div>
-                        
                     }
                     else
                     {
-                        <div class="treeview-icon treeview-icon-document"></div>
-                        
+                        <div class="treeview-icon treeview-icon-document"> </div>
                     }
                 </CellDisplayTemplate>
-               </DxGridDataColumn> *@
-            <DxGridDataColumn FieldName="PermissionName" Caption="Page Name" MinWidth="80">
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PermissionName" Caption="Name" MinWidth="80"></DxGridDataColumn>
+           @*  <DxGridDataColumn FieldName="PermissionName" Caption="Name" MinWidth="80">
                 <CellDisplayTemplate>
                     @{
                         var item = (ApplicationPermission)context.DataItem;
@@ -136,7 +133,7 @@
                         <div class="treeview-icon treeview-icon-document"> <span style="margin-left:25px;">@item.PermissionName</span> </div>                        
                     }
                 </CellDisplayTemplate>
-            </DxGridDataColumn>            
+            </DxGridDataColumn>   *@          
             <DxGridDataColumn FieldName="PermissionURL" Caption="Page URL" />
             <DxGridDataColumn FieldName="PermissionOrder" Caption="#" Width="50" />
         </Columns>

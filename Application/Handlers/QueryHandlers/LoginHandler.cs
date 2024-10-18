@@ -64,6 +64,24 @@ namespace CMS.Application.Handlers.QueryHandlers
 
 
     }
+    public class LoginStatusHandler : IRequestHandler<UserLoginStatus, ApplicationUser>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
+
+        public LoginStatusHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+        }
+
+        public async Task<ApplicationUser> Handle(UserLoginStatus request, CancellationToken cancellationToken)
+        {
+            var newEntity = await _applicationUserQueryRepository.LoginStatus(request.LoginID);
+            return newEntity;
+        }
+
+
+    }
+    
     public class UpdateUserHandler : IRequestHandler<UpdateUserPasswordRequest, ApplicationUser>
     {
         private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;

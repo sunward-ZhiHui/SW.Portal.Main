@@ -189,10 +189,9 @@
         {
             loading = true;
 
-            var request = new LoginRequest
+            var request = new UserLoginStatus
                 {
-                    LoginID = applicationUser.LoginID,
-                    Password = applicationUser.LoginPassword
+                    LoginID = applicationUser.LoginID                    
                 };
 
             var response = await Mediator.Send(request);

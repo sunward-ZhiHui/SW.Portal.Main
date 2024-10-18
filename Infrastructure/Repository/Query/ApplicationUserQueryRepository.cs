@@ -29,6 +29,39 @@ namespace Infrastructure.Repository.Query
         {
             _localStorageService = localStorageService;
         }
+        public async Task<ApplicationUser> LoginStatus(string LoginID)
+        {
+            try
+            {
+                // Fetch the user by their login ID
+                var existing = await GetByUsers(LoginID);
+
+                // If the user exists
+                if (existing != null)
+                {
+                    // Check if the user is locked
+                    if (existing.Locked)
+                    {
+                        return existing;
+                    }
+
+                    // Check if the user has resigned
+                    var checkResign = await GetByResignUser(LoginID);
+                    if (checkResign != null)
+                    {
+                        return checkResign;
+                    }
+                }
+
+                // Return the user object (null if no user found)
+                return existing;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
 
         public async Task<ApplicationUser> LoginAuth(string LoginID, string Password)
         {

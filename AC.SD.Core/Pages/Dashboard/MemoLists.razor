@@ -56,6 +56,8 @@
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             RowDoubleClick="OnRowDoubleClick"
             AllowSelectRowByClick="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            VirtualScrollingEnabled="true"
             style="height: calc(100vh - 220px);"
             CssClass="ch-360">
         <Columns>
@@ -69,7 +71,7 @@
                     <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.MemoId}") title="View Content" onclick="@(() => OnButtonSortOrderByClick(item))"></i>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            @* <DxGridDataColumn FieldName="IsAttachment" Width="30%" /> *@
+            <DxGridDataColumn FieldName="IssueDepartment" Caption="Issue Department" Width="30%" />
             <DxGridDataColumn FieldName="AddedDate" Caption="AddedDate" Width="30%" />
             <DxGridDataColumn FieldName="AddedByUser" Caption="AddedBy" Width="30%" />
             <DxGridDataColumn FieldName="StatusCode" Caption="Memo Status" Width="30%" />
@@ -261,18 +263,11 @@
     bool UserEnabled { get; set; } = false;
     bool UserGroupEnabled { get; set; } = false;
     bool LevelEnabled { get; set; } = false;
-    private List<ViewEmployee>? _usersList { get; set; }
-    private List<UserGroup> _userGroupsList { get; set; }
-    public List<ViewLevel> _levelMasterLists { get; set; }
     public List<MemoUser> _MemoUserList { get; set; }
-    private List<CodeMaster> _memoStatusList; bool Clonepopup { get; set; } = false;
+    bool Clonepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _memoStatusList = await Mediator.Send(new GetAllCodeMasterQuery("MemoStatus"));
-        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
-        _userGroupsList = await Mediator.Send(new GetUserGroups());
-        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
@@ -484,9 +479,6 @@
         _MemoList?.Clear();
         SelectedDataItems = null; _MemoUserList?.Clear();
         _selectAttributelst = null; _selectAttributelsts = null;
-        _usersList?.Clear();
-        _userGroupsList?.Clear();
-        _levelMasterLists?.Clear();
         // GC.SuppressFinalize(this);
     }
 }

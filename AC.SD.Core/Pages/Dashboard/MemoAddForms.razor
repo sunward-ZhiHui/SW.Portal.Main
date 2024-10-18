@@ -114,8 +114,35 @@
                         <DxTextBox @bind-Text="@Data.Subject" />
                         <ValidationMessage For="@(() => Data.Subject)" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                        <DxComboBox Data="@_departmentItems"
+                                    NullText="Select Department..."
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    TextFieldName="DepartmentName"
+                                    ValueFieldName="DepartmentId"
+                                    @bind-Value="@Data.IssueDepartmentId">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                    Caption="Department Name"
+                                                    Width="100px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                    Caption="Code"
+                                                    Width="100px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                    Caption="Description"
+                                                    Width="100px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.PlantCode)"
+                                                    Caption="Company" Width="100px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Division)"
+                                                    Caption="Division" Width="100px" />
+
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.IssueDepartmentId)" />
+                    </DxFormLayoutItem>
                     @* <DxFormLayoutItem Caption="Is Attachment" ColSpanMd="6">
-                        <DxCheckBox @bind-Checked="Data.IsAttachment"></DxCheckBox>
+                    <DxCheckBox @bind-Checked="Data.IsAttachment"></DxCheckBox>
                     </DxFormLayoutItem> *@
                     <DxFormLayoutItem Caption="Start Date" ColSpanMd="6">
                         <DxDateEdit @bind-Date="@Data.StartDate" />
@@ -164,6 +191,7 @@
     public List<MemoUser> _MemoUserList { get; set; }
     private List<CodeMaster> _memoStatusList { get; set; }
     IEnumerable<string> TemplateUploadOptions = new[] { "User", "User Group", "Level" };
+    private List<ViewDepartment> _departmentItems;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -172,7 +200,7 @@
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
         _userGroupsList = await Mediator.Send(new GetUserGroups());
         _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
-
+        _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         StateHasChanged();
     }
     protected override async Task OnParametersSetAsync()
@@ -206,6 +234,7 @@
             Data.SelectCCUserIDs = MemoData.SelectCCUserIDs;
             Data.AcknowledgeUserIDs = MemoData.AcknowledgeUserIDs;
             Data.MemoContent = string.Empty;
+            Data.IssueDepartmentId = MemoData.IssueDepartmentId;
             isEnabled = true;
             if (MemoData.UserType == "User")
             {
@@ -248,7 +277,7 @@
         Data.SelectUserIDs = new List<long?>();
         Data.SelectLevelMasterIDs = new List<long?>();
         Data.MemoId = 0;
-        Data.Subject = null;
+        Data.Subject = null; Data.IssueDepartmentId = null;
         Data.MemoContent = string.Empty;
         Data.StartDate = null;
         Data.IsAttachment = false;
@@ -317,6 +346,7 @@
                 UserType = editModel.UserType,
                 SelectCCUserIDs = editModel.SelectCCUserIDs,
                 AcknowledgeUserIDs = editModel.AcknowledgeUserIDs,
+                IssueDepartmentId = editModel.IssueDepartmentId,
             };
 
         try

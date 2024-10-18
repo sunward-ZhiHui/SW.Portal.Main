@@ -30,23 +30,47 @@ namespace Infrastructure.Repository.Query
                     var parameters = new DynamicParameters();
                     parameters.Add("id", id);
                     parameters.Add("permissionid", permissionid);
-                    var query = string.Empty;
+                    var query = @"
+                -- First delete from ApplicationRolePermission
+                WITH RecursivePermissionCTE AS
+                (   
+                    SELECT PermissionID, ParentID
+                    FROM ApplicationPermission
+                    WHERE PermissionID = @permissionid
+                    UNION ALL 
+                    SELECT ap.PermissionID, ap.ParentID
+                    FROM ApplicationPermission ap
+                    INNER JOIN RecursivePermissionCTE r
+                        ON ap.ParentID = r.PermissionID
+                )
+                DELETE FROM ApplicationRolePermission
+                WHERE PermissionID IN (SELECT PermissionID FROM RecursivePermissionCTE);
 
-                    query += "Delete from  ApplicationRolePermission WHERE PermissionID=@permissionid;";
-                    query += "Delete from  ApplicationPermission WHERE PermissionID=@id;";
-                    
-                    //var query = "DELETE  FROM ApplicationPermission WHERE PermissionID = @id";
+                -- Then delete from ApplicationPermission
+                WITH RecursivePermissionCTE AS
+                (   
+                    SELECT PermissionID, ParentID
+                    FROM ApplicationPermission
+                    WHERE PermissionID = @permissionid
+                    UNION ALL 
+                    SELECT ap.PermissionID, ap.ParentID
+                    FROM ApplicationPermission ap
+                    INNER JOIN RecursivePermissionCTE r
+                        ON ap.ParentID = r.PermissionID
+                )
+                DELETE FROM ApplicationPermission
+                WHERE PermissionID IN (SELECT PermissionID FROM RecursivePermissionCTE);";
+
                     var rowsAffected = await connection.ExecuteAsync(query, parameters);
                     return rowsAffected;
-
                 }
-
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
+
 
         public async Task<IReadOnlyList<ApplicationPermission>> GetAllAsync()
         {

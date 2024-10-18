@@ -14,6 +14,25 @@
 @implements IAsyncDisposable;
 @inject NavigationManager NavigationManager
 
+<style scoped>
+    .treeview-icon {
+        width: 1rem;
+        height: 1rem;
+        min-width: 1rem;
+        min-height: 1rem;
+        background-size: contain;
+        background-position: center center;
+    }
+
+    .treeview-icon-document {
+        background-image: url("_content/AC.SD.Core/images/icons/document-color.svg");
+    }
+
+    .treeview-icon-folder {
+        background-image: url("_content/AC.SD.Core/images/icons/folder-color.svg");
+    }
+</style>
+
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -86,24 +105,40 @@
             RowDoubleClick="OnRowDoubleClick"
             AllowSelectRowByClick="true">
         <Columns>
-            <DxGridDataColumn FieldName="ActionName" Caption="Type" Width="100">
+            @* <DxGridDataColumn FieldName="ActionName" Caption="Type" Width="100">
                     <CellDisplayTemplate>
                     @{
                         var item = (ApplicationPermission)context.DataItem; 
                     }
                      @if (item.PermissionURL == null)
                     {
-                        <i class="fa fa-folder" aria-hidden="true" style="padding:5px;margin-right: 5px;color:yellow" title=""></i>
+                        <div class="treeview-icon treeview-icon-folder"></div>
+                        
                     }
                     else
                     {
-                        <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red" title=""></i>
+                        <div class="treeview-icon treeview-icon-document"></div>
+                        
                     }
                 </CellDisplayTemplate>
-               </DxGridDataColumn>
-            <DxGridDataColumn FieldName="PermissionName" Caption="Page Name" MinWidth="80"></DxGridDataColumn>
+               </DxGridDataColumn> *@
+            <DxGridDataColumn FieldName="PermissionName" Caption="Page Name" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ApplicationPermission)context.DataItem;
+                    }
+                    @if (item.PermissionURL == null)
+                    {
+                        <div class="treeview-icon treeview-icon-folder"> <span style="margin-left:25px;">@item.PermissionName</span> </div>
+                    }
+                    else
+                    {
+                        <div class="treeview-icon treeview-icon-document"> <span style="margin-left:25px;">@item.PermissionName</span> </div>                        
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>            
             <DxGridDataColumn FieldName="PermissionURL" Caption="Page URL" />
-            <DxGridDataColumn FieldName="PermissionOrder" Caption="Order" />
+            <DxGridDataColumn FieldName="PermissionOrder" Caption="#" Width="50" />
         </Columns>
       
         <TotalSummary>
@@ -117,12 +152,13 @@
          HeaderText="NOVATO"
          Closed="EulaPopupClosed"
          Width="300px">
-    <BodyContentTemplate>
-        <h style="color:Red">@_selectedItems.PermissionName</h>
-        <p>
-           
-            Do you want to delete
-        </p>
+    <BodyContentTemplate>      
+        <div class="dxbl-modal-body" style="padding: 20px; font-family: Arial, sans-serif;">
+            <h2 style="color: red; margin-bottom: 10px;">@_selectedItems.PermissionName</h2>
+            <p style="color: orangered; font-size: 16px;">
+                Are you sure you want to delete this record? This action will also delete related data, including user role permissions.
+            </p>            
+        </div>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />

@@ -48,7 +48,7 @@
 <div id="tableData">
     <div>
         <button class="btn btn-primary" @onclick="PrintPage" >Print</button>
-        <button class="btn btn-primary" @onclick="NotesPage" style="margin-left :1030px;">Notes</button>
+        <button class="btn btn-warning" @onclick="NotesPage" style="float:right; margin-right: 10px;">Notes</button>
         @if (_discussionList != null && _discussionList.Any())
         {
             @foreach (var item in _discussionList)
@@ -421,7 +421,7 @@
     <BodyContentTemplate Context="NotesContext">
         <DxFormLayout CaptionPosition="CaptionPosition.Vertical" CssClass="w-100">
             <DxFormLayoutItem Caption="Comment :" ColSpanMd="12">
-                <DxMemo @bind-Text="@Comment"></DxMemo>
+                <DxMemo @bind-Text="@Comment" Rows="6"></DxMemo>
           </DxFormLayoutItem>
       </DxFormLayout>
     </BodyContentTemplate>

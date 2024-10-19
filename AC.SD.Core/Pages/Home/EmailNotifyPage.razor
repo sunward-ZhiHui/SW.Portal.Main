@@ -57,9 +57,9 @@
     <Columns>
         @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
         <DxGridDataColumn FieldName="Name" Caption="Subject" FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
-        <DxGridDataColumn FieldName="CategoryName" Caption="Category" GroupIndex ="0" MinWidth="100" />
-        <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="100" />
-        <DxGridDataColumn FieldName="AddedDate" Width="180">
+        <DxGridDataColumn FieldName="CategoryName" Caption="Category" GroupIndex ="0" MinWidth="180" />
+        <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="130" />
+        <DxGridDataColumn FieldName="AddedDate" MinWidth="180">
             <CellDisplayTemplate>
                 @{
                     var item = (EmailNotifyPA)context.DataItem;
@@ -67,7 +67,7 @@
                 <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.AddedDate)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
-        <DxGridDataColumn FieldName="EmailCreatedDate" Width="180">
+        <DxGridDataColumn FieldName="EmailCreatedDate" MinWidth="210">
             <CellDisplayTemplate>
                 @{
                     var item = (EmailNotifyPA)context.DataItem;
@@ -75,14 +75,30 @@
                 <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.EmailCreatedDate)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
-        <DxGridDataColumn FieldName="Comment" Caption="Comment" Width="80">
+        <DxGridDataColumn FieldName="LastUpdateDate" MinWidth="180" >
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailNotifyPA)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.LastUpdateDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="ModifiedDate" Caption="Last Discussion Date" MinWidth="210">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailNotifyPA)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.ModifiedDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="Comment" Caption="Comment" MinWidth="180">
             <CellDisplayTemplate>
                 @{
                     var item = (EmailNotifyPA)context.DataItem;
                 }
                 @if (item.Comment != null)
                 {
-                    <span class="fa fa-commenting" @onclick="@(() => onCommentMsg())"></span>
+                    <span class="fa fa-commenting" @onclick="@(() => onCommentMsg(item.Comment))"></span>
                 }
 
             </CellDisplayTemplate>
@@ -115,7 +131,8 @@
     <BodyContentTemplate>
         <div style="height: calc(100vh - 250px);overflow:auto;">
             @{
-                @_selectedItems.Comment;
+              <DxMemo ReadOnly = "true" Rows="18" @bind-Text ="@Comment"></DxMemo>
+
             }
         </div>
     </BodyContentTemplate>
@@ -135,6 +152,7 @@
     private List<EmailNotifyPA>? _emailNotifyData;
     private string? BaseUrl;
     bool CommentPreview { get; set; } = false;
+    string Comment;
     protected override async Task OnInitializedAsync()
     {       
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
@@ -182,9 +200,9 @@
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
-      
+
         Blukdeletepopup = false;
-       
+
         // UpdateDataAsync();
     }
     void OnDelete()
@@ -210,7 +228,7 @@
         string script = $"window.open('{url}', '_blank');";
         await JSRuntime.InvokeVoidAsync("eval", script);
     }
-     async Task bulkDelete()
+    async Task bulkDelete()
     {
         if (_selectedItems != null)
         {
@@ -221,10 +239,12 @@
             toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
     }
-    async Task onCommentMsg()
+    async Task onCommentMsg(string comment)
     {
         var rlmsg = _selectedItems;
         CommentPreview = true;
+        Comment = comment;
+        StateHasChanged();
     }
     public async ValueTask DisposeAsync()
     {

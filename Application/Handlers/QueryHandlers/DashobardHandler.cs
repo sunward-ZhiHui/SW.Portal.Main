@@ -143,12 +143,16 @@ namespace CMS.Application.Handlers.QueryHandlers
         {
             var newlist = await _dashboardQueryRepository.AddAppointmentAsync(request);
             request.ID = newlist;
-            foreach (var item in request.userIds)
+            if(request.userIds != null)
             {
-                request.UserID = item;
-                var newappointment = await _dashboardQueryRepository.AddAppointmentinsertAsync(request);
+                foreach (var item in request.userIds)
+                {
+                    request.UserID = item;
+                    var newappointment = await _dashboardQueryRepository.AddAppointmentinsertAsync(request);
+                }
             }
            
+
             return newlist;
 
         }

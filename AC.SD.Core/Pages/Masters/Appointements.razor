@@ -37,7 +37,29 @@
             </VerticalAppointmentTemplate>
         </DxSchedulerWorkWeekView>
     </Views>
+    <AppointmentTooltipTemplate>
+        <span class=" dxsc-subject" style="vertical-align: middle;">
+            <p> <i class="fa fa-circle" style="margin-right: 10px;"></i>  @context.Appointment.Subject</p>
+        </span>
 
+        <span style="vertical-align: middle;">
+            <p <i class="dx-icon-time dx-icon" style="margin-right: 10px;"></i> @context.Appointment.Start.ToString("ddd MMM dd"), @context.Appointment.Start.ToShortTimeString() - @context.Appointment.End.ToShortTimeString()</p>
+        </span>
+        @{
+
+            var location = context.Appointment.Location;
+           
+        }
+        @if (location != "")
+        {
+            <span style="vertical-align: middle;">
+                <p><i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i> @context.Appointment.Location</p>
+            </span>
+
+        }
+       
+
+    </AppointmentTooltipTemplate>
     <AppointmentFormHeaderTemplate>
         <div class="popup-text-header">@context.Subject</div>
         <DxSchedulerSaveAppointmentChangesButton></DxSchedulerSaveAppointmentChangesButton>
@@ -79,7 +101,7 @@
                                               CssClass="cw-480"/> *@
                     <DxTagBox Data="_Toparticipant"
                               @bind-Values="CategoryData.userIds"
-                              NullText="Select Action"
+                              NullText="Select User"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserID"
                               TextFieldName="Name"
@@ -102,33 +124,33 @@
         }
     </AppointmentCompactFormHeaderTemplate>
     <AppointmentCompactFormLayout Context="formInfo">
+        <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
+            <Template>
+                <div style="margin-left: auto; margin-top: 14px;">
+                    Invite User
+
+                    <DxTextBox @bind-Text="applicationUser.UserName" ReadOnly="true"></DxTextBox>
+
+                </div>
+            </Template>
+        </DxSchedulerCustomFormLayoutItem>
         <DxSchedulerSubjectFormLayoutItem></DxSchedulerSubjectFormLayoutItem>
         <DxSchedulerAllDayFormLayoutItem></DxSchedulerAllDayFormLayoutItem>
         <DxSchedulerStartDateFormLayoutItem></DxSchedulerStartDateFormLayoutItem>
         <DxSchedulerStartTimeFormLayoutItem></DxSchedulerStartTimeFormLayoutItem>
         <DxSchedulerEndDateFormLayoutItem></DxSchedulerEndDateFormLayoutItem>
         <DxSchedulerEndTimeFormLayoutItem></DxSchedulerEndTimeFormLayoutItem>
-
+        <DxSchedulerLocationFormLayoutItem></DxSchedulerLocationFormLayoutItem>
+        <DxSchedulerDescriptionFormLayoutItem></DxSchedulerDescriptionFormLayoutItem>
        
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
                 <div style="margin-left: auto; margin-top: 14px;">
                     Users
-                  @*   <DxTagBox Data="_Toparticipant"
-                                              SearchMode="ListSearchMode.AutoSearch"
-                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                              NullText="Select To..."
-                              Values="@Data.userIds"
-                              ValuesExpression="@(() => Data.userIds )"
-                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                              ValueFieldName="UserID"
-                                              TextFieldName="Name"
-                                            
-                                              ListRenderMode="ListRenderMode.Virtual"
-                                              CssClass="cw-480"/> *@
+                   
                     <DxTagBox Data="_Toparticipant"
                               @bind-Values="CategoryData.userIds"
-                                          NullText="Select Action"
+                                          NullText="Select User"
                                           ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserID"
                               TextFieldName="Name"
@@ -170,6 +192,7 @@
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
         appointmentslist = await Mediator.Send(new GetSchedulerList());
+        DataStorage.AppointmentsSource = appointmentslist.ToList();
     }
       
 
@@ -200,7 +223,7 @@
 
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
         {       
-         
+           
          //   AppointmentsSource = appointmentslist.GetAppointments(),
             AppointmentMappings = new DxSchedulerAppointmentMappings()
             {

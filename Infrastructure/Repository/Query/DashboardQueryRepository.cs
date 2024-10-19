@@ -309,9 +309,10 @@ namespace Infrastructure.Repository.Query
                         var query = @"INSERT INTO Appointment (AppointmentType,StartDate,EndDate,Caption,Label,Status,AllDay,Recurrence,AddedByUserID,AddedDate,Location,Description)
                                OUTPUT  INSERTED.ID  VALUES (@AppointmentType,@StartDate,@EndDate,@Caption,@Label,@Status,@AllDay,@Recurrence,@AddedByUserID,@AddedDate,@Location,@Description)";
 
-                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
+                        var id = insertedId;
 
-                        return rowsAffected;
+                        return id;
                     }
 
 
@@ -519,7 +520,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
 
                     
-                        parameters.Add("AppointmentID", userMultiple.AppointmentID);
+                        parameters.Add("AppointmentID", userMultiple.ID);
                         parameters.Add("UserID", userMultiple.UserID);
                         parameters.Add("AddedByUserID", userMultiple.AddedByUserID);
                         parameters.Add("AddedDate", userMultiple.AddedDate);
@@ -553,7 +554,8 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select * from Appointment";
+                var query = @"
+                             select * from Appointment";
 
                 using (var connection = CreateConnection())
                 {

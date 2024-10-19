@@ -27,7 +27,8 @@ namespace CMS.Application.Handlers.QueryHandlers
             //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
         }
     }
-    
+
+   
     public class EmailDashobardHandler : IRequestHandler<GetEmailDasboard, List<EmailTopics>>
     {
 
@@ -58,7 +59,21 @@ namespace CMS.Application.Handlers.QueryHandlers
                 return (List<GeneralDashboard>)await _queryRepository.GetEmployeeCountAsync();
             }
         }
-        public class GetGenderRatioHandler : IRequestHandler<GetGenderRatio, List<GenderRatio>>
+    public class GetSchedulerListHandler : IRequestHandler<GetSchedulerList, List<Appointment>>
+    {
+
+        private readonly IDashboardQueryRepository _queryRepository;
+        public GetSchedulerListHandler(IDashboardQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<Appointment>> Handle(GetSchedulerList request, CancellationToken cancellationToken)
+        {
+
+            return (List<Appointment>)await _queryRepository.GetSchedulerListAsync();
+        }
+    }
+    public class GetGenderRatioHandler : IRequestHandler<GetGenderRatio, List<GenderRatio>>
         {
 
             private readonly IDashboardQueryRepository _queryRepository;
@@ -127,7 +142,15 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<long> Handle(AddAppointment request, CancellationToken cancellationToken)
         {
             var newlist = await _dashboardQueryRepository.AddAppointmentAsync(request);
+            request.ID = newlist;
+            foreach (var item in request.userIds)
+            {
+                request.UserID = item;
+                var newappointment = await _dashboardQueryRepository.AddAppointmentinsertAsync(request);
+            }
+           
             return newlist;
+
         }
     }
     public class EditAppointmentHandler : IRequestHandler<EditAppointment, long>

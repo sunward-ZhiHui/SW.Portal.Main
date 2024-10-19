@@ -9,10 +9,14 @@ namespace Application.Queries
     public class Dashboard : IRequest<List<EmailScheduler>>
     {
         public string SearchString { get; set; }
-    }   
+    }
    
 
     public class GetEmployeeCount : PagedRequest, IRequest<List<GeneralDashboard>>
+    {
+
+    }
+    public class GetSchedulerList: PagedRequest, IRequest<List<Appointment>>
     {
 
     }
@@ -48,6 +52,7 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    
     public class AddAppointment : Appointment, IRequest<long>
     {
     }

@@ -305,9 +305,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("AddedDate", appointment.AddedDate);
                         parameters.Add("Location", appointment.Location);
                         parameters.Add("Description", appointment.Description);
-                       
-
-                        var query = @"INSERT INTO Appointment (AppointmentType,StartDate,EndDate,Caption,Label,Status,AllDay,Recurrence,AddedByUserID,AddedDate,Location,Description) VALUES (@AppointmentType,@StartDate,@EndDate,@Caption,@Label,@Status,@AllDay,@Recurrence,@AddedByUserID,@AddedDate,@Location,@Description)";
+                      
+                        var query = @"INSERT INTO Appointment (AppointmentType,StartDate,EndDate,Caption,Label,Status,AllDay,Recurrence,AddedByUserID,AddedDate,Location,Description)
+                               OUTPUT  INSERTED.ID  VALUES (@AppointmentType,@StartDate,@EndDate,@Caption,@Label,@Status,@AllDay,@Recurrence,@AddedByUserID,@AddedDate,@Location,@Description)";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -500,6 +500,64 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> AddAppointmentinsertAsync(Appointment userMultiple)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+                    
+                        parameters.Add("AppointmentID", userMultiple.AppointmentID);
+                        parameters.Add("UserID", userMultiple.UserID);
+                        parameters.Add("AddedByUserID", userMultiple.AddedByUserID);
+                        parameters.Add("AddedDate", userMultiple.AddedDate);
+                      
+
+                        var query = @"INSERT INTO UserMultiple (AppointmentID,UserID,AddedByUserID,AddedDate)
+                               OUTPUT  INSERTED.UserMultipleID  VALUES (@AppointmentID,@UserID,@AddedByUserID,@AddedDate)";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+
+        public async Task<IReadOnlyList<Appointment>> GetSchedulerListAsync()
+        {
+            try
+            {
+                var query = @"select * from Appointment";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query)).ToList();
                 }
             }
             catch (Exception exp)

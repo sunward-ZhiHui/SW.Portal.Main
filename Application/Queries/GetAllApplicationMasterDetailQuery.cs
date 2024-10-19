@@ -20,6 +20,15 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
+    public class GetAllApplicationMasterAllDetailQuery : IRequest<List<View_ApplicationMasterDetail>>
+    {
+        public long? Id { get; private set; }
+
+        public GetAllApplicationMasterAllDetailQuery(long? Id)
+        {
+            this.Id = Id;
+        }
+    }
     public class GetAllApplicationMasterQuery : IRequest<List<ApplicationMaster>>
     {
         public string? SearchString { get; private set; }

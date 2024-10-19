@@ -176,14 +176,51 @@
     bool MessageVisible { get; set; }
     string MessageHeader = "";
     string MessageBody = "";
+    public ApplicationUser? applicationUser { get; private set; }
     //[Inject]
     // public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
     protected override async void OnInitialized()
     {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        if (applicationUser != null &&
+            !string.IsNullOrWhiteSpace(applicationUser.LoginID) &&
+            !string.IsNullOrWhiteSpace(applicationUser.LoginPassword))
+        {
+            loading = true;
+
+            var request = new UserLoginStatus
+                {
+                    LoginID = applicationUser.LoginID                    
+                };
+
+            var response = await Mediator.Send(request);
+            if (response != null)
+            {
+                if (response.Status == "Resign")
+                {
+                    onShowPopupMessage("Account Resigned", "Your account has been marked as resigned.");
+                    await _localStorageService.RemoveItem("user");                    
+                }
+
+                if (response.Locked)
+                {
+                    onShowPopupMessage("invalid credentials", "Account locked");
+                    await _localStorageService.RemoveItem("user");                   
+                }
 
 
 
+            }
+
+            loading = false;
+        }
+        else
+        {
+            //onShowPopupMessage("Login Error", "LoginID or Password is missing.");
+        }
     }
+
     private async void OnResetPassword()
     {
         loading = true;
@@ -244,6 +281,10 @@
                 if (response.Locked)
                 {
                     onShowPopupMessage("invalid credentials", "Account locked");                    
+                }
+                else if (response.Status == "Resign")
+                {                    
+                    onShowPopupMessage("Account Resigned", "Your account has been marked as resigned.");
                 }
                 else
                 {

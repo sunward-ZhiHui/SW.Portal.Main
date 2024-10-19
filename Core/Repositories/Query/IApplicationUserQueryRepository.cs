@@ -14,6 +14,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ApplicationUser>> GetAllAsync();
         Task Initialize();
         ApplicationUser User { get; }
+        Task<ApplicationUser> LoginStatus(string LoginID);
         Task<ApplicationUser> LoginAuth(string LoginID, string Password);
         Task<ApplicationUser> Auth(string LoginID, string Password);
         Task<ApplicationUser> GetByIdAsync(Int64 id);

@@ -16,5 +16,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ApplicationMasterParent>> GetAllAsync();
         Task<IReadOnlyList<ApplicationMasterParent>> GetAllByParentAsync();
         Task<ApplicationMasterParent> InsertApplicationMasterParent(ApplicationMasterParent value);
+        Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByNested(long? ApplicationMasterParentCodeId);
     }
 }

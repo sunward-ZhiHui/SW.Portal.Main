@@ -51,6 +51,74 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByNested(long? ApplicationMasterParentCodeId)
+        {
+            List<long> ids = new List<long>();
+            var result = await GetAllAsync();
+            if (result != null && result.Count() > 0)
+            {
+                var resultData = result.FirstOrDefault(f => f.ApplicationMasterParentCodeId == ApplicationMasterParentCodeId);
+                if (resultData != null)
+                {
+                    ids.Add(resultData.ApplicationMasterParentCodeId);
+                    ids.AddRange(GetNestedIds(result.ToList(), resultData.ApplicationMasterParentCodeId, ids));
+                }
+            }
+            var res = ids.Distinct().ToList();
+            string Ids = res != null && res.Count() > 0 ? (string.Join(',', res)) : "-1";
+            var res1 = await GetAllByAsync(Ids, ApplicationMasterParentCodeId);
+            return res1;
+        }
+        public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByAsync(string Ids,long? ApplicationMasterParentCodeId)
+        {
+            try
+            {
+                var result=new List<ApplicationMasterChildModel>();
+                List<ApplicationMasterChildModel> applicationMasterChildModels = new List<ApplicationMasterChildModel>();
+                var query = "select t1.*,t2.ApplicationMasterName,t3.Value as ParentName from ApplicationMasterChild t1 \r\nJOIN ApplicationMasterParent t2 ON t2.ApplicationMasterParentCodeID=t1.ApplicationMasterParentID\r\nLEFT JOIN ApplicationMasterChild t3 ON t3.ApplicationMasterChildID=t1.ParentID where t1.StatusCodeID=1 AND t1.ApplicationMasterParentID in(" + Ids + ")";
+                using (var connection = CreateConnection())
+                {
+                    result= (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
+                }
+                if (result != null && result.Count() > 0)
+                {
+                    var lookup = result.ToLookup(x => x.ParentId);
+
+                    Func<long?, List<ApplicationMasterChildModel>> build = null;
+                    build = pid =>
+                        lookup[pid]
+                            .Select(x => new ApplicationMasterChildModel()
+                            {
+                                ApplicationMasterChildId = x.ApplicationMasterChildId,
+                                ApplicationMasterParentId = x.ApplicationMasterParentId,
+                                ParentId = x.ParentId,
+                                Value = x.Value,
+                                Description = x.Description,
+                                Children = build(x.ApplicationMasterChildId).Count > 0 ? build(x.ApplicationMasterChildId) : new List<ApplicationMasterChildModel>(),
+                            })
+                            .ToList();
+                    applicationMasterChildModels = build(null).ToList();
+                }
+                return result;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public List<long> GetNestedIds(List<ApplicationMasterParent> result, long ApplicationMasterParentCodeId, List<long> ids)
+        {
+            if (result != null && result.Count() > 0)
+            {
+                var resultData = result.FirstOrDefault(f => f.ParentId == ApplicationMasterParentCodeId);
+                if (resultData != null)
+                {
+                    ids.Add(resultData.ApplicationMasterParentCodeId);
+                    ids.AddRange(GetNestedIds(result.ToList(), resultData.ApplicationMasterParentCodeId, ids));
+                }
+            }
+            return ids;
+        }
         public async Task<ApplicationMasterParent> GetByApplicationMasterParentCodeAsync()
         {
             try
@@ -157,7 +225,7 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            
+
                             long? ApplicationMasterParentCodeId = 101;
                             if (checkLink != null && checkLink.ApplicationMasterParentCodeId > 0)
                             {

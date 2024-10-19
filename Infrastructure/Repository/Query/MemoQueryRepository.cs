@@ -34,7 +34,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 List<Memo> Memolist = new List<Memo>(); List<MemoUser> MemoUser = new List<MemoUser>();
-                var query = "select t1.MemoID,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID\r\n;";
+                var query = "select t5.Name as IssueDepartment,t1.IssueDepartmentId,t1.MemoID,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID\r\nLEFT JOIN Department t5 ON t5.DepartmentID=t1.IssueDepartmentID;";
                 query += "select  t1.* from MemoUser t1  JOIN Employee t2 ON t2.UserID=t1.UserID\r\nLEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus where (t3.Value!='Resign' or t3.Value is null);";
                 using (var connection = CreateConnection())
                 {
@@ -76,6 +76,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<Memo>> GetMemoReportList()
+        {
+            try
+            {
+                var query = "select t8.CodeValue as StatusCode,t7.Name as UserDepartment,t6.Value as UserStatus,t4.UserName,t2.MemoID,t2.Subject,t2.IsAttachment,t2.SessionID,t2.StartDate,FORMAT(t2.StartDate, 'dd-MMM-yyyy') as StartDates,t2.StatusCodeID,t2.AddedDate,t2.AddedByUserID,t2.ModifiedDate,t2.ModifiedByUserID,IssueDepartmentID,t3.Name as IssueDepartment,t1.IsAcknowledgement,t1.MemoUserId,FORMAT(t1.AcknowledgementDate, 'dd-MMM-yyyy') as AcknowledgementDates,t1.AcknowledgementDate,t1.UserID from MemoUser t1 JOIN Memo t2 ON t1.MemoID=t2.MemoID \r\nLEFT JOIN Department t3 ON t3.DepartmentID=t2.IssueDepartmentID \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.UserID\r\nJOIN Employee t5 ON t5.UserID=t4.UserID\r\nLEFT JOIN Department t7 ON t7.DepartmentID=t5.DepartmentID\r\nLEFT JOIN ApplicationMasterDetail t6 ON t6.ApplicationMasterDetailID=t5.AcceptanceStatus\r\nLEFT JOIN CodeMaster t8 ON t8.CodeID=t2.StatusCodeID\r\nwhere t2.StartDate >= dateadd(month, -6, getdate()) AND t2.StatusCodeId=2730 AND  (t6.Value!='Resign' or t6.Value is null) order by t2.AddedDate desc; ";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Memo>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<Memo> GetMemoSessionList(Guid? SessionID)
         {
             try
@@ -85,7 +100,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("SessionID", SessionID);
                 try
                 {
-                    var query = "select t1.MemoID,t1.MemoContent,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID where t1.SessionID=@SessionID\r\n;";
+                    var query = "select t1.IssueDepartmentId,t1.MemoID,t1.MemoContent,\r\nt1.Subject,\r\nt1.IsAttachment,\r\nt1.SessionID,\r\nt1.StartDate,\r\nt1.StatusCodeID,\r\nt1.AddedDate,\r\nt1.AddedByUserID,\r\nt1.ModifiedDate,\r\nt1.ModifiedByUserID,t2.CodeValue as StatusCode,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser  from Memo t1 LEFT JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID LEFT JOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID LEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID where t1.SessionID=@SessionID\r\n;";
 
                     using (var connection = CreateConnection())
                     {
@@ -95,7 +110,7 @@ namespace Infrastructure.Repository.Query
                         {
                             parameters.Add("MemoId", Memolist.MemoId);
                             var query1 = "select  t1.* from MemoUser t1  JOIN Employee t2 ON t2.UserID=t1.UserID\r\nLEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus where (t3.Value!='Resign' or t3.Value is null) AND  t1.MemoId=@MemoId;";
-                            MemoUser = (await connection.QueryAsync<MemoUser>(query1,parameters)).ToList();
+                            MemoUser = (await connection.QueryAsync<MemoUser>(query1, parameters)).ToList();
                         }
                     }
                     if (Memolist != null)
@@ -141,7 +156,7 @@ namespace Infrastructure.Repository.Query
                 List<Memo> Memolist = new List<Memo>();
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", userId);
-                var query = "select t1.*,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate from Memo t1 JOIN MemoUser t2 ON t1.MemoID=t2.MemoID where t1.StatusCodeId=2730 AND t2.UserID=@UserID order by t1.AddedDate desc; \r\n";
+                var query = "select t1.*,t3.Name as IssueDepartment,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate from Memo t1 JOIN MemoUser t2 ON t1.MemoID=t2.MemoID LEFT JOIN Department t3 ON t3.DepartmentID=t1.IssueDepartmentID where t1.StartDate >= dateadd(month, -6, getdate()) AND t1.StatusCodeId=2730 AND t2.UserID=@UserID order by t1.AddedDate desc; \r\n";
 
                 using (var connection = CreateConnection())
                 {
@@ -267,18 +282,19 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("StartDate", memo.StartDate, DbType.DateTime);
                         parameters.Add("ModifiedDate", memo.ModifiedDate, DbType.DateTime);
                         parameters.Add("StatusCodeID", memo.StatusCodeId);
+                        parameters.Add("IssueDepartmentId", memo.IssueDepartmentId);
                         if (memo.MemoId > 0)
                         {
-                            var query = " UPDATE Memo SET StartDate=@StartDate,Subject=@Subject,MemoContent = @MemoContent,IsAttachment =@IsAttachment," +
+                            var query = " UPDATE Memo SET IssueDepartmentId=@IssueDepartmentId,StartDate=@StartDate,Subject=@Subject,MemoContent = @MemoContent,IsAttachment =@IsAttachment," +
                                 "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID " +
                                 "WHERE MemoId = @MemoId";
                             await connection.ExecuteAsync(query, parameters);
                         }
                         else
                         {
-                            var query = "INSERT INTO Memo(StartDate,Subject,MemoContent,IsAttachment,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
+                            var query = "INSERT INTO Memo(IssueDepartmentId,StartDate,Subject,MemoContent,IsAttachment,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
                                 "OUTPUT INSERTED.MemoId VALUES " +
-                                "(@StartDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
+                                "(@IssueDepartmentId,@StartDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
                             memo.MemoId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
                         var query1 = string.Empty;
@@ -455,14 +471,15 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("StartDate", memo.StartDate, DbType.DateTime);
                         parameters.Add("ModifiedDate", memo.ModifiedDate, DbType.DateTime);
                         parameters.Add("StatusCodeID", memo.StatusCodeId);
-                        var query = "INSERT INTO Memo(StartDate,Subject,MemoContent,IsAttachment,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
+                        parameters.Add("IssueDepartmentId", memo.IssueDepartmentId);
+                        var query = "INSERT INTO Memo(IssueDepartmentId,StartDate,Subject,MemoContent,IsAttachment,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
                             "OUTPUT INSERTED.MemoId VALUES " +
-                            "(@StartDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID);";
+                            "(@IssueDepartmentId,@StartDate,@Subject,@MemoContent,@IsAttachment,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID);";
                         memo.MemoId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         var query1 = string.Empty;
                         if (memo.MemoUserList != null && memo.MemoUserList.Count() > 0)
                         {
-                            
+
                             memo.MemoUserList.ForEach(s =>
                             {
                                 string? userId = s.UserId == null ? "null" : s.UserId.ToString();

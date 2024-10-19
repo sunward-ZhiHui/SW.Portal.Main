@@ -496,10 +496,13 @@
                                                                     @foreach (var attachment in item.documents)
                                                                     {
                                                                         <div class="tag handline"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName
-                                                                            <div class="options">
-                                                                                <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
-                                                                                <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
-                                                                            </div>
+                                                                            @if (attachment.IsView)
+                                                                            {
+                                                                                <div class="options">
+                                                                                    <div class="download" @onclick="@(() => onDocDownload_old(attachment.DocumentID))"><i class="fa fa-cloud-download" aria-hidden="true"></i></div>
+                                                                                    <div class="preview" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fa fa-eye" aria-hidden="true"></i></div>
+                                                                                </div>
+                                                                            }
                                                                         </div>                                                                       
                                                                     }
                                                                 </div>
@@ -1057,6 +1060,10 @@
                         <DxMenuItem IconCssClass="fa fa-archive" @onclick="onArchivePop" Text="Archive" Enabled="isUserGroup" />
                         <DxMenuItem IconCssClass="fa fa-tag" @onclick="onUserTagPop" Text="User Tag"/>
                         <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" />
+                         @if(_openAccessUserLink != null)
+                         {
+                             <DxMenuItem IconCssClass="fa fa-paperclip" @onclick="onNotifyPA" Text="Notify P/A" />
+                         }
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -1064,6 +1071,18 @@
         <DxButton Text="close" Click="@context.CloseCallback" />
     </FooterTextTemplate>
 </DxFlyout>
+
+
+<DxPopup @bind-Visible="@isNotifyPAPopupVisible"
+         HeaderText="Notify P/A"
+         CloseOnOutsideClick="false"
+         ShowFooter="false"
+         ShowCloseButton="true">
+    <BodyContentTemplate>
+        <Notifypa @ref="refNotifypa" applicationUser="@applicationUser" topicList="@_headTopic[0]" Page ="@isLeftMenuvisible" ClosePopNotify="onCloseNotifyPop"></Notifypa>
+    </BodyContentTemplate>
+</DxPopup>
+
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="100%" Height="100%" @bind-Visible="@PreviewDocPopup">
     <BodyContentTemplate>
@@ -1719,6 +1738,8 @@
 
 
 @code {
+    private bool isNotifyPAPopupVisible = false;
+    private Notifypa refNotifypa;
     long reply_id = 0;
     string UserTagTxt { get; set; }    
     private PersistingComponentStateSubscription? subscription;
@@ -1727,7 +1748,14 @@
     private int pageSize = 15; // Number of records per page
     private int submitCount = 0;
     bool IsUserGroupToOpen { get; set; } = false;
-    bool IsUserGroupCCOpen { get; set; } = false;    
+    bool IsUserGroupCCOpen { get; set; } = false;   
+    
+    private void onCloseNotifyPop()
+    {
+        isNotifyPAPopupVisible  = false;
+        IsOpenFlyout = false;
+        InvokeAsync(StateHasChanged);
+    }
     async Task OnButtonUserGroupToClick()
     {
         IsUserGroupToOpen = false;
@@ -3231,15 +3259,21 @@
     void onSelectedToItemsChanged(IEnumerable<long>? values)
     {
         Data.AssigntoIds = values;
-        if (values != null)
-        {            
-            //_CCparticipant = _allparticipants.Except(values).ToList();
-            _CCparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        if (Data.AssignccIds != null)
+        {
+            var list = Data.AssignccIds.Where(p => !values.Contains(p)).ToList();
+            Data.AssignccIds = list;
+            StateHasChanged();
         }
-        else
-        {            
-            _CCparticipant = _allparticipants.ToList();
-        }
+        // if (values != null)
+        // {            
+        //     //_CCparticipant = _allparticipants.Except(values).ToList();
+        //     _CCparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        // }
+        // else
+        // {            
+        //     _CCparticipant = _allparticipants.ToList();
+        // }
     }
     void onSelectedToItemsChangedold(IEnumerable<ViewEmployee> values)
     {
@@ -3257,15 +3291,21 @@
     void onSelectedCCItemsChanged(IEnumerable<long>? values)
     {
         Data.AssignccIds = values;
-        if (values != null)
-        {            
-            //_Toparticipant = _allparticipants.Except(values).ToList();
-            _Toparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
-        }
-        else
-        {            
-            _Toparticipant = _allparticipants.ToList();
-        }
+         if (Data.AssigntoIds != null)
+            {
+                var list = Data.AssigntoIds.Where(p => !values.Contains(p)).ToList();
+            Data.AssigntoIds = list;
+                StateHasChanged();
+            }
+        // if (values != null)
+        // {            
+        //     //_Toparticipant = _allparticipants.Except(values).ToList();
+        //     _Toparticipant = _allparticipants.Where(p => !values.Contains(p.UserID.Value)).ToList();
+        // }
+        // else
+        // {            
+        //     _Toparticipant = _allparticipants.ToList();
+        // }
     }
 
     void onSelectedCCItemsChangedold(IEnumerable<ViewEmployee> values)
@@ -3701,6 +3741,10 @@
         string script = $"window.open('{url}', '_blank');";
         await JSRuntime.InvokeVoidAsync("eval", script);
     }
+    private void onNotifyPA()
+    {
+        isNotifyPAPopupVisible = true;
+    }   
     async void onPrintSubjectPop()
     {    
         var url = BaseUrl+"ViewEmail/Emailprint/" + CurrentEmailConversations.SessionId;
@@ -5659,7 +5703,7 @@
                     sCCIds = CCtags.ToList();
 
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
 
@@ -5884,7 +5928,7 @@
                     sCCIds = CCtags.ToList();
 
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
                     //_allparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
@@ -5961,7 +6005,7 @@
                     IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
                     sCCIds = CCtags.ToList();
 
-                    _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                    //_Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
                     #endregion
                 }
 

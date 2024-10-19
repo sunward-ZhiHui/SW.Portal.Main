@@ -43,7 +43,6 @@
                                 <DxMenuItem Text="CheckOut" Click="onCheckOut" IconCssClass="fa fa-check-square" Visible="CheckOutEnabled" />
                                 <DxMenuItem Text="CheckIn" Click="onCheckin" IconCssClass="fa fa-check-circle" Visible="CheckInEnabled" />
                                 <DxMenuItem Text="View File" Click="onView" IconCssClass="fa fa-eye" Visible="viewEnabled" />
-                                @* <DxMenuItem Text="Notify" IconCssClass="fa fa-bell" Visible="NotifyEnabled" /> *@
                                 <DxMenuItem Text="Check By" IconCssClass="fa fa-envelope" Click="onIsChecker" Visible="IsChecker" />
                                 <DxMenuItem Text="Mail" IconCssClass="fa fa-envelope" Click="onEmailOpen" Visible="MailEnabled" />
                                 <DxMenuItem Text="Email Activity" IconCssClass="fa fa-envelope" Click="onEmailActivityOpen" Visible="EmailActivityEnabled" />
@@ -52,7 +51,8 @@
                                 <DxMenuItem Text="Non compliance" Click="@(_ => onOperators("NonCompliance","Non-Compliance"))" IconCssClass="fa fa-gavel" Visible="NonComplianceEnabled" />
                                 <DxMenuItem Text="Operator" Click="@(_ => onOperators("RestrictOperator","Operator"))" IconCssClass="fa fa-tasks" Visible="OperatorEnabled" />
                                 <DxMenuItem Text="Update Status" IconCssClass="fa fa-info" Click="@(_ => OnClickActivityStatusOpen("Update Status"))" Visible="UpdateStatusEnabled" />
-                                <DxMenuItem Text="Activity Result" IconCssClass="fa fa-info" Click="@(_ => OnClickActivityStatusOpen("Activity Result"))" Visible="UpdateStatusEnabled" />
+                                <DxMenuItem Text="Activity Result" IconCssClass="fa fa-info" Click="@(_ => OnClickActivityStatusOpen("Activity Result"))" Visible="ActivityResultEnabled" />
+                                <DxMenuItem Text="Comment" IconCssClass="fa fa-eye" Click="@(_ => OnClickActivityStatusOpen("Comment"))" Visible="EditCommentEnabled" />
                             </Items>
                         </DxMenuItem>
                     </Items>
@@ -93,7 +93,7 @@
                     @{
                         var item = (ProductActivityAppModel)context.DataItem;
                     }
-                    <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;color:green" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i>
+                   @*   <i class="fa fa-eye" aria-hidden="true" style="margin-right: 5px;cursor:pointer;color:green" id=@($"flyout-overview-target-container-Description-{item.ProductionActivityAppLineId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.LineComment"></i> *@
                     @if (item.IsLocked == true)
                     {
                         <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
@@ -144,7 +144,7 @@
             <DxGridDataColumn Caption="Activity Master" FieldName="ActivityMaster" MinWidth="180" />
             <DxGridDataColumn Caption="Activity Status" FieldName="ActivityStatus" MinWidth="180" />
             <DxGridDataColumn Caption="Result" FieldName="ProdActivityResult" MinWidth="180" />
-            <DxGridDataColumn Caption="Modified By" FieldName="ModifiedByUser" MinWidth="180" Visible="false" />
+            <DxGridDataColumn Caption="Modified By" FieldName="ModifiedByUser" MinWidth="180"  />
 
         </Columns>
         <TotalSummary>
@@ -295,6 +295,12 @@
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
+             @if (ActivityStatusMasterType == "Comment")
+             {
+                <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
+                    <DxMemo @bind-Text="@_selectedDescriptionItems.LineComment" CssClass="cw-480" Rows="5" />
+                </DxFormLayoutItem>
+             }
             @if (ActivityStatusMasterType == "Update Status")
             {
                 <DxFormLayoutItem Caption="Activity Status" ColSpanMd="12">
@@ -593,7 +599,7 @@
     public bool NonComplianceEnabled { get; set; } = false;
     public bool OperatorEnabled { get; set; } = false; public bool UpdateStatusEnabled { get; set; } = false;
     public bool EmailActivityEnabled { get; set; } = false;
-    public bool ActivityInfoEnabled { get; set; } = false; public bool ActivityResultEnabled { get; set; } = false;
+    public bool ActivityInfoEnabled { get; set; } = false; public bool ActivityResultEnabled { get; set; } = false; public bool EditCommentEnabled { get; set; } = false;
     public bool ActivityEmailSubjectPopup { get; set; } = false;
     private List<View_ApplicationMasterDetail> _ActivityStatusItem;
     private List<View_ApplicationMasterDetail> _ActivityMaster;
@@ -638,7 +644,7 @@
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false; IsChecker = false;
-        NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; ActivityResultEnabled = false;
+        NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; ActivityResultEnabled = false;EditCommentEnabled = false;
         _AppLines = new List<ProductActivityAppModel>();
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
         FilterData.AddedByUserID = applicationUser.UserID;
@@ -655,7 +661,7 @@
         if (_AppLines.Count() > 0)
         {
             _selectedItems = _AppLines.FirstOrDefault();
-            isVisibleMore = "";
+            //isVisibleMore = "";
             if (_selectedItems != null)
             {
                 if (_selectedItems.FileProfileTypeId > 0)
@@ -668,12 +674,12 @@
                 }
                 else
                 {
-                    uploadEnabled = true;
+                    //uploadEnabled = true;
                     UploadSessionId = _selectedItems.LineSessionId;
                     FileProfileTypeId = _selectedItems.LocationToSaveId;
 
                 }
-                await permissinSetMainProfile();
+               // await permissinSetMainProfile();
             }
             PanelVisible = false;
         }
@@ -682,13 +688,11 @@
     }
     async Task permissinSetMainProfile()
     {
-
-
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false; IsChecker = false;
-        NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; ActivityResultEnabled = false;
+        NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; ActivityResultEnabled = false; EditCommentEnabled = false;
         if (_selectedItems != null)
         {
             if (_selectedItems.IsActionPermission == true)
@@ -698,7 +702,7 @@
                 //     isVisibleMore = "";
                 //     EditEnabled = true; DeleteEnabled = true;
                 //     NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;IsChecker = true;
-                //     NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;ActivityResultEnabled = true;
+                //     NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;ActivityResultEnabled = true;EditCommentEnabled = true;
                 //     if (_selectedItems.IsLocked == true)
                 //     {
                 //         CheckOutEnabled = false;
@@ -706,7 +710,7 @@
                 //         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                 //         HistoryEnabled = false;
                 //         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker = true;
-                //         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;ActivityResultEnabled = true;
+                //         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;ActivityResultEnabled = true;EditCommentEnabled = true;
                 //     }
                 //     else
                 //     {
@@ -732,7 +736,7 @@
                 //     EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                 //     HistoryEnabled = false;
                 //     viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;IsChecker = false;
-                //     NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;ActivityResultEnabled = true;
+                //     NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;ActivityResultEnabled = true;EditCommentEnabled = true;
                 // }
                 // else
                 // {
@@ -749,7 +753,7 @@
                             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                             HistoryEnabled = false;
                             viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; EmailActivityEnabled = false;
-                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; IsChecker = false; ActivityResultEnabled = true;
+                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; IsChecker = false; ActivityResultEnabled = true; EditCommentEnabled = true;
                         }
                         else
                         {
@@ -832,6 +836,14 @@
                             else
                             {
                                 ActivityResultEnabled = false;
+                            }
+                            if (actionItem.IsEditComment == true && actionItem.IsEditComment != null)
+                            {
+                                EditCommentEnabled = true;
+                            }
+                            else
+                            {
+                                EditCommentEnabled = false;
                             }
                             if (actionItem.IsActivityInfo == true && actionItem.IsActivityInfo != null)
                             {
@@ -949,7 +961,7 @@
         {
             EmailActivityEnabled = true;
         }
-        NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true; ActivityResultEnabled = true;
+        NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true; ActivityResultEnabled = true; EditCommentEnabled = true;
         if (_selectedItems.IsLocked == true)
         {
             CheckOutEnabled = false;
@@ -957,7 +969,7 @@
             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
             HistoryEnabled = false; EmailActivityEnabled = false;
             viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false; IsChecker = false;
-            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; ActivityResultEnabled = false;
+            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false; ActivityResultEnabled = false; EditCommentEnabled = false;
         }
         else
         {
@@ -1065,6 +1077,18 @@
         ClosePopup();
         StateHasChanged();
 
+    }
+    void onEditComment()
+    {
+        if (_selectedItems != null)
+        {
+            IsDescriptionOpen = true; IsActivityStatusMasterOpen = false;
+            _selectedDescriptionItems = new ProductActivityAppModel();
+            _selectedDescriptionItems.ProductionActivityAppLineId = _selectedItems.ProductionActivityAppLineId;
+            _selectedDescriptionItems.LineComment = _selectedItems.LineComment;
+            _selectedDescriptionItems.ModifiedDate = DateTime.Now;
+            _selectedDescriptionItems.ModifiedByUserID = applicationUser.UserID;
+        }
     }
     void OnButtonDescriptionClick(ProductActivityAppModel items)
     {
@@ -1308,6 +1332,7 @@
         _selectedDescriptionItems.ActivityStatusId = _selectedItems.ActivityStatusId;
         _selectedDescriptionItems.ActivityMasterIds = _selectedItems.ActivityMasterIds;
         _selectedDescriptionItems.ProdActivityResultIds = _selectedItems.ProdActivityResultIds;
+        _selectedDescriptionItems.LineComment = _selectedItems.LineComment;
         _selectedDescriptionItems.ModifiedDate = DateTime.Now;
         _selectedDescriptionItems.ModifiedByUserID = applicationUser.UserID;
 
@@ -1330,6 +1355,12 @@
         if (ActivityStatusMasterType == "Activity Result")
         {
             await Mediator.Send(new UpdateActivityResult(_selectedDescriptionItems));
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            IsActivityStatusMasterOpen = false;
+        }
+        if (ActivityStatusMasterType == "Comment")
+        {
+            await Mediator.Send(new GetUpdateproductActivityAppLineCommentField(_selectedDescriptionItems));
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             IsActivityStatusMasterOpen = false;
         }

@@ -59,7 +59,12 @@ namespace Core.Repositories.Query
         Task<long> InsertParticipant(TopicParticipant topicParticipant);
         Task<EmailTopics> GetTopicListAsync();
         Task<List<EmailDueDateHistory>> GetEmailDueDateHistoryList(long id);
-        Task<long> UpdateDueDate(EmailTopics EmailTopics);        
+        Task<long> UpdateDueDate(EmailTopics EmailTopics);      
+        Task<List<EmailNotifyPA>> GetNotifyPAAsync();
+        Task<EmailNotifyPA> GetByIdNotifyPAAsync(Guid sessionId);
+        Task<long> CreateNotifyPAAsync(EmailNotifyPA emailNotifyPA);
+        Task<long> UpdateNotifyPAAsync(EmailNotifyPA emailNotifyPA);
+        Task<long> UpdateCommentNotifyPAAsync(EmailNotifyPA emailNotifyPA);
         Task<long> CreateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys);        
         Task<long> UpdateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> InsertEmailDueDateHistory(EmailConversations emailConversations);
@@ -84,6 +89,7 @@ namespace Core.Repositories.Query
         Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> UpdateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> Delete(long id);
+        Task<long> DeleteNotify(long id);   
         Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys);
     }
 }

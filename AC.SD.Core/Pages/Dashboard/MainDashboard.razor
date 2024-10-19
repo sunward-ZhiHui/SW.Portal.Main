@@ -82,7 +82,11 @@
         {
             if (pushToken != null)
             {
-                var rstdata = await Mediator.Send(new AddPushTokenID(applicationUser.LoginID, "Web", pushToken));
+                if(applicationUser != null)
+                {
+                    var rstdata = await Mediator.Send(new AddPushTokenID(applicationUser.LoginID, "Web", pushToken));
+                }
+                
             }
             // NavigationManager.NavigateTo("/hrms/Dashboard");
         }

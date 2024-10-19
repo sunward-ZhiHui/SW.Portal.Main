@@ -447,6 +447,28 @@ namespace Application.Queries
     {
     }
 
+    public class CreateNotifyPA : EmailNotifyPA, IRequest<long>
+    {
+    }
+    public class UpdateNotifyPA : EmailNotifyPA, IRequest<long>
+    {
+    }
+    public class UpdateCommentNotifyPA : EmailNotifyPA, IRequest<long>
+    {
+       
+    }
+    public class GetNotifyPAList : IRequest<List<EmailNotifyPA>>
+    {
+    }
+    public class GetByIdNotifyPAList : IRequest<EmailNotifyPA>
+    {
+        public Guid sessionId { get; private set; }
+        public GetByIdNotifyPAList(Guid SessionId)
+        {
+            this.sessionId = SessionId;
+        }
+    }   
+
     public class UpdateEmailTimelineEvent : EmailTimelineEvent, IRequest<long>
     {
     }
@@ -567,6 +589,15 @@ namespace Application.Queries
         public long ID { get; set; }
 
         public DeleteDocumentFileQuery(long Id)
+        {
+            this.ID = Id;
+        }
+    }
+    public class DeleteNotifyQuery : Documents, IRequest<long>
+    {
+        public long ID { get; set; }
+
+        public DeleteNotifyQuery(long Id)
         {
             this.ID = Id;
         }

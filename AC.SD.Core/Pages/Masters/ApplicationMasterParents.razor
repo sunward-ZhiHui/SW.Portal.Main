@@ -180,6 +180,7 @@
                                                         <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
                                                         <DxGridDataColumn FieldName="Value" Caption="Name" />
                                                         <DxGridDataColumn FieldName="Description" Caption="Description" />
+                                                        <DxGridDataColumn FieldName="StatusCode" Caption="Status" />
                                                     </Columns>
                                                     <EditFormTemplate Context="EditFormContext">
                                                         @{
@@ -194,7 +195,18 @@
                                                                 <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
                                                                 <ValidationMessage For="@(() => plant.Description)" />
                                                             </DxFormLayoutItem>
-
+                                                            <DxFormLayoutItem Caption="Status" ColSpanMd="12">
+                                                                <DxComboBox Data="@_stausItems"
+                                                                            NullText="Select Status..."
+                                                                            SearchMode="ListSearchMode.AutoSearch"
+                                                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                            TextFieldName="CodeValue"
+                                                                            ValueFieldName="CodeId"
+                                                                            @bind-Value="@plant.StatusCodeId"
+                                                                            ShowValidationIcon="true">
+                                                                </DxComboBox>
+                                                                <ValidationMessage For="@(() => plant.StatusCodeId)" />
+                                                            </DxFormLayoutItem>
                                                         </DxFormLayout>
                                                     </EditFormTemplate>
                                                     <TotalSummary>
@@ -249,6 +261,7 @@
                                                     <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
                                                     <DxGridDataColumn FieldName="Value" Caption="Name" />
                                                     <DxGridDataColumn FieldName="Description" Caption="Description" />
+                                                    <DxGridDataColumn FieldName="StatusCode" Caption="Status" />
                                                 </Columns>
                                                 <EditFormTemplate Context="EditFormContext">
                                                     @{
@@ -263,9 +276,23 @@
                                                             <DxMemo @bind-Text="@childData.Description" Rows="5" ShowValidationIcon="true" />
                                                             <ValidationMessage For="@(() => childData.Description)" />
                                                         </DxFormLayoutItem>
-
+                                                        <DxFormLayoutItem Caption="Status" ColSpanMd="12">
+                                                            <DxComboBox Data="@_stausItems"
+                                                                        NullText="Select Status..."
+                                                                        SearchMode="ListSearchMode.AutoSearch"
+                                                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                        TextFieldName="CodeValue"
+                                                                        ValueFieldName="CodeId"
+                                                                        @bind-Value="@childData.StatusCodeId"
+                                                                        ShowValidationIcon="true">
+                                                            </DxComboBox>
+                                                            <ValidationMessage For="@(() => childData.StatusCodeId)" />
+                                                        </DxFormLayoutItem>
                                                     </DxFormLayout>
                                                 </EditFormTemplate>
+                                                <TotalSummary>
+                                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
+                                                </TotalSummary>
                                             </DxGrid>
                                         </DxTabPage>
                                         <DxTabPage Text="@DisplayChild" Enabled="@childChildTabEnabled">
@@ -311,6 +338,7 @@
                                                     <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
                                                     <DxGridDataColumn FieldName="Value" Caption="Name" />
                                                     <DxGridDataColumn FieldName="Description" Caption="Description" />
+                                                    <DxGridDataColumn FieldName="StatusCode" Caption="Status" />
                                                 </Columns>
                                                 <EditFormTemplate Context="EditFormContext">
                                                     @{
@@ -325,13 +353,65 @@
                                                             <DxMemo @bind-Text="@childChildData.Description" Rows="5" ShowValidationIcon="true" />
                                                             <ValidationMessage For="@(() => childChildData.Description)" />
                                                         </DxFormLayoutItem>
-
+                                                        <DxFormLayoutItem Caption="Status" ColSpanMd="12">
+                                                            <DxComboBox Data="@_stausItems"
+                                                                        NullText="Select Status..."
+                                                                        SearchMode="ListSearchMode.AutoSearch"
+                                                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                                        TextFieldName="CodeValue"
+                                                                        ValueFieldName="CodeId"
+                                                                        @bind-Value="@childChildData.StatusCodeId"
+                                                                        ShowValidationIcon="true">
+                                                            </DxComboBox>
+                                                            <ValidationMessage For="@(() => childChildData.StatusCodeId)" />
+                                                        </DxFormLayoutItem>
                                                     </DxFormLayout>
                                                 </EditFormTemplate>
+                                                <TotalSummary>
+                                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
+                                                </TotalSummary>
                                             </DxGrid>
                                         </DxTabPage>
                                     </DxTabs>
-
+                                    <div style="display:none;">
+                                        <DxGrid @ref="GridNestedChild"
+                                                Data="_NestedApplicationChildItems"
+                                                EditMode="GridEditMode.EditForm"
+                                                ShowGroupPanel="true"
+                                                ShowGroupedColumns="true"
+                                                ShowSearchBox="true"
+                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                                PagerNavigationMode="PagerNavigationMode.InputBox"
+                                                KeyFieldName="ApplicationMasterChildId"
+                                                PageSizeSelectorVisible="true"
+                                                PageSizeSelectorAllRowsItemVisible="false"
+                                                PageSizeSelectorItems="@(new int[] { 5,10,20,30,50,100 })"
+                                                PageSize="20"
+                                                style="height: calc(100vh - 300px);"
+                                                CssClass="ch-360"
+                                                AllowSelectRowByClick="true"
+                                                CustomizeElement="Grid_CustomizeElement"
+                                                AutoExpandAllGroupRows="true"
+                                                FocusedRowEnabled="true"
+                                                SelectionMode="GridSelectionMode.Single"
+                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+                                            <Columns>
+                                                <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                                                <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
+                                                <DxGridDataColumn FieldName="ApplicationMasterName" GroupIndex="0" Caption="Master Name" />
+                                                <DxGridDataColumn FieldName="ParentName" GroupIndex="0" Caption="Parent Name" />
+                                                <DxGridDataColumn FieldName="Value" Caption="Name" />
+                                                <DxGridDataColumn FieldName="Description" Caption="Description" />
+                                            </Columns>
+                                            @* <DetailRowTemplate>
+                                            <ApplicationMasterParentNested Items="(ApplicationMasterChildModel)context.DataItem" />
+                                            </DetailRowTemplate> *@
+                                            @*   <TotalSummary>
+                                            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
+                                            </TotalSummary> *@
+                                        </DxGrid>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -453,7 +533,9 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool ExportSelectedRowsOnly { get; set; }
     public int ActiveTabIndex { get; set; } = 0;
+    IGrid? GridNestedChild { get; set; }
     IGrid? MasterGrid { get; set; }
     IGrid? Grid { get; set; }
     IGrid? GridChild { get; set; }
@@ -464,6 +546,8 @@
     private List<ApplicationMasterChildModel> _applicationMasterDetails { get; set; }
     private List<ApplicationMasterChildModel> _applicationChildItems { get; set; }
     private List<ApplicationMasterChildModel> _applicationChildChildItems { get; set; }
+    private List<ApplicationMasterChildModel> _NestedApplicationChildItems { get; set; }
+    private List<CodeMaster> _stausItems;
     bool PanelVisible { get; set; }
     bool PanelVisibleMastersDetails { get; set; }
     private ApplicationMasterChildModel? _selectedItems;
@@ -514,6 +598,12 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        if (_stausItems != null && _stausItems.Count() > 0)
+        {
+            List<int> idss = new List<int>() { 1, 2 };
+            _stausItems = _stausItems.Where(w => idss.Contains(w.CodeId)).ToList();
+        }
         await loadMAsterItems();
     }
     async Task loadMAsterItems()
@@ -629,7 +719,10 @@
                         }
                     }
                     await UpdateDataAsync();
+                    _NestedApplicationChildItems = await Mediator.Send(new GetAllApplicationMasterChildNestedQuery(masterData.ApplicationMasterParentCodeId));
+                    StateHasChanged();
                 }
+
             }
         }
     }
@@ -707,6 +800,7 @@
             newplant.ApplicationMasterParentId = _selectItems.ApplicationMasterParentId;
             newplant.Description = "";
             newplant.Value = "";
+            newplant.StatusCodeId = 1;
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -724,7 +818,7 @@
                     ModifiedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
-                    StatusCodeId = 1,
+                    StatusCodeId = editablePlant.StatusCodeId,
                     SessionId = Guid.NewGuid(),
                 };
             await Mediator.Send(request);
@@ -849,11 +943,13 @@
     }
     async Task ExportToExcel()
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
-                CustomizeCell = OnCustomizeCell
-            });
+        if (GridNestedChild != null)
+        {
+            await GridNestedChild.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+                    ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+                });
+        }
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
@@ -985,7 +1081,15 @@
     }
     void Grid_CustomizeEditModelChild(GridCustomizeEditModelEventArgs e)
     {
+        var newmaster = (ApplicationMasterChildModel)e.EditModel;
+        if (e.IsNew)
+        {
+            newmaster.StatusCodeId = 1;
+        }
+        else
+        {
 
+        }
     }
     async Task Grid_EditModelSavingChild(GridEditModelSavingEventArgs e)
     {
@@ -1002,7 +1106,7 @@
                     ModifiedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
-                    StatusCodeId = 1,
+                    StatusCodeId = editablePlant.StatusCodeId,
                     SessionId = Guid.NewGuid(),
                 };
             await Mediator.Send(request);
@@ -1158,7 +1262,15 @@
     }
     void Grid_CustomizeEditModelChildChild(GridCustomizeEditModelEventArgs e)
     {
+        var newmaster = (ApplicationMasterChildModel)e.EditModel;
+        if (e.IsNew)
+        {
+            newmaster.StatusCodeId = 1;
+        }
+        else
+        {
 
+        }
     }
     async Task Grid_EditModelSavingChildChild(GridEditModelSavingEventArgs e)
     {
@@ -1175,7 +1287,7 @@
                     ModifiedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
-                    StatusCodeId = 1,
+                    StatusCodeId = editablePlant.StatusCodeId,
                     SessionId = Guid.NewGuid(),
                 };
             await Mediator.Send(request);
@@ -1328,21 +1440,21 @@
             _applicationMasterDetails = null;
 
         }
-        if(_applicationChildItems != null)
+        if (_applicationChildItems != null)
         {
             _applicationChildItems.Clear();
             _applicationChildItems = null;
 
         }
-        if(_applicationChildChildItems != null)
+        if (_applicationChildChildItems != null)
         {
             _applicationChildChildItems.Clear();
             _applicationChildChildItems = null;
         }
-       
-      
+
+
         // GC.Collect();
-       // GC.WaitForPendingFinalizers();
-       // GC.Collect();
+        // GC.WaitForPendingFinalizers();
+        // GC.Collect();
     }
 }

@@ -20,6 +20,7 @@ using Infrastructure.Data;
 using Microsoft.VisualBasic;
 using System.Data.SqlTypes;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
+using System.Data.Services.Client;
 
 namespace Infrastructure.Repository.Query
 {
@@ -2108,7 +2109,151 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }        
+        }
+
+        private async Task<bool> CheckNotifyPAList(Guid? Sessionid)
+        {
+            using (var connection = CreateConnection())
+            {
+                try
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Sessionid", Sessionid);                    
+
+                    var query = "SELECT 1 ID FROM EmailNotifyPA WHERE SessionID = @Sessionid";
+                    var result = await connection.QuerySingleOrDefaultAsync<int?>(query, parameters);
+                    
+                    return result.HasValue;
+                }
+                catch (Exception exp)
+                {
+                    throw new Exception(exp.Message, exp);
+                }
+            }
+        }
+        public async Task<EmailNotifyPA> GetByIdNotifyPAAsync(Guid sessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("sessionId", sessionId);
+
+                var query = @"select * from EmailNotifyPA WHERE SessionID = @sessionId";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QuerySingleOrDefaultAsync<EmailNotifyPA>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailNotifyPA>> GetNotifyPAAsync()
+        {
+            try
+            {
+                var query = @"select CONCAT(E.FirstName, ' - ' ,E.LastName) AS AddedBy,ENP.*,EC.AddedDate AS EmailCreatedDate,EC.LastUpdateDate,AMD.Value AS CategoryName from EmailNotifyPA ENP
+                            INNER JOIN Employee E ON E.UserID = ENP.AddedByUserID
+                            INNER JOIN EmailConversations EC ON EC.SessionId = ENP.SessionID
+                            LEFT JOIN ApplicationMasterDetail AMD ON AMD.ApplicationMasterDetailID = ENP.NotifyTypeID
+                            ORDER BY ENP.AddedDate DESC";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailNotifyPA>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> UpdateNotifyPAAsync(EmailNotifyPA emailNotifyPA)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {                       
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ID", emailNotifyPA.ID);          
+                        parameters.Add("NotifyTypeID", emailNotifyPA.NotifyTypeID);
+                        parameters.Add("Description", emailNotifyPA.Description);                        
+                        parameters.Add("ModifiedByUserID", emailNotifyPA.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", emailNotifyPA.ModifiedDate);
+
+                        var query = "Update EmailNotifyPA SET NotifyTypeID =@NotifyTypeID ,Description =@Description,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);                      
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
+        public async Task<long> CreateNotifyPAAsync(EmailNotifyPA emailNotifyPA)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var rowsAffected = 0;
+
+                        //var isExisting = await CheckNotifyPAList(emailNotifyPA.SessionId);
+
+
+                       /// if (!isExisting)
+                        //{
+                            var parameters = new DynamicParameters();
+                            parameters.Add("Name", emailNotifyPA.Name);
+                            parameters.Add("Page", emailNotifyPA.Page);
+                            parameters.Add("NotifyTypeID", emailNotifyPA.NotifyTypeID);
+                            parameters.Add("Description", emailNotifyPA.Description);                            
+                            parameters.Add("SessionId", emailNotifyPA.SessionId);
+                            parameters.Add("AddedByUserID", emailNotifyPA.AddedByUserID);
+                            parameters.Add("AddedDate", emailNotifyPA.AddedDate);
+
+                            var query = " INSERT INTO EmailNotifyPA (Name,Page,NotifyTypeID,Description,SessionId,AddedByUserID,AddedDate) VALUES (@Name,@Page,@NotifyTypeID,@Description,@SessionId,@AddedByUserID,@AddedDate)";
+
+                            rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        //}
+                        //else
+                        //{
+                        //    rowsAffected = -1;
+                        //}
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<long> CreateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys)
         {
             try
@@ -2971,7 +3116,41 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long> DeleteNotify(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ID", id);
 
+
+                        var query = "DELETE  FROM EmailNotifyPA WHERE ID = @ID";
+
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public  async Task<long> InsertUserTagMultiple(EmailActivityCatgorys emailActivityCatgorys)
         {
             try
@@ -3040,6 +3219,43 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
            
+        }
+
+        public async Task<long> UpdateCommentNotifyPAAsync(EmailNotifyPA emailNotifyPA)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var Date = DateTime.Now;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("SessionID", emailNotifyPA.SessionId);
+                        parameters.Add("Comment", emailNotifyPA. Comment);
+                        parameters.Add("ModifiedByUserID", emailNotifyPA.ModifiedByUserID);
+                        parameters.Add("Date", emailNotifyPA.ModifiedDate);
+
+
+                        var query = "Update EmailNotifyPA SET Comment = @Comment ,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @Date WHERE SessionID = @SessionID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
         }
     }
     

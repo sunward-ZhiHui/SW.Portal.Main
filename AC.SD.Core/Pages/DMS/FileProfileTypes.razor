@@ -130,8 +130,8 @@
                 SearchTextChanged="OnSearchTextChanged"
                 PagerNavigationMode="PagerNavigationMode.InputBox"
                 PageSizeSelectorVisible="true"
-                PageSizeSelectorAllRowsItemVisible="true"
-                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSizeSelectorAllRowsItemVisible="false"
+                PageSizeSelectorItems="@(new int[] { 5,10,20,30,40,50 })"
                 CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
                 PageSize="20"
                 CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false"
@@ -853,10 +853,10 @@
         // await onshowLoading();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         //if (fileProfileTypeDocumentsAll.Count() > 0)
-       // {
-            //_selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
-            //PanelVisible = false;
-            //await onhideLoading();
+        // {
+        //_selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        //PanelVisible = false;
+        //await onhideLoading();
         //}
         // PanelVisible = false;
         //await onhideLoading();
@@ -925,6 +925,7 @@
     {
         try
         {
+            
             PanelVisible = true;
             //await onshowLoading();
             searchText = null; SearchText = null; _fileContentList = null; _openAccessUserLink = null; _fileProfileselectedlstItems = null;

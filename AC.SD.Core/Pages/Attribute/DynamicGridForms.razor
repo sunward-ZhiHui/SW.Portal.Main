@@ -20,6 +20,7 @@
 @implements IAsyncDisposable
 @inject AC.SD.Core.Helpers.DataGridDynamicForm _LoadDataGridDynamicForm
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
+@using BlazorBarcodeScanner.ZXing.JS
 @*     <DxLoadingPanel @bind-Visible="PanelVisible"
                     IsContentBlocked="true"
                     ApplyBackgroundShading="true"
@@ -38,7 +39,12 @@
         text-align: right;
     }
 </style>
-
+<style scoped>
+    .zxing-video-container > video {
+        width: 100%;
+        height: auto;
+    }
+</style>
 <div class="card-header text-center py-3">
     <h4>@_dynamicform?.Name</h4>
     @*  <p class="tm-8 mb-0 fw-normal fs-825">
@@ -640,6 +646,16 @@
 
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@QrCodePopupVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Qr Code" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_QrCodeReader" StartCameraAutomatically="true" Title="" ShowStart="false" ShowStop="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true" OnBarcodeReceived="TicketNoReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseQrCodePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     private DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
@@ -747,6 +763,7 @@
     bool IsSectionLockOpen { get; set; } = false; public string? SectionLockedName { get; set; } = ""; public string? DynamicSectionName { get; set; }
     bool createEmailpopup { get; set; } = false; bool emailEnabled { get; set; } = false; public DynamicFormSection dynamicFormSectionData { get; set; }
     Object DataGridObject { get; set; } = new Object(); private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
+    bool QrCodePopupVisible { get; set; } = false; private BarcodeReader _QrCodeReader; public PropertyInfo? PropertyQrCodeInfo { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -1567,6 +1584,12 @@
                                                         int? values = itemValue == null ? null : (int)itemValue;
                                                         Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
                                                     }
+                                                }
+                                                else if (a.ControlType == "QR Code")
+                                                {
+                                                    var values = (string)itemValue;
+                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+
                                                 }
                                                 loadSubHeaders(SubAttrsHeader, a);
 
@@ -3895,7 +3918,30 @@
         }
 
     }
-
+    void CloseQrCodePopup()
+    {
+        QrCodePopupVisible = false;
+        _QrCodeReader?.StopDecoding();
+        StateHasChanged();
+    }
+    void OnButtonQrCodeClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs str, PropertyInfo propertyInfo)
+    {
+        PropertyQrCodeInfo = propertyInfo;
+        QrCodePopupVisible = true;
+        StateHasChanged();
+    }
+    void TicketNoReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        if (PropertyQrCodeInfo != null)
+        {
+            PropertyQrCodeInfo.SetValue(Data, args.BarcodeText);
+            StateHasChanged();
+            toastService.ShowToast("QrCode Scanned Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            PropertyQrCodeInfo = null;
+            CloseQrCodePopup();
+            StateHasChanged();
+        }
+    }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
        {
            InvokeAsync(onshowLoading);
@@ -4344,6 +4390,61 @@
                     editor.AddAttribute(j + 1, "MainSessionId", dynamicFormData?.SessionId);
                     editor.AddAttribute(j + 1, "DynamicFormDataGridId", dynamicFormData?.DynamicFormDataId);
                     editor.CloseComponent();
+                }
+                else if (s.ControlType == "QR Code")
+                {
+                    editor.OpenComponent<DxTextBox>(j + 1);
+                    if (isViewFormatOnly == true)
+                    {
+                        editor.AddAttribute(j + 1, "Text", valueData);
+                    }
+                    else
+                    {
+                        editor.AddAttribute(j + 1, "Text", "******");
+                    }
+
+                    editor.AddAttribute(j + 1, "TextExpression", lambda);
+                    if (isAccessOnly == true)
+                    {
+                        editor.AddAttribute(j + 1, "Enabled", isReadonly);
+                    }
+                    else
+                    {
+                        editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
+                    }
+
+                    editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                    editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
+                {
+                    dx.OpenComponent<DxEditorButton>(j + 1);
+                    dx.AddAttribute(j + 1, "IconCssClass", "fa fa-qrcode");
+                    dx.AddAttribute(j + 1, "Tooltip", "Scan Qr Code");
+                    dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnButtonQrCodeClick(str, property)));
+                    dx.CloseComponent();
+                }));
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
+                    {
+                        if (string.IsNullOrEmpty((string)valueData))
+                        {
+                            isRequiredCount += 1;
+                            if (isSubmit == true)
+                            {
+                                //editor.AddAttribute(j + 1, "style", "border-color:red;");
+                            }
+                        }
+                    }
+                    editor.CloseComponent();
+                    if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
+                    {
+                        if (string.IsNullOrEmpty((string)valueData) && isSubmit == true)
+                        {
+                            editor.OpenElement(j + 1, "span");
+                            editor.AddAttribute(j + 1, "class", "text-danger");
+                            editor.AddContent(j + 1, !string.IsNullOrEmpty(s.RequiredMessage) ? s.RequiredMessage : "This field is Required");
+                            editor.CloseElement();
+                        }
+                    }
                 }
                 else if (s.ControlType == "TextBox")
                 {

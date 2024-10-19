@@ -71,4 +71,7 @@ namespace Application.Queries
             this.SesionId = SessionId;
         }
     }
+    public class GetAllMemoReportQuery : PagedRequest, IRequest<List<Memo>>
+    {
+    }
 }

@@ -30,8 +30,12 @@ namespace Infrastructure.Repository.Query
 {
     public class EmailConversationsQueryRepository : DbConnector, IEmailConversationsQueryRepository
     {
-        public EmailConversationsQueryRepository(IConfiguration configuration) : base(configuration)
+        private readonly IFileprofileQueryRepository _fileprofiletypeQueryRepository;
+
+        public EmailConversationsQueryRepository(IConfiguration configuration, IFileprofileQueryRepository fileprofiletypeQueryRepository)
+            : base(configuration)
         {
+            _fileprofiletypeQueryRepository = fileprofiletypeQueryRepository ?? throw new ArgumentNullException(nameof(fileprofiletypeQueryRepository));
         }
 
         public async Task<long> Delete(EmailConversations forumConversations)
@@ -605,9 +609,9 @@ namespace Infrastructure.Repository.Query
                         var replyCount = await GetReplyCount(new List<int> { topic.ID }, UserId);
                         topic.ReplyConversationCount = replyCount;
                         //topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
-                        topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
+                        //topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
+                        topic.documents = await GetCheckPermissionDocumentList(new List<Guid?> { topic.SessionId }, UserId);
 
-                        
                         if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
                         {
                             topic.AssignToList = await GetAssignToList(new List<int> { topic.ID });
@@ -1221,7 +1225,8 @@ namespace Infrastructure.Repository.Query
                         topic.ReplyConversationCount = replyCount;
                         //topic.ReplyConversationCount = await GetReplyCount(new List<int> { topic.ID }, UserId);
                         //topic.ReplyConversation = await GetReplyList(new List<int> { topic.ID }, UserId);
-                        topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
+                        //topic.documents = await GetDocumentList(new List<Guid?> { topic.SessionId });
+                        topic.documents = await GetCheckPermissionDocumentList(new List<Guid?> { topic.SessionId }, UserId);
 
                         if (string.IsNullOrEmpty(topic.UserType) || topic.UserType == "Users")
                         {
@@ -1608,7 +1613,66 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }       
+        public async Task<List<EmailDocumentModel>> GetCheckPermissionDocumentList(List<Guid?> sessionids, long? userId)
+        {
+            try
+            {
+                var lists = string.Join(',', sessionids.Select(i => $"'{i}'"));
+                var query = @"select D.DocumentID, D.FileName, D.ContentType, D.FileSize, D.FilePath, DD.DocumentID as ReplaceDocumentId, DD.FilterProfileTypeID, DD.ProfileNo 
+                      from Documents D
+                      LEFT JOIN ActivityEmailTopics AET ON AET.ActivityEmailTopicID = D.EmailToDMS
+                      LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId and DD.IsLatest = 1
+                      WHERE D.SessionID in(" + lists + ")";
+
+                using (var connection = CreateConnection())
+                {
+                    var documentList = (await connection.QueryAsync<EmailDocumentModel>(query)).ToList();
+
+                    foreach (var document in documentList)
+                    {
+                        if (document.FilterProfileTypeID != null)
+                        {
+                            var permissionData = await _fileprofiletypeQueryRepository.GetDocumentUserRoleByUserIDAsync(document.FilterProfileTypeID, userId, document.ReplaceDocumentId);
+
+                            if (permissionData != null)
+                            {
+                                if (permissionData.IsPermissionExits == true)
+                                {
+                                    document.IsView = true;
+                                }
+                                else
+                                {
+                                    if (permissionData.IsEdit == true || permissionData.IsRead == true)
+                                    {
+                                        document.IsView = true;
+                                    }
+                                    else
+                                    {
+                                        document.IsView = false;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                document.IsView = false;
+                            }
+                        }
+                        else
+                        {
+                            document.IsView = true;
+                        }
+                    }
+
+                    return documentList;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
+
 
         private async Task<int> GetReplyCount(List<int> replyIds, long userId)
         {
@@ -1834,7 +1898,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,DD.DocumentID as ReplaceDocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl,
+                var query = @"SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,DD.DocumentID as ReplaceDocumentId,DD.FilterProfileTypeID,DD.ProfileNo,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl,
                             IsLatest = CASE 
                                         WHEN D.EmailToDMS IS NOT NULL AND D.FileName = (
                                             SELECT FileName 
@@ -1851,7 +1915,7 @@ namespace Infrastructure.Repository.Query
 								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
                                 where FC.ID = @ConversationId
                                     UNION
-                                SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,DD.DocumentID as ReplaceDocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl,
+                                SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,DD.DocumentID as ReplaceDocumentId,DD.FilterProfileTypeID,DD.ProfileNo,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl,
                                 IsLatest = CASE 
                                             WHEN D.EmailToDMS IS NOT NULL AND D.FileName = (
                                                 SELECT FileName 

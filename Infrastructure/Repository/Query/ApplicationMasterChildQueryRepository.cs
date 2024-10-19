@@ -29,7 +29,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select * from ApplicationMasterChild where ApplicationMasterParentID in(" + Ids + ")";
+                var query = "select t1.*,t2.CodeValue as StatusCode from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID where t1.StatusCodeID=1 AND t1.ApplicationMasterParentID in(" + Ids + ")";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
@@ -44,7 +44,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select * from ApplicationMasterChild where ApplicationMasterChildId =" + Id + "";
+                var query = "select t1.*,t2.CodeValue as StatusCode from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID where t1.StatusCodeID=1 AND t1.ApplicationMasterChildId =" + Id + "";
                 using (var connection = CreateConnection())
                 {
                     return await connection.QueryFirstOrDefaultAsync<ApplicationMasterChildModel>(query);
@@ -59,7 +59,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select * from ApplicationMasterChild where ParentId =" + Id + "";
+                var query = "select t1.*,t2.CodeValue as StatusCode from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID where t1.StatusCodeID=1 AND t1.ParentId =" + Id + "";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
@@ -75,7 +75,7 @@ namespace Infrastructure.Repository.Query
             List<ApplicationMasterChildModel> applicationChildData = new List<ApplicationMasterChildModel>();
             try
             {
-                var query = "select * from ApplicationMasterChild where ApplicationMasterParentID in(" + Ids + ")";
+                var query = "select t1.*,t2.CodeValue as StatusCode from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID where  t1.ApplicationMasterParentID in(" + Ids + ")";
                 using (var connection = CreateConnection())
                 {
                     var result = (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
@@ -94,6 +94,7 @@ namespace Infrastructure.Repository.Query
                                 AddedByUserId = s.AddedByUserId,
                                 ParentId = s.ParentId,
                                 Label = s.Value,
+                                StatusCode=s.StatusCode,
                             };
                             applicationChildData.Add(applicationChildDataResponse);
                         }
@@ -113,6 +114,7 @@ namespace Infrastructure.Repository.Query
                                     ParentId = s.ParentId,
                                     ID = s.ApplicationMasterChildId,
                                     Label = s.Value,
+                                    StatusCode = s.StatusCode,
                                 });
                             }
                             else
@@ -149,6 +151,7 @@ namespace Infrastructure.Repository.Query
                         ParentId = childData.ParentId,
                         ID = childData.ApplicationMasterChildId,
                         Label = childData.Value,
+                        StatusCode = childData.StatusCode,
                     });
                 }
                 else
@@ -163,7 +166,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = "select * from ApplicationMasterChild";
+                var query = "select t1.*,t2.CodeValue as StatusCode from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID where t1.StatusCodeID=1";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
@@ -173,8 +176,8 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-           
+
         }
     }
-    
+
 }

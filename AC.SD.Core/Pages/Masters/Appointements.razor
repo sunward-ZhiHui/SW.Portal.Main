@@ -86,19 +86,7 @@
         
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
-                  <div style="margin-left: auto; margin-top: 14px;">Users
-               @*    <DxTagBox Data="_Toparticipant"
-                                              SearchMode="ListSearchMode.AutoSearch"
-                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                              NullText="Select To..."
-                                              Values="@Data.userIds"
-                                              ValuesExpression="@(() => Data.userIds )"
-                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                              ValueFieldName="UserID"
-                                              TextFieldName="Name"
-                                            
-                                              ListRenderMode="ListRenderMode.Virtual"
-                                              CssClass="cw-480"/> *@
+                  <div style="margin-left: 25px; margin-top: 14px;">Users
                     <DxTagBox Data="_Toparticipant"
                               @bind-Values="CategoryData.userIds"
                               NullText="Select User"
@@ -126,7 +114,7 @@
     <AppointmentCompactFormLayout Context="formInfo">
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
-                <div style="margin-left: auto; margin-top: 14px;">
+                <div style="margin-left:25px; margin-top: 14px; margin-right: 10px;">
                     Invite User
 
                     <DxTextBox @bind-Text="applicationUser.UserName" ReadOnly="true"></DxTextBox>
@@ -145,7 +133,7 @@
        
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
-                <div style="margin-left: auto; margin-top: 14px;">
+                <div style="margin-left: 25px; margin-top: 14px;">
                     Users
                    
                     <DxTagBox Data="_Toparticipant"

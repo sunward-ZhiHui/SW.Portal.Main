@@ -53,10 +53,26 @@
             <DxGridDataColumn FieldName="ItemNo" FixedPosition="GridColumnFixedPosition.Left" Width="180px" />
             <DxGridDataColumn FieldName="Description" MinWidth="300" />
             <DxGridDataColumn FieldName="BatchNo" MinWidth="180" />
-            <DxGridDataColumn FieldName="SubLotNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="SubLotNo" MinWidth="180" Visible="false"/>
             <DxGridDataColumn FieldName="DrumNo" MinWidth="180" />
             <DxGridDataColumn FieldName="GrossWeight" Width="180px" />
             <DxGridDataColumn FieldName="NetWeight" Width="180px" />
+            <DxGridDataColumn FieldName="IsLotComplete" Caption="Lot Complete" Width="180px" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ViewProductionOutput)context.DataItem;
+                    }
+                    @if (item.IsLotComplete == true)
+                    {
+                        <p>Yes</p>
+                    }
+                    else
+                    {
+                      <p>No</p>
+
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" Width="180px" />
        
        @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@

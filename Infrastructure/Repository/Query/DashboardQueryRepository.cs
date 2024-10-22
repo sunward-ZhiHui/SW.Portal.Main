@@ -554,12 +554,35 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"
-                             select * from Appointment";
+                var query = @"Select * From Appointment";
 
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<Appointment>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<Appointment>> GetUserListAsync(long Appointmentid)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+
+                parameters.Add("AppointmentID", Appointmentid);
+                var query = @"
+                           SELECT EP.FirstName as UserName FROM UserMultiple UM
+                             Left Join Employee EP ON EP.EmployeeID =UM.UserID
+                             Where AppointmentID = @AppointmentID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

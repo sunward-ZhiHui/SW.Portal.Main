@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -32,7 +33,11 @@ namespace Core.Entities
         public string UserTag { get; set; }
         public string OtherTag { get; set; }
         [NotMapped]
+
         public IEnumerable<long>? userIds { get; set; } = null;
+        [NotMapped]
+       
+        public string UserName { get; set; } 
         [NotMapped]
         public long UserMultipleID { get; set; }
         [NotMapped]

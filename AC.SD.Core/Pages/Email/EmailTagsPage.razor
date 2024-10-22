@@ -168,7 +168,7 @@
         }
         else
         {
-            var request = await Mediator.Send(new EditOtherTagQery(_selectedItems.Name ,editmodel.Name));
+            var request = await Mediator.Send(new EditOtherTagQery(_selectedItems.Name ,editmodel.Name,applicationUser.UserID));
 
 
 

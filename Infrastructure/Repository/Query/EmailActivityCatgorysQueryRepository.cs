@@ -346,7 +346,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public  async Task<string> UpdateOtherAsync(string othertag,string Name)
+        public  async Task<string> UpdateOtherAsync(string othertag,string Name, long ModifiedByUserID)
         {
             try
             {
@@ -354,10 +354,14 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                     {
+                        var modifiedDate = DateTime.Now;
                         var parameters = new DynamicParameters();
                         parameters.Add("othertag", othertag);
                         parameters.Add("Name", Name);
-                        var query = "Update EmailActivityCatgorys Set Name = @Name where Name = @othertag";
+                        parameters.Add("ModifiedByUserID", ModifiedByUserID);
+                        parameters.Add("modifiedDate", modifiedDate);
+
+                        var query = "Update EmailActivityCatgorys Set Name = @Name,ModifiedByUserID =@ModifiedByUserID,ModifiedDate = @modifiedDate where Name = @othertag";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
                         return rowsAffected.ToString();

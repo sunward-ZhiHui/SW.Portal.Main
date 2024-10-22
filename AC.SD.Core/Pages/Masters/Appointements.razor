@@ -3,6 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @using Application.Queries
 @using Google.Api
+@using Newtonsoft.Json
 @using global::Core.Entities
 @using global::Core.Entities.Views
 @using global::Core.EntityModels
@@ -48,7 +49,7 @@
         @{
 
             var location = context.Appointment.Location;
-           
+            var Users = context.Appointment.Id;
         }
         @if (location != "")
         {
@@ -57,7 +58,20 @@
             </span>
 
         }
-       
+        @if (Users != null)
+        {
+            string s = JsonConvert.SerializeObject(Users);
+           @*  <DxButton @onclick="@(() => OnClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
+                      Text="Users List"   >
+               *@
+          @*   </DxButton> *@
+            <span id="showUserMultiple" class="handline tagbg more-dots" @onclick="() => OnClick(long.Parse(s))">UserList</span>
+           
+         @*    <span style="vertical-align: middle;">
+                <p><i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i> @context.Appointment.CustomFields["userIds"]</p>
+            </span> *@
+
+        }
 
     </AppointmentTooltipTemplate>
     <AppointmentFormHeaderTemplate>
@@ -146,16 +160,49 @@
                                           SearchMode="ListSearchMode.AutoSearch"
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
                                           CssClass="cw-480"/>
-                 
+                   
                 </div>
+            </Template>
+        </DxSchedulerCustomFormLayoutItem>
+        <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
+            <Template>
+                <ValidationSummary />
             </Template>
         </DxSchedulerCustomFormLayoutItem>
     </AppointmentCompactFormLayout>
 </DxScheduler>
+<DxFlyout @bind-IsOpen="@IsUserslist"
+          PositionTarget=@($"#showUserMultiple")
+          Position="FlyoutPosition.Bottom"
+          CloseOnOutsideClick="true"
+          FooterVisible="false">
+    <BodyTextTemplate >
+        <div style="width:350px;">
+            @if (Userlist.Count > 0)
+            {
+                @foreach (var Tagitem in Userlist)
+                {
 
+                    @if (Tagitem.UserName != null)
+                    {
+                        <div class="list-container">
+
+                            <div class="list-item"> @Tagitem.UserName</div>
+                            
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </BodyTextTemplate>
+    <FooterTextTemplate Context="UserlistContext">
+        <DxButton Text="close" Click="@UserlistContext.CloseCallback" />
+    </FooterTextTemplate>
+</DxFlyout>
 @code {
     private List<Appointment> appointmentslist;
-   
+    private List<Appointment> Userlist;
+    bool IsUserslist { get; set; } = false;
     public ApplicationUser? applicationUser { get; private set; }
     //  EmailTopics? Data { get; set; } = new EmailTopics();
     internal List<ViewEmployee>? _Toparticipant;
@@ -180,9 +227,15 @@
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
         appointmentslist = await Mediator.Send(new GetSchedulerList());
+        // foreach (var item in appointmentslist)
+        // {
+        //   //  var list = await Mediator.Send(new GetUserListQuery(item.ID));
+        //     item.userIds =(IEnumerable<long>) list;
+        // }
+
         DataStorage.AppointmentsSource = appointmentslist.ToList();
     }
-      
+
 
     public class CustomAppointmentFormInfo : SchedulerAppointmentFormInfo
     {
@@ -193,25 +246,25 @@
             get { return base.Subject; }
             set { base.Subject = value; }
         }
-      
-        public long userIds
-        {
-            get { return userIds(CustomFields); }
-            set { CustomFields["userIds"] = value; }
-        }
+        // [Required]
+        //   public IEnumerable<long>? userIds
+        //   {
+        //       get { return userIds(CustomFields); }
+        //       set { CustomFields["userIds"] = value; }
+        //   }
     }
- 
+
     void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
     {
         args.FormInfo = new CustomAppointmentFormInfo(args.Appointment, DataStorage, Scheduler);
-       
+
     }
-  
-    static long userIds(DxExpandoDictionaryObject customFields) => (long)customFields["userIds"];
+
+    //static IEnumerable<long>? userIds(DxExpandoDictionaryObject customFields) => (IEnumerable<long>?)customFields["userIds"];
 
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
         {       
-           
+
          //   AppointmentsSource = appointmentslist.GetAppointments(),
             AppointmentMappings = new DxSchedulerAppointmentMappings()
             {
@@ -227,11 +280,11 @@
                 Description = "Description",
                 RecurrenceInfo = "Recurrence",
                 ResourceId = "ResourceId",
-              
-             
+
+
                 CustomFieldMappings = new List<DxSchedulerCustomFieldMapping> {
                   new DxSchedulerCustomFieldMapping{ Name = "StatusType", Mapping = "StatusType" },
-               
+
                   new DxSchedulerCustomFieldMapping { Name = "userIds", Mapping = "userIds" }
             }
             },
@@ -243,7 +296,7 @@
             //     BackgroundCssClass = "BackgroundCss",
             //     TextCssClass = "TextCss"
             // }
-          
+
         };
 
 
@@ -278,5 +331,12 @@
             //await UpdateDataAsync();
         }
 
-}
+    }
+    async void OnClick(long appointmentID)
+    {
+
+        Userlist = await Mediator.Send(new GetUserListQuery(appointmentID));
+        IsUserslist = true;
+        StateHasChanged();
+    }
 }

@@ -164,7 +164,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<string> Handle(EditOtherTagQery request, CancellationToken cancellationToken)
         {
-            var newlist = await _emailactyqueryRepository.UpdateOtherAsync(request.otherTag,request.Name);
+            var newlist = await _emailactyqueryRepository.UpdateOtherAsync(request.otherTag,request.Name,request.modifiedByUserID);
             return newlist;
         }
     }

@@ -48,12 +48,14 @@ namespace Application.Queries
     }
     public class EditOtherTagQery : PagedRequest, IRequest<string>
     {
+        public long modifiedByUserID { get; set; }
         public string otherTag { get; set; }
         public string Name { get; set; }
-        public EditOtherTagQery(string otherTag, string Name)
+        public EditOtherTagQery(string otherTag, string Name, long modifiedByUserID)
         {
             this.otherTag = otherTag;
             this.Name = Name;
+            this.modifiedByUserID = modifiedByUserID;
         }
     }
     public class EditUserTagQery : PagedRequest, IRequest<string>

@@ -14,7 +14,15 @@ namespace Application.Queries
 
     public class GetEmployeeCount : PagedRequest, IRequest<List<GeneralDashboard>>
     {
-
+       
+    }
+    public class GetUserListQuery : PagedRequest, IRequest<List<Appointment>>
+    {
+        public long AppointmentID { get; private set; }
+        public GetUserListQuery(long AppointmentID)
+        {
+            this.AppointmentID = AppointmentID;
+        }
     }
     public class GetSchedulerList: PagedRequest, IRequest<List<Appointment>>
     {

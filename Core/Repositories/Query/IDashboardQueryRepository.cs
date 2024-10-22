@@ -16,6 +16,7 @@ namespace Core.Repositories.Query
           Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerTodoAsync(long UserId);
         Task <IReadOnlyList<GeneralDashboard>> GetEmployeeCountAsync();
         Task<IReadOnlyList<Appointment>> GetSchedulerListAsync();
+        Task<IReadOnlyList<Appointment>> GetUserListAsync(long Appointmentid);
         Task<List<GenderRatio>> GetGenderRatioAsync();
         Task<List<Appointment>> GetAppointments(long id);
         Task<long> AddAppointmentAsync(Appointment appointment);

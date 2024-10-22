@@ -19,7 +19,7 @@ namespace Core.Repositories.Query
         Task<long> Insert(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> UpdateAsync(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> DeleteAsync(long id,long TopicId);
-        Task<string> UpdateOtherAsync(string othertag,string Name);
+        Task<string> UpdateOtherAsync(string othertag,string Name,long ModifiedByUserID);
         Task<string> UpdateuserAsync(string userTag, string Name);
         Task<long> DeleteUserTagAsync(long ID);
         Task<List<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID);

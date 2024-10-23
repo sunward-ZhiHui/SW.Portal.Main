@@ -46,8 +46,24 @@
             TextWrapEnabled="false" VirtualScrollingEnabled="true">
     <Columns>
             <DxGridSelectionColumn Width="60" FixedPosition="GridColumnFixedPosition.Left" AllowSelectAll="true" />
-        <DxGridDataColumn FieldName="OutputDate" Width="180px" />
-            <DxGridDataColumn FieldName="Time" MinWidth="180" />
+       @*  <DxGridDataColumn FieldName="OutputDate" Width="180px" /> *@
+            <DxGridDataColumn FieldName="AddedDate" Caption="OutputDate" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ViewProductionOutput)context.DataItem;
+                     }
+                    @Application.Common.Helper.Helper.FormatDate(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedDate" Caption="Time" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ViewProductionOutput)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatTime(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+          @*   <DxGridDataColumn FieldName="Time" MinWidth="180" /> *@
             <DxGridDataColumn FieldName="LocationName" MinWidth="200" />
             <DxGridDataColumn FieldName="ProductionOrderNo" FixedPosition="GridColumnFixedPosition.Left" Width="220" Caption="ProductionOrder" />
             <DxGridDataColumn FieldName="ItemNo" FixedPosition="GridColumnFixedPosition.Left" Width="180px" />

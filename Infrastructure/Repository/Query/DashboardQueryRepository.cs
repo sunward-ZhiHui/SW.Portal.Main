@@ -576,7 +576,7 @@ namespace Infrastructure.Repository.Query
 
                 parameters.Add("AppointmentID", Appointmentid);
                 var query = @"
-                           SELECT EP.FirstName as UserName FROM UserMultiple UM
+                           SELECT EP.FirstName as UserName,UM.UserID FROM UserMultiple UM
                              Left Join Employee EP ON EP.EmployeeID =UM.UserID
                              Where AppointmentID = @AppointmentID";
 
@@ -589,6 +589,41 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+
+        public async Task<long> DeleteUsermultipleAsync(long appointmentid)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+                        parameters.Add("id", appointmentid);
+
+                        var query = @"Delete From UserMultiple where AppointmentID = @id";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
         }
     }
 }

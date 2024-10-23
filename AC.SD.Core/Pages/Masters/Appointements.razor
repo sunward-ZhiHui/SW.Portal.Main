@@ -12,14 +12,45 @@
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime jsRuntime
 
+<style>
+    .list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Space between items */
+        width: 100%;
+        padding: 10px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .list-item {
+        padding: 10px;
+        background-color: #e0f7fa;
+        border: 1px solid #b2ebf2;
+        border-radius: 3px;
+        text-align: center;
+        transition: transform 0.2s;
+    }
+
+        .list-item:hover {
+            transform: translateY(-3px);
+            background-color: #b2ebf2;
+            cursor: pointer;
+        }
+</style>
 <DxScheduler @ref="Scheduler"
              @bind-StartDate="@StartDate" DataStorage="@DataStorage"
              @bind-ActiveViewType="@ActiveViewType"
              AppointmentFormShowing="OnAppointmentFormShowing"
              ValidateEditForm="true" CssClass="demo-sc-size"
              @bind-AppointmentFormMode="@AppointmentFormMode"
-             AppointmentInserting="AppointmentInserting">
+             AppointmentInserting="AppointmentInserting"
+             AppointmentRemoving="AppointmentRemoving"
+             AppointmentUpdating="AppointmentUpdating">
     <Views>
         <DxSchedulerWorkWeekView VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(19)))">
            
@@ -61,11 +92,12 @@
         @if (Users != null)
         {
             string s = JsonConvert.SerializeObject(Users);
-           @*  <DxButton @onclick="@(() => OnClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
-                      Text="Users List"   >
-               *@
-          @*   </DxButton> *@
-            <span id="showUserMultiple" class="handline tagbg more-dots" @onclick="() => OnClick(long.Parse(s))">UserList</span>
+            <DxButton id="showUserMultiple" @onclick="@(() => OnClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
+                      Text="Participants"   >
+               
+             </DxButton> 
+        @*   <button></button>
+            <span id="showUserMultiple" class="handline tagbg more-dots" @onclick="() => OnClick(long.Parse(s))">UserList</span> *@
            
          @*    <span style="vertical-align: middle;">
                 <p><i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i> @context.Appointment.CustomFields["userIds"]</p>
@@ -217,8 +249,8 @@
         .ToList();
     DateTime StartDate { get; set; } = DateTime.Today;
     SchedulerViewType ActiveViewType { get; set; } = SchedulerViewType.WorkWeek;
-
-
+    //  public IEnumerable<long>? Ids { get; set; } = null;
+    public List<long> Ids = new List<long> { };
     protected override async Task OnInitializedAsync()
     {
 
@@ -226,16 +258,13 @@
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
+        await UpdateDataAsync();
+    }
+    public async Task UpdateDataAsync()
+    {
         appointmentslist = await Mediator.Send(new GetSchedulerList());
-        // foreach (var item in appointmentslist)
-        // {
-        //   //  var list = await Mediator.Send(new GetUserListQuery(item.ID));
-        //     item.userIds =(IEnumerable<long>) list;
-        // }
-
         DataStorage.AppointmentsSource = appointmentslist.ToList();
     }
-
 
     public class CustomAppointmentFormInfo : SchedulerAppointmentFormInfo
     {
@@ -254,8 +283,20 @@
         //   }
     }
 
-    void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
+    async void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
     {
+        string s = JsonConvert.SerializeObject(args.Appointment.Id);
+        var ID = long.Parse(s);
+        if (ID > 0)
+        {
+            var Userlist = await Mediator.Send(new GetUserListQuery(ID));
+            foreach (var item in Userlist)
+            {
+
+                Ids.Add(item.UserID.Value);
+            }
+             CategoryData.userIds = Ids;
+        }
         args.FormInfo = new CustomAppointmentFormInfo(args.Appointment, DataStorage, Scheduler);
 
     }
@@ -328,8 +369,53 @@
 
             var ans = await Mediator.Send(InsertReq);
             toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            //await UpdateDataAsync();
+            await jsRuntime.InvokeVoidAsync("location.reload");
+            
         }
+
+    }
+    async Task AppointmentRemoving(SchedulerAppointmentOperationEventArgs e)
+    {
+        if (e.Appointment.Id != null)
+        {
+            var ans = await Mediator.Send(new DeleteAppointment((long)e.Appointment.Id));
+            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+
+    }
+    async Task AppointmentUpdating(SchedulerAppointmentOperationEventArgs e)
+    {
+
+        var appointment = e.Appointment.SourceObject as Appointment;
+
+        if (appointment != null)
+        {
+           
+                if (e.Appointment != null && e.Appointment.Id != null)
+                {
+                    var InsertReq = new EditAppointment
+                        {
+                            ID = (long)e.Appointment.Id,
+                            StartDate = e.Appointment.Start,
+                            EndDate = e.Appointment.End,
+                            Caption = e.Appointment.Subject,
+                            Label = (int)e.Appointment.LabelId,
+                            Status = (int)e.Appointment.StatusId,
+                            AllDay = e.Appointment.AllDay,
+                            Location = e.Appointment.Location,
+                            Description = e.Appointment.Description,
+                            userIds =CategoryData.userIds,
+                        AddedByUserID = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        };
+
+                    var ans = await Mediator.Send(InsertReq);
+                    toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+            
+        }
+        await UpdateDataAsync();
 
     }
     async void OnClick(long appointmentID)

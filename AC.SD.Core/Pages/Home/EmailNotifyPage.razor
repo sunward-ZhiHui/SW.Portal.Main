@@ -59,6 +59,18 @@
         <DxGridDataColumn FieldName="Name" Caption="Subject" FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
         <DxGridDataColumn FieldName="CategoryName" Caption="Category" GroupIndex ="0" MinWidth="180" />
         <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="130" />
+        <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailNotifyPA)context.DataItem;
+                }
+                @if (item.Description != null)
+                {
+                    <span class="fa fa-commenting" @onclick="@(() => onDesctiptionMsg(item.Description))"></span>
+                }
+
+            </CellDisplayTemplate>
+            </DxGridDataColumn>
         <DxGridDataColumn FieldName="AddedDate" MinWidth="180">
             <CellDisplayTemplate>
                 @{
@@ -137,7 +149,16 @@
         </div>
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup HeaderText="CRT" ShowCloseButton="true" CloseOnEscape="false" CloseOnOutsideClick="false" Width="max(25vw, 550px)" @bind-Visible="@descriptionPreview">
+    <BodyContentTemplate>
+        <div style="height: calc(100vh - 250px);overflow:auto;">
+            @{
+                <DxMemo ReadOnly="true" Rows="18" @bind-Text="@Description"></DxMemo>
 
+            }
+        </div>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
     public bool PrintEnabled { get; set; } = false;
     public bool DeleteEnabled { get; set; } = false;
@@ -152,7 +173,9 @@
     private List<EmailNotifyPA>? _emailNotifyData;
     private string? BaseUrl;
     bool CommentPreview { get; set; } = false;
+    bool descriptionPreview { get; set; } = false;
     string Comment;
+    string Description;
     protected override async Task OnInitializedAsync()
     {       
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
@@ -238,6 +261,12 @@
             Blukdeletepopup = false;
             toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
+    }
+    async Task onDesctiptionMsg(string description)
+    {
+        descriptionPreview = true;
+        Description = description;
+        StateHasChanged();
     }
     async Task onCommentMsg(string comment)
     {

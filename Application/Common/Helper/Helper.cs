@@ -13,6 +13,11 @@ namespace Application.Common.Helper
             // Define your desired date format here
             return dateTime?.ToString("dd-MMM-yyyy hh.mm tt");
         }
+        public static string FormatTime(DateTime? dateTime)
+        {
+            // Define your desired date format here
+            return dateTime?.ToString("hh.mm tt");
+        }
         public static string FormatDate(DateTime? dateTime)
         {
             // Define your desired date format here

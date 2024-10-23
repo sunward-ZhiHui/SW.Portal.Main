@@ -181,6 +181,16 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<long> Handle(EditAppointment request, CancellationToken cancellationToken)
         {
             var newlist = await _dashboardQueryRepository.UpdateAppointmentAsync(request);
+           
+            if (request.userIds != null)
+            {
+                var deletemultiple = await _dashboardQueryRepository.DeleteUsermultipleAsync(request.ID);
+                foreach (var item in request.userIds)
+                {
+                    request.UserID = item;
+                    var newappointment = await _dashboardQueryRepository.AddAppointmentinsertAsync(request);
+                }
+            }
             return newlist;
         }
     }
@@ -193,6 +203,11 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(DeleteAppointment request, CancellationToken cancellationToken)
         {
+            var list = await _dashboardQueryRepository.GetUserListAsync(request.Id);
+            if(list != null)
+            {
+                var deletemultiple = await _dashboardQueryRepository.DeleteUsermultipleAsync(request.Id);
+            }
             var newlist = await _dashboardQueryRepository.DeleteAppointmentAsync(request.Id);
             return newlist;
         }

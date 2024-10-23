@@ -155,6 +155,24 @@
                             <ValidationMessage For="@(() => Data.SubApplicationMasterIdsListIds)" />
 
                         </DxFormLayoutItem>
+                       @*   <DxFormLayoutItem Caption="Application Master Parent" ColSpanMd="6" Visible="@isApplicationMasterParentEnabled">
+                             <DxTagBox Data="@_applicationMasterParentItems"
+                                       NullText="Select Application Master..."
+                                       SearchMode="ListSearchMode.AutoSearch"
+                                       SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                       TextFieldName="ApplicationMasterName"
+                                       ValueFieldName="ApplicationMasterParentCodeId"
+                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                       Enabled="isEdit"
+                                       @bind-Values="@Data.SubApplicationMasterIdsListIds">
+                                 <DxListEditorColumn FieldName="@nameof(ApplicationMasterParent.ApplicationMasterName)"
+                                                     Caption="Name" Width="100px" />
+                                 <DxListEditorColumn FieldName="@nameof(ApplicationMasterParent.Description)"
+                                                     Caption="Description" Width="130px" />
+                             </DxTagBox>
+                             <ValidationMessage For="@(() => Data.SubApplicationMasterIdsListIds)" />
+
+                         </DxFormLayoutItem> *@
                         <DxFormLayoutItem Caption="Dynamic Grid Form" ColSpanMd="6" Visible="isGridForm">
                             <DxComboBox Data="@_dynamicForm"
                                         NullText="Select Dynamic Form..."
@@ -260,7 +278,7 @@
     bool isAddAttributeEnabled { get; set; } = false;
     bool isAttributeEnabled { get; set; } = true;
     bool isEdit { get; set; } = true;
-    bool AttributeDetailsEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false;
+    bool AttributeDetailsEnabled { get; set; } = false; bool isApplicationMasterEnabled { get; set; } = false; bool isApplicationMasterParentEnabled { get; set; } = false;
     bool IsSpinEditTypeEnabled { get; set; } = false; bool IsRadioLayoutEnabled { get; set; } = false;
     private List<ViewPlants>? _plantItems;
     private bool loading;
@@ -285,6 +303,7 @@
     bool isDropDownType { get; set; } = false;
     bool isDataSource { get; set; } = false; bool IsDynamicFormDropTagBoxEnabled { get; set; } = false;
     bool isGridForm { get; set; } = false; private List<global::Core.Entities.ApplicationMaster> _applicationMasterItems;
+    private List<ApplicationMasterParent>? _applicationMasterParentItems;
     private List<DynamicForm> _dynamicForm; string? DataSourceTable { get; set; }
     private List<DynamicFormSectionSpinEdit> dynamicFormSectionSpinEdit { get; set; } = new List<DynamicFormSectionSpinEdit>();
     protected override async Task OnInitializedAsync()
@@ -313,6 +332,7 @@
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
         _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterQuery());
+        _applicationMasterParentItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
         isAddAttributeEnabled = false;
         isSelectEnabled = true;
         loadPlantItems();
@@ -410,7 +430,7 @@
         DeleteEnabled = false;
         isDropDownType = false; IsDynamicFormDropTagBoxEnabled = false;
         isDataSource = false;
-        ActiveTabIndex = 0; isApplicationMasterEnabled = false;
+        ActiveTabIndex = 0; isApplicationMasterEnabled = false; isApplicationMasterParentEnabled = false;
         AttributeDetailsEnabled = false; isGridForm = false; DataSourceTable = null; Data.SubApplicationMasterIdsListIds = new List<long?>();
         Data.IsDynamicFormDropTagBox = false; isListMultiple = false; IsSpinEditTypeEnabled = false; Data.IsAttributeSpinEditType = null;
         IsRadioLayoutEnabled = false; Data.AttributeRadioLayout = null;
@@ -473,6 +493,11 @@
                 dynamicFormId = DynamicFormIds;
             }
             if (_attributeHeaderDataSources == "ApplicationMaster")
+            {
+                DataSourceTable = _attributeHeaderDataSources;
+                applicationMasterIdsListIds = Data.SubApplicationMasterIdsListIds;
+            }
+            if (_attributeHeaderDataSources == "ApplicationMasterParent")
             {
                 DataSourceTable = _attributeHeaderDataSources;
                 applicationMasterIdsListIds = Data.SubApplicationMasterIdsListIds;
@@ -555,7 +580,7 @@
     void SelectedItemDataSourceChanged(long? value)
     {
         Data.DataSourceId = null;
-        Data.DynamicFormId = 0; isGridForm = false; isApplicationMasterEnabled = false;
+        Data.DynamicFormId = 0; isGridForm = false; isApplicationMasterEnabled = false; isApplicationMasterParentEnabled = false;
         if (Data.IsDataSource == true && value > 0)
         {
             Data.DataSourceId = value;
@@ -569,6 +594,10 @@
                 if (data.DataSourceTable == "ApplicationMaster")
                 {
                     Data.SubApplicationMasterIdsListIds = new List<long?>(); isApplicationMasterEnabled = true;
+                }
+                if (data.DataSourceTable == "ApplicationMasterParent")
+                {
+                    Data.SubApplicationMasterIdsListIds = new List<long?>(); isApplicationMasterParentEnabled = true;
                 }
             }
         }
@@ -585,7 +614,7 @@
     {
         isDisplay = "display:none;";
         isDisplay1 = "";
-        DeleteEnabled = false; Data.DropDownTypeId = null; Data.IsDataSource = false; DataSourceTable = null; isGridForm = false;
+        DeleteEnabled = false; Data.DropDownTypeId = null; Data.IsDataSource = false; DataSourceTable = null; isGridForm = false; isApplicationMasterParentEnabled = false;
         Data.IsDynamicFormDropTagBox = false; isListMultiple = false; IsSpinEditTypeEnabled = false; IsRadioLayoutEnabled = false; isApplicationMasterEnabled = false;
         if (_selectedItems != null)
         {
@@ -638,6 +667,14 @@
                     if (_attributeHeaderDataSources == "ApplicationMaster")
                     {
                         isApplicationMasterEnabled = true; DataSourceTable = _attributeHeaderDataSources;
+                        if (!string.IsNullOrEmpty(_selectedItems.SubApplicationMasterIDs))
+                        {
+                            Data.SubApplicationMasterIdsListIds = _selectedItems.SubApplicationMasterIDs.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
+                        }
+                    }
+                    if (_attributeHeaderDataSources == "ApplicationMasterParent")
+                    {
+                        isApplicationMasterParentEnabled = true; DataSourceTable = _attributeHeaderDataSources;
                         if (!string.IsNullOrEmpty(_selectedItems.SubApplicationMasterIDs))
                         {
                             Data.SubApplicationMasterIdsListIds = _selectedItems.SubApplicationMasterIDs.Split(",").Select(x => (long?)Int64.Parse(x)).ToList();
@@ -747,7 +784,7 @@
     {
         Data.ControlTypeId = null;
         isMultipleEnabled = false;
-        MaskEnabled = false; isApplicationMasterEnabled = false;
+        MaskEnabled = false; isApplicationMasterEnabled = false; isApplicationMasterParentEnabled = false;
         RegEnabled = false; isDropDownType = false; IsDynamicFormDropTagBoxEnabled = false; IsSpinEditTypeEnabled = false;
         isDataSource = false; isGridForm = false; IsRadioLayoutEnabled = false;
         if (type == "Add")
@@ -869,7 +906,7 @@
         Data = new AttributeHeader();
         _stausItems?.Clear();
         _applicationUsers?.Clear();
-        codemaster=null;
+        codemaster = null;
         _SaveLst?.Clear();
         AttributeNamelst = new AttributeHeader();
         ControlTypeChildData?.Clear();

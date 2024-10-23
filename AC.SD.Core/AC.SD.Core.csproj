@@ -97,6 +97,9 @@
     <Content Update="Pages\Dashboard\MemoReportLists.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="Pages\DMS\DocumentNoGenerationList.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
     <Content Update="Pages\TransferPermissions\DynamicFormDataTransfer\TransferDynamicFormWorkFlowApproved.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>

@@ -84,6 +84,7 @@ namespace Core.EntityModels
         public bool? IsDuplicateUpload { get; set; } = false;
         public Guid? DynamicFormDataSessionId { get; set; }
         public Guid? DynamicFormSessionId { get; set; }
+        public bool? IsDelete { get; set; }=false;
     }
     public class FormDropDownModel
     {

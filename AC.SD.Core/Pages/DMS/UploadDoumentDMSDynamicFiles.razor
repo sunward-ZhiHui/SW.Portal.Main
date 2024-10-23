@@ -294,18 +294,18 @@
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
             <DxFormLayoutItem Caption="" ColSpanMd="12">
-               @*   <DxTreeView @ref="_treeView"
-                             @bind-FilterString="FilterString"
-                             AllowSelectNodes="true"
-                             AfterExpand="@AfterExpand"
-                             SelectionChanged="@SelectionChanged" Data="@_selectedTreeItems"
-                             LoadChildNodesOnDemand="true">
-                     <DataMappings>
-                         <DxTreeViewDataMapping Text="FileName"
-                                                HasChildren="HasChildren"
-                                                Children="Children" />
-                     </DataMappings>
-                 </DxTreeView> *@
+                @*   <DxTreeView @ref="_treeView"
+                @bind-FilterString="FilterString"
+                AllowSelectNodes="true"
+                AfterExpand="@AfterExpand"
+                SelectionChanged="@SelectionChanged" Data="@_selectedTreeItems"
+                LoadChildNodesOnDemand="true">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                HasChildren="HasChildren"
+                Children="Children" />
+                </DataMappings>
+                </DxTreeView> *@
                 <DxTreeList Data="fileProfileTypeDocumentsAll"
                             VirtualScrollingEnabled="true"
                             ShowFilterRow="true"
@@ -434,33 +434,38 @@
         {
             selectedFiles = _selectedFiles;
             documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
-
-            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
-            if (abbreviation != null)
+            if (documentProfileNoSeriesData != null)
             {
-                foreach (var item in abbreviation)
+                if (!string.IsNullOrEmpty(documentProfileNoSeriesData.Abbreviation1))
                 {
-                    var itemsId = item.Id;
-                    if (itemsId == 1)
+                    dynamic? abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+                    if (abbreviation != null)
                     {
-                        isPlant = true;
-                        Data.PlantId = null;
-                    }
-                    if (itemsId == 2)
-                    {
-                        isDepartment = true; isDivision = true;
-                        Data.DepartmentId = null;
-                        Data.DivisionId = null;
-                    }
-                    if (itemsId == 3)
-                    {
-                        isSection = true;
-                        Data.SectionId = null;
-                    }
-                    if (itemsId == 4)
-                    {
-                        isSubSection = true;
-                        Data.SubSectionId = null;
+                        foreach (var item in abbreviation)
+                        {
+                            var itemsId = item.Id;
+                            if (itemsId == 1)
+                            {
+                                isPlant = true;
+                                Data.PlantId = null;
+                            }
+                            if (itemsId == 2)
+                            {
+                                isDepartment = true; isDivision = true;
+                                Data.DepartmentId = null;
+                                Data.DivisionId = null;
+                            }
+                            if (itemsId == 3)
+                            {
+                                isSection = true;
+                                Data.SectionId = null;
+                            }
+                            if (itemsId == 4)
+                            {
+                                isSubSection = true;
+                                Data.SubSectionId = null;
+                            }
+                        }
                     }
                 }
             }

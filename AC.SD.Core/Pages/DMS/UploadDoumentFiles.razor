@@ -501,7 +501,7 @@
     private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     private List<UploadFileInfo> SuccessFiles { get; set; } = new List<UploadFileInfo>();
     private List<UploadFileInfo> FailedFiles { get; set; } = new List<UploadFileInfo>();
-    bool isExpiryDate { get; set; } = false;bool isSelectFile { get; set; } = false;
+    bool isExpiryDate { get; set; } = false; bool isSelectFile { get; set; } = false;
     bool isPlant { get; set; } = false;
     bool isDivision { get; set; } = false; bool isDepartment { get; set; } = false;
     bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
@@ -538,7 +538,7 @@
         Data.PlantId = 0; Data.DepartmentId = 0;
         Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
         TempSetIds = new List<DocumentsUploadModel>();
-        loading = true;isSelectFile = false;
+        loading = true; isSelectFile = false;
         Message = "Upload";
         uploadComponent.RemoveAllFiles();
         CurrentUplodCount = 0;
@@ -550,33 +550,38 @@
             selectedFiles = _selectedFiles;
             applicationUser = _applicationUser;
             documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
-
-            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
-            if (abbreviation != null)
+            if (documentProfileNoSeriesData != null)
             {
-                foreach (var item in abbreviation)
+                if (!string.IsNullOrEmpty(documentProfileNoSeriesData.Abbreviation1))
                 {
-                    var itemsId = item.Id;
-                    if (itemsId == 1)
+                    dynamic? abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+                    if (abbreviation != null)
                     {
-                        isPlant = true;
-                        Data.PlantId = null;
-                    }
-                    if (itemsId == 2)
-                    {
-                        isDepartment = true; isDivision = true;
-                        Data.DepartmentId = null;
-                        Data.DivisionId = null;
-                    }
-                    if (itemsId == 3)
-                    {
-                        isSection = true;
-                        Data.SectionId = null;
-                    }
-                    if (itemsId == 4)
-                    {
-                        isSubSection = true;
-                        Data.SubSectionId = null;
+                        foreach (var item in abbreviation)
+                        {
+                            var itemsId = item.Id;
+                            if (itemsId == 1)
+                            {
+                                isPlant = true;
+                                Data.PlantId = null;
+                            }
+                            if (itemsId == 2)
+                            {
+                                isDepartment = true; isDivision = true;
+                                Data.DepartmentId = null;
+                                Data.DivisionId = null;
+                            }
+                            if (itemsId == 3)
+                            {
+                                isSection = true;
+                                Data.SectionId = null;
+                            }
+                            if (itemsId == 4)
+                            {
+                                isSubSection = true;
+                                Data.SubSectionId = null;
+                            }
+                        }
                     }
                 }
             }
@@ -1150,7 +1155,7 @@
         }
         StateHasChanged();
     }
-   
+
     public void onsubmitUploadFromClick()
     {
         if (_editContext.Validate())

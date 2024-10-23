@@ -322,7 +322,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-   
+
     IEnumerable<string> TemplateUploadOptions = new[] { "Files", "Images" };
     private QCUploadFileImagesToPdf refUploadFileImagesToPdf;
     public DocumentsModel selectedFiles { get; set; }
@@ -466,32 +466,38 @@
             selectedFiles = _selectedFiles;
             documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
 
-            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
-            if (abbreviation != null)
+            if (documentProfileNoSeriesData != null)
             {
-                foreach (var item in abbreviation)
+                if (!string.IsNullOrEmpty(documentProfileNoSeriesData.Abbreviation1))
                 {
-                    var itemsId = item.Id;
-                    if (itemsId == 1)
+                    dynamic? abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+                    if (abbreviation != null)
                     {
-                        isPlant = true;
-                        Data.PlantId = null;
-                    }
-                    if (itemsId == 2)
-                    {
-                        isDepartment = true; isDivision = true;
-                        Data.DepartmentId = null;
-                        Data.DivisionId = null;
-                    }
-                    if (itemsId == 3)
-                    {
-                        isSection = true;
-                        Data.SectionId = null;
-                    }
-                    if (itemsId == 4)
-                    {
-                        isSubSection = true;
-                        Data.SubSectionId = null;
+                        foreach (var item in abbreviation)
+                        {
+                            var itemsId = item.Id;
+                            if (itemsId == 1)
+                            {
+                                isPlant = true;
+                                Data.PlantId = null;
+                            }
+                            if (itemsId == 2)
+                            {
+                                isDepartment = true; isDivision = true;
+                                Data.DepartmentId = null;
+                                Data.DivisionId = null;
+                            }
+                            if (itemsId == 3)
+                            {
+                                isSection = true;
+                                Data.SectionId = null;
+                            }
+                            if (itemsId == 4)
+                            {
+                                isSubSection = true;
+                                Data.SubSectionId = null;
+                            }
+                        }
                     }
                 }
             }
@@ -917,7 +923,7 @@
     async Task SubmitImagesFormExternally()
     {
         Uploadloading = false; isImageUpload = false; Message = "Uploading...";
-       var response = await refUploadFileImagesToPdf.uploadImagesToPdf(DocSessionId, Data);
+        var response = await refUploadFileImagesToPdf.uploadImagesToPdf(DocSessionId, Data);
         if (response == "Done")
         {
             Message = "Upload";
@@ -937,7 +943,7 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         fileProfileTypeModels = null;
         _plantItems?.Clear();
         _divisionItems?.Clear();
@@ -951,6 +957,6 @@
         fileProfileTypeDocumentsAll?.Clear();
         documentsFiles?.Clear();
         refUploadFileImagesToPdf?.DisposeAsync();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
 }

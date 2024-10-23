@@ -175,6 +175,7 @@ namespace Infrastructure
             services.AddScoped<IMemoQueryRepository, MemoQueryRepository>();
             services.AddScoped<IQCTimesheetQueryRepository, QCTimeSheetQueryRepository>();
             services.AddScoped<IDynamicFormDataQueryRepository, DynamicFormDataQueryRepository>();
+            services.AddScoped<IDocumentProfileNoSeriesQueryRepository, DocumentProfileNoSeriesQueryRepository>();
             return services;
         }
     }

@@ -64,7 +64,7 @@
                         <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="PlantValue"
                                        QueryDisplayText="QueryPlantText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -95,7 +95,7 @@
                         <ValidationMessage For="@(() => Data.PlantId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="DivisionValue"
                                        QueryDisplayText="QueryDivisionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -126,7 +126,7 @@
                         <ValidationMessage For="@(() => Data.DivisionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="DepartmentValue"
                                        QueryDisplayText="QueryDepartmentText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -157,7 +157,7 @@
                         <ValidationMessage For="@(() => Data.DepartmentId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="SectionValue"
                                        QueryDisplayText="QuerySectionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -188,7 +188,7 @@
                         <ValidationMessage For="@(() => Data.SectionId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-                       
+
                         <DxDropDownBox @bind-Value="SubSectionValue"
                                        QueryDisplayText="QuerySubSectionText"
                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -264,18 +264,18 @@
             <DxFormLayoutItem Caption="" ColSpanMd="12">
                 @* <DxTreeView @ref="_treeLinkDocView"
                 @bind-FilterString="FilterString"
-                            ShowFilterPanel="true"
-                            FilterMode="NavigationFilterMode.EntireBranch"
-                            AllowSelectNodes="true"
-                            AfterExpand="@AfterExpand"
-                            SelectionChanged="@SelectionChanged"
-                            Data="@_selectedTreeItems"
-                            LoadChildNodesOnDemand="true">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Text="FileName"
-                                               HasChildren="HasChildren"
-                                               Children="Children" />
-                    </DataMappings>
+                ShowFilterPanel="true"
+                FilterMode="NavigationFilterMode.EntireBranch"
+                AllowSelectNodes="true"
+                AfterExpand="@AfterExpand"
+                SelectionChanged="@SelectionChanged"
+                Data="@_selectedTreeItems"
+                LoadChildNodesOnDemand="true">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                HasChildren="HasChildren"
+                Children="Children" />
+                </DataMappings>
                 </DxTreeView> *@
                 <DxTreeList Data="fileProfileTypeLinkDocDocumentsAll"
                             VirtualScrollingEnabled="true"
@@ -414,33 +414,38 @@
             selectedFiles = _selectedFiles;
             applicationUser = _applicationUser;
             documentProfileNoSeriesLinkDocData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
-
-            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesLinkDocData.Abbreviation1);
-            if (abbreviation != null)
+            if (documentProfileNoSeriesLinkDocData != null)
             {
-                foreach (var item in abbreviation)
+                if (!string.IsNullOrEmpty(documentProfileNoSeriesLinkDocData.Abbreviation1))
                 {
-                    var itemsId = item.Id;
-                    if (itemsId == 1)
+                    dynamic? abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesLinkDocData.Abbreviation1);
+                    if (abbreviation != null)
                     {
-                        isPlantLinkDoc = true;
-                        Data.PlantId = null;
-                    }
-                    if (itemsId == 2)
-                    {
-                        isDepartmentLinkDoc = true; isDivisionLinkDoc = true;
-                        Data.DepartmentId = null;
-                        Data.DivisionId = null;
-                    }
-                    if (itemsId == 3)
-                    {
-                        isSectionLinkDoc = true;
-                        Data.SectionId = null;
-                    }
-                    if (itemsId == 4)
-                    {
-                        isSubSectionLinkDoc = true;
-                        Data.SubSectionId = null;
+                        foreach (var item in abbreviation)
+                        {
+                            var itemsId = item.Id;
+                            if (itemsId == 1)
+                            {
+                                isPlantLinkDoc = true;
+                                Data.PlantId = null;
+                            }
+                            if (itemsId == 2)
+                            {
+                                isDepartmentLinkDoc = true; isDivisionLinkDoc = true;
+                                Data.DepartmentId = null;
+                                Data.DivisionId = null;
+                            }
+                            if (itemsId == 3)
+                            {
+                                isSectionLinkDoc = true;
+                                Data.SectionId = null;
+                            }
+                            if (itemsId == 4)
+                            {
+                                isSubSectionLinkDoc = true;
+                                Data.SubSectionId = null;
+                            }
+                        }
                     }
                 }
             }
@@ -870,6 +875,6 @@
     {
         //System.GC.Collect();
         ClearData();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
 }

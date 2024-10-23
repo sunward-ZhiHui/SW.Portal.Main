@@ -347,34 +347,38 @@
             documentProfileNoSeriesLinkDocData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedItems.ProfileID));
             if (documentProfileNoSeriesLinkDocData != null)
             {
-                dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesLinkDocData.Abbreviation1);
-                if (abbreviation != null)
+                if (!string.IsNullOrEmpty(documentProfileNoSeriesLinkDocData.Abbreviation1))
                 {
-                    foreach (var item in abbreviation)
+                    dynamic? abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesLinkDocData.Abbreviation1);
+                    if (abbreviation != null)
                     {
-                        var itemsId = item.Id;
-                        if (itemsId == 1)
+                        foreach (var item in abbreviation)
                         {
-                            isPlantLinkDoc = true;
-                            Data.PlantID = null;
-                        }
-                        if (itemsId == 2)
-                        {
-                            isDepartmentLinkDoc = true; isDivisionLinkDoc = true;
-                            Data.DepartmentId = null;
-                            Data.DivisionId = null;
-                        }
-                        if (itemsId == 3)
-                        {
-                            isSectionLinkDoc = true;
-                            Data.SectionId = null;
-                        }
-                        if (itemsId == 4)
-                        {
-                            isSubSectionLinkDoc = true;
-                            Data.SubSectionId = null;
+                            var itemsId = item.Id;
+                            if (itemsId == 1)
+                            {
+                                isPlantLinkDoc = true;
+                                Data.PlantID = null;
+                            }
+                            if (itemsId == 2)
+                            {
+                                isDepartmentLinkDoc = true; isDivisionLinkDoc = true;
+                                Data.DepartmentId = null;
+                                Data.DivisionId = null;
+                            }
+                            if (itemsId == 3)
+                            {
+                                isSectionLinkDoc = true;
+                                Data.SectionId = null;
+                            }
+                            if (itemsId == 4)
+                            {
+                                isSubSectionLinkDoc = true;
+                                Data.SubSectionId = null;
+                            }
                         }
                     }
+
                 }
             }
             Data.ProfileID = selectedItems.ProfileID;
@@ -430,10 +434,14 @@
     }
     async Task SelectedItemChanged(long? plantID)
     {
-        _divisionItems = new List<ViewDivision>();
-        _departmentItems = new List<ViewDepartment>();
-        _sectionItems = new List<ViewSection>();
-        _subSectionItems = new List<ViewSubSection>();
+        _divisionItems = new List<ViewDivision>
+    ();
+        _departmentItems = new List<ViewDepartment>
+            ();
+        _sectionItems = new List<ViewSection>
+            ();
+        _subSectionItems = new List<ViewSubSection>
+            ();
         if (plantID > 0)
         {
             _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
@@ -471,9 +479,12 @@
     }
     async Task SelectedItemDivisionChanged(long? divisionId)
     {
-        _departmentItems = new List<ViewDepartment>();
-        _sectionItems = new List<ViewSection>();
-        _subSectionItems = new List<ViewSubSection>();
+        _departmentItems = new List<ViewDepartment>
+            ();
+        _sectionItems = new List<ViewSection>
+            ();
+        _subSectionItems = new List<ViewSubSection>
+            ();
         if (divisionId > 0)
         {
             _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
@@ -511,8 +522,10 @@
     }
     async Task SelectedItemDepartementChanged(long? departmentId)
     {
-        _sectionItems = new List<ViewSection>();
-        _subSectionItems = new List<ViewSubSection>();
+        _sectionItems = new List<ViewSection>
+            ();
+        _subSectionItems = new List<ViewSubSection>
+            ();
         if (departmentId > 0)
         {
             _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
@@ -549,7 +562,8 @@
     }
     async Task SelectedItemSectionChanged(long? sectionId)
     {
-        _subSectionItems = new List<ViewSubSection>();
+        _subSectionItems = new List<ViewSubSection>
+            ();
         if (sectionId > 0)
         {
             _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));

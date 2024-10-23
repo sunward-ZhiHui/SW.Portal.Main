@@ -530,37 +530,40 @@ namespace SW.Portal.Solutions.Controllers
             var documentProfileNoSeriesData = await _mediator.Send(new GetDocumentProfileNoSeriesById(ProfileID));
             if (documentProfileNoSeriesData != null)
             {
-                dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
-                if (abbreviation != null)
+                if (!string.IsNullOrEmpty(documentProfileNoSeriesData.Abbreviation1))
                 {
-                    foreach (var item in abbreviation)
+                    dynamic? abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+                    if (abbreviation != null)
                     {
-                        var itemsId = item.Id;
-                        if (itemsId == 1)
+                        foreach (var item in abbreviation)
                         {
-                            Data.isPlant = true;
+                            var itemsId = item.Id;
+                            if (itemsId == 1)
+                            {
+                                Data.isPlant = true;
 
-                        }
-                        if (itemsId == 2)
-                        {
-                            Data.isDepartment = true;
-                            Data.isDivision = true;
+                            }
+                            if (itemsId == 2)
+                            {
+                                Data.isDepartment = true;
+                                Data.isDivision = true;
 
-                        }
-                        if (itemsId == 3)
-                        {
-                            Data.isSection = true;
+                            }
+                            if (itemsId == 3)
+                            {
+                                Data.isSection = true;
 
-                        }
-                        if (itemsId == 4)
-                        {
-                            Data.isSubSection = true;
+                            }
+                            if (itemsId == 4)
+                            {
+                                Data.isSubSection = true;
 
+                            }
                         }
+
+
+
                     }
-
-
-
                 }
             }
 
@@ -622,8 +625,8 @@ namespace SW.Portal.Solutions.Controllers
                 DepartmentIds = topic.DepartmentIds,
                 UniqueSessionId = topic.UniqueSessionId,
                 FileName = topic.FileName,
-               
-                
+
+
 
             }).ToList();
             try
@@ -657,8 +660,8 @@ namespace SW.Portal.Solutions.Controllers
                 AddedDate = topic.AddedDate,
                 ModifiedDate = topic.ModifiedDate,
                 SessionId = topic.SessionId,
-                ModifiedByUserID = topic.ModifiedByUserID,               
-                ProfileNo = topic.ProfileNo,                       
+                ModifiedByUserID = topic.ModifiedByUserID,
+                ProfileNo = topic.ProfileNo,
                 UniqueSessionId = topic.UniqueSessionId,
                 FileName = topic.FileName,
                 AssignToIds = topic.AssignToIds,

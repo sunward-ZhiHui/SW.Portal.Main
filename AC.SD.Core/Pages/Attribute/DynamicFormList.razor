@@ -52,6 +52,7 @@
                 <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
                 <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
                 <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@AddEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -1229,9 +1230,26 @@
 
         }
     }
+    async Task OpenMailMergeUrl()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicFormMailMerge/" + SessionId;
+            await JS.InvokeVoidAsync("window.open", url, "_blank");
+        }
+        else
+        {
+            var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicFormMailMerge/" + SessionId;
+            await JS.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
     async Task addDetailEmailCreate()
     {
-        var _selectedItemsDAta=await Mediator.Send(new GetDynamicFormDataBySessionId(_selectedItems.SessionId));
+        var _selectedItemsDAta = await Mediator.Send(new GetDynamicFormDataBySessionId(_selectedItems.SessionId));
         if (_selectedItemsDAta != null)
         {
             if (_selectedItemsDAta.IsDraft == null)

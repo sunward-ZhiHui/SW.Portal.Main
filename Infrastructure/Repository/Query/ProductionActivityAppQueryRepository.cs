@@ -608,7 +608,8 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("TimeSheetAction", PPAlist.TimeSheetAction);
                         parameters.Add("LotNo", PPAlist.LotNo);
                         parameters.Add("ItemName", PPAlist.ItemName);
-
+                        parameters.Add("ActionType", PPAlist.ActionType);
+                        parameters.Add("LineComment", PPAlist.LineComment);
 
                         var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId, PPAlist.TimeSheetAction, PPAlist.LotNo, PPAlist.ItemName);
                         if (lists != null)
@@ -617,9 +618,9 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            var query = @"INSERT INTO ProductionActivityRoutineApp(TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate,LotNo,ItemName) 
+                            var query = @"INSERT INTO ProductionActivityRoutineApp(ActionType,TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate,LotNo,ItemName,Comment) 
 				                       OUTPUT INSERTED.ProductionActivityRoutineAppId 
-				                       VALUES (@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate,@LotNo,@ItemName)";
+				                       VALUES (@ActionType,@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate,@LotNo,@ItemName,@LineComment)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
 
                             PPAlist.ProductionActivityRoutineAppId = insertedId;

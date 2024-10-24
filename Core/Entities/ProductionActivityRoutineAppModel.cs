@@ -29,6 +29,7 @@ namespace Core.Entities
         public long? NavprodOrderLineId { get; set; }
         public Guid? LineSessionId { get; set; }
         public string? LineComment { get; set; }
+        public string? ActionType { get; set; }
         public string? OthersOptions { get; set; }
         public long? ProductionActivityRoutineAppLineId { get; set; }
         public ProductActivityPermissionModel? ProductActivityPermissionData { get; set; }

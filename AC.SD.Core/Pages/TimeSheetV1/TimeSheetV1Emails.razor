@@ -203,7 +203,7 @@
         Data.ActivityMasterId = selectedFiles.ProductionActivityRoutineAppLineId;
         Data.DocumentSessionId = selectedFiles.LineSessionId;
         Data.Comment = selectedFiles.LineComment;
-        Data.BackURL = "/ProductionRoutineTimeSheet/" + selectedFiles.LineSessionId;
+        Data.BackURL = "/ProductionRoutineTimeSheetV1/" + selectedFiles.LineSessionId;
         var request = await Mediator.Send(new InserProductionActivityEmail(Data));
         if (request.ActivityEmailTopicID > 0)
         {

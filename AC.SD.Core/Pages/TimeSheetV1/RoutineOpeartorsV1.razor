@@ -1,0 +1,231 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+@using global::Core.Entities.Views;
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="addNewSupportingDocuments" id=@($"flyout-overview-target-container-Operators") />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_supportDocselectedFile" VirtualScrollingEnabled="true"
+            KeyFieldName="ProductionActivityNonComplianceUserId"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="UserName" Caption="Name" MinWidth="80" />
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@BlukdeleteDocument"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete this Document
+        </p>
+        <strong>@DeleteDocumentName</strong>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onDeleteSupportDocument" />
+
+    </FooterContentTemplate>
+</DxPopup>
+<DxFlyout @bind-IsOpen=IsDescriptionOpen
+          PositionTarget=@($"#flyout-overview-target-container-Operators")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Operators"
+          FooterVisible="true"
+          CloseOnOutsideClick="false"
+          FooterCssClass="custom-flyout-footer"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Users" ColSpanMd="12">
+                <DxTagBox Data="_usersList"
+                @bind-Values="Data.UserIDs"
+                          NullText="Select To..."
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ValueFieldName="UserID"
+                          TextFieldName="FirstName"
+                          SearchMode="ListSearchMode.AutoSearch"
+                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                          EditFormat="{0}-{1}"
+                          ListRenderMode="ListRenderMode.Virtual">
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                </DxTagBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Notes" ColSpanMd="12">
+                <DxMemo @bind-Text="@Data.Notes" CssClass="cw-480" Rows="5" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Save" Click=@(()=> OnUpdateDescription()) />
+    </FooterContentTemplate>
+</DxFlyout>
+@code {
+    bool IsDescriptionOpen { get; set; } = false;
+    bool BlukdeleteDocument { get; set; } = false;
+    public string DeleteDocumentName { get; set; }
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    public Guid? UploadSessionId { get; set; }
+    [Parameter]
+    public ProductionActivityRoutineAppModel selectedFiles { get; set; }
+    [Parameter]
+    public string? Type { get; set; } = "Production Routine";
+    [Parameter]
+    public string? ActionType { get; set; } = "RestrictOperator";
+    public long? ProductionActivityRoutineAppLineId { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    private List<ProductionActivityNonComplianceUserModel> _supportDocselectedFile { get; set; }
+    public ProductionActivityNonComplianceModel productionActivityNonCompliance { get; set; }
+    public ProductionActivityNonComplianceUserModel _selectedItems { get; set; }
+    ProductionActivityNonComplianceModel Data = new ProductionActivityNonComplianceModel();
+    bool DeleteEnabled { get; set; } = false;
+    private List<ViewEmployee>? _usersList;
+    protected override async Task OnInitializedAsync()
+    {
+        _usersList = await Mediator.Send(new GetAllEmployeeListQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await loadSupportingDocFiles();
+
+    }
+    async Task loadSupportingDocFiles()
+    {
+        PanelVisible = true; DeleteEnabled = false; _supportDocselectedFile = new List<ProductionActivityNonComplianceUserModel>();
+        if (selectedFiles.ProductionActivityRoutineAppLineId > 0)
+        {
+            ProductionActivityRoutineAppLineId = selectedFiles.ProductionActivityRoutineAppLineId;
+            productionActivityNonCompliance = await Mediator.Send(new GetProductionActivityNonCompliance(Type, selectedFiles.ProductionActivityRoutineAppLineId, ActionType));
+            if (productionActivityNonCompliance.ProductionActivityNonComplianceUserModels.Count() > 0)
+            {
+                _supportDocselectedFile = productionActivityNonCompliance.ProductionActivityNonComplianceUserModels;
+                if (_supportDocselectedFile != null && _supportDocselectedFile.Count() > 0)
+                {
+                    _selectedItems = _supportDocselectedFile.FirstOrDefault();
+                    DeleteEnabled = true;
+                }
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionActivityNonComplianceUserId");
+        _selectedItems = _supportDocselectedFile.FirstOrDefault(f => f.ProductionActivityNonComplianceUserId == (long?)UniqueId);
+        StateHasChanged();
+
+    }
+    async Task onDeleteSupportDocument()
+    {
+        if (_selectedItems != null)
+        {
+            BlukdeleteDocument = false;
+            await Mediator.Send(new DeleteProductionActivityNonCompliance(_selectedItems));
+            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await loadSupportingDocFiles();
+        }
+    }
+    void EulaPopupDocumentClosed(PopupClosedEventArgs args)
+    {
+        BlukdeleteDocument = false;
+    }
+    void onDelete()
+    {
+        BlukdeleteDocument = true;
+    }
+    void addNewSupportingDocuments()
+    {
+        IsDescriptionOpen = true;
+    }
+    async Task OnUpdateDescription()
+    {
+        Data.ProductionActivityRoutineAppLineId = ProductionActivityRoutineAppLineId;
+        Data.Type = Type;
+        Data.ActionType = ActionType;
+        Data.ProductionActivityNonComplianceId = productionActivityNonCompliance.ProductionActivityNonComplianceId;
+        await Mediator.Send(new InsertProductionActivityNonCompliance(Data));
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsDescriptionOpen = false;
+        await loadSupportingDocFiles();
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (_supportDocselectedFile != null)
+        {
+            _supportDocselectedFile.Clear();
+            _supportDocselectedFile = null;
+        }
+        if (_usersList != null)
+        {
+            _usersList.Clear();
+            _usersList = null;
+        }
+        productionActivityNonCompliance = null;
+        _selectedItems = null;
+        Data = null;
+
+
+    // System.GC.Collect();
+       // GC.SuppressFinalize(this);
+    }
+}

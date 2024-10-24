@@ -1,0 +1,205 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using global::Core.EntityModels;
+@inject IJSRuntime jsRuntime
+@using DevExpress.Export
+@inject NavigationManager NavigationManager
+@inject AC.SD.Core.Services.ToastService toastService
+<style>
+    .alt-item > td {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .header-bold span {
+        font-weight: 700;
+    }
+
+</style>
+@page "/documentprofiles"
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxGrid Data="@_resultItems" @ref="Grid"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        ShowGroupPanel="true" ShowGroupedColumns="true"
+        KeyFieldName="ProfileID"
+        CustomizeElement="Grid_CustomizeElement"
+        ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Single"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360"
+        style="height: calc(100vh - 270px);"
+        FocusedRowEnabled="true"
+        RowDoubleClick="OnRowDoubleClick"
+        RowClick="OnRowClick"
+        VirtualScrollingEnabled="true"
+        AllowSelectRowByClick="true">
+    <Columns>
+        <DxGridDataColumn FieldName="ProfileID" Visible="false" MinWidth="50" />
+        <DxGridDataColumn FieldName="Name" Width="30%" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" />
+        <DxGridDataColumn FieldName="Description" Width="50%" />
+        <DxGridDataColumn FieldName="Abbreviation" Width="50%" />
+        <DxGridDataColumn FieldName="CompanyName" Caption="Company" Width="30%" />
+        <DxGridDataColumn FieldName="DepartmentName" Caption="Department" Width="30%" />
+        <DxGridDataColumn FieldName="SampleDocumentNo" Caption="Sample Document No" Width="50%" />
+        <DxGridDataColumn FieldName="StatusCode" Caption="Status" Width="50%" />
+        <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" Width="50%" />
+    </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+    </TotalSummary>
+</DxGrid>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         CloseOnEscape="false"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool Blukdeletepopup { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private List<DocumentProfileNoSeriesModel> _resultItems;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    private DocumentProfileNoSeriesModel? _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await loadData();
+    }
+    async Task loadData()
+    {
+        AddEnabled = true; EditEnabled = false; DeleteEnabled = false;
+        _resultItems = await Mediator.Send(new GetDocumentProfileNoSeriesQuery());
+        if (_resultItems != null && _resultItems.Count() > 0)
+        {
+            EditEnabled = true; DeleteEnabled = true;
+            _selectedItems = _resultItems.FirstOrDefault();
+            var ProfileCount = await Mediator.Send(new GetDocumentNoSeriesCount(_selectedItems.ProfileID));
+            if (ProfileCount > 0)
+            {
+                DeleteEnabled = false;
+            }
+            StateHasChanged();
+        }
+    }
+    async Task OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProfileID");
+        _selectedItems = _resultItems.FirstOrDefault(f => f.ProfileID == (long?)UniqueId);
+        EditEnabled = true; DeleteEnabled = true;
+        var ProfileCount = await Mediator.Send(new GetDocumentNoSeriesCount(_selectedItems.ProfileID));
+        if (ProfileCount > 0)
+        {
+            DeleteEnabled = false;
+        }
+        StateHasChanged();
+    }
+    public async Task OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        await OnRowClick(e);
+        addEdit();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void addNew()
+    {
+        NavigationManager.NavigateTo("documentprofiles/documentprofilesForm");
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+       // await loadData();
+    }
+    void addEdit()
+    {
+        if (_selectedItems != null)
+        {
+            NavigationManager.NavigateTo("documentprofiles/documentprofilesForm/" + _selectedItems.SessionId);
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            var request = new DeleteDocumentProfileNoSeries(_selectedItems);
+            await Mediator.Send(request);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Delete record Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await loadData();
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task addDelete()
+    {
+        if (_selectedItems != null)
+        {
+            var ProfileCount = await Mediator.Send(new GetDocumentNoSeriesCount(_selectedItems.ProfileID));
+            if (ProfileCount > 0)
+            {
+                toastService.ShowToast("Profile is in use.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                Blukdeletepopup = true;
+            }
+        }
+    }
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+}

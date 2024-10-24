@@ -1,0 +1,600 @@
+﻿@page "/documentprofiles/documentprofilesForm"
+@page "/documentprofiles/documentprofilesForm/{SessionId:guid}"
+@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using Newtonsoft.Json
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IAsyncDisposable
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" Enabled="isEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+        <div class="cw-480" style="margin-top:10px;margin-bottom:10px;">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick" RenderMode="TabsRenderMode.AllTabs">
+                    <DxFormLayoutTabPage Caption="Profile">
+                        <EditForm EditContext="this._editContext" Context="EditFormContext" style="padding:10px;">
+                            <DxFormLayout CssClass="w-100">
+                                <DataAnnotationsValidator />
+                                <DxFormLayoutItem Caption="Sample DocumentNo" ColSpanMd="12">
+                                    <DxTextBox @bind-Text="@Data.SampleDocumentNo" Enabled="false" />
+                                    <ValidationMessage For="@(() => Data.SampleDocumentNo)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Profile Name" ColSpanMd="6">
+                                    <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" Enabled="@isEnabled" />
+                                    <ValidationMessage For="@(() => Data.Name)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Profile Abbreviation" ColSpanMd="6">
+                                    <DxTextBox @bind-Text="@Data.Abbreviation" Enabled="@isEnabled" />
+                                    <ValidationMessage For="@(() => Data.Abbreviation)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Owner Company" ColSpanMd="6">
+                                    <DxComboBox Data="@_plantItems"
+                                                NullText="Select Company..."
+                                                ListRenderMode="ListRenderMode.Virtual"
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                TextFieldName="PlantCode"
+                                                ValueFieldName="PlantID"
+                                                AllowUserInput="true"
+                                                Enabled="@isEnabled"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                Value="@Data.CompanyId"
+                                                ValueExpression="@(() => Data.CompanyId )"
+                                                ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData))"
+                                                ShowValidationIcon="true">
+                                        <Columns>
+                                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                                Caption="Customer Name"
+                                                                Width="180px" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                                Caption="Description" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                                Caption="Nav Company" />
+                                        </Columns>
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => Data.CompanyId)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Owner Department" ColSpanMd="6">
+                                    <DxComboBox Data="@_departmentItems"
+                                                NullText="Select Department..."
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                TextFieldName="DepartmentName"
+                                                ValueFieldName="DepartmentId"
+                                                Enabled="@isEnabled"
+                                                @bind-Value="@Data.DeparmentId">
+                                        <Columns>
+                                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                                Caption="Department Name"
+                                                                Width="100px" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                                Caption="Code"
+                                                                Width="100px" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                                Caption="Description"
+                                                                Width="100px" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.PlantCode)"
+                                                                Caption="Company" Width="100px" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewDepartment.Division)"
+                                                                Caption="Division" Width="100px" />
+                                        </Columns>
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => Data.DepartmentId)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Type Of Profile" ColSpanMd="6">
+                                    <DxComboBox Data="@_ProfileTypeList"
+                                                NullText="Select Type of Profile..."
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                TextFieldName="CodeValue"
+                                                ValueFieldName="CodeId"
+                                                ShowValidationIcon="true"
+                                                Enabled="@isEnabled"
+                                                @bind-Value="@Data.ProfileTypeId" />
+                                    <ValidationMessage For="@(() => Data.ProfileTypeId)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Group" ColSpanMd="6">
+                                    <DxComboBox Data="@_groupsItems"
+                                                NullText="Select Group..."
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                TextFieldName="Value"
+                                                ValueFieldName="ApplicationMasterDetailID"
+                                                Enabled="@isEnabled"
+                                                @bind-Value="@Data.GroupId" />
+                                    <ValidationMessage For="@(() => Data.GroupId)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Group Abbreviation" ColSpanMd="6">
+                                    <DxTextBox @bind-Text="@Data.GroupAbbreviation" Enabled="@isEnabled" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                                    <ValidationMessage For="@(() => Data.GroupAbbreviation)" />
+                                </DxFormLayoutItem>
+                               @*   <DxFormLayoutItem Caption="Category" ColSpanMd="6">
+                                     <DxComboBox Data="@_categoriesItems"
+                                                 NullText="Select Category..."
+                                                 SearchMode="ListSearchMode.AutoSearch"
+                                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                 TextFieldName="Value"
+                                                 ValueFieldName="ApplicationMasterDetailID"
+                                                 Enabled="@isEnabled"
+                                                 @bind-Value="@Data.CategoryId" />
+                                     <ValidationMessage For="@(() => Data.CategoryId)" />
+                                 </DxFormLayoutItem>
+                                 <DxFormLayoutItem Caption="Category Abbreviation" ColSpanMd="6">
+                                     <DxTextBox @bind-Text="@Data.CategoryAbbreviation" Enabled="@isEnabled" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                                     <ValidationMessage For="@(() => Data.CategoryAbbreviation)" />
+                                 </DxFormLayoutItem> *@
+                                <DxFormLayoutItem Caption="Is Enable Task" ColSpanMd="6">
+                                    <DxCheckBox @bind-Checked="Data.IsEnableTask" Enabled="@isEnabled"></DxCheckBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+
+                                    <DxMemo @bind-Text="@Data.Description" Enabled="@isEnabled" Rows="5" />
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+                        </EditForm>
+                    </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="Number Series" Visible="isSeriesEnabled">
+                        <EditForm EditContext="this._editContext" Context="EditFormContext" style="padding:10px;">
+                            <DxFormLayout CssClass="w-100">
+                                @*  <DataAnnotationsValidator /> *@
+                                <DxFormLayoutItem Caption="Sample DocumentNo" ColSpanMd="12">
+                                    <DxTextBox @bind-Text="@Data.SampleDocumentNo" Enabled="false" />
+                                    <ValidationMessage For="@(() => Data.SampleDocumentNo)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="No Series with Organisation Info?" ColSpanMd="6">
+                                    <DxRadioGroup Items="@RadioButtonOptions"
+                                                  Value="@Data.IsNoSerieswithOrganisationinfoValue"
+                                                  ValueExpression="@(() => Data.IsNoSerieswithOrganisationinfoValue )"
+                                                  ValueChanged="@((string value) => OnNoSerieswithOrganisationInfoValueChanged(value))"
+                                                  Layout="RadioGroupLayout.Horizontal"
+                                                  Enabled="@isEnabled"
+                                                  CssClass="dx-demo-radio-group" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Establish No Series Code" ColSpanMd="6" Enabled="@Data.IsNoSerieswithOrganisationinfo">
+                                    <DxTagBox Data="@establishNoSeriesCodeItems"
+                                              NullText="Select Establish No Series Code..."
+                                              ListRenderMode="ListRenderMode.Virtual"
+                                              SearchMode="ListSearchMode.AutoSearch"
+                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                              TextFieldName="Text"
+                                              ValueFieldName="Id"
+                                              Enabled="@Data.IsNoSerieswithOrganisationinfo"
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              @bind-Values="@Data.EstablishNoSeriesCodeIDs" ShowValidationIcon="true">
+                                    </DxTagBox>
+                                    <ValidationMessage For="@(() => Data.EstablishNoSeriesCodeIDs)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Profile Abbreviation" ColSpanMd="6">
+                                    <DxRadioGroup Items="@RadioButtonOptions"
+                                                  Value="@Data.AbbreviationRequiredValue"
+                                                  ValueExpression="@(() => Data.AbbreviationRequiredValue )"
+                                                  ValueChanged="@((string value) => OnProfileAbbreviationValueChanged(value))"
+                                                  Layout="RadioGroupLayout.Horizontal"
+                                                  Enabled="@isEnabled"
+                                                  CssClass="dx-demo-radio-group" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Group Abbreviation" ColSpanMd="6">
+                                    <DxRadioGroup Items="@RadioButtonOptions"
+                                                  Value="@Data.IsGroupAbbreviationValue"
+                                                  ValueExpression="@(() => Data.IsGroupAbbreviationValue )"
+                                                  ValueChanged="@((string value) => OnGroupAbbreviationValueChanged(value))"
+                                                  Layout="RadioGroupLayout.Horizontal"
+                                                  Enabled="@isEnabled"
+                                                  CssClass="dx-demo-radio-group" />
+                                </DxFormLayoutItem>
+                                 @* <DxFormLayoutItem Caption="Category Abbreviation" ColSpanMd="6">
+                                     <DxRadioGroup Items="@RadioButtonOptions"
+                                                   Value="@Data.IsCategoryAbbreviationValue"
+                                                   ValueExpression="@(() => Data.IsCategoryAbbreviationValue )"
+                                                   ValueChanged="@((string value) => OnCategoryAbbreviationValueChanged(value))"
+                                                   Layout="RadioGroupLayout.Horizontal"
+                                                   Enabled="@isEnabled"
+                                                   CssClass="dx-demo-radio-group" />
+                                 </DxFormLayoutItem> *@
+                                <DxFormLayoutItem Caption="Special Wording" ColSpanMd="6">
+                                    <DxTextBox @bind-Text="@Data.SpecialWording" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" Enabled="@isEnabled" />
+                                    <ValidationMessage For="@(() => Data.SpecialWording)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Seperator To Use" ColSpanMd="6">
+                                    <DxComboBox Data="@seperators"
+                                                NullText="Select Seperators..."
+                                                ListRenderMode="ListRenderMode.Virtual"
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                TextFieldName="Name"
+                                                ValueFieldName="Id"
+                                                Enabled="@isEnabled"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                @bind-Value="@Data.SeperatorToUse" ShowValidationIcon="true">
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => Data.SeperatorToUse)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="No Of Digit" ColSpanMd="6">
+                                    <DxSpinEdit @bind-Value="@Data.NoOfDigit"
+                                                ShowSpinButtons="false"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                NullText="Type No Of Digit..."
+                                                Enabled="@isEnabled"
+                                                BindValueMode="BindValueMode.OnInput"
+                                                CssClass="cw-320" ShowValidationIcon="true" />
+                                    <ValidationMessage For="@(() => Data.NoOfDigit)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Incremental No" ColSpanMd="6">
+                                    <DxSpinEdit @bind-Value="@Data.IncrementalNo"
+                                                ShowSpinButtons="false"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                NullText="Type Incremental No..."
+                                                BindValueMode="BindValueMode.OnInput"
+                                                Enabled="@isEnabled"
+                                                CssClass="cw-320" ShowValidationIcon="true" />
+                                    <ValidationMessage For="@(() => Data.IncrementalNo)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Starting No" ColSpanMd="6">
+                                    <DxTextBox Text="@Data.StartingNo" Enabled="@isEnabled" TextExpression="@(() => Data.StartingNo)" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" ShowValidationIcon="true" TextChanged="@((newValue) => OnStartingNoChanged(newValue))" />
+                                    <ValidationMessage For="@(() => Data.StartingNo)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Starting With Year" ColSpanMd="6">
+                                    <DxRadioGroup Items="@RadioButtonOptions"
+                                                  Value="@Data.StartWithYearValue"
+                                                  ValueExpression="@(() => Data.StartWithYearValue )"
+                                                  ValueChanged="@((string value) => OnStartWithYearValueChanged(value))"
+                                                  Layout="RadioGroupLayout.Horizontal"
+                                                  Enabled="@isEnabled"
+                                                  CssClass="dx-demo-radio-group" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Translation Requires?" ColSpanMd="6">
+                                    <DxRadioGroup Items="@RadioButtonOptions"
+                                                  Value="@Data.TranslationRequiredValue"
+                                                  ValueExpression="@(() => Data.TranslationRequiredValue )"
+                                                  ValueChanged="@((string value) => OnTranslationRequiredValueChanged(value))"
+                                                  Layout="RadioGroupLayout.Horizontal"
+                                                  Enabled="@isEnabled"
+                                                  CssClass="dx-demo-radio-group" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Status Code" ColSpanMd="6">
+                                    <DxComboBox Data="@_StatusCodeList"
+                                                NullText="Select Status Code..."
+                                                SearchMode="ListSearchMode.AutoSearch"
+                                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                TextFieldName="CodeValue"
+                                                ValueFieldName="CodeId"
+                                                ShowValidationIcon="true"
+                                                Enabled="@isEnabled"
+                                                @bind-Value="@Data.StatusCodeID" />
+                                    <ValidationMessage For="@(() => Data.StatusCodeID)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Notes" ColSpanMd="12">
+
+                                    <DxMemo @bind-Text="@Data.Note" Enabled="@isEnabled" Rows="5" />
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+                        </EditForm>
+                    </DxFormLayoutTabPage>
+                </DxFormLayoutTabPages>
+            </DxFormLayout>
+
+        </div>
+    </div>
+</div>
+@code {
+    bool isEnabled { get; set; } = true; bool isSeriesEnabled { get; set; } = false;
+    public int ActiveTabIndex { get; set; } = 0;
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    public ApplicationUser _applicationUser { get; private set; }
+    private List<ViewPlants>? _plantItems;
+    private List<ViewDepartment> _departmentItems = new List<ViewDepartment>();
+    private List<CodeMaster> _ProfileTypeList { get; set; }
+    private List<CodeMaster> _StatusCodeList { get; set; }
+    DocumentProfileNoSeriesModel Data = new DocumentProfileNoSeriesModel();
+    EditContext _editContext;
+    private List<View_ApplicationMasterDetail> _groupsItems;
+    private List<View_ApplicationMasterDetail> _categoriesItems;
+    private List<ViewDepartment> _departmentAllItems;
+    public DocumentProfileNoSeriesModel? ProfileData { get; set; }
+    List<long?> companyIds = new List<long?>() { 1, 2 };
+    IEnumerable<string> RadioButtonOptions = new[] { "Yes", "No" };
+    private List<NumberSeriesCodeModel> seperators { get; set; }
+    private List<DropDownOptionsModel> establishNoSeriesCodeItems { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _departmentAllItems = await Mediator.Send(new GetAllDepartmentQuery());
+        _ProfileTypeList = await Mediator.Send(new GetAllCodeMasterQuery("ProfileType"));
+        _groupsItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(100));
+        _categoriesItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(101));
+        _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
+        _StatusCodeList = await Mediator.Send(new GetAllCodeMasterQuery("ProfileStatus"));
+        seperators = new List<NumberSeriesCodeModel>();
+        seperators.Add(new NumberSeriesCodeModel() { Id = 1, Name = "/" });
+        seperators.Add(new NumberSeriesCodeModel() { Id = 2, Name = "-" });
+        establishNoSeriesCodeItems = new List<DropDownOptionsModel>();
+        establishNoSeriesCodeItems.Add(new DropDownOptionsModel() { Id = 1, Text = "Company" });
+        establishNoSeriesCodeItems.Add(new DropDownOptionsModel() { Id = 2, Text = "Department" });
+        establishNoSeriesCodeItems.Add(new DropDownOptionsModel() { Id = 3, Text = "Section" });
+        establishNoSeriesCodeItems.Add(new DropDownOptionsModel() { Id = 4, Text = "SubSection" });
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_applicationUser != null)
+        {
+            await OnParametersSetLoadAsync();
+        }
+        base.OnParametersSet();
+    }
+    async Task OnParametersSetLoadAsync()
+    {
+        addForm();
+        ProfileData = await Mediator.Send(new GetProfileNoBySession(SessionId));
+        if (ProfileData != null)
+        {
+            isEnabled = true;
+            var ProfileCount = await Mediator.Send(new GetDocumentNoSeriesCount(ProfileData.ProfileID));
+            if (ProfileCount > 0)
+            {
+                toastService.ShowToast("Profile is in use.", AC.SD.Core.Services.ToastLevel.Error);
+                isEnabled = false;
+            }
+            Data.Name = ProfileData.Name;
+            Data.ProfileID = ProfileData.ProfileID;
+            Data.CompanyId = ProfileData.CompanyId;
+            Data.Abbreviation = ProfileData.Abbreviation;
+            Data.DeparmentId = ProfileData.DeparmentId;
+            Data.ProfileTypeId = ProfileData.ProfileTypeId;
+            Data.CategoryId = ProfileData.CategoryId;
+            Data.CategoryAbbreviation = ProfileData.CategoryAbbreviation;
+            Data.GroupId = ProfileData.GroupId;
+            Data.GroupAbbreviation = ProfileData.GroupAbbreviation;
+            Data.Description = ProfileData.Description;
+            Data.IsEnableTask = ProfileData.IsEnableTask;
+            Data.StatusCodeID = ProfileData.StatusCodeID;
+            Data.SessionId = ProfileData.SessionId;
+            Data.AddedByUserID = ProfileData.AddedByUserID > 0 ? ProfileData.AddedByUserID : _applicationUser.UserID;
+            Data.AddedDate = ProfileData.AddedDate == null ? DateTime.Now : ProfileData.AddedDate;
+            //Data.ModifiedByUserID = ProfileData.ModifiedByUserID;
+            // Data.ModifiedDate = ProfileData.ModifiedDate;
+            Data.ModifiedDate = DateTime.Now;
+            Data.ModifiedByUserID = _applicationUser.UserID;
+            Data.Abbreviation1 = ProfileData.Abbreviation1;
+            Data.Abbreviation2 = ProfileData.Abbreviation2;
+            Data.AbbreviationRequired = ProfileData.AbbreviationRequired;
+            Data.SpecialWording = ProfileData.SpecialWording;
+            Data.StartingNo = ProfileData.StartingNo;
+            Data.StartWithYear = ProfileData.StartWithYear;
+            Data.NoOfDigit = ProfileData.NoOfDigit;
+            Data.IncrementalNo = ProfileData.IncrementalNo;
+            Data.TranslationRequired = ProfileData.TranslationRequired;
+            Data.LastCreatedDate = ProfileData.LastCreatedDate == null ? DateTime.Now : ProfileData.LastCreatedDate;
+            Data.LastNoUsed = ProfileData.LastNoUsed;
+            Data.Note = ProfileData.Note;
+            Data.DeparmentId = ProfileData.DeparmentId;
+            Data.IsGroupAbbreviation = ProfileData.IsGroupAbbreviation;
+            Data.IsCategoryAbbreviation = ProfileData.IsCategoryAbbreviation;
+            Data.SeperatorToUse = ProfileData.SeperatorToUse;
+            Data.LinkId = ProfileData.LinkId;
+            Data.SampleDocumentNo = ProfileData.SampleDocumentNo;
+            Data.EstablishNoSeriesCodeIDs = ProfileData.EstablishNoSeriesCodeIDs;
+            Data.IsNoSerieswithOrganisationinfo = ProfileData.IsNoSerieswithOrganisationinfo;
+            Data.IsNoSerieswithOrganisationinfoValue = ProfileData.IsNoSerieswithOrganisationinfo == true ? "Yes" : "No";
+            Data.IsCategoryAbbreviationValue = ProfileData.IsCategoryAbbreviation == true ? "Yes" : "No";
+            Data.IsGroupAbbreviationValue = ProfileData.IsGroupAbbreviation == true ? "Yes" : "No";
+            Data.AbbreviationRequiredValue = ProfileData.AbbreviationRequired == true ? "Yes" : "No";
+            isSeriesEnabled = true;
+            if (isEnabled == false)
+            {
+                Data.IsNoSerieswithOrganisationinfo = false;
+            }
+            loadCompanyData(Data.CompanyId);
+        }
+    }
+    void OnStartingNoChanged(string? newvalue)
+    {
+        Data.StartingNo = newvalue;
+    }
+    void OnTabClick(TabClickEventArgs e)
+    {
+        if (e.TabIndex == 1)
+        {
+        }
+    }
+    void OnNoSerieswithOrganisationInfoValueChanged(string? radioValue)
+    {
+        Data.IsNoSerieswithOrganisationinfoValue = radioValue;
+        Data.IsNoSerieswithOrganisationinfo = radioValue == "Yes" ? true : false;
+        if (radioValue == "No")
+        {
+            Data.EstablishNoSeriesCodeIDs = new List<long?>();
+        }
+    }
+    void OnStartWithYearValueChanged(string? radioValue)
+    {
+        Data.StartWithYearValue = radioValue;
+        Data.StartWithYear = radioValue == "Yes" ? true : false;
+    }
+    void OnTranslationRequiredValueChanged(string? radioValue)
+    {
+        Data.TranslationRequiredValue = radioValue;
+        Data.TranslationRequired = radioValue == "Yes" ? true : false;
+    }
+    void OnProfileAbbreviationValueChanged(string? radioValue)
+    {
+        Data.AbbreviationRequiredValue = radioValue;
+        Data.AbbreviationRequired = radioValue == "Yes" ? true : false;
+    }
+    void OnGroupAbbreviationValueChanged(string radioValue)
+    {
+        Data.IsGroupAbbreviationValue = radioValue;
+        Data.IsGroupAbbreviation = radioValue == "Yes" ? true : false;
+    }
+    void OnCategoryAbbreviationValueChanged(string? radioValue)
+    {
+        Data.IsCategoryAbbreviationValue = radioValue;
+        Data.IsCategoryAbbreviation = radioValue == "Yes" ? true : false;
+    }
+    void loadCompanyData(long? companyId)
+    {
+        if (companyId > 0)
+        {
+            if (companyId == 3)
+            {
+                _departmentItems = _departmentAllItems != null && _departmentAllItems.Count() > 0 ? _departmentAllItems.Where(w => companyIds.Contains(w.CompanyId)).ToList() : new List<ViewDepartment>();
+            }
+            else
+            {
+                _departmentItems = _departmentAllItems != null && _departmentAllItems.Count() > 0 ? _departmentAllItems.Where(w => w.CompanyId == Data.CompanyId).ToList() : new List<ViewDepartment>();
+            }
+        }
+        else
+        {
+            _departmentItems = _departmentAllItems != null && _departmentAllItems.Count() > 0 ? _departmentAllItems.ToList() : new List<ViewDepartment>();
+        }
+    }
+    void SelectedPlantChanged(long? companyId)
+    {
+        Data.CompanyId = companyId;
+        loadCompanyData(companyId);
+        StateHasChanged();
+    }
+    void onBack()
+    {
+        NavigationManager.NavigateTo("documentprofiles");
+    }
+    async Task addNew()
+    {
+        if (SessionId != null)
+        {
+            NavigationManager.NavigateTo("documentprofiles/documentprofilesForm");
+        }
+        else
+        {
+            _editContext = new EditContext(Data);
+            await OnParametersSetLoadAsync();
+        }
+    }
+    void generateNumberSeries()
+    {
+        if (Data.IsNoSerieswithOrganisationinfo == true)
+        {
+            if (Data.EstablishNoSeriesCodeIDs != null && Data.EstablishNoSeriesCodeIDs.Count() > 0)
+            {
+                List<NumberSeriesCodeModel> selectedNumberSeriesCodes = new List<NumberSeriesCodeModel>();
+                Data.EstablishNoSeriesCodeIDs.ToList().ForEach(c =>
+                {
+                    var selectedNumberSeriesCode = establishNoSeriesCodeItems.FirstOrDefault(s => s.Id == c);
+                    if (selectedNumberSeriesCode != null)
+                    {
+                        NumberSeriesCodeModel numberSeriesCodeModel = new NumberSeriesCodeModel();
+                        numberSeriesCodeModel.Index = (int)selectedNumberSeriesCode.Id;
+                        numberSeriesCodeModel.Id = (int)selectedNumberSeriesCode.Id;
+                        numberSeriesCodeModel.Name = selectedNumberSeriesCode.Text;
+
+                        selectedNumberSeriesCodes.Add(numberSeriesCodeModel);
+                    }
+                });
+                if (selectedNumberSeriesCodes != null && selectedNumberSeriesCodes.Count() > 0)
+                {
+                    Data.Abbreviation1 = JsonConvert.SerializeObject(selectedNumberSeriesCodes.OrderBy(o => o.Id)).ToString();
+                }
+            }
+        }
+        if (Data.IsNoSerieswithOrganisationinfo == false)
+        {
+            Data.Abbreviation1 = string.Empty;
+        }
+    }
+    void addForm()
+    {
+        Data.IsNoSerieswithOrganisationinfoValue = "No"; Data.IsCategoryAbbreviationValue = "No"; Data.IsGroupAbbreviationValue = "No"; Data.AbbreviationRequiredValue = "No";
+        Data.StartWithYearValue = "No"; Data.TranslationRequiredValue = "No";
+        Data.Name = null; isEnabled = true; isSeriesEnabled = false;
+        Data.ProfileID = 0; Data.CompanyId = null; Data.Abbreviation = null; Data.DeparmentId = null; Data.ProfileTypeId = null; Data.CategoryId = null;
+        Data.CategoryAbbreviation = null; Data.GroupId = null;
+        Data.GroupAbbreviation = null; Data.Description = null;
+        Data.IsEnableTask = false; Data.StatusCodeID = 664; Data.SessionId = Guid.NewGuid();
+        Data.AddedByUserID = _applicationUser.UserID; Data.AddedDate = DateTime.Now;
+        Data.ModifiedByUserID = _applicationUser.UserID; Data.ModifiedDate = DateTime.Now; Data.Abbreviation1 = string.Empty; Data.Abbreviation2 = null; Data.AbbreviationRequired = false;
+        Data.SpecialWording = null; Data.StartingNo = null; Data.EstablishNoSeriesCodeIDs = new List<long?>();
+        Data.StartWithYear = false; Data.NoOfDigit = null; Data.IncrementalNo = null; Data.IsNoSerieswithOrganisationinfo = false;
+        Data.TranslationRequired = false; Data.LastCreatedDate = DateTime.Now; Data.LastNoUsed = null;
+        Data.Note = null; Data.DeparmentId = null; Data.IsGroupAbbreviation = false; Data.IsCategoryAbbreviation = false; Data.SeperatorToUse = null; Data.LinkId = null; Data.SampleDocumentNo = null;
+        _departmentItems = _departmentAllItems != null && _departmentAllItems.Count() > 0 ? _departmentAllItems.ToList() : new List<ViewDepartment>();
+        Data.SeperatorToUse = 0;
+        Data.IncrementalNo = 1;
+        Data.EstablishNoSeriesCodeIDs = new List<long?>() { 0 };
+        Data.NoOfDigit = 1;
+        Data.StartingNo = "1"; Data.IsSampleDocNoEnabled = false;
+        StateHasChanged();
+    }
+    async Task SubmitFormExternally()
+    {
+        try
+        {
+            if (_editContext.Validate())
+            {
+                if (isEnabled == true)
+                {
+                    Data.IsSampleDocNoEnabled = isEnabled;
+                    generateNumberSeries();
+                }
+                long profileId = Data.ProfileID;
+                var result = await Mediator.Send(new InsertOrUpdateDocumentProfileNoSeries(Data));
+                if (profileId > 0)
+                {
+                    Data.SampleDocumentNo = result.SampleDocumentNo;
+                    toastService.ShowToast("Record Update Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+                else
+                {
+                    Data.ProfileID = result.ProfileID;
+                    profileId = Data.ProfileID;
+                    toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    NavigationManager.NavigateTo("documentprofiles/documentprofilesForm/" + Data.SessionId + "");
+
+                }
+            }
+            else
+            {
+                toastService.ShowToast("Validation error occured.Please check the required field values!.", AC.SD.Core.Services.ToastLevel.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast("Insert Error", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }
+}

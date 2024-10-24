@@ -1,0 +1,232 @@
+﻿@using Application.Queries;
+@using System.IO
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Repositories.Query;
+@inject IJSRuntime JSRuntime;
+@* @implements IAsyncDisposable *@
+@using global::Core.Entities.Views;
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment _hostingEnvironment
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop" Visible="@isUploadEnabled">
+                    <Items>
+                        <DxMenuItem Text="Upload(.docx) File" IconCssClass="fa fa-paperclip" id="attachmentCheckInSelectButton" Enabled="@isAttachEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+
+        </div>
+    </div>
+</div>
+<DxFormLayout CssClass="w-100">
+    <DxFormLayoutItem Caption="" ColSpanMd="12" Visible="@isUploadEnabled">
+        @* <DxFileInput @ref="dxfileinput" FilesUploading="@OnFilesUploading"
+        CssClass="dropZone-owner"
+        AcceptedFileTypes="@AllowedFileExtensions">
+        </DxFileInput> *@
+        @* <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;"> *@
+        <DxUpload @ref="uploadCheckInComponent" Name="files"
+                  AcceptedFileTypes=@AllowedFileExtensions
+                  ChunkSize="200000"
+                  UploadMode="@UploadMode.OnButtonClick"
+                  Visible="@AttachmentCheckInUploadVisible"
+                  FileUploadStart="OnFileUploadStart"
+                  AllowMultiFileUpload="false"
+                  ExternalSelectButtonCssSelector="#attachmentCheckInSelectButton"
+                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                  FileUploaded="@isUploadSuccess"
+                  FileUploadStarted="@OnFileUploadStarted"
+                  FileUploadError="@OnUploadError">
+        </DxUpload>
+
+        @* </div> *@
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="" ColSpanMd="12">
+        <DxRichEdit @ref="dxRichEdit" CssClass="w-100 ch-720" DocumentContent="@DocumentContent">
+            <MailMergeSettings>
+                <DxMailMergeSettings Data="@ObjectDataItems" />
+            </MailMergeSettings>
+        </DxRichEdit>
+    </DxFormLayoutItem>
+</DxFormLayout>
+
+@code {
+    private DxUpload uploadCheckInComponent;
+    DxFileInput dxfileinput;
+    [Parameter]
+    public Guid? DynamicFormSessionId { get; set; }
+    [Parameter]
+    public Guid? DynamicFormDataSessionId { get; set; }
+    [Parameter]
+    public Guid? DynamicFormDataGridSessionId { get; set; }
+    [Parameter]
+    public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
+    DxRichEdit dxRichEdit;
+    private List<DynamicFormData>? _DynamicFormDataItems;
+    public dynamic? ObjectDataItems { get; set; }
+    readonly List<string> AllowedFileExtensions = new() { ".docx", ".DOCX" };
+    public bool isUploadEnabled { get; set; } = false;
+    public bool isAttachEnabled { get; set; } = true;
+    int SelectedFilesCount { get; set; }
+    private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    bool AttachmentCheckInUploadVisible { get; set; } = false;
+    public byte[] DocumentContent;
+    protected override async Task OnInitializedAsync()
+    {
+        isUploadEnabled = false; isAttachEnabled = true;
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetup";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            isUploadEnabled = true;
+        }
+        var baseUrl = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList";
+        var result = await Mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl));
+        if (result != null && result.Count() > 0)
+        {
+            ObjectDataItems = result.Where(w => w.ObjectDataItems != null).Select(s => s.ObjectDataItems).ToList();
+        }
+        await ExitsFileOpen(false);
+    }
+    async Task ExitsFileOpen(bool? isReload)
+    {
+        var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\DynmaicFormMailMerge\" + DynamicFormSessionId + @"\" + DynamicFormSessionId + ".docx";
+        if (System.IO.File.Exists(serverPaths))
+        {
+            DocumentContent = await File.ReadAllBytesAsync(serverPaths);
+        }
+        if (isReload == true)
+        {
+            isAttachEnabled = true;
+            await Task.Delay(1000);
+            uploadCheckInComponent?.RemoveAllFiles();
+        }
+    }
+    async Task OnFilesUploading(FilesUploadingEventArgs args)
+    {
+        foreach (var file in args.Files)
+        {
+            try
+            {
+                var Extension = file.Name != null ? file.Name?.Split(".").Last().ToLower() : "";
+                if (Extension == "docx")
+                {
+                    using var stream = new System.IO.MemoryStream();
+                    await file.OpenReadStream(file.Size).CopyToAsync(stream);
+                    byte[] documents = stream.ToArray();
+                    await dxRichEdit.LoadDocumentAsync(documents, DocumentFormat.OpenXml);
+
+                }
+                else
+                {
+                    toastService.ShowToast("File Format Not Support. only Support (.dox) format.", AC.SD.Core.Services.ToastLevel.Error);
+                }
+                await Task.Delay(2000);
+                dxfileinput?.RemoveAllFiles();
+            }
+            catch (OperationCanceledException ex)
+            {
+                // Handle the cancel action here
+            }
+        }
+    }
+    void OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        SelectedFilesCount = SelectedFiles.Count();
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+                string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+                string url = BaseUrl + "UploadDynamicFormMailMerge?SessionId=" + DynamicFormSessionId + "";
+                e.UploadUrl = url;
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+    }
+    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        SelectedFiles = new List<UploadFileInfo>();
+        var MyMessagess = string.Empty;
+        SelectedFiles.AddRange(files);
+        AttachmentCheckInUploadVisible = files.ToList().Count > 0;
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        if (SelectedFilesCount > 0)
+        {
+            uploadCheckInComponent.UploadAllFiles();
+            // var fileList = SelectedFiles.Select(s => s.Name.ToLower()).Distinct().ToList();
+            // fileList.ToList().ForEach(s =>
+            // {
+            //     List<UploadFileInfo> FilesList = SelectedFiles.Where(w => w.Name.ToLower() == s.ToLower()).ToList();
+            //     if (FilesList != null && FilesList.Count() > 0)
+            //     {
+            //         int i = 0;
+            //         FilesList.ForEach(e =>
+            //         {
+            //             if (i > 0)
+            //             {
+            //                 MyMessagess += e.Name + " file was Removed.\n\r";
+            //                 SelectedFiles.Remove(e);
+            //                 uploadCheckInComponent.RemoveFile(e);
+            //             }
+            //             i++;
+            //         });
+
+            //     }
+            // });
+            // if (!string.IsNullOrEmpty(MyMessagess))
+            // {
+            //     var msg = "File Already Exits." + MyMessagess;
+            //     toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+            // }
+            // if (SelectedFilesCount == 1)
+            // {
+            //     uploadCheckInComponent.UploadAllFiles();
+            // }
+            // else
+            // {
+            //     var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+            //     toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            // }
+        }
+
+        StateHasChanged();
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        isAttachEnabled = false;
+        var MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        var MyError = e.RequestInfo.ResponseText;
+        toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
+        InvokeAsync(StateHasChanged);
+    }
+    async Task isUploadSuccess(FileUploadEventArgs e)
+    {
+        toastService.ShowToast("File uploaded sucess.", AC.SD.Core.Services.ToastLevel.Success);
+
+        await ExitsFileOpen(true);
+    }
+}

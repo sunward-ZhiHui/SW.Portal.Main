@@ -548,8 +548,8 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(ReportdocumentId.ToString());
         }
-        
-       [HttpPost("MobileFileProfileTypeMultiple")]
+
+        [HttpPost("MobileFileProfileTypeMultiple")]
 
         public async Task<ResponseModel> MobileFileProfileTypeMultiple([FromForm] Models.FileProfileTypeModel value)
         {
@@ -570,7 +570,7 @@ namespace SW.Portal.Solutions.Controllers
                     response.Message = "No file uploaded.";
                     return response;
                 }
-               
+
 
                 var sessionID = value.SessionId;
                 var addedByUserId = value.UserID;
@@ -654,5 +654,58 @@ namespace SW.Portal.Solutions.Controllers
                 return response;
             }
         }
+        [HttpPost]
+        [Route("UploadDynamicFormMailMerge")]
+        public async Task<ActionResult> UploadDynamicFormMailMerge(IFormFile files, Guid? SessionId)
+        {
+            long documentId = 0;
+            // Handling Upload with Chunks
+            string chunkMetadata = Request.Form["chunkMetadata"];
+
+            // Set BasePath
+            var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\DynmaicFormMailMerge\" + SessionId;
+
+            try
+            {
+                if (!string.IsNullOrEmpty(chunkMetadata))
+                {
+                    var metaDataObject = JsonSerializer.Deserialize<ChunkMetadata>(chunkMetadata);
+
+                    // Use tmp File for Upload
+                    var tempFilePath = Path.Combine(serverPaths, metaDataObject.FileGuid + ".tmp");
+
+                    // Create UploadFolder
+                    if (!System.IO.Directory.Exists(serverPaths))
+                    {
+                        System.IO.Directory.CreateDirectory(serverPaths);
+                    }
+
+                    // Removes temporary files 
+                    //RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
+
+                    // Save FileStream
+                    using (var stream = new FileStream(tempFilePath, FileMode.Append, FileAccess.Write))
+                    {
+                        files.CopyTo(stream);
+                    }
+                    if (metaDataObject.Index == (metaDataObject.TotalCount - 1))
+                    {
+                        var ext = metaDataObject.FileName.Split(".").Last();
+                        var fileName1 = SessionId + "." + ext.ToLower();
+                        var serverPath = serverPaths + @"\" + fileName1;
+
+                        // Upload finished - overwrite/copy file and remove tempFile
+                        System.IO.File.Copy(tempFilePath, Path.Combine(serverPaths, serverPath), true);
+                        System.IO.File.Delete(tempFilePath);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            return Ok(documentId.ToString());
+        }
+
     }
 }

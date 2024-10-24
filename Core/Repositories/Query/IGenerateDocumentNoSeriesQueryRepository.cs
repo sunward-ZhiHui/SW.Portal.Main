@@ -14,6 +14,7 @@ namespace Core.Repositories.Query
     {
         Task<string> GenerateDocumentProfileAutoNumber(DocumentNoSeriesModel noSeriesModel);
         Task<GenerateDocumentNoSeriesModel> GenerateDocumentProfileAutoNumberAllAsync(DocumentNoSeriesModel noSeriesModel);
+        Task<string> GenerateSampleDocumentNoAsync(DocumentNoSeriesModel noSeriesModel);
     }
     public interface IGenerateDocumentNoSeriesQueryRepository : IQueryRepository<DocumentNoSeriesModel>
     {

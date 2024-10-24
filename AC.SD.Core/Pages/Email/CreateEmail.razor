@@ -283,7 +283,7 @@ else
                                 </DxFormLayoutItem>
                             }
                             <DxFormLayoutItem ColSpanMd="12">
-                                <DxRichEdit DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                <DxRichEdit  DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
 
                             </DxFormLayoutItem>
                         </DxFormLayout>
@@ -615,6 +615,15 @@ else
 </DxFlyout>
 
 @code {
+    private async Task OnContentChanged()
+    {        
+        await SetImagesWidthTo100();
+    }
+
+    private async Task SetImagesWidthTo100()
+    {        
+        await JSRuntime.InvokeVoidAsync("setImagesWidthTo100");
+    }
     string UserTagName {get;set;}
     string OthersTagName { get; set; }
     // private PersistingComponentStateSubscription? subscription;

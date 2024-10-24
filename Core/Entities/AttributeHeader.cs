@@ -77,7 +77,9 @@ namespace Core.Entities
         public bool? IsDeleted { get; set; }
         public string? SubApplicationMasterIDs { get; set; }
         public IEnumerable<long?> SubApplicationMasterIdsListIds { get; set; } = new List<long?>();
+        public IEnumerable<long?> SubApplicationMasterParentIdsListIds { get; set; } = new List<long?>();
         public List<ApplicationMaster> SubApplicationMaster { get; set; } = new List<ApplicationMaster>();
+        public List<ApplicationMasterParent> SubApplicationMasterParent { get; set; } = new List<ApplicationMasterParent>();
         public int? AttributeSortBy { get; set; }
         public int? SortOrderAnotherBy { get; set; }
         public string? DropDownTypeIds { get; set; } = null;

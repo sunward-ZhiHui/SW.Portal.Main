@@ -802,5 +802,136 @@ namespace Infrastructure.Service
                 return generateDocumentNoSeriesModel;
             }
         }
+        public async Task<string> GenerateSampleDocumentNoAsync(DocumentNoSeriesModel noSeriesModel)
+        {
+            bool isCompanyDepartmentExist = false;
+            string documentNo = string.Empty;
+            string deptProfileCode = "";
+            string sectionProfileCode = "";
+            string subSectionProfileCode = "";
+            var masterList = await _generateDocumentNoSeriesQueryRepository.GetMasterLists(noSeriesModel);
+            var profileSettings = masterList.DocumentProfileNoSeries.FirstOrDefault(s => s.ProfileId == noSeriesModel.ProfileID);
+            GenerateDocumentNoSeriesModel generateDocumentNoSeriesModel = new GenerateDocumentNoSeriesModel();
+
+            if (noSeriesModel.CompanyId > 0 && masterList.Plants != null && masterList.Plants.Count > 0)
+            {
+                noSeriesModel.CompanyCode = masterList.Plants.FirstOrDefault(p => p.PlantID == noSeriesModel.CompanyId)?.PlantCode;
+            }
+            if (noSeriesModel.DepartmentId > 0 && masterList.Departments != null && masterList.Departments.Count > 0)
+            {
+                noSeriesModel.DepartmentName = masterList.Departments.FirstOrDefault(p => p.DepartmentId == noSeriesModel.DepartmentId)?.Name;
+                deptProfileCode = masterList.Departments.FirstOrDefault(s => s.DepartmentId == noSeriesModel.DepartmentId)?.ProfileCode;
+            }
+            if (noSeriesModel.SectionId > 0 && masterList.Sections != null && masterList.Sections.Count > 0)
+            {
+                noSeriesModel.SectionName = masterList.Sections.FirstOrDefault(s => s.SectionId == noSeriesModel.SectionId)?.ProfileCode;
+                if (noSeriesModel.SectionName == null && masterList.Sections != null && masterList.Sections.Count > 0)
+                {
+                    noSeriesModel.SectionName = masterList.Sections.FirstOrDefault(s => s.SectionId == noSeriesModel.SectionId)?.Code;
+                }
+            }
+            if (noSeriesModel.SubSectionId > 0 && masterList.SubSections != null && masterList.SubSections.Count > 0)
+            {
+                noSeriesModel.SubSectionName = masterList.SubSections.FirstOrDefault(s => s.SubSectionId == noSeriesModel.SubSectionId)?.ProfileCode;
+                if (noSeriesModel.SubSectionName == null)
+                {
+                    noSeriesModel.SubSectionName = masterList.SubSections.FirstOrDefault(s => s.SubSectionId == noSeriesModel.SubSectionId)?.Code;
+                }
+
+            }
+            if (noSeriesModel.ProfileID == null || noSeriesModel.ProfileID <= 0)
+            {
+                return null;
+            }
+            else
+            {
+
+                var profileAutoNumbers = await _generateDocumentNoSeriesQueryRepository.GetProfileAutoNumber(profileSettings.ProfileId, noSeriesModel);
+
+                if (profileSettings != null && profileSettings.CompanyId > 0 && masterList.Plants != null && masterList.Plants.Count > 0 && (noSeriesModel.CompanyId == null || noSeriesModel.PlantID == null))
+                {
+                    noSeriesModel.CompanyCode = masterList.Plants.Where(s => s.PlantID == profileSettings.CompanyId).FirstOrDefault().PlantCode;
+                }
+                if (profileSettings != null && profileSettings.DeparmentId > 0 && noSeriesModel.DepartmentId == null && masterList.Departments != null && masterList.Departments.Count > 0)
+                {
+                    var department = masterList.Departments.Where(s => s.DepartmentId == profileSettings.DeparmentId)?.FirstOrDefault();
+                    if (department != null)
+                    {
+                        if (department.ProfileCode != null)
+                        {
+                            noSeriesModel.DepartmentName = department.ProfileCode;
+                        }
+                        else
+                        {
+                            noSeriesModel.DepartmentName = department.Code;
+                        }
+                    }
+                }
+
+                List<string> numberSeriesCodes = new List<string> { "Company", "Department" };
+                List<NumberSeriesCodeModel> numberSeriesCodeModels = new List<NumberSeriesCodeModel>();
+
+                List<Seperator> seperators = new List<Seperator>();
+                seperators.Add(new Seperator { SeperatorSymbol = "/", SeperatorValue = 1 });
+                seperators.Add(new Seperator { SeperatorSymbol = "-", SeperatorValue = 2 });
+
+                var seperator = seperators.FirstOrDefault(s => s.SeperatorValue == profileSettings.SeperatorToUse.GetValueOrDefault(0));
+                var seperatorSymbol = seperator != null ? seperator.SeperatorSymbol : "/";
+
+                if (!String.IsNullOrEmpty(profileSettings.Abbreviation1))
+                {
+                    numberSeriesCodeModels = JsonConvert.DeserializeObject<List<NumberSeriesCodeModel>>(profileSettings.Abbreviation1).ToList();
+                    isCompanyDepartmentExist = numberSeriesCodeModels.Any(c => numberSeriesCodes.Contains(c.Name));
+                    numberSeriesCodeModels.OrderBy(n => n.Index).ToList().ForEach(n =>
+                    {
+                        if (n.Name == "Company")
+                        {
+                            documentNo += "Company" + seperatorSymbol;
+                        }
+                        if (n.Name == "Department")
+                        {
+                            documentNo += "Department" + seperatorSymbol;
+                        }
+                        if (n.Name == "Section")
+                        {
+                            documentNo += "Section" + seperatorSymbol;
+                        }
+                        if (n.Name == "SubSection")
+                        {
+                            documentNo += "SubSection" + seperatorSymbol;
+                        }
+                    });
+                }
+
+                if (profileSettings.AbbreviationRequired.GetValueOrDefault(false) && !String.IsNullOrEmpty(profileSettings.Abbreviation))
+                {
+                    documentNo += profileSettings.Abbreviation + seperatorSymbol;
+                }
+
+                if (profileSettings.IsGroupAbbreviation.GetValueOrDefault(false) && !String.IsNullOrEmpty(profileSettings.GroupAbbreviation))
+                {
+                    documentNo += profileSettings.GroupAbbreviation + seperatorSymbol;
+                }
+
+                if (profileSettings.IsCategoryAbbreviation.GetValueOrDefault(false) && !String.IsNullOrEmpty(profileSettings.CategoryAbbreviation))
+                {
+                    documentNo += profileSettings.CategoryAbbreviation + seperatorSymbol;
+                }
+
+                if (!String.IsNullOrEmpty(profileSettings.SpecialWording))
+                {
+                    documentNo += profileSettings.SpecialWording + seperatorSymbol;
+                }
+                if (profileSettings.StartWithYear.GetValueOrDefault(false))
+                {
+                    documentNo += DateTime.Now.Year.ToString().Substring(2, 2) + seperatorSymbol;
+                }
+                if (profileSettings.NoOfDigit.HasValue && profileSettings.NoOfDigit > 0)
+                {
+                    documentNo += profileSettings.IncrementalNo.GetValueOrDefault(0).ToString("D" + profileSettings.NoOfDigit);
+                }
+                return documentNo;
+            }
+        }
     }
 }

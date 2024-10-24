@@ -950,5 +950,28 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversationAssignToUserGroup>)await _conversationQueryRepository.GetAssignCCUserGroupList(request.ConversationId);
         }
     }
-    
+    public class GetEmailParticipantHandler : IRequestHandler<GetEmailParticipantList, List<EmailTopics>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetEmailParticipantHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailParticipantList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailTopics>)await _conversationQueryRepository.GetEmailParticipantListAsync(request.ConversationID,request.Userid);
+        }
+    }
+    public class GetEmailCloseHandler : IRequestHandler<GetEmailClosedQuery, List<EmailTopics>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetEmailCloseHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailClosedQuery request, CancellationToken cancellationToken)
+        {
+            return (List<EmailTopics>)await _conversationQueryRepository.UpdateEmailCloseAsync(request.ConversationID, request.Userid,request.Isclose);
+        }
+    }
 }

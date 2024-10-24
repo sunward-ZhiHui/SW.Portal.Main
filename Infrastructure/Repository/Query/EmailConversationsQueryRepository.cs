@@ -2505,6 +2505,46 @@ namespace Infrastructure.Repository.Query
 
         }
 
+        public  async Task<List<EmailTopics>> GetEmailParticipantListAsync(long conversationID, long Userid)
+        {
+            try
+            {
+                var query = @"select ID,IsClosed from EmailConversationParticipant where ConversationId = @conversationID and UserID = @Userid";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("conversationID", conversationID);
+                parameters.Add("Userid", Userid);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailTopics>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailTopics>> UpdateEmailCloseAsync(long conversationID, long Userid, long Isclose)
+        {
+            try
+            {
+                var query = @"Update EmailConversationParticipant set IsClosed= @Isclose where  ConversationId =@conversationID and UserID =@Userid";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("conversationID", conversationID);
+                parameters.Add("Userid", Userid);
+                parameters.Add("Isclose", Isclose);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailTopics>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }
 

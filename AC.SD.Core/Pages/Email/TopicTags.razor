@@ -173,7 +173,7 @@
                                 TextFieldName="Name"
                                 ValueFieldName="Name"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@types.Name"
+                                @bind-Value="@Name"
                                 @bind-Text="@othersTagName" ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.Name)" />
@@ -239,7 +239,7 @@
     private List<ApplicationMasterChildModel>? _actionTagItems;
     bool isTagLock { get; set; }
     private EmailActivityCatgorys _currentEditModel;
-
+    string Name;
 
     async Task selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
@@ -320,7 +320,7 @@
                     {
                         _selectedItems.ActionTagIds = new List<long?>();
                     }
-                    
+
                 }
             }
 
@@ -434,7 +434,7 @@
             StateHasChanged();
         }
         loadTagsList?.Invoke();
-        
+
         StateHasChanged();
 
     }   
@@ -738,11 +738,11 @@
             }
             else
             {
-                 _selectedItems.ActionTagIds = new List<long?>();
+                _selectedItems.ActionTagIds = new List<long?>();
                 //_currentEditModel.ActionTagIds = new List<long?>();
             }
 
-
+            Name = _selectedItems?.Name;
             Grid.StartEditDataItemAsync(_selectedItems);
 
 

@@ -130,7 +130,13 @@
     [Parameter]
     public Action<List<string>>? ToTopicIds { get; set; }
     [Parameter]
-    public Action<string>? SubViewToTopicId { get; set; }    
+    public Action<string>? SubViewToTopicId { get; set; }  
+    [Parameter]
+    public Action EnableClose { get; set; }
+    [Parameter]
+    public Action EnableOpen { get; set; }
+    [Parameter]
+    public Action DisableOpenClose { get; set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;      
@@ -194,7 +200,7 @@
                 _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL", pageNumber, pageSize));
 
             }
-             
+
             PanelVisible = false;
         }
 
@@ -203,7 +209,7 @@
             await RefSubAssignTo.onSubAssignToGridRefresh(tid);
         }
     }
-    async Task onGridRefresh()
+    public async Task onGridRefresh()
     {
         if (applicationUser != null)
         {
@@ -237,8 +243,23 @@
         RTopicId = conversationList[0].TopicID;
         SelectedGroup = conversationList[0].TopicID.ToString();
         SubViewToTopicId?.Invoke(SelectedReplyId);
+        await ParticipantCloseList();
+
         //await Task.Delay(1000); // Example asynchronous operation
         //await LoadReplyData();
+        StateHasChanged();
+    }
+    public async Task ParticipantCloseList()
+    {
+        var List = await Mediator.Send(new GetEmailParticipantList(long.Parse(SelectedReplyId), applicationUser.UserID));
+        if (List[0].IsClosed == true)
+        {
+            EnableOpen.Invoke();
+        }
+        else
+        {
+            EnableClose.Invoke();
+        }
         StateHasChanged();
     }
     public async ValueTask DisposeAsync()
@@ -258,6 +279,7 @@
     {
         SelectedDataItems = SelectedToItems;
         EnableArchiveAll.Invoke();
+        DisableOpenClose.Invoke();
     }
     public  async Task GetID()
     {

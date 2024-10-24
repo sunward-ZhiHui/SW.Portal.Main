@@ -349,6 +349,26 @@ namespace Application.Queries
         }
     }
 
-    
-
+    public class GetEmailParticipantList : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long ConversationID { get; private set; }
+        public long Userid { get; private set; }
+        public GetEmailParticipantList(long ConversationID,long Userid)
+        {
+            this.ConversationID = ConversationID;
+            this.Userid = Userid;
+        }
+    }
+    public class GetEmailClosedQuery : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long ConversationID { get; private set; }
+        public long Userid { get; private set; }
+        public long Isclose { get; private set; }
+        public GetEmailClosedQuery(long ConversationID, long Userid, long isclose)
+        {
+            this.ConversationID = ConversationID;
+            this.Userid = Userid;
+            Isclose = isclose;
+        }
+    }
 }

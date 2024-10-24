@@ -61,6 +61,8 @@ namespace Core.Repositories.Query
         Task<List<EmailConversations>> GetConversationTopicIdList(long TopicId);        
         Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId);
         Task<List<EmailConversationAssignToUserGroup>> GetAssignCCUserGroupList(long ConversationId);
+        Task<List<EmailTopics>> GetEmailParticipantListAsync(long conversationID ,long Userid);
+        Task<List<EmailTopics>> UpdateEmailCloseAsync(long conversationID, long Userid,long Isclose);
 
     }
 }

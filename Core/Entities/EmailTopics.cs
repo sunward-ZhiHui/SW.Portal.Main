@@ -137,6 +137,8 @@ namespace Core.Entities
         public long EmailTopicID { get; set; }
         [NotMapped]
         public DateTime? ExpiryDueDate { get; set; }
+        [NotMapped]
+        public bool IsClosed { get; set; } = false;
 
     }
 }

@@ -118,7 +118,7 @@
                         }
                         else if (isLeftMenuvisible == "AssignTo")
                         {
-                            <AssignToEmail @ref=RefAssignTo Page="@Page" GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailClick" ToTopicIds="onViewEmailToClickMultiple " EnableArchiveAll ="EnableArchiveAll"></AssignToEmail>
+                                <AssignToEmail @ref=RefAssignTo Page="@Page" GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailClick" ToTopicIds="onViewEmailToClickMultiple " EnableArchiveAll="EnableArchiveAll" EnableClose="EnableClose" EnableOpen="EnableOpen" DisableOpenClose="DisableOpenClose" ></AssignToEmail>
                         }
                        @*  else if (isLeftMenuvisible == "AssignCC")
                         {
@@ -170,6 +170,8 @@
                                                     <DxMenuItem Text="Tags" Enabled="isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
+                                                    <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
+                                                    <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
                                             </Items>
                                         </DxMenu>
                                         }
@@ -192,6 +194,8 @@
                                                 <DxMenuItem Text="Tags" Enabled="isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
+                                                <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
+                                                    <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
                                                 @*  <DxMenuItem>
                                                      <Template>
                                                          <div>@elapsedTime </div>
@@ -3130,6 +3134,8 @@
     bool isUserGroup { get; set; } = false;
     bool isPage { get; set; } = false;
     bool isTodoEnabled { get; set; } = false;
+     bool isOpenEnabled { get; set; } = false;
+      bool isCloseEnabled { get; set; } = false;
     bool isTagEnabled { get; set; } = false;
     bool isAddParticipant = false;
     bool isTags = false;
@@ -6593,6 +6599,36 @@
     {
 
     } 
+      private async void EnableClose()
+    {
+        isCloseEnabled = true;
+         isOpenEnabled = false;
+        StateHasChanged();
+    }
+    private async void EnableOpen()
+    {
+        isOpenEnabled = true;
+        isCloseEnabled = false;
+        StateHasChanged();
+    }
+     private async void DisableOpenClose()
+    {
+        isOpenEnabled = false;
+        isCloseEnabled = false;
+        StateHasChanged();
+    }
+     public async void SubmitOpen()
+    {
+        var List = await Mediator.Send(new GetEmailClosedQuery(long.Parse(SelectedReplyId), applicationUser.UserID,0));
+        toastService.ShowToast("The Selected Topic Open Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        RefAssignTo?.ParticipantCloseList();
+    }
+      public async void SubmitClose()
+    {
+         var List = await Mediator.Send(new GetEmailClosedQuery(long.Parse(SelectedReplyId), applicationUser.UserID,1));
+        toastService.ShowToast("The Selected Topic Close Successfully", AC.SD.Core.Services.ToastLevel.Success);
+       RefAssignTo?.ParticipantCloseList();
+    }
     private void ClearDiscussionList()
     {
         if (_discussionList != null)

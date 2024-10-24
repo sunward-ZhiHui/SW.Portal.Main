@@ -56,24 +56,21 @@
         height: calc(100vh - 530px);
         background-color: white;
     }
-     .lstcoversationrply.markasread img {
+    .lstcoversationrply.markasread img {
         width: 90% !important; 
         height: auto !important; 
         cursor: pointer;
         transition: transform 0.3s ease; 
-        }
+    }
+    #tableData img
+    {
+        width: 90% !important; 
+        height: auto !important; 
+        cursor: pointer;
+        transition: transform 0.3s ease; 
+    }
 </style>
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
-
-<script>    
-    document.querySelector('.lstcoversationrply.markasread img').addEventListener('click', function() {
-        if (this.style.width === "100%") {
-            this.style.width = "200%";  // Zoom in
-        } else {
-            this.style.width = "100%";  // Reset zoom
-        }
-    });
-</script>
 <div class="">
     <div class="main-container">
         <!--  -->
@@ -3427,7 +3424,7 @@
     {
         if (firstRender)
         {   
-            await JSRuntime.InvokeVoidAsync("window.addEventListener", "scroll", DotNetObjectReference.Create(this).Value, "HandleScroll");            
+            await JSRuntime.InvokeVoidAsync("window.addEventListener", "scroll", DotNetObjectReference.Create(this).Value, "HandleScroll");  
         }
 
 

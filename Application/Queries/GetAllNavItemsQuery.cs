@@ -139,4 +139,41 @@ namespace Application.Queries
             this.CompanyId = CompanyId;
         }
     }
+    public class GetNavprodOrderLineListAllQuery : PagedRequest, IRequest<List<NavprodOrderLine>>
+    {
+        
+    }
+    public class DeleteNavprodOrderLine : NavprodOrderLine, IRequest<NavprodOrderLine>
+    {
+        public NavprodOrderLine NavprodOrderLine { get; set; }
+        public DeleteNavprodOrderLine(NavprodOrderLine navprodOrderLine)
+        {
+            this.NavprodOrderLine = navprodOrderLine;
+        }
+    }
+    public class InsertOrUpdateNavprodOrderLine : NavprodOrderLine, IRequest<NavprodOrderLine>
+    {
+
+    }
+
+    public class GetFinishedProdOrderLineAllQuery : PagedRequest, IRequest<List<FinishedProdOrderLine>>
+    {
+
+    }
+    public class DeleteFinishedProdOrderLine : NavprodOrderLine, IRequest<FinishedProdOrderLine>
+    {
+        public FinishedProdOrderLine FinishedProdOrderLine { get; set; }
+        public DeleteFinishedProdOrderLine(FinishedProdOrderLine finishedProdOrderLine)
+        {
+            this.FinishedProdOrderLine = finishedProdOrderLine;
+        }
+    }
+    public class InsertOrUpdateFinishedProdOrderLine : FinishedProdOrderLine, IRequest<FinishedProdOrderLine>
+    {
+
+    }
+    public class GetFinishedProdOrderLineOptStatusQuery : PagedRequest, IRequest<List<FinishedProdOrderLineOptStatus>>
+    {
+
+    }
 }

@@ -2089,7 +2089,7 @@ namespace Infrastructure.Repository.Query
                 return false;
             }
         }
-        public async Task<AttributeDetailsAdds> GetAttributeDetails(List<long?> AttributeIds, List<long> id, string? Type, long? companyId, string plantCode, List<ApplicationMaster> applicationMasters,List<ApplicationMasterParent> applicationMasterParents)
+        public async Task<AttributeDetailsAdds> GetAttributeDetails(List<long?> AttributeIds, List<long> id, string? Type, long? companyId, string plantCode, List<ApplicationMaster> applicationMasters, List<ApplicationMasterParent> applicationMasterParents)
         {
             try
             {
@@ -3725,9 +3725,9 @@ namespace Infrastructure.Repository.Query
                                             else if (s.ControlType == "CheckBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
                                             {
                                                 opts.Add("Label", s.DisplayName);
-                                                opts.Add("Value", string.Empty);
+                                                opts.Add("Value", s.ControlType == "CheckBox" ? false : string.Empty);
                                                 objectData[attrName] = opts;
-                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = string.Empty;
+                                                objectDataList[attrName + "$" + s.DisplayName.Replace(" ", "_")] = s.ControlType == "CheckBox" ? false : string.Empty;
                                                 DynamicFormReportItems dynamicFormReportItems58 = new DynamicFormReportItems();
                                                 dynamicFormReportItems58.AttrId = attrName;
                                                 dynamicFormReportItems58.Label = s.DisplayName;
@@ -5024,9 +5024,9 @@ namespace Infrastructure.Repository.Query
                         else
                         {
                             optsSub.Add("Label", d.Description);
-                            optsSub.Add("Value", string.Empty);
+                            optsSub.Add("Value", d.ControlType == "CheckBox" ? false : string.Empty);
                             objectData[subAttrName] = optsSub;
-                            objectDataList[subAttrName + "$" + d.Description.Replace(" ", "_")] = string.Empty;
+                            objectDataList[subAttrName + "$" + d.Description.Replace(" ", "_")] = d.ControlType == "CheckBox" ? false : string.Empty;
                             DynamicFormReportItems dynamicFormReportItems6 = new DynamicFormReportItems();
                             dynamicFormReportItems6.AttrId = subAttrName;
                             dynamicFormReportItems6.Label = d.Description;

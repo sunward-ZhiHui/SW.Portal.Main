@@ -10,6 +10,9 @@
 @inject IJSRuntime JSRuntime;
 @using System.Collections
 @using BlazorBarcodeScanner.ZXing.JS
+@using System.Text.Json;
+@using System.IO;
+@using System.Dynamic;
 @implements IAsyncDisposable
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
@@ -34,20 +37,20 @@
 
     <DataAnnotationsValidator />
     <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
-            <DxComboBox Data="@_ponumberActivities"
-                        NullText="Select ProdOrderNo..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Name"
-                        ValueFieldName="NavprodOrderLineId"
-                        ValueChanged="@((long? prod) => SelectedItemprods(prod))"
-                        Value="Data.NavprodOrderLineId"
-                        ValueExpression="@(() => Data.NavprodOrderLineId )"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
-        </DxFormLayoutItem>
+        @*  <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
+        <DxComboBox Data="@_ponumberActivities"
+        NullText="Select ProdOrderNo..."
+        SearchMode="ListSearchMode.AutoSearch"
+        SearchFilterCondition="ListSearchFilterCondition.Contains"
+        TextFieldName="Name"
+        ValueFieldName="NavprodOrderLineId"
+        ValueChanged="@((long? prod) => SelectedItemprod(prod))"
+        Value="Data.NavprodOrderLineId"
+        ValueExpression="@(() => Data.NavprodOrderLineId )"
+        ShowValidationIcon="true">
+        </DxComboBox>
+        <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
+        </DxFormLayoutItem> *@
         <DxFormLayoutItem Caption="Other Options" ColSpanMd="6">
             <DxRadioGroup Items="@IsOtherOptionsItems"
                           Value="@Data.OthersOptions"
@@ -61,10 +64,12 @@
         <DxFormLayoutItem Caption="Routine:" ColSpanMd="6">
             <DxComboBox Data="@_ManuFactureProcessLines"
                         NullText="Select Routine..."
+                        Enabled="false"
                         SearchMode="ListSearchMode.AutoSearch"
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
+                        @bind-Text="@TimeSheetRoutine"
                         Value="@Data.ManufacturingProcessChildId"
                         ValueExpression="@(() => Data.ManufacturingProcessChildId )"
                         ValueChanged="@((long? plant) => SelectedItemManuFactureChanged(plant))"
@@ -87,6 +92,7 @@
                         ValueChanged="@((long? plant) => SelectedItemCategoryChanged(plant))"
                         Value="@Data.ProdActivityCategoryChildId"
                         ValueExpression="@(() => Data.ProdActivityCategoryChildId )"
+                        @bind-Text="@Category"
                         ShowValidationIcon="true">
             </DxComboBox>
             <ValidationMessage For="@(() => Data.ProdActivityCategoryChildId)" />
@@ -102,6 +108,7 @@
                         ValueChanged="@((long? plant) => SelectedItemActionChanged(plant))"
                         Value="@Data.ProdActivityActionChildD"
                         ValueExpression="@(() => Data.ProdActivityActionChildD )"
+                        @bind-Text="@Action"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
@@ -132,8 +139,8 @@
                         NullText="Select Activity Result..."
                         SearchMode="ListSearchMode.AutoSearch"
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterDetailID"
+                        TextFieldName="Text"
+                        ValueFieldName="Id"
                         @bind-Value="Data.ProdActivityResultId"
                         ShowValidationIcon="true">
             </DxComboBox>
@@ -143,20 +150,20 @@
                         NullText="Select Routine Status..."
                         SearchMode="ListSearchMode.AutoSearch"
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterDetailID"
+                        TextFieldName="Text"
+                        ValueFieldName="Id"
                         @bind-Value="Data.RoutineStatusId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
             <DxTagBox NullText="Select Routine Info..."
+                      Data="@_ActivityMaster"
                       SearchMode="ListSearchMode.AutoSearch"
                       SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      Data="@_ActivityMaster"
                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="Value"
-                      ValueFieldName="ApplicationMasterDetailID"
+                      TextFieldName="Text"
+                      ValueFieldName="Id"
                       @bind-Values="@Data.RoutineInfoIds"
                       CssClass="cw-480" />
         </DxFormLayoutItem>
@@ -174,7 +181,7 @@
          ShowFooter="false"
          MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
     <BodyContentTemplate>
-        <UploadProductionRoutineFiles @ref="refUploadProductionRoutineFiles" _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUpload"></UploadProductionRoutineFiles>
+        <UploadProductionTimeSheetV1Files _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUpload"></UploadProductionTimeSheetV1Files>
 
     </BodyContentTemplate>
 </DxPopup>
@@ -192,7 +199,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    private UploadProductionRoutineFiles refUploadProductionRoutineFiles;
+
     [Parameter]
     public ProductionActivityRoutineAppModel? _selectedEditItems { get; set; }
     bool PopupManuFactureScanVisible { get; set; } = false;
@@ -204,9 +211,12 @@
     public IEnumerable _poOrderDetails { get; set; }
     private List<ProductionActivityApp> _productionActivities;
     private List<NavprodOrderLineModel> _ponumberActivities;
-    private List<View_ApplicationMasterDetail> _ActivityResult;
-    private List<View_ApplicationMasterDetail> _ActivityStatusItem;
-    private List<View_ApplicationMasterDetail> _ActivityMaster;
+    // private List<View_ApplicationMasterDetail> _ActivityResult;
+    // private List<View_ApplicationMasterDetail> _ActivityStatusItem;
+    // private List<View_ApplicationMasterDetail> _ActivityMaster;
+    private List<DropDownOptionsListModel> _ActivityResult;
+    private List<DropDownOptionsListModel> _ActivityStatusItem;
+    private List<DropDownOptionsListModel> _ActivityMaster;
     ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
     ProductionActivityRoutineAppModel DataLine = new ProductionActivityRoutineAppModel();
     public ApplicationUser applicationUser { get; private set; }
@@ -225,6 +235,17 @@
     [Parameter]
     public Action RevokeBack { get; set; }
     long? ProductionActivityRoutineAppLineId { get; set; }
+    string TimeSheetRoutine { get; set; } = "TimeSheet";
+    string Category { get; set; } = "";
+    string Action { get; set; } = "";
+    string jsonText = @"[{""ApplicationMasterDetailID"": 1, ""Value"": ""Result 1""},
+                      {""ApplicationMasterDetailID"": 2, ""Value"": ""Result 2""}
+                    ]";
+
+    string parentId2 = "-1";
+    long parentchildId2 = -1;
+    string timesheetMasterParentid = "-1";
+    long timesheetMasterchildid = -1;
     protected override async Task OnInitializedAsync()
     {
         addEnabled = true; saveEnabled = true;
@@ -235,9 +256,30 @@
         _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
         Data.ProdActivityCategoryChildId = null; Data.ProdActivityActionChildD = null;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(324));
-        _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(331));
-        _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(334));
+        //_ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(324));
+        // Deserialize JSON to List<ActivityResult>
+        //_ActivityResult = JsonSerializer.Deserialize<List<View_ApplicationMasterDetail>>(jsonText);
+        //_ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(331));
+        //_ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(334));
+        IDictionary<string, object> dynamicsData = new ExpandoObject();
+        var time_sheet_lst = _ManuFactureProcessLines.Where(x => x.Value == "Timesheet").FirstOrDefault();
+        if (time_sheet_lst != null)
+        {
+            Data.ManufacturingProcessChildId = time_sheet_lst.ApplicationMasterChildId;
+            timesheetMasterchildid = time_sheet_lst.ApplicationMasterChildId;
+            timesheetMasterParentid = time_sheet_lst.ApplicationMasterParentId.ToString();
+            dynamicsData[timesheetMasterParentid] = timesheetMasterchildid;
+            if (Data.ManufacturingProcessChildId > 0)
+            {
+                _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(Data.ManufacturingProcessChildId));
+            }
+            var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData, 108));
+            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+        }
+        Category = "";
+        Action = "";
         if (_selectedEditItems != null)
         {
             Data.ProductionActivityRoutineAppLineId = _selectedEditItems.ProductionActivityRoutineAppLineId;
@@ -251,7 +293,9 @@
             Data.RoutineStatusId = _selectedEditItems.RoutineStatusId;
             Data.RoutineInfoIds = _selectedEditItems.RoutineInfoIds;
             Data.LineComment = _selectedEditItems.LineComment;
-            Data.OthersOptions = "No";
+            Category = _selectedEditItems.ProdActivityCategoryChild;
+            Action = _selectedEditItems.ProdActivityActionChild;
+            Data.OthersOptions = _selectedEditItems.OthersOptions;
             if (_selectedEditItems.IsOthersOptions == true)
             {
                 Data.OthersOptions = "Yes";
@@ -280,7 +324,7 @@
             await GetIsDoumentExits();
         }
     }
-    void addNewProductionForm()
+    async Task addNewProductionForm()
     {
         _editContext = new EditContext(Data);
         FileProfileTypeId = null;
@@ -301,6 +345,24 @@
         UploadSessionId = null;
         uploadEnabled = false;
         addEnabled = true; saveEnabled = true;
+        IDictionary<string, object> dynamicsData = new ExpandoObject();
+        var time_sheet_lst = _ManuFactureProcessLines.Where(x => x.Value == "Timesheet").FirstOrDefault();
+        
+        if (time_sheet_lst != null)
+        {
+            Data.ManufacturingProcessChildId = time_sheet_lst.ApplicationMasterChildId;
+            timesheetMasterchildid = time_sheet_lst.ApplicationMasterChildId;
+            timesheetMasterParentid = time_sheet_lst.ApplicationMasterParentId.ToString();
+            dynamicsData[timesheetMasterParentid] = timesheetMasterchildid;
+            if (Data.ManufacturingProcessChildId > 0)
+            {
+                _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(Data.ManufacturingProcessChildId));
+            }
+            var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData, 108));
+            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+        }
         StateHasChanged();
     }
     void SelectedItemplateItemsChanged(long? Itemss)
@@ -335,7 +397,7 @@
         }
         StateHasChanged();
     }
-    void SelectedItemprods(long? NAVProdOrder)
+    void SelectedItemprod(long? NAVProdOrder)
     {
         Data.NavprodOrderLineId = NAVProdOrder;
         if (NAVProdOrder != null && NAVProdOrder > 0)
@@ -365,31 +427,90 @@
         Data.NavprodOrderLineId = 0;
         StateHasChanged();
     }
-    async Task SelectedItemCategoryChanged(long? selectItem)
+    async Task SelectedItemCategoryChanged(long? selectItemId)
     {
-        Data.ProdActivityCategoryChildId = null;
         _actionItems = new List<ApplicationMasterChildModel>();
+        Data.ProdActivityCategoryChildId = selectItemId;
         Data.ProdActivityActionChildD = null;
-        if (selectItem != null && selectItem > 0)
+        var selectItem = _categoryItems != null && selectItemId > 0 ? _categoryItems.FirstOrDefault(f => f.ApplicationMasterChildId == selectItemId) : null;
+        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
         {
-            Data.ProdActivityCategoryChildId = selectItem;
-            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem));
+            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem.ApplicationMasterChildId));
+
+            IDictionary<string, object> dynamicsData1 = new ExpandoObject();
+            var parentId = timesheetMasterParentid;
+            dynamicsData1[parentId] = timesheetMasterchildid;
+
+            parentId2 = selectItem.ApplicationMasterParentId.ToString();
+            dynamicsData1[parentId2] = selectItem.ApplicationMasterChildId;
+
+            parentchildId2 = selectItem.ApplicationMasterChildId;
+
+            // var parentId3 = 109.ToString();
+            // dynamicsData[parentId3] = 241;
+
+            _ActivityStatusItem = new List<DropDownOptionsListModel>();
+            _ActivityResult = new List<DropDownOptionsListModel>();
+            _ActivityMaster = new List<DropDownOptionsListModel>();
+
+            Data.ProdActivityResultId = null;
+            Data.RoutineStatusId = null;
+            Data.RoutineInfoIds = null;
+
+            var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData1, 108));
+            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+
+            StateHasChanged();
+        }
+        else
+        {
+            parentId2 = null;
+            parentchildId2 = 0;
+
+            Data.ProdActivityResultId = null;
+            Data.RoutineStatusId = null;
+            Data.RoutineInfoIds = null;
         }
         await OnTemplateUploadGroupValueChanged("No");
     }
-    async Task SelectedItemActionChanged(long? selectItem)
+    async Task SelectedItemActionChanged(long? selectItemId)
     {
-        Data.ProdActivityActionChildD = null;
-        if (selectItem != null && selectItem > 0)
+        Data.ProdActivityActionChildD = selectItemId;
+        var selectItem = _actionItems != null && selectItemId > 0 ? _actionItems.FirstOrDefault(f => f.ApplicationMasterChildId == selectItemId) : null;
+        if (selectItem != null)
         {
-            Data.ProdActivityActionChildD = selectItem;
             await getTemplateItems();
+
+            IDictionary<string, object> dynamicsData2 = new ExpandoObject();
+            var parentId = timesheetMasterParentid;
+            dynamicsData2[parentId] = timesheetMasterchildid;
+
+            //var parentId2 = selectItem.ApplicationMasterParentId.ToString();
+            dynamicsData2[parentId2] = parentchildId2;
+
+            var parentId3 = selectItem.ApplicationMasterParentId.ToString();
+            dynamicsData2[parentId3] = selectItem.ApplicationMasterChildId;
+
+            _ActivityStatusItem = new List<DropDownOptionsListModel>();
+            _ActivityResult = new List<DropDownOptionsListModel>();
+            _ActivityMaster = new List<DropDownOptionsListModel>();
+
+            Data.ProdActivityResultId = null;
+            Data.RoutineStatusId = null;
+            Data.RoutineInfoIds = null;
+
+            var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData2, 108));
+            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
+            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
+            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+
         }
         await OnTemplateUploadGroupValueChanged("No");
     }
     void onBack()
     {
-        DisposeAsync();
         RevokeBack?.Invoke();
     }
     async Task HandleProductionFormValidSubmit()
@@ -421,7 +542,11 @@
                 IsTemplateUploadFlag = Data.IsTemplateUpload == true ? "Yes" : "No",
                 ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0 ? Data.ProductActivityCaseLineId : null,
                 RoutineInfoIds = Data.RoutineInfoIds,
-                ActionType = "Master"
+                TimeSheetAction = true,
+                LotNo = ParentData.LotNo,
+                ItemName = ParentData.ItemName,
+                ActionType = "TimeSheetV1"
+
             };
 
         var result = await Mediator.Send(request);
@@ -544,19 +669,61 @@
     }
     public async ValueTask DisposeAsync()
     {
-     //   System.GC.Collect();
-        _productionActivities?.Clear();
-        _ponumberActivities?.Clear();
-        _ActivityResult?.Clear();
-        _ActivityStatusItem?.Clear();
-        _ActivityMaster?.Clear();
-        Data = new ProductionActivityRoutineAppModel();
-        DataLine = new ProductionActivityRoutineAppModel();
-        _templateItems?.Clear();
-        _AppLines?.Clear();
-        _ManuFactureProcessLines?.Clear();
-        _categoryItems?.Clear();
-        _actionItems?.Clear(); refUploadProductionRoutineFiles?.DisposeAsync();
-       // GC.SuppressFinalize(this);
+        if (_ManuFactureProcessLines != null)
+        {
+            _ManuFactureProcessLines.Clear();
+            _ManuFactureProcessLines = null;
+        }
+        if (_categoryItems != null)
+        {
+            _categoryItems.Clear();
+            _categoryItems = null;
+        }
+        if (_actionItems != null)
+        {
+            _actionItems.Clear();
+            _actionItems = null;
+        }
+        if (_templateItems != null)
+        {
+            _templateItems.Clear();
+            _templateItems = null;
+        }
+        if (_ActivityResult != null)
+        {
+            _ActivityResult.Clear();
+            _ActivityResult = null;
+        }
+        if (_ActivityStatusItem != null)
+        {
+            _ActivityStatusItem.Clear();
+            _ActivityStatusItem = null;
+        }
+        if (_ActivityMaster != null)
+        {
+            _ActivityMaster.Clear();
+            _ActivityMaster = null;
+        }
+        if (_ponumberActivities != null)
+        {
+            _ponumberActivities.Clear();
+            _ponumberActivities = null;
+        }
+        if (_productionActivities != null)
+        {
+            _productionActivities.Clear();
+            _productionActivities = null;
+        }
+        if (_AppLines != null)
+        {
+            _AppLines.Clear();
+            _AppLines = null;
+        }
+        _selectedEditItems = null;
+        Data = null;
+        DataLine = null;
+
+        //System.GC.Collect();
+        // GC.SuppressFinalize(this);
     }
 }

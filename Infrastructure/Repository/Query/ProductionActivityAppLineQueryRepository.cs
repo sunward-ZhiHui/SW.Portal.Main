@@ -732,6 +732,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("SessionId", value.SessionID == null ? value.SessionID : value.SessionID, DbType.Guid);
+                        parameters.Add("DocumentID", value.DocumentID == null ? value.DocumentID : value.DocumentID, DbType.Int64);
                         var query = string.Empty;
                         if (value.Type == "Production Activity")
                         {
@@ -739,7 +740,7 @@ namespace Infrastructure.Repository.Query
                         }
                         if (value.Type == "Production Routine")
                         {
-                            query += "Delete from  ProductionActivityRoutineAppLineDoc WHERE SessionId=@SessionId;";
+                            query += "Delete from  ProductionActivityRoutineAppLineDoc WHERE  DocumentID =@DocumentID;";
                         }
                         if (value.Type == "IpirApp")
                         {

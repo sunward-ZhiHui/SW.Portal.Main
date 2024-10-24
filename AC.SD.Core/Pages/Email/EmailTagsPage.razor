@@ -20,6 +20,7 @@
 @using System.Linq;
 @using global::Core.Repositories.Query
 @implements IAsyncDisposable;
+@inject IPageContext PageContext
 
 <div class="">
     <DxFormLayout CssClass="w-100">
@@ -122,7 +123,7 @@
     private OpenAccessUserLink? _openAccessUserLink { get; set; }
     protected override async Task OnInitializedAsync()
     {
-
+        PageContext.PageName = "EmailTagsPage";
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if(applicationUser != null)
         {

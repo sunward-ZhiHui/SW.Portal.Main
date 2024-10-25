@@ -880,7 +880,14 @@
                                                     }
                                                     else
                                                     {
-                                                        objectData[attrName] = string.Empty;
+                                                        if (s.ControlTypeId == 2710)
+                                                        {
+                                                            objectData[attrName] = false;
+                                                        }
+                                                        else
+                                                        {
+                                                            objectData[attrName] = string.Empty;
+                                                        }
                                                     }
                                                 }
                                             }

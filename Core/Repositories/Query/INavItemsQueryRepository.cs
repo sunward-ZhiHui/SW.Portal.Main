@@ -32,5 +32,13 @@ namespace Core.Repositories.Query
         Task<ItemBatchInfo> InsertOrUpdateBatchInfo(ItemBatchInfo itemBatchInfo);
         Task<ItemBatchInfo> DeleteItemBatchInfo(ItemBatchInfo itemBatchInfo);
         Task<NavprodOrderLine> GetNavprodOrderLineList(long? CompanyId);
+        Task<IReadOnlyList<NavprodOrderLine>> GetNavprodOrderLineListAsync();
+        Task<NavprodOrderLine> DeleteNavprodOrderLine(NavprodOrderLine navprodOrderLine);
+        Task<NavprodOrderLine> InsertOrUpdateNavprodOrderLine(NavprodOrderLine navprodOrderLine);
+
+        Task<FinishedProdOrderLine> InsertOrUpdateFinishedProdOrderLine(FinishedProdOrderLine finishedProdOrderLine);
+        Task<FinishedProdOrderLine> DeleteFinishedProdOrderLine(FinishedProdOrderLine finishedProdOrderLine);
+        Task<IReadOnlyList<FinishedProdOrderLine>> GeFinishedProdOrderLineListAsync();
+        Task<IReadOnlyList<FinishedProdOrderLineOptStatus>> GetFinishedProdOrderLineOptStatus();
     }
 }

@@ -147,7 +147,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<Navitems> Handle(NavCompanyItemQuery request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.GetNavItemServicesList(request.CompanyId,request.UserId);
+            return await _queryRepository.GetNavItemServicesList(request.CompanyId, request.UserId);
 
         }
     }
@@ -196,16 +196,16 @@ namespace CMS.Application.Handlers.QueryHandlers
     }
     public class DeleteItemBatchInfoHandler : IRequestHandler<DeleteItemBatchInfo, ItemBatchInfo>
     {
-        private readonly INavItemsQueryRepository _DynamicFormQueryRepository;
+        private readonly INavItemsQueryRepository _queryRepository;
 
         public DeleteItemBatchInfoHandler(INavItemsQueryRepository QueryRepository)
         {
-            _DynamicFormQueryRepository = QueryRepository;
+            _queryRepository = QueryRepository;
         }
 
         public async Task<ItemBatchInfo> Handle(DeleteItemBatchInfo request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.DeleteItemBatchInfo(request.ItemBatchInfo);
+            return await _queryRepository.DeleteItemBatchInfo(request.ItemBatchInfo);
         }
     }
     public class GetNavprodOrderLineListQueryHandler : IRequestHandler<GetNavprodOrderLineListQuery, NavprodOrderLine>
@@ -220,6 +220,113 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<NavprodOrderLine> Handle(GetNavprodOrderLineListQuery request, CancellationToken cancellationToken)
         {
             return await _queryRepository.GetNavprodOrderLineList(request.CompanyId);
+
+        }
+    }
+    public class GetNavprodOrderLineListAllQueryHandler : IRequestHandler<GetNavprodOrderLineListAllQuery, List<NavprodOrderLine>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public GetNavprodOrderLineListAllQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<List<NavprodOrderLine>> Handle(GetNavprodOrderLineListAllQuery request, CancellationToken cancellationToken)
+        {
+            return (List<NavprodOrderLine>)await _queryRepository.GetNavprodOrderLineListAsync();
+
+        }
+    }
+    public class DeleteNavprodOrderLineHandler : IRequestHandler<DeleteNavprodOrderLine, NavprodOrderLine>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public DeleteNavprodOrderLineHandler(INavItemsQueryRepository QueryRepository)
+        {
+            _queryRepository = QueryRepository;
+        }
+
+        public async Task<NavprodOrderLine> Handle(DeleteNavprodOrderLine request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteNavprodOrderLine(request.NavprodOrderLine);
+        }
+    }
+    public class InsertOrUpdateNavprodOrderLineHandler : IRequestHandler<InsertOrUpdateNavprodOrderLine, NavprodOrderLine>
+    {
+
+
+        private readonly INavItemsQueryRepository _queryRepository;
+        public InsertOrUpdateNavprodOrderLineHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<NavprodOrderLine> Handle(InsertOrUpdateNavprodOrderLine request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateNavprodOrderLine(request);
+
+        }
+    }
+
+
+    public class GetFinishedProdOrderLineAllQueryHandler : IRequestHandler<GetFinishedProdOrderLineAllQuery, List<FinishedProdOrderLine>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public GetFinishedProdOrderLineAllQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<List<FinishedProdOrderLine>> Handle(GetFinishedProdOrderLineAllQuery request, CancellationToken cancellationToken)
+        {
+            return (List<FinishedProdOrderLine>)await _queryRepository.GeFinishedProdOrderLineListAsync();
+
+        }
+    }
+    public class DeleteFinishedProdOrderLineHandler : IRequestHandler<DeleteFinishedProdOrderLine, FinishedProdOrderLine>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public DeleteFinishedProdOrderLineHandler(INavItemsQueryRepository QueryRepository)
+        {
+            _queryRepository = QueryRepository;
+        }
+
+        public async Task<FinishedProdOrderLine> Handle(DeleteFinishedProdOrderLine request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteFinishedProdOrderLine(request.FinishedProdOrderLine);
+        }
+    }
+    public class InsertOrUpdateFinishedProdOrderLineHandler : IRequestHandler<InsertOrUpdateFinishedProdOrderLine, FinishedProdOrderLine>
+    {
+
+
+        private readonly INavItemsQueryRepository _queryRepository;
+        public InsertOrUpdateFinishedProdOrderLineHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<FinishedProdOrderLine> Handle(InsertOrUpdateFinishedProdOrderLine request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateFinishedProdOrderLine(request);
+
+        }
+    }
+    public class GetFinishedProdOrderLineOptStatusQueryHandler : IRequestHandler<GetFinishedProdOrderLineOptStatusQuery, List<FinishedProdOrderLineOptStatus>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public GetFinishedProdOrderLineOptStatusQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<List<FinishedProdOrderLineOptStatus>> Handle(GetFinishedProdOrderLineOptStatusQuery request, CancellationToken cancellationToken)
+        {
+            return (List<FinishedProdOrderLineOptStatus>)await _queryRepository.GetFinishedProdOrderLineOptStatus();
 
         }
     }

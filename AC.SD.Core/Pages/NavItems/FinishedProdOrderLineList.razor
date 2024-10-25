@@ -19,7 +19,7 @@
     }
 
 </style>
-@page "/ItemBatchInfoList"
+@page "/FinishedProdOrderLineList"
 
 <div id="NavHeader">
     <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
@@ -45,7 +45,7 @@
                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
                 Data="_documentRole"
                 ShowGroupPanel="true" ShowGroupedColumns="true"
-                KeyFieldName="ItemBatchId"
+                KeyFieldName="FinishedProdOrderLineId"
                 EditModelSaving="Grid_EditModelSaving"
                 CustomizeEditModel="Grid_CustomizeEditModel"
                 CustomizeElement="Grid_CustomizeElement"
@@ -68,24 +68,23 @@
                 AllowSelectRowByClick="true">
             <Columns>
                 <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-                <DxGridDataColumn FieldName="ItemBatchId" Visible="false" />
-                <DxGridDataColumn FieldName="PlantCode" Caption="Company" />
+                <DxGridDataColumn FieldName="FinishedProdOrderLineId" Visible="false" />
+                <DxGridDataColumn FieldName="CompanyCode" Caption="Company" />
+                <DxGridDataColumn FieldName="ProdOrderNo" Caption="Prod OrderNo" />
                 <DxGridDataColumn FieldName="ItemNo" Caption="Item No" />
-                <DxGridDataColumn FieldName="ItemDescription" Caption="Description" />
-                <DxGridDataColumn FieldName="LocationCode" />
+                <DxGridDataColumn FieldName="Description" />
+                <DxGridDataColumn FieldName="Description2" />
+                <DxGridDataColumn FieldName="ReplanRefNo" Caption="Replan RefNo" />
                 <DxGridDataColumn FieldName="BatchNo" />
-                <DxGridDataColumn FieldName="ExpiryDate" />
-                <DxGridDataColumn FieldName="ManufacturingDate" />
-                <DxGridDataColumn FieldName="QuantityOnHand" Caption="Qty OnHand" />
-                <DxGridDataColumn FieldName="NavQuantity" Caption="Nav Qty" />
-                <DxGridDataColumn FieldName="IssueQuantity" Caption="Issue Qty" />
-                <DxGridDataColumn FieldName="BalanceQuantity" Caption="Balance Qty" />
-                <DxGridDataColumn FieldName="StockOutBatchConfirm" />
+                <DxGridDataColumn FieldName="StartingDate" Caption="Starting Date" />
+                <DxGridDataColumn FieldName="ManufacturingDate" Caption="Manufacturing Date" />
+                <DxGridDataColumn FieldName="Status" Caption="Status" />
+                <DxGridDataColumn FieldName="OptStatus" Caption="OptStatus" />
             </Columns>
 
             <EditFormTemplate Context="EditFormContext">
                 @{
-                    var plant = (ItemBatchInfo)EditFormContext.EditModel;
+                    var plant = (FinishedProdOrderLine)EditFormContext.EditModel;
                 }
                 <DxFormLayout CssClass="w-100">
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
@@ -96,7 +95,9 @@
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
-                                    @bind-Value="@plant.CompanyId"
+                                    Value="@plant.CompanyId"
+                                    ValueExpression="@(() =>plant.CompanyId )"
+                                    ValueChanged="@((long? plantData) => SelectedPlantChanged(plantData,plant))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     ShowValidationIcon="true">
                             <Columns>
@@ -111,82 +112,94 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => plant.CompanyId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Item No" ColSpanMd="6">
-                        <DxComboBox Data="@_AllNavitems"
-                                    NullText="Select Item SerialNo..."
+                    <DxFormLayoutItem Caption="Item" ColSpanMd="6">
+                        <DxComboBox Data="@_AllNavitemsList"
+                                    NullText="Select Item..."
                                     ListRenderMode="ListRenderMode.Virtual"
                                     TextFieldName="No"
                                     ValueFieldName="ItemId"
                                     EditFormat="{0}-{1}"
                                     SearchMode="ListSearchMode.AutoSearch"
                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    Value="@plant.ItemId"
+                                    ValueExpression="@(() =>plant.ItemId )"
+                                    ValueChanged="@((long? plantData) => SelectedItemChanged(plantData,plant))"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    @bind-Value="@plant.ItemId"
                                     ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                     Caption="Item" />
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                     Caption="Description" />
-                                                    <DxListEditorColumn FieldName="@nameof(View_NavItems.Description2)"
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.Description2)"
                                                     Caption="Description2" />
+
                             </Columns>
-                            
+
                         </DxComboBox>
                         <ValidationMessage For="@(() => plant.ItemId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Location Code" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@plant.LocationCode" ShowValidationIcon="true" />
-                        <ValidationMessage For="@(() => plant.LocationCode)" />
+                    <DxFormLayoutItem Caption="Prod OrderNo" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.ProdOrderNo" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ProdOrderNo)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Item No" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.ItemNo" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ItemNo)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.Description" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.Description)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description2" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.Description2" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.Description2)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Replan RefNo" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.ReplanRefNo" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ReplanRefNo)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Batch No" ColSpanMd="6">
                         <DxTextBox @bind-Text="@plant.BatchNo" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => plant.BatchNo)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Lot No" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@plant.LotNo" ShowValidationIcon="true" />
-                        <ValidationMessage For="@(() => plant.LotNo)" />
+                    <DxFormLayoutItem Caption="Starting Date" ColSpanMd="6">
+                        <DxDateEdit @bind-Date="@plant.StartingDate" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.StartingDate)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Expiry Date" ColSpanMd="6">
-                        <DxDateEdit @bind-Date="@plant.ExpiryDate" ShowValidationIcon="true" />
-                        <ValidationMessage For="@(() => plant.ExpiryDate)" />
+                    <DxFormLayoutItem Caption="Expiration Date" ColSpanMd="6">
+                        <DxDateEdit @bind-Date="@plant.ExpirationDate" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ExpirationDate)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Manufacturing Date" ColSpanMd="6">
-                        <DxDateEdit @bind-Date="@plant.ManufacturingDate" ShowValidationIcon="true" />
-                        <ValidationMessage For="@(() => plant.ManufacturingDate)" />
+                    <DxFormLayoutItem Caption="Product Code" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.ProductCode" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ProductCode)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Quantity OnHand" ColSpanMd="6">
-                        <DxSpinEdit @bind-Value="@plant.QuantityOnHand" MinValue="0" CssClass="cw-320" InputId="QuantityOnHand" />
-                        <ValidationMessage For="@(() => plant.QuantityOnHand)" />
+                    <DxFormLayoutItem Caption="Product Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.ProductName" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ProductName)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Nav Quantity" ColSpanMd="6">
-                        <DxSpinEdit @bind-Value="@plant.NavQuantity" MinValue="0" CssClass="cw-320" InputId="NavQuantity" />
-                        <ValidationMessage For="@(() => plant.NavQuantity)" />
+                    @* <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@plant.Status" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => plant.Status)" />
+                    </DxFormLayoutItem> *@
+                    <DxFormLayoutItem Caption="OptStatus" ColSpanMd="6">
+                        <DxComboBox Data="@finishedProdOrderLineOptStatuses"
+                                    NullText="Select OptStatus..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    TextFieldName="OptStatus"
+                                    ValueFieldName="OptStatus"
+                                    SearchMode="ListSearchMode.AutoSearch"
+                                    SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                    Value="@plant.OptStatus"
+                                    ValueExpression="@(() =>plant.OptStatus )"
+                                    ValueChanged="@((string? plantData) => SelectedOptStatusChanged(plantData,plant))"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    ShowValidationIcon="true">
+
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => plant.OptStatus)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Issue Quantity" ColSpanMd="6">
-                        <DxSpinEdit @bind-Value="@plant.IssueQuantity" MinValue="0" CssClass="cw-320" InputId="IssueQuantity" />
-                        <ValidationMessage For="@(() => plant.IssueQuantity)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Balance Quantity" ColSpanMd="6">
-                        <DxSpinEdit @bind-Value="@plant.BalanceQuantity" MinValue="0" CssClass="cw-320" InputId="BalanceQuantity" />
-                        <ValidationMessage For="@(() => plant.BalanceQuantity)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="StockOut Batch Confirm" ColSpanMd="6">
-                        <DxSpinEdit @bind-Value="@plant.StockOutBatchConfirm" MinValue="0" CssClass="cw-320" InputId="StockOutBatchConfirm" />
-                        <ValidationMessage For="@(() => plant.StockOutBatchConfirm)" />
-                    </DxFormLayoutItem>
-                   @*   <DxFormLayoutItem Caption="Status" ColSpanMd="6">
-                         <DxComboBox Data="@_stausItems"
-                                     NullText="Select Status..."
-                                     SearchMode="ListSearchMode.AutoSearch"
-                                     SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                     TextFieldName="CodeValue"
-                                     ValueFieldName="CodeId"
-                                     @bind-Value="@plant.StatusCodeId"
-                                     ShowValidationIcon="true">
-                         </DxComboBox>
-                         <ValidationMessage For="@(() => plant.StatusCodeId)" />
-                     </DxFormLayoutItem> *@
                 </DxFormLayout>
             </EditFormTemplate>
             <TotalSummary>
@@ -224,15 +237,16 @@
 
 
 @code {
-    private List<View_NavItems>? _AllNavitems;
-    private List<ItemBatchInfo> _documentRole;
+    private List<FinishedProdOrderLineOptStatus> finishedProdOrderLineOptStatuses;
+    private List<View_NavItems>? _AllNavitemsList;
+    private List<FinishedProdOrderLine> _documentRole;
     private List<ViewPlants>? _plantItems;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     bool PanelVisible { get; set; } = true;
     bool EditEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    private ItemBatchInfo? _selectedItems;
+    private FinishedProdOrderLine? _selectedItems;
     private List<CodeMaster> _stausItems;
     bool DeleteEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
@@ -246,7 +260,7 @@
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
-        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+        finishedProdOrderLineOptStatuses = await Mediator.Send(new GetFinishedProdOrderLineOptStatusQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         await UpdateDataAsync();
     }
@@ -255,7 +269,7 @@
         try
         {
             PanelVisible = true; EditEnabled = false; DeleteEnabled = false;
-            _documentRole = await Mediator.Send(new GetItemBatchInfoAllQuery());
+            _documentRole = await Mediator.Send(new GetFinishedProdOrderLineAllQuery());
             if (_documentRole.Count > 0)
             {
                 _selectedItems = _documentRole.FirstOrDefault();
@@ -273,6 +287,28 @@
 
         }
     }
+    async Task SelectedPlantChanged(long? companyId, FinishedProdOrderLine finishedProdOrderLine)
+    {
+        _AllNavitemsList = new List<View_NavItems>();
+        finishedProdOrderLine.CompanyId = companyId;
+        if (companyId > 0)
+        {
+            _AllNavitemsList = await Mediator.Send(new GetAllNavItemsByCompanyQuery(companyId));
+        }
+        StateHasChanged();
+    }
+    void SelectedItemChanged(long? itemid, FinishedProdOrderLine finishedProdOrderLine)
+    {
+        finishedProdOrderLine.ItemId = itemid;
+        var items = _AllNavitemsList != null && _AllNavitemsList.Count() > 0 ? _AllNavitemsList.FirstOrDefault(f => f.ItemId == itemid) : new View_NavItems();
+        finishedProdOrderLine.ItemNo = items?.No;
+        finishedProdOrderLine.Description = items?.Description;
+        finishedProdOrderLine.Description2 = items?.Description2;
+    }
+    void SelectedOptStatusChanged(string? opStatus, FinishedProdOrderLine finishedProdOrderLine)
+    {
+        finishedProdOrderLine.OptStatus = opStatus;
+    }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
@@ -287,9 +323,9 @@
 
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is ItemBatchInfo dataselectItems)
+                    if (item is FinishedProdOrderLine dataselectItems)
                     {
-                        _selectedItems = (ItemBatchInfo)item;
+                        _selectedItems = (FinishedProdOrderLine)item;
                     }
                 }
             }
@@ -298,7 +334,7 @@
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
-        var editablePlant = (ItemBatchInfo)e.EditModel;
+        var editablePlant = (FinishedProdOrderLine)e.EditModel;
         if (e.IsNew)
         {
             await AddOrUpdate(editablePlant);
@@ -310,28 +346,27 @@
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
     }
-    async Task AddOrUpdate(ItemBatchInfo editablePlant)
+    async Task AddOrUpdate(FinishedProdOrderLine editablePlant)
     {
-        var request = new InsertOrUpdateBatchInfo
+        var request = new InsertOrUpdateFinishedProdOrderLine
             {
-                ItemBatchId = editablePlant.ItemBatchId,
+                FinishedProdOrderLineId = editablePlant.FinishedProdOrderLineId,
                 ItemId = editablePlant.ItemId,
                 CompanyId = editablePlant.CompanyId,
-                StatusCodeId = editablePlant.StatusCodeId,
-                LocationCode = editablePlant.LocationCode,
+                Status = "Finished",
+                ProdOrderNo = editablePlant.ProdOrderNo,
+                OrderLineNo = editablePlant.OrderLineNo,
+                ItemNo = editablePlant.ItemNo,
+                Description = editablePlant.Description,
+                Description2 = editablePlant.Description2,
+                ReplanRefNo = editablePlant.ReplanRefNo,
+                StartingDate = editablePlant.StartingDate,
                 BatchNo = editablePlant.BatchNo,
-                LotNo = editablePlant.LotNo,
-                ExpiryDate = editablePlant.ExpiryDate,
                 ManufacturingDate = editablePlant.ManufacturingDate,
-                QuantityOnHand = editablePlant.QuantityOnHand,
-                NavQuantity = editablePlant.NavQuantity,
-                IssueQuantity = editablePlant.IssueQuantity,
-                BalanceQuantity = editablePlant.BalanceQuantity,
-                StockOutBatchConfirm = editablePlant.StockOutBatchConfirm,
-                AddedDate = editablePlant.AddedDate == null ? DateTime.Now : editablePlant.AddedDate,
-                ModifiedDate = editablePlant.ModifiedDate == null ? DateTime.Now : editablePlant.ModifiedDate,
-                AddedByUserId = editablePlant.AddedByUserId == null ? applicationUser.UserID : editablePlant.AddedByUserId,
-                ModifiedByUserId = editablePlant.ModifiedByUserId == null ? applicationUser.UserID : editablePlant.ModifiedByUserId,
+                ExpirationDate = editablePlant.ExpirationDate,
+                ProductCode = editablePlant.ProductCode,
+                ProductName = editablePlant.ProductName,
+                OptStatus = editablePlant.OptStatus == "Empty" ? "" : editablePlant.OptStatus,
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -351,13 +386,23 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        var newplant = (ItemBatchInfo)e.EditModel;
+        _AllNavitemsList = new List<View_NavItems>();
+        var newplant = (FinishedProdOrderLine)e.EditModel;
         if (e.IsNew)
         {
-            
+
         }
+        else
+        {
+            newplant.OptStatus = newplant.OptStatus == "" ? "Empty" : newplant.OptStatus;
+            if (newplant.CompanyId > 0)
+            {
+                _AllNavitemsList = await Mediator.Send(new GetAllNavItemsByCompanyQuery(newplant.CompanyId));
+            }
+        }
+        StateHasChanged();
     }
     void addNew()
     {
@@ -370,8 +415,8 @@
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ItemBatchId");
-        _selectedItems = _documentRole.FirstOrDefault(f => f.ItemBatchId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FinishedProdOrderLineId");
+        _selectedItems = _documentRole.FirstOrDefault(f => f.FinishedProdOrderLineId == (long?)UniqueId);
         EditEnabled = true; DeleteEnabled = true;
         StateHasChanged();
     }
@@ -393,9 +438,9 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is ItemBatchInfo plants)
+                    if (item is FinishedProdOrderLine plants)
                     {
-                        var request = new DeleteItemBatchInfo(plants);
+                        var request = new DeleteFinishedProdOrderLine(plants);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

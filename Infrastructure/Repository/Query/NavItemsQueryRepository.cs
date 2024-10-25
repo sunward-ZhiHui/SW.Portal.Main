@@ -867,5 +867,211 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<NavprodOrderLine>> GetNavprodOrderLineListAsync()
+        {
+            List<NavprodOrderLine> NavprodOrderLineList = new List<NavprodOrderLine>();
+            try
+            {
+                var query = "select t1.*,t2.PlantCode as CompanyName from NAVProdOrderLine t1 \r\nLEFT JOIN Plant t2 ON t2.PlantID=t1.CompanyID";
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<NavprodOrderLine>(query)).ToList();
+                    NavprodOrderLineList = result != null ? result : new List<NavprodOrderLine>();
+                }
+                return NavprodOrderLineList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<NavprodOrderLine> InsertOrUpdateNavprodOrderLine(NavprodOrderLine finishedProdOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("NAVProdOrderLineId", finishedProdOrderLine.NavprodOrderLineId);
+                    parameters.Add("Status", finishedProdOrderLine.Status, DbType.String);
+                    parameters.Add("ProdOrderNo", finishedProdOrderLine.ProdOrderNo, DbType.String);
+                    parameters.Add("OrderLineNo", finishedProdOrderLine.OrderLineNo);
+                    parameters.Add("ItemNo", finishedProdOrderLine.ItemNo, DbType.String);
+                    parameters.Add("Description", finishedProdOrderLine.Description, DbType.String);
+                    parameters.Add("Description1", finishedProdOrderLine.Description1, DbType.String);
+                    parameters.Add("CompletionDate", finishedProdOrderLine.CompletionDate, DbType.DateTime);
+                    parameters.Add("RemainingQuantity", finishedProdOrderLine.RemainingQuantity);
+                    parameters.Add("UnitofMeasureCode", finishedProdOrderLine.UnitofMeasureCode, DbType.String);
+                    parameters.Add("LastSyncDate", finishedProdOrderLine.LastSyncDate, DbType.DateTime);
+                    parameters.Add("BatchNo", finishedProdOrderLine.BatchNo, DbType.String);
+                    parameters.Add("LastSyncUserId", finishedProdOrderLine.LastSyncUserId);
+                    parameters.Add("ReplanRefNo", finishedProdOrderLine.RePlanRefNo, DbType.String);
+                    parameters.Add("StartDate", finishedProdOrderLine.StartDate, DbType.DateTime);
+                    parameters.Add("OutputQty", finishedProdOrderLine.OutputQty);
+                    parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
+                    var lastInsertedRecordId = finishedProdOrderLine.NavprodOrderLineId;
+                    if (lastInsertedRecordId > 0)
+                    {
+                        var query1 = "Update  NavprodOrderLine SET Status=@Status,ProdOrderNo=@ProdOrderNo,OrderLineNo=@OrderLineNo,ItemNo=@ItemNo,Description=@Description,Description1=@Description1," +
+                            "UnitofMeasureCode=@UnitofMeasureCode,LastSyncDate=@LastSyncDate,BatchNo=@BatchNo," +
+                            "LastSyncUserId=@LastSyncUserId,ReplanRefNo=@ReplanRefNo,StartDate=@StartDate,CompanyId=@CompanyId  WHERE NAVProdOrderLineId =@NAVProdOrderLineId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [NavprodOrderLine](Status,ProdOrderNo,OrderLineNo,ItemNo,Description,Description1,UnitofMeasureCode,LastSyncDate,BatchNo,LastSyncUserId,ReplanRefNo,StartDate,CompanyId) " +
+                            "OUTPUT INSERTED.NAVProdOrderLineId VALUES " +
+                            "(@Status,@ProdOrderNo,@OrderLineNo,@ItemNo,@Description,@Description1,@UnitofMeasureCode,@LastSyncDate,@BatchNo,@LastSyncUserId,@ReplanRefNo,@StartDate,@CompanyId)";
+                        lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        finishedProdOrderLine.NavprodOrderLineId = lastInsertedRecordId;
+                    }
+                    return finishedProdOrderLine;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<NavprodOrderLine> DeleteNavprodOrderLine(NavprodOrderLine navprodOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("NavprodOrderLineId", navprodOrderLine.NavprodOrderLineId);
+                        var query = "DELETE FROM NavprodOrderLine WHERE NavprodOrderLineId = @NavprodOrderLineId;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return navprodOrderLine;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+
+
+        public async Task<IReadOnlyList<FinishedProdOrderLineOptStatus>> GetFinishedProdOrderLineOptStatus()
+        {
+            try
+            {
+                var query = "select  * from View_FinishedProdOrderLineOptStatus";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<FinishedProdOrderLineOptStatus>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<FinishedProdOrderLine>> GeFinishedProdOrderLineListAsync()
+        {
+            List<FinishedProdOrderLine> NavprodOrderLineList = new List<FinishedProdOrderLine>();
+            try
+            {
+                
+                var query = "select t1.*,t2.PlantCode as CompanyCode from FinishedProdOrderLine t1 \r\nLEFT JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\nLEFT JOIN NAVItems t3 ON t1.ItemID=t3.ItemId";
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<FinishedProdOrderLine>(query)).ToList();
+                    NavprodOrderLineList = result != null ? result : new List<FinishedProdOrderLine>();
+                }
+                return NavprodOrderLineList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<FinishedProdOrderLine> InsertOrUpdateFinishedProdOrderLine(FinishedProdOrderLine finishedProdOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("FinishedProdOrderLineId", finishedProdOrderLine.FinishedProdOrderLineId);
+                    parameters.Add("ItemNo", finishedProdOrderLine.ItemNo, DbType.String);
+                    parameters.Add("Status", finishedProdOrderLine.Status, DbType.String);
+                    parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
+                    parameters.Add("ProdOrderNo", finishedProdOrderLine.ProdOrderNo, DbType.String);
+                    parameters.Add("BatchNo", finishedProdOrderLine.BatchNo, DbType.String);
+                    parameters.Add("Description", finishedProdOrderLine.Description, DbType.String);
+                    parameters.Add("Description2", finishedProdOrderLine.Description2, DbType.String);
+                    parameters.Add("ReplanRefNo", finishedProdOrderLine.ReplanRefNo, DbType.String);
+                    parameters.Add("OrderLineNo", finishedProdOrderLine.OrderLineNo);
+                    parameters.Add("StartingDate", finishedProdOrderLine.StartingDate, DbType.DateTime);
+                    parameters.Add("ManufacturingDate", finishedProdOrderLine.ManufacturingDate, DbType.DateTime);
+                    parameters.Add("ExpirationDate", finishedProdOrderLine.ExpirationDate, DbType.DateTime);
+                    parameters.Add("ProductCode", finishedProdOrderLine.ProductCode, DbType.String);
+                    parameters.Add("ProductName", finishedProdOrderLine.ProductName, DbType.String);
+                    parameters.Add("ItemId", finishedProdOrderLine.ItemId);
+                    parameters.Add("OptStatus", finishedProdOrderLine.OptStatus, DbType.String);
+                    var lastInsertedRecordId = finishedProdOrderLine.FinishedProdOrderLineId;
+                    if (lastInsertedRecordId > 0)
+                    {
+                        var query1 = "Update  FinishedProdOrderLine SET OptStatus=@OptStatus,ItemId=@ItemId,ItemNo=@ItemNo,Status=@Status,CompanyId=@CompanyId,ProdOrderNo=@ProdOrderNo,BatchNo=@BatchNo,Description=@Description,Description2=@Description2,ReplanRefNo=@ReplanRefNo,OrderLineNo=@OrderLineNo," +
+                            "StartingDate=@StartingDate,ManufacturingDate=@ManufacturingDate,ExpirationDate=@ExpirationDate,ProductCode=@ProductCode,ProductName=@ProductName  WHERE FinishedProdOrderLineId =@FinishedProdOrderLineId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [FinishedProdOrderLine](BatchNo,OptStatus,ItemId,ItemNo,CompanyId,Status,ProdOrderNo,Description,Description2,ReplanRefNo,OrderLineNo,StartingDate,ManufacturingDate,ExpirationDate,ProductCode,ProductName) OUTPUT INSERTED.FinishedProdOrderLineId VALUES " +
+                            "(@BatchNo,@OptStatus,@ItemId,@ItemNo,@CompanyId,@Status,@ProdOrderNo,@Description,@Description2,@ReplanRefNo,@OrderLineNo,@StartingDate,@ManufacturingDate,@ExpirationDate,@ProductCode,@ProductName)";
+                        lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        finishedProdOrderLine.FinishedProdOrderLineId = lastInsertedRecordId;
+                    }
+                    return finishedProdOrderLine;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<FinishedProdOrderLine> DeleteFinishedProdOrderLine(FinishedProdOrderLine navprodOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("FinishedProdOrderLineId", navprodOrderLine.FinishedProdOrderLineId);
+                        var query = "DELETE FROM FinishedProdOrderLine WHERE FinishedProdOrderLineId = @FinishedProdOrderLineId;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return navprodOrderLine;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
     }
 }

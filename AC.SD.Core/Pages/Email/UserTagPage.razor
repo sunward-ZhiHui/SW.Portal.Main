@@ -19,7 +19,7 @@
 @using System.Linq;
 @using global::Core.Repositories.Query
 @implements IAsyncDisposable;
-
+@inject IPageContext PageContext
 
 <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
     <div class="card w-100" style="margin-bottom:10px;">
@@ -74,7 +74,7 @@
                 }
                 <DxFormLayout CssClass="w-100">
 
-                    <DxFormLayoutItem Caption="UserTag Name" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="Other Tag Name" ColSpanMd="6">
                         <DxTextBox @bind-Text="@plant.UserTag" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => plant.UserTag)" />
                     </DxFormLayoutItem>
@@ -118,6 +118,7 @@
     public bool deletepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
+        PageContext.PageName = "EmailUserTagsPage";
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();

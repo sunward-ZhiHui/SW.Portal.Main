@@ -13,6 +13,7 @@
 @inject NavigationManager NavigationManager
 @implements IDisposable;
 @inject DataRefreshService RefreshService
+@inject IPageContext PageContext
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -345,6 +346,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        PageContext.PageName = "TopicTags";
         //NavigationManager.LocationChanged += OnLocationChanged;
 
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));

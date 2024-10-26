@@ -478,6 +478,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("filterFrom", emailSearch.FilterFrom);
                         parameters.Add("filterTo", emailSearch.FilterTo);
                         parameters.Add("UnArchive", emailSearch.UnArchive);
+                        parameters.Add("IsClose", emailSearch.IsClose);
                         parameters.Add("Option", "SELECT");                        
 
                         var result = await connection.QueryAsync<EmailTopics>("sp_Select_MasterSearchList", parameters, commandType: CommandType.StoredProcedure);

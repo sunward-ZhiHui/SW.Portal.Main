@@ -256,10 +256,13 @@
                         @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
                         <ValidationMessage For="@(() => Data.FilterTo)" />*@
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Archive" ColSpanMd="12">
+                    <DxFormLayoutItem Caption="Archive" ColSpanMd="6">
                       <DxCheckBox  @bind-Checked = "@Data.UnArchive"></DxCheckBox>
                         @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
                         <ValidationMessage For="@(() => Data.FilterTo)" />*@
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Closed" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@Data.IsClose"></DxCheckBox>                      
                     </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
@@ -505,6 +508,9 @@
                         @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
                         <ValidationMessage For="@(() => Data.FilterTo)" />*@
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem CaptionPosition="CaptionPosition.Horizontal" Caption="Close" ColSpanMd="12">
+                        <DxCheckBox @bind-Checked="@Data.IsClose"></DxCheckBox>
+                    </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
         </div>
@@ -656,6 +662,7 @@
                 FilterFrom = Data.FilterFrom,
                 FilterTo = Data.FilterTo,
                 UnArchive = Data.UnArchive,
+                IsClose = Data.IsClose,
                 AllParticipantCondition = Data.AllParticipantCondition,
                 SubjectCondition = Data.SubjectCondition,
                 GroupCondition = Data.GroupCondition,
@@ -782,6 +789,7 @@
                 FilterFrom = null,
                 FilterTo = null,
                 UnArchive = false,
+                IsClose = false,
                 AllParticipantCondition = "OR",
                 SubjectCondition = "OR",
                 GroupCondition = "OR",

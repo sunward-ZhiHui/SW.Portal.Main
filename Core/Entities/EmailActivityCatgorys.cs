@@ -1,4 +1,6 @@
 ﻿using Core.Entities.CustomValidations;
+using Core.Repositories.Query;
+using DevExpress.Data.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,10 +16,10 @@ namespace Core.Entities
         [Key]
         public long ID { get; set; }
         public long TopicId { get; set; }
-        //[EitherRequired("Name", "GroupTag", ErrorMessage = "Either Others or GroupTag is required.")]
-        [Required]
+        //[EitherRequired("Name", "GroupTag", ErrorMessage = "Either Others or GroupTag is required.")]       
+        [ConditionalRequired("EmailTagsPage", ErrorMessage = "Name is required.")]
         public string? Name { get; set; }
-       [UserTagNameCustomValidation]
+        [UserTagNameCustomValidation]
         public string? UserTag { get; set; }       
         public long? GroupTag { get; set; }
         public long? CategoryTag { get; set; }
@@ -86,6 +88,32 @@ namespace Core.Entities
 
             return ValidationResult.Success;
         }
+    }
+
+
+    public class ConditionalRequiredAttribute : ValidationAttribute
+    {
+        private readonly string _pageName;
+
+        public ConditionalRequiredAttribute(string pageName)
+        {
+            _pageName = pageName;
+        }
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            // Resolve the IPageContext service from the validation context's service provider
+            var serviceProvider = validationContext.GetService<IServiceProvider>();
+            var currentPage = serviceProvider?.GetService(typeof(IPageContext)) as IPageContext;
+
+            if (currentPage != null && currentPage.PageName == _pageName && string.IsNullOrEmpty(value?.ToString()))
+            {
+                return new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} is required.");
+            }
+
+            return ValidationResult.Success;
+        }
+
     }
 
 }

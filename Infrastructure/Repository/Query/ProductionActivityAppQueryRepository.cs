@@ -610,24 +610,42 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ItemName", PPAlist.ItemName);
                         parameters.Add("ActionType", PPAlist.ActionType);
                         parameters.Add("LineComment", PPAlist.LineComment);
+                        parameters.Add("StatusType", PPAlist.StatusType);
+                        parameters.Add("FPDD", PPAlist.FPDD);
+                        parameters.Add("ProcessDD", PPAlist.ProcessDD);
+                        parameters.Add("RawMaterialDD", PPAlist.RawMaterialDD);
+                        parameters.Add("PackingMaterialDD", PPAlist.PackingMaterialDD);
+                        parameters.Add("EditProductionRoutineAppID", PPAlist.EditProductionRoutineAppID);
+
+                        parameters.Add("FixedAsset", PPAlist.FixedAsset);
+                        parameters.Add("Others", PPAlist.Others);
 
                         var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId, PPAlist.TimeSheetAction, PPAlist.LotNo, PPAlist.ItemName);
                         if (lists != null)
                         {
                             PPAlist.ProductionActivityRoutineAppId = lists.ProductionActivityRoutineAppId;
+                            parameters.Add("Appid", PPAlist.ProductionActivityRoutineAppId);
+                        }
+                        else if (PPAlist.ActionType == "TimeSheetV1" && PPAlist.EditProductionRoutineAppID > 0)
+                        {
+
+                            var Updatequery = "Update ProductionActivityRoutineApp set CompanyID = @CompanyID ,StatusType = @StatusType,FPDD = @FPDD, ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset,Others = @Others Where ProductionActivityRoutineAppID = @EditProductionRoutineAppID";
+                            await connection.ExecuteAsync(Updatequery, parameters);
+                            parameters.Add("Appid", PPAlist.EditProductionRoutineAppID);
                         }
                         else
                         {
-                            var query = @"INSERT INTO ProductionActivityRoutineApp(ActionType,TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate,LotNo,ItemName,Comment) 
+                            var query = @"INSERT INTO ProductionActivityRoutineApp(Others,FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,ActionType,TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate,LotNo,ItemName,Comment) 
 				                       OUTPUT INSERTED.ProductionActivityRoutineAppId 
-				                       VALUES (@ActionType,@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate,@LotNo,@ItemName,@LineComment)";
+				                       VALUES (@Others,@FixedAsset,@PackingMaterialDD,@RawMaterialDD,@ProcessDD,@FPDD,@StatusType,@ActionType,@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate,@LotNo,@ItemName,@LineComment)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
 
                             PPAlist.ProductionActivityRoutineAppId = insertedId;
+                            parameters.Add("Appid", PPAlist.ProductionActivityRoutineAppId);
                         }
                         parameters.Add("ProductActivityCaseLineId", PPAlist.ProductActivityCaseLineId);
                         parameters.Add("ProductionActivityRoutineAppLineId", PPAlist.ProductionActivityRoutineAppLineId);
-                        parameters.Add("Appid", PPAlist.ProductionActivityRoutineAppId);
+                    
                         parameters.Add("IsOthersOptions", PPAlist.IsOthersOptions == true ? true : false);
                         parameters.Add("ProdActivityResultID", PPAlist.ProdActivityResultId);
                         parameters.Add("RoutineStatusId", PPAlist.RoutineStatusId);
@@ -641,6 +659,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("applineSessionId", PPAlist.LineSessionId, DbType.Guid);
                         parameters.Add("applineStatusCodeID", PPAlist.StatusCodeID);
                         parameters.Add("QaCheck", PPAlist.QaCheck == true ? true : false);
+                       
                         parameters.Add("IsCheckReferSupportDocument", PPAlist.IsCheckReferSupportDocument == true ? true : false);
                         parameters.Add("IsCheckNoIssue", PPAlist.IsCheckNoIssue == true ? true : false);
                         var ProfileNo = string.Empty;
@@ -672,6 +691,7 @@ namespace Infrastructure.Repository.Query
 
                             await connection.ExecuteAsync(appquery, parameters);
                         }
+                        
                         else
                         {
 
@@ -695,7 +715,7 @@ namespace Infrastructure.Repository.Query
                                 listData.ForEach(s =>
                                 {
                                     querys += "INSERT INTO [RoutineInfoMultiple](RoutineInfoId,ProductionActivityRoutineAppLineId) " +
-                                                        "VALUES ( " + s + "," + PPAlist.ProductionActivityRoutineAppLineId + ");\r\n";
+                                                        "VALUES ( " + s + "," + PPAlist.ProductionActivityRoutineAppLineId + ");";
                                 });
                                 if (!string.IsNullOrEmpty(querys))
                                 {

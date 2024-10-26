@@ -14,6 +14,13 @@
 @using System.IO;
 @using System.Dynamic;
 @implements IAsyncDisposable
+
+<style scoped>
+    .zxing-video-container > video {
+        width: 100%;
+        height: auto;
+    }
+</style>
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -51,16 +58,70 @@
         </DxComboBox>
         <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
         </DxFormLayoutItem> *@
-        <DxFormLayoutItem Caption="Other Options" ColSpanMd="6">
-            <DxRadioGroup Items="@IsOtherOptionsItems"
-                          Value="@Data.OthersOptions"
-                          ValueExpression="@(() => Data.OthersOptions )"
-                          ValueChanged="@((string value) => OnGroupValueChanged(value))"
-                          Layout="RadioGroupLayout.Horizontal"
-                          CssClass="dx-demo-radio-group" />
-            <ValidationMessage For="@(() => Data.OthersOptions)" />
-        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
 
+            <DxComboBox Data="@_plantItems"
+                        NullText="Select Company..."
+                       
+                        SearchMode="ListSearchMode.AutoSearch"
+                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        ListRenderMode="ListRenderMode.Virtual"
+                        TextFieldName="Description"
+                        ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                        ValueFieldName="PlantID"
+                        @bind-Value="@Data.CompanyID"
+                      
+                        ShowValidationIcon="true">
+
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.CompanyID)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Type:" ColSpanMd="6">
+            <DxComboBox Data="@StatusTypeList" NullText="Select Type..." @bind-Text="@StatusType" @bind-Value="@Data.StatusType" ShowValidationIcon="true"
+                        SelectedItemChanged="@((string Type) => SelectedTypeItemsChanged(Type))"></DxComboBox>
+           
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="FP:" ColSpanMd="6" Visible="@FPVisible">
+           <DxTextBox Visible = "" Text="@Data.FPDD" spellcheck="true" ShowValidationIcon="true" NullText="FP" TextExpression="@(() => Data.FPDD )" TextChanged="@((newValue) => OnTextChanged(newValue))" >
+                                    <Buttons>
+                                        <DxEditorButton IconCssClass="fa fa-qrcode"
+                                                        Tooltip="Scan FP"
+                                                        Click="@(_ => OnButtonFPClick())" />
+                                    </Buttons>
+           </DxTextBox>
+
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Process:" ColSpanMd="6" Visible="@ProcessVisible">
+            <DxTextBox Text="@Data.ProcessDD" spellcheck="true" ShowValidationIcon="true" NullText="Process" TextExpression="@(() => Data.ProcessDD )" TextChanged="@((newValue) => ProcessOnTextChanged(newValue))">
+                                    <Buttons>
+                                        <DxEditorButton IconCssClass="fa fa-qrcode"
+                                                        Tooltip="Scan Process"
+                                                        Click="@(_ => OnButtonProcessClick())" />
+                                    </Buttons>
+           </DxTextBox>
+
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Raw Material:" ColSpanMd="6" Visible="@RawMaterialVisible">
+            <DxTextBox Text="@Data.RawMaterialDD" spellcheck="true" ShowValidationIcon="true" NullText="Raw Material" TextExpression="@(() => Data.RawMaterialDD )" TextChanged="@((newValue) => RawMaterialOnTextChanged(newValue))">
+                <Buttons>
+                    <DxEditorButton IconCssClass="fa fa-qrcode"
+                                    Tooltip="Scan Raw Material"
+                                    Click="@(_ => OnButtonRawMaterialClick())" />
+                </Buttons>
+            </DxTextBox>
+
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Packing Material:" ColSpanMd="6" Visible="@PackingMaterialVisible">
+            <DxTextBox Text="@Data.PackingMaterialDD" spellcheck="true" ShowValidationIcon="true" NullText="Packing Material" TextExpression="@(() => Data.PackingMaterialDD )" TextChanged="@((newValue) => PackingMaterialOnTextChanged(newValue))">
+                <Buttons>
+                    <DxEditorButton IconCssClass="fa fa-qrcode"
+                                    Tooltip="Scan Packing Material"
+                                    Click="@(_ => OnButtonPackingMaterialClick())" />
+                </Buttons>
+            </DxTextBox>
+
+        </DxFormLayoutItem>
+       
         <DxFormLayoutItem Caption="Routine:" ColSpanMd="6">
             <DxComboBox Data="@_ManuFactureProcessLines"
                         NullText="Select Routine..."
@@ -112,28 +173,7 @@
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Template Upload:" ColSpanMd="6">
-            <DxRadioGroup Items="@TemplateUploadOptions"
-                          Value="@Data.IsTemplateUploadFlag"
-                          ValueExpression="@(() => Data.IsTemplateUploadFlag )"
-                          ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value))"
-                          Layout="RadioGroupLayout.Horizontal"
-                          CssClass="dx-demo-radio-group" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Name Of Template:" ColSpanMd="6" Visible="@Data.IsTemplateUpload">
-            <DxComboBox Data="@_templateItems"
-                        NullText="Select Name Of Template..."
-                        SearchMode="ListSearchMode.AutoSearch"
-                        SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        TextFieldName="NameOfTemplate"
-                        ValueFieldName="ProductActivityCaseLineId"
-                        ValueChanged="@((long? plant) => SelectedItemplateItemsChanged(plant))"
-                        Value="@Data.ProductActivityCaseLineId"
-                        ValueExpression="@(() => Data.ProductActivityCaseLineId )"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.ProductActivityCaseLineId)" />
-        </DxFormLayoutItem>
+      
         <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
             <DxComboBox Data="@_ActivityResult"
                         NullText="Select Activity Result..."
@@ -171,7 +211,9 @@
         <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
             <DxMemo @bind-Text="Data.LineComment" Rows="5" />
         </DxFormLayoutItem>
-
+        <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
+            <DxMemo @bind-Text="Data.Others" Rows="5" />
+        </DxFormLayoutItem>
     </DxFormLayout>
 </EditForm>
 <DxPopup @bind-Visible="@PopupUpload"
@@ -198,8 +240,60 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseManuFacPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@PopupFPDDScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan FP" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_FPReader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="FPDDReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseFPDDPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupProcessDDScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Process" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_ProcessReader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="ProcessDDReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseProcessDDPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupRawMaterialDDScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Raw Material" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_RawMaterialReader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="RawMaterialDDReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseRawMaterialDDPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupPackingMaterialDDScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Packing Material" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_PackingMaterialReader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="PackingMaterialDDReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePackingMaterialDDPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-
+    private List<ViewPlants> _plantItems;
     [Parameter]
     public ProductionActivityRoutineAppModel? _selectedEditItems { get; set; }
     bool PopupManuFactureScanVisible { get; set; } = false;
@@ -207,8 +301,8 @@
     public long? FileProfileTypeId { get; set; }
     public Guid? UploadSessionId { get; set; }
     EditContext _editContext;
-    [Parameter]
-    public IEnumerable _poOrderDetails { get; set; }
+    // [Parameter]
+    // public IEnumerable _poOrderDetails { get; set; }
     private List<ProductionActivityApp> _productionActivities;
     private List<NavprodOrderLineModel> _ponumberActivities;
     // private List<View_ApplicationMasterDetail> _ActivityResult;
@@ -230,8 +324,8 @@
     private List<ApplicationMasterChildModel> _actionItems;
     bool uploadEnabled { get; set; } = false;
     bool PopupUpload { get; set; } = false; bool addEnabled { get; set; } = false; bool saveEnabled { get; set; } = false;
-    [Parameter]
-    public ProductionActivityRoutineAppModel ParentData { get; set; }
+    // [Parameter]
+    // public ProductionActivityRoutineAppModel ParentData { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
     long? ProductionActivityRoutineAppLineId { get; set; }
@@ -246,16 +340,37 @@
     long parentchildId2 = -1;
     string timesheetMasterParentid = "-1";
     long timesheetMasterchildid = -1;
+
+    List<string> StatusTypeList = new List<string>() { "FP", "Process","Raw Material" ,"Packing Material","Fixed Asset"};
+    bool PopupFPDDScanVisible { get; set; } = false;
+    bool PopupProcessDDScanVisible { get; set; } = false;
+    bool PopupRawMaterialDDScanVisible { get; set; } = false;
+    bool PopupPackingMaterialDDScanVisible { get; set; } = false;
+    private BarcodeReader _ProcessReader;
+    private BarcodeReader _FPReader;
+    private BarcodeReader _RawMaterialReader;
+    private BarcodeReader _PackingMaterialReader;
+    // private BarcodeReader _FPReader;
+    private string? FPDD;
+    private string? Process;
+    private string? RawMaterial;
+    private string? PackingMaterial;
+    bool FPVisible { get; set; } = false;
+    bool ProcessVisible { get; set; } = false;
+    bool RawMaterialVisible { get; set; } = false;
+    bool PackingMaterialVisible { get; set; } = false;
+    string StatusType;
     protected override async Task OnInitializedAsync()
     {
-        addEnabled = true; saveEnabled = true;
-        _ponumberActivities = _poOrderDetails.Cast<NavprodOrderLineModel>().ToList();
         _editContext = new EditContext(Data);
+        addEnabled = true; saveEnabled = true;
+        //  _ponumberActivities = _poOrderDetails.Cast<NavprodOrderLineModel>().ToList();
         Data.ProductActivityCaseLineId = 0;
         _ManuFactureProcessLines = await Mediator.Send(new GetAllApplicationMasterChildListQuery("108"));
         _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
         Data.ProdActivityCategoryChildId = null; Data.ProdActivityActionChildD = null;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
         //_ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(324));
         // Deserialize JSON to List<ActivityResult>
         //_ActivityResult = JsonSerializer.Deserialize<List<View_ApplicationMasterDetail>>(jsonText);
@@ -282,6 +397,16 @@
         Action = "";
         if (_selectedEditItems != null)
         {
+            StatusType = _selectedEditItems.StatusType;
+            Data.StatusType = _selectedEditItems.StatusType;
+            await SelectedTypeItems(_selectedEditItems.StatusType);
+            Data.CompanyID = _selectedEditItems.CompanyId;
+            Data.FPDD = _selectedEditItems.FPDD;
+            Data.ProcessDD = _selectedEditItems.ProcessDD;
+            Data.RawMaterialDD = _selectedEditItems.RawMaterialDD;
+            Data.PackingMaterialDD = _selectedEditItems.PackingMaterialDD;
+            Data.FixedAsset = _selectedEditItems.FixedAsset;
+            Data.Others = _selectedEditItems.Others;
             Data.ProductionActivityRoutineAppLineId = _selectedEditItems.ProductionActivityRoutineAppLineId;
             Data.NavprodOrderLineId = _selectedEditItems.NavprodOrderLineId;
             Data.ManufacturingProcessChildId = _selectedEditItems.ManufacturingProcessChildId;
@@ -323,6 +448,7 @@
             }
             await GetIsDoumentExits();
         }
+        StateHasChanged();
     }
     async Task addNewProductionForm()
     {
@@ -344,10 +470,18 @@
         Data.RoutineInfoIds = null;
         UploadSessionId = null;
         uploadEnabled = false;
+        Data.FPDD = null;
+        Data.ProcessDD = null;
+        Data.RawMaterialDD = null;
+        Data.PackingMaterialDD = null;
+        Data.FixedAsset = null;
+        Data.Others = null;
+        Data.StatusType = null;
+        StatusType = null;
         addEnabled = true; saveEnabled = true;
         IDictionary<string, object> dynamicsData = new ExpandoObject();
         var time_sheet_lst = _ManuFactureProcessLines.Where(x => x.Value == "Timesheet").FirstOrDefault();
-        
+
         if (time_sheet_lst != null)
         {
             Data.ManufacturingProcessChildId = time_sheet_lst.ApplicationMasterChildId;
@@ -519,9 +653,9 @@
         var request = new CreateProductionActivityRoutineAppCommand
             {
                 ProductionActivityRoutineAppLineId = ProductionActivityRoutineAppLineId,
-                CompanyId = ParentData.CompanyID,
-                ProdOrderNo = ParentData.ProdOrderNo,
-                LocationId = ParentData.LocationID,
+                CompanyId = Data.CompanyID,
+                ProdOrderNo = Data.ProdOrderNo,
+                LocationId = Data.LocationID,
                 AddedDate = _selectedEditItems != null ? _selectedEditItems.AddedDate : DateTime.Now,
                 SessionId = _selectedEditItems != null ? _selectedEditItems.SessionId : Guid.NewGuid(),
                 LineSessionId = _selectedEditItems != null ? _selectedEditItems.LineSessionId : Guid.NewGuid(),
@@ -543,9 +677,17 @@
                 ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0 ? Data.ProductActivityCaseLineId : null,
                 RoutineInfoIds = Data.RoutineInfoIds,
                 TimeSheetAction = true,
-                LotNo = ParentData.LotNo,
-                ItemName = ParentData.ItemName,
-                ActionType = "TimeSheetV1"
+                LotNo = Data.LotNo,
+                ItemName = Data.ItemName,
+                ActionType = "TimeSheetV1",
+                StatusType =Data.StatusType,
+                FPDD = Data.FPDD,
+                ProcessDD =Data.ProcessDD,
+                RawMaterialDD =Data.RawMaterialDD,
+                PackingMaterialDD =Data.PackingMaterialDD,
+                FixedAsset = Data.FixedAsset,
+                Others =Data.Others,
+                EditProductionRoutineAppID = _selectedEditItems?.ProductionActivityRoutineAppId != null && _selectedEditItems.ProductionActivityRoutineAppId > 0 ? _selectedEditItems.ProductionActivityRoutineAppId : 0
 
             };
 
@@ -666,6 +808,202 @@
         {
             toastService.ShowToast("Invalid QrCode Format", AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    async void OnTextChanged(string newValue)
+    {
+        Data.FPDD = newValue;
+
+    }
+    async void ProcessOnTextChanged(string newvalue)
+    {
+        Data.ProcessDD = newvalue;
+    }
+    async void RawMaterialOnTextChanged(string newvalue)
+    {
+        Data.RawMaterialDD = newvalue;
+    }
+    async void PackingMaterialOnTextChanged(string newvalue)
+    {
+        Data.PackingMaterialDD = newvalue;
+    }
+    void OnButtonFPClick()
+    {
+        PopupFPDDScanVisible = true;
+    }
+    void OnButtonProcessClick()
+    {
+        PopupProcessDDScanVisible = true;
+    }
+    void OnButtonRawMaterialClick()
+    {
+        PopupRawMaterialDDScanVisible = true;
+    }
+    void OnButtonPackingMaterialClick()
+    {
+        PopupPackingMaterialDDScanVisible = true;
+    }
+    async Task PackingMaterialDDReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        PackingMaterial = args.BarcodeText;
+        if (PackingMaterial != null)
+        {
+            Data.PackingMaterialDD = PackingMaterial;
+        }
+        else
+        {
+            toastService.ShowToast("Invaild Packing Material", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        ClosePackingMaterialDDPopup();
+    }
+    async Task RawMaterialDDReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        RawMaterial = args.BarcodeText;
+        if (RawMaterial != null)
+        {
+            Data.RawMaterialDD = RawMaterial;
+        }
+        else
+        {
+            toastService.ShowToast("Invaild Raw Material", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        CloseRawMaterialDDPopup();
+    }
+    async Task ProcessDDReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        Process = args.BarcodeText;
+        if (Process != null)
+        {
+            Data.ProcessDD = Process;
+        }
+        else
+        {
+            toastService.ShowToast("Invaild Process", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        CloseProcessDDPopup();
+    }
+    async Task FPDDReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        FPDD = args.BarcodeText; 
+        if(FPDD != null)
+        {
+            Data.FPDD = FPDD;  
+        }
+        else
+        {
+            toastService.ShowToast("Invaild FPDD", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        CloseFPDDPopup();
+    }
+    void CloseFPDDPopup()
+    {
+        PopupFPDDScanVisible = false;
+        _FPReader.StopDecoding();
+        StateHasChanged();
+    }
+    void CloseProcessDDPopup()
+    {
+        PopupProcessDDScanVisible = false;
+        _ProcessReader.StopDecoding();
+        StateHasChanged();
+    }
+    void CloseRawMaterialDDPopup()
+    {
+        PopupRawMaterialDDScanVisible = false;
+        _RawMaterialReader.StopDecoding();
+        StateHasChanged();
+    }
+    void ClosePackingMaterialDDPopup()
+    {
+        PopupPackingMaterialDDScanVisible = false;
+        _PackingMaterialReader.StopDecoding();
+        StateHasChanged();
+    }
+    async Task SelectedTypeItems(string type)
+    {
+        if (type == "FP")
+        {
+            FPVisible = true;
+            ProcessVisible = false;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = false;
+        }
+        else if (type == "Process")
+        {
+            FPVisible = false;
+            ProcessVisible = true;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = false;
+        }
+        else if (type == "Raw Material")
+        {
+            FPVisible = false;
+            ProcessVisible = false;
+            RawMaterialVisible = true;
+            PackingMaterialVisible = false;
+        }
+        else if (type == "Packing Material")
+        {
+            FPVisible = false;
+            ProcessVisible = false;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = true;
+        }
+        else
+        {
+            FPVisible = false;
+            ProcessVisible = false;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = false;
+        }
+        StateHasChanged();
+    }
+    async Task SelectedTypeItemsChanged(string type)
+    {
+        if(_selectedEditItems != null)
+        {
+            Data.FPDD = null;
+
+            Data.ProcessDD = null;
+            Data.RawMaterialDD = null;
+            Data.PackingMaterialDD = null;
+            Data.FixedAsset = null;
+        }
+        if(type == "FP")
+        {
+            FPVisible = true;
+            ProcessVisible = false;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = false;
+        }
+        else if (type == "Process")
+        {
+            FPVisible = false;
+            ProcessVisible = true;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = false;
+        }
+        else if (type == "Raw Material")
+        {
+            FPVisible = false;
+            ProcessVisible = false;
+            RawMaterialVisible = true;
+            PackingMaterialVisible = false;
+        }
+        else if (type == "Packing Material")
+        {
+            FPVisible = false;
+            ProcessVisible = false;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = true;
+        }
+        else
+        {
+            FPVisible = false;
+            ProcessVisible = false;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = false;
+        }
+        StateHasChanged();
     }
     public async ValueTask DisposeAsync()
     {

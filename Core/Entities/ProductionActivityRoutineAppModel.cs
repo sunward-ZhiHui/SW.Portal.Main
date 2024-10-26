@@ -112,6 +112,15 @@ namespace Core.Entities
         public bool? TimeSheetAction { get; set; }=  false;
         public string? LotNo { get; set; }
         public string? ItemName { get; set; }
+        public string? StatusType { get; set; }
+        public string? FPDD { get; set; }
+        public string? ProcessDD { get; set; }
+        public string? RawMaterialDD { get; set; }
+        public string? PackingMaterialDD { get; set; }
+        public string? FixedAsset { get; set; }
+        public string? Others { get;  set; }
+        [NotMapped]
+        public long? EditProductionRoutineAppID { get; set; }
     }
     public class ProductionActivityRoutineAppLineQaCheckerModel
     {

@@ -225,7 +225,7 @@ namespace Infrastructure.Repository.Query
                 else if(value.ActionType == "TimeSheetV1")
                 {
                     query = @"select t1.ProductionActivityRoutineAppLineID,t1.ProductionActivityRoutineAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.ProductActivityCaseID,t1.VisaMasterID,t1.RoutineStatusID,t1.CommentImage,t1.CommentImageType,t1.ProfileID,t1.ProfileNo,t1.IsCheckNoIssue,t1.CheckedByID,t1.CheckedDate,t1.CheckedRemark,t1.IsCheckReferSupportDocument,CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId
-                    ,t2.CompanyID,t10.PlantCode as CompanyName,t12.LocationToSaveId AS MasterProductionFileProfileTypeId,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,
+                    ,t2.CompanyID,t10.PlantCode as CompanyName,t12.LocationToSaveId AS MasterProductionFileProfileTypeId,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,t2.StatusType,t2.FPDD,t2.ProcessDD,t2.RawMaterialDD,t2.PackingMaterialDD,t2.Others,t2.FixedAsset,
                     'Production Routine' as Type,
                     (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
                     (select COUNT(tt1.ProductionActivityAppLineDocId) from ProductionActivityAppLineDoc tt1 WHERE tt1.Type = 'Production Routine' AND tt1.ProductionActivityAppLineID=t1.ProductionActivityRoutineAppLineID) as SupportDocCount,t12.NameOfTemplate,t12.Link,t12.LocationToSaveId
@@ -575,7 +575,7 @@ namespace Infrastructure.Repository.Query
                         productActivityApp.ProdActivityResultId = s.ProdActivityResultId;
                         productActivityApp.ProdActivityResult = s.ProdActivityResultId > 0 && applicationMasterDetail != null && applicationMasterDetail.Count() > 0 ? applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == s.ProdActivityResultId)?.Value : string.Empty;
                         productActivityApp.ManufacturingProcess = s.ManufacturingProcess;
-                        productActivityApp.CompanyId = s.CompanyId;
+                        productActivityApp.CompanyId = s.CompanyID;
                         productActivityApp.CompanyName = s.CompanyName;
                         productActivityApp.ProdActivityActionId = s.ProdActivityActionId;
                         productActivityApp.ProdActivityAction = s.ProdActivityAction;
@@ -603,6 +603,13 @@ namespace Infrastructure.Repository.Query
                         productActivityApp.ActivityProfileNo = s.ProfileNo;
                         productActivityApp.ProfileId = s.ProfileId;
                         productActivityApp.CheckedById = s.CheckedById;
+                        productActivityApp.StatusType = s.StatusType;
+                        productActivityApp.Others =s.Others;
+                        productActivityApp.FPDD = s.FPDD;
+                        productActivityApp.ProcessDD = s.ProcessDD;
+                        productActivityApp.RawMaterialDD = s.RawMaterialDD;
+                        productActivityApp.PackingMaterialDD =s.PackingMaterialDD;
+                        productActivityApp.FixedAsset =s.FixedAsset;
                         productActivityApp.IsCheckNoIssue = s.IsCheckNoIssue == true ? true : false;
                         productActivityApp.IsCheckReferSupportDocument = s.IsCheckReferSupportDocument == true ? true : false;
                         productActivityApp.CheckedRemark = s.CheckedRemark;

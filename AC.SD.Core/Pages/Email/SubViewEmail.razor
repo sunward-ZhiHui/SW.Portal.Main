@@ -60,6 +60,11 @@
                             {
                                 <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
                             }  
+                            @if(item.IsClosed)
+                            {
+                                @* <span class="primary_color_icon"><i class="fa fa-times-circle"></i></span> *@
+                                <span class="primary_color_icon" style="font-size:11px;color:brown;">Closed</span>
+                            }
                             @* 
                             @{
                                 dynamicDueDate = "showDueDate_" + item.ReplyId;

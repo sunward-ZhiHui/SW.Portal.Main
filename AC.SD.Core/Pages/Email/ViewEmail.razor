@@ -164,11 +164,11 @@
                                                 
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />                                                    
                                                    
-                                                    <DxMenuItem Text="Tags" Enabled="isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                                <DxMenuItem Text="Tags" Enabled="isTagEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                                 <DxMenuItem Text="Archive All" IconCssClass="fa fa-archive" Click="@(() =>AddPopupArchiveAll() )" Visible="@ArchiveEnabled" />
                                                 <DxMenuItem Text="UnArchive All" IconCssClass="fa fa-archive" Click="@(() =>SubmitunArchivedAll() )" Visible="@UnArchiveEnabled" />
-                                                    <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
-                                                    <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
+                                                <DxMenuItem Text="Open" Visible="@isOpenEnabled" IconCssClass="fa fa-check-square" Click="@(() => SubmitOpen())" />
+                                                <DxMenuItem Text="Close" Visible="@isCloseEnabled" IconCssClass="fa fa-check" Click="@(() => SubmitClose())" />
                                             </Items>
                                         </DxMenu>
                                         }
@@ -6620,11 +6620,11 @@
         toastService.ShowToast("The Selected Topic Open Successfully", AC.SD.Core.Services.ToastLevel.Success);
         RefAssignTo?.ParticipantCloseList();
     }
-      public async void SubmitClose()
+    public async void SubmitClose()
     {
-         var List = await Mediator.Send(new GetEmailClosedQuery(long.Parse(SelectedReplyId), applicationUser.UserID,1));
+        var List = await Mediator.Send(new GetEmailClosedQuery(long.Parse(SelectedReplyId), applicationUser.UserID,1));
         toastService.ShowToast("The Selected Topic Close Successfully", AC.SD.Core.Services.ToastLevel.Success);
-       RefAssignTo?.ParticipantCloseList();
+        RefAssignTo?.ParticipantCloseList();
     }
     private void ClearDiscussionList()
     {

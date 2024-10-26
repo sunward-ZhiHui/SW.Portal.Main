@@ -168,6 +168,20 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+    public class EditOtherTagQeryHandler : IRequestHandler<EditOtherQery, string>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public EditOtherTagQeryHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+
+        public async Task<string> Handle(EditOtherQery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.UpdateOtherTagAsync(request.id, request.Name, request.modifiedByUserID);
+            return newlist;
+        }
+    }
     public class EditUsertagQeryHandler : IRequestHandler<EditUserTagQery, string>
     {
         private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
@@ -194,6 +208,20 @@ namespace Application.Handlers.QueryHandlers
         {
             var newlist = await _emailactyqueryRepository.DeleteUserTagAsync(request.ID);
             return newlist;
+        }
+    }
+    public class GetAllOthersHandler : IRequestHandler<GetAllOthersQuery, List<EmailActivityCatgorys>>
+    {
+
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetAllOthersHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<List<EmailActivityCatgorys>> Handle(GetAllOthersQuery request, CancellationToken cancellationToken)
+        {
+            return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllOthersAsync(request.OtherTag);
+
         }
     }
 }

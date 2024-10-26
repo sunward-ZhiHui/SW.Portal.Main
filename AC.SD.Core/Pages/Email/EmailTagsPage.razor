@@ -35,7 +35,7 @@
                                         DisplayMode="MenuDisplayMode.Desktop">
                                     <Items>
                                         <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Enabled="@EditEnabled" Click="@addEdit" />
-                                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Visible="false" />
+                                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Enabled="@DeleteEnabled" Click="@addDelete" />
                                     </Items>
                                 </DxMenu>
                             </div>
@@ -110,26 +110,142 @@
         </DxFormLayoutTabPages>
     </DxFormLayout>
 </div>
+<DxPopup @bind-Visible="@OthersListpopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="900px"
+         CloseOnOutsideClick="false">
+    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
 
+        <div class="card w-100" style="margin-bottom:10px;">
+            <div class="card-body p-0">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Enabled="@OthersEditEnabled" Click="@othersedit" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Enabled="@OthersDeleteEnabled" Click="@OnOthersDelete" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+        <DxLoadingPanel @bind-Visible="PanelVisible"
+                        IsContentBlocked="true"
+                        ApplyBackgroundShading="true"
+                        IndicatorAreaVisible="false"
+                        Text="Fetching Data...">
+            <DxGrid @ref="OthersGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                    Data="_othersList"
+                    ShowGroupPanel="true" ShowGroupedColumns="true"
+                    KeyFieldName="ID"
+                    EditModelSaving="Grid_OthersEditModelSaving"
+                    CustomizeElement="Grid_CustomizeElement"
+                    ShowSearchBox="true"
+                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                    PageSizeSelectorVisible="true"
+                    PageSizeSelectorAllRowsItemVisible="true"
+                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                    PageSize="20"
+                    SelectionMode="GridSelectionMode.Multiple"
+                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    AutoExpandAllGroupRows="true"
+                    CssClass="ch-360"
+                    style="height: calc(100vh - 270px);"
+                    FocusedRowEnabled="true"
+                    RowClick="OnothersRowClick"
+                    SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                    AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
+                <Columns>
+
+                    <DxGridSelectionColumn Width="60px" AllowSelectAll="true"></DxGridSelectionColumn>
+                   
+                    <DxGridDataColumn FieldName="TopicName" Caption="Subject" MinWidth="80" />
+                    <DxGridDataColumn FieldName="Name" MinWidth="80" Caption="Others Tag"/>
+                </Columns>
+                <EditFormTemplate Context="EditFormContext">
+                    @{
+                        var types = (EmailActivityCatgorys)EditFormContext.EditModel;
+                    }
+                    <DxFormLayout CssClass="w-100">
+                        <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="12">
+                            <DxTextBox @bind-Text="@types.Name" ShowValidationIcon="true" />
+                           @*  <DxComboBox Data="@_AllCategory"
+                                        NullText="Select Others Tag..."
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        AllowUserInput="true"
+                                        SearchMode="ListSearchMode.AutoSearch"
+                                        SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                        TextFieldName="Name"
+                                        ValueFieldName="Name"
+                                        
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        @bind-Value="@types.Name"
+                                        @bind-Text="@OthersTagName">
+                            </DxComboBox> *@
+                            <ValidationMessage For="@(() => types.Name)" />
+                        </DxFormLayoutItem>
+                        <ValidationSummary />
+                    </DxFormLayout>
+                </EditFormTemplate>
+                <TotalSummary>
+                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Notes" />
+                </TotalSummary>
+            </DxGrid>
+        </DxLoadingPanel>
+        <DxButton style="margin-right: 10px;margin-top: 10px; margin-left: 780px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="ClosePopUp" />
+    </div>
+    @*  <FooterContentTemplate>
+
+    </FooterContentTemplate>   *@
+</DxPopup>
+<DxPopup @bind-Visible="@BlukDelete"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px"
+         CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete this Record?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnBlukDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-
+    internal List<EmailActivityCatgorys>? _AllCategory;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    public List<EmailActivityCatgorys>? _othersList;
     bool PanelVisible { get; set; }
     IGrid? Grid { get; set; }
+    IGrid? OthersGrid { get; set; }
     public int ActiveTabIndex { get; set; } = 0;
     internal List<EmailActivityCatgorys>? _otherTags;
     public ApplicationUser? applicationUser { get; private set; }
     bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     private EmailActivityCatgorys _selectedItems;
+    private EmailActivityCatgorys _OthersselectedItems;
     private OpenAccessUserLink? _openAccessUserLink { get; set; }
+    bool OthersListpopup { get; set; } = false;
+    bool OthersEditEnabled { get; set; } = false;
+    bool OthersDeleteEnabled { get; set; } = false;
+    bool BlukDelete { get; set; } = false;
+    string OthersTagName;
     protected override async Task OnInitializedAsync()
     {
         PageContext.PageName = "EmailTagsPage";
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _AllCategory =await Mediator.Send(new GetAllEmailActivityCatgorys());
         if(applicationUser != null)
         {
             _openAccessUserLink = await Mediator.Send(new GetEmailOtherTagAccessByUser(applicationUser.UserID));
         }
-        
+
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
@@ -138,12 +254,40 @@
         _otherTags = await Mediator.Send(new GetAllEmailActivityCatgorys());
         PanelVisible = false;
     }
+    async void OnBlukDelete()
+    {
+
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is EmailActivityCatgorys ToDoNotes)
+                {
+
+                    var request = new EditOtherQery(ToDoNotes.ID, null, applicationUser.UserID);
+                    await Mediator.Send(request);
+                    BlukDelete = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    Grid.SetFocusedRowIndex(0);
+
+                    await othersList();
+                    StateHasChanged();
+                }
+
+            }
+        }
+
+
+        await UpdateDataAsync();
+    }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "Name");
         _selectedItems = _otherTags.FirstOrDefault(f => f.Name == UniqueId);
 
         EditEnabled = _openAccessUserLink != null ? true : false;
+        DeleteEnabled = _openAccessUserLink != null ? true : false;
         StateHasChanged();
 
     }
@@ -161,6 +305,27 @@
         Grid.StartEditDataItemAsync(_selectedItems);
 
     }
+    async Task othersList()
+    {
+        _othersList = await Mediator.Send(new GetAllOthersQuery(_selectedItems.Name));
+    }
+    async Task addDelete()
+    {
+        await othersList();
+        OthersListpopup = true;
+    }
+    void othersedit()
+    {
+
+
+        OthersGrid?.StartEditDataItemAsync(_OthersselectedItems);
+
+
+    }
+    void OnOthersDelete()
+    {
+        BlukDelete = true;
+    }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editmodel = (EmailActivityCatgorys)e.EditModel;
@@ -176,6 +341,66 @@
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
         }
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        BlukDelete = false;
+        OthersListpopup = false;
+        SelectedDataItems = null;
+
+    }
+    async Task Grid_OthersEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editmodel = (EmailActivityCatgorys)e.EditModel;
+        if (e.IsNew)
+        {
+        }
+        else
+        {
+
+            var request = await Mediator.Send(new EditOtherQery(_OthersselectedItems.ID, editmodel.Name, applicationUser.UserID));
+
+
+
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+            await othersList();
+            await UpdateDataAsync();
+
+
+        }
+    }
+    void OnothersRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _OthersselectedItems = _othersList.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        OthersTagName = _OthersselectedItems.Name;
+        OthersEditEnabled = true;
+        StateHasChanged();
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 0)
+        {
+            OthersDeleteEnabled = true;
+        }
+        if (_OthersselectedItems != null && SelectedDataItems.Count > 1)
+        {
+            OthersEditEnabled = false;
+
+        }
+
+
+
+    }
+    void ClosePopUp()
+    {
+        OthersListpopup = false;
+        StateHasChanged();
     }
     public async ValueTask DisposeAsync()
     {

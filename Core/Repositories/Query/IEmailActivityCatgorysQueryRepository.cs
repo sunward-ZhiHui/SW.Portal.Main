@@ -20,10 +20,12 @@ namespace Core.Repositories.Query
         Task<long> UpdateAsync(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> DeleteAsync(long id,long TopicId);
         Task<string> UpdateOtherAsync(string othertag,string Name,long ModifiedByUserID);
+        Task<string> UpdateOtherTagAsync(long id, string Name, long ModifiedByUserID);
         Task<string> UpdateuserAsync(string userTag, string Name);
         Task<long> DeleteUserTagAsync(long ID);
         Task<List<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID);
         Task<List<EmailActivityCatgorys>> GetByUserTagAsync(long TopicID,long UserID);
-        
+        Task<List<EmailActivityCatgorys>> GetAllOthersAsync(string Others);
+
     }
 }

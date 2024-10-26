@@ -378,7 +378,38 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<string> UpdateOtherTagAsync(long id, string Name, long ModifiedByUserID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var modifiedDate = DateTime.Now;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", id);
+                        parameters.Add("Name", Name);
+                        parameters.Add("ModifiedByUserID", ModifiedByUserID);
+                        parameters.Add("modifiedDate", modifiedDate);
 
+                        var query = "Update EmailActivityCatgorys Set Name = @Name,ModifiedByUserID =@ModifiedByUserID,ModifiedDate = @modifiedDate where ID = @id";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected.ToString();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<string> UpdateuserAsync(string userTag, string Name)
         {
             try
@@ -434,6 +465,27 @@ namespace Infrastructure.Repository.Query
                     }
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailActivityCatgorys>> GetAllOthersAsync(string Others)
+        {
+            try
+            {
+                var query = @"select EC.ID, ET.TopicName , EC.Name From EmailActivityCatgorys EC 
+                                Left join EmailTopics ET ON ET.ID = EC.TopicID 
+                                 where EC.Name = @Others";
+                var parameters = new DynamicParameters();
+                parameters.Add("Others", Others);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();
+                }
             }
             catch (Exception exp)
             {

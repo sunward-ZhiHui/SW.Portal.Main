@@ -58,6 +58,18 @@ namespace Application.Queries
             this.modifiedByUserID = modifiedByUserID;
         }
     }
+    public class EditOtherQery : PagedRequest, IRequest<string>
+    {
+        public long modifiedByUserID { get; set; }
+        public long id { get; set; }
+        public string Name { get; set; }
+        public EditOtherQery(long id, string Name, long modifiedByUserID)
+        {
+            this.id = id;
+            this.Name = Name;
+            this.modifiedByUserID = modifiedByUserID;
+        }
+    }
     public class EditUserTagQery : PagedRequest, IRequest<string>
     {
         public string userTag { get; set; }
@@ -113,6 +125,14 @@ namespace Application.Queries
         {
             this.ID = ID;
            
+        }
+    }
+    public class GetAllOthersQuery : PagedRequest, IRequest<List<EmailActivityCatgorys>>
+    {
+        public string OtherTag { get; set; }
+        public GetAllOthersQuery(string OtherTag)
+        {
+            this.OtherTag = OtherTag;
         }
     }
 }

@@ -50,7 +50,8 @@ namespace Core.Entities
         public long? UserTagAddedByUserID { get; set; }
         [NotMapped]
         public IEnumerable<long?> UserTagIds { get; set; } = new List<long?>();
-
+        [NotMapped]
+        public string? TopicName { get; set; }
     }
 
 

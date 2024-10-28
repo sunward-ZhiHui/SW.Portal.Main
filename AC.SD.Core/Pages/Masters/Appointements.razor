@@ -4,6 +4,7 @@
 @using Application.Queries
 @using Google.Api
 @using Newtonsoft.Json
+@using System.Globalization
 @using global::Core.Entities
 @using global::Core.Entities.Views
 @using global::Core.EntityModels
@@ -41,10 +42,11 @@
             background-color: #b2ebf2;
             cursor: pointer;
         }
+
 </style>
 <DxScheduler @ref="Scheduler"
              @bind-StartDate="@StartDate" DataStorage="@DataStorage"
-             @bind-ActiveViewType="@ActiveViewType"
+            
              AppointmentFormShowing="OnAppointmentFormShowing"
              ValidateEditForm="true" CssClass="demo-sc-size"
              @bind-AppointmentFormMode="@AppointmentFormMode"
@@ -52,7 +54,7 @@
              AppointmentRemoving="AppointmentRemoving"
              AppointmentUpdating="AppointmentUpdating">
     <Views>
-        <DxSchedulerWorkWeekView VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(19)))">
+        <DxSchedulerDayView DayCount = "3" WorkTime = "WorkTime"  ShowWorkTimeOnly ="false" VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(19)))">
            
             <VerticalAppointmentTemplate>
          
@@ -67,7 +69,7 @@
                     </div>
              
             </VerticalAppointmentTemplate>
-        </DxSchedulerWorkWeekView>
+        </DxSchedulerDayView>
     </Views>
     <AppointmentTooltipTemplate>
         <span class=" dxsc-subject" style="vertical-align: middle;">
@@ -106,20 +108,22 @@
         }
 
     </AppointmentTooltipTemplate>
-    <AppointmentFormHeaderTemplate>
-        <div class="popup-text-header">@context.Subject</div>
-        <DxSchedulerSaveAppointmentChangesButton></DxSchedulerSaveAppointmentChangesButton>
-        <DxSchedulerDeleteAppointmentButton Text="@null"></DxSchedulerDeleteAppointmentButton>
-        <DxSchedulerDiscardAppointmentChangesButton></DxSchedulerDiscardAppointmentChangesButton>
-        @if (AppointmentFormMode == SchedulerAppointmentFormMode.Both)
-        {
-            <DxButton Click="@(() => Scheduler.ShowAppointmentEditFormAsync(true))"
-                      IconCssClass="btn-icon-back"
-                      RenderStyle="ButtonRenderStyle.None"
-                      CssClass="dxbl-btn-tool">
-            </DxButton>
-        }
-    </AppointmentFormHeaderTemplate>
+   @*  <AppointmentFormHeaderTemplate>
+       
+                     <div class="popup-text-header">@context.Subject</div> 
+        <DxSchedulerSaveAppointmentChangesButton CssClass="mybutton"></DxSchedulerSaveAppointmentChangesButton>
+        <DxSchedulerDeleteAppointmentButton Text="@null" CssClass="mybutton"></DxSchedulerDeleteAppointmentButton>
+        <DxSchedulerDiscardAppointmentChangesButton CssClass="mybutton"></DxSchedulerDiscardAppointmentChangesButton>
+                    @if (AppointmentFormMode == SchedulerAppointmentFormMode.Both)
+                    {
+                        <DxButton Click="@(() => Scheduler.ShowAppointmentEditFormAsync(true))"
+                                  IconCssClass="btn-icon-back"
+                                  RenderStyle="ButtonRenderStyle.None"
+                                  CssClass="dxbl-btn-tool">
+                        </DxButton>
+                    }
+                </AppointmentFormHeaderTemplate>
+        
     <AppointmentFormLayout Context="formInfo">
         <DxSchedulerSubjectFormLayoutItem></DxSchedulerSubjectFormLayoutItem>
         <DxSchedulerAllDayFormLayoutItem></DxSchedulerAllDayFormLayoutItem>
@@ -127,7 +131,7 @@
         <DxSchedulerStartTimeFormLayoutItem></DxSchedulerStartTimeFormLayoutItem>
         <DxSchedulerEndDateFormLayoutItem></DxSchedulerEndDateFormLayoutItem>
         <DxSchedulerEndTimeFormLayoutItem></DxSchedulerEndTimeFormLayoutItem>
-        <DxSchedulerLocationFormLayoutItem></DxSchedulerLocationFormLayoutItem>
+       <DxSchedulerLocationFormLayoutItem></DxSchedulerLocationFormLayoutItem>
         <DxSchedulerDescriptionFormLayoutItem></DxSchedulerDescriptionFormLayoutItem>
         
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
@@ -146,12 +150,12 @@
                 </div>
             </Template>
         </DxSchedulerCustomFormLayoutItem>
-    </AppointmentFormLayout>
+    </AppointmentFormLayout> *@
     <AppointmentCompactFormHeaderTemplate>
-        <div class="popup-text-header">@context.Subject</div>
-        <DxSchedulerSaveAppointmentChangesButton></DxSchedulerSaveAppointmentChangesButton>
-        <DxSchedulerDeleteAppointmentButton Text="@null"></DxSchedulerDeleteAppointmentButton>
-        <DxSchedulerDiscardAppointmentChangesButton></DxSchedulerDiscardAppointmentChangesButton>
+      @*   <div class="popup-text-header">@context.Subject</div> *@
+        <DxSchedulerSaveAppointmentChangesButton ></DxSchedulerSaveAppointmentChangesButton>
+        <DxSchedulerDeleteAppointmentButton Text="@null" ></DxSchedulerDeleteAppointmentButton>
+        <DxSchedulerDiscardAppointmentChangesButton ></DxSchedulerDiscardAppointmentChangesButton>
         @if (AppointmentFormMode == SchedulerAppointmentFormMode.Both)
         {
             <DxSchedulerShowAppointmentEditFormButton></DxSchedulerShowAppointmentEditFormButton>
@@ -169,12 +173,12 @@
             </Template>
         </DxSchedulerCustomFormLayoutItem>
         <DxSchedulerSubjectFormLayoutItem></DxSchedulerSubjectFormLayoutItem>
-        <DxSchedulerAllDayFormLayoutItem></DxSchedulerAllDayFormLayoutItem>
+     @*    <DxSchedulerAllDayFormLayoutItem></DxSchedulerAllDayFormLayoutItem> *@
         <DxSchedulerStartDateFormLayoutItem></DxSchedulerStartDateFormLayoutItem>
         <DxSchedulerStartTimeFormLayoutItem></DxSchedulerStartTimeFormLayoutItem>
         <DxSchedulerEndDateFormLayoutItem></DxSchedulerEndDateFormLayoutItem>
         <DxSchedulerEndTimeFormLayoutItem></DxSchedulerEndTimeFormLayoutItem>
-        <DxSchedulerLocationFormLayoutItem></DxSchedulerLocationFormLayoutItem>
+     @*    <DxSchedulerLocationFormLayoutItem></DxSchedulerLocationFormLayoutItem> *@
         <DxSchedulerDescriptionFormLayoutItem></DxSchedulerDescriptionFormLayoutItem>
        
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
@@ -243,14 +247,24 @@
     // Appointment? Data { get; set; } = new Appointment();
     Appointment? CategoryData { get; set; } = new Appointment();
     DxScheduler Scheduler { get; set; }
-    SchedulerAppointmentFormMode AppointmentFormMode { get; set; } = SchedulerAppointmentFormMode.Both;
+    SchedulerAppointmentFormMode AppointmentFormMode { get; set; } = SchedulerAppointmentFormMode.CompactEditForm;
     List<SchedulerAppointmentFormMode> EditModes = Enum.GetValues(typeof(SchedulerAppointmentFormMode))
         .OfType<SchedulerAppointmentFormMode>()
         .ToList();
     DateTime StartDate { get; set; } = DateTime.Today;
-    SchedulerViewType ActiveViewType { get; set; } = SchedulerViewType.WorkWeek;
+    SchedulerViewType ActiveViewType { get; set; } = SchedulerViewType.Week;
     //  public IEnumerable<long>? Ids { get; set; } = null;
     public List<long> Ids = new List<long> { };
+    DxSchedulerTimeSpanRange WorkTime = new DxSchedulerTimeSpanRange(TimeSpan.FromHours(9), TimeSpan.FromHours(18));
+    bool IsInWorkTime(DxSchedulerAppointmentItem apt) =>
+      apt.AllDay
+      || IsWorkingDay(apt.Start)
+      && IsWorkingDay(apt.End)
+      && apt.Start - apt.Start.Date >= WorkTime.Start
+      && WorkTime.End >= apt.End - apt.End.Date;
+    static bool IsWorkingDay(DateTime time) =>
+        time.DayOfWeek != DayOfWeek.Saturday &&
+        time.DayOfWeek != DayOfWeek.Sunday;
     protected override async Task OnInitializedAsync()
     {
 
@@ -262,7 +276,7 @@
     }
     public async Task UpdateDataAsync()
     {
-        appointmentslist = await Mediator.Send(new GetSchedulerList());
+        appointmentslist = await Mediator.Send(new GetSchedulerList(applicationUser.UserID));
         DataStorage.AppointmentsSource = appointmentslist.ToList();
     }
 
@@ -285,8 +299,20 @@
 
     async void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
     {
+
+      //  await jsRuntime.InvokeVoidAsync("location.reload");
         string s = JsonConvert.SerializeObject(args.Appointment.Id);
         var ID = long.Parse(s);
+
+        CategoryData.userIds = null;
+        string startdate = args.Appointment.Start.ToString();
+        DateTime convertedDate;
+
+        convertedDate = Convert.ToDateTime(startdate);
+        //  DateTime dateValue = Convert.ToDateTime(args.Appointment.Start,);
+        var today = DateTime.Now;
+
+
         if (ID > 0)
         {
             var Userlist = await Mediator.Send(new GetUserListQuery(ID));
@@ -295,12 +321,20 @@
 
                 Ids.Add(item.UserID.Value);
             }
-             CategoryData.userIds = Ids;
+            CategoryData.userIds = Ids;
+            args.FormInfo = new CustomAppointmentFormInfo(args.Appointment, DataStorage, Scheduler);
+           
         }
-        args.FormInfo = new CustomAppointmentFormInfo(args.Appointment, DataStorage, Scheduler);
+      
+        else if(today > convertedDate)
+        {
+            args.Cancel = true;
+            toastService.ShowToast("Selected Date in Invalid.", AC.SD.Core.Services.ToastLevel.Success);
+        }
+
 
     }
-
+    
     //static IEnumerable<long>? userIds(DxExpandoDictionaryObject customFields) => (IEnumerable<long>?)customFields["userIds"];
 
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()

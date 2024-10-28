@@ -26,7 +26,11 @@ namespace Application.Queries
     }
     public class GetSchedulerList: PagedRequest, IRequest<List<Appointment>>
     {
-
+        public long UserID { get; private set; }
+        public GetSchedulerList(long UserID)
+        {
+            this.UserID = UserID;
+        }
     }
     public class GetGenderRatio : PagedRequest, IRequest<List<GenderRatio>>
     {

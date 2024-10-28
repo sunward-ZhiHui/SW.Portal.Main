@@ -15,7 +15,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DynamicForm>> GetApprovalListAsync();
           Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerTodoAsync(long UserId);
         Task <IReadOnlyList<GeneralDashboard>> GetEmployeeCountAsync();
-        Task<IReadOnlyList<Appointment>> GetSchedulerListAsync();
+        Task<IReadOnlyList<Appointment>> GetSchedulerListAsync(long Userid);
         Task<IReadOnlyList<Appointment>> GetUserListAsync(long Appointmentid);
         Task<List<GenderRatio>> GetGenderRatioAsync();
         Task<List<Appointment>> GetAppointments(long id);

@@ -70,7 +70,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<Appointment>> Handle(GetSchedulerList request, CancellationToken cancellationToken)
         {
 
-            return (List<Appointment>)await _queryRepository.GetSchedulerListAsync();
+            return (List<Appointment>)await _queryRepository.GetSchedulerListAsync(request.UserID);
         }
     }
     public class GetUserListHandler : IRequestHandler<GetUserListQuery, List<Appointment>>

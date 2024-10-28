@@ -28,7 +28,8 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>                
                 <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" Enabled="@PrintEnabled" />
-                <DxMenuItem IconCssClass="fa fa-remove" @onclick="OnDelete" Text="Delete" Enabled="@DeleteEnabled" />
+                <DxMenuItem IconCssClass="fa fa-remove" @onclick="OnDelete" Text="Remove" Enabled="@DeleteEnabled" />
+                <DxMenuItem IconCssClass="fa fa-envelope" @onclick="OnEmailClick" Text="View Email" Enabled="@EmailEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -176,6 +177,7 @@
     bool descriptionPreview { get; set; } = false;
     string Comment;
     string Description;
+    bool EmailEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {       
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
@@ -217,6 +219,7 @@
 
         DeleteEnabled = true;
         PrintEnabled = true;
+        EmailEnabled = true;
 
         StateHasChanged();
 
@@ -243,6 +246,11 @@
         string script = $"window.open('{url}', '_blank');";
         await JSRuntime.InvokeVoidAsync("eval", script);      
 
+        StateHasChanged();
+    }
+    async Task OnEmailClick()
+    {
+        NavigationManager.NavigateTo($"ViewEmail/{_selectedItems?.SessionId}/Email");
         StateHasChanged();
     }
     async void onPrintMainTopic()

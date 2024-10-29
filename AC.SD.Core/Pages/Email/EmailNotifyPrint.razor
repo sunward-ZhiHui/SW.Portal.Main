@@ -559,7 +559,7 @@
             if (lsts.Count > 0)
             {
                 await JSRuntime.InvokeAsync<string>("showLoading");
-                _discussionList = await Mediator.Send(new GetEmailPrintAllDiscussionList(lsts[0].ID, applicationUser.UserID, Page));
+                _discussionList = await Mediator.Send(new GetEmailPrintAllDiscussionList(lsts[0].ID, applicationUser.UserID, "Administrator"));
                 SelectedGroup = lsts[0].ID.ToString();
                 await JSRuntime.InvokeAsync<string>("hideLoading");
             }

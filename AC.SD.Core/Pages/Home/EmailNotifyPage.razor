@@ -132,7 +132,7 @@
        
         <p>
 
-            Do you want to delete
+            Do you want to Remove From Listing?
         </p>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -267,7 +267,7 @@
             await Mediator.Send(request);
             await UpdateDataAsync();
             Blukdeletepopup = false;
-            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            toastService.ShowToast("Record Remove Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
     }
     async Task onDesctiptionMsg(string description)

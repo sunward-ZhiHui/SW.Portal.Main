@@ -47,8 +47,29 @@
 
 <div id="tableData">
     <div>
-        <button class="btn btn-primary" @onclick="PrintPage" >Print</button>
-        <button class="btn btn-warning" @onclick="NotesPage" style="float:right; margin-right: 10px;">Notes</button>
+        <div class="card w-100 tooltips" style="margin-bottom:10px;">
+            <div class="card-body p-0 tooltiptops">
+                <div class="row">
+                    <div class="">
+                        <DxMenu CollapseItemsToHamburgerMenu="true"
+                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                DisplayMode="MenuDisplayMode.Desktop">
+                            <Items>
+                                <DxMenuItem Text="Print" IconCssClass="fa fa-print" Click="@((e) => PrintPage())" />
+                                <DxMenuItem Text="Notes" IconCssClass="fa fa-pencil" Click="@NotesPage" />
+                                
+                              
+                            </Items>
+                        </DxMenu>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        @* <button class="btn btn-primary" @onclick="PrintPage" >Print</button>
+        <button class="btn btn-warning" @onclick="NotesPage" style="float:right; margin-right: 10px;">Notes</button> *@
         @if (_discussionList != null && _discussionList.Any())
         {
             @foreach (var item in _discussionList)

@@ -26,5 +26,7 @@ namespace Core.Entities
         public Guid? SessionId { get; set; }
         public string? CategoryName { get; set; }
         public string? Comment { get; set; }
+
+        public bool? IsDelete { get; set; }
     }
 }

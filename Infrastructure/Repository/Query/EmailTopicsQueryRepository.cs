@@ -2154,10 +2154,17 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select CONCAT(E.FirstName, ' - ' ,E.LastName) AS AddedBy,ENP.*,EC.AddedDate AS EmailCreatedDate,EC.LastUpdateDate,AMD.Value AS CategoryName from EmailNotifyPA ENP
+                //var query = @"select CONCAT(E.FirstName, ' - ' ,E.LastName) AS AddedBy,ENP.*,EC.AddedDate AS EmailCreatedDate,EC.LastUpdateDate,AMD.Value AS CategoryName from EmailNotifyPA ENP
+                //            INNER JOIN Employee E ON E.UserID = ENP.AddedByUserID
+                //            INNER JOIN EmailConversations EC ON EC.SessionId = ENP.SessionID
+                //            LEFT JOIN ApplicationMasterDetail AMD ON AMD.ApplicationMasterDetailID = ENP.NotifyTypeID
+                //            ORDER BY ENP.AddedDate DESC";
+
+                var query = @"select CONCAT(E.FirstName, ' - ' ,E.LastName) AS AddedBy,ENP.*,EC.AddedDate AS EmailCreatedDate,EC.LastUpdateDate,AMD.Value AS CategoryName,ENP.IsDelete from EmailNotifyPA ENP
                             INNER JOIN Employee E ON E.UserID = ENP.AddedByUserID
                             INNER JOIN EmailConversations EC ON EC.SessionId = ENP.SessionID
                             LEFT JOIN ApplicationMasterDetail AMD ON AMD.ApplicationMasterDetailID = ENP.NotifyTypeID
+							Where ENP.IsDelete Is Null
                             ORDER BY ENP.AddedDate DESC";
                 using (var connection = CreateConnection())
                 {
@@ -3129,7 +3136,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ID", id);
 
 
-                        var query = "DELETE  FROM EmailNotifyPA WHERE ID = @ID";
+                        var query = "Update  EmailNotifyPA  Set IsDelete = 1 WHERE ID = @ID";
 
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);

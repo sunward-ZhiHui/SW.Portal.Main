@@ -593,7 +593,7 @@ namespace Application.Queries
             this.ID = Id;
         }
     }
-    public class DeleteNotifyQuery : Documents, IRequest<long>
+    public class DeleteNotifyQuery : EmailNotifyPA, IRequest<long>
     {
         public long ID { get; set; }
 

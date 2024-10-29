@@ -1079,7 +1079,7 @@
                         <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" />
                          @if(_openAccessUserLink != null)
                          {
-                             <DxMenuItem IconCssClass="fa fa-paperclip" @onclick="onNotifyPA" Text="Notify P/A" />
+                             <DxMenuItem IconCssClass="fa fa-paperclip" @onclick="onNotifyPA" Text="Notify JD" />
                          }
                     </Items>
                 </DxMenu>               
@@ -1091,7 +1091,7 @@
 
 
 <DxPopup @bind-Visible="@isNotifyPAPopupVisible"
-         HeaderText="Notify P/A"
+         HeaderText="Notify JD"
          CloseOnOutsideClick="false"
          ShowFooter="false"
          ShowCloseButton="true">

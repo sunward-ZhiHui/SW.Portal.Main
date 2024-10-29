@@ -440,7 +440,38 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<long> DeleteUserTagAsync(long ID)
+        public async Task<long> DeleteUserTagAsync(long Topicid,long UserID,long UserTagID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                       
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Topicid", Topicid);
+                        parameters.Add("UserID", UserID);
+                        parameters.Add("UserTagID", UserTagID);
+                        var query = "DELETE FROM EmailUserTagMultiple WHERE TopicID = @Topicid and AddedByUserID = @UserID And UserTagID = @UserTagID";
+                        
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> DeleteUserAllTagAsync(long ID, long UserID, long tagid)
         {
             try
             {
@@ -450,11 +481,16 @@ namespace Infrastructure.Repository.Query
                     {
                         var query = "";
                         var parameters = new DynamicParameters();
-                        parameters.Add("id", ID);
+                        parameters.Add("ID", ID);
+                        parameters.Add("UserID", UserID);
+                        parameters.Add("tagid", tagid);
 
 
-                        query += "DELETE FROM EmailUserTagMultiple WHERE UserTagID = @id;";
-                         query += "DELETE  FROM EmailTopicUserTags WHERE ID = @id;";
+
+                        query += "DELETE FROM EmailUserTagMultiple WHERE UserTagID = @tagid and AddedByUserID = @UserID;";
+
+                        query += "DELETE FROM EmailTopicUserTags WHERE  ID = @ID;";
+
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
                         return rowsAffected;
@@ -481,6 +517,48 @@ namespace Infrastructure.Repository.Query
                                  where EC.Name = @Others";
                 var parameters = new DynamicParameters();
                 parameters.Add("Others", Others);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailActivityCatgorys>> GetAllUserlistAsync(long UserTagID)
+        {
+            try
+            {
+                var query = @"select * From EmailUserTagMultiple where UserTagID = @UserTagID";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserTagID", UserTagID);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
+        public async  Task<List<EmailActivityCatgorys>> GetAllUsersAsync(string UserTag, long UserID)
+        {
+            try
+            {
+                var query = @"SELECT EM.TopicID,ET.TopicName ,EM.AddedByUserID,EM.UserTagID,ETU.ID,ETU.UserTag,EM.ID as MultipleID From EmailTopicUserTags ETU
+                                Inner Join EmailUserTagMultiple EM ON EM.UserTagID = ETU.ID
+                                Inner Join EmailTopics ET ON ET.ID = EM.TopicID
+                                Where ETU.UserTag =@UserTag and ETU.AddedByUserID = @UserID";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserTag", UserTag);
+                parameters.Add("UserID", UserID);
 
                 using (var connection = CreateConnection())
                 {

@@ -30,7 +30,7 @@ namespace Core.Entities.Views
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime? ActualStartDate { get; set; }
-       
+       public string? LotNo { get; set; }
         public string AddedBy { get; set; }
        
       

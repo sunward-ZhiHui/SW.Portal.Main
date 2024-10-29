@@ -22,10 +22,13 @@ namespace Core.Repositories.Query
         Task<string> UpdateOtherAsync(string othertag,string Name,long ModifiedByUserID);
         Task<string> UpdateOtherTagAsync(long id, string Name, long ModifiedByUserID);
         Task<string> UpdateuserAsync(string userTag, string Name);
-        Task<long> DeleteUserTagAsync(long ID);
+        Task<long> DeleteUserTagAsync(long TopicID,long UserID,long UserTagID);
+        Task<long> DeleteUserAllTagAsync(long ID, long UserID,long tagid);
         Task<List<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID);
         Task<List<EmailActivityCatgorys>> GetByUserTagAsync(long TopicID,long UserID);
         Task<List<EmailActivityCatgorys>> GetAllOthersAsync(string Others);
+        Task<List<EmailActivityCatgorys>> GetAllUserlistAsync(long usertagid);
+        Task<List<EmailActivityCatgorys>> GetAllUsersAsync(string UserTag,long UserID);
 
     }
 }

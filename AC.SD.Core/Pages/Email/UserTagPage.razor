@@ -88,7 +88,96 @@
         </DxGrid>
     </DxLoadingPanel>
 </div>
+<DxPopup @bind-Visible="@UsersListpopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="900px"
+         CloseOnOutsideClick="false">
+    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%">
 
+        <div class="card w-100" style="margin-bottom:10px;">
+            <div class="card-body p-0">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Visible ="false" Enabled="@UsersEditEnable" Click="@othersedit" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Enabled="@UsersDeleteEnable" Click="@OnOthersDelete" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+        <DxLoadingPanel @bind-Visible="PanelVisible"
+                        IsContentBlocked="true"
+                        ApplyBackgroundShading="true"
+                        IndicatorAreaVisible="false"
+                        Text="Fetching Data...">
+            <DxGrid @ref="UsersSubGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                    Data="_UsersList"
+                    ShowGroupPanel="true" ShowGroupedColumns="true"
+                    KeyFieldName="MultipleID"
+                    EditModelSaving="Grid_OthersEditModelSaving"
+                    CustomizeElement="Grid_CustomizeElement"
+                    ShowSearchBox="true"
+                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                    PageSizeSelectorVisible="true"
+                    PageSizeSelectorAllRowsItemVisible="true"
+                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                    PageSize="20"
+                    SelectionMode="GridSelectionMode.Multiple"
+                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    AutoExpandAllGroupRows="true"
+                    CssClass="ch-360"
+                    style="height: calc(100vh - 270px);"
+                    FocusedRowEnabled="true"
+                    RowClick="OnUsersRowClick"
+                    SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                    AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
+                <Columns>
+
+                    <DxGridSelectionColumn Width="60px" AllowSelectAll="true"></DxGridSelectionColumn>
+
+                    <DxGridDataColumn FieldName="TopicName" Caption="Subject" MinWidth="80" />
+                    <DxGridDataColumn FieldName="UserTag" MinWidth="80" Caption="User Tag" />
+                </Columns>
+                <EditFormTemplate Context="EditFormContext">
+                    @{
+                        var types = (EmailActivityCatgorys)EditFormContext.EditModel;
+                    }
+                    <DxFormLayout CssClass="w-100">
+                        <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
+                            <DxTextBox @bind-Text="@types.UserTag" ShowValidationIcon="true" />
+                            @*  <DxComboBox Data="@_AllCategory"
+                            NullText="Select Others Tag..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            AllowUserInput="true"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="Name"
+
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@types.Name"
+                            @bind-Text="@OthersTagName">
+                            </DxComboBox> *@
+                            <ValidationMessage For="@(() => types.Name)" />
+                        </DxFormLayoutItem>
+                        <ValidationSummary />
+                    </DxFormLayout>
+                </EditFormTemplate>
+                <TotalSummary>
+                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Notes" />
+                </TotalSummary>
+            </DxGrid>
+        </DxLoadingPanel>
+        <DxButton style="margin-right: 10px;margin-top: 10px; margin-left: 780px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="ClosePopUp" />
+    </div>
+    @*  <FooterContentTemplate>
+
+    </FooterContentTemplate>   *@
+</DxPopup>
 
 <DxPopup @bind-Visible="@deletepopup"
          ShowFooter="true"
@@ -106,16 +195,21 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    IGrid? UsersSubGrid { get; set; }
     bool PanelVisible { get; set; }
     IGrid? UserGrid { get; set; }
-
+    public bool UsersListpopup { get; set; } = false;
     internal List<EmailActivityCatgorys>? _userTags;
+    public List<EmailActivityCatgorys>? _UsersList;
     public ApplicationUser? applicationUser { get; private set; }
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     private EmailActivityCatgorys _selectedItems;
+    public EmailActivityCatgorys _usersselectedItems;
     public bool deletepopup { get; set; } = false;
+    public bool UsersDeleteEnable { get; set; }= false;
+    public bool UsersEditEnable { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         PageContext.PageName = "EmailUserTagsPage";
@@ -137,6 +231,15 @@
         DeleteEnabled = true;
         StateHasChanged();
 
+    }
+    void OnUsersRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "MultipleID");
+        _usersselectedItems = _UsersList?.FirstOrDefault(f => f.MultipleID == (long?)UniqueId);
+       
+        UsersEditEnable = true;
+        StateHasChanged();
+       
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -160,7 +263,7 @@
                     AddedDate = DateTime.Now
             };
 
-                var result = await Mediator.Send(UpdateReq);
+            var result = await Mediator.Send(UpdateReq);
 
             toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
         }
@@ -171,7 +274,7 @@
 
 
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-           
+
         }
         await UpdateDataAsync();
     }
@@ -179,9 +282,11 @@
     {
         UserGrid?.StartEditDataItemAsync(_selectedItems);
     }
-    void addDelete()
+    async void addDelete()
     {
-        deletepopup = true;
+        await UsersList();
+        UsersListpopup = true;
+        StateHasChanged();
     }
     void addNew()
     {
@@ -193,18 +298,90 @@
     }
     async void EulaPopupClosed(PopupClosedEventArgs args)
     {
-      
+        UsersListpopup = false;
         deletepopup = false;
     }
     public async void OnDelete()
     {
-
-        var request = new DeleteUserTagQery(_selectedItems.ID);
-        await Mediator.Send(request);
-        await UpdateDataAsync();
+        if(_usersselectedItems != null)
+        {
+            var userTagCount = await Mediator.Send(new GetAllUserlistQuery(_usersselectedItems.UserTagID.Value));
+            if (userTagCount.Count > 1)
+            {
+                var request = new DeleteUserTagQery(_usersselectedItems.TopicId, _usersselectedItems.AddedByUserID.Value,_usersselectedItems.UserTagID.Value);
+                await Mediator.Send(request);
+              
+            }
+            else
+            {
+                var request = new DeleteuserallTagQery(_usersselectedItems.ID, _usersselectedItems.AddedByUserID.Value, _usersselectedItems.UserTagID.Value);
+                await Mediator.Send(request);
+            }
+        }
        
+        await UpdateDataAsync();
+
         toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
         deletepopup = false;
+        StateHasChanged();
+    }
+    async Task Grid_OthersEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editmodel = (EmailActivityCatgorys)e.EditModel;
+        if (e.IsNew)
+        {
+        }
+        else
+        {
+
+          //  var request = await Mediator.Send(new EditOtherQery(_OthersselectedItems.ID, editmodel.Name, applicationUser.UserID));
+
+
+
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+            await UsersList();
+            await UpdateDataAsync();
+
+
+        }
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 0)
+        {
+            UsersDeleteEnable = true;
+        }
+        if (_usersselectedItems != null && SelectedDataItems.Count > 1)
+        {
+            UsersEditEnable = false;
+
+        }
+
+
+
+    }
+    async Task UsersList()
+    {
+        _UsersList = await Mediator.Send(new GetAllUserListQuery(_selectedItems?.UserTag, applicationUser.UserID));
+    }
+    void othersedit()
+    {
+
+
+        UsersSubGrid?.StartEditDataItemAsync(_usersselectedItems);
+
+
+    }
+    void OnOthersDelete()
+    {
+        deletepopup = true;
+    }
+    void ClosePopUp()
+    {
+        UsersListpopup = false;
         StateHasChanged();
     }
     public async ValueTask DisposeAsync()

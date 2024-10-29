@@ -119,12 +119,31 @@ namespace Application.Queries
     }
     public class DeleteUserTagQery : PagedRequest, IRequest<long>
     {
+        public long TopicID { get; set; }
+        public long UserID { get; set; }
+        public long UserTagID { get; set; }
+
+        public DeleteUserTagQery(long TopicID,long UserID,long UserTag)
+        {
+            this.TopicID = TopicID;
+            this.UserID = UserID;
+            this.UserTagID = UserTag;
+           
+        }
+    }
+    public class DeleteuserallTagQery : PagedRequest, IRequest<long>
+    {
         public long ID { get; set; }
-      
-        public DeleteUserTagQery(long ID)
+        public long UserID { get; set; }
+        public long Tagid { get; set; }
+
+
+        public DeleteuserallTagQery(long ID, long UserID,long TagID)
         {
             this.ID = ID;
-           
+            this.UserID = UserID;
+            this.Tagid = TagID;
+
         }
     }
     public class GetAllOthersQuery : PagedRequest, IRequest<List<EmailActivityCatgorys>>
@@ -133,6 +152,24 @@ namespace Application.Queries
         public GetAllOthersQuery(string OtherTag)
         {
             this.OtherTag = OtherTag;
+        }
+    }
+    public class GetAllUserlistQuery : PagedRequest, IRequest<List<EmailActivityCatgorys>>
+    {
+        public long Usertagid { get; set; }
+        public GetAllUserlistQuery(long usertagid)
+        {
+            this.Usertagid = usertagid;
+        }
+    }
+    public class GetAllUserListQuery : PagedRequest, IRequest<List<EmailActivityCatgorys>>
+    {
+        public string UserTag { get; set; }
+        public long UserID { get; set; }
+        public GetAllUserListQuery(string UserTag ,long UserID)
+        {
+            this.UserTag = UserTag;
+            this.UserID = UserID;
         }
     }
 }

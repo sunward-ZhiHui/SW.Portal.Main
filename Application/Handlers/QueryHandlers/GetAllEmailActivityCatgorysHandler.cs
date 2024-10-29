@@ -206,10 +206,25 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteUserTagQery request, CancellationToken cancellationToken)
         {
-            var newlist = await _emailactyqueryRepository.DeleteUserTagAsync(request.ID);
+            var newlist = await _emailactyqueryRepository.DeleteUserTagAsync(request.TopicID,request.UserID,request.UserTagID);
             return newlist;
         }
     }
+    public class DeleteUserAllTagHandler : IRequestHandler<DeleteuserallTagQery, long>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public DeleteUserAllTagHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteuserallTagQery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.DeleteUserAllTagAsync(request.ID, request.UserID,request.Tagid);
+            return newlist;
+        }
+    }
+    
     public class GetAllOthersHandler : IRequestHandler<GetAllOthersQuery, List<EmailActivityCatgorys>>
     {
 
@@ -221,6 +236,34 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<EmailActivityCatgorys>> Handle(GetAllOthersQuery request, CancellationToken cancellationToken)
         {
             return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllOthersAsync(request.OtherTag);
+
+        }
+    }
+    public class GetAlluserlistHandler : IRequestHandler<GetAllUserlistQuery, List<EmailActivityCatgorys>>
+    {
+
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetAlluserlistHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<List<EmailActivityCatgorys>> Handle(GetAllUserlistQuery request, CancellationToken cancellationToken)
+        {
+            return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllUserlistAsync(request.Usertagid);
+
+        }
+    }
+    public class GetAllUsersHandler : IRequestHandler<GetAllUserListQuery, List<EmailActivityCatgorys>>
+    {
+
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetAllUsersHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<List<EmailActivityCatgorys>> Handle(GetAllUserListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllUsersAsync(request.UserTag,request.UserID);
 
         }
     }

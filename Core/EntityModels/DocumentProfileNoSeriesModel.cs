@@ -85,5 +85,7 @@ namespace Core.EntityModels
         public bool IsSampleDocNoEnabled { get; set; } = false;
         public long? FileProfileTypeId { get; set; }
         public long? SelectProfileID { get; set; }
+        public int? PageNumber { get; set; }
+        public int? PageSize { get; set; }
     }
 }

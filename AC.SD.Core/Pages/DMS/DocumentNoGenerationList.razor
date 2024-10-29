@@ -11,7 +11,7 @@
 @using global::Core.EntityModels;
 @implements IAsyncDisposable
 @inject NavigationManager NavigationManager
-<style>
+<style scoped>
     .alt-item > td {
         background-color: rgba(0, 0, 0, 0.05);
     }
@@ -20,6 +20,27 @@
         font-weight: 700;
     }
 
+    .loadmorebg {
+        background-color: #dddbdb;
+        border-radius: 4px;
+        color: #000 !important;
+        font-size: 12px;
+        font-weight: 400;
+        border: 1px solid #dddbdb;
+    }
+
+    .grid-container {
+        width: 100%;
+    }
+
+    .pager-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px;
+        border: 1px solid #d2d2d2;
+        border-top: none;
+        width: 100%;
+    }
 </style>
 @page "/DocumentNoGenerationList"
 <div class="menu-bar-content-container col-md-12">
@@ -46,54 +67,64 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    <DxGrid @ref="Grid" Data="@_DocumentNoSeriesList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="NumberSeriesId"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
-            AutoExpandAllGroupRows="true"
-            FocusedRowEnabled="true"
-            SelectionMode="GridSelectionMode.Single"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            AllowSelectRowByClick="true"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            VirtualScrollingEnabled="true"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            style="height: calc(100vh - 220px);"
-            CssClass="ch-360">
-        <Columns>
-            <DxGridDataColumn FieldName="DocumentNo" Caption="Document No" Width="30%" />
-            <DxGridDataColumn FieldName="ProfileName" Caption="Profile Name" Width="30%" />
-            <DxGridDataColumn FieldName="RequestorName" Caption="Requestor Name" Width="30%" />
-            <DxGridDataColumn FieldName="VersionNo" Caption="VersionNo" Width="20%" />
-            <DxGridDataColumn FieldName="Title" Caption="Title" Width="20%" />
-            <DxGridDataColumn FieldName="FileprofileTypeName" Caption="SW Library" Width="30%" GroupIndex="0" />
-            <DxGridDataColumn FieldName="FullPath" Caption="Document Path" GroupIndex="0" Width="40%">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DocumentNoSeries)context.DataItem;
-                        if (item.FileProfileTypeId > 0 && item.IsDeletedSWProfileType == false)
-                        {
-                            <a href="javascript:void(0);" title="@item.FullPath" onclick="@(() => openFileProfileLink(item))" style="color:black;">@item.FullPath</a>
+    <div class="grid-container">
+        <DxGrid @ref="Grid" Data="@_DocumentNoSeriesList" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true" CustomizeElement="Grid_CustomizeElement"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                KeyFieldName="NumberSeriesId"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                AutoExpandAllGroupRows="true"
+                FocusedRowEnabled="true"
+                SelectionMode="GridSelectionMode.Single"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AllowSelectRowByClick="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                VirtualScrollingEnabled="true"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                style="height: calc(100vh - 250px);"
+                CssClass="ch-360">
+            <Columns>
+                <DxGridDataColumn FieldName="DocumentNo" Caption="Document No" Width="30%" />
+                <DxGridDataColumn FieldName="ProfileName" Caption="Profile Name" Width="30%" />
+                <DxGridDataColumn FieldName="RequestorName" Caption="Requestor Name" Width="30%" />
+                <DxGridDataColumn FieldName="VersionNo" Caption="VersionNo" Width="20%" />
+                <DxGridDataColumn FieldName="Title" Caption="Title" Width="20%" />
+                <DxGridDataColumn FieldName="FileprofileTypeName" Caption="SW Library" Width="30%" GroupIndex="0" />
+                <DxGridDataColumn FieldName="FullPath" Caption="Document Path" GroupIndex="0" Width="40%">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentNoSeries)context.DataItem;
+                            if (item.FileProfileTypeId > 0 && item.IsDeletedSWProfileType == false)
+                            {
+                                <a href="javascript:void(0);" title="@item.FullPath" onclick="@(() => openFileProfileLink(item))" style="color:black;">@item.FullPath</a>
+                            }
+                            else
+                            {
+                                @item.FullPath
+                            }
                         }
-                        else
-                        {
-                            @item.FullPath
-                        }
-                    }
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" Width="20%" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="20%" />
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" Width="20%" />
+                <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="20%" />
 
-        </Columns>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentNo" />
-        </TotalSummary>
-    </DxGrid>
+            </Columns>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentNo" />
+            </TotalSummary>
+        </DxGrid>
+        <div class="pager-container">
+            <p style="text-align:center;">
+            <button @onclick="ToLoadMore" class="loadmorebg">Load More</button>
+            </p>
+        </div>
+    </div>
 </DxLoadingPanel>
+@* <div style="text-align:center">
+    <button @onclick="ToLoadMore" class="loadmorebg">Load More</button>
+</div> *@
 <DxFlyout @bind-IsOpen=IsFilterOpen
           PositionTarget=@($"#flyout-overview-target-container-FilterDocuments")
           RestrictionTarget="#Navigation-Flyout-Customization"
@@ -235,21 +266,36 @@
     DocumentProfileNoSeriesModel Data = new DocumentProfileNoSeriesModel();
     private List<ViewDepartment> _departmentItems; private List<ViewPlants>? _plantItems;
     public DocumentNoSeries _selectedItems { get; set; }
+    private int pageNumber = 1; // Initial page number
+    private int pageSize = 50; // Number of records per page
     protected override async Task OnInitializedAsync()
     {
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllWithouDeletefileprofiletypeListQuery());
         _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        await UpdateDataAsync();
+    }
+    protected async Task ToLoadMore()
+    {
+        PanelVisible = true;
+        pageNumber++; // Increment page number
+        await UpdateDataAsync();
+        StateHasChanged();
+        PanelVisible = false;
     }
     async Task UpdateDataAsync()
     {
         try
         {
-            PanelVisible = true; _DocumentNoSeriesList = new List<DocumentNoSeries>();
-            _DocumentNoSeriesList = await Mediator.Send(new GetAllDocumentNoSeriesQuery(Data));
-            if (_DocumentNoSeriesList != null && _DocumentNoSeriesList.Count > 0)
+            Data.PageNumber = pageNumber;
+            Data.PageSize = pageSize;
+            PanelVisible = true;
+            var result = await Mediator.Send(new GetAllDocumentNoSeriesQuery(Data));
+            if (result != null && result.Count > 0)
             {
+                _DocumentNoSeriesList = _DocumentNoSeriesList == null ? new List<DocumentNoSeries>() : _DocumentNoSeriesList;
+                _DocumentNoSeriesList.AddRange(result);
                 _DocumentNoSeriesList.ForEach(s =>
                 {
                     if (s.FileProfileTypeId > 0)
@@ -261,7 +307,7 @@
                         s.FileprofileTypeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeParentId)?.Name;
                     }
                 });
-                Grid.SetFocusedRowIndex(0);
+                Grid.Reload();
             }
             PanelVisible = false;
             StateHasChanged();
@@ -271,17 +317,19 @@
 
         }
     }
-    void OnClearFilterDocuments()
+    async Task OnClearFilterDocuments()
     {
         LinkFilterFileprofiletypeName = null;
         Data.SelectProfileID = null;
         Data.SessionId = null;
+        Data.PageNumber = 1; Data.PageSize = 50;
         Data.FileProfileTypeId = null;
         Data.DepartmentId = null; Data.AddedDate = null; Data.ModifiedDate = null;
         Data.CompanyId = null; Data.SampleDocumentNo = null;
         IsFilterOpen = false;
         _DocumentNoSeriesList = new List<DocumentNoSeries>();
         StateHasChanged();
+        await UpdateDataAsync();
     }
     void OnFileProfiltefilter(string? type)
     {
@@ -291,6 +339,8 @@
     {
         if (Data.SelectProfileID > 0 || Data.FileProfileTypeId > 0 || Data.CompanyId > 0 || Data.DeparmentId > 0 || Data.AddedDate != null || Data.ModifiedDate != null || !string.IsNullOrEmpty(Data.SampleDocumentNo))
         {
+            _DocumentNoSeriesList = new List<DocumentNoSeries>();
+            StateHasChanged();
             await UpdateDataAsync();
         }
         else

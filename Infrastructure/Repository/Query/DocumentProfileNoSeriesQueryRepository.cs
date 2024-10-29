@@ -79,8 +79,8 @@ namespace Infrastructure.Repository.Query
             {
                 var result = new List<DocumentNoSeries>();
                 var parameters = new DynamicParameters();
-                var query = "SELECT t1.*,t2.CompanyID,t2.DeparmentID,t2.Name as ProfileName,t3.UserName as AddedBy,t4.UserName as ModifiedBy,t5.UserName as RequestorName,t6.PlantCode as CompanyName,t7.Name as DepartmentName FROM DocumentNoSeries t1\r\nJOIN DocumentProfileNoSeries t2 ON t1.ProfileID=t2.ProfileID \r\nJOIN ApplicationUser t3 ON t1.AddedByUserID=t3.UserID \r\nLEFT JOIN ApplicationUser t4 ON t1.ModifiedByUserID=t4.UserID \r\n" +
-                    "LEFT JOIN ApplicationUser t5 ON t1.RequestorId=t5.UserID \r\n" +
+                var query = "SELECT t1.*,t2.CompanyID,t2.DeparmentID,t2.Name as ProfileName,t6.PlantCode as CompanyName,t7.Name as DepartmentName FROM DocumentNoSeries t1\r\n" +
+                    "JOIN DocumentProfileNoSeries t2 ON t1.ProfileID=t2.ProfileID \r\n" +
                     "LEFT JOIN Plant t6 ON t2.CompanyID=t6.PlantID \r\n" +
                     "LEFT JOIN Department t7 ON t2.DeparmentID=t7.DepartmentID\r";
                 var query1 = string.Empty;
@@ -102,7 +102,7 @@ namespace Infrastructure.Repository.Query
                 }
                 if (!string.IsNullOrEmpty(value.SampleDocumentNo))
                 {
-                    query1 += "\rt1.DocumentNo=" + value.SampleDocumentNo + " AND";
+                    query1 += "\rt1.DocumentNo='" + value.SampleDocumentNo + "' AND";
                 }
 
                 if (value.AddedDate != null)
@@ -124,9 +124,35 @@ namespace Infrastructure.Repository.Query
                 {
                     query += "Where\r" + query1;
                 }
+                query += "\rorder by ProfileID OFFSET (" + value.PageNumber + " - 1) * " + value.PageSize + " ROWS FETCH NEXT " + value.PageSize + " ROWS ONLY";
+                var appUsers = new List<ApplicationUser>(); var Plants = new List<Plant>();
+                var DocumentProfileNo = new List<DocumentProfileNoSeries>(); var Departments = new List<Department>();
                 using (var connection = CreateConnection())
                 {
                     result = (await connection.QueryAsync<DocumentNoSeries>(query, parameters)).ToList();
+                    List<long?> userIds = new List<long?>(); List<long?> depIds = new List<long?>(); List<long?> profIds = new List<long?>(); List<long?> compIds = new List<long?>();
+                    if (result != null && result.Count() > 0)
+                    {
+                        profIds.AddRange(result.Where(w => w.ProfileId > 0).Select(a => a.ProfileId).ToList());
+                        userIds.AddRange(result.Where(w => w.AddedByUserId > 0).Select(a => a.AddedByUserId).ToList());
+                        userIds.AddRange(result.Where(a => a.ModifiedByUserId > 0).Select(a => a.ModifiedByUserId).ToList());
+                        userIds.AddRange(result.Where(a => a.RequestorId > 0).Select(a => a.RequestorId).ToList());
+                        userIds = userIds != null && userIds.Count > 0 ? userIds : new List<long?>() { -1 };
+                        profIds = profIds != null && profIds.Count > 0 ? profIds : new List<long?>() { -1 };
+                        var query2 = "select CONCAT(case when t3.NickName is NULL then  t3.FirstName ELSE  t3.NickName END,' | ',t3.LastName) as UserName,t3.UserId from Employee t3 where t3.userId in(" + string.Join(',', userIds.Distinct()) + ");";
+                        query2 += "select ProfileID,DeparmentID,CompanyID from DocumentProfileNoSeries where ProfileID in(" + string.Join(',', profIds.Distinct()) + ");";
+                        var QuerResult = await connection.QueryMultipleAsync(query2);
+                        appUsers = QuerResult.Read<ApplicationUser>().ToList();
+                    }
+                }
+                if (result != null && result.Count() > 0)
+                {
+                    result.ForEach(s =>
+                    {
+                        s.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                        s.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                        s.RequestorName = appUsers.FirstOrDefault(f => f.UserID == s.RequestorId)?.UserName;
+                    });
                 }
                 return result;
             }

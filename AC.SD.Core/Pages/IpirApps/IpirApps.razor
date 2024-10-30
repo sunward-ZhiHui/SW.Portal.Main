@@ -420,7 +420,7 @@
 
     async void SelectedItemprod(string? NAVProdOrder)
     {
-
+        Data.ProdOrderNo = NAVProdOrder;
         NAVProdOrderno = string.Empty;
         if (!string.IsNullOrEmpty(NAVProdOrder))
         {
@@ -536,7 +536,7 @@
         Data.ProfileId = null; Data.ProfileNo = null; Data.Comment = null; Data.FixedAssetNo = null; Data.ReportingPersonal = null;
         UploadSessionId = null; Data.IpirAppId = 0; IpirAppId = null;
         Data.ActivityIssueRelateIds = new List<long?>();
-        Data.DetectedBy = null;
+        Data.DetectedBy = null;uploadEnabled = false;
         Data.ActivityStatusId = null; Data.DepartmentIds = new List<long?>();
         _productionActivities = new List<ProductionActivityApp>();
         _ponumberActivities = new List<NavprodOrderLineModel>(); _departmentItems = new List<ViewDepartment>();

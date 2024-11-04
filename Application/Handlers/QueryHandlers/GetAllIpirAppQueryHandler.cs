@@ -127,5 +127,30 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class UpdateDynamicFormDataIssueDeltailsHandler : IRequestHandler<UpdateDynamicFormDataIssueDetails, IpirAppIssueDep>
+    {
+        private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
+        public UpdateDynamicFormDataIssueDeltailsHandler(IIpirAppQueryRepostitory _iIpirAppQueryRepostitory)
+        {
+            iIpirAppQueryRepostitory = _iIpirAppQueryRepostitory;
+        }
+        public async Task<IpirAppIssueDep> Handle(UpdateDynamicFormDataIssueDetails request, CancellationToken cancellationToken)
+        {
+            return await iIpirAppQueryRepostitory.UpdateDynamicFormDataIssueDetails(request.SessionId, request.ActivityInfoIssueId, request.DynamicFormDataId);
+        }
+    }
+    public class GetIpirAppIssueDepByDynamicFormHandler : IRequestHandler<GetIpirAppIssueDepByDynamicForm, IpirAppIssueDep>
+    {
+        private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
+        public GetIpirAppIssueDepByDynamicFormHandler(IIpirAppQueryRepostitory _iIpirAppQueryRepostitory)
+        {
+            iIpirAppQueryRepostitory = _iIpirAppQueryRepostitory;
+        }
+        public async Task<IpirAppIssueDep> Handle(GetIpirAppIssueDepByDynamicForm request, CancellationToken cancellationToken)
+        {
+            return await iIpirAppQueryRepostitory.GetIpirAppIssueDepByDynamicForm(request.IpirAppIssueDepId);
+        }
+
+    }
 }
 

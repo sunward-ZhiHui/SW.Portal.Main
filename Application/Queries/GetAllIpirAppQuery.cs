@@ -82,4 +82,24 @@ namespace Application.Queries
         }
     }
 
+    public class UpdateDynamicFormDataIssueDetails : PagedRequest, IRequest<IpirAppIssueDep>
+    {
+        public Guid? SessionId { get; set; }
+        public long? ActivityInfoIssueId { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        public UpdateDynamicFormDataIssueDetails(Guid? sessionId, long? activityInfoIssueId, long? dynamicFormDataId)
+        {
+            this.SessionId = sessionId;
+            this.ActivityInfoIssueId = activityInfoIssueId;
+            this.DynamicFormDataId = dynamicFormDataId;
+        }
+    }
+    public class GetIpirAppIssueDepByDynamicForm : PagedRequest, IRequest<IpirAppIssueDep>
+    {
+        public long? IpirAppIssueDepId { get; set; }
+        public GetIpirAppIssueDepByDynamicForm(long? ipirAppIssueDepId)
+        {
+            this.IpirAppIssueDepId = ipirAppIssueDepId;
+        }
+    }
 }

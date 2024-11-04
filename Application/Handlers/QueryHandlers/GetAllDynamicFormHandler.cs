@@ -27,6 +27,20 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormScreenIDHandler : IRequestHandler<GetDynamicFormScreenNameCheckValidation, DynamicForm>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormScreenIDHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicForm> Handle(GetDynamicFormScreenNameCheckValidation request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormScreenNameDataCheckValidation(request.ScreenName);
+        }
+
+
+    }
     public class GetAllByGridFormHandler : IRequestHandler<GetAllByGridForm, List<DynamicForm>>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
@@ -1131,7 +1145,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicFormWorkFlowApprovedForm>> Handle(GetDynamicFormWorkFlowApprovedFormByList request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormWorkFlowApprovedForm>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowApprovedFormByList(request.UserId,request.FlowStatusID);
+            return (List<DynamicFormWorkFlowApprovedForm>)await _dynamicFormQueryRepository.GetDynamicFormWorkFlowApprovedFormByList(request.UserId, request.FlowStatusID);
         }
 
 
@@ -1220,7 +1234,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DynamicForm> Handle(InsertCloneDynamicForm request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.InsertCloneDynamicForm(request.DynamicForm,request.IsWithoutForm,request.UserId);
+            return await _queryRepository.InsertCloneDynamicForm(request.DynamicForm, request.IsWithoutForm, request.UserId);
 
 
         }

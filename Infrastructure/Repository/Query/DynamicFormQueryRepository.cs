@@ -672,6 +672,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DynamicForm> GetDynamicFormScreenNameDataCheckValidation(string? value)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("ScreenID", value);
+                query = "SELECT t1.ID,\r\nt1.Name,\r\nt1.ScreenID,\r\nt1.SessionID,\r\nt1.AttributeID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.IsApproval,\r\nt1.IsUpload,\r\nt1.FileProfileTypeID,\r\nt1.IsProfileNoGenerate,\r\nt1.IsMultipleUpload,\r\nt1.CompanyID,\r\nt1.ProfileID,\r\nt1.IsGridForm,\r\nt1.IsDeleted\n\r FROM DynamicForm t1 Where (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.ScreenID = @ScreenID";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public DynamicForm GetDynamicFormScreenNameCheckValidation(string? value, long id)
         {
             try

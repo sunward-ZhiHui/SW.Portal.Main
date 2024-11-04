@@ -995,6 +995,12 @@
         }
         StateHasChanged();
     }
+    string GetQueryParm(string parmName)
+    {
+        var uriBuilder = new UriBuilder(NavigationManager.Uri);
+        var q = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
+        return q[parmName] ?? "";
+    }
     protected override async Task OnParametersSetAsync()
     {
         if (applicationUser != null)
@@ -1011,9 +1017,34 @@
     {
         // await JSRuntime.InvokeAsync<string>("hideLoading");
     }
+    async Task updateIpirApp()
+    {
+        if (_dynamicformData?.DynamicFormDataId > 0)
+        {
+            string? IpirSessionId = GetQueryParm("SessionId");
+            string? IpirTypeName = GetQueryParm("Type");
+            if (!string.IsNullOrEmpty(IpirTypeName))
+            {
+                long? IpirType = (long?)Convert.ToInt64(IpirTypeName);
+                if (IpirType > 0)
+                {
+                    if (!string.IsNullOrEmpty(IpirSessionId))
+                    {
+                        bool isValid = Guid.TryParse(IpirSessionId, out _);
+                        if (isValid == true)
+                        {
+                            var sessid = new Guid(IpirSessionId);
+                            await Mediator.Send(new UpdateDynamicFormDataIssueDetails(sessid, IpirType, _dynamicformData?.DynamicFormDataId));
+                        }
+                    }
+                }
+            }
+        }
+    }
     async Task loadDynamicForm()
     {
         await onshowLoading();
+
         _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
         _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
@@ -1876,6 +1907,7 @@
         {
             AddEnabled = false;
         }
+        await updateIpirApp();
         StateHasChanged();
     }
     void OpenLock()
@@ -3251,13 +3283,75 @@
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
         string[] UrlList = rep1.Split("/");
         string names = "DynamicMasterSetupList";
+        string? IpirSessionId = GetQueryParm("SessionId");
+        string? IpirTypeName = GetQueryParm("Type");
         if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+        { 
+            if (!string.IsNullOrEmpty(IpirTypeName))
+            {
+                long? IpirType = (long?)Convert.ToInt64(IpirTypeName);
+                if (IpirType > 0)
+                {
+                    if (!string.IsNullOrEmpty(IpirSessionId))
+                    {
+                        bool isValid = Guid.TryParse(IpirSessionId, out _);
+                        if (isValid == true)
+                        {
+                            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId1 + "/" + createReqSessionId + "?SessionId=" + IpirSessionId + "&&Type=" + IpirTypeName);
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+                        }
+                    }
+                    else
+                    {
+                        NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+                    }
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+                }
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+            }
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+            if (!string.IsNullOrEmpty(IpirTypeName))
+            {
+                long? IpirType = (long?)Convert.ToInt64(IpirTypeName);
+                if (IpirType > 0)
+                {
+                    if (!string.IsNullOrEmpty(IpirSessionId))
+                    {
+                        bool isValid = Guid.TryParse(IpirSessionId, out _);
+                        if (isValid == true)
+                        {
+                            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId1 + "/" + createReqSessionId + "?SessionId=" + IpirSessionId + "&&Type=" + IpirTypeName);
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+                        }
+                    }
+                    else
+                    {
+                        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+                    }
+                }
+                else
+                {
+                    NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+                }
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId1 + "/" + createReqSessionId);
+            }
         }
     }
     async Task InsertOrUpdateDynamicFormApprovedData(DynamicFormData dynamicFormData)
@@ -7025,7 +7119,7 @@
             }));
 
                 formLayoutBuilder.CloseComponent();
-        }
+            }
             //PanelVisible = false;
             sec++;
         });

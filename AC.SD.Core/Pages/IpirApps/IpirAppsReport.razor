@@ -40,6 +40,9 @@
                                 <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Visible="@uploadEnabled" />
                                 <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
                                 <DxMenuItem Text="Check By" IconCssClass="fa fa-envelope" Click="onIsChecker" Visible="IsChecker" />
+                                <DxMenuItem Text="Deviation Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Deviation"))" Visible="IsDeviationForm" />
+                                <DxMenuItem Text="Change Control Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Change Control"))" Visible="IsChangeControlForm" />
+                                <DxMenuItem Text="Work Order Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Work Order"))" Visible="IsWorkOrderForm" />
                             </Items>
                         </DxMenuItem>
                     </Items>
@@ -105,6 +108,9 @@
             <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="50" />
             <DxGridDataColumn FieldName="AddedBy" MinWidth="20" Caption="Added By" />
         </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+        </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
 <DxPopup @bind-Visible="@AddPopup"
@@ -214,7 +220,7 @@
     public bool CheckInEnabled { get; set; } = false;
     public bool viewEnabled { get; set; } = false;
     public bool CopyLinkEnabled { get; set; } = false;
-    private string? DocumentViewUrl;
+    private string? DocumentViewUrl; public bool IsDeviationForm { get; set; } = false; public bool IsChangeControlForm { get; set; } = false; public bool IsWorkOrderForm { get; set; } = false;
     private string? ServerUrl; public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     protected override async Task OnInitializedAsync()
     {
@@ -229,7 +235,7 @@
         isVisibleMore = "display:none;";
         EditEnabled = false; DeleteEnabled = false; emailEnabled = false; addEnabled = true; uploadEnabled = false; SupportDocEnabled = false; IsChecker = false;
         CheckOutEnabled = false; CheckInEnabled = false; CopyLinkEnabled = false;
-        viewEnabled = false;
+        viewEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
         _dynamicForm = await Mediator.Send(new GetAllIpirAppQuery());
         PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count > 0)
@@ -262,6 +268,7 @@
     }
     void loadSelectedItems()
     {
+        IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
         if (_selectedItems != null)
         {
             isVisibleMore = "";
@@ -278,7 +285,7 @@
             {
                 CheckOutEnabled = false;
                 CheckInEnabled = true; CopyLinkEnabled = false;
-                EditEnabled = false; DeleteEnabled = false;
+                EditEnabled = false; DeleteEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
                 viewEnabled = false; SupportDocEnabled = false; IsChecker = false;
             }
             else
@@ -288,14 +295,105 @@
                     CheckOutEnabled = true;
                 }
                 CheckInEnabled = false;
+                if (_selectedItems.ActivityIssueRelates != null && _selectedItems.ActivityIssueRelates.Count() > 0)
+                {
+                    var IsDeviationFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Deviation".ToLower().Contains(f.IssueRelateName.ToLower()));
+                    if (IsDeviationFormEnable != null)
+                    {
+                        IsDeviationForm = true;
+                    }
+                    var IsChangeControlFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Change Control".ToLower().Contains(f.IssueRelateName.ToLower()));
+                    if (IsChangeControlFormEnable != null)
+                    {
+                        IsChangeControlForm = true;
+                    }
+                    var IsWorkOrderFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Work Order".ToLower().Contains(f.IssueRelateName.ToLower()));
+                    if (IsWorkOrderFormEnable != null)
+                    {
+                        IsWorkOrderForm = true;
+                    }
+                }
             }
+            Grid.ClearSelection();
+            Grid.Reload();
             Grid.SetFocusedRowIndex(0);
+            StateHasChanged();
+        }
+    }
+    async Task OnClickDynamicFormOpen(string? Type)
+    {
+        if (Type == "Deviation")
+        {
+            var IsDeviationFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Deviation".ToLower().Contains(f.IssueRelateName.ToLower()));
+            if (IsDeviationFormEnable != null)
+            {
+                var resultData = await Mediator.Send(new GetIpirAppIssueDepByDynamicForm(IsDeviationFormEnable.IpirAppIssueDepId));
+                if (resultData.DynamicFormDataId > 0)
+                {
+                    var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + resultData.DynamicFormSessionId + "/" + resultData.DynamicFormDataSessionId + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsDeviationFormEnable.ActivityInfoIssueId;
+                    await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                else
+                {
+                    
+                    var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("Deviationtrackingflow"));
+                    if (result != null && result.ID > 0)
+                    {
+                        var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + result.SessionID + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsDeviationFormEnable.ActivityInfoIssueId;
+                        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    }
+                }
+            }
+        }
+        if (Type == "Change Control")
+        {
+            var IsChangeControlFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Change Control".ToLower().Contains(f.IssueRelateName.ToLower()));
+            if (IsChangeControlFormEnable != null)
+            {
+                var resultData = await Mediator.Send(new GetIpirAppIssueDepByDynamicForm(IsChangeControlFormEnable.IpirAppIssueDepId));
+                if (resultData.DynamicFormDataId > 0)
+                {
+                    var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + resultData.DynamicFormSessionId + "/" + resultData.DynamicFormDataSessionId + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsChangeControlFormEnable.ActivityInfoIssueId;
+                    await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                else
+                {
+                    var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("ChangeControl"));
+                    if (result != null && result.ID > 0)
+                    {
+                        var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + result.SessionID + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsChangeControlFormEnable.ActivityInfoIssueId;
+                        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    }
+                }
+            }
+        }
+        if (Type == "Work Order")
+        {
+            var IsWorkOrderFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Work Order".ToLower().Contains(f.IssueRelateName.ToLower()));
+            if (IsWorkOrderFormEnable != null)
+            {
+                var resultData = await Mediator.Send(new GetIpirAppIssueDepByDynamicForm(IsWorkOrderFormEnable.IpirAppIssueDepId));
+                if (resultData.DynamicFormDataId > 0)
+                {
+                    var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + resultData.DynamicFormSessionId + "/" + resultData.DynamicFormDataSessionId + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsWorkOrderFormEnable.ActivityInfoIssueId;
+                    await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                }
+                else
+                {
+                    var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("WorkOrderforQC"));
+                    if (result != null && result.ID > 0)
+                    {
+                        var url = NavigationManager.BaseUri + "DynamicMasterSetupList/dynamicForms/" + result.SessionID + "/?SessionId=" + _selectedItems.SessionID + "&&Type=" + IsWorkOrderFormEnable.ActivityInfoIssueId;
+                        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    }
+                }
+            }
         }
     }
     void ClosePopup()
     {
         AddPopup = false;
-        InvokeAsync(UpdateDataAsync);
+       // InvokeAsync(UpdateDataAsync);
         StateHasChanged();
     }
     void onIsChecker()
@@ -359,7 +457,7 @@
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.IpirAppId == (long?)UniqueId);
         UploadSessionId = _selectedItems.SessionID;
         EditEnabled = true; uploadEnabled = true; isVisibleMore = ""; IsChecker = true;
-        DeleteEnabled = true; emailEnabled = true; SupportDocEnabled = true; viewEnabled = false; CopyLinkEnabled = false;
+        DeleteEnabled = true; emailEnabled = true; SupportDocEnabled = true; viewEnabled = false; CopyLinkEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
         if (_selectedItems.IsDocuments > 0)
         {
             uploadEnabled = false; viewEnabled = true; CopyLinkEnabled = true;
@@ -372,7 +470,7 @@
         {
             CheckOutEnabled = false;
             CheckInEnabled = true; CopyLinkEnabled = false;
-            EditEnabled = false; DeleteEnabled = false;
+            EditEnabled = false; DeleteEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
             viewEnabled = false; SupportDocEnabled = false; IsChecker = false;
         }
         else
@@ -382,6 +480,25 @@
                 CheckOutEnabled = true;
             }
             CheckInEnabled = false;
+            IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
+            if (_selectedItems.ActivityIssueRelates != null && _selectedItems.ActivityIssueRelates.Count() > 0)
+            {
+                var IsDeviationFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Deviation".ToLower().Contains(f.IssueRelateName.ToLower()));
+                if (IsDeviationFormEnable != null)
+                {
+                    IsDeviationForm = true;
+                }
+                var IsChangeControlFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Change Control".ToLower().Contains(f.IssueRelateName.ToLower()));
+                if (IsChangeControlFormEnable != null)
+                {
+                    IsChangeControlForm = true;
+                }
+                var IsWorkOrderFormEnable = _selectedItems.ActivityIssueRelates.FirstOrDefault(f => f.IssueRelateName != null && "Work Order".ToLower().Contains(f.IssueRelateName.ToLower()));
+                if (IsWorkOrderFormEnable != null)
+                {
+                    IsWorkOrderForm = true;
+                }
+            }
         }
     }
 
@@ -508,7 +625,7 @@
         _selectedDocItems = null;
         _documentsItems = null;
         selectedFiles = null;
-        _selectedItems =  null;
+        _selectedItems = null;
         _selectedEditItems = null;
         RefToDoLeftNotes?.DisposeAsync();
     }

@@ -139,11 +139,11 @@
                             <DxFormLayoutItem Caption="Profile No" ColSpanMd="6">
                                 <DxTextBox @bind-Text="@Data.ProfileNo" ShowValidationIcon="true" Enabled="false" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Machine Name" ColSpanMd="6">
+                            <DxFormLayoutItem Caption="Machine Name" ColSpanMd="12">
                                 <DxTextBox @bind-Text="@Data.MachineName" ShowValidationIcon="true" />
                                 <ValidationMessage For="@(() => Data.MachineName)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Reporting Personal" ColSpanMd="6">
+                            <DxFormLayoutItem Caption="Reporting Personal" ColSpanMd="10">
                                 <DxComboBox Data="@_usersList"
                                             NullText="Select Reporting Personal..."
                                             SearchMode="ListSearchMode.AutoSearch"
@@ -162,7 +162,7 @@
                                     </Columns>
                                 </DxComboBox>
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Detected By" ColSpanMd="6">
+                            <DxFormLayoutItem Caption="Detected By" ColSpanMd="10">
                                 <DxComboBox Data="@_usersList"
                                             NullText="Select Detected By..."
                                             SearchMode="ListSearchMode.AutoSearch"
@@ -205,6 +205,7 @@
                                           SearchFilterCondition="ListSearchFilterCondition.Contains"
                                           ValueFieldName="ApplicationMasterDetailID"
                                           @bind-Values="@Data.ActivityIssueRelateIds"
+                                          HideSelectedItems="false"
                                           CssClass="cw-480" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Department" ColSpanMd="12">

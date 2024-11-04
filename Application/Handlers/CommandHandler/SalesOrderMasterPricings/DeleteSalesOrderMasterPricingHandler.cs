@@ -13,8 +13,8 @@ namespace Application.Handlers.CommandHandler
 {
     public class DeleteSalesOrderMasterPricingHandler : IRequestHandler<DeleteSalesOrderMasterPricingCommand, String>
     {
-        private readonly ISalesOrderMasterPricingCommandRepository _commandRepository;
-        public DeleteSalesOrderMasterPricingHandler(ISalesOrderMasterPricingCommandRepository customerRepository)
+        private readonly ISalesOrderMasterPricingQueryRepository _commandRepository;
+        public DeleteSalesOrderMasterPricingHandler(ISalesOrderMasterPricingQueryRepository customerRepository)
         {
             _commandRepository = customerRepository;
         }
@@ -23,11 +23,7 @@ namespace Application.Handlers.CommandHandler
         {
             try
             {
-                var data = new SalesOrderMasterPricing
-                {
-                    SalesOrderMasterPricingId= request.Id,
-                };
-                await _commandRepository.DeleteAsync(data);
+                await _commandRepository.DeleteSalesOrderMasterPricing(request.Id);
             }
             catch (Exception exp)
             {
@@ -42,8 +38,8 @@ namespace Application.Handlers.CommandHandler
 
     public class DeleteSalesOrderMasterPricingLineHandler : IRequestHandler<DeleteSalesOrderMasterPricingLineCommand, String>
     {
-        private readonly ISalesOrderMasterPricingLineCommandRepository _commandRepository;
-        public DeleteSalesOrderMasterPricingLineHandler(ISalesOrderMasterPricingLineCommandRepository customerRepository)
+        private readonly ISalesOrderMasterPricingQueryRepository _commandRepository;
+        public DeleteSalesOrderMasterPricingLineHandler(ISalesOrderMasterPricingQueryRepository customerRepository)
         {
             _commandRepository = customerRepository;
         }
@@ -52,11 +48,7 @@ namespace Application.Handlers.CommandHandler
         {
             try
             {
-                var data = new SalesOrderMasterPricingLine
-                {
-                    SalesOrderMasterPricingId = request.Id,
-                };
-                await _commandRepository.DeleteAsync(data);
+                await _commandRepository.DeleteSalesOrderMasterPricingLine(request.Id);
             }
             catch (Exception exp)
             {

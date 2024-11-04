@@ -20,6 +20,7 @@ namespace Core.Repositories.Query
         Task<long> InsertSalesOrderMasterPricingLineAsync(SalesOrderMasterPricing salesOrderMasterPricing);
         Task<IReadOnlyList<View_SalesOrderMasterPricingLineByItem>> GetSalesOrderLineByItemAsync(long? CompanyId, DateTime? FromDate, long? SellingMethodId, long? ItemId);
         Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingMethod(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId,decimal? Qty, string SellingMethod);
-
+        Task<long> DeleteSalesOrderMasterPricingLine(long id);
+        Task<long> DeleteSalesOrderMasterPricing(long id);
     }
 }

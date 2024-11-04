@@ -39,6 +39,71 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long> DeleteSalesOrderMasterPricingLine(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", id);
+                        var query = string.Empty;
+                        query += "DELETE  FROM SalesOrderMasterPricingLineSellingMethod WHERE SalesOrderMasterPricingLineID = @id;";
+                        query += "DELETE  FROM SalesOrderMasterPricingLine WHERE SalesOrderMasterPricingLineID = @id;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<long> DeleteSalesOrderMasterPricing(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", id);
+                        var query = string.Empty;
+                        query += "Delete from SalesOrderMasterPricingLineSellingMethod where SalesOrderMasterPricingLineID in(select SalesOrderMasterPricingLineID from SalesOrderMasterPricingLine where SalesOrderMasterPricingID =@id);";
+                        query += "DELETE  FROM SalesOrderMasterPricingLine WHERE SalesOrderMasterPricingID = @id;";
+                        query += "DELETE  FROM SalesOrderMasterPricing WHERE SalesOrderMasterPricingID = @id;";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
         public async Task<View_SalesOrderMasterPricing> GetByIdAsync(long? Id)
         {
             try
@@ -106,7 +171,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SalesOrderMasterPricingId", items.SalesOrderMasterPricingId);
                         parameters.Add("CompanyId", items.CompanyId);
                         parameters.Add("AddedByUserId", items.AddedByUserId);
-                        parameters.Add("StatusCodeId", items.StatusCodeId);                      
+                        parameters.Add("StatusCodeId", items.StatusCodeId);
                         var result = await connection.ExecuteAsync("sp_Ins_SalesOrderMasterPricingline", parameters, commandType: CommandType.StoredProcedure);
                         return result;
                     }

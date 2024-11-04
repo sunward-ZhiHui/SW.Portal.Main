@@ -50,7 +50,7 @@
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
-            SelectionMode="GridSelectionMode.Multiple"
+            SelectionMode="GridSelectionMode.Single"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             AutoExpandAllGroupRows="true"
             CssClass="ch-360"
@@ -62,7 +62,7 @@
             ShowGroupPanel="true" ShowGroupedColumns="true" VirtualScrollingEnabled="true">
 
         <Columns>
-            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+           @*   <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="SalesOrderMasterPricingId" Caption="Date" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="NavCompany" Caption="Company" MinWidth="40" />
             <DxGridDataColumn FieldName="AddedDate" Caption="Date" Width="180">
@@ -91,15 +91,30 @@
                     @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo)
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-          @*  <DxGridDataColumn FieldName="ReasonForChangeName" Caption="Reason For Change" MinWidth="80" />*@
+            @*  <DxGridDataColumn FieldName="ReasonForChangeName" Caption="Reason For Change" MinWidth="80" />*@
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SalesPricingForName" />
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
-
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool Blukdeletepopup { get; set; } = false;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private List<View_SalesOrderMasterPricing> _salesOrderItems;
     bool EditEnabled { get; set; } = false;
@@ -144,13 +159,31 @@
     {
         NavigationManager.NavigateTo("MasterPricing/EditMasterPricing/" + _selectedItems.SessionId + "");
     }
-    async Task addDelete()
+    void addDelete()
     {
-        var request = new DeleteSalesOrderMasterPricingCommand(_selectedItems.SalesOrderMasterPricingId);
-        await Mediator.Send(request);
-        await UpdateDataAsync();
-        Grid.SetFocusedRowIndex(0);
-        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            var request = new DeleteSalesOrderMasterPricingCommand(_selectedItems.SalesOrderMasterPricingId);
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+            Grid.SetFocusedRowIndex(0);
+            Blukdeletepopup = false;
+            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

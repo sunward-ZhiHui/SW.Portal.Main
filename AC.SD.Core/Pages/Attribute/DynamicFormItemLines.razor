@@ -14,6 +14,7 @@
 @using System.Reflection;
 @using System.Dynamic;
 @implements IAsyncDisposable
+@inject AC.SD.Core.Helpers.DataGridDynamicForm _LoadDataGridDynamicForm
 @* @page "/DynamicFormItemGridList/AddDynamicFormItemLine"
 @page "/DynamicFormItemGridList/AddDynamicFormItemLine/{DynamicFormItemids:long}" *@
 <div class="card w-100" style="margin-bottom:10px;">
@@ -75,46 +76,6 @@
                 Data = Line;
             }
             @CreateEditFormFields()
-            @*  <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
-            <DxSpinEdit @bind-Value="@Line.Qty" />
-            <ValidationMessage For="@(() => Line.Qty)" />
-            </DxFormLayoutItem>
-
-            <DxFormLayoutItem Caption="ItemDynamicForm Type:" ColSpanMd="6">
-
-            <DxComboBox Data="@_dynamicForm"
-            NullText="Select ItemDynamicForm Type..."
-            SearchMode="ListSearchMode.AutoSearch"
-            SearchFilterCondition="ListSearchFilterCondition.Contains"
-            TextFieldName="Name"
-            ValueFieldName="ID"
-            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-            Value="@Line.ItemDynamicFormTypeID"
-            ValueExpression="@(() => Line.ItemDynamicFormTypeID )"
-            ValueChanged="@((long? plantData) => SelecteddynamicFormItemChanged(plantData,Line))">
-            </DxComboBox>
-            <ValidationMessage For="@(() => Line.ItemDynamicFormTypeID)" />
-            </DxFormLayoutItem>
-
-            <DxFormLayoutItem Caption="ItemDynamicForm Data:" ColSpanMd="6">
-            <DxComboBox Data="@_dynamicFormData"
-            NullText="Select ItemDynamicForm Data..."
-            SearchMode="ListSearchMode.AutoSearch"
-            SearchFilterCondition="ListSearchFilterCondition.Contains"
-            TextFieldName="ProfileNo"
-            ValueFieldName="DynamicFormDataId"
-            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-            @bind-Value="@Line.ItemDynamicFormDataID">
-            </DxComboBox>
-            <ValidationMessage For="@(() => Line.ItemDynamicFormDataID)" />
-            </DxFormLayoutItem>
-
-            <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
-            <DxMemo @bind-Text="@Line.Description" />
-            </DxFormLayoutItem>
-
-            </DxFormLayout> *@
         </EditFormTemplate>
 
     </DxGrid>
@@ -149,7 +110,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    private AC.SD.Core.Pages.UploadDocuments.UploadDocuments refUploadDocuments{ get; set; }
+    private AC.SD.Core.Pages.UploadDocuments.UploadDocuments refUploadDocuments { get; set; }
     EditContext _editContext;
     [Parameter]
     public long? DynamicFormItemids { get; set; }
@@ -174,6 +135,8 @@
     private List<ExpandoObject?> _dynamicformObjectDataList { get; set; }
     bool AttachmentPopUp { get; set; } = false;
     bool AttachmentEnabled { get; set; } = false;
+    DynamicFormItemLineItem SingleObject = new DynamicFormItemLineItem();
+    private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -230,8 +193,16 @@
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (DynamicFormItemLine)e.EditModel;
+        // _dynamicformObjectDataList = new List<ExpandoObject>();
         if (e.IsNew)
         {
+            _dynamicformObjectDataList = new List<ExpandoObject>();
+            dropDownOptionsGridListModel = new DropDownOptionsGridListModel();
+            SingleObject = new DynamicFormItemLineItem();
+        }
+        else
+        {
+
         }
     }
     void OnDeleteDataItem(GridDataItemDeletingEventArgs e)
@@ -346,44 +317,12 @@
         Blukdeletepopup = false;
 
     }
-    async void SelecteddynamicFormItemChanged(long? dynamicFormId, DynamicFormItemLine dynamicFormItemLine)
-    {
-        dynamicFormItemLine.ItemDynamicFormTypeID = dynamicFormId;
-        dynamicFormItemLine.ItemDynamicFormDataID = null;
-        //List<ExpandoObject>? _dynamicformObjectDataList = new List<ExpandoObject>();
-        _dynamicFormData = new List<DynamicFormData>();
-        if (dynamicFormId > 0)
-        {
-            List<long?> dynamicFormIds = new List<long?>();
-            dynamicFormIds.Add(dynamicFormId);
-            var list = await Mediator.Send(new GetDynamicFormItemLineDropdoenList(dynamicFormIds, applicationUser.UserID));
-            _dynamicFormData = list.DynamicFormListData;
-            // var collection = list.ObjectData;
-            // int j = 0;
-            // if (collection != null)
-            // {
-            //     foreach (var v in (collection as IEnumerable<ExpandoObject>))
-            //     {
-            //        dynamic obj1 = new ExpandoObject();
-            //         obj1.AttributeDetailID = j;
-            //         obj1.AttributeDetailName = $"Statuss_{j}";
-            //        _dynamicFormData.Add(v);
-            //     }
-            // }
-        }
-        // for (int i = 0; i < 20; i++)
-        // {
-        //     dynamic obj = new ExpandoObject();
-        //     obj.AttributeDetailID = i;
-        //     obj.AttributeDetailName = $"Status_{i}";
-        //     _dynamicFormData.Add(obj);
-        // }
-        StateHasChanged();
-    }
     async Task OnRadioChangedItems(long? itemDynamicFormTypeID)
     {
         _dynamicformObjectDataList = new List<ExpandoObject>();
         _dynamicFormData = new List<DynamicFormData>();
+        dropDownOptionsGridListModel = new DropDownOptionsGridListModel();
+        SingleObject = new DynamicFormItemLineItem();
         if (itemDynamicFormTypeID > 0)
         {
             List<long?> dynamicFormIds = new List<long?>();
@@ -425,6 +364,10 @@
     {
         property.SetValue(Data, str);
         Data.ItemDynamicFormDataID = null;
+        _dynamicformObjectDataList = new List<ExpandoObject>();
+        _dynamicFormData = new List<DynamicFormData>();
+        dropDownOptionsGridListModel = new DropDownOptionsGridListModel();
+        SingleObject = new DynamicFormItemLineItem();
         if (str > 0)
         {
             await OnRadioChangedItems(str);
@@ -447,17 +390,46 @@
         _dynamicForm?.Clear();
         _dynamicFormData?.Clear();
         _dynamicFormItemLine?.Clear();
-        _selectedItems=null;
+        _selectedItems = null;
         Data = new DynamicFormItemLine();
         dropDownOptionsGridListModel = null;
         _dynamicformObjectDataList = null;
         _selectedItems = null;
     }
+    string? QueryDisplayDynamicComboBoxText(DropDownBoxQueryDisplayTextContext arg)
+    {
+        string? returnData = string.Empty;
+        if (arg.Value is ExpandoObject value)
+        {
+            if (value != null)
+            {
+                dynamic eod = value;
+                returnData = (string)eod.DisplayItemsQuery;
+            }
+        }
+        return returnData.TrimEnd(',');
+    }
+    void OnGridValueChanged(object? newValue, string AttrName, object Data, object DataGridObject)
+    {
+        long? Id = null;
+
+        if (newValue is ExpandoObject value)
+        {
+            if (value != null)
+            {
+                dynamic eod = value;
+                Id = (long?)eod.AttributeDetailID;
+            }
+        }
+
+        Data.GetType().GetProperty(AttrName).SetValue(Data, Id);
+        DataGridObject.GetType().GetProperty(AttrName).SetValue(DataGridObject, newValue);
+    }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         clearData();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
@@ -525,13 +497,55 @@
                         }
                         if (s.Name == "ItemDynamicFormDataID")
                         {
-
+                            var GridDropBoxData = _DropDownBoxGridModel.FirstOrDefault(f => f.AttrName == s.Name);
+                            var access1 = Expression.Property(Expression.Constant(SingleObject), s.Name);
+                            var Gridlambda = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(object)), access1);
+                            var propertyDependency = SingleObject.GetType().GetProperty(s.Name);
+                            var GridvalueData = propertyDependency.GetValue(SingleObject);
                             itemBuilder.OpenComponent<DxFormLayoutItem>(1);
-                            itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
-                            var gridlistss = dropDownOptionsGridListModel != null ? dropDownOptionsGridListModel.DropDownGridOptionsModel.FirstOrDefault()?.DropDownOptionsModels : null;
-                            // var collection = dropDownOptionsGridListModel?.ObjectData;
-                            var collection = _dynamicformObjectDataList;
+                            itemBuilder.AddAttribute(i++, "ColSpanMd", 12);
+                            List<ExpandoObject>? collection = new List<ExpandoObject>();
+                            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                           // if (Data.DynamicFormItemLineID > 0)
+                           // {
+                                gridlistss = dropDownOptionsGridListModel != null ? dropDownOptionsGridListModel.DropDownGridOptionsModel.FirstOrDefault()?.DropDownOptionsModels : new List<DropDownOptionsModel>();
+                                // var collection = dropDownOptionsGridListModel?.ObjectData;
+                                collection = _dynamicformObjectDataList;
+                           // }
+                             List<ExpandoObject>? _dynamicformObjectDataLists = new List<ExpandoObject>();
+                            if (collection != null)
+                            {
+                                foreach (var v in (collection as IEnumerable<ExpandoObject>))
+                                {
+                                    dynamic eod = v;
+                                    var vv = eod.DynamicFormId;
+                                    var AttributeDetailIds = eod.AttributeDetailID;
+                                    string listone = string.Empty;
+                                    if (gridlistss != null && gridlistss.Count() > 0)
+                                    {
+                                        var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                        g1.ForEach(q =>
+                                    {
+                                        var byName = (IDictionary<string, object>)v;
+                                        var names = (string)byName[q.Value]?.ToString();
+                                        listone += names + "|";
+                                    });
+                                    }
+                                    eod.DisplayItemsQuery = listone;
+                                    // if ((long?)vv == s.DynamicFormGridDropDownId)
+                                    // {
+                                    _dynamicformObjectDataLists.Add(eod);
+                                    //  }
+                                    if ((long?)valueData > 0)
+                                    {
+                                        if ((long?)valueData == (long?)AttributeDetailIds)
+                                        {
+                                            SingleObject.GetType().GetProperty(s.Name).SetValue(SingleObject, eod);
+                                        }
+                                    }
+                                }
 
+                            }
                             var j = 0;
                             itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
                             {
@@ -539,59 +553,70 @@
                                 editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                                 editor.AddContent(i + 1, "ItemDynamicForm Data");
                                 editor.CloseElement();
-                                editor.OpenComponent<DxComboBox<ExpandoObject, long?>>(j + 1);
-                                editor.AddAttribute(j + 1, "Data", collection);
-
-                                editor.AddAttribute(j + 1, "TextFieldName", "AttributeDetailName");
-                                editor.AddAttribute(j + 1, "ValueFieldName", "AttributeDetailID");
-                                editor.AddAttribute(j + 1, "NullText", "Select ItemDynamicForm Data..");
-                                editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
-                                editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
-                                editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                                editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
-                                editor.AddAttribute(j + 1, "Value", valueData);
-                                editor.AddAttribute(j + 1, "Enabled", true);
-                                editor.AddAttribute(j + 1, "ValueExpression", lambda);
-                                // editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, (str) => OnRadioChangedItem(str, property, s)));
-                                editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { s.SetValue(Data, str); }));
-                                if (gridlistss != null)
-                                {
-                                    var gridEditCount = gridlistss.Count();
-                                    var editFormat = "{0}";
-                                    for (int e = 0; e < gridEditCount; e++)
-                                    {
-                                        if (e == 0)
-                                        {
-                                            editFormat = string.Empty;
-                                        }
-                                        editFormat += "{" + "" + e + "" + "}|";
-                                    }
-                                    editFormat = editFormat.Trim();
-                                    if (editFormat.EndsWith("|"))
-                                    {
-                                        editFormat = editFormat.Remove(editFormat.Length - 1);
-                                    }
-                                    editor.AddAttribute(j + 1, "EditFormat", editFormat);
-                                }
-                                editor.AddAttribute(j + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
-                               {
-
-                                   if (gridlistss != null)
-                                   {
-                                       var qCount = 0;
-                                       gridlistss.ForEach(q =>
-                                       {
-                                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(qCount);
-                                           layoutItemBuilders.AddAttribute(qCount, "FieldName", q.Value);
-                                           layoutItemBuilders.AddAttribute(qCount, "Caption", q.Text);
-                                           layoutItemBuilders.CloseComponent();
-                                           qCount++;
-                                       });
-                                   }
-
-
-                               }));
+                                editor.OpenComponent<DxDropDownBox>(0);
+                                editor.AddAttribute(1, "DropDownWidthMode", DropDownWidthMode.EditorWidth);
+                                editor.AddAttribute(2, "NullText", "Select ItemDynamicForm Data..");
+                                editor.AddAttribute(3, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(4, "QueryDisplayText", QueryDisplayDynamicComboBoxText);
+                                editor.AddAttribute(5, "CssClass", "cw-480");
+                                editor.AddAttribute(6, "Value", GridvalueData);
+                                editor.AddAttribute(9, "DropDownVisible", false);
+                                editor.AddAttribute(10, "ValueExpression", Gridlambda);
+                                editor.AddAttribute(11, "ValueChanged", EventCallback.Factory.Create<object>(this, str => OnGridValueChanged(str, s.Name, Data, SingleObject)));
+                                _LoadDataGridDynamicForm.CreateDropDownBodyTemplateGrid(editor, _DropDownBoxGridModel, GridDropBoxData, "DynamicGrid", s.Name, gridlistss, _dynamicformObjectDataLists, new List<AttributeDetails>(), false);
                                 editor.CloseComponent();
+                                //  editor.OpenComponent<DxComboBox<ExpandoObject, long?>>(j + 1);
+                                //  editor.AddAttribute(j + 1, "Data", collection);
+
+                                //  editor.AddAttribute(j + 1, "TextFieldName", "AttributeDetailName");
+                                //  editor.AddAttribute(j + 1, "ValueFieldName", "AttributeDetailID");
+                                //  editor.AddAttribute(j + 1, "NullText", "Select ItemDynamicForm Data..");
+                                //  editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
+                                //  editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
+                                //  editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
+                                //  editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                //  editor.AddAttribute(j + 1, "Value", valueData);
+                                //  editor.AddAttribute(j + 1, "Enabled", true);
+                                //  editor.AddAttribute(j + 1, "ValueExpression", lambda);
+                                //  editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { s.SetValue(Data, str); }));
+                                //  if (gridlistss != null)
+                                //  {
+                                //      var gridEditCount = gridlistss.Count();
+                                //      var editFormat = "{0}";
+                                //      for (int e = 0; e < gridEditCount; e++)
+                                //      {
+                                //          if (e == 0)
+                                //          {
+                                //              editFormat = string.Empty;
+                                //          }
+                                //          editFormat += "{" + "" + e + "" + "}|";
+                                //      }
+                                //      editFormat = editFormat.Trim();
+                                //      if (editFormat.EndsWith("|"))
+                                //      {
+                                //          editFormat = editFormat.Remove(editFormat.Length - 1);
+                                //      }
+                                //      editor.AddAttribute(j + 1, "EditFormat", editFormat);
+                                //  }
+                                //  editor.AddAttribute(j + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                                // {
+
+                                //     if (gridlistss != null)
+                                //     {
+                                //         var qCount = 0;
+                                //         gridlistss.ForEach(q =>
+                                //         {
+                                //             layoutItemBuilders.OpenComponent<DxListEditorColumn>(qCount);
+                                //             layoutItemBuilders.AddAttribute(qCount, "FieldName", q.Value);
+                                //             layoutItemBuilders.AddAttribute(qCount, "Caption", q.Text);
+                                //             layoutItemBuilders.CloseComponent();
+                                //             qCount++;
+                                //         });
+                                //     }
+
+
+                                // }));
+                                //  editor.CloseComponent();
                             })));
                             itemBuilder.CloseComponent();
                             itemBuilder.OpenElement(i++, "div");

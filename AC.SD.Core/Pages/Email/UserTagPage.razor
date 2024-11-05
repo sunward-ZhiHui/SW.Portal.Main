@@ -74,7 +74,7 @@
                 }
                 <DxFormLayout CssClass="w-100">
 
-                    <DxFormLayoutItem Caption="Other Tag Name" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="User Tag Name" ColSpanMd="6">
                         <DxTextBox @bind-Text="@plant.UserTag" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => plant.UserTag)" />
                     </DxFormLayoutItem>
@@ -188,7 +188,7 @@
 <DxPopup @bind-Visible="@deletepopup"
          ShowFooter="true"
          HeaderText="CRT"
-         Closed="EulaPopupClosed"
+         Closed="EulaPopupdeleteClosed"
          Width="300px">
     <BodyContentTemplate>
         <p>
@@ -238,6 +238,7 @@
         _selectedItems = _userTags.FirstOrDefault(f => f.UserTag == UniqueId);
         EditEnabled = true;
         DeleteEnabled = true;
+        deletePopupVisible = false;
         StateHasChanged();
 
     }
@@ -346,9 +347,13 @@
     async void EulaPopupClosed(PopupClosedEventArgs args)
     {
         UsersListpopup = false;
+       
+    }
+    async void EulaPopupdeleteClosed(PopupClosedEventArgs args)
+    {
+        
         deletepopup = false;
     }
-   
     public async void OnDelete()
     {
         if(_usersselectedItems != null)
@@ -359,18 +364,21 @@
                 var request = new DeleteUserTagQery(_usersselectedItems.TopicId, _usersselectedItems.AddedByUserID.Value,_usersselectedItems.UserTagID.Value);
                 await Mediator.Send(request);
               
+                await UsersList();
+               
             }
             else
             {
                 var request = new DeleteuserallTagQery(_usersselectedItems.ID, _usersselectedItems.AddedByUserID.Value, _usersselectedItems.UserTagID.Value);
                 await Mediator.Send(request);
+                UsersListpopup = false;
             }
         }
        
         await UpdateDataAsync();
-
-        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
         deletepopup = false;
+        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+      
         StateHasChanged();
     }
     async Task Grid_OthersEditModelSaving(GridEditModelSavingEventArgs e)

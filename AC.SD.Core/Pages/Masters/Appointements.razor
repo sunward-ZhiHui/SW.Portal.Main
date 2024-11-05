@@ -14,6 +14,9 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient;
+
 
 <style>
     .list-container {
@@ -303,9 +306,9 @@
         //  await jsRuntime.InvokeVoidAsync("location.reload");
         string s = JsonConvert.SerializeObject(args.Appointment.Id);
         var ID = long.Parse(s);
-          Ids = new List<long> { };
+        Ids = new List<long> { };
         CategoryData.userIds = null;
-     
+
         string startdate = args.Appointment.Start.ToString();
         DateTime convertedDate;
 
@@ -324,9 +327,9 @@
             }
             CategoryData.userIds = Ids;
             args.FormInfo = new CustomAppointmentFormInfo(args.Appointment, DataStorage, Scheduler);
-           
+
         }
-      
+
         else if(today > convertedDate)
         {
             args.Cancel = true;
@@ -335,7 +338,7 @@
 
 
     }
-    
+
     //static IEnumerable<long>? userIds(DxExpandoDictionaryObject customFields) => (IEnumerable<long>?)customFields["userIds"];
 
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
@@ -403,6 +406,15 @@
                 };
 
             var ans = await Mediator.Send(InsertReq);
+
+            if (ans != null)
+            {
+                string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                string url = BaseUrl + "SendToAppointmentSchedulerMessage?id=" + ans;
+                // Make a GET request to the controller action
+                var response = await httpClient.GetAsync(url);
+            }
+
             toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await jsRuntime.InvokeVoidAsync("location.reload");
             

@@ -45,6 +45,7 @@ using Google.Apis.Auth.OAuth2;
 using DevExpress.CodeParser;
 using System.Drawing;
 using Microsoft.Ajax.Utilities;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -553,7 +554,45 @@ namespace SW.Portal.Solutions.Controllers
         //    }
         //    return "ok";
         //}
+        [HttpGet("SendToAppointmentSchedulerMessage")]
+        public async Task<string> SendMSendToAppointmentSchedulerMessage(long id)
+        {
+            var serverToken = _configuration["FcmNotification:ServerKey"];
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
 
+            var Appointmentlist = await _mediator.Send(new GetSchedulerNotificationCaptionQuery(id));
+            
+            var title = Appointmentlist[0].Caption;
+            var startdate = Appointmentlist[0].StartDate.ToString("MM/dd/yyyy hh:mm tt");
+            var enddate = Appointmentlist[0].EndDate.ToString("MM/dd/yyyy hh:mm tt");
+            var duration = startdate + "-"+ enddate;
+            var bodymsg = duration;
+            var hosturls = baseurl + "AppointmentList/";
+
+            List<string> tokenStringList = new List<string>();
+
+            var Result = await _mediator.Send(new GetUserListSchedulerNotificationQuery(id));
+          
+            foreach (var item in Result)
+            {
+
+                var tokens = await _mediator.Send(new GetUserTokenListQuery(item.UserID.Value));
+                if (tokens.Count > 0)
+                {
+                    foreach (var lst in tokens)
+                    {
+                        //tokenStringList.Add(lst.TokenID.ToString());
+
+                        await PushNotification(lst.TokenID.ToString(), title, bodymsg, lst.DeviceType == "Mobile" ? "" : hosturls);
+                    }
+
+                }
+
+
+            }
+
+            return "ok";
+        }
         [HttpGet("PushNotification")]
         public async Task<string> PushNotification(string tokens, string titles, string message, string hosturl)
         {

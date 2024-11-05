@@ -117,6 +117,20 @@ namespace Application.Queries
             this.UserID = UserID;
         }
     }
+    
+    public class DeleteUserTagByNameQery : PagedRequest, IRequest<long>
+    {
+       
+        public long UserID { get; set; }
+        public string UserTag { get; set; }
+
+        public DeleteUserTagByNameQery(long UserID, string UserTag)
+        {            
+            this.UserID = UserID;
+            this.UserTag = UserTag;
+
+        }
+    }
     public class DeleteUserTagQery : PagedRequest, IRequest<long>
     {
         public long TopicID { get; set; }

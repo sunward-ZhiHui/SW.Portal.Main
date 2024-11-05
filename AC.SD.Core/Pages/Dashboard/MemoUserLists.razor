@@ -12,6 +12,7 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
 @implements IAsyncDisposable
+@inject DataRefreshService RefreshService
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <script>
     function ScrollMemoTo(elementId) {
@@ -403,6 +404,8 @@
             ActiveTabIndex = 0;
             await UpdateData();
         }
+
+        await RefreshService.RequestRefreshAsync();
 
     }
     private async Task OpenDocumentPreview(string url)

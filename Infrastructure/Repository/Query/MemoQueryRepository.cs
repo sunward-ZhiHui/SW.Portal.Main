@@ -170,6 +170,31 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<Memo>> GetAllByUserCountAsync(long? userId)
+        {
+            try
+            {
+                List<Memo> Memolist = new List<Memo>();
+                var parameters = new DynamicParameters();
+                parameters.Add("UserID", userId);
+                var query = "select t1.MemoID,t3.Name as IssueDepartment,t2.IsAcknowledgement,t2.MemoUserId,t2.AcknowledgementDate from Memo t1 " +
+                    "JOIN MemoUser t2 ON t1.MemoID=t2.MemoID " +
+                    "LEFT JOIN Department t3 ON t3.DepartmentID=t1.IssueDepartmentID " +
+                    "where t1.StartDate >= dateadd(month, -6, getdate()) AND t1.StatusCodeId=2730 AND " +
+                    "t2.UserID=@UserID and (t2.IsAcknowledgement =0 or t2.IsAcknowledgement is null) order by t1.AddedDate desc; \r\n";
+
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(query, parameters);
+                    Memolist = results.Read<Memo>().ToList();
+                }
+                return Memolist;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<Memo> DeleteMemo(Memo memo)
         {
             try

@@ -1,0 +1,38 @@
+﻿@using DevExpress.Blazor
+
+<DxPopup @bind-Visible="@Visible"
+         ShowFooter="true"
+         HeaderText="@HeaderText"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>@BodyText</p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary"
+                  Text="No" Click="() => OnClose.InvokeAsync(false)" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                  Text="Yes" Click="OnConfirm" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    [Parameter]
+
+    public bool Visible { get; set; }
+
+    [Parameter]
+
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+
+    public EventCallback OnConfirm { get; set; }
+
+    [Parameter]
+
+    public string HeaderText { get; set; } = "Confirmation";
+
+    [Parameter]
+
+    public string BodyText { get; set; } = "Are you sure you want to proceed?";
+}

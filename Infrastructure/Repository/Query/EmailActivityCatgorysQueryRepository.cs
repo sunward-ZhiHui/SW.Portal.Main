@@ -440,6 +440,37 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<long> DeleteUserTagNameAsync(long UserID, string UserTag)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+
+                        var parameters = new DynamicParameters();                        
+                        parameters.Add("UserID", UserID);
+                        parameters.Add("UserTag", UserTag);
+                        var query = "DELETE FROM EmailTopicUserTags WHERE UserTag = @UserTag and AddedByUserID = @UserID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<long> DeleteUserTagAsync(long Topicid,long UserID,long UserTagID)
         {
             try

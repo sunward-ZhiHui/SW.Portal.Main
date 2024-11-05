@@ -210,6 +210,21 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+    public class DeleteUserTagByNameHandler : IRequestHandler<DeleteUserTagByNameQery, long>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public DeleteUserTagByNameHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteUserTagByNameQery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.DeleteUserTagNameAsync(request.UserID, request.UserTag);
+            return newlist;
+        }
+    }
+    
     public class DeleteUserAllTagHandler : IRequestHandler<DeleteuserallTagQery, long>
     {
         private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;

@@ -78,6 +78,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<Memo>)await _queryRepository.GetAllByUserAsync(request.UserId);
         }
     }
+    public class GetAllMemoByUserCountHandler : IRequestHandler<GetAllMemoByUserCountQuery, List<Memo>>
+    {
+        private readonly IMemoQueryRepository _queryRepository;
+        public GetAllMemoByUserCountHandler(IMemoQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<Memo>> Handle(GetAllMemoByUserCountQuery request, CancellationToken cancellationToken)
+        {
+            return (List<Memo>)await _queryRepository.GetAllByUserCountAsync(request.UserId);
+        }
+    }
+    
     public class GetAllMemoByMemoIdQueryHandler : IRequestHandler<GetAllMemoByMemoIdQuery, List<MemoUser>>
     {
         private readonly IMemoQueryRepository _queryRepository;

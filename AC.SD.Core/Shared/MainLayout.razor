@@ -356,6 +356,9 @@
         {
             _emailNotificationCount = await Mediator.Send(new GetEmailNotificationCount(applicationUser.UserID));
 
+            var _MemoList = await Mediator.Send(new GetAllMemoByUserCountQuery(applicationUser.UserID));
+            _memoNotificationCount = _MemoList.Count;
+
             _NotificationCount = _emailNotificationCount + _memoNotificationCount + _WorkflowNotificationCount + _approvelNotificationCount;
         }
 
@@ -398,7 +401,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if(applicationUser != null)
         {
-            _MemoList = await Mediator.Send(new GetAllMemoByUserQuery(applicationUser.UserID));
+            _MemoList = await Mediator.Send(new GetAllMemoByUserCountQuery(applicationUser.UserID));
             _memoNotificationCount = _MemoList.Count;
             _WorkFlowdynamicForm = await Mediator.Send(new GetDynamicFormWorkFlowListByUser(applicationUser.UserID, 0));
             _WorkflowNotificationCount = _WorkFlowdynamicForm.Count;

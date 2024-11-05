@@ -45,6 +45,14 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class GetAllMemoByUserCountQuery : PagedRequest, IRequest<List<Memo>>
+    {
+        public long? UserId { get; set; }
+        public GetAllMemoByUserCountQuery(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }    
 
     public class GetAllMemoByMemoIdQuery : PagedRequest, IRequest<List<MemoUser>>
     {

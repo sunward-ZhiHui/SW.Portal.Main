@@ -137,7 +137,7 @@
                     AllowSelectRowByClick="true" VirtualScrollingEnabled="true">
                 <Columns>
 
-                    <DxGridSelectionColumn Width="60px" AllowSelectAll="true"></DxGridSelectionColumn>
+                   @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true"></DxGridSelectionColumn> *@
 
                     <DxGridDataColumn FieldName="TopicName" Caption="Subject" MinWidth="80" />
                     <DxGridDataColumn FieldName="UserTag" MinWidth="80" Caption="User Tag" />
@@ -179,6 +179,12 @@
     </FooterContentTemplate>   *@
 </DxPopup>
 
+<ConfirmationPopup Visible="deletePopupVisible"
+                   OnClose="OnPopupClosed"
+                   OnConfirm="OnDeleteConfirmed"
+                   HeaderText="Delete Confirmation"
+                   BodyText="Deleting this record will remove all associated data." />
+
 <DxPopup @bind-Visible="@deletepopup"
          ShowFooter="true"
          HeaderText="CRT"
@@ -210,6 +216,9 @@
     public bool deletepopup { get; set; } = false;
     public bool UsersDeleteEnable { get; set; }= false;
     public bool UsersEditEnable { get; set; } = false;
+
+    private bool deletePopupVisible = false;
+
     protected override async Task OnInitializedAsync()
     {
         PageContext.PageName = "EmailUserTagsPage";
@@ -236,10 +245,10 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "MultipleID");
         _usersselectedItems = _UsersList?.FirstOrDefault(f => f.MultipleID == (long?)UniqueId);
-       
+
         UsersEditEnable = true;
         StateHasChanged();
-       
+
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -285,7 +294,45 @@
     async void addDelete()
     {
         await UsersList();
-        UsersListpopup = true;
+
+        if(_UsersList.Count() == 0)
+        {
+            ShowDeletePopup();
+        }
+        else
+        {
+            UsersListpopup = true;            
+        }
+
+
+        StateHasChanged();
+    }
+    private void ShowDeletePopup()
+    {
+        deletePopupVisible = true;
+    }
+    private async Task OnDeleteConfirmed()
+    {
+        
+        if(_selectedItems != null)
+        {
+            var request = new DeleteUserTagByNameQery(applicationUser.UserID, _selectedItems.UserTag);
+            await Mediator.Send(request);
+        }
+
+
+        await UpdateDataAsync();
+
+        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        deletePopupVisible = false;
+        StateHasChanged();
+        
+        await Task.CompletedTask;
+    }
+
+    private void OnPopupClosed(bool isConfirmed)
+    {
+        deletePopupVisible = false;
         StateHasChanged();
     }
     void addNew()
@@ -301,6 +348,7 @@
         UsersListpopup = false;
         deletepopup = false;
     }
+   
     public async void OnDelete()
     {
         if(_usersselectedItems != null)
@@ -366,6 +414,7 @@
     async Task UsersList()
     {
         _UsersList = await Mediator.Send(new GetAllUserListQuery(_selectedItems?.UserTag, applicationUser.UserID));
+        UsersDeleteEnable = false;
     }
     void othersedit()
     {

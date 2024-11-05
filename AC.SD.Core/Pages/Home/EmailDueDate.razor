@@ -123,10 +123,10 @@
         }
         <DxFormLayout CssClass="w-100" CaptionPosition="CaptionPosition.Vertical">
             <DxFormLayoutItem Caption="Due Date:" ColSpanMd="4">
-                <DxDateEdit @bind-Date="@types.DueDate" MinDate="DateTime.Now" TimeSectionVisible="false" />
+                <DxDateEdit @bind-Date="@types.DueDate" MinDate="DateTime.Now" Enabled="@LockDueDateEnable" TimeSectionVisible="false" />
             </DxFormLayoutItem>  
             <DxFormLayoutItem Caption="Allowed Days to Extend DueDate" ColSpanMd="4" Visible="@IsSubjectNoOfDays">
-                <DxSpinEdit @bind-Value="@types.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0"></DxSpinEdit>
+                <DxSpinEdit @bind-Value="@types.NoOfDays" Enabled="@IsSubjectNoOfDays" MinValue="0" ></DxSpinEdit>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="User Tag:" ColSpanMd="4">
                 <DxComboBox Data="@_UserTagList"
@@ -155,6 +155,15 @@
                             @bind-Value="@types.OtherTag"
                             @bind-Text="@OthersTagName">
                 </DxComboBox>                               
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Lock DueDate:" ColSpanMd="4">
+                <DxCheckBox CssClass="w-100"
+                            @bind-Checked="@types.IsLockDueDate"
+                            Alignment="default"
+                           ReadOnly ="true"
+                            LabelPosition="LabelPosition.Right">
+                   
+                </DxCheckBox>
             </DxFormLayoutItem>
         </DxFormLayout>
 
@@ -220,6 +229,8 @@
     [Parameter]
     public int TabIndex { get; set; } = 1;
     const string LocalStorageKey = "Grid-LayoutMyEmailDueDate-Data";
+    bool LockDueDateEnable { get; set; } = true;
+  
     async Task Grid_LayoutAutoLoading(GridPersistentLayoutEventArgs e)
     {
         e.Layout = await LoadLayoutFromLocalStorageAsync();
@@ -493,6 +504,16 @@
         {
             UserTagName = string.IsNullOrEmpty(_selectedItems.UserTag) ? string.Empty : _selectedItems.UserTag;
             OthersTagName = string.IsNullOrEmpty(_selectedItems.OtherTag) ? string.Empty : _selectedItems.OtherTag;
+            if(_selectedItems.IsLockDueDate == true)
+            {
+                LockDueDateEnable = false;
+                IsSubjectNoOfDays = false;
+            }
+            else
+            {
+                LockDueDateEnable = true;
+                IsSubjectNoOfDays = true;
+            }
         }
         else
         {            

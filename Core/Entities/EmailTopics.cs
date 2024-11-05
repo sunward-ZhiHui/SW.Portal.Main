@@ -53,6 +53,7 @@ namespace Core.Entities
         public bool? TagLock { get; set; }
         public bool? OverDue { get; set; }
         public bool? IsArchive { get; set; }
+        public bool IsLockDueDate { get; set; } = false;
         [NotMapped]
         public bool? IsToDoDuDate { get; set; }
         public bool? IsAllowParticipants { get; set; }

@@ -278,20 +278,21 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">
-                                <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
+                                <DxDateEdit Date="@Data.DueDate" DateExpression="@(() => Data.DueDate)" CssClass="cw-320" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" Mask="dd/MMMM/yyyy" />
                             </DxFormLayoutItem>
                               <DxFormLayoutItem Caption="Extend No Of Day" ColSpanMd="4">
                                 <DxSpinEdit @bind-Value="@Data.NoOfDays" MinValue="0"></DxSpinEdit>
                             </DxFormLayoutItem>
-
-                              <DxFormLayoutItem Caption="" ColSpanMd="4">
+                            <DxFormLayoutItem Caption="" ColSpanMd="4">
                                 <DxCheckBox CssClass="w-100"
-                                        @bind-Checked="@Data.Urgent"
-                                        Alignment="default"
-                                        LabelPosition="LabelPosition.Right">
-                                    Urgent
+                                            @bind-Checked="@Data.IsLockDueDate"
+                                            Alignment="default"
+                                            Enabled="@LockDueDateEnable"
+                                            LabelPosition="LabelPosition.Right">
+                                    Lock DueDate
                                 </DxCheckBox>
                             </DxFormLayoutItem>
+                            
                              <DxFormLayoutItem Caption="Follow" ColSpanMd="4">
                                 <DxComboBox Data="@Follow"
                                         NullText="Select Follow..."
@@ -300,9 +301,16 @@ else
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.Follow)" />
                             </DxFormLayoutItem>
+                              <DxFormLayoutItem Caption="" ColSpanMd="2">
+                                <DxCheckBox CssClass="w-100"
+                                        @bind-Checked="@Data.Urgent"
+                                        Alignment="default"
+                                        LabelPosition="LabelPosition.Right">
+                                    Urgent
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
 
-
-                              <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
+                              <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                         @bind-Checked="@Data.NotifyUser"
                                         Alignment="default"
@@ -734,6 +742,7 @@ else
         }
         StateHasChanged();
     }
+    bool LockDueDateEnable = false;
     string isUserType = "Users";
     bool isSending = false;
     private List<EmailActivityCatgorys> _UserTagList;
@@ -1154,6 +1163,13 @@ else
 
 
     }
+    void OnDateChanged(DateTime? newValue)
+    {
+
+        Data.DueDate = newValue;
+        LockDueDateEnable = true;
+        StateHasChanged();
+    }
     void onCcChanged(IEnumerable<string> newTags)
     {
         sCCIds = newTags.ToList();
@@ -1556,9 +1572,15 @@ else
                 CategoryData.CategoryTag = _TagEmailList == null ? null : _TagEmailList[0].CategoryTag;
                 CategoryData.ActionTag = _TagEmailList == null ? null : _TagEmailList[0].ActionTag;
                 CategoryData.Name = _TagEmailList == null ? null : _TagEmailList[0].Name;
-
-
-
+                Data.IsLockDueDate = actItem[0].IsLockDueDate;
+                if(Data.DueDate != null)
+                {
+                    LockDueDateEnable = true;
+                }
+                else
+                {
+                    LockDueDateEnable = false;                   
+                }
 
                 if (_TagEmailList != null)
                 {
@@ -1580,11 +1602,11 @@ else
                 server.LoadDocument(fileContent1);
                 server.Options.Export.Html.EmbedImages = true;
                 byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Rtf);              
-              
+
                 Data.FileData = fileContents;                
                 _sessionId = actItem[0].SessionId;
-                
-              
+
+
             }
             else
             {
@@ -1597,7 +1619,7 @@ else
             IsDraftEnabled = true;
         }
 
-
+        StateHasChanged();
     }   
     void onCompletedUpload()
     {
@@ -1833,7 +1855,8 @@ else
                 CCUserGroup = sCCUserGroup,
                 ParticipantsUserGroup = sParticipantsUserGroup,
                      TagLock = Data.TagLock,
-                        NoOfDays = Data.NoOfDays
+                        NoOfDays = Data.NoOfDays,
+                        IsLockDueDate = Data.IsLockDueDate
                 };
         try
         {

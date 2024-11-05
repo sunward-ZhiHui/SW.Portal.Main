@@ -31,6 +31,7 @@ namespace Core.Entities
         public string LastName { get; set; }
         public string UserCode { get; set; }
         public string UserEmail { get; set; }
+        public bool IsLockDueDate { get; set; } = false;
         public List<EmailDocumentModel>? documents { get; set; }
         public byte[] FileData { get; set; }
         public int? IsMobile { get; set; }

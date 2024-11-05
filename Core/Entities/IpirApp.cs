@@ -77,10 +77,10 @@ namespace Core.Entities
         public Guid? UniqueSessionId { get; set; }
         public bool? IsNewPath { get; set; }
         public long? ActivityStatusId { get; set; }
-       
+        public List<IpirAppIssueDep> ActivityIssueRelates { get; set; } = new List<IpirAppIssueDep>();
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
-       
+
     }
     public class IpirAppIssueDep
     {
@@ -90,5 +90,12 @@ namespace Core.Entities
         public long? DepartmentID { get; set; }
         public long? ActivityInfoIssueId { get; set; }
         public string? Type { get; set; }
+        public long? DynamicFormDataId { get; set; }
+        [NotMapped]
+        public string? IssueRelateName { get; set; }
+        [NotMapped]
+        public Guid? DynamicFormDataSessionId { get; set; }
+        [NotMapped]
+        public Guid? DynamicFormSessionId { get; set; }
     }
 }

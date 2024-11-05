@@ -17,6 +17,7 @@ using Application.Queries;
 using Infrastructure.Data;
 using Newtonsoft.Json.Linq;
 using Google.Cloud.Firestore.V1;
+using static iText.IO.Image.Jpeg2000ImageData;
 
 namespace Infrastructure.Repository.Query
 {
@@ -34,7 +35,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = "select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
-                
+
                 var result = new List<IpirApp>();
                 using (var connection = CreateConnection())
                 {
@@ -42,26 +43,27 @@ namespace Infrastructure.Repository.Query
                 }
                 if (result != null && result.Count > 0)
                 {
-                   
+
                     var IpirAppIds = result.ToList().Select(s => s.IpirAppId).ToList();
                     var sessionIds = result.ToList().Where(w => w.SessionID != null).Select(s => s.SessionID).ToList();
                     var resultData = await GetMultipleQueryAsync(sessionIds, IpirAppIds);
                     var documents = resultData.Documents.ToList();
                     var appUser = resultData.ApplicationUser.ToList();
                     var ipirAppIssueDeps = resultData.IpirAppIssueDep.ToList();
-                   
-                   
+
+
                     result.ForEach(s =>
                     {
+                        s.ActivityIssueRelates = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").ToList() : new List<IpirAppIssueDep>();
                         s.ActivityIssueRelateIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").Select(z => z.ActivityInfoIssueId).ToList() : new List<long?>();
                         s.DepartmentIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Department").Select(z => z.DepartmentID).ToList() : new List<long?>();
-                       
+
                         if (documents != null && s.SessionID != null)
                         {
                             var counts = documents.FirstOrDefault(w => w.SessionId == s.SessionID);
                             if (counts != null)
                             {
-                              
+
                                 s.DocumentId = counts.DocumentId;
                                 s.FileProfileTypeId = counts.FilterProfileTypeId;
                                 s.DocumentID = counts.DocumentId;
@@ -77,7 +79,7 @@ namespace Infrastructure.Repository.Query
                                 s.ModifiedDate = counts.UploadDate;
                                 s.ModifiedByUser = appUser != null && appUser.Count() > 0 && counts.AddedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.AddedByUserId)?.UserName : "";
                                 s.LockedByUser = appUser != null && appUser.Count() > 0 && counts.LockedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.LockedByUserId)?.UserName : "";
-                                
+
                             }
                         }
                         IpirApps.Add(s);
@@ -153,6 +155,34 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IpirAppIssueDep> GetIpirAppIssueDepByDynamicForm(long? IpirAppIssueDepId)
+        {
+            IpirAppIssueDep MultipleIpirAppItemLists = new IpirAppIssueDep();
+            try
+            {
+                var query = string.Empty;
+                var parameters = new DynamicParameters();
+                parameters.Add("IpirAppIssueDepId", IpirAppIssueDepId);
+                query += "select t1.*,t2.Value as issueRelateName,t3.SessionID as DynamicFormDataSessionID,t4.SessionID as DynamicFormSessionID  from IpirAppIssueDep t1 \r\n" +
+                    "LEFT JOIN ApplicationMasterDetail t2 ON t1.ActivityInfoIssueID=t2.ApplicationMasterDetailID\r\n" +
+                    "LEFT JOIN DynamicFormData t3 ON t3.DynamicFormDataID=t1.DynamicFormDataID\r\n" +
+                    "LEFT JOIN DynamicForm t4 ON t4.ID=t3.DynamicFormID where t1.IpirAppIssueDepId=@IpirAppIssueDepId;";
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<IpirAppIssueDep>(query, parameters)).ToList();
+                    if (result != null && result.Count > 0)
+                    {
+                        MultipleIpirAppItemLists = result.FirstOrDefault();
+                    }
+                }
+                return MultipleIpirAppItemLists;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<MultipleIpirAppItemLists> GetMultipleQueryAsync(List<Guid?> SessionIds, List<long> IpirAppIds)
         {
             MultipleIpirAppItemLists MultipleIpirAppItemLists = new MultipleIpirAppItemLists();
@@ -163,8 +193,8 @@ namespace Infrastructure.Repository.Query
                 IpirAppIds = IpirAppIds != null && IpirAppIds.Count > 0 ? IpirAppIds : new List<long>() { -1 };
                 query += DocumentQueryString() + " where  SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") AND IsLatest=1 AND (IsDelete is null or IsDelete=0);";
                 query += "select UserName,UserId,SessionId from ApplicationUser;";
-                query += "select * from IpirAppIssueDep where IpirAppId in(" + string.Join(',', IpirAppIds) + ");";
-               
+                query += "select t1.*,t2.Value as issueRelateName,t3.SessionID as DynamicFormDataSessionID,t4.SessionID as DynamicFormSessionID  from IpirAppIssueDep t1 \r\nLEFT JOIN ApplicationMasterDetail t2 ON t1.ActivityInfoIssueID=t2.ApplicationMasterDetailID\r\nLEFT JOIN DynamicFormData t3 ON t3.DynamicFormDataID=t1.DynamicFormDataID\r\nLEFT JOIN DynamicForm t4 ON t4.ID=t3.DynamicFormID where t1.IpirAppId in(" + string.Join(',', IpirAppIds) + ");";
+
                 using (var connection = CreateConnection())
                 {
 
@@ -172,7 +202,7 @@ namespace Infrastructure.Repository.Query
                     MultipleIpirAppItemLists.Documents = result.Read<Documents>().ToList();
                     MultipleIpirAppItemLists.ApplicationUser = result.Read<ApplicationUser>().ToList();
                     MultipleIpirAppItemLists.IpirAppIssueDep = result.Read<IpirAppIssueDep>().ToList();
-                   
+
                 }
                 return MultipleIpirAppItemLists;
             }
@@ -181,7 +211,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<MultipleIpirAppItemLists> GetIssueRelatedAssignToQueryAsync( List<long> ReportingInformationID)
+        public async Task<MultipleIpirAppItemLists> GetIssueRelatedAssignToQueryAsync(List<long> ReportingInformationID)
         {
             MultipleIpirAppItemLists MultipleIpirAppItemLists = new MultipleIpirAppItemLists();
             try
@@ -189,14 +219,14 @@ namespace Infrastructure.Repository.Query
                 var query = string.Empty;
 
                 ReportingInformationID = ReportingInformationID != null && ReportingInformationID.Count > 0 ? ReportingInformationID : new List<long>() { -1 };
-               
-               
+
+
                 query += "select * from IssueReportAssignTo where ReportinginformationID in(" + string.Join(',', ReportingInformationID) + ");";
                 using (var connection = CreateConnection())
                 {
 
                     var result = await connection.QueryMultipleAsync(query);
-                   
+
                     MultipleIpirAppItemLists.IpirreportingAssignTo = result.Read<IssueReportAssignTo>().ToList();
                 }
                 return MultipleIpirAppItemLists;
@@ -229,6 +259,7 @@ namespace Infrastructure.Repository.Query
                     var ipirAppIssueDeps = resultData.IpirAppIssueDep.ToList();
                     result.ForEach(s =>
                     {
+                        s.ActivityIssueRelates = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").ToList() : new List<IpirAppIssueDep>();
                         s.ActivityIssueRelateIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Issue").Select(z => z.ActivityInfoIssueId).ToList() : new List<long?>();
                         s.DepartmentIds = ipirAppIssueDeps != null && ipirAppIssueDeps.Count > 0 ? ipirAppIssueDeps.Where(a => a.IpirAppID == s.IpirAppId && a.Type == "Department").Select(z => z.DepartmentID).ToList() : new List<long?>();
                         if (documents != null && s.SessionID != null)
@@ -387,41 +418,41 @@ namespace Infrastructure.Repository.Query
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                             value.IpirAppId = insertedId;
                         }
-                            if (value.IpirAppId > 0)
+                        if (value.IpirAppId > 0)
+                        {
+                            var Deletequery = "DELETE  FROM IpirAppIssueDep WHERE IpirAppId = " + value.IpirAppId + ";";
+                            await connection.ExecuteAsync(Deletequery);
+                        }
+                        var querys = string.Empty;
+                        if (value.ActivityIssueRelateIds != null)
+                        {
+                            var listData = value.ActivityIssueRelateIds.ToList();
+                            if (listData.Count > 0)
                             {
-                                var Deletequery = "DELETE  FROM IpirAppIssueDep WHERE IpirAppId = " + value.IpirAppId + ";";
-                                await connection.ExecuteAsync(Deletequery);
-                            }
-                            var querys = string.Empty;
-                            if (value.ActivityIssueRelateIds != null)
-                            {
-                                var listData = value.ActivityIssueRelateIds.ToList();
-                                if (listData.Count > 0)
+                                listData.ForEach(s =>
                                 {
-                                    listData.ForEach(s =>
-                                    {
-                                        querys += "INSERT INTO [IpirAppIssueDep](ActivityInfoIssueID,IpirAppId,Type) VALUES ( " + s + "," + value.IpirAppId + ",'Issue');\r\n";
-                                    });
+                                    querys += "INSERT INTO [IpirAppIssueDep](ActivityInfoIssueID,IpirAppId,Type) VALUES ( " + s + "," + value.IpirAppId + ",'Issue');\r\n";
+                                });
 
-                                }
                             }
-                            if (value.DepartmentIds != null)
+                        }
+                        if (value.DepartmentIds != null)
+                        {
+                            var listData = value.DepartmentIds.ToList();
+                            if (listData.Count > 0)
                             {
-                                var listData = value.DepartmentIds.ToList();
-                                if (listData.Count > 0)
+                                listData.ForEach(s =>
                                 {
-                                    listData.ForEach(s =>
-                                    {
-                                        querys += "INSERT INTO [IpirAppIssueDep](DepartmentID,IpirAppId,Type) VALUES ( " + s + "," + value.IpirAppId + ",'Department');\r\n";
-                                    });
+                                    querys += "INSERT INTO [IpirAppIssueDep](DepartmentID,IpirAppId,Type) VALUES ( " + s + "," + value.IpirAppId + ",'Department');\r\n";
+                                });
 
-                                }
                             }
-                            if (!string.IsNullOrEmpty(querys))
-                            {
-                                await connection.ExecuteAsync(querys, null);
-                            }
-                        
+                        }
+                        if (!string.IsNullOrEmpty(querys))
+                        {
+                            await connection.ExecuteAsync(querys, null);
+                        }
+
                         return value;
                     }
                     catch (Exception exp)
@@ -623,12 +654,12 @@ namespace Infrastructure.Repository.Query
                             {
                                 listData.ForEach(s =>
                                 {
-                                    querys += "INSERT INTO IssueReportAssignTo(IPIRId,AssignToId,ReportinginformationID) VALUES ( " + value.IpirAppID+","+s+","+value.ReportinginformationID+" );";
+                                    querys += "INSERT INTO IssueReportAssignTo(IPIRId,AssignToId,ReportinginformationID) VALUES ( " + value.IpirAppID + "," + s + "," + value.ReportinginformationID + " );";
                                 });
 
                             }
                         }
-                       
+
                         if (!string.IsNullOrEmpty(querys))
                         {
                             await connection.ExecuteAsync(querys, null);
@@ -651,7 +682,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async  Task<IPIRReportingInformation> DeleteIpirReportingInformation(IPIRReportingInformation value)
+        public async Task<IPIRReportingInformation> DeleteIpirReportingInformation(IPIRReportingInformation value)
         {
             try
             {
@@ -662,11 +693,56 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("ReportinginformationID", value.ReportinginformationID);
                         var query = string.Empty;
-                       
+
                         query += "Delete from  IPIRReportingInformation WHERE ReportinginformationID=@ReportinginformationID;";
                         query += "Delete from  IssueReportAssignTo WHERE ReportinginformationID=@ReportinginformationID;";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IpirAppIssueDep> UpdateDynamicFormDataIssueDetails(Guid? SessionId, long? ActivityInfoIssueId, long? dynamicFormDataId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("SessionId", SessionId, DbType.Guid);
+                        parameters.Add("ActivityInfoIssueId", ActivityInfoIssueId);
+                        var query = string.Empty;
+                        query += "select t1.* from IpirAppIssueDep t1\r\nJOIN IpirApp t2 ON t2.IpirAppID=t1.IpirAppID\r\n" +
+                            "where t1.ActivityInfoIssueID=@ActivityInfoIssueId AND t2.SessionID=@SessionId";
+                        var result = await connection.QuerySingleOrDefaultAsync<IpirAppIssueDep>(query, parameters);
+                        if (result != null && result.IpirAppIssueDepId > 0)
+                        {
+                            if (result.DynamicFormDataId > 0)
+                            {
+
+                            }
+                            else
+                            {
+                                result.DynamicFormDataId = dynamicFormDataId;
+                                parameters.Add("IpirAppIssueDepId", result.IpirAppIssueDepId);
+                                parameters.Add("DynamicFormDataId", dynamicFormDataId);
+                                var querys = "Update IpirAppIssueDep SET DynamicFormDataId=@DynamicFormDataId WHERE IpirAppIssueDepId = @IpirAppIssueDepId";
+                                var rowsAffected = await connection.ExecuteAsync(querys, parameters);
+                            }
+                        }
+                        return result ?? new IpirAppIssueDep();
                     }
                     catch (Exception exp)
                     {

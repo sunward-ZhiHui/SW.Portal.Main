@@ -23,5 +23,7 @@ namespace Core.Repositories.Query
         Task<IpirAppCheckedDetailsModel> InsertIpirAppCheckedDetails(IpirAppCheckedDetailsModel value);
 
         Task<IpirAppCheckedDetailsModel> DeleteIpirAppCheckedDetails(IpirAppCheckedDetailsModel value);
+        Task<IpirAppIssueDep> UpdateDynamicFormDataIssueDetails(Guid? SessionId, long? ActivityInfoIssueId, long? dynamicFormDataId);
+        Task<IpirAppIssueDep> GetIpirAppIssueDepByDynamicForm(long? IpirAppIssueDepId);
     }
 }

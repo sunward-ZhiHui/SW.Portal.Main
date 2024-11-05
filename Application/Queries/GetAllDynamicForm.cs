@@ -19,6 +19,14 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class GetDynamicFormScreenNameCheckValidation : PagedRequest, IRequest<DynamicForm>
+    {
+        public string? ScreenName { get; set; }
+        public GetDynamicFormScreenNameCheckValidation(string? ScreenName)
+        {
+            this.ScreenName = ScreenName;
+        }
+    }
     public class GetAllByGridForm : PagedRequest, IRequest<List<DynamicForm>>
     {
         public long? UserId { get; set; }

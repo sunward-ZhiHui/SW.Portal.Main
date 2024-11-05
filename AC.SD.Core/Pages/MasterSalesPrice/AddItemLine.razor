@@ -404,7 +404,8 @@
         SalesOrderMasterPricingId = _salesOrdersData.SalesOrderMasterPricingId;
         PanelVisible = true;
 
-        AddEnabled = false;
+        AddEnabled = false; EditEnabled = false;
+        DeleteEnabled = false;
 
         if (SalesOrderMasterPricingId > 0)
         {
@@ -604,7 +605,8 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SalesOrderMasterPricingLineId");
         _selectedItems = _addIitemPriceLine.FirstOrDefault(f => f.SalesOrderMasterPricingLineId == (long?)UniqueId);
-
+        EditEnabled = true;
+        DeleteEnabled = true;
         StateHasChanged();
 
     }
@@ -686,17 +688,15 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
-
+        DeleteEnabled = true;
         if (SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
-            DeleteEnabled = false;
         }
         else
         {
             EditEnabled = true;
 
-            DeleteEnabled = true;
         }
 
     }

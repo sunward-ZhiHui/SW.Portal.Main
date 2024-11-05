@@ -32,4 +32,8 @@ namespace Core.Entities
         public int? StatusCodeID { get; set; }
         public Guid? SessionId { get; set; }
     }
-}
+    public class DynamicFormItemLineItem
+    {
+        public object? ItemDynamicFormDataID { get;set;}
+    }
+    }

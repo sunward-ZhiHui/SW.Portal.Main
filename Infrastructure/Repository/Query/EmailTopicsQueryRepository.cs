@@ -1852,7 +1852,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("CCUserGroup", EmailTopics.CCUserGroup);
                         parameterss.Add("ParticipantsUserGroup", EmailTopics.ParticipantsUserGroup);
                         parameterss.Add("NoOfDays", EmailTopics.NoOfDays);
-
+                        parameterss.Add("IsLockDueDate", EmailTopics.IsLockDueDate);
                         var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
                     }
@@ -1926,6 +1926,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ParticipantsUserGroup", EmailTopics.ParticipantsUserGroup);
                         parameterss.Add("NoOfDays", EmailTopics.NoOfDays);
                         parameterss.Add("ExpiryDueDate", EmailTopics.ExpiryDueDate);
+                        parameterss.Add("IsLockDueDate", EmailTopics.IsLockDueDate);
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;

@@ -61,5 +61,6 @@ namespace Application.Response
         public string? ParticipantsUserGroup { get; set; }
         public int NoOfDays {  get; set; }
         public DateTime? ExpiryDueDate { get; set; }
+        public bool? IsLockDueDate { get; set; }
     }
 }

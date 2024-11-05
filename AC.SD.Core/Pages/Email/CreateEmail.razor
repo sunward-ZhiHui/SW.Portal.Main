@@ -221,22 +221,22 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">
-                                <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
+                                <DxDateEdit Date="@Data.DueDate" DateExpression="@(() => Data.DueDate)" CssClass="cw-320" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" Mask="dd/MMMM/yyyy" />
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="Extend No Of Day" ColSpanMd="4">
                                 <DxSpinEdit @bind-Value="@Data.NoOfDays" MinValue="0"></DxSpinEdit>
                             </DxFormLayoutItem>
-
                             <DxFormLayoutItem Caption="" ColSpanMd="4">
                                 <DxCheckBox CssClass="w-100"
-                                            @bind-Checked="@Data.Urgent"
+                                            @bind-Checked="@Data.IsLockDueDate"
                                             Alignment="default"
+                                            Enabled ="@LockDueDateEnable"
                                             LabelPosition="LabelPosition.Right">
-                                    Urgent
+                                    Lock DueDate
                                 </DxCheckBox>
                             </DxFormLayoutItem>
-
+                          
                          
 
                              <DxFormLayoutItem Caption="Follow" ColSpanMd="4">
@@ -247,7 +247,16 @@ else
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.Follow)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
+                              <DxFormLayoutItem Caption="" ColSpanMd="2">
+                                <DxCheckBox CssClass="w-100"
+                                            @bind-Checked="@Data.Urgent"
+                                            Alignment="default"
+                                            LabelPosition="LabelPosition.Right">
+                                    Urgent
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                             @bind-Checked="@Data.NotifyUser"
                                             Alignment="default"
@@ -630,7 +639,7 @@ else
     IEnumerable<UserGroup> UserGroupValues { get; set; }
     IEnumerable<UserGroup> TogroupValue { get; set; }
     IEnumerable<UserGroup> ccgroupValue { get; set; }
-
+    
     ApplicationMasterChildModel selectgrouptagItems { get; set; } 
     ApplicationMasterChildModel selectCategory { get; set; }
     IEnumerable<UserGroup> toUserGroupValues { get; set; }
@@ -640,6 +649,7 @@ else
     private int submitCount = 0;
     bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;
+    bool LockDueDateEnable = false;
     async Task OnButtonUserGroupToClick()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -1579,6 +1589,8 @@ else
             Data.OnBehalf = null;
             Data.DueDate = null;
             Data.From = applicationUser.UserName;
+            Data.IsLockDueDate = false;
+             LockDueDateEnable = false;
         }
 
         if (CategoryData != null)
@@ -1592,7 +1604,7 @@ else
             UserTagName = null;
 
             CategoryData.ActionTagIds = new List<long?>();
-             CategoryData.UserTagIds = new List<long?>();
+            CategoryData.UserTagIds = new List<long?>();
             _actionTagItems = null;
             _categoryTagItems = null;
 
@@ -1660,8 +1672,11 @@ else
             Data.DueDate = null;
             Data.From = applicationUser.UserName;
             Data.NoOfDays = 0;
-
+            Data.IsLockDueDate = false;
             OnUserTypeChanged("Users");
+            LockDueDateEnable = false;
+            Data.IsLockDueDate = false;
+            LockDueDateEnable = false;
         }
 
         if (CategoryData != null)
@@ -1713,7 +1728,7 @@ else
         ccgroupValue = null;
         selectCategory = null;
         selectgrouptagItems = null;
-       
+
         selectBehalf = null;
         toUserGroupValues = null;
         SelectedToDataItems = null;
@@ -1741,6 +1756,8 @@ else
             Data.DueDate = null;
             Data.NoOfDays = 0;
             Data.From = applicationUser.UserName;
+            Data.IsLockDueDate = false;
+            LockDueDateEnable = false;
             OnUserTypeChanged("Users");
         }
 
@@ -2342,7 +2359,8 @@ else
                     UserType = Data.UserType,
                     ToUserGroup = sToUserGroup,
                     CCUserGroup = sCCUserGroup,
-                    ParticipantsUserGroup = sParticipantsUserGroup
+                    ParticipantsUserGroup = sParticipantsUserGroup,
+                    IsLockDueDate = Data.IsLockDueDate
 
                 };
 
@@ -2541,6 +2559,13 @@ else
             CategoryData.ActionTagIds = new List<long?>();
         }
         StateHasChanged();
+    }
+    void OnDateChanged(DateTime? newValue)
+    {
+       
+       Data.DueDate = newValue;
+      LockDueDateEnable = true;
+      StateHasChanged();
     }
     async Task CategoryTagChange(long? ApplicationMasterChildID)
     {

@@ -87,6 +87,34 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<Appointment>)await _queryRepository.GetUserListAsync(request.AppointmentID);
         }
     }
+    public class GetUserListSchedulerNotificationHandler : IRequestHandler<GetUserListSchedulerNotificationQuery, List<Appointment>>
+    {
+
+        private readonly IDashboardQueryRepository _queryRepository;
+        public GetUserListSchedulerNotificationHandler(IDashboardQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<Appointment>> Handle(GetUserListSchedulerNotificationQuery request, CancellationToken cancellationToken)
+        {
+
+            return (List<Appointment>)await _queryRepository.GetUserListNotificationAsync(request.ID);
+        }
+    }
+    public class GetSchedulerNotificationCaptionHandler : IRequestHandler<GetSchedulerNotificationCaptionQuery, List<Appointment>>
+    {
+
+        private readonly IDashboardQueryRepository _queryRepository;
+        public GetSchedulerNotificationCaptionHandler(IDashboardQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<Appointment>> Handle(GetSchedulerNotificationCaptionQuery request, CancellationToken cancellationToken)
+        {
+
+            return (List<Appointment>)await _queryRepository.GetNotificationCaptionAsync(request.ID);
+        }
+    }
     public class GetGenderRatioHandler : IRequestHandler<GetGenderRatio, List<GenderRatio>>
         {
 

@@ -300,12 +300,12 @@
     async void OnAppointmentFormShowing(SchedulerAppointmentFormEventArgs args)
     {
 
-      //  await jsRuntime.InvokeVoidAsync("location.reload");
+        //  await jsRuntime.InvokeVoidAsync("location.reload");
         string s = JsonConvert.SerializeObject(args.Appointment.Id);
         var ID = long.Parse(s);
-
+          Ids = new List<long> { };
         CategoryData.userIds = null;
-
+     
         string startdate = args.Appointment.Start.ToString();
         DateTime convertedDate;
 
@@ -330,7 +330,7 @@
         else if(today > convertedDate)
         {
             args.Cancel = true;
-            toastService.ShowToast("Selected Date in Invalid.", AC.SD.Core.Services.ToastLevel.Success);
+            toastService.ShowToast("Selected Date is Invalid.", AC.SD.Core.Services.ToastLevel.Error);
         }
 
 

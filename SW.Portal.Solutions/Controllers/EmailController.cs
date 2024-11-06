@@ -567,7 +567,7 @@ namespace SW.Portal.Solutions.Controllers
             var enddate = Appointmentlist[0].EndDate.ToString("MM/dd/yyyy hh:mm tt");
             var duration = startdate + "-"+ enddate;
             var bodymsg = duration;
-            var hosturls = baseurl + "AppointmentList/";
+            var hosturls = baseurl + "AppointmentList";
 
             List<string> tokenStringList = new List<string>();
 
@@ -602,8 +602,10 @@ namespace SW.Portal.Solutions.Controllers
             var Appointmentlist = await _mediator.Send(new GetSchedulerNotificationCaptionQuery(id));
 
             var title = Appointmentlist[0].Caption;
-           
-            var duration = "The appointment Cancel";
+            var startdate = Appointmentlist[0].StartDate.ToString("MM/dd/yyyy hh:mm tt");
+            var enddate = Appointmentlist[0].EndDate.ToString("MM/dd/yyyy hh:mm tt");
+            var duration = "We have canceled the appointment on" +startdate + "-" + enddate;
+          
             var bodymsg = duration;
             var hosturls = baseurl + "AppointmentList";
 

@@ -635,5 +635,50 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             };
         }
+
+        public async Task<IReadOnlyList<Appointment>> GetUserListNotificationAsync(long ID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+
+
+                parameters.Add("AppointmentID", ID);
+                var query = @"
+                          SELECT UserID FROM UserMultiple Where AppointmentID = @AppointmentID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<Appointment>> GetNotificationCaptionAsync(long ID)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+
+
+                parameters.Add("ID", ID);
+                var query = @"
+                          SELECT * FROM Appointment Where ID = @ID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

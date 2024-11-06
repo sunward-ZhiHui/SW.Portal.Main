@@ -24,6 +24,22 @@ namespace Application.Queries
             this.AppointmentID = AppointmentID;
         }
     }
+    public class GetUserListSchedulerNotificationQuery : PagedRequest, IRequest<List<Appointment>>
+    {
+        public long ID { get; private set; }
+        public GetUserListSchedulerNotificationQuery(long ID)
+        {
+            this.ID = ID;
+        }
+    }
+    public class GetSchedulerNotificationCaptionQuery : PagedRequest, IRequest<List<Appointment>>
+    {
+        public long ID { get; private set; }
+        public GetSchedulerNotificationCaptionQuery(long ID)
+        {
+            this.ID = ID;
+        }
+    }
     public class GetSchedulerList: PagedRequest, IRequest<List<Appointment>>
     {
         public long UserID { get; private set; }

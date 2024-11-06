@@ -230,7 +230,8 @@
     public int TabIndex { get; set; } = 1;
     const string LocalStorageKey = "Grid-LayoutMyEmailDueDate-Data";
     bool LockDueDateEnable { get; set; } = true;
-  
+    bool DueDateEnable { get; set; } = false;
+
     async Task Grid_LayoutAutoLoading(GridPersistentLayoutEventArgs e)
     {
         e.Layout = await LoadLayoutFromLocalStorageAsync();
@@ -525,16 +526,20 @@
         ReplyMsgEnabled = true;
         EditEnabled = true;
 
-        if ((applicationUser.UserID == _selectedItems.UserId) || _openAccessUserLink != null)
+        if (_selectedItems.IsLockDueDate != true)
         {
-            IsSubjectNoOfDays = true;
-        }
-        else
-        {
-            IsSubjectNoOfDays = false;
-        }
+            if ((applicationUser.UserID == _selectedItems.UserId) || _openAccessUserLink != null)
+            {
+                IsSubjectNoOfDays = true;
+            }
+            else
+            {
+                IsSubjectNoOfDays = false;
+            }
 
 
+        }
+      
         StateHasChanged();
 
     }

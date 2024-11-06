@@ -15,7 +15,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime jsRuntime
 
-<style>
+<style scoped>
     .list-container {
         display: flex;
         flex-direction: column;
@@ -41,6 +41,11 @@
             transform: translateY(-3px);
             background-color: #b2ebf2;
             cursor: pointer;
+        }
+        .dxbl-apt-edit-compact-dialog-header
+        {
+            display:block !important;
+        text-align: right;
         }
 
 </style>

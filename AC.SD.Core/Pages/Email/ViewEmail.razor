@@ -1049,9 +1049,9 @@
           FooterVisible="false">
     <BodyTextTemplate>
         <DxMenu Orientation="Orientation.Horizontal">
-            <Items>
-                <DxMenuItem IconCssClass="fa fa-calendar" @onclick="onSubjectDueDatePop" Text="Due Date" />
-                <DxMenuItem IconCssClass="fa fa-ban" @onclick="onCancelDueDatePop" Text="Cancel Due Date" />
+            <Items>               
+                <DxMenuItem IconCssClass="fa fa-calendar" Enabled="@IsDueDateUnlocked" @onclick="onSubjectDueDatePop" Text="Due Date" />
+                <DxMenuItem IconCssClass="fa fa-ban" @onclick="onCancelDueDatePop" Enabled="@IsDueDateUnlocked" Text="Cancel Due Date" />
                 <DxMenuItem IconCssClass="fa fa-text-width" @onclick="@(() => onMarkasAllRead(CurrentEmailConversations.ID))" Text="Mark as all read" />
                 <DxMenuItem IconCssClass="fa fa-font" @onclick="onRenameSubjectPop" Text="Rename Subject" />
                 <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintSubjectPop" Text="Print" />
@@ -3146,6 +3146,7 @@
     public List<EmailConversations>? _discussionList;
     public List<EmailConversations>? _replyDiscussionList;
     private EmailConversations? CurrentEmailConversations { get; set; }
+    private bool IsDueDateUnlocked => !CurrentEmailConversations.IsLockDueDate;
     public List<EmailConversations>? _discussionFullList;
     public List<EmailConversations>? _replyComment;
     private List<EmailTopics>? _headTopic;

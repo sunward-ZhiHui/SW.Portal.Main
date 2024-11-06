@@ -1055,7 +1055,8 @@ namespace Infrastructure.Repository.Query
                 var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,AETN.Name AS DynamicFormName,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
-                                FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName
+                                FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId,FC.NoOfDays,FC.ExpiryDueDate,DYSN.SectionName AS DynamicFormEmailSectionName,
+                                FC.IsLockDueDate
                             FROM
                                 EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
@@ -1098,7 +1099,7 @@ namespace Infrastructure.Repository.Query
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
 								CONCAT(AU.FirstName,'-',AU.NickName) as UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
                                 EN.IsRead,EN.ID AS EmailNotificationId,FC.UserType,FC.NoOfDays,FC.ExpiryDueDate,
-                                DYSN.SectionName AS DynamicFormEmailSectionName
+                                DYSN.SectionName AS DynamicFormEmailSectionName,FC.IsLockDueDate
 
                             FROM
                             EmailConversations FC

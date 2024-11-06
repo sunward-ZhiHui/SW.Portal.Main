@@ -856,8 +856,17 @@
                                                                             }
                                                                             @if(newSubjectreply == 1)
                                                                          {      
-                                                                            <DxFormLayoutItem Caption="Due Date" ColSpanMd="5">
-                                                                                <DxDateEdit @bind-Date="@Data.DueDate" Mask="dd/MMMM/yyyy" />
+                                                                            <DxFormLayoutItem Caption="Due Date" ColSpanMd="3">                                                                                
+                                                                                <DxDateEdit Date="@Data.DueDate" DateExpression="@(() => Data.DueDate)" DateChanged="@((DateTime? newValue) => OnDateChanged(newValue))" Mask="dd/MMMM/yyyy" />
+                                                                            </DxFormLayoutItem>
+                                                                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
+                                                                                <DxCheckBox CssClass="w-100"
+                                                                                @bind-Checked="@Data.IsLockDueDate"
+                                                                                 Alignment="default"
+                                                                                 Enabled ="@LockDueDateEnable"
+                                                                                 LabelPosition="LabelPosition.Right">
+                                                                                   Lock DueDate
+                                                                                </DxCheckBox>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="3">
                                                                                 <DxCheckBox CssClass="w-100"
@@ -1766,7 +1775,7 @@
     private int submitCount = 0;
     bool IsUserGroupToOpen { get; set; } = false;
     bool IsUserGroupCCOpen { get; set; } = false;   
-    
+
     private void onCloseNotifyPop()
     {
         isNotifyPAPopupVisible  = false;
@@ -3131,8 +3140,8 @@
     bool isUserGroup { get; set; } = false;
     bool isPage { get; set; } = false;
     bool isTodoEnabled { get; set; } = false;
-     bool isOpenEnabled { get; set; } = false;
-      bool isCloseEnabled { get; set; } = false;
+    bool isOpenEnabled { get; set; } = false;
+    bool isCloseEnabled { get; set; } = false;
     bool isTagEnabled { get; set; } = false;
     bool isAddParticipant = false;
     bool isTags = false;
@@ -3158,7 +3167,7 @@
     Documents? _documents { get; set; }
     private List<ViewEmployee>? _allparticipant;
     private List<ViewEmployee> plist;
-
+    bool LockDueDateEnable = false;
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
 
@@ -3311,12 +3320,12 @@
     void onSelectedCCItemsChanged(IEnumerable<long>? values)
     {
         Data.AssignccIds = values;
-         if (Data.AssigntoIds != null)
-            {
-                var list = Data.AssigntoIds.Where(p => !values.Contains(p)).ToList();
+        if (Data.AssigntoIds != null)
+        {
+            var list = Data.AssigntoIds.Where(p => !values.Contains(p)).ToList();
             Data.AssigntoIds = list;
-                StateHasChanged();
-            }
+            StateHasChanged();
+        }
         // if (values != null)
         // {            
         //     //_Toparticipant = _allparticipants.Except(values).ToList();
@@ -3796,8 +3805,8 @@
     }
     async void SubmitUserTag()
     {
-       // var usertag = dataUserTag;
-          var UpdateReq = new CreateUserTagMultipleQuery
+        // var usertag = dataUserTag;
+        var UpdateReq = new CreateUserTagMultipleQuery
             {                
                 UserTagIds = dataUserTag.UserTagIds,
                 //UserTag = dataUserTag.UserTag,
@@ -3806,7 +3815,7 @@
                 AddedDate = DateTime.Now
             };
         var result = await Mediator.Send(UpdateReq);
-         toastService.ShowToast("User Tag Updated Successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        toastService.ShowToast("User Tag Updated Successfully.", AC.SD.Core.Services.ToastLevel.Success);
         // if(dataUserTag.UserTagId != null)
         // {
 
@@ -3846,8 +3855,8 @@
         // }
         isUserTagChange = false;
         onloadTagsList();
-         IsOpenFlyout = false;
-       StateHasChanged(); 
+        IsOpenFlyout = false;
+        StateHasChanged(); 
     }
 
     async void SubmitSubjectDueDate()
@@ -3972,7 +3981,7 @@
             // {
             //     AssigntoIdss.Add(id);
             // }
-            
+
             // AssignccIdss = new List<long>();
         }
         else
@@ -4025,7 +4034,7 @@
             FirebaseDocKey = "",
 
         };
-    
+
         string BaseUrl = NavigationManager.BaseUri + "api/Email/";
         string url = BaseUrl + "OnSubmitReply";        
         string jsonData = System.Text.Json.JsonSerializer.Serialize(emailconlist);        
@@ -4631,7 +4640,7 @@
         _headTopic = new List<EmailTopics>();
         isComponentVisible = false;
 
-         await RefreshService.RequestRefreshAsync();
+        await RefreshService.RequestRefreshAsync();
         StateHasChanged();
     }
     private async Task Submit()
@@ -4799,7 +4808,7 @@
     private async Task onMarkasAllRead(int Id)
     {        
         var request = await Mediator.Send(new UpdateMarkasAllRead(Id,applicationUser.UserID));
-             
+
 
         if (RTopicId == 0)
         {
@@ -5275,15 +5284,15 @@
     {
         // Handle drag completed event if needed
         //msgrichEdit.NewDocumentAsync();
-         IsUserGroupCCOpen = false;
-         IsUserGroupToOpen = false;
+        IsUserGroupCCOpen = false;
+        IsUserGroupToOpen = false;
     }
 
     async Task onRichTxtChangeFontsize()
     {
         if (msgrichEdit == null)
         {
-       
+
         }
         else
         {
@@ -5723,7 +5732,7 @@
                     sCCIds = CCtags.ToList();
 
 
-                   // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                    // _Toparticipant = _Toparticipant.Where(c => !Data.AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
 
                     #endregion
 
@@ -5820,7 +5829,7 @@
 
 
         //Data.AssigntoIds = Enumerable.Empty<long>();
-                
+
         //Data.AssignccIds = null;
         string selector = ".dxwinheight";
         Data.From = applicationUser.UserName;
@@ -5828,6 +5837,8 @@
         Data.DueDate = null;
         Data.IsAllowParticipants = true;
         Data.Urgent = false;
+        Data.IsLockDueDate = false;
+        LockDueDateEnable = false;
         Data.NotifyUser = false;
         newSubjectreply = 1;
         submitCount = 0;
@@ -5839,6 +5850,22 @@
         //await Task.Delay(1000);
         await onRichTxtChangeFontsize(); // Call your other function here
         //await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+    void OnDateChanged(DateTime? newValue)
+    {       
+        if(newValue != null)
+        {
+             LockDueDateEnable = true;
+
+        }
+        else
+        {
+            Data.IsLockDueDate = false;
+            LockDueDateEnable = false;
+        }
+
+       Data.DueDate = newValue;      
+       StateHasChanged();
     }
     async void onBackFileProfileType(string url)
     {
@@ -6500,6 +6527,7 @@
                     SessionId = _sessionId,
                     ToUserGroup = sToUserGroup,
                     CCUserGroup = sCCUserGroup,
+                    IsLockDueDate = Data.IsLockDueDate,
                     ParticipantsUserGroup = sParticipantsUserGroup,
                     UserType = Data.UserType
                 };

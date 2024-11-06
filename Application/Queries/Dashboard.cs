@@ -115,4 +115,14 @@ namespace Application.Queries
             this.FormDataId = FormDataId;
         }
     }
+    public class GetCreatedUserQuery : PagedRequest, IRequest<List<Appointment>>
+    {
+        public long AppointmentID { get; private set; }
+        public long userid { get; private set; }
+        public GetCreatedUserQuery(long AppointmentID,long userid)
+        {
+            this.AppointmentID = AppointmentID;
+            this.userid = userid;
+        }
+    }
 }

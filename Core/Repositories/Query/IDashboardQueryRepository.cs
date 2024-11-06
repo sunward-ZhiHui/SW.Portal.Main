@@ -29,5 +29,6 @@ namespace Core.Repositories.Query
         Task<long> DeleteUsermultipleAsync(long appointmentid);
         Task<IReadOnlyList<DynamicFormData>> GetDynamicDataAsync(long dynamicID);
         Task<IReadOnlyList<DynamicFormApproved>> GetDynamicApprovedStatusAsync(long DataFormID);
+        Task<List<Appointment>> GetCreatedUserAsync(long appointmentid ,long userid);
     }
 }

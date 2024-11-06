@@ -54,17 +54,20 @@
 </style>
 <DxScheduler @ref="Scheduler"
              @bind-StartDate="@StartDate" DataStorage="@DataStorage"
-            
+             AllowDeleteAppointment="@AllowDeleteAppointment"
+             AllowEditAppointment="@AllowEditAppointment"
              AppointmentFormShowing="OnAppointmentFormShowing"
              ValidateEditForm="true" CssClass="demo-sc-size"
              @bind-AppointmentFormMode="@AppointmentFormMode"
+             AllowDragAppointment="false"
+             AllowResizeAppointment="false"
              AppointmentInserting="AppointmentInserting"
              AppointmentRemoving="AppointmentRemoving"
              AppointmentUpdating="AppointmentUpdating">
     <Views>
-        <DxSchedulerDayView DayCount = "3" WorkTime = "WorkTime"  ShowWorkTimeOnly ="false" VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(19)))">
+        <DxSchedulerDayView DayCount = "3"   ShowWorkTimeOnly ="false" VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(19)))">
            
-            <VerticalAppointmentTemplate>
+         @*    <VerticalAppointmentTemplate>
          
                     <div class="card demo-apt-bg dxbl-purple-color"></div>
                     <div class="card demo-sc-apt-content text-white">
@@ -76,7 +79,7 @@
                         </div>
                     </div>
              
-            </VerticalAppointmentTemplate>
+            </VerticalAppointmentTemplate> *@
         </DxSchedulerDayView>
     </Views>
     <AppointmentTooltipTemplate>
@@ -91,6 +94,9 @@
 
             var location = context.Appointment.Location;
             var Users = context.Appointment.Id;
+            string Appointmentid = JsonConvert.SerializeObject(context.Appointment.Id);
+            var ID = long.Parse(Appointmentid);
+             CreatedUser(ID,applicationUser.UserID);
         }
         @if (location != "")
         {
@@ -244,6 +250,8 @@
     </FooterTextTemplate>
 </DxFlyout>
 @code {
+    bool AllowEditAppointment { get; set; } = false;
+    bool AllowDeleteAppointment { get; set; } = false;
     private List<Appointment> appointmentslist;
     private List<Appointment> Userlist;
     bool IsUserslist { get; set; } = false;
@@ -422,7 +430,7 @@
 
             toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await jsRuntime.InvokeVoidAsync("location.reload");
-            
+
         }
 
     }
@@ -431,6 +439,13 @@
         if (e.Appointment.Id != null)
         {
             var ans = await Mediator.Send(new DeleteAppointment((long)e.Appointment.Id));
+            var id = e.Appointment.Id;
+
+                string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+            string url = BaseUrl + "SendToAppointmentDeleteNotification?id=" + id;
+                // Make a GET request to the controller action
+                var response = await httpClient.GetAsync(url);
+            
             toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
         }
@@ -443,10 +458,10 @@
 
         if (appointment != null)
         {
-           
-                if (e.Appointment != null && e.Appointment.Id != null)
-                {
-                    var InsertReq = new EditAppointment
+
+            if (e.Appointment != null && e.Appointment.Id != null)
+            {
+                var InsertReq = new EditAppointment
                         {
                             ID = (long)e.Appointment.Id,
                             StartDate = e.Appointment.Start,
@@ -462,10 +477,18 @@
                         AddedDate = DateTime.Now,
                         };
 
-                    var ans = await Mediator.Send(InsertReq);
-                    toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                var ans = await Mediator.Send(InsertReq);
+
+                if (ans != null)
+                {
+                    string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                    string url = BaseUrl + "SendToAppointmentSchedulerMessage?id=" + ans;
+                    // Make a GET request to the controller action
+                    var response = await httpClient.GetAsync(url);
                 }
-            
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+
         }
         await UpdateDataAsync();
 
@@ -475,6 +498,23 @@
 
         Userlist = await Mediator.Send(new GetUserListQuery(appointmentID));
         IsUserslist = true;
+        StateHasChanged();
+    }
+    async void CreatedUser(long appointmentID,long userid)
+    {
+
+        var Userlist = await Mediator.Send(new GetCreatedUserQuery(appointmentID,userid));
+        if (Userlist.Count >0)
+        {
+            AllowDeleteAppointment = true;
+            AllowEditAppointment = true;
+
+        }
+        else
+        {
+            AllowDeleteAppointment = false;
+            AllowEditAppointment = false;
+        }
         StateHasChanged();
     }
 }

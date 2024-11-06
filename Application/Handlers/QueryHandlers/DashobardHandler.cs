@@ -281,4 +281,17 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetCreatedHandler : IRequestHandler<GetCreatedUserQuery, List<Appointment>>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public GetCreatedHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<List<Appointment>> Handle(GetCreatedUserQuery request, CancellationToken cancellationToken)
+        {
+            return (List<Appointment>)await _dashboardQueryRepository.GetCreatedUserAsync(request.AppointmentID,request.userid);
+
+        }
+    }
 }

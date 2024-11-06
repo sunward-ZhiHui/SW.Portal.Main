@@ -358,7 +358,7 @@ namespace Infrastructure.Repository.Query
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                        return rowsAffected;
+                        return appointment.ID;
                     }
 
 
@@ -560,7 +560,7 @@ namespace Infrastructure.Repository.Query
 
                 parameters.Add("UserID", UserID);
                 // var query = @"Select * From Appointment";
-                var query = @"select  A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,A.Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID From Appointment A
+                var query = @"select  A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,1 AS Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID From Appointment A
                                 inner join UserMultiple UM ON UM.AppointmentID =A.ID
                                 WHERE UM.UserID = @UserID OR A.AddedByUserID = @UserID
                                 GROUP BY A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,A.Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID
@@ -669,6 +669,26 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ID", ID);
                 var query = @"
                           SELECT * FROM Appointment Where ID = @ID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<Appointment>> GetCreatedUserAsync(long appointmentid, long userid)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("appointmentid", appointmentid);
+                parameters.Add("userid", userid);
+                var query = @"select * From Appointment where ID = @appointmentid And AddedByUserID = @userid";
 
                 using (var connection = CreateConnection())
                 {

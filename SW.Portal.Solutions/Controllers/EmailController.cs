@@ -593,6 +593,44 @@ namespace SW.Portal.Solutions.Controllers
 
             return "ok";
         }
+        [HttpGet("SendToAppointmentDeleteNotification")]
+        public async Task<string> SendToAppointmentDeleteNotification(long id)
+        {
+            var serverToken = _configuration["FcmNotification:ServerKey"];
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+
+            var Appointmentlist = await _mediator.Send(new GetSchedulerNotificationCaptionQuery(id));
+
+            var title = Appointmentlist[0].Caption;
+           
+            var duration = "The appointment Cancel";
+            var bodymsg = duration;
+            var hosturls = baseurl + "AppointmentList";
+
+            List<string> tokenStringList = new List<string>();
+
+            var Result = await _mediator.Send(new GetUserListSchedulerNotificationQuery(id));
+
+            foreach (var item in Result)
+            {
+
+                var tokens = await _mediator.Send(new GetUserTokenListQuery(item.UserID.Value));
+                if (tokens.Count > 0)
+                {
+                    foreach (var lst in tokens)
+                    {
+                        //tokenStringList.Add(lst.TokenID.ToString());
+
+                        await PushNotification(lst.TokenID.ToString(), title, bodymsg, lst.DeviceType == "Mobile" ? "" : hosturls);
+                    }
+
+                }
+
+
+            }
+
+            return "ok";
+        }
         [HttpGet("PushNotification")]
         public async Task<string> PushNotification(string tokens, string titles, string message, string hosturl)
         {

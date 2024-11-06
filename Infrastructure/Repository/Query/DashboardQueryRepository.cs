@@ -561,7 +561,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("UserID", UserID);
                 // var query = @"Select * From Appointment";
                 var query = @"select  A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,1 AS Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID From Appointment A
-                                inner join UserMultiple UM ON UM.AppointmentID =A.ID
+                                left join UserMultiple UM ON UM.AppointmentID =A.ID
                                 WHERE UM.UserID = @UserID OR A.AddedByUserID = @UserID
                                 GROUP BY A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,A.Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID
                                 ";

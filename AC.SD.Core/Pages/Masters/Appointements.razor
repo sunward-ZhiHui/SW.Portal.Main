@@ -108,6 +108,7 @@
         @if (Users != null)
         {
             string s = JsonConvert.SerializeObject(Users);
+           
             <DxButton id="showUserMultiple" @onclick="@(() => OnClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
                       Text="Participants"   >
                
@@ -413,7 +414,7 @@
                     Recurrence = insertedItem.Recurrence,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
-                    userIds=CategoryData?.userIds,
+                    userIds=CategoryData?.userIds, 
 
 
                 };
@@ -429,6 +430,8 @@
             }
 
             toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            DataStorage.AppointmentsSource = null;
+          
             await jsRuntime.InvokeVoidAsync("location.reload");
 
         }
@@ -438,14 +441,13 @@
     {
         if (e.Appointment.Id != null)
         {
-            var ans = await Mediator.Send(new DeleteAppointment((long)e.Appointment.Id));
             var id = e.Appointment.Id;
 
-                string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+            string BaseUrl = NavigationManager.BaseUri + "api/Email/";
             string url = BaseUrl + "SendToAppointmentDeleteNotification?id=" + id;
-                // Make a GET request to the controller action
-                var response = await httpClient.GetAsync(url);
-            
+            // Make a GET request to the controller action
+            var response = await httpClient.GetAsync(url);
+            var ans = await Mediator.Send(new DeleteAppointment((long)e.Appointment.Id));
             toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
         }

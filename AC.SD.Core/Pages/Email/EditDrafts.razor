@@ -1165,9 +1165,18 @@ else
     }
     void OnDateChanged(DateTime? newValue)
     {
+        if (newValue != null)
+        {
+            LockDueDateEnable = true;
+
+        }
+        else
+        {
+            Data.IsLockDueDate = false;
+            LockDueDateEnable = false;
+        }
 
         Data.DueDate = newValue;
-        LockDueDateEnable = true;
         StateHasChanged();
     }
     void onCcChanged(IEnumerable<string> newTags)

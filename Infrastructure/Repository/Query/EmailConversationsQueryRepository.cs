@@ -2213,6 +2213,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("FileData", forumConversations.FileData);
                             parameters.Add("Name", forumConversations.Name);
                             parameters.Add("DueDate", forumConversations.DueDate);
+                            parameters.Add("IsLockDueDate", forumConversations.IsLockDueDate);
                             parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
                             parameters.Add("Urgent", forumConversations.Urgent);
                             parameters.Add("NotifyUser", forumConversations.NotifyUser);
@@ -2221,7 +2222,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DynamicFormDataUploadSessionID", forumConversations.EmailFormSectionSessionID);
                         
 
-                            var query = "INSERT INTO EmailConversations(UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID) OUTPUT INSERTED.ID VALUES (@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID)";
+                            var query = "INSERT INTO EmailConversations(UserType,NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name,DynamicFormDataUploadSessionID,IsLockDueDate) OUTPUT INSERTED.ID VALUES (@UserType,@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name,@DynamicFormDataUploadSessionID,@IsLockDueDate)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

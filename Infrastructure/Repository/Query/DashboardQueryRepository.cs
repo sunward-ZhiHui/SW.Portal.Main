@@ -559,8 +559,8 @@ namespace Infrastructure.Repository.Query
 
 
                 parameters.Add("UserID", UserID);
-                // var query = @"Select * From Appointment";
-                var query = @"select  A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,1 AS Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID From Appointment A
+              
+                var query = @"select  A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,A.Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID From Appointment A
                                 left join UserMultiple UM ON UM.AppointmentID =A.ID
                                 WHERE UM.UserID = @UserID OR A.AddedByUserID = @UserID
                                 GROUP BY A.ID,A.AppointmentType,A.Description,A.StartDate,A.EndDate,A.Label,A.Location,A.Recurrence,A.AllDay,A.Caption,A.Status,A.AddedByUserID
@@ -586,7 +586,7 @@ namespace Infrastructure.Repository.Query
 
                 parameters.Add("AppointmentID", Appointmentid);
                 var query = @"
-                           SELECT EP.FirstName as UserName,UM.UserID FROM UserMultiple UM
+                           SELECT EP.FirstName as UserName,UM.UserID,UM.IsAccepted FROM UserMultiple UM
                              Left Join Employee EP ON EP.EmployeeID =UM.UserID
                              Where AppointmentID = @AppointmentID";
 
@@ -681,14 +681,15 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<Appointment>> GetCreatedUserAsync(long appointmentid, long userid)
+        public async Task<List<Appointment>> GetCreatedUserAsync(long AppointmentID, long userid)
         {
             try
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("appointmentid", appointmentid);
+                parameters.Add("appointmentid", AppointmentID);
                 parameters.Add("userid", userid);
-                var query = @"select * From Appointment where ID = @appointmentid And AddedByUserID = @userid";
+               var query = @"select * From Appointment where ID = @appointmentid And AddedByUserID = @userid";
+              
 
                 using (var connection = CreateConnection())
                 {
@@ -699,6 +700,62 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+        public async Task<List<Appointment>> GetAcceptedUserAsync(long appointmentid, long userid)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("appointmentid", appointmentid);
+                parameters.Add("userid", userid);
+                var query = @"SELECT IsAccepted from UserMultiple where UserID = @userid AND AppointmentID =@appointmentid";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Appointment>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> UpdateAcceptAsync(long userid, bool accept, long appointmentid)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+
+
+                        parameters.Add("userid", userid);
+                        parameters.Add("accept", accept);
+
+                        parameters.Add("appointmentid", appointmentid);
+
+                        var query = @"Update UserMultiple set IsAccepted = @accept where UserID = @userid and AppointmentID = @appointmentid";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
         }
     }
 }

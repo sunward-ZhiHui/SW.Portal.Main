@@ -61,25 +61,12 @@
              @bind-AppointmentFormMode="@AppointmentFormMode"
              AllowDragAppointment="false"
              AllowResizeAppointment="false"
+             AppointmentTooltipShowing="OnAppointmentTooltipShowing"
              AppointmentInserting="AppointmentInserting"
              AppointmentRemoving="AppointmentRemoving"
              AppointmentUpdating="AppointmentUpdating">
     <Views>
         <DxSchedulerDayView DayCount = "3"   ShowWorkTimeOnly ="false" VisibleTime="@(new DxSchedulerTimeSpanRange(TimeSpan.FromHours(8), TimeSpan.FromHours(19)))">
-           
-         @*    <VerticalAppointmentTemplate>
-         
-                    <div class="card demo-apt-bg dxbl-purple-color"></div>
-                    <div class="card demo-sc-apt-content text-white">
-                        <div class="card demo-sc-status-container">
-                            <div class="card demo-apt-status dxbl-purple-color"></div>
-                        </div>
-                        <div class="demo-apt-subject">
-                            @context.Appointment.Subject
-                        </div>
-                    </div>
-             
-            </VerticalAppointmentTemplate> *@
         </DxSchedulerDayView>
     </Views>
     <AppointmentTooltipTemplate>
@@ -94,9 +81,7 @@
 
             var location = context.Appointment.Location;
             var Users = context.Appointment.Id;
-            string Appointmentid = JsonConvert.SerializeObject(context.Appointment.Id);
-            var ID = long.Parse(Appointmentid);
-             CreatedUser(ID,applicationUser.UserID);
+          
         }
         @if (location != "")
         {
@@ -108,66 +93,29 @@
         @if (Users != null)
         {
             string s = JsonConvert.SerializeObject(Users);
-           
-            <DxButton id="showUserMultiple" @onclick="@(() => OnClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
-                      Text="Participants"   >
+            <div class="sc-tooltip-bottom-container">
+                        <DxButton id="showUserMultiple" @onclick="@(() => OnClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
+                                  Text="Participants" style="margin-right:60px;">
                
-             </DxButton> 
-        @*   <button></button>
-            <span id="showUserMultiple" class="handline tagbg more-dots" @onclick="() => OnClick(long.Parse(s))">UserList</span> *@
-           
-         @*    <span style="vertical-align: middle;">
-                <p><i class="fas fa-map-marker-alt" style="margin-right: 10px;"></i> @context.Appointment.CustomFields["userIds"]</p>
-            </span> *@
+                         </DxButton>
+              
+                        <DxButton  @onclick="@(() => OnAcceptClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link" Visible="@AcceptVisible"
+                                  Text="Accept" IconCssClass="fa fa-thumbs-up" style="color:green;" >
+
+                        </DxButton>
+                        <DxButton @onclick="@(() => OnRejectClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link" Visible="@RejectVisible"
+                          Text="Reject" IconCssClass="fa fa-thumbs-down" style="color:red;">
+
+                        </DxButton>
+               </div>
+      
 
         }
 
     </AppointmentTooltipTemplate>
-   @*  <AppointmentFormHeaderTemplate>
-       
-                     <div class="popup-text-header">@context.Subject</div> 
-        <DxSchedulerSaveAppointmentChangesButton CssClass="mybutton"></DxSchedulerSaveAppointmentChangesButton>
-        <DxSchedulerDeleteAppointmentButton Text="@null" CssClass="mybutton"></DxSchedulerDeleteAppointmentButton>
-        <DxSchedulerDiscardAppointmentChangesButton CssClass="mybutton"></DxSchedulerDiscardAppointmentChangesButton>
-                    @if (AppointmentFormMode == SchedulerAppointmentFormMode.Both)
-                    {
-                        <DxButton Click="@(() => Scheduler.ShowAppointmentEditFormAsync(true))"
-                                  IconCssClass="btn-icon-back"
-                                  RenderStyle="ButtonRenderStyle.None"
-                                  CssClass="dxbl-btn-tool">
-                        </DxButton>
-                    }
-                </AppointmentFormHeaderTemplate>
-        
-    <AppointmentFormLayout Context="formInfo">
-        <DxSchedulerSubjectFormLayoutItem></DxSchedulerSubjectFormLayoutItem>
-        <DxSchedulerAllDayFormLayoutItem></DxSchedulerAllDayFormLayoutItem>
-        <DxSchedulerStartDateFormLayoutItem></DxSchedulerStartDateFormLayoutItem>
-        <DxSchedulerStartTimeFormLayoutItem></DxSchedulerStartTimeFormLayoutItem>
-        <DxSchedulerEndDateFormLayoutItem></DxSchedulerEndDateFormLayoutItem>
-        <DxSchedulerEndTimeFormLayoutItem></DxSchedulerEndTimeFormLayoutItem>
-       <DxSchedulerLocationFormLayoutItem></DxSchedulerLocationFormLayoutItem>
-        <DxSchedulerDescriptionFormLayoutItem></DxSchedulerDescriptionFormLayoutItem>
-        
-        <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
-            <Template>
-                  <div style="margin-left: 25px; margin-top: 14px;">Users
-                    <DxTagBox Data="_Toparticipant"
-                              @bind-Values="CategoryData.userIds"
-                              NullText="Select User"
-                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                              ValueFieldName="UserID"
-                              TextFieldName="Name"
-                              ListRenderMode="ListRenderMode.Virtual"
-                              SearchMode="ListSearchMode.AutoSearch"
-                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                              CssClass="cw-480" />
-                </div>
-            </Template>
-        </DxSchedulerCustomFormLayoutItem>
-    </AppointmentFormLayout> *@
+ 
     <AppointmentCompactFormHeaderTemplate>
-      @*   <div class="popup-text-header">@context.Subject</div> *@
+    
         <DxSchedulerSaveAppointmentChangesButton ></DxSchedulerSaveAppointmentChangesButton>
         <DxSchedulerDeleteAppointmentButton Text="@null" ></DxSchedulerDeleteAppointmentButton>
         <DxSchedulerDiscardAppointmentChangesButton ></DxSchedulerDiscardAppointmentChangesButton>
@@ -195,7 +143,8 @@
         <DxSchedulerEndTimeFormLayoutItem></DxSchedulerEndTimeFormLayoutItem>
      @*    <DxSchedulerLocationFormLayoutItem></DxSchedulerLocationFormLayoutItem> *@
         <DxSchedulerDescriptionFormLayoutItem></DxSchedulerDescriptionFormLayoutItem>
-       
+        <DxSchedulerLabelFormLayoutItem></DxSchedulerLabelFormLayoutItem>
+        <DxSchedulerStatusFormLayoutItem></DxSchedulerStatusFormLayoutItem>
         <DxSchedulerCustomFormLayoutItem ColSpanMd="12">
             <Template>
                 <div style="margin-left: 25px; margin-top: 14px;">
@@ -231,6 +180,7 @@
         <div style="width:350px;">
             @if (Userlist.Count > 0)
             {
+
                 @foreach (var Tagitem in Userlist)
                 {
 
@@ -238,30 +188,43 @@
                     {
                         <div class="list-container">
 
-                            <div class="list-item"> @Tagitem.UserName</div>
+                            <div class="list-item"> @Tagitem.UserName
+                                @if (Tagitem.IsAccepted == true)
+                                {
+                                    <i class="fa fa-thumbs-up" style="margin-top:5px; color:green; float:right;"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-thumbs-down" style="margin-top:5px; color:red; float:right;"></i>
+                                }
+
+                                </div>
                             
                         </div>
                     }
                 }
+               
             }
+             
         </div>
+     
     </BodyTextTemplate>
     <FooterTextTemplate Context="UserlistContext">
         <DxButton Text="close" Click="@UserlistContext.CloseCallback" />
     </FooterTextTemplate>
 </DxFlyout>
 @code {
+    bool RejectVisible { get; set; }= false;
+    bool AcceptVisible { get; set; } = false;
     bool AllowEditAppointment { get; set; } = false;
     bool AllowDeleteAppointment { get; set; } = false;
     private List<Appointment> appointmentslist;
     private List<Appointment> Userlist;
     bool IsUserslist { get; set; } = false;
     public ApplicationUser? applicationUser { get; private set; }
-    //  EmailTopics? Data { get; set; } = new EmailTopics();
+   
     internal List<ViewEmployee>? _Toparticipant;
-    // public ApplicationUser? applicationUser { get; private set; }
-    // internal List<ViewEmployee>? _participant = new List<ViewEmployee>();
-    // Appointment? Data { get; set; } = new Appointment();
+    
     Appointment? CategoryData { get; set; } = new Appointment();
     DxScheduler Scheduler { get; set; }
     SchedulerAppointmentFormMode AppointmentFormMode { get; set; } = SchedulerAppointmentFormMode.CompactEditForm;
@@ -289,12 +252,15 @@
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
+
         await UpdateDataAsync();
     }
     public async Task UpdateDataAsync()
     {
         appointmentslist = await Mediator.Send(new GetSchedulerList(applicationUser.UserID));
+
         DataStorage.AppointmentsSource = appointmentslist.ToList();
+        StateHasChanged();
     }
 
     public class CustomAppointmentFormInfo : SchedulerAppointmentFormInfo
@@ -353,12 +319,12 @@
 
     }
 
-    //static IEnumerable<long>? userIds(DxExpandoDictionaryObject customFields) => (IEnumerable<long>?)customFields["userIds"];
+  
 
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
         {       
 
-         //   AppointmentsSource = appointmentslist.GetAppointments(),
+      
             AppointmentMappings = new DxSchedulerAppointmentMappings()
             {
                 Id = "ID",
@@ -381,14 +347,7 @@
                   new DxSchedulerCustomFieldMapping { Name = "userIds", Mapping = "userIds" }
             }
             },
-            // ResourcesSource = ResourceCollection.GetResourcesForGrouping(),
-            // ResourceMappings = new DxSchedulerResourceMappings()
-            // {
-            //     Id = "Id",
-            //     Caption = "Name",
-            //     BackgroundCssClass = "BackgroundCss",
-            //     TextCssClass = "TextCss"
-            // }
+           
 
         };
 
@@ -430,8 +389,8 @@
             }
 
             toastService.ShowToast("Record Insert Successfully", AC.SD.Core.Services.ToastLevel.Success);
-           
-          
+
+
             await jsRuntime.InvokeVoidAsync("location.reload");
 
         }
@@ -495,6 +454,16 @@
         await UpdateDataAsync();
 
     }
+    async void OnAcceptClick(long ID)
+    {
+        var result = await Mediator.Send(new UpdateAccept(applicationUser.UserID,true,ID));
+        toastService.ShowToast("Appointment Accepted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    async void OnRejectClick(long ID)
+    {
+        var result = await Mediator.Send(new UpdateAccept(applicationUser.UserID, false,ID));
+        toastService.ShowToast("Appointment Rejected Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
     async void OnClick(long appointmentID)
     {
 
@@ -502,21 +471,43 @@
         IsUserslist = true;
         StateHasChanged();
     }
-    async void CreatedUser(long appointmentID,long userid)
+     async void OnAppointmentTooltipShowing(SchedulerAppointmentOperationEventArgs args)
     {
-
-        var Userlist = await Mediator.Send(new GetCreatedUserQuery(appointmentID,userid));
-        if (Userlist.Count >0)
+        
+        string Appointmentid = JsonConvert.SerializeObject(args.Appointment.Id);
+        var appointmentID = long.Parse(Appointmentid);
+      
+        var Userlist = await Mediator.Send(new GetCreatedUserQuery(appointmentID, applicationUser.UserID));
+        if (Userlist.Count > 0)
         {
             AllowDeleteAppointment = true;
             AllowEditAppointment = true;
-
+            RejectVisible = false;
+            AcceptVisible = false;
         }
+
         else
         {
             AllowDeleteAppointment = false;
             AllowEditAppointment = false;
+            var list = await Mediator.Send(new GetUserQuery(appointmentID, applicationUser.UserID));
+            if (list.Count > 0)
+            {
+                if (list[0].IsAccepted == true)
+                {
+                    RejectVisible = true;
+                    AcceptVisible = false;
+                }
+                else
+                {
+                    RejectVisible = false;
+                    AcceptVisible = true;
+                }
+            }
+
         }
+
         StateHasChanged();
     }
+   
 }

@@ -16,5 +16,6 @@ namespace Core.Entities
        
         public long? AppointmentID { get; set; }
         public long? UserID { get; set; }
+        public bool IsAccepted { get; set; } = false;
     }
 }

@@ -44,5 +44,8 @@ namespace Core.Entities
         public long? AppointmentID { get; set; }
         [NotMapped]
         public long? UserID { get; set; }
+        [NotMapped]
+        public bool IsAccepted { get; set; } = false;
+       
     }
 }

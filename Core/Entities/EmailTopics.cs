@@ -140,6 +140,8 @@ namespace Core.Entities
         public DateTime? ExpiryDueDate { get; set; }
         [NotMapped]
         public bool IsClosed { get; set; } = false;
+        [NotMapped]
+        public int? ReplyCount { get; set; }
 
     }
 }

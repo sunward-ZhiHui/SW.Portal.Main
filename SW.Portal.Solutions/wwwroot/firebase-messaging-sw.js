@@ -40,13 +40,15 @@ self.addEventListener('push', function (event) {
     const payload = event.data.json();
 
     // Extract the URL from the payload data
-    const url = payload.data.url || 'https://example.com';
+    //const url = payload.data.url || 'https://example.com';
+    const url = payload.notification.click_action || 'https://example.com';
 
     // Customize notification here
     const notificationTitle = payload.notification.title || 'Default Title';
     const notificationOptions = {
         body: payload.notification.body || 'Default Body',
-        icon: '/firebase-logo.png'
+        icon: '/firebase-logo.png',
+        data: { url: url } 
     };
 
     event.waitUntil(
@@ -55,18 +57,27 @@ self.addEventListener('push', function (event) {
 });
 
 self.addEventListener('notificationclick', function (event) {
-    event.notification.close();
+    //event.notification.close();
 
-    // Extract the URL or action from the notification payload
-    const url = event;
-    console.log(url);
-    // Perform custom actions based on the URL or other data
-    if (url) {
-        // Open the specified URL
-        //clients.openWindow(url);
-    } else {
-        // Handle other actions or navigate within your app
-    }
+    //// Extract the URL or action from the notification payload
+    //const url = event;
+    //console.log(url);
+    //// Perform custom actions based on the URL or other data
+    //if (url) {
+    //    // Open the specified URL
+    //    //clients.openWindow(url);
+    //} else {
+    //    // Handle other actions or navigate within your app
+    //}
+
+
+    event.notification.close(); // Close the notification on click
+    const url = event.notification.data.url; // Retrieve the URL from notification data
+
+    // Open the URL in a new tab
+    event.waitUntil(
+        clients.openWindow(url)
+    );
 });
 
 

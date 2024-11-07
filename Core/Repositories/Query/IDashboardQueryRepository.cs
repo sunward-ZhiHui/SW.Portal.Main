@@ -23,12 +23,14 @@ namespace Core.Repositories.Query
         Task<List<Appointment>> GetAppointments(long id);
         Task<long> AddAppointmentAsync(Appointment appointment);
         Task<long> AddAppointmentinsertAsync(Appointment userMultiple);
-     
-        Task<long> UpdateAppointmentAsync(Appointment appointment);
+        Task<long> UpdateAcceptAsync(long userid,bool accept,long appointmentid);
+           Task<long> UpdateAppointmentAsync(Appointment appointment);
         Task<long> DeleteAppointmentAsync(long id);
         Task<long> DeleteUsermultipleAsync(long appointmentid);
         Task<IReadOnlyList<DynamicFormData>> GetDynamicDataAsync(long dynamicID);
         Task<IReadOnlyList<DynamicFormApproved>> GetDynamicApprovedStatusAsync(long DataFormID);
-        Task<List<Appointment>> GetCreatedUserAsync(long appointmentid ,long userid);
+        Task<List<Appointment>> GetCreatedUserAsync(long appointmentid,long userid);
+        Task<List<Appointment>> GetAcceptedUserAsync(long appointmentid, long userid);
+        
     }
 }

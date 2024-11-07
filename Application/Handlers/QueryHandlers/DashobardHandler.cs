@@ -222,6 +222,21 @@ namespace CMS.Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+    public class EditAcceptHandler : IRequestHandler<UpdateAccept, long>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public EditAcceptHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<long> Handle(UpdateAccept request, CancellationToken cancellationToken)
+        {
+            var newlist = await _dashboardQueryRepository.UpdateAcceptAsync(request.userID,request.Accept,request.Appointmentid);
+
+           
+            return newlist;
+        }
+    }
     public class DeleteAppointmentHandler : IRequestHandler<DeleteAppointment, long>
     {
         private readonly IDashboardQueryRepository _dashboardQueryRepository;
@@ -291,6 +306,19 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<Appointment>> Handle(GetCreatedUserQuery request, CancellationToken cancellationToken)
         {
             return (List<Appointment>)await _dashboardQueryRepository.GetCreatedUserAsync(request.AppointmentID,request.userid);
+
+        }
+    }
+    public class GetUserAcceptHandler : IRequestHandler<GetUserQuery, List<Appointment>>
+    {
+        private readonly IDashboardQueryRepository _dashboardQueryRepository;
+        public GetUserAcceptHandler(IDashboardQueryRepository dashboardQueryRepository)
+        {
+            _dashboardQueryRepository = dashboardQueryRepository;
+        }
+        public async Task<List<Appointment>> Handle(GetUserQuery request, CancellationToken cancellationToken)
+        {
+            return (List<Appointment>)await _dashboardQueryRepository.GetAcceptedUserAsync(request.AppointmentID, request.userid);
 
         }
     }

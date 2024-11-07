@@ -86,7 +86,19 @@ namespace Application.Queries
     }
     public class EditAppointment : Appointment, IRequest<long>
     {
-    }    
+    }
+    public class UpdateAccept : Appointment, IRequest<long>
+    {
+        public long userID { get; private set; }
+        public bool Accept { get; private set; }
+        public long Appointmentid { get; private set; }
+        public UpdateAccept(long userID, bool accept, long appointmentid)
+        {
+            this.userID = userID;
+            Accept = accept;
+            Appointmentid = appointmentid;
+        }
+    }
     public class DeleteAppointment : IRequest<long>
     {
         public long Id { get; private set; }
@@ -119,7 +131,17 @@ namespace Application.Queries
     {
         public long AppointmentID { get; private set; }
         public long userid { get; private set; }
-        public GetCreatedUserQuery(long AppointmentID,long userid)
+        public GetCreatedUserQuery(long AppointmentID, long userid)
+        {
+            this.AppointmentID = AppointmentID;
+            this.userid = userid;
+        }
+    }
+    public class GetUserQuery : PagedRequest, IRequest<List<Appointment>>
+    {
+        public long AppointmentID { get; private set; }
+        public long userid { get; private set; }
+        public GetUserQuery(long AppointmentID, long userid)
         {
             this.AppointmentID = AppointmentID;
             this.userid = userid;

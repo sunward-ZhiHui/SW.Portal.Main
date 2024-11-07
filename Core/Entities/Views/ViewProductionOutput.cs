@@ -33,5 +33,6 @@ namespace Core.Entities.Views
         public string OutputDate { get; set; }
         public string Time { get; set; }
         public string GrossWeight { get; set; }
+        public string LocationDescription { get; set; }
     }
 }

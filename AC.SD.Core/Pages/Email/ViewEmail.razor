@@ -2958,6 +2958,15 @@
     }   
     private void ShowSubjectFlyout(EmailConversations emailConversations) {
         CurrentEmailConversations = emailConversations;
+
+        if((applicationUser.UserID == CurrentEmailConversations.UserId) || _openAccessUserLink != null)
+        {            
+            if (CurrentEmailConversations != null)
+            {
+                CurrentEmailConversations.IsLockDueDate = false;
+            }                
+        }
+
         isOpenSubjectPop = true;
     }
     async Task onMarkasRead(long Id)
@@ -3706,6 +3715,10 @@
             if((applicationUser.UserID == CurrentEmailConversations.UserId) || _openAccessUserLink != null)
             {
                 IsSubjectNoOfDays = true;
+                if (CurrentEmailConversations != null)
+                {
+                    CurrentEmailConversations.IsLockDueDate = false;
+                }                
             }             
             else 
             {

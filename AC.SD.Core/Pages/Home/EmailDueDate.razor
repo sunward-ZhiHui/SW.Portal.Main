@@ -25,6 +25,30 @@
         color: red;
     }
 </style>
+<style scoped>
+    .reply-label {
+        display: inline-flex;
+        align-items: center;
+        font-size: 12px;
+        color: #007bff;
+        border: 1px solid #007bff;
+        border-radius: 6px;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .reply-label:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .reply-label .count {
+            margin-left: 8px;
+            padding-left: 8px;
+            border-left: 1px solid #007bff;
+        }
+</style>
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -100,7 +124,18 @@
                 }
                 
             </CellDisplayTemplate>
-        </DxGridDataColumn> 
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="ReplyCount" Caption="Reply" Width="100">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                }                               
+                <div class="reply-label">
+                    <i class="fa fa-reply"></i> 
+                    <span class="count">@item.ReplyCount</span>
+                </div>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
         <DxGridDataColumn FieldName="DueDate" Caption="History" Width="180">
             <CellDisplayTemplate>
                 @{
@@ -526,19 +561,17 @@
         ReplyMsgEnabled = true;
         EditEnabled = true;
 
-        if (_selectedItems.IsLockDueDate != true)
+
+        if ((applicationUser.UserID == _selectedItems.UserId) || _openAccessUserLink != null)
         {
-            if ((applicationUser.UserID == _selectedItems.UserId) || _openAccessUserLink != null)
-            {
-                IsSubjectNoOfDays = true;
-            }
-            else
-            {
-                IsSubjectNoOfDays = false;
-            }
-
-
+            IsSubjectNoOfDays = true;
+            LockDueDateEnable = true;
         }
+        else
+        {
+            IsSubjectNoOfDays = false;
+            LockDueDateEnable = false;
+        }        
       
         StateHasChanged();
 

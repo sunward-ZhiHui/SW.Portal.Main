@@ -185,6 +185,14 @@ namespace Application.Queries
             this.SesionId = SessionId;
         }
     }
+    public class GetDynamicFormDataBySessionOne : PagedRequest, IRequest<DynamicFormData>
+    {
+        public Guid? SesionId { get; set; }
+        public GetDynamicFormDataBySessionOne(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
+    }
     public class GetDynamicFormDataBySessionIdForDMS : PagedRequest, IRequest<DocumentsModel>
     {
         public string? SearchString { get; set; }
@@ -717,7 +725,7 @@ namespace Application.Queries
         public InsertCloneDynamicForm(DynamicForm dynamicForm, bool? isWithoutForm, long? userId)
         {
             this.DynamicForm = dynamicForm;
-            this.IsWithoutForm= isWithoutForm;
+            this.IsWithoutForm = isWithoutForm;
             this.UserId = userId;
         }
 
@@ -730,6 +738,6 @@ namespace Application.Queries
             this.Id = id;
         }
     }
-    
+
 }
 

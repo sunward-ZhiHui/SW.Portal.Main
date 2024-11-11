@@ -60,7 +60,19 @@
             <DxGridDataColumn FieldName="DocumentPath" Caption="Link From" MinWidth="80" />
             <DxGridDataColumn FieldName="FullPath" Caption="Document Path" MinWidth="80" />
             <DxGridDataColumn FieldName="AddedByUser" Caption="Link Created By" MinWidth="80" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentLinkModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
         </Columns>
     </DxGrid>
 </DxLoadingPanel>

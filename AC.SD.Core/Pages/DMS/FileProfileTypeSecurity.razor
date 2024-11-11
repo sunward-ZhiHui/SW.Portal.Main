@@ -327,7 +327,8 @@
                                 DisplayMode="MenuDisplayMode.Auto">
                             <Items>
                                 <DxMenuItem Text="Close" IconCssClass="fa fa-reply" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
-                                <DxMenuItem Text="Expand All" IconCssClass="fa fa-expand" Click=@expandTreeAll />
+                                     <DxMenuItem Text="Expand All" IconCssClass="fa fa-expand" Click=@expandTreeAll />
+                                <DxMenuItem Text="Collapse All" IconCssClass="fa fa-expand" Click=@CollapseTreeAll />
                                 @*  <DxMenuItem Text="Save Permission" IconCssClass="fa fa-save" Click="@SubmitFormExternally" /> *@
                             </Items>
                         </DxMenu>
@@ -336,32 +337,59 @@
             </div>
         </div>
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-            <DxFormLayoutItem Caption="">
-                <DxTreeView @ref="_treeFilterDocView"
-                            @bind-FilterString="FilterDocumentString"
-                            ShowFilterPanel="true"
-                            FilterMode="NavigationFilterMode.EntireBranch"
-                            Data="@fileProfileTypeDocuments"
-                            CheckMode="TreeViewCheckMode.Recursive"
-                            CheckAllVisible="true"
-                            CheckedChanged="CheckedChanged"
-                            CheckNodeByClick="true"
-                            AnimationType="LayoutAnimationType.Slide"
-                            CssClass="h-300">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId"
-                                               IconCssClass="IconCssClass"
-                                               Checked="Checked" />
-                    </DataMappings>
-                </DxTreeView>
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                <DxTreeList Data="fileProfileTypeDocumentsAll"
+                            @ref="TreeList"
+                            VirtualScrollingEnabled="true"
+                            ShowFilterRow="true"
+                            KeyFieldName="FileProfileTypeId"
+                            ParentKeyFieldName="ParentId"
+                            ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            ShowAllRows="true"
+                            FocusedRowEnabled="true"
+                            SelectionMode="TreeListSelectionMode.Multiple"
+                            AllowSelectRowByClick="true"
+                            SelectedDataItems="@SelectedDataItems"
+                            SelectedDataItemsChanged="OnSelectedDataItemsChanged"
+                            FilterTreeMode="TreeListFilterTreeMode.EntireBranch"
+                            CssClass="max-h-480">
+                    <Columns>
+
+                        <DxTreeListSelectionColumn Width="5%"/>
+                        <DxTreeListDataColumn FieldName="FileName" Width="95%" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                            <EditSettings>
+                                <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                            </EditSettings>
+                        </DxTreeListDataColumn>
+                    </Columns>
+                </DxTreeList>
+                @* <DxTreeView @ref="_treeFilterDocView"
+                @bind-FilterString="FilterDocumentString"
+                ShowFilterPanel="true"
+                FilterMode="NavigationFilterMode.EntireBranch"
+                Data="@fileProfileTypeDocuments"
+                CheckMode="TreeViewCheckMode.Recursive"
+                CheckAllVisible="true"
+                CheckedChanged="CheckedChanged"
+                CheckNodeByClick="true"
+                AnimationType="LayoutAnimationType.Slide"
+                CssClass="h-300">
+                <DataMappings>
+                <DxTreeViewDataMapping Text="FileName"
+                Key="DocumentID"
+                ParentKey="ParentId"
+                IconCssClass="IconCssClass"
+                Checked="Checked" />
+                </DataMappings>
+                </DxTreeView> *@
             </DxFormLayoutItem>
 
         </DxFormLayout>
     </BodyContentTemplate>
 </DxFlyout>
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     EditContext _editContext;
     string? LinkFilterFileprofiletypeName { get; set; } = string.Empty;
     private DocumentUserRoleLists? refDocumentUserRoleListsUser;
@@ -384,7 +412,7 @@
     int ActiveTabSecIndex { get; set; } = 0;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public List<DocumentsModel> fileProfileTypeDocuments { get; set; }
-    private DxTreeView _treeFilterDocView;
+    private DxTreeView _treeFilterDocView; ITreeList TreeList { get; set; }
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     string? FilterDocumentString { get; set; }
     bool saveEnabled { get; set; } = true;
@@ -410,6 +438,7 @@
         Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
         Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
         fileProfileTypeDocuments = GetChild(FileProfileTypeId).ToList();
+        StateHasChanged();
     }
     protected void SelectionChanged(TreeViewNodeEventArgs e)
     {
@@ -420,6 +449,36 @@
             LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             Data.SelectFileProfileTypeId = lists.FirstOrDefault()?.FileProfileTypeId;
         }
+        StateHasChanged();
+    }
+    void OnSelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        LinkFilterFileprofiletypeName = string.Empty;
+        Data.FileProfileTypeIds = new List<long?>();
+        foreach (object item in SelectedToItems)
+        {
+            if (item is DocumentsModel nodeName)
+            {
+                if (nodeName != null)
+                {
+                    Data.FileProfileTypeIds.Add(nodeName.FileProfileTypeId);
+                    LinkFilterFileprofiletypeName += nodeName.FileName + ",";
+                }
+            }
+        }
+        // if (e.CheckedItems != null)
+        // {
+        //     e.CheckedItems.ToList().ForEach(s =>
+        //     {
+        //         var nodeName = s.DataItem as DocumentsModel;
+        //         if (nodeName != null)
+        //         {
+        //             Data.FileProfileTypeIds.Add(nodeName.FileProfileTypeId);
+        //             LinkFilterFileprofiletypeName += nodeName.FileName + ",";
+        //         }
+        //     });
+        // }
+        LinkFilterFileprofiletypeName = LinkFilterFileprofiletypeName.TrimEnd(',');
         StateHasChanged();
     }
     void CheckedChanged(TreeViewCheckedChangedEventArgs e)
@@ -453,14 +512,18 @@
                 s.Checked = false;
             });
         }
+        StateHasChanged();
+    }
+    void CollapseTreeAll()
+    {
+        TreeList.CollapseAll();
     }
     void expandTreeAll()
     {
-        _treeFilterDocView.ExpandAll();
+        TreeList.ExpandAll();
     }
     void OnButtonFileProfileTypeLinDocClick()
     {
-        // _treeFilterDocView.ExpandAll();
         if (Data.FileProfileTypeIds.Count > 0)
         {
             if (fileProfileTypeDocuments != null && fileProfileTypeDocuments.Count() > 0)
@@ -600,9 +663,13 @@
     }
     public IEnumerable<DocumentsModel> GetChild(long? id)
     {
-        var locations = fileProfileTypeDocumentsAll.Where(x => x.ParentId == id || x.FileProfileTypeId == id).ToList();
+        List<DocumentsModel> child = new List<DocumentsModel>();
+        if (fileProfileTypeDocumentsAll != null)
+        {
+            var locations = fileProfileTypeDocumentsAll.Where(x => x.ParentId == id || x.FileProfileTypeId == id).ToList();
 
-        var child = locations.AsEnumerable().Union(fileProfileTypeDocumentsAll.AsEnumerable().Where(x => x.ParentId == id).SelectMany(y => GetChild(y.FileProfileTypeId))).ToList();
+            child = locations.AsEnumerable().Union(fileProfileTypeDocumentsAll.AsEnumerable().Where(x => x.ParentId == id).SelectMany(y => GetChild(y.FileProfileTypeId))).ToList();
+        }
         return child;
     }
     private List<FileProfileTypeModel>

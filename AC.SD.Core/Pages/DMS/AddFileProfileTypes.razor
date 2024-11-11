@@ -74,7 +74,9 @@
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
-    public string Type { get; set; }
+    public string? Type { get; set; }
+    [Parameter]
+    public string? MainSub { get; set; }
     private AddOrEditFileProfileType? refAddOrEditFileProfileType;
     private FileProfileTypeSecurity? refFileProfileTypeSecurity;
     int ActiveTabIndex { get; set; } = 0;
@@ -97,7 +99,7 @@
     }
     protected override async Task OnParametersSetAsync()
     {
-        isEditProfileType = true; isSaveEnabled = true;
+        isEditProfileType = true; isSaveEnabled = true; IsGrantAdminPermission = false;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         FolderPathLists = new List<DocumentsModel>();
         DocumentsModel dc = new DocumentsModel();
@@ -123,7 +125,11 @@
                     }
                     if (_openAccessUserLink.IsDmsAccess == true)
                     {
-                        isSaveEnabled = true; isEditProfileType = true; IsGrantAdminPermission = true;
+                        isSaveEnabled = true; isEditProfileType = true;
+                        if (Type == "Edit")
+                        {
+                            IsGrantAdminPermission = true;
+                        }
                     }
                     else
                     {
@@ -214,6 +220,7 @@
 
             }
         }
+        StateHasChanged();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
     {

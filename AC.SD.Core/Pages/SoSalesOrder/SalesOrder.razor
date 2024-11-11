@@ -60,7 +60,7 @@
             ShowGroupPanel="true" ShowGroupedColumns="true">
 
         <Columns>
-           @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+            @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="SoSalesOrderId" Caption="Date" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="AddedDate" Caption="Date" Width="180">
                 <CellDisplayTemplate>
@@ -71,11 +71,47 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="AddedBy" Caption="User" MinWidth="80" />
-            <DxGridDataColumn FieldName="DocumentDate" Caption="Document Date" MinWidth="80" />
+            <DxGridDataColumn FieldName="DocumentDate" Caption="Document Date" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_SoSalesOrder)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.DocumentDate.HasValue && item.DocumentDate != DateTime.MinValue)
+                        {
+                            startDate = item.DocumentDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="SignOrderNo" Caption="Sign Order No" MinWidth="80" />
-            <DxGridDataColumn FieldName="OrderDate" Caption="Order Date" MinWidth="80" />
+            <DxGridDataColumn FieldName="OrderDate" Caption="Order Date" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_SoSalesOrder)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.OrderDate.HasValue && item.OrderDate != DateTime.MinValue)
+                        {
+                            startDate = item.OrderDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="CustomerName" Caption="Customer" MinWidth="80" />
-            <DxGridDataColumn FieldName="PrioityDeliveryDate" Caption="Prioity Delivery" Width="180" />
+            <DxGridDataColumn FieldName="PrioityDeliveryDate" Caption="Prioity Delivery" Width="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_SoSalesOrder)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.PrioityDeliveryDate.HasValue && item.PrioityDeliveryDate != DateTime.MinValue)
+                        {
+                            startDate = item.PrioityDeliveryDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="Address1" Caption="Delivery Address" Width="180" />
         </Columns>
         <TotalSummary>

@@ -16,5 +16,6 @@
         public T Result { get; set; }
         public List<T> Results { get; set; }        
         public List<string> ErrorMessages { get; set; }
+
     }
 }

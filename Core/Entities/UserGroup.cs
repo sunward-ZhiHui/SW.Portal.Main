@@ -15,10 +15,10 @@ namespace Core.Entities
         public long UserGroupId { get; set; }
         [Required(ErrorMessage = "Name is Required")]
         [UserGroupNameCustomValidation]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public string Description { get; set; }
         [Required(ErrorMessage = "Status Code is Required")]
-        public int StatusCodeId { get; set; }
+        public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
@@ -32,6 +32,8 @@ namespace Core.Entities
 
         public string? StatusCode { get; set; }
         [NotMapped]
+        [Required(ErrorMessage = "Users is Required")]
+        [SelectUserGropupUserCustomValidation]
         public IEnumerable<long?> SelectUserIDs { get; set; } = new List<long?>();
     }
 }

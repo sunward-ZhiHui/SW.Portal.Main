@@ -108,7 +108,19 @@
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" Width="20%" />
-                <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="20%" />
+                <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="20%">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentNoSeries)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                            {
+                                startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
 
             </Columns>
             <TotalSummary>
@@ -117,7 +129,7 @@
         </DxGrid>
         <div class="pager-container">
             <p style="text-align:center;">
-            <button @onclick="ToLoadMore" class="loadmorebg">Load More</button>
+                <button @onclick="ToLoadMore" class="loadmorebg">Load More</button>
             </p>
         </div>
     </div>

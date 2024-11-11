@@ -14,6 +14,7 @@
 @using Newtonsoft.Json.Linq;
 @using Newtonsoft.Json;
 @implements IAsyncDisposable
+@inject ClipboardService ClipboardService
 @using System.Collections.ObjectModel
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 
@@ -51,7 +52,14 @@
                 <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="@addDetailEmailCreate" Enabled="@emailEnabled" />
                 <DxMenuItem Text="@LockedName" IconCssClass="@fafaunlock" Click="@OpenLock" Enabled="@isLocked" />
                 <DxMenuItem Text="Approval Level Entry" IconCssClass="fa fa-check" Click="@OpenApprovalForm" Enabled="@isApprovalEnabled" />
-                <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
+                @*   <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" /> *@
+                <DxMenuItem Text="OData" IconCssClass="fa fa-link">
+                    <Items>
+                        <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@AddEnabled" />
+                        <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@AddEnabled" />
+                        <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@AddEnabled" />
+                    </Items>
+                </DxMenuItem>
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@AddEnabled" />
             </Items>
         </DxMenu>
@@ -156,7 +164,27 @@
                             }
                             else
                             {
-                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                                if (s.ControlType == "DateEdit")
+                                {
+                                    <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                DateTime? items = null;
+                                                dynamic item = (ExpandoObject)context.DataItem;
+                                                if (s.Value != null)
+                                                {
+                                                    var listName = ((IDictionary<String, Object>)item)[s.Value];
+                                                    items = (DateTime?)listName;
+                                                }
+                                            }
+                                            @(items != null ? Application.Common.Helper.Helper.FormatDate(items) : null)
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                }
+                                else
+                                {
+                                    <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom" />
+                                }
                             }
 
                         }
@@ -274,7 +302,7 @@
     private DynamicFormData _selectedItems;
     bool EditEnabled { get; set; } = false; bool PopupUpload { get; set; } = false; bool AddEnabled { get; set; } = false; bool lockpopup { get; set; } = false; bool PopupApprovalForm { get; set; } = false;
     bool DeleteEnabled { get; set; } = false; bool isApprovalEnabled { get; set; } = false;
-    bool Blukdeletepopup { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false; bool AddOneEnabled { get; set; } = false;
     bool fileEnabled { get; set; } = false; bool emailEnabled { get; set; } = false;
     private List<DynamicFormData> _dynamicformDataList;
     private AttributeHeaderListModel _AttributeHeader;
@@ -377,7 +405,7 @@
             PanelVisible = true;
             //await onshowLoading();
             _selectedItems = null; FileProfileTypeId = null;
-            dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true; Items = new ObservableCollection<object>(); isLocked = false;
+            dataColumnNames = new List<DropDownOptionsModel>(); AddEnabled = true; Items = new ObservableCollection<object>(); isLocked = false; AddOneEnabled = false;
             EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>(); emailEnabled = false; isApprovalEnabled = false;
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
             dataColumnNames.Add(new DropDownOptionsModel() { Value = "IsFileprofileTypeDocument", Text = "IsFileprofileTypeDocument", Type = "Form" });
@@ -429,11 +457,11 @@
                                         a.ApplicationMaster.ForEach(ab =>
                                         {
                                             var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
+                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
                                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
                                             {
                                                 var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                                dataColumnNames.Add(new DropDownOptionsModel() { Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
+                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
                                             }
                                         });
                                     }
@@ -446,19 +474,19 @@
                                         a.ApplicationMasterParents.ForEach(ab =>
                                         {
                                             var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
+                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
                                             RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
                                             if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                                             {
                                                 var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                                dataColumnNames.Add(new DropDownOptionsModel() { Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
+                                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
                                             }
                                         });
                                     }
                                 }
                                 else
                                 {
-                                    dataColumnNames.Add(new DropDownOptionsModel() { IsDynamicGrid = a.ControlTypeId == 2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                                    dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, IsDynamicGrid = a.ControlTypeId == 2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
 
                                 }
                                 if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0 && a.IsDisplayTableHeader == true)
@@ -466,7 +494,7 @@
                                     a.AttributeHeaderDataSource.ForEach(dd =>
                                     {
                                         var nameData = a.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
-                                        dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = dd.DisplayName, Type = "DynamicForm" });
+                                        dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = dd.DisplayName, Type = "DynamicForm" });
                                     });
                                 }
 
@@ -475,8 +503,8 @@
                             {
                                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
                             }
-                            dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
-                            dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
+                            dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "Modified By", Type = "Form" });
+                            dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "Modified Date", Type = "Form" });
                             if (_dynamicForm.IsApproval == true)
                             {
                                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
@@ -488,8 +516,8 @@
                             {
                                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "CurrentUserName", Text = "Current User", Type = "Form" });
                             }
-                            dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
-                            dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
+                            dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "Modified By", Type = "Form" });
+                            dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "Modified Date", Type = "Form" });
                             if (_dynamicForm.IsApproval == true)
                             {
                                 dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
@@ -1048,7 +1076,7 @@
             if (listss != null)
             {
                 var nameData = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + listss.ApplicationMasterParentCodeId + "_AppMasterPar";
-                dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = listss.ApplicationMasterName, Type = "DynamicForm" });
+                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = dynamicFormSectionAttribute.ControlType, Value = nameData, Text = listss.ApplicationMasterName, Type = "DynamicForm" });
                 RemoveApplicationMasterParentSingleItem(listss, dynamicFormSectionAttribute, dataColumnNames);
             }
         }
@@ -1110,7 +1138,7 @@
         _selectedItems = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
         FileProfileTypeId = _selectedItems?.FileProfileTypeId;
         //await DynamicFormOnDms();
-        EditEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock";
+        EditEnabled = true; LockedName = "Lock"; isLocked = true; fafaunlock = "fa fa-lock"; AddOneEnabled = true;
         DeleteEnabled = true; fileEnabled = true; emailEnabled = true; isApprovalEnabled = false;
         if (_selectedItems.IsApproval == true)
         {
@@ -1129,6 +1157,28 @@
                     isApprovalEnabled = false;
                 }
             }
+        }
+    }
+    async Task OpenOneOdataUrl()
+    {
+        // if (_selectedItems != null && _selectedItems.SessionId != null)
+        // {
+        //     var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormOneDataList?DynamicFormSessionId=" + _selectedItems.SessionId;
+        //     await JS.InvokeVoidAsync("window.open", url, "_blank");
+        // }
+        if (_dynamicForm != null && _dynamicForm.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _dynamicForm.SessionID;
+            await ClipboardService.WriteTextAsync(url);
+            toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+        }
+    }
+    async Task OpenEmptyOdataUrl()
+    {
+        if (_dynamicForm != null && _dynamicForm.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _dynamicForm.SessionID;
+            await JS.InvokeVoidAsync("window.open", url, "_blank");
         }
     }
     async Task OpenOdataUrl()

@@ -77,9 +77,33 @@
                 <DxGridDataColumn FieldName="DocumentRoleName" Caption="Role Name" />
                 <DxGridDataColumn FieldName="DocumentRoleDescription" Caption="Role Description" />
                 <DxGridDataColumn FieldName="AddedBy" />
-                <DxGridDataColumn FieldName="AddedDate" />
+                <DxGridDataColumn FieldName="AddedDate" >
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentRole)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                            {
+                                startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="ModifiedBy" />
-                <DxGridDataColumn FieldName="ModifiedDate" />
+                <DxGridDataColumn FieldName="ModifiedDate" >
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentRole)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                            {
+                                startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
 
             </Columns>
 

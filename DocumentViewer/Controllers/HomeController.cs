@@ -68,6 +68,16 @@ namespace DocumentViewer.Controllers
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
                     if (currentDocuments != null)
                     {
+                        var curDate = DateTime.Now.Date;
+                        bool? IsExpiryDate = false;
+                        currentDocuments.ExpiryDate = currentDocuments.ExpiryDate;
+                        if (currentDocuments.ExpiryDate != null && currentDocuments.ExpiryDate.Value.Date <= curDate)
+                        {
+                            IsExpiryDate = true;
+                            viewmodel.ExpiryDate = currentDocuments.ExpiryDate;
+                            viewmodel.IsExpiryDate = true;
+                            @ViewBag.isExpired = "Yes";
+                        }
                         HttpContext.Session.SetString("fileName", currentDocuments.FileName);
                         long userIds = Int64.Parse(HttpContext.Session.GetString("user_id"));
                         if (!string.IsNullOrEmpty(currentDocuments.FilePath))
@@ -516,9 +526,9 @@ namespace DocumentViewer.Controllers
                         else
                         {
                             var groupPlist = from tp in _context.EmailConversationParticipantUserGroup
-                                        join ugu in _context.UserGroupUser on tp.GroupId equals ugu.UserGroupID
-                                        where tp.TopicId == topicId && ugu.UserID == userId
-                                        select tp.ID;
+                                             join ugu in _context.UserGroupUser on tp.GroupId equals ugu.UserGroupID
+                                             where tp.TopicId == topicId && ugu.UserID == userId
+                                             select tp.ID;
 
                             var gresult = groupPlist.ToList();
                             if (gresult != null)

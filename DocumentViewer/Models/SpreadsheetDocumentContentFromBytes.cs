@@ -19,6 +19,8 @@ namespace DocumentViewer.Models
         public string? PlainTextBytes { get; set; }
         public bool? IsRead { get; set; } = false;
         public bool? IsDownload { get; set; } = false;
+        public DateTime? ExpiryDate { get; set; }
+        public bool? IsExpiryDate { get; set; } = false;
     }
     public class PermissionModel
     {

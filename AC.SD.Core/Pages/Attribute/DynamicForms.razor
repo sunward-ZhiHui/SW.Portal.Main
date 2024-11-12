@@ -20,6 +20,8 @@
 @using Newtonsoft.Json;
 @using System.Collections.ObjectModel
 @implements IAsyncDisposable
+@using System.Text.RegularExpressions;
+@using ExpressionMathEval = org.matheval.Expression;
 @inject AC.SD.Core.Helpers.DataGridDynamicForm _LoadDataGridDynamicForm
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @using BlazorBarcodeScanner.ZXing.JS
@@ -3286,7 +3288,7 @@
         string? IpirSessionId = GetQueryParm("SessionId");
         string? IpirTypeName = GetQueryParm("Type");
         if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        { 
+        {
             if (!string.IsNullOrEmpty(IpirTypeName))
             {
                 long? IpirType = (long?)Convert.ToInt64(IpirTypeName);
@@ -3634,6 +3636,106 @@
             DynamicFormFilterBypopup = true;
         }
         StateHasChanged();
+    }
+    void OnTextChangedItem(Microsoft.AspNetCore.Components.Web.MouseEventArgs str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
+    {
+        //property.SetValue(Data, str);
+        try
+        {
+            if (!string.IsNullOrEmpty(dynamicFormSectionAttribute.FormulaTextBox))
+            {
+                List<DropDownOptionsModel> dropDownOptionsModels = new List<DropDownOptionsModel>();
+                var values = dynamicFormSectionAttribute.FormulaTextBox.Split("$");
+                var formulaText = dynamicFormSectionAttribute.FormulaTextBox;
+                List<string> list = new List<string>();
+                if (values.Length > 0)
+                {
+                    foreach (var item in values)
+                    {
+                        if (!string.IsNullOrEmpty(item))
+                        {
+                            var names = Regex.Replace(item, @"[^0-9a-zA-Z_]+", "").Split("_").ToList();
+                            if (names.Count() > 0)
+                            {
+                                var name1 = names.ElementAtOrDefault(0) != null;
+                                var name2 = names.ElementAtOrDefault(1) != null;
+                                if (name1 == true)
+                                {
+                                    if (name2 == true)
+                                    {
+                                        list.Add(names[0]);
+                                        DropDownOptionsModel dropDownOptionsModel = new DropDownOptionsModel();
+                                        dropDownOptionsModel.Id = (long?)Convert.ToInt64(names[0]);
+                                        dropDownOptionsModel.Text = dropDownOptionsModel.Id + "_" + Regex.Replace(names[1], @"[^0-9a-zA-Z_]+", "");
+                                        dropDownOptionsModel.Value = names[0];
+                                        dropDownOptionsModels.Add(dropDownOptionsModel);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                list = list.Distinct().ToList();
+                if (list.Count > 0)
+                {
+                    int i = 65;
+                    list.ForEach(s =>
+                    {
+                        if (!string.IsNullOrEmpty(s))
+                        {
+                            string strAlpha = ((char)i).ToString();
+                            var SData = dropDownOptionsModels.FirstOrDefault(f => f.Value == s)?.Text;
+                            if (SData != null)
+                            {
+                                formulaText = formulaText.Replace("$" + SData, strAlpha.ToLower());
+                                i++;
+                            }
+                        }
+                    });
+                    ExpressionMathEval expressions = new ExpressionMathEval(formulaText);
+                    int j = 65;
+                    list.ForEach(s =>
+                    {
+                        if (!string.IsNullOrEmpty(s))
+                        {
+                            string strAlpha = ((char)j).ToString();
+                            var attrNames = _AttributeHeader.DynamicFormSectionAttribute.FirstOrDefault(f => f.DynamicFormSectionAttributeId == (long?)Convert.ToInt64(s))?.DynamicAttributeName;
+                            if (Data.GetType().GetProperty(attrNames) != null)
+                            {
+                                var avluess = Data.GetType().GetProperty(attrNames).GetValue(Data);
+                                expressions.Bind(strAlpha.ToLower(), avluess == null ? 0 : avluess);
+                            }
+                            else
+                            {
+                                expressions.Bind(strAlpha.ToLower(), 0);
+                            }
+                            j++;
+
+                        }
+                    });
+                    List<String> errors = expressions.GetError();
+
+                    if (errors.Count == 0)
+                    {
+                        object valuess = expressions.Eval<object>();
+                        var objectValue = (decimal?)valuess;
+                        if (objectValue > 0)
+                        {
+                            property.SetValue(Data, objectValue.ToString());
+                            // /var val = valuess;
+                        }
+                    }
+                    else
+                    {
+                        toastService.ShowToast(errors[0], AC.SD.Core.Services.ToastLevel.Error);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowToast(ex.Message, AC.SD.Core.Services.ToastLevel.Error);
+        }
     }
     void OnCheckedChangedItem(bool? str, PropertyInfo property, DynamicFormSection dynamicFormSection, DynamicFormSectionAttribute dynamicFormSectionAttribute)
     {
@@ -4757,6 +4859,18 @@
                          }
 
                          editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                         //editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, (str) => OnTextChangedItem(str, property, a, s)));
+                         if (!string.IsNullOrEmpty(s.FormulaTextBox))
+                         {
+                             editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
+                             {
+                                 dx.OpenComponent<DxEditorButton>(j + 1);
+                                 dx.AddAttribute(j + 1, "IconCssClass", "fa fa-calculator");
+                                 dx.AddAttribute(j + 1, "Tooltip", "Formula:" + s.FormulaTextBox);
+                                 dx.AddAttribute(j + 1, "Click", EventCallback.Factory.Create<MouseEventArgs>(this, str => OnTextChangedItem(str, property, a, s)));
+                                 dx.CloseComponent();
+                             }));
+                         }
                          editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                          if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
                          {
@@ -4934,7 +5048,7 @@
                              {
                                  editor.OpenComponent<DxSpinEdit<int?>>(j + 1);
                                  editor.AddAttribute(j + 1, "Value", valueData);
-                                 editor.AddAttribute(j + 1, "MinValue", 0);
+                                 // editor.AddAttribute(j + 1, "MinValue", 0);
                                  if (isAccessOnly == true)
                                  {
                                      editor.AddAttribute(j + 1, "Enabled", isReadonly);
@@ -4959,7 +5073,7 @@
                                  {
                                      editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                                  }
-                                 editor.AddAttribute(j + 1, "MinValue", 0M);
+                                 //editor.AddAttribute(j + 1, "MinValue", 0M);
 
                                  editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { property.SetValue(Data, str); }));
                              }
@@ -6503,7 +6617,7 @@
                                 {
                                     editor1.OpenComponent<DxSpinEdit<int?>>(m + 1);
                                     editor1.AddAttribute(m + 1, "Value", valueDataSub);
-                                    editor1.AddAttribute(m + 1, "MinValue", 0);
+                                    //editor1.AddAttribute(m + 1, "MinValue", 0);
                                     //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                                     editor1.AddAttribute(m + 1, "BindValueMode", BindValueMode.OnInput);
                                     editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
@@ -6515,7 +6629,7 @@
                                     editor1.AddAttribute(m + 1, "Value", valueDataSub);
                                     editor1.AddAttribute(m + 1, "Increment", 0.1M);
                                     //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                                    editor1.AddAttribute(m + 1, "MinValue", 0M);
+                                    //editor1.AddAttribute(m + 1, "MinValue", 0M);
                                     editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                                     editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { propertySub.SetValue(Data, str); }));
                                 }

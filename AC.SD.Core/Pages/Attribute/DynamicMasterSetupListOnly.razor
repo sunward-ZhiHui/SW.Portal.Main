@@ -12,7 +12,7 @@
 @inject NavigationManager NavigationManager
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
 @implements IAsyncDisposable
-
+@inject ClipboardService ClipboardService
 <style scoped>
     .formCountClass {
         color: red;
@@ -28,7 +28,14 @@
                 @*<DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" /> *@
                 <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
-                <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+                 @* <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
+                <DxMenuItem Text="OData" IconCssClass="fa fa-link">
+                    <Items>
+                        <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+                    </Items>
+                </DxMenuItem>
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@EditEnabled" />
             </Items>
         </DxMenu>
@@ -69,8 +76,34 @@
                     @((MarkupString)Names)
                 </CellDisplayTemplate>
             </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="50" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicForm)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicForm)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
@@ -130,6 +163,28 @@
         catch (Exception ex)
         {
 
+        }
+    }
+    async Task OpenOneOdataUrl()
+    {
+        // if (_selectedItems != null && _selectedItems.SessionId != null)
+        // {
+        //     var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormOneDataList?DynamicFormSessionId=" + _selectedItems.SessionId;
+        //     await JS.InvokeVoidAsync("window.open", url, "_blank");
+        // }
+        if (_selectedItems != null && _selectedItems.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await ClipboardService.WriteTextAsync(url);
+            toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+        }
+    }
+    async Task OpenEmptyOdataUrl()
+    {
+        if (_selectedItems != null && _selectedItems.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
     }
     async Task OpenOdataUrl()

@@ -4,6 +4,7 @@
 @using MediatR
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
+@using System.Text.RegularExpressions;
 @inject IMediator Mediator
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
@@ -14,9 +15,11 @@
 <script>
     function callButtonFunction(texts) {
         var cursorPos = $('#TextareaSpinInsert').prop('selectionStart');
-        console.log(cursorPos);
         var v = $('#TextareaSpinInsert').val();
-        v = v.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+        if (v != null) {
+           // v = v.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+            v = v.replace(/["',`~!#&=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+        }
         var textBefore = v.substring(0, cursorPos);
         var textAfter = v.substring(cursorPos, v.length);
         var display = textBefore + texts + textAfter;
@@ -33,7 +36,10 @@
     }
     function setTextareaSpinInsert(display) {
         setTimeout(function () {
-            display = display.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+            if (display != null) {
+                //display = display.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+                display = display.replace(/["',`~!#&=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+            }
             $('#TextareaSpinInsert').removeAttr('style');
             $('#TextareaSpinInsert').css("width", "100%");
             $('#TextareaSpinInsert').val(display);
@@ -51,8 +57,10 @@
     }
     function GetTextareaSpinFocus() {
         var value = $('#TextareaSpinInsert').val();
-        console.log(value);
-        value = value.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+        if (value != null) {
+            //value = value.replace(/([a-zA-Z ])/g, "").replace(/["',`~!#&_=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+            value = value.replace(/["',`~!#&=;:{},?<>]/g, "").replace(/[\[\]']+/g, '').replace(/@@/, '');
+        }
         $('#TextareaSpinInsert').val(value);
         return value;
     }
@@ -123,6 +131,9 @@
                         </div>
                     </div>
                 </DxFormLayoutItem>
+               @*   <DxFormLayoutItem Caption="Formula TextBox" ColSpanMd="12">
+                     <DxTextBox @bind-Text="@Data.FormulaSetTextBox" ShowValidationIcon="true" />
+                 </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="Formula TextBox" ColSpanMd="12">
                     <textarea rows="5" id="TextareaSpinInsert" style="width:100%;display:none;" @onkeyup="@((e) => onchangeFormulaTextBox())"></textarea>
                     <DxMemo @bind-Text="@Data.FormulaTextBox" style="display:none;" />
@@ -154,6 +165,7 @@
         Data.FormulaDynamicSectionAttributeId = SelectedItems.FormulaDynamicSectionAttributeId;
         _dynamicFormSectionAttributeSpinData = await Mediator.Send(new GetDynamicFormSectionAttributeForSpinEdit(Items.DynamicFormId));
         await jsRuntime.InvokeVoidAsync("setTextareaSpinInsert", SelectedItems.FormulaTextBox);
+
     }
     async Task OnItemClick(ToolbarItemClickEventArgs e)
     {
@@ -166,12 +178,17 @@
         if (dynamicFormSectionAttributeId > 0)
         {
             var NameList = _dynamicFormSectionAttributeSpinData.FirstOrDefault(f => f.DynamicFormSectionAttributeId == dynamicFormSectionAttributeId);
-            var nameSet = "$" + NameList.DynamicFormSectionAttributeId;
-            Data.FormulaTextBox = string.IsNullOrEmpty(Data.FormulaTextBox) ? "" : Data.FormulaTextBox;
-            var result = await jsRuntime.InvokeAsync<string>("callButtonFunction", nameSet);
-            Data.FormulaTextBox = result;
+            if (NameList != null && !string.IsNullOrEmpty(NameList.DisplayName))
+            {
+                var names = NameList.DynamicFormSectionAttributeId + "_" + Regex.Replace(NameList.DisplayName, @"[^0-9a-zA-Z]+", "");
+                var nameSet = "$" + names;
+                Data.FormulaTextBox = string.IsNullOrEmpty(Data.FormulaTextBox) ? "" : Data.FormulaTextBox;
+                var result = await jsRuntime.InvokeAsync<string>("callButtonFunction", nameSet);
+                Data.FormulaTextBox = result;
+                await jsRuntime.InvokeVoidAsync("setTextareaSpinFocus");
+            }
         }
-        await jsRuntime.InvokeVoidAsync("setTextareaSpinFocus");
+
         StateHasChanged();
     }
     async Task onchangeFormulaTextBox()
@@ -184,6 +201,7 @@
     }
     private async Task SubmitFormExternally()
     {
+        Data.FormulaTextBox = await jsRuntime.InvokeAsync<string>("GetTextareaSpinFocus");
         try
         {
             if (_editContext.Validate())

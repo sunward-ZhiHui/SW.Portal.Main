@@ -190,13 +190,33 @@ namespace Application.Queries
         public Guid? DynamicFormDataGridSessionId { get; set; }
         public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
         public string? BaseUrl { get; set; }
-        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl)
+        public bool? IsAll { get; set; }
+        public GetDynamicFormApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl, bool? isAll)
         {
             this.DynamicFormSessionId = dynamicFormSessionId;
             this.DynamicFormDataSessionId = dynamicFormDataSessionId;
             this.DynamicFormDataGridSessionId = dynamicFormDataGridSessionId;
             this.DynamicFormSectionGridAttributeSessionId = dynamicFormSectionGridAttributeSessionId;
             this.BaseUrl = baseUrl;
+            this.IsAll = isAll;
+        }
+    }
+    public class GetDynamicFormAttributeApi : PagedRequest, IRequest<List<DynamicFormData>>
+    {
+        public Guid? DynamicFormSessionId { get; set; }
+        public Guid? DynamicFormDataSessionId { get; set; }
+        public Guid? DynamicFormDataGridSessionId { get; set; }
+        public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
+        public string? BaseUrl { get; set; }
+        public bool? IsAll { get; set; }
+        public GetDynamicFormAttributeApi(Guid? dynamicFormSessionId, Guid? dynamicFormDataSessionId, Guid? dynamicFormDataGridSessionId, Guid? dynamicFormSectionGridAttributeSessionId, string? baseUrl, bool? isAll)
+        {
+            this.DynamicFormSessionId = dynamicFormSessionId;
+            this.DynamicFormDataSessionId = dynamicFormDataSessionId;
+            this.DynamicFormDataGridSessionId = dynamicFormDataGridSessionId;
+            this.DynamicFormSectionGridAttributeSessionId = dynamicFormSectionGridAttributeSessionId;
+            this.BaseUrl = baseUrl;
+            this.IsAll = isAll;
         }
     }
     public class GetDynamicGridDropDownById : PagedRequest, IRequest<DropDownOptionsGridListModel>

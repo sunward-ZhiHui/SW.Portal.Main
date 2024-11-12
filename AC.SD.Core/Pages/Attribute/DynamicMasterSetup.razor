@@ -13,7 +13,7 @@
 @inject NavigationManager NavigationManager
 @implements IAsyncDisposable;
 @rendermode @(new  InteractiveServerRenderMode(prerender: false))
-
+@inject ClipboardService ClipboardService
 <style scoped>
     .formCountClass {
         color: red;
@@ -30,7 +30,14 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Form List" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Form" IconCssClass="fa fa-add" Click="@AddNewForm" Enabled="@EditEnabled" />
-                <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+               @*  <DxMenuItem Text="OData Url" IconCssClass="fa fa-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" /> *@
+                <DxMenuItem Text="OData" IconCssClass="fa fa-link">
+                    <Items>
+                        <DxMenuItem Text="Copy Link" IconCssClass="fa fa-external-link-square" Click="@OpenOneOdataUrl" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="Empty Attr List" IconCssClass="fa fa-external-link" Click="@OpenEmptyOdataUrl" Enabled="@EditEnabled" />
+                        <DxMenuItem Text="OData Url" IconCssClass="fa fa-external-link" Click="@OpenOdataUrl" Enabled="@EditEnabled" />
+                    </Items>
+                </DxMenuItem>
                 <DxMenuItem Text="Reports" IconCssClass="fa fa-file" Click="@OpenReports" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Clone" IconCssClass="fa fa-clone" Click="@addCloneOpen" Enabled="@EditCloneEnabled" />
                 <DxMenuItem Text="Mail Merge" IconCssClass="fa fa-link" Click="@OpenMailMergeUrl" Enabled="@EditEnabled" />
@@ -76,9 +83,34 @@
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
             <DxGridDataColumn FieldName="CompanyName" Caption="Company Name" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="50" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicForm)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicForm)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
@@ -236,6 +268,28 @@
         if (_selectedItems != null)
         {
             NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+        }
+    }
+    async Task OpenEmptyOdataUrl()
+    {
+        if (_selectedItems != null && _selectedItems.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormAttributeList?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    async Task OpenOneOdataUrl()
+    {
+        // if (_selectedItems != null && _selectedItems.SessionId != null)
+        // {
+        //     var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormOneDataList?DynamicFormSessionId=" + _selectedItems.SessionId;
+        //     await JS.InvokeVoidAsync("window.open", url, "_blank");
+        // }
+        if (_selectedItems != null && _selectedItems.SessionID != null)
+        {
+            var url = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList?DynamicFormSessionId=" + _selectedItems.SessionID;
+            await ClipboardService.WriteTextAsync(url);
+            toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
         }
     }
     async Task OpenOdataUrl()

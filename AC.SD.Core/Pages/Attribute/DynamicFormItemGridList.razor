@@ -60,7 +60,19 @@
 
         <Columns>
             <DxGridDataColumn FieldName="AutoNumber" MinWidth="80" />
-            <DxGridDataColumn FieldName="TransactionDate" MinWidth="80" />
+            <DxGridDataColumn FieldName="TransactionDate" MinWidth="80" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormItem)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.TransactionDate.HasValue && item.TransactionDate != DateTime.MinValue)
+                        {
+                            startDate = item.TransactionDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+                </DxGridDataColumn>
             <DxGridDataColumn FieldName="CompanyName" MinWidth="80" Caption="Company Name" />
             <DxGridDataColumn FieldName="TransactionTypeName" MinWidth="80" Caption="TransactionType" />
             <DxGridDataColumn FieldName="StockGroupAppParent" Caption="Stock Group" MinWidth="80" />

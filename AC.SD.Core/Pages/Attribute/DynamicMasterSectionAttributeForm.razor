@@ -24,7 +24,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Add Control Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Add Control Section" IconCssClass="fa fa-user-lock" Click="@addValuePermission" Enabled="@IsDynamicFormAttributeEnabled" />
-               @*  <DxMenuItem Text="Add Formula" IconCssClass="fa fa-calculator" Click="@OpenAddFormulaPopup" Enabled="@IsFormulaEnabled" /> *@
+                <DxMenuItem Text="Add Formula" IconCssClass="fa fa-calculator" Click="@OpenAddFormulaPopup" Enabled="@IsFormulaEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -419,6 +419,7 @@
          HeaderText="Add Formula"
          CloseOnOutsideClick="false"
          ShowCloseButton="true"
+         Closed="EulaPopupFormulaClosed"
          Width="1000px">
     <BodyContentTemplate>
         <DynamicFormSectionAttributeFormula @ref="refDynamicFormSectionAttributeFormula" Items="@Items" SelectedItems="@_selectedAttributeItems" applicationUser="@applicationUser" RevokeBack="CloseAddFormulaPopup"></DynamicFormSectionAttributeFormula>
@@ -510,8 +511,10 @@
     void CloseAddFormulaPopup()
     {
         AddFormulaPopup = false;
+        InvokeAsync(UpdateDataAsync);
         StateHasChanged();
     }
+
     public async Task loadChildData(long? dynamicFormIds)
     {
         DynamicFormSectionId = dynamicFormIds;
@@ -1039,6 +1042,10 @@
         Blukdeletepopup = false;
         PopupVisible = false;
         await UpdateDataAsync();
+    }
+    void EulaPopupFormulaClosed(PopupClosedEventArgs args)
+    {
+        InvokeAsync(UpdateDataAsync);
     }
     async Task EulaPopupClosed(PopupClosedEventArgs args)
     {

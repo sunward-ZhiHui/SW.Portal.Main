@@ -76,8 +76,32 @@
                 <DxGridDataColumn FieldName="Description2" />
                 <DxGridDataColumn FieldName="ReplanRefNo" Caption="Replan RefNo" />
                 <DxGridDataColumn FieldName="BatchNo" />
-                <DxGridDataColumn FieldName="StartingDate" Caption="Starting Date" />
-                <DxGridDataColumn FieldName="ManufacturingDate" Caption="Manufacturing Date" />
+                <DxGridDataColumn FieldName="StartingDate" Caption="Starting Date">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (FinishedProdOrderLine)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.StartingDate.HasValue && item.StartingDate != DateTime.MinValue)
+                            {
+                                startDate = item.StartingDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="ManufacturingDate" Caption="Manufacturing Date">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (FinishedProdOrderLine)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.ManufacturingDate.HasValue && item.ManufacturingDate != DateTime.MinValue)
+                            {
+                                startDate = item.ManufacturingDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="Status" Caption="Status" />
                 <DxGridDataColumn FieldName="OptStatus" Caption="OptStatus" />
             </Columns>

@@ -76,7 +76,19 @@
                 <DxGridDataColumn FieldName="Description1" />
                 <DxGridDataColumn FieldName="RePlanRefNo" Caption="TicketNo" />
                 <DxGridDataColumn FieldName="BatchNo" />
-                <DxGridDataColumn FieldName="StartDate" />
+                <DxGridDataColumn FieldName="StartDate" >
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (NavprodOrderLine)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.StartDate.HasValue && item.StartDate != DateTime.MinValue)
+                            {
+                                startDate = item.StartDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="Status" />
             </Columns>
 

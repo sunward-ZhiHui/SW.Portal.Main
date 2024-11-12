@@ -21,6 +21,7 @@ namespace DocumentViewer.Controllers
         }
         public async Task<IActionResult> Index(Guid? url)
         {
+            @ViewBag.isExpired = "No";
             @ViewBag.isDownload = "No";
             HttpContext.Session.Remove("Share");
             SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
@@ -52,64 +53,80 @@ namespace DocumentViewer.Controllers
                     var currentDocuments = _context.Documents.Where(w => w.SessionId == docShareDoc.DocSessionId && w.IsLatest == true).FirstOrDefault();
                     if (currentDocuments != null)
                     {
-                        if (currentDocuments.IsNewPath == true)
+                        var curDate = DateTime.Now.Date;
+                        bool? IsExpiryDate = false;
+                        viewmodel.Id = 1;
+                        viewmodel.DocumentId = "1";
+                        viewmodel.FileName = currentDocuments.FileName;
+                        currentDocuments.ExpiryDate = currentDocuments.ExpiryDate;
+                        if (currentDocuments.ExpiryDate != null && currentDocuments.ExpiryDate.Value.Date <= curDate)
                         {
-                            fileurl = fileNewUrl + currentDocuments.FilePath;
+                            IsExpiryDate = true;
+                            viewmodel.ExpiryDate = currentDocuments.ExpiryDate;
+                            viewmodel.IsExpiryDate = true;
+                            @ViewBag.isExpired = "Yes";
                         }
-                        else
+                        if (IsExpiryDate == false)
                         {
-                            fileurl = fileOldUrl + currentDocuments.FilePath;
-                        }
-                        try
-                        {
-                            viewmodel.Extensions = "";
-                            viewmodel.Url = string.IsNullOrEmpty(fileurl) ? "" : fileurl;
-                            viewmodel.Id = 1;
-                            viewmodel.DocumentId = "1";
-                            viewmodel.FileName = currentDocuments.FileName;
-                            if (!string.IsNullOrEmpty(fileurl))
+                            if (currentDocuments.IsNewPath == true)
                             {
-                                string s = viewmodel.Url.Split('.').Last();
-                                viewmodel.Extensions = s.ToLower();
-                                var uri = new Uri(fileurl);
-                                var host = uri.Host;
-
-                                string contentType = currentDocuments.ContentType;
-                                if (contentType != null)
+                                fileurl = fileNewUrl + currentDocuments.FilePath;
+                            }
+                            else
+                            {
+                                fileurl = fileOldUrl + currentDocuments.FilePath;
+                            }
+                            try
+                            {
+                                viewmodel.Extensions = "";
+                                viewmodel.Url = string.IsNullOrEmpty(fileurl) ? "" : fileurl;
+                                viewmodel.Id = 1;
+                                viewmodel.DocumentId = "1";
+                                viewmodel.FileName = currentDocuments.FileName;
+                                if (!string.IsNullOrEmpty(fileurl))
                                 {
-                                    var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
-                                    var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                                    var streamData = webResponse.Content.ReadAsStream();
-                                    if (Extension == "msg")
+                                    string s = viewmodel.Url.Split('.').Last();
+                                    viewmodel.Extensions = s.ToLower();
+                                    var uri = new Uri(fileurl);
+                                    var host = uri.Host;
+
+                                    string contentType = currentDocuments.ContentType;
+                                    if (contentType != null)
                                     {
-                                        viewmodel.Type = Extension;
-                                        viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
+                                        var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
+                                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                                        var streamData = webResponse.Content.ReadAsStream();
+                                        if (Extension == "msg")
+                                        {
+                                            viewmodel.Type = Extension;
+                                            viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
+                                        }
+                                        else
+                                        {
+                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                            Stream byteArrayAccessor() => streamData;
+                                            viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                        }
+
+                                        viewmodel.DocumentId = Guid.NewGuid().ToString();
+                                        viewmodel.ContentType = contentType;
+                                        System.GC.Collect();
+                                        GC.SuppressFinalize(this);
                                     }
                                     else
                                     {
-                                        viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                        Stream byteArrayAccessor() => streamData;
-                                        viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                        viewmodel.Id = 0;
                                     }
-
-                                    viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                    viewmodel.ContentType = contentType;
-                                    System.GC.Collect();
-                                    GC.SuppressFinalize(this);
                                 }
                                 else
                                 {
                                     viewmodel.Id = 0;
                                 }
                             }
-                            else
+                            catch (Exception ex)
                             {
                                 viewmodel.Id = 0;
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            viewmodel.Id = 0;
                         }
                     }
                 }

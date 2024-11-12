@@ -95,7 +95,7 @@
             isUploadEnabled = true;
         }
         var baseUrl = NavigationManager.BaseUri + "api/DynamicForm/GetDynamicFormDataList";
-        var result = await Mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl));
+        var result = await Mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl,true));
         if (result != null && result.Count() > 0)
         {
             ObjectDataItems = result.Where(w => w.ObjectDataItems != null).Select(s => s.ObjectDataItems).ToList();

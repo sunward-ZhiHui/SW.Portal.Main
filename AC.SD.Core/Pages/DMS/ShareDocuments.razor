@@ -69,7 +69,19 @@
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="40" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentDmsShare)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+                </DxGridDataColumn>
 
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>

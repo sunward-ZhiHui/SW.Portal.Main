@@ -95,7 +95,19 @@
             <DxGridDataColumn FieldName="VersionNo" Caption="Version No" MinWidth="80" />
 
             <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="80" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="40" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentNoSeriesModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
 
         </Columns>
         <TotalSummary>

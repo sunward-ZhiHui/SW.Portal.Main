@@ -297,7 +297,8 @@ namespace Core.Entities.CustomValidations
                         {
                             if (!string.IsNullOrEmpty(item))
                             {
-                                list.Add(Regex.Match(item, @"\d+").Value);
+                                list.Add(Regex.Replace(item, @"[^0-9a-zA-Z_]+", ""));
+                                //list.Add(Regex.Match(item, @"\d+").Value);
                             }
                         }
                         list = list.Distinct().ToList();
@@ -341,6 +342,38 @@ namespace Core.Entities.CustomValidations
 
             }
             return ValidationResult.Success;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class SelectUserGropupUserCustomValidation : ValidationAttribute
+    {
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var datas = (UserGroup)validationContext.ObjectInstance;
+                if (datas.SelectUserIDs == null)
+                {
+                    return new ValidationResult("User is Required", new[] { validationContext.MemberName });
+                }
+                else
+                {
+                    if (datas.SelectUserIDs.Count() > 0)
+                    {
+                        return ValidationResult.Success;
+                    }
+                    else
+                    {
+                        return new ValidationResult("User is Required", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            else
+            {
+                return new ValidationResult("User is Required", new[] { validationContext.MemberName });
+            }
         }
     }
 }

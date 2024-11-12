@@ -74,8 +74,32 @@
                 <DxGridDataColumn FieldName="ItemDescription" Caption="Description" />
                 <DxGridDataColumn FieldName="LocationCode" />
                 <DxGridDataColumn FieldName="BatchNo" />
-                <DxGridDataColumn FieldName="ExpiryDate" />
-                <DxGridDataColumn FieldName="ManufacturingDate" />
+                <DxGridDataColumn FieldName="ExpiryDate" >
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (ItemBatchInfo)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.ExpiryDate.HasValue && item.ExpiryDate != DateTime.MinValue)
+                            {
+                                startDate = item.ExpiryDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="ManufacturingDate" >
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (ItemBatchInfo)context.DataItem;
+                            var startDate = string.Empty;
+                            if (item.ManufacturingDate.HasValue && item.ManufacturingDate != DateTime.MinValue)
+                            {
+                                startDate = item.ManufacturingDate?.ToString("dd-MMM-yyyy");
+                            }
+                        }
+                        @startDate
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="QuantityOnHand" Caption="Qty OnHand" />
                 <DxGridDataColumn FieldName="NavQuantity" Caption="Nav Qty" />
                 <DxGridDataColumn FieldName="IssueQuantity" Caption="Issue Qty" />

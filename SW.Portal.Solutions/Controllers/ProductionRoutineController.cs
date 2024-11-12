@@ -853,7 +853,8 @@ namespace SW.Portal.Solutions.Controllers
                         response.ResponseCode = Services.ResponseCode.Success;
                         var display = new IpirAppModel
                         {
-                            IpirAppId = result.IpirAppId
+                            IpirAppId = result.IpirAppId,
+                            SessionID = result.SessionID
                         };
                         response.Result = display;
                     }
@@ -1002,6 +1003,26 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<View_ApplicationMasterDetail>();
 
             var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(386));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<View_ApplicationMasterDetail> { new View_ApplicationMasterDetail() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetIpirIssueRelated")]
+        public async Task<ActionResult<Services.ResponseModel<List<View_ApplicationMasterDetail>>>> GetIpirIssueRelated()
+        {
+
+            var response = new Services.ResponseModel<View_ApplicationMasterDetail>();
+
+            var result = await _mediator.Send(new GetAllApplicationMasterDetailQuery(340));
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;

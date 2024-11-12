@@ -69,12 +69,36 @@
                             @Names
                         </CellDisplayTemplate>
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="DynamicFormName" Caption="Dynamic Form" MinWidth="50"  />
+                    <DxGridDataColumn FieldName="DynamicFormName" Caption="Dynamic Form" MinWidth="50" />
                     <DxGridDataColumn FieldName="AttrDescription" Caption="Description" MinWidth="50" />
                     <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="50" />
-                    <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50" />
+                    <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="50">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (AttributeHeader)context.DataItem;
+                                var startDate = string.Empty;
+                                if (item.AddedDate != DateTime.MinValue)
+                                {
+                                    startDate = item.AddedDate.ToString("dd-MMM-yyyy");
+                                }
+                            }
+                            @startDate
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
                     <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-                    <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+                    <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (AttributeHeader)context.DataItem;
+                                var startDate = string.Empty;
+                                if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                                {
+                                    startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                                }
+                            }
+                            @startDate
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
 
                 </Columns>
                 <TotalSummary>
@@ -117,7 +141,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    private AttributeSubFormSetupList refAttributeSubFormSetupList{ get; set; }
+    private AttributeSubFormSetupList refAttributeSubFormSetupList { get; set; }
     private IDisposable? DynamicFormPage2;
     IGrid? Grid { get; set; }
     bool PanelVisible { get; set; } = true;
@@ -135,7 +159,7 @@
     protected override async Task OnInitializedAsync()
     {
         //DataTable dt = new DataTable();
-       // var v = dt.Compute("10 + 12*10 - (-47 % 30.0)", "");
+        // var v = dt.Compute("10 + 12*10 - (-47 % 30.0)", "");
         //var v = dt.Compute("3 * (2+4)", "");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await loadData();
@@ -159,12 +183,12 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
+        // System.GC.Collect();
         refAttributeSubFormSetupList?.DisposeAsync();
         _selectedItems = null;
         _attributes?.Clear();
         DynamicFormPage2?.Dispose();
-       // GC.SuppressFinalize(this);
+        // GC.SuppressFinalize(this);
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

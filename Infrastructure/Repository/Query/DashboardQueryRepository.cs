@@ -688,7 +688,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("appointmentid", AppointmentID);
                 parameters.Add("userid", userid);
-               var query = @"select * From Appointment where ID = @appointmentid And AddedByUserID = @userid";
+               var query = @"select * From Appointment where ID = @appointmentid And AddedByUserID = @userid and StartDate >= GetDate()";
               
 
                 using (var connection = CreateConnection())

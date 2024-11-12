@@ -144,10 +144,35 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="Description" MinWidth="80" />
-            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="40" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Added" MinWidth="40" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="40">
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added" MinWidth="40" >
+                 <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+                </DxGridDataColumn>
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="40" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="40" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />

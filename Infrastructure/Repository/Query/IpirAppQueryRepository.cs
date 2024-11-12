@@ -413,7 +413,7 @@ namespace Infrastructure.Repository.Query
                             value.SessionID = Guid.NewGuid();
                             parameters.Add("SessionID", value.SessionID, DbType.Guid);
                             var query = @"INSERT INTO IpirApp(ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileId,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
-				                       OUTPUT INSERTED.IpirAppId 
+				                       OUTPUT INSERTED.IpirAppId ,INSERTED.SessionID
 				                       VALUES (@ActivityStatusId,@MachineName,@DetectedBy,@SessionID,@CompanyID,@ProfileId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@LocationID,@NavprodOrderLineID,@ReportingPersonal,@RefNo,@ProdOrderNo,@FixedAssetNo,@Comment,@ProfileNo)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                             value.IpirAppId = insertedId;

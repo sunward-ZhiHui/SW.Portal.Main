@@ -222,9 +222,9 @@
     private List<Appointment> Userlist;
     bool IsUserslist { get; set; } = false;
     public ApplicationUser? applicationUser { get; private set; }
-   
+    private Appointment SelectedEditList;
     internal List<ViewEmployee>? _Toparticipant;
-    
+
     Appointment? CategoryData { get; set; } = new Appointment();
     DxScheduler Scheduler { get; set; }
     SchedulerAppointmentFormMode AppointmentFormMode { get; set; } = SchedulerAppointmentFormMode.CompactEditForm;
@@ -299,6 +299,17 @@
 
         if (ID > 0)
         {
+
+
+            var list = new Appointment();
+            list.ID = ID;
+            list.Caption = args.Appointment.Subject;
+            list.Description = args.Appointment.Description;
+            list.StartDate = args.Appointment.Start;
+            list.EndDate = args.Appointment.End;
+            list.Label = (int)args.Appointment.LabelId;
+            list.Status = (int)args.Appointment.StatusId;
+            SelectedEditList = list;
             var Userlist = await Mediator.Send(new GetUserListQuery(ID));
             foreach (var item in Userlist)
             {
@@ -319,12 +330,12 @@
 
     }
 
-  
+
 
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
         {       
 
-      
+
             AppointmentMappings = new DxSchedulerAppointmentMappings()
             {
                 Id = "ID",
@@ -347,7 +358,7 @@
                   new DxSchedulerCustomFieldMapping { Name = "userIds", Mapping = "userIds" }
             }
             },
-           
+
 
         };
 
@@ -439,13 +450,15 @@
                         };
 
                 var ans = await Mediator.Send(InsertReq);
-
-                if (ans != null)
+                if (SelectedEditList.Caption != appointment.Caption || SelectedEditList.Description != appointment.Description || SelectedEditList.StartDate != appointment.StartDate || SelectedEditList.EndDate != appointment.EndDate || SelectedEditList.userIds != appointment.userIds)
                 {
-                    string BaseUrl = NavigationManager.BaseUri + "api/Email/";
-                    string url = BaseUrl + "SendToAppointmentSchedulerMessage?id=" + ans;
-                    // Make a GET request to the controller action
-                    var response = await httpClient.GetAsync(url);
+                    if (ans != null)
+                    {
+                        string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                        string url = BaseUrl + "SendToAppointmentSchedulerMessage?id=" + ans;
+                        // Make a GET request to the controller action
+                        var response = await httpClient.GetAsync(url);
+                    }
                 }
                 toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             }
@@ -457,11 +470,13 @@
     async void OnAcceptClick(long ID)
     {
         var result = await Mediator.Send(new UpdateAccept(applicationUser.UserID,true,ID));
+        await acceptvisible(ID);
         toastService.ShowToast("Appointment Accepted Successfully", AC.SD.Core.Services.ToastLevel.Success);
     }
     async void OnRejectClick(long ID)
     {
         var result = await Mediator.Send(new UpdateAccept(applicationUser.UserID, false,ID));
+        await acceptvisible(ID);
         toastService.ShowToast("Appointment Rejected Successfully", AC.SD.Core.Services.ToastLevel.Success);
     }
     async void OnClick(long appointmentID)
@@ -471,12 +486,12 @@
         IsUserslist = true;
         StateHasChanged();
     }
-     async void OnAppointmentTooltipShowing(SchedulerAppointmentOperationEventArgs args)
+    async void OnAppointmentTooltipShowing(SchedulerAppointmentOperationEventArgs args)
     {
-        
+
         string Appointmentid = JsonConvert.SerializeObject(args.Appointment.Id);
         var appointmentID = long.Parse(Appointmentid);
-      
+
         var Userlist = await Mediator.Send(new GetCreatedUserQuery(appointmentID, applicationUser.UserID));
         if (Userlist.Count > 0)
         {
@@ -490,24 +505,34 @@
         {
             AllowDeleteAppointment = false;
             AllowEditAppointment = false;
-            var list = await Mediator.Send(new GetUserQuery(appointmentID, applicationUser.UserID));
-            if (list.Count > 0)
-            {
-                if (list[0].IsAccepted == true)
-                {
-                    RejectVisible = true;
-                    AcceptVisible = false;
-                }
-                else
-                {
-                    RejectVisible = false;
-                    AcceptVisible = true;
-                }
-            }
+            await acceptvisible(appointmentID);
+
 
         }
 
         StateHasChanged();
     }
-   
+    async Task acceptvisible(long ID)
+    {
+        var list = await Mediator.Send(new GetUserQuery(ID, applicationUser.UserID));
+        if (list.Count > 0)
+        {
+            if (list[0].IsAccepted == true)
+            {
+                RejectVisible = true;
+                AcceptVisible = false;
+            }
+            else
+            {
+                RejectVisible = false;
+                AcceptVisible = true;
+            }
+        }
+        else
+        {
+            RejectVisible = false;
+            AcceptVisible = false;
+        }
+        StateHasChanged();
+    }
 }

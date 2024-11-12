@@ -1895,7 +1895,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.DynamicFormDataID,\r\nt1.DynamicFormID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.IsSendApproval,\r\nt1.FileProfileSessionID,\r\nt1.ProfileID,\r\nt1.ProfileNo,\r\nt1.DynamicFormDataGridID,\r\nt1.IsDeleted,\r\nt1.SortOrderByNo,\r\nt1.GridSortOrderByNo,\r\nt1.DynamicFormSectionGridAttributeID,\r\nt1.IsLocked,\r\nt1.LockedUserID,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid from DynamicFormData t1 \r\n" +
+                var query = "select t2.SessionID as DynamicFormSessionID,t1.DynamicFormDataID,\r\nt1.DynamicFormID,\r\nt1.SessionID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.AddedDate,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.IsSendApproval,\r\nt1.FileProfileSessionID,\r\nt1.ProfileID,\r\nt1.ProfileNo,\r\nt1.DynamicFormDataGridID,\r\nt1.IsDeleted,\r\nt1.SortOrderByNo,\r\nt1.GridSortOrderByNo,\r\nt1.DynamicFormSectionGridAttributeID,\r\nt1.IsLocked,\r\nt1.LockedUserID,(CASE WHEN t1.DynamicFormDataGridID>0  THEN 1  ELSE 0 END) AS IsDynamicFormDataGrid from DynamicFormData t1 JOIN DynamicForm t2 ON t1.DynamicFormID=t2.ID\r\n" +
                     "WHERE (t1.IsDeleted=0 or t1.IsDeleted is null) AND t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())

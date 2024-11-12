@@ -63,7 +63,19 @@
             <DxGridDataColumn FieldName="FileSize" Caption="Size(KB)" MinWidth="40" />
             <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
             <DxGridDataColumn FieldName="AddedByUser" Caption="Modified By" MinWidth="80" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Modified Date" MinWidth="40" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Modified Date" MinWidth="40" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                        {
+                            startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
 
         </Columns>
     </DxGrid>

@@ -83,7 +83,19 @@
             <DxGridDataColumn FieldName="NickName" MinWidth="80" />
             <DxGridDataColumn FieldName="Status" MinWidth="80" />
             <DxGridDataColumn FieldName="Locked" />
-            <DxGridDataColumn FieldName="ModifiedDate" />
+            <DxGridDataColumn FieldName="ModifiedDate">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ViewEmployee)context.DataItem;
+                        var startDate = string.Empty;
+                        if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                        {
+                            startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                        }
+                    }
+                    @startDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="ModifiedByUser" />
 
         </Columns>

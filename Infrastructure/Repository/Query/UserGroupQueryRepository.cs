@@ -74,13 +74,13 @@ namespace Infrastructure.Repository.Query
                 if (id > 0)
                 {
                     parameters.Add("UserGroupId", id);
-                    parameters.Add("Name", value);
+                    parameters.Add("Name", value,DbType.String);
 
-                    query = "SELECT * FROM UserGroup Where UserGroupId!=@UserGroupId AND Name = @Name";
+                    query = "SELECT * FROM UserGroup Where StatusCodeId=1 AND  UserGroupId!=@UserGroupId AND Name = @Name";
                 }
                 else
                 {
-                    query = "SELECT * FROM UserGroup Where Name = @Name";
+                    query = "SELECT * FROM UserGroup Where StatusCodeId=1 AND Name = @Name";
                 }
                 using (var connection = CreateConnection())
                 {

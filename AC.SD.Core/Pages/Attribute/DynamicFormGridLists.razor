@@ -157,7 +157,27 @@
                             }
                             else
                             {
-                                <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom"/>
+                                if (s.ControlType == "DateEdit")
+                                {
+                                    <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                DateTime? items = null;
+                                                dynamic item = (ExpandoObject)context.DataItem;
+                                                if (s.Value != null)
+                                                {
+                                                    var listName = ((IDictionary<String, Object>)item)[s.Value];
+                                                    items = (DateTime?)listName;
+                                                }
+                                            }
+                                            @(items != null ? Application.Common.Helper.Helper.FormatDate(items) : null)
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                }
+                                else
+                                {
+                                    <DxGridDataColumn FieldName="@s.Value" Caption="@s.Text" MinWidth="180" Visible="@s.IsVisible" SortMode="DevExpress.Blazor.GridColumnSortMode.Custom"/>
+                                }
                             }
                         }
                     }
@@ -380,11 +400,11 @@
                                     a.ApplicationMaster.ForEach(ab =>
                                     {
                                         var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_AppMaster";
-                                        dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
+                                        dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
                                         if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMaster" && a.IsDynamicFormGridDropdown == true)
                                         {
                                             var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                            dataColumnNames.Add(new DropDownOptionsModel() { Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
+                                            dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
                                         }
                                     });
                                 }
@@ -397,19 +417,19 @@
                                     a.ApplicationMasterParents.ForEach(ab =>
                                 {
                                     var nameData = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
-                                    dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
+                                    dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = ab.ApplicationMasterName, Type = "DynamicForm" });
                                     RemoveApplicationMasterParentSingleItem(ab, a, dataColumnNames);
                                     if (a.ControlTypeId == 2702 && a.DropDownTypeId == "Data Source" && a.DataSourceTable == "ApplicationMasterParent" && a.IsDynamicFormGridDropdown == true)
                                     {
                                         var appendDependency = a.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + a.GridDropDownDynamicFormID + "_GridAppMaster";
-                                        dataColumnNames.Add(new DropDownOptionsModel() { Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
+                                        dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = appendDependency, Text = a.GridDropDownDynamicFormName, Type = "DynamicForm" });
                                     }
                                 });
                                 }
                             }
                             else
                             {
-                                dataColumnNames.Add(new DropDownOptionsModel() { IsDynamicGrid = a.ControlTypeId == 2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
+                                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, IsDynamicGrid = a.ControlTypeId == 2712 ? true : false, Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader.Value });
 
                             }
                             if (a.ControlType == "ComboBox" && a.IsPlantLoadDependency == true && a.AttributeHeaderDataSource.Count() > 0 && PlantDependencySubAttributeDetails != null && PlantDependencySubAttributeDetails.Count() > 0 && a.IsDisplayTableHeader == true)
@@ -417,7 +437,7 @@
                                 a.AttributeHeaderDataSource.ForEach(dd =>
                                 {
                                     var nameData = a.DynamicFormSectionAttributeId + "_" + dd.AttributeHeaderDataSourceId + "_" + dd.DataSourceTable + "_Dependency";
-                                    dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = dd.DisplayName, Type = "DynamicForm" });
+                                    dataColumnNames.Add(new DropDownOptionsModel() { ControlType = a.ControlType, Value = nameData, Text = dd.DisplayName, Type = "DynamicForm" });
                                 });
                             }
 
@@ -1021,7 +1041,7 @@
             if (listss != null)
             {
                 var nameData = dynamicFormSectionAttribute.DynamicFormSectionAttributeId + "_" + listss.ApplicationMasterParentCodeId + "_AppMasterPar";
-                dataColumnNames.Add(new DropDownOptionsModel() { Value = nameData, Text = listss.ApplicationMasterName, Type = "DynamicForm" });
+                dataColumnNames.Add(new DropDownOptionsModel() { ControlType = dynamicFormSectionAttribute.ControlType, Value = nameData, Text = listss.ApplicationMasterName, Type = "DynamicForm" });
                 RemoveApplicationMasterParentSingleItem(listss, dynamicFormSectionAttribute, dataColumnNames);
             }
         }

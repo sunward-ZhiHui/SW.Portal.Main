@@ -22,6 +22,7 @@ namespace Core.Repositories.Query
         Task<long> Insert(DynamicForm dynamicForm);
         Task<long> Update(DynamicForm dynamicForm);
         Task<long> Delete(long id);
+        Task<DynamicFormData> GetDynamicFormDataBySessionOneAsync(Guid? SessionId);
         DynamicForm GetDynamicFormScreenNameCheckValidation(string? value, long id);
         Task<DynamicForm> GetDynamicFormScreenNameDataCheckValidation(string? value);
         Task<DynamicFormSection> InsertOrUpdateDynamicFormSection(DynamicFormSection dynamicFormSection);

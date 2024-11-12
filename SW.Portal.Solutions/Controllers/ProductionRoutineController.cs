@@ -413,6 +413,37 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        [HttpPost("DeleteIPIRApp")]
+        public async Task<ActionResult<Services.ResponseModel<IEnumerable<ProductionRoutineModel>>>> DeleteIPIRApp(DeleteIPIRAppModel value)
+        {
+            var response = new Services.ResponseModel<DeleteIPIRAppModel>();
+            IpirApp Data = new IpirApp();
+            Data.IpirAppId = value.IpirAppId.Value;
+           
+            var result = await iIpirAppQueryRepostitory.DeleteIpirApp(Data);
+
+
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+
+                var emailconversations = new DeleteIPIRAppModel
+                {
+
+                    Message = "Delete Successfully"
+                };
+
+                response.Result = emailconversations;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
         [HttpGet("GetDivisionList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewDivision>>>> GetDivisionList(long CompanyID)
         {

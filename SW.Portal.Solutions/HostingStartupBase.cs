@@ -11,6 +11,8 @@ using SW.Portal.Solutions.Services;
 using Quartz.Impl;
 using Quartz.Spi;
 using Quartz;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
@@ -60,14 +62,14 @@ namespace SW.Portal.Solutions.ServerSide
                 provider.Mappings[".razor"] = "text/plain";
                 provider.Mappings[".cshtml"] = "text/plain";
                 provider.Mappings[".cs"] = "text/plain";
-                app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });                
+                app.UseStaticFiles(new StaticFileOptions { ContentTypeProvider = provider });
                 app.UseAuthorization();
 
                 app.UseEndpoints(endpoints =>
                 {
-                    endpoints.MapControllers();                    
+                    endpoints.MapControllers();
                     endpoints.MapFallbackToPage("/_Host");
-                    
+
                 });
                 // Add your dashboard route mapping here
 
@@ -82,12 +84,24 @@ namespace SW.Portal.Solutions.ServerSide
 
                 // Add the following block to add the DashboardConfigurator service
                 IConfiguration configuration = context.Configuration;
-                IFileProvider fileProvider = context.HostingEnvironment.ContentRootFileProvider;              
+                IFileProvider fileProvider = context.HostingEnvironment.ContentRootFileProvider;
 
                 services.AddHttpClient<HttpClient>(ConfigureHttpClient);
                 services.AddBlazoredLocalStorage();
                 this.ConfigureServices(context, services);
+                services.AddResponseCompression(options =>
+                {
+                    options.EnableForHttps = true;
+                });
+                services.Configure<BrotliCompressionProviderOptions>(options =>
+                {
+                    options.Level = CompressionLevel.Fastest;
+                });
 
+                services.Configure<GzipCompressionProviderOptions>(options =>
+                {
+                    options.Level = CompressionLevel.SmallestSize;
+                });
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                .AddCookie(options =>
                {
@@ -108,7 +122,7 @@ namespace SW.Portal.Solutions.ServerSide
                 services.AddScoped<IFirebaseSync, FirebaseSync>();
 
                 services.AddSingleton<IJobFactory, SingletonJobFactory>();
-                services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();               
+                services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 
                 // Configure Firestore
                 ConfigureFirestore(services);
@@ -131,8 +145,8 @@ namespace SW.Portal.Solutions.ServerSide
                             "text/json"
                         };
                 });
-                services.AddControllers().AddJsonOptions(ConfigureJsonOptions);                
-                
+                services.AddControllers().AddJsonOptions(ConfigureJsonOptions);
+
                 //Enable CORS
                 services.AddCors(c =>
                 {

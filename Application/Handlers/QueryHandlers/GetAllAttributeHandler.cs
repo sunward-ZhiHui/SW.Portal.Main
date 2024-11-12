@@ -305,7 +305,7 @@ namespace Application.Handlers.QueryHandlers
             return await _attrubutequeryRepository.GetDynamicGridNested(request.DynamicFormDataId, request.UserId);
         }
     }
-    public class GetDynamicFormApiHandler : IRequestHandler<GetDynamicFormApi, List<DynamicFormData>>
+    public class GetDynamicFormApiHandler : IRequestHandler<GetDynamicFormApi, List<DynamicFormDataResponse>>
     {
 
         private readonly IAttributeQueryRepository _attrubutequeryRepository;
@@ -313,12 +313,12 @@ namespace Application.Handlers.QueryHandlers
         {
             _attrubutequeryRepository = attrubutequeryRepository;
         }
-        public async Task<List<DynamicFormData>> Handle(GetDynamicFormApi request, CancellationToken cancellationToken)
+        public async Task<List<DynamicFormDataResponse>> Handle(GetDynamicFormApi request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId,request.DynamicFormDataSessionId,request.DynamicFormDataGridSessionId,request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl,request.IsAll);
+            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormApiAsync(request.DynamicFormSessionId,request.DynamicFormDataSessionId,request.DynamicFormDataGridSessionId,request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl,request.IsAll);
         }
     }
-    public class GetDynamicFormAttributeApiHandler : IRequestHandler<GetDynamicFormAttributeApi, List<DynamicFormData>>
+    public class GetDynamicFormAttributeApiHandler : IRequestHandler<GetDynamicFormAttributeApi, List<DynamicFormDataResponse>>
     {
 
         private readonly IAttributeQueryRepository _attrubutequeryRepository;
@@ -326,9 +326,9 @@ namespace Application.Handlers.QueryHandlers
         {
             _attrubutequeryRepository = attrubutequeryRepository;
         }
-        public async Task<List<DynamicFormData>> Handle(GetDynamicFormAttributeApi request, CancellationToken cancellationToken)
+        public async Task<List<DynamicFormDataResponse>> Handle(GetDynamicFormAttributeApi request, CancellationToken cancellationToken)
         {
-            return (List<DynamicFormData>)await _attrubutequeryRepository.GetAllDynamicFormAttributeAllApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll);
+            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormAttributeAllApiAsync(request.DynamicFormSessionId, request.DynamicFormDataSessionId, request.DynamicFormDataGridSessionId, request.DynamicFormSectionGridAttributeSessionId, request.BaseUrl, request.IsAll);
         }
     }
     public class GetDynamicGridDropDownByIdHandler : IRequestHandler<GetDynamicGridDropDownById, DropDownOptionsGridListModel>

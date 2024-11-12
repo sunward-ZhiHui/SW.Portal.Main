@@ -155,4 +155,36 @@ namespace Core.Entities
         public long? LockedUserId { get; set; }
         public bool? IsLocked { get; set; }
     }
+    public class DynamicFormDataResponse
+    {
+        public long DynamicFormDataId { get; set; }
+        public long? DynamicFormId { get; set; }
+        public string? ProfileNo { get; set; }
+        [NotMapped]
+        public string? Name { get; set; }
+        [NotMapped]
+        public string? ScreenID { get; set; }
+        [NotMapped]
+        public string? StatusName { get; set; }
+        [NotMapped]
+        public int? IsFileprofileTypeDocument { get; set; } = 0;
+        [NotMapped]
+        public string? CurrentUserName { get; set; }
+        public long? DynamicFormDataGridId { get; set; }
+        public bool? IsDynamicFormDataGrid { get; set; } = false;
+        public bool? IsDraft { get; set; }
+        public long? SortOrderByNo { get; set; }
+        public long? DynamicFormSectionGridAttributeId { get; set; }
+        public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
+        [NotMapped]
+        public dynamic? ObjectDataItems { get; set; }
+        [NotMapped]
+        public List<DynamicFormReportItems> DynamicFormReportItems { get; set; } = new List<DynamicFormReportItems>();
+        public List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems { get; set; } = new List<DynamicFormWorkFlowFormReportItems>();
+        public Guid? SessionId { get; set; }
+        public string? ModifiedBy { get; set; }
+        public string? AddedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }   
+        public DateTime? AddedDate { get; set; }
+    }
 }

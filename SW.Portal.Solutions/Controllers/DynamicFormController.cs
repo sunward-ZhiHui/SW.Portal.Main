@@ -42,11 +42,11 @@ namespace SW.Portal.Solutions.Controllers
 
         }
         [HttpGet("GetDynamicFormDataList")]
-        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormDataList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
 
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
-            var response = new Services.ResponseModel<DynamicFormData>();
+            var response = new Services.ResponseModel<DynamicFormDataResponse>();
             var result = await _mediator.Send(new GetDynamicFormApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true));
 
             response.ResponseCode = Services.ResponseCode.Success;
@@ -132,43 +132,11 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
-        [HttpGet("GetDynamicFormOneDataList")]
-        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormOneDataList(Guid? DynamicFormSessionId)
-        {
-            List<DynamicFormData> dynamicFormData = new List<DynamicFormData>();
-            var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
-            var response = new Services.ResponseModel<DynamicFormData>();
-            var resultOne = await _mediator.Send(new GetDynamicFormDataBySessionOne(DynamicFormSessionId));
-            if (resultOne != null)
-            {
-                var result = await _mediator.Send(new GetDynamicFormApi(resultOne.DynamicFormSessionID,DynamicFormSessionId, null, null, baseUrl,false));
-                if (result != null && result.Count() > 0)
-                {
-                    dynamicFormData = result?.Where(f => f.SessionId == DynamicFormSessionId).ToList();
-                }
-            }
-            response.ResponseCode = Services.ResponseCode.Success;
-            response.Results = dynamicFormData;
-
-            try
-            {
-                response.ResponseCode = Services.ResponseCode.Success;
-                response.Results = dynamicFormData;
-
-            }
-            catch (Exception ex)
-            {
-                response.ResponseCode = Services.ResponseCode.Failure;
-                response.ErrorMessages.Add(ex.Message);
-            }
-
-            return Ok(response);
-        }
         [HttpGet("GetDynamicFormAttributeList")]
-        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormData>>>> GetDynamicFormAttributeList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
+        public async Task<ActionResult<Services.ResponseModel<List<DynamicFormDataResponse>>>> GetDynamicFormAttributeList(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId)
         {
             var baseUrl = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + HttpContext.Request.Path;
-            var response = new Services.ResponseModel<DynamicFormData>();
+            var response = new Services.ResponseModel<DynamicFormDataResponse>();
             var result = await _mediator.Send(new GetDynamicFormAttributeApi(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, DynamicFormSectionGridAttributeSessionId, baseUrl, true));
 
             response.ResponseCode = Services.ResponseCode.Success;

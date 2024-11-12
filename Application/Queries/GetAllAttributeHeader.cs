@@ -183,7 +183,7 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
-    public class GetDynamicFormApi : PagedRequest, IRequest<List<DynamicFormData>>
+    public class GetDynamicFormApi : PagedRequest, IRequest<List<DynamicFormDataResponse>>
     {
         public Guid? DynamicFormSessionId { get; set; }
         public Guid? DynamicFormDataSessionId { get; set; }
@@ -201,7 +201,7 @@ namespace Application.Queries
             this.IsAll = isAll;
         }
     }
-    public class GetDynamicFormAttributeApi : PagedRequest, IRequest<List<DynamicFormData>>
+    public class GetDynamicFormAttributeApi : PagedRequest, IRequest<List<DynamicFormDataResponse>>
     {
         public Guid? DynamicFormSessionId { get; set; }
         public Guid? DynamicFormDataSessionId { get; set; }

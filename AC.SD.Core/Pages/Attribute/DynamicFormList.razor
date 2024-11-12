@@ -171,10 +171,16 @@
                                             @{
                                                 DateTime? items = null;
                                                 dynamic item = (ExpandoObject)context.DataItem;
-                                                if (s.Value != null)
+                                                if (!string.IsNullOrEmpty(s.Value))
                                                 {
                                                     var listName = ((IDictionary<String, Object>)item)[s.Value];
-                                                    items = (DateTime?)listName;
+                                                    if (listName == null || listName == "")
+                                                    {
+                                                    }
+                                                    else
+                                                    {
+                                                        items = (DateTime?)listName;
+                                                    }
                                                 }
                                             }
                                             @(items != null ? Application.Common.Helper.Helper.FormatDate(items) : null)

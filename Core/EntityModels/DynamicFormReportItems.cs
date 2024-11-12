@@ -23,7 +23,7 @@ namespace Core.EntityModels
         public long? DynamicGridFormDataGridId { get; set; }
         public long? DynamicFormSectionGridAttributeId { get; set; }
         public string? Url { get; set; } = string.Empty;
-        public List<DynamicFormData>? GridItems { get; set; } =new List<DynamicFormData>();
+       // public List<DynamicFormDataResponse>? GridItems { get; set; } =new List<DynamicFormDataResponse>();
         public bool? IsSubForm { get; set; } = false;
         public List<dynamic>? GridSingleItems { get; set; } = new List<dynamic>();
     }

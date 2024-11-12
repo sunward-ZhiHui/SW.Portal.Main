@@ -2767,9 +2767,9 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<DynamicFormData>> GetAllDynamicFormAttributeAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll)
+        public async Task<List<DynamicFormDataResponse>> GetAllDynamicFormAttributeAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll)
         {
-            var _dynamicformObjectDataList = new List<DynamicFormData>();
+            var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             try
             {
                 // string BasUrl = "";
@@ -2779,6 +2779,12 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 List<ApplicationUser> appUsers = new List<ApplicationUser>();
                 List<DynamicFormWorkFlowFormReportItems> DynamicFormWorkFlowFormReportItems = new List<DynamicFormWorkFlowFormReportItems>();
+                DynamicFormWorkFlowFormReportItems dynamicFormWorkFlowFormReportItems = new DynamicFormWorkFlowFormReportItems();
+                List<DynamicFormWorkFlowFormApprovedReportItems> dynamicFormWorkFlowFormApprovedReportItems = new List<DynamicFormWorkFlowFormApprovedReportItems>();
+                DynamicFormWorkFlowFormApprovedReportItems dynamicFormWorkFlowFormApprovedReportItems1 = new DynamicFormWorkFlowFormApprovedReportItems();
+                dynamicFormWorkFlowFormApprovedReportItems.Add(dynamicFormWorkFlowFormApprovedReportItems1);
+                dynamicFormWorkFlowFormReportItems.DynamicFormWorkFlowFormApprovedReportItems = dynamicFormWorkFlowFormApprovedReportItems;
+                DynamicFormWorkFlowFormReportItems.Add(dynamicFormWorkFlowFormReportItems);
                 var query = string.Empty;
                 if (DynamicFormSessionId != null)
                 {
@@ -2852,12 +2858,12 @@ namespace Infrastructure.Repository.Query
 
 
         }
-        private List<DynamicFormData> GetDynamicFormDataAttributeAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems)
+        private List<DynamicFormDataResponse> GetDynamicFormDataAttributeAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems)
         {
-            var _dynamicformObjectDataList = new List<DynamicFormData>();
+            var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
             {
-                DynamicFormData dynamicFormData = new DynamicFormData();
+                DynamicFormDataResponse dynamicFormData = new DynamicFormDataResponse();
                 dynamic jsonObj = new object();
                 DropDownModel dropDownModel=new DropDownModel();
                 dropDownModel.Text = string.Empty;dropDownModel.Value = string.Empty;
@@ -2871,6 +2877,8 @@ namespace Infrastructure.Repository.Query
                 objectDataList["profileNo"] = string.Empty;
                 objectDataList["name"] = _dynamicForm?.Name;
                 objectDataList["SessionId"] = null;
+
+                dynamicFormData.DynamicFormWorkFlowFormReportItems = dynamicFormWorkFlowFormReportItems;
                 if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
                     var _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormId == _dynamicForm?.ID).ToList();
@@ -3085,7 +3093,7 @@ namespace Infrastructure.Repository.Query
 
                     });
                     list.Add(objectData);
-                    dynamicFormData.ObjectDataList = list;
+                   // dynamicFormData.ObjectDataList = list;
                     dynamicFormData.ObjectDataItems = objectDataList;
                     dynamicFormData.DynamicFormReportItems = dynamicFormReportItems;
                     _dynamicformObjectDataList.Add(dynamicFormData);
@@ -3095,12 +3103,11 @@ namespace Infrastructure.Repository.Query
             }
             return _dynamicformObjectDataList;
         }
-        public async Task<List<DynamicFormData>> GetAllDynamicFormAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, string? BasUrl, bool? IsAll)
+        public async Task<List<DynamicFormDataResponse>> GetAllDynamicFormAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, string? BasUrl, bool? IsAll)
         {
-            var _dynamicformObjectDataList = new List<DynamicFormData>();
+            var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             try
             {
-                // string BasUrl = "";
                 List<long?> Ids = new List<long?>();
                 List<long?> userIds = new List<long?>();
                 List<Guid?> SessionIds = new List<Guid?>();
@@ -3226,9 +3233,9 @@ namespace Infrastructure.Repository.Query
 
 
         }
-        private List<DynamicFormData> GetDynamicFormDataAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems)
+        private List<DynamicFormDataResponse> GetDynamicFormDataAllLists(AttributeHeaderListModel _AttributeHeader, List<DynamicFormData> dynamicFormDataList, DynamicForm _dynamicForm, List<AttributeDetails> PlantDependencySubAttributeDetails, string BasUrl, List<DynamicFormData> dynamicFormGridData, List<ApplicationUser> appUsers, List<DynamicFormWorkFlowFormReportItems> dynamicFormWorkFlowFormReportItems)
         {
-            var _dynamicformObjectDataList = new List<DynamicFormData>();
+            var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
             {
                 dynamicFormDataList = dynamicFormDataList.Where(w => w.DynamicFormId == _dynamicForm?.ID).ToList();
@@ -3236,7 +3243,7 @@ namespace Infrastructure.Repository.Query
                 {
                     dynamicFormDataList.ToList().ForEach(r =>
                     {
-                        DynamicFormData dynamicFormData = new DynamicFormData();
+                        DynamicFormDataResponse dynamicFormData = new DynamicFormDataResponse();
                         dynamic jsonObj = new object();
                         if (IsValidJson(r.DynamicFormItem))
                         {
@@ -3317,7 +3324,7 @@ namespace Infrastructure.Repository.Query
                                         var _dynamicForms = _AttributeHeader.DynamicFormAll?.FirstOrDefault(f => f.ID == s.DynamicFormGridDropDownId);
                                         var res = GetDynamicFormDataAllLists(_AttributeHeader, gridDataItem, _dynamicForms, PlantDependencySubAttributeDetails, BasUrl, dynamicFormGridData, appUsers, dynamicFormWorkFlowFormReportItems);
                                         var datass = res?.Select(s => s.ObjectDataItems).ToList();
-                                        dynamicFormReportItems1.GridItems = res;
+                                        //dynamicFormReportItems1.GridItems = res;
                                         dynamicFormReportItems1.GridSingleItems = datass != null ? datass : new List<dynamic?>();
                                         dynamicFormReportItems.Add(dynamicFormReportItems1);
                                     }
@@ -4113,7 +4120,7 @@ namespace Infrastructure.Repository.Query
                             });
                         }
                         list.Add(objectData);
-                        dynamicFormData.ObjectDataList = list;
+                        //dynamicFormData.ObjectDataList = list;
                         dynamicFormData.ObjectDataItems = objectDataList;
                         dynamicFormData.DynamicFormReportItems = dynamicFormReportItems;
                         _dynamicformObjectDataList.Add(dynamicFormData);
@@ -4123,62 +4130,12 @@ namespace Infrastructure.Repository.Query
             }
             return _dynamicformObjectDataList;
         }
-        public async Task<List<DynamicFormData>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll)
+        public async Task<List<DynamicFormDataResponse>> GetAllDynamicFormApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll)
         {
-            var _dynamicformObjectDataList = new List<DynamicFormData>();
+            var _dynamicformObjectDataList = new List<DynamicFormDataResponse>();
             try
             {
                 _dynamicformObjectDataList = await GetAllDynamicFormAllApiAsync(DynamicFormSessionId, DynamicFormDataSessionId, DynamicFormDataGridSessionId, BasUrl, IsAll);
-                /*List<Guid?> SessionIds = new List<Guid?>();
-                if (DynamicFormSessionId != null)
-                {
-                    var dynamicForms = new DynamicForm(); var dynamicFormSectionAttribute = new DynamicFormSectionAttribute();
-                    var dynamicFormGrids = new DynamicForm(); var dynamicFormData = new DynamicFormData();
-                    SessionIds.Add(DynamicFormSessionId);
-                    if (DynamicFormDataGridSessionId != null)
-                    {
-                        SessionIds.Add(DynamicFormDataGridSessionId);
-                    }
-                    var parameters = new DynamicParameters();
-                    var query = string.Empty;
-                    parameters.Add("SessionId", DynamicFormDataSessionId, DbType.Guid);
-                    parameters.Add("DynamicFormSectionGridAttributeSessionId", DynamicFormSectionGridAttributeSessionId, DbType.Guid);
-                    using (var connection = CreateConnection())
-                    {
-                        SessionIds = SessionIds != null && SessionIds.Count > 0 ? SessionIds : new List<Guid?>() { Guid.NewGuid() };
-                        query += "Select ID,Name,ScreenID,SessionID,AttributeID,IsApproval,IsUpload,FileProfileTypeID,CompanyID,ProfileID,IsGridForm from DynamicForm where SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") AND (IsDeleted=0 OR IsDeleted IS NULL);";
-                        if (DynamicFormDataSessionId != null)
-                        {
-                            query += "Select DynamicFormDataId,DynamicFormID,SessionID,DynamicFormDataGridID from DynamicFormData where SessionId =@SessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
-                        }
-                        if (DynamicFormSectionGridAttributeSessionId != null)
-                        {
-                            query += "Select DynamicFormSectionAttributeID,SessionID from DynamicFormSectionAttribute where SessionId =@DynamicFormSectionGridAttributeSessionId AND (IsDeleted=0 OR IsDeleted IS NULL);";
-                        }
-                        var result = await connection.QueryMultipleAsync(query, parameters);
-                        var DynamicForms = result.Read<DynamicForm>().ToList();
-
-                        dynamicForms = DynamicForms.FirstOrDefault(f => f.SessionID == DynamicFormSessionId);
-                        if (DynamicFormDataGridSessionId != null)
-                        {
-                            dynamicFormGrids = DynamicForms.FirstOrDefault(f => f.SessionID == DynamicFormDataGridSessionId);
-                        }
-                        if (DynamicFormDataSessionId != null)
-                        {
-                            var DynamicFormDatas = result.Read<DynamicFormData>().ToList();
-                            dynamicFormData = DynamicFormDatas.FirstOrDefault(f => f.SessionId == DynamicFormDataSessionId);
-                        }
-                        if (DynamicFormSectionGridAttributeSessionId != null)
-                        {
-                            var dynamicFormSectionAttributes = result.Read<DynamicFormSectionAttribute>().ToList();
-                            dynamicFormSectionAttribute = dynamicFormSectionAttributes.FirstOrDefault(f => f.SessionId == DynamicFormSectionGridAttributeSessionId);
-                        }
-                        if (dynamicForms != null)
-                        {
-                            _dynamicformObjectDataList = await UpdateDataAsync(dynamicForms, dynamicFormGrids, dynamicFormData, dynamicFormSectionAttribute, BasUrl);
-                        }
-                    }
-                }*/
                 return _dynamicformObjectDataList;
             }
             catch (Exception exp)

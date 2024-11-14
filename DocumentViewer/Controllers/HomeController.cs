@@ -26,6 +26,8 @@ using MsgReader.Outlook;
 using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 using System.IO.Compression;
 using DevExpress.ClipboardSource.SpreadsheetML;
+using DevExpress.Office.Drawing;
+using DevExpress.Data.Filtering.Helpers;
 
 namespace DocumentViewer.Controllers
 {
@@ -49,7 +51,7 @@ namespace DocumentViewer.Controllers
         {
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
-            var fileurl = string.Empty;
+            var fileurl = string.Empty; var pathurl = string.Empty;
             HttpContext.Session.Remove("fileName");
             HttpContext.Session.Remove("invalid");
             HttpContext.Session.Remove("isDownload");
@@ -88,7 +90,8 @@ namespace DocumentViewer.Controllers
                                             join oau in _context.OpenAccessUser on oal.OpenAccessUserId equals oau.OpenAccessUserId
                                             where oal.UserId == userIds && oau.AccessType == "DMSAccess" && oal.IsDmsAccess == true
                                             select oal;
-                                if (query != null)
+                                var res = query.ToList();
+                                if (res != null && res.Count() > 0)
                                 {
                                     viewmodel.IsRead = true; viewmodel.IsDownload = true;
                                     HttpContext.Session.SetString("isDownload", "Yes");
@@ -124,12 +127,14 @@ namespace DocumentViewer.Controllers
 
                             if (currentDocuments.IsNewPath == true)
                             {
+                                pathurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
                                 fileurl = fileNewUrl + currentDocuments.FilePath;
                                 HttpContext.Session.SetString("fileUrl", fileurl);
                             }
                             else
                             {
                                 fileurl = fileOldUrl + currentDocuments.FilePath;
+                                pathurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
                                 HttpContext.Session.SetString("fileUrl", fileurl);
                             }
                         }
@@ -139,6 +144,7 @@ namespace DocumentViewer.Controllers
                             viewmodel.Url = string.IsNullOrEmpty(fileurl) ? "" : fileurl;
                             viewmodel.Id = 1;
                             viewmodel.DocumentId = "1";
+                            viewmodel.UniqueId = currentDocuments.DocumentId;
                             viewmodel.FileName = currentDocuments.FileName;
                             if (!string.IsNullOrEmpty(fileurl))
                             {
@@ -151,43 +157,45 @@ namespace DocumentViewer.Controllers
                                 {
                                     var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
                                     @ViewBag.FileExtension = Extension;
-                                    /* using (var _httpClient = new HttpClient())
-                                     {
-                                         using (var response = await _httpClient.GetAsync(new Uri(fileurl)))
-                                         {
-                                             response.EnsureSuccessStatusCode();
-                                             Stream byteArrayAccessor() => response.Content.ReadAsStream();
-                                             //var stream = await response.Content.ReadAsStreamAsync();
-                                             viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                             viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-                                             viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                             viewmodel.ContentType = contentType;
-                                             return View(viewmodel);
-                                         }
-                                     }*/
-                                    /*using (var webClient = new HttpClient())
-                                    {*/
-                                    var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                                    var streamData = webResponse.Content.ReadAsStream();
-                                    if (Extension == "msg" || Extension == "eml")
+                                    if (Extension == "xls" || Extension == "xlsx" || Extension == "doc" || Extension == "docx")
                                     {
-                                        viewmodel.Type = Extension;
-                                        viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
+                                        if (System.IO.File.Exists(pathurl))
+                                        {
+                                            viewmodel.PathUrl = pathurl;
+                                            if (Extension == "msg" || Extension == "eml")
+                                            {
+                                                viewmodel.Type = Extension;
+                                            }
+                                            else
+                                            {
+                                                viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            viewmodel.Id = 0;
+                                        }
                                     }
                                     else
                                     {
-                                        viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                        Stream byteArrayAccessor() => streamData;
-                                        viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                                        var streamData = webResponse.Content.ReadAsStream();
+                                        if (Extension == "msg" || Extension == "eml")
+                                        {
+                                            viewmodel.Type = Extension;
+                                            viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
+                                        }
+                                        else
+                                        {
+                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                            Stream byteArrayAccessor() => streamData;
+                                            viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                        }
                                     }
                                     viewmodel.DocumentId = Guid.NewGuid().ToString();
                                     @ViewBag.isFile = "Yes";
-
                                     viewmodel.ContentType = contentType;
-                                    System.GC.Collect();
-                                    GC.SuppressFinalize(this);
                                     return View(viewmodel);
-                                    //}
                                 }
                                 else
                                 {
@@ -224,6 +232,56 @@ namespace DocumentViewer.Controllers
             {
                 return Redirect("login?url=" + url);
             }
+        }
+        [HttpPost]
+        public IActionResult ExportUrl(string base64, string fileName, DevExpress.AspNetCore.RichEdit.DocumentFormat format, long? id)
+        {
+            var currentDocuments = _context.Documents.Where(w => w.DocumentId == id).FirstOrDefault();
+            if (currentDocuments != null)
+            {
+                string pathurl = string.Empty;
+                if (currentDocuments.IsNewPath == true)
+                {
+                    pathurl = _configuration["DocumentsUrl:NewFileLivePath"] + @"\\" + currentDocuments.FilePath;
+                }
+                else
+                {
+                    pathurl = _configuration["DocumentsUrl:OldFileLivePath"] + @"\\" + currentDocuments.FilePath;
+                }
+                if (!string.IsNullOrEmpty(pathurl))
+                {
+                    byte[] fileContents = System.Convert.FromBase64String(base64);
+                    System.IO.File.WriteAllBytesAsync(pathurl, fileContents);
+                }
+            }
+            return Ok();
+        }
+        public IActionResult RibbonDownloadXlsx(SpreadsheetClientState spreadsheetState)
+        {
+            var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
+
+            MemoryStream stream = new MemoryStream();
+            spreadsheet.SaveCopy(stream, DocumentFormat.Xlsx);
+            stream.Position = 0;
+            const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(stream, XlsxContentType, HttpContext.Session.GetString("fileName"));
+        }
+        [HttpPost]
+        public void RibbonSaveToFile(SpreadsheetClientState spreadsheetState)
+        {
+            var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
+            spreadsheet.Save();
+        }
+        public IActionResult RibbonDownloadXls(SpreadsheetClientState spreadsheetState)
+        {
+
+            var spreadsheet = SpreadsheetRequestProcessor.GetSpreadsheetFromState(spreadsheetState);
+
+            MemoryStream stream = new MemoryStream();
+            spreadsheet.SaveCopy(stream, DocumentFormat.Xls);
+            stream.Position = 0;
+            const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(stream, XlsxContentType, HttpContext.Session.GetString("fileName"));
         }
         [HttpGet("DownloadFromUrl")]
         public IActionResult DownloadFromUrl(string? url)
@@ -491,8 +549,8 @@ namespace DocumentViewer.Controllers
                             join oau in _context.OpenAccessUser on oal.OpenAccessUserId equals oau.OpenAccessUserId
                             where oal.UserId == userId && oau.AccessType == "EmailAccess"
                             select oal;
-
-                if (query != null)
+                var res = query.ToList();
+                if (res != null && res.Count()>0)
                 {
                     permissionModel.IsRead = true; permissionModel.IsDownload = true;
                     @ViewBag.isDownload = "Yes";

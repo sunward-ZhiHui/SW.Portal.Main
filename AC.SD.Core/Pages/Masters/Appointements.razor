@@ -95,10 +95,11 @@
             string s = JsonConvert.SerializeObject(Users);
             <div class="sc-tooltip-bottom-container">
                         <DxButton id="showUserMultiple" @onclick="@(() => OnClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link"
-                                  Text="Participants" style="margin-right:60px;">
+                                  Text="Participants" >
                
                          </DxButton>
-              
+          @*   </div>
+            <div class="sc-tooltip-bottom-container"> *@
                         <DxButton  @onclick="@(() => OnAcceptClick(long.Parse(s)))" RenderStyleMode="ButtonRenderStyleMode.Text" RenderStyle="ButtonRenderStyle.Link" Visible="@AcceptVisible"
                                   Text="Accept" IconCssClass="fa fa-thumbs-up" style="color:green;" >
 

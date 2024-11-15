@@ -738,7 +738,39 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
         }
+        public bool IsPoOrderNo;
+        [HttpGet("ScanTicketNo")]
+        public async Task<ActionResult<Services.ResponseModel<List<NavprodOrderLineModel>>>> ScanTicketNo(long companyid , string TickenNo)
+        {
+           
+            var response = new Services.ResponseModel<bool?>();
+          
+            var result = await _mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
 
+            var Data = result.Where(f => f.ProdOrderNo == TickenNo).ToList();
+            if(Data.Count > 0)
+            {
+                IsPoOrderNo = true;
+            }
+            else
+            {
+                    IsPoOrderNo = false;
+            }
+           
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Result = IsPoOrderNo;
+
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
         [HttpGet("GetProfileIpirList")]
         public async Task<ActionResult<Services.ResponseModel<List<DocumentProfileNoSeriesModel>>>> GetProfileIpirList()
         {

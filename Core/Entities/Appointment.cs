@@ -45,7 +45,7 @@ namespace Core.Entities
         [NotMapped]
         public long? UserID { get; set; }
         [NotMapped]
-        public bool IsAccepted { get; set; } = false;
+        public bool? IsAccepted { get; set; } 
        
     }
 }

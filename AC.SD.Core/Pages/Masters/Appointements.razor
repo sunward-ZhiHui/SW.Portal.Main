@@ -470,13 +470,13 @@
     async void OnAcceptClick(long ID)
     {
         var result = await Mediator.Send(new UpdateAccept(applicationUser.UserID,true,ID));
-        await acceptvisible(ID);
+        await acceptvisiblefalse(ID);
         toastService.ShowToast("Appointment Accepted Successfully", AC.SD.Core.Services.ToastLevel.Success);
     }
     async void OnRejectClick(long ID)
     {
         var result = await Mediator.Send(new UpdateAccept(applicationUser.UserID, false,ID));
-        await acceptvisible(ID);
+        await acceptvisiblefalse(ID);
         toastService.ShowToast("Appointment Rejected Successfully", AC.SD.Core.Services.ToastLevel.Success);
     }
     async void OnClick(long appointmentID)
@@ -517,14 +517,14 @@
         var list = await Mediator.Send(new GetUserQuery(ID, applicationUser.UserID));
         if (list.Count > 0)
         {
-            if (list[0].IsAccepted == true)
+            if (list[0].IsAccepted == true || list[0].IsAccepted == false)
             {
-                RejectVisible = true;
+                RejectVisible = false;
                 AcceptVisible = false;
             }
             else
             {
-                RejectVisible = false;
+                RejectVisible = true;
                 AcceptVisible = true;
             }
         }
@@ -533,6 +533,16 @@
             RejectVisible = false;
             AcceptVisible = false;
         }
+
+      
+        StateHasChanged();
+    }
+
+    async Task acceptvisiblefalse(long ID)
+    {
+
+        RejectVisible = false;
+        AcceptVisible = false;
         StateHasChanged();
     }
 }

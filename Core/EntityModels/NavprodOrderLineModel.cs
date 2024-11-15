@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ namespace Core.EntityModels
         public decimal? PackQty { get; set; }
         public string? BatchNos { get; set; }
         public string? BatchSize { get; set; }
+       
     }
     public class NavprodOrderLineItemsModel
     {

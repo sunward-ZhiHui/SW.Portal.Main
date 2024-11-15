@@ -34,7 +34,7 @@ namespace Infrastructure.Repository.Query
             List<IpirApp> IpirApps = new List<IpirApp>();
             try
             {
-                var query = "select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1 AND t9.IsTemp=0) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
+                var query = "select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
 
                 var result = new List<IpirApp>();
                 using (var connection = CreateConnection())
@@ -69,7 +69,7 @@ namespace Infrastructure.Repository.Query
                                 s.DocumentID = counts.DocumentId;
                                 s.DocumentParentId = counts.DocumentParentId;
                                 s.FileName = counts.FileName;
-                                s.ProfileNo = counts.ProfileNo;
+                                s.DocProfileNo = counts.ProfileNo;
                                 s.FilePath = counts.FilePath;
                                 s.UniqueSessionId = counts.UniqueSessionId;
                                 s.IsNewPath = counts.IsNewPath == true ? true : false;

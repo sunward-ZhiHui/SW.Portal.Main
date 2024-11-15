@@ -80,6 +80,7 @@ namespace Core.Entities
         public List<IpirAppIssueDep> ActivityIssueRelates { get; set; } = new List<IpirAppIssueDep>();
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
+        public string? DocProfileNo { get; set; }
 
     }
     public class IpirAppIssueDep

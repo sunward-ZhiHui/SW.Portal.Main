@@ -51,6 +51,32 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class IpirSupervisorHandler : IRequestHandler<UpdateIpirSupervisor, IpirApp>
+    {
+        private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
+        public IpirSupervisorHandler(IIpirAppQueryRepostitory _iIpirAppQueryRepostitory)
+        {
+            iIpirAppQueryRepostitory = _iIpirAppQueryRepostitory;
+        }
+        public async Task<IpirApp> Handle(UpdateIpirSupervisor request, CancellationToken cancellationToken)
+        {
+            return await iIpirAppQueryRepostitory.UpdateIpirSupervisor(request.IpirApp);
+        }
+
+    }
+    public class IpirPICHandler : IRequestHandler<UpdateIpirPIC, IpirApp>
+    {
+        private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
+        public IpirPICHandler(IIpirAppQueryRepostitory _iIpirAppQueryRepostitory)
+        {
+            iIpirAppQueryRepostitory = _iIpirAppQueryRepostitory;
+        }
+        public async Task<IpirApp> Handle(UpdateIpirPIC request, CancellationToken cancellationToken)
+        {
+            return await iIpirAppQueryRepostitory.UpdateIpirPIC(request.IpirApp);
+        }
+
+    }
     public class DeleteIpirAppHandler : IRequestHandler<DeleteIpirApp, IpirApp>
     {
         private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;

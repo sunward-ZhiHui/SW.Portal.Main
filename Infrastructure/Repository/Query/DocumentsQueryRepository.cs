@@ -1311,5 +1311,27 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+
+        public async Task<long> UpdateDocument(Guid SessionID, string ProfileNo, long FileProfileID)
+        {
+
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", SessionID);
+                parameters.Add("ProfileNo", ProfileNo);
+                parameters.Add("FileProfileID", FileProfileID);
+                using (var connection = CreateConnection())
+                {
+                    var query = "Update Documents set FilterProfileTypeID = @FileProfileID ,ProfileNo = @ProfileNo Where SessionID =@SessionID";
+                    var result = (await connection.QueryAsync<long>(query, parameters)).ToList();
+                    return FileProfileID;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

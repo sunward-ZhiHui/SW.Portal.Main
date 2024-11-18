@@ -24,6 +24,22 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
+    public class UpdateIpirSupervisor : PagedRequest, IRequest<IpirApp>
+    {
+        public IpirApp IpirApp { get; private set; }
+        public UpdateIpirSupervisor(IpirApp ipirApp)
+        {
+            this.IpirApp = ipirApp;
+        }
+    }
+    public class UpdateIpirPIC : PagedRequest, IRequest<IpirApp>
+    {
+        public IpirApp IpirApp { get; private set; }
+        public UpdateIpirPIC(IpirApp ipirApp)
+        {
+            this.IpirApp = ipirApp;
+        }
+    }
     public class InsertOrUpdateIpirApp : PagedRequest, IRequest<IpirApp>
     {
         public IpirApp IpirApp { get; private set; }

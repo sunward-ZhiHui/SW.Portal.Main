@@ -15,7 +15,9 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<IpirApp>> GetAllByAsync();
         Task<IReadOnlyList<IPIRReportingInformation>> GetAllIPIRmobileByAsync(long IpirappId);
         Task<IpirApp> InsertOrUpdateIpirApp(IpirApp value);
+        Task<IpirApp> UpdateIpirPIC(IpirApp value);
         Task<IpirApp> DeleteIpirApp(IpirApp value);
+        Task<IpirApp> UpdateIpirSupervisor(IpirApp value);
         Task<IPIRReportingInformation> DeleteIpirReportingInformation(IPIRReportingInformation value);
         Task<IpirApp> GetAllByOneAsync(Guid? SessionId);
         Task<IPIRReportingInformation> InsertOrUpdateIpirReportingInformation(IPIRReportingInformation value);

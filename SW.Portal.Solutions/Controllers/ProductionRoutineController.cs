@@ -977,6 +977,166 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(response);
         }
+        [HttpPost("UpdateIpirPIC")]
+        public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> UpdateIpirPIC(IpirAppModel IpirAppModel)
+        {
+            var message = new List<string>();
+            var response = new Services.ResponseModel<IpirAppModel>();
+           
+
+
+                IpirApp FilterData = new IpirApp();
+                {
+                    FilterData.CompanyID = IpirAppModel.CompanyID;
+                    // FilterData.CompanyID = IpirAppModel.CompanyID;
+                    FilterData.IpirAppId = IpirAppModel.IpirAppId;
+                    FilterData.LocationID = IpirAppModel.LocationID > 0 ? IpirAppModel.LocationID : null;
+                    FilterData.ProfileId = IpirAppModel.ProfileId > 0 ? IpirAppModel.ProfileId : null;
+                    FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
+                    FilterData.ProfileNo = IpirAppModel.ProfileNo;
+                    FilterData.MachineName = IpirAppModel.MachineName;
+                   
+                   
+                    FilterData.ProdOrderNo = IpirAppModel.ProdOrderNo != null ? IpirAppModel.ProdOrderNo : null;
+                   
+                    FilterData.DetectedBy = IpirAppModel.DetectedBy > 0 ? IpirAppModel.DetectedBy : null;
+                   
+                    FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
+                   
+                    FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
+                    FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
+                    FilterData.SessionID = IpirAppModel.SessionID;
+                  
+                    var result = await _mediator.Send(new UpdateIpirPIC(FilterData));
+
+                    try
+                    {
+                        response.ResponseCode = Services.ResponseCode.Success;
+                        var display = new IpirAppModel
+                        {
+                            IpirAppId = result.IpirAppId,
+                            SessionID = result.SessionID
+                        };
+                        response.Result = display;
+                    }
+                    catch (Exception ex)
+                    {
+                        response.ResponseCode = Services.ResponseCode.Failure;
+                        response.ErrorMessages.Add(ex.Message);
+                    }
+                }
+          
+            return Ok(response);
+        }
+        [HttpPost("UpdateIpirSupervisor")]
+        public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> UpdateIpirSupervisor(IpirAppModel IpirAppModel)
+        {
+            var message = new List<string>();
+            var response = new Services.ResponseModel<IpirAppModel>();
+
+
+
+            IpirApp FilterData = new IpirApp();
+            {
+               
+                // FilterData.CompanyID = IpirAppModel.CompanyID;
+                FilterData.IpirAppId = IpirAppModel.IpirAppId;
+              
+                FilterData.ActivityStatusId = IpirAppModel.ActivityStatusId > 0 ? IpirAppModel.ActivityStatusId : null;
+                FilterData.FixedAssetNo = IpirAppModel.FixedAssetNo;
+              
+              
+                FilterData.Comment = IpirAppModel.Comment;
+                FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
+              
+                FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
+                FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
+                FilterData.SessionID = IpirAppModel.SessionID;
+                FilterData.DepartmentIds = IpirAppModel.DepartmentIds.Count() > 0 ? IpirAppModel.DepartmentIds : new List<long?>();
+                FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds.Count() > 0 ? IpirAppModel.ActivityIssueRelateIds : new List<long?>();
+                var result = await _mediator.Send(new UpdateIpirSupervisor(FilterData));
+
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+                    var display = new IpirAppModel
+                    {
+                        IpirAppId = result.IpirAppId,
+                        SessionID = result.SessionID
+                    };
+                    response.Result = display;
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+            }
+
+            return Ok(response);
+        }
+        [HttpPost("InsertIncidentApp")]
+        public async Task<ActionResult<Services.ResponseModel<List<IpirAppModel>>>> InsertIncidentApp(IpirAppModel IpirAppModel)
+        {
+            var message = new List<string>();
+            var response = new Services.ResponseModel<IpirAppModel>();
+            if (IpirAppModel.CompanyID > 0 && IpirAppModel.MachineName != null)
+            {
+
+
+                IpirApp FilterData = new IpirApp();
+                {
+                    FilterData.CompanyID = IpirAppModel.CompanyID;
+                    // FilterData.CompanyID = IpirAppModel.CompanyID;
+                    FilterData.IpirAppId = IpirAppModel.IpirAppId;
+                    FilterData.LocationID = IpirAppModel.LocationID > 0 ? IpirAppModel.LocationID : null;
+                    FilterData.ProfileId = IpirAppModel.ProfileId > 0 ? IpirAppModel.ProfileId : null;
+                    FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
+                    FilterData.ProfileNo = IpirAppModel.ProfileNo;
+                    FilterData.MachineName = IpirAppModel.MachineName;
+                    FilterData.RefNo = IpirAppModel.RefNo;
+                    FilterData.ActivityStatusId = IpirAppModel.ActivityStatusId > 0 ? IpirAppModel.ActivityStatusId : null;
+                    FilterData.FixedAssetNo = IpirAppModel.FixedAssetNo;
+                    FilterData.ProdOrderNo = IpirAppModel.ProdOrderNo != null ? IpirAppModel.ProdOrderNo : null;
+                    FilterData.NavprodOrderLineID = IpirAppModel.NavprodOrderLineID;
+                    FilterData.ReportingPersonal = IpirAppModel.ReportingPersonal > 0 ? IpirAppModel.ReportingPersonal : null;
+                    FilterData.DetectedBy = IpirAppModel.DetectedBy > 0 ? IpirAppModel.DetectedBy : null;
+                    FilterData.Comment = IpirAppModel.Comment;
+                    FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
+                    FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
+                    FilterData.AddedDate = DateTime.Now;
+                    FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
+                    FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
+                    FilterData.SessionID = IpirAppModel.SessionID;
+                    FilterData.DepartmentIds = IpirAppModel.DepartmentIds.Count() > 0 ? IpirAppModel.DepartmentIds : new List<long?>();
+                    FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds.Count() > 0 ? IpirAppModel.ActivityIssueRelateIds : new List<long?>();
+                    var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
+
+                    try
+                    {
+                        response.ResponseCode = Services.ResponseCode.Success;
+                        var display = new IpirAppModel
+                        {
+                            IpirAppId = result.IpirAppId,
+                            SessionID = result.SessionID
+                        };
+                        response.Result = display;
+                    }
+                    catch (Exception ex)
+                    {
+                        response.ResponseCode = Services.ResponseCode.Failure;
+                        response.ErrorMessages.Add(ex.Message);
+                    }
+                }
+            }
+            else
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                message.Add("Please Enter Required Fields");
+                response.ErrorMessages = message;
+            }
+            return Ok(response);
+        }
         [HttpPost("InsertIpirReportingInformation")]
         public async Task<ActionResult<Services.ResponseModel<List<ReportingInformationModel>>>> InsertIpirReportingInformation(ReportingInformationModel IPIRReportingInformationmodel)
         {

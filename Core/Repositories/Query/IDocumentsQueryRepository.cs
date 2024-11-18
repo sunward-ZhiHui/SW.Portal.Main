@@ -6,6 +6,7 @@ using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,8 +33,8 @@ namespace Core.Repositories.Query
         Task<DocumentsUploadModel> UpdateDocumentNoDocumentBySession(DocumentsUploadModel value);
         Task<DocumentsUploadModel> UpdateDocumentNoDocumentByNoProfile(DocumentsUploadModel value);
         Task<DocumentNoSeriesModel> UpdateReserveNumberTitleField(DocumentNoSeriesModel documentNoSeries);
-        
 
+        Task<long> UpdateDocument(Guid SessionID, string ProfileNo,long FileProfileID);
 
     }
 }

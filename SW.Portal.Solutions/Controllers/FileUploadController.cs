@@ -387,10 +387,51 @@ namespace SW.Portal.Solutions.Controllers
                 return response;
             }
         }
+        [HttpPost("UpdateProfileType")]
+        public async Task<ActionResult<Services.ResponseModel<List<Models.UpdateFileProfileTypeModel>>>> UpdateProfileType([FromBody] Models.UpdateFileProfileTypeModel value)
+        {
+            var message = new List<string>();
+            var response = new Services.ResponseModel<long>();
+
+
+          
+
+                var documentNoSeriesModel = new DocumentNoSeriesModel
+                {
+                    AddedByUserID = value.UserID,
+                    StatusCodeID = 710,
+                    ProfileID = value.ProfileId,
+                    PlantID = value.PlantId,
+                    DepartmentId = value.DepartmentId,
+                    SectionId = value.SectionId,
+                    SubSectionId = value.SubSectionId,
+                    DivisionId = value.DivisionId,
+
+
+                };
+                var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
+                var result = await _documentsqueryrepository.UpdateDocument(value.SessionId, profileNo,value.FileProfileTypeId);
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+                   
+                    response.Result = result;
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+            
+
+            return Ok(response);
+        }
+        public Guid? FileSessionID { get; set; }
         [HttpPost("MobileFileProfileType")]
 
         public async Task<ResponseModel> MobileFileProfileType([FromForm] Models.FileProfileTypeModel value)
         {
+         
             ResponseModel response = new ResponseModel();
             try
             {
@@ -419,7 +460,11 @@ namespace SW.Portal.Solutions.Controllers
                 }
 
                 var FileProfileSessionID = await _mediator.Send(new GetFileProfileTypeList(value.FileProfileTypeId));
-                var FileSessionID = FileProfileSessionID.SessionID;
+                if(FileProfileSessionID != null)
+                {
+                     FileSessionID = FileProfileSessionID.SessionID;
+                    
+                }
                 Guid? FileNameSessionID = Guid.NewGuid();
                 if (FileSessionID != null)
                 {
@@ -427,6 +472,7 @@ namespace SW.Portal.Solutions.Controllers
                 }
                 var fileName = FileNameSessionID.ToString() + Path.GetExtension(file.FileName); // Appending the extension to the filename
                 var filePath = Path.Combine(serverPaths, fileName);
+
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -454,6 +500,7 @@ namespace SW.Portal.Solutions.Controllers
                     SectionId = value.SectionId,
                     SubSectionId = value.SubSectionId,
                     DivisionId = value.DivisionId,
+                    
 
                 };
                 var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
@@ -467,7 +514,11 @@ namespace SW.Portal.Solutions.Controllers
                 documents.FileName = file.FileName;
                 documents.ContentType = contentType;
                 documents.FileSize = fileSize;
-                documents.FilterProfileTypeId = value.FileProfileTypeId;
+                if(value.FileProfileTypeId != 0)
+                {
+                    documents.FilterProfileTypeId = value.FileProfileTypeId;
+                }
+              
                 documents.SourceFrom = "FileProfile";
                 documents.ProfileNo = profileNo;
                 documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
@@ -636,7 +687,11 @@ namespace SW.Portal.Solutions.Controllers
                     documents.FileSize = fileSize;
                     documents.SourceFrom = SourceFrom;
                     documents.ProfileNo = profileNo;
-                    documents.FilterProfileTypeId = value.FileProfileTypeId;
+                    if(value.FileProfileTypeId != 0)
+                    {
+                        documents.FilterProfileTypeId = value.FileProfileTypeId;
+                    }
+                   
                     documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                     var responses = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
                     System.GC.Collect();

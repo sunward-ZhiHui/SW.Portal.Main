@@ -469,6 +469,137 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IpirApp> UpdateIpirSupervisor(IpirApp value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("IpirAppId", value.IpirAppId);
+                       
+                        parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", value.ModifiedDate);
+                       
+                      
+                        parameters.Add("SessionID", value.SessionID, DbType.Guid);
+                        parameters.Add("StatusCodeID", value.StatusCodeID);
+                        parameters.Add("FixedAssetNo", value.FixedAssetNo, DbType.String);
+                        parameters.Add("Comment", value.Comment, DbType.String);
+                      
+                        parameters.Add("ActivityStatusId", value.ActivityStatusId);
+                        if (value.IpirAppId > 0)
+                        {
+
+                            var query = "Update IpirApp Set ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
+                            "FixedAssetNo=@FixedAssetNo,Comment=@Comment  Where IpirAppId=@IpirAppId;";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+                        }
+                       
+                        if (value.IpirAppId > 0)
+                        {
+                            var Deletequery = "DELETE  FROM IpirAppIssueDep WHERE IpirAppId = " + value.IpirAppId + ";";
+                            await connection.ExecuteAsync(Deletequery);
+                        }
+                        var querys = string.Empty;
+                        if (value.ActivityIssueRelateIds != null)
+                        {
+                            var listData = value.ActivityIssueRelateIds.ToList();
+                            if (listData.Count > 0)
+                            {
+                                listData.ForEach(s =>
+                                {
+                                    querys += "INSERT INTO [IpirAppIssueDep](ActivityInfoIssueID,IpirAppId,Type) VALUES ( " + s + "," + value.IpirAppId + ",'Issue');\r\n";
+                                });
+
+                            }
+                        }
+                        if (value.DepartmentIds != null)
+                        {
+                            var listData = value.DepartmentIds.ToList();
+                            if (listData.Count > 0)
+                            {
+                                listData.ForEach(s =>
+                                {
+                                    querys += "INSERT INTO [IpirAppIssueDep](DepartmentID,IpirAppId,Type) VALUES ( " + s + "," + value.IpirAppId + ",'Department');\r\n";
+                                });
+
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(querys))
+                        {
+                            await connection.ExecuteAsync(querys, null);
+                        }
+
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IpirApp> UpdateIpirPIC(IpirApp value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("IpirAppId", value.IpirAppId);
+                        parameters.Add("CompanyID", value.CompanyID);
+                        parameters.Add("ProfileId", value.ProfileId);
+                        parameters.Add("LocationID", value.LocationID);
+                       
+                        parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", value.ModifiedDate);
+                        
+                      
+                        parameters.Add("DetectedBy", value.DetectedBy);
+                        parameters.Add("SessionID", value.SessionID, DbType.Guid);
+                       
+                        parameters.Add("ProdOrderNo", value.ProdOrderNo, DbType.String);
+                        parameters.Add("StatusCodeID", value.StatusCodeID);
+                       
+                        parameters.Add("MachineName", value.MachineName, DbType.String);
+                      
+                       
+
+                            var query = "Update IpirApp Set MachineName=@MachineName,DetectedBy=@DetectedBy,SessionID=@SessionID,CompanyID=@CompanyID,ProfileId=@ProfileId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID,LocationID=@LocationID," +
+                            "ProdOrderNo=@ProdOrderNo  Where IpirAppId=@IpirAppId;";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+                        
+                       
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<IpirAppCheckedDetailsModel>> GetIpirAppDetails(long? value)
         {
             try

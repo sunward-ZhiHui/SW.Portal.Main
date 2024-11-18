@@ -59,7 +59,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select t1.*,t2.CodeValue as StatusCode from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID where t1.StatusCodeID=1 AND t1.ParentId =" + Id + "";
+                var query = "select t1.*,t2.CodeValue as StatusCode,t3.Value as ParentName,t4.Value as ApplicationMasterName,t5.ApplicationMasterName as MainMasterName from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID JOIN ApplicationMasterChild t3 ON t3.ApplicationMasterChildID=t1.ParentID LEFT JOIN ApplicationMasterChild t4 ON t4.ApplicationMasterChildID=t3.ParentID  LEFT JOIN ApplicationMasterParent t5 ON t5.ApplicationMasterParentCodeID=t4.ApplicationMasterParentID\r\n where t1.StatusCodeID=1 AND t1.ParentId =" + Id + "";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
@@ -75,7 +75,7 @@ namespace Infrastructure.Repository.Query
             List<ApplicationMasterChildModel> applicationChildData = new List<ApplicationMasterChildModel>();
             try
             {
-                var query = "select t1.*,t2.CodeValue as StatusCode from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID where  t1.ApplicationMasterParentID in(" + Ids + ")";
+                var query = "select t1.*,t2.CodeValue as StatusCode,t3.ApplicationMasterName as MainMasterName from ApplicationMasterChild t1 JOIN CodeMaster t2 ON t1.StatusCodeID=t2.CodeID JOIN ApplicationMasterParent t3 ON t3.ApplicationMasterParentCodeID=t1.ApplicationMasterParentID where  t1.ApplicationMasterParentID in(" + Ids + ")";
                 using (var connection = CreateConnection())
                 {
                     var result = (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
@@ -88,6 +88,7 @@ namespace Infrastructure.Repository.Query
                                 ID = s.ApplicationMasterChildId,
                                 ApplicationMasterChildId = s.ApplicationMasterChildId,
                                 ApplicationMasterParentId = s.ApplicationMasterParentId,
+                                MainMasterName=s.MainMasterName,
                                 Value = s.Value,
                                 StatusCodeId = s.StatusCodeId,
                                 Description = s.Description,
@@ -107,6 +108,7 @@ namespace Infrastructure.Repository.Query
                                 {
                                     ApplicationMasterChildId = s.ApplicationMasterChildId,
                                     ApplicationMasterParentId = s.ApplicationMasterParentId,
+                                    MainMasterName = s.MainMasterName,
                                     Value = s.Value,
                                     StatusCodeId = s.StatusCodeId,
                                     Description = s.Description,

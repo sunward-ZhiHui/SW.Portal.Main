@@ -274,9 +274,12 @@
                 _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(Data.ManufacturingProcessChildId));
             }
             var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData, 108));
-            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
-            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
-            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+            if (filteredResults != null && filteredResults.Count() > 0)
+            {
+                _ActivityStatusItem = filteredResults.Where(x => x.Value.ToLower() == "Routine Status".ToLower()).ToList();
+                _ActivityResult = filteredResults.Where(x => x.Value.ToLower() == "Routine Result".ToLower()).ToList();
+                _ActivityMaster = filteredResults.Where(x => x.Value.ToLower() == "Routine Info".ToLower()).ToList();
+            }
         }
         Category = "";
         Action = "";
@@ -359,9 +362,12 @@
                 _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(Data.ManufacturingProcessChildId));
             }
             var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData, 108));
-            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
-            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
-            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+            if (filteredResults != null && filteredResults.Count() > 0)
+            {
+                _ActivityStatusItem = filteredResults.Where(x => x.Value.ToLower() == "Routine Status".ToLower()).ToList();
+                _ActivityResult = filteredResults.Where(x => x.Value.ToLower() == "Routine Result".ToLower()).ToList();
+                _ActivityMaster = filteredResults.Where(x => x.Value.ToLower() == "Routine Info".ToLower()).ToList();
+            }
         }
         StateHasChanged();
     }
@@ -458,9 +464,12 @@
             Data.RoutineInfoIds = null;
 
             var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData1, 108));
-            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
-            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
-            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+            if (filteredResults != null && filteredResults.Count() > 0)
+            {
+                _ActivityStatusItem = filteredResults.Where(x => x.Value.ToLower() == "Routine Status".ToLower()).ToList();
+                _ActivityResult = filteredResults.Where(x => x.Value.ToLower() == "Routine Result".ToLower()).ToList();
+                _ActivityMaster = filteredResults.Where(x => x.Value.ToLower() == "Routine Info".ToLower()).ToList();
+            }
 
             StateHasChanged();
         }
@@ -502,9 +511,12 @@
             Data.RoutineInfoIds = null;
 
             var filteredResults = await Mediator.Send(new GetApplicationMasterParentByList(dynamicsData2, 108));
-            _ActivityStatusItem = filteredResults.Where(x => x.Value == "Routine Status").ToList();
-            _ActivityResult = filteredResults.Where(x => x.Value == "Routine Result").ToList();
-            _ActivityMaster = filteredResults.Where(x => x.Value == "Routine Info").ToList();
+            if (filteredResults != null && filteredResults.Count() > 0)
+            {
+                _ActivityStatusItem = filteredResults.Where(x => x.Value.ToLower() == "Routine Status".ToLower()).ToList();
+                _ActivityResult = filteredResults.Where(x => x.Value.ToLower() == "Routine Result".ToLower()).ToList();
+                _ActivityMaster = filteredResults.Where(x => x.Value.ToLower() == "Routine Info".ToLower()).ToList();
+            }
 
         }
         await OnTemplateUploadGroupValueChanged("No");

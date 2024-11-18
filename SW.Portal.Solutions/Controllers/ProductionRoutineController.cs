@@ -21,6 +21,7 @@ using System.Text.Json;
 using AC.SD.Core.AspNetCoreHost;
 using DevExtreme.AspNet.Data.ResponseModel;
 using AC.SD.Core.Pages.IpirApps;
+using System.Dynamic;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -87,6 +88,46 @@ namespace SW.Portal.Solutions.Controllers
                 response.ResponseCode = Services.ResponseCode.Success;
                 // response.Results = displayResult;
                 response.Results = displayResult.Count > 0 ? displayResult : new List<ProductionActivityAppModel> { new ProductionActivityAppModel() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetRoutineDynamicFormDataList")]
+        public async Task<ActionResult<Services.ResponseModel<List<DropDownOptionsListModel>>>> GetRoutineDynamicFormDataList(long? RoutineId, long? CategoryId, long? ActionId)
+        {
+            var res = await _mediator.Send(new GetAllApplicationMasterChildProQuery());
+            IDictionary<string, object> dynamicsData2 = new ExpandoObject();
+            var response = new Services.ResponseModel<DropDownOptionsListModel>();
+            if (RoutineId > 0)
+            {
+                dynamicsData2[108.ToString()] = RoutineId;
+                if (CategoryId > 0)
+                {
+                    var id = res.FirstOrDefault(f => f.ApplicationMasterChildId == CategoryId)?.ApplicationMasterParentId;
+                    if (id > 0)
+                    {
+                        dynamicsData2[id.ToString()] = CategoryId;
+                        if (ActionId > 0)
+                        {
+                            var aid = res.FirstOrDefault(f => f.ApplicationMasterChildId == ActionId)?.ApplicationMasterParentId;
+                            if (id > 0)
+                            {
+                                dynamicsData2[aid.ToString()] = ActionId;
+                            }
+                        }
+                    }
+                }
+            }
+            var result = await _mediator.Send(new GetApplicationMasterParentByList(dynamicsData2, 108));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<DropDownOptionsListModel>();
             }
             catch (Exception ex)
             {
@@ -419,7 +460,7 @@ namespace SW.Portal.Solutions.Controllers
             var response = new Services.ResponseModel<DeleteIPIRAppModel>();
             IpirApp Data = new IpirApp();
             Data.IpirAppId = value.IpirAppId.Value;
-           
+
             var result = await iIpirAppQueryRepostitory.DeleteIpirApp(Data);
 
 
@@ -740,23 +781,23 @@ namespace SW.Portal.Solutions.Controllers
         }
         public bool IsPoOrderNo;
         [HttpGet("ScanTicketNo")]
-        public async Task<ActionResult<Services.ResponseModel<List<NavprodOrderLineModel>>>> ScanTicketNo(long companyid , string TickenNo)
+        public async Task<ActionResult<Services.ResponseModel<List<NavprodOrderLineModel>>>> ScanTicketNo(long companyid, string TickenNo)
         {
-           
+
             var response = new Services.ResponseModel<bool?>();
-          
+
             var result = await _mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
 
             var Data = result.Where(f => f.ProdOrderNo == TickenNo).ToList();
-            if(Data.Count > 0)
+            if (Data.Count > 0)
             {
                 IsPoOrderNo = true;
             }
             else
             {
-                    IsPoOrderNo = false;
+                IsPoOrderNo = false;
             }
-           
+
             try
             {
                 response.ResponseCode = Services.ResponseCode.Success;

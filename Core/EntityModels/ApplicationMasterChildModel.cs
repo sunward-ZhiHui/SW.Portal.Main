@@ -27,6 +27,7 @@ namespace Core.EntityModels
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public string? MainMasterName { get; set; }
         public string? ApplicationMasterName { get; set; }
         public string? ParentName { get; set; }
         public string? StatusCode { get; set; }

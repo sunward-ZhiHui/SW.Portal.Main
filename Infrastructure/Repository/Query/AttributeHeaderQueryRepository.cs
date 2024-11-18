@@ -571,31 +571,31 @@ namespace Infrastructure.Repository.Query
 
                                                     });
                                                     var exitsCount = nameDatas.Where(w => w.ApplicationMasterChildId > 0).ToList();
-                                                    //if (exitsCount.Count() == dynamicscounts)
-                                                    // {
-                                                    exitsCount.ForEach(e =>
-                                                    {
-                                                        long? KeyValue = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Key);
-                                                        long? Value = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Value);
-                                                        if (e.ApplicationMasterParentCodeId == KeyValue && e.ApplicationMasterChildId == Value)
+                                                   // if (exitsCount.Count() == dynamicscounts)
+                                                    //{
+                                                        exitsCount.ForEach(e =>
                                                         {
-                                                            var exitss = DynamicFormDataIDs.Where(a => a == f.DynamicFormDataId).Count();
-                                                            if (exitss == 0)
+                                                            long? KeyValue = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Key);
+                                                            long? Value = Convert.ToInt64(dynamicsData.Where(w => w.Key == e.ApplicationMasterParentCodeId.ToString()).FirstOrDefault().Value);
+                                                            if (e.ApplicationMasterParentCodeId == KeyValue && e.ApplicationMasterChildId == Value)
                                                             {
-                                                                DynamicFormDataIDs.Add(f.DynamicFormDataId);
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            if (DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0)
-                                                            {
-                                                                if (e.ApplicationMasterChildId != Value)
+                                                                var exitss = DynamicFormDataIDs.Where(a => a == f.DynamicFormDataId).Count();
+                                                                if (exitss == 0)
                                                                 {
-                                                                    // DynamicFormDataIDs.Remove(f.DynamicFormDataId);
+                                                                    DynamicFormDataIDs.Add(f.DynamicFormDataId);
                                                                 }
                                                             }
-                                                        }
-                                                    });
+                                                            else
+                                                            {
+                                                                if (DynamicFormDataIDs != null && DynamicFormDataIDs.Count() > 0)
+                                                                {
+                                                                    if (e.ApplicationMasterChildId != Value)
+                                                                    {
+                                                                         DynamicFormDataIDs.Remove(f.DynamicFormDataId);
+                                                                    }
+                                                                }
+                                                            }
+                                                        });
                                                     //}
                                                 }
                                             }

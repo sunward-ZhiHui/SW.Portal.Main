@@ -176,4 +176,14 @@ namespace Application.Queries
     {
 
     }
+    public class GetRawMatItemListByTypeList : PagedRequest, IRequest<List<RawMatItemList>>
+    {
+        public string? Type { get; set; }
+        public long? CompanyId { get; set; }
+        public GetRawMatItemListByTypeList(string? type, long? companyId)
+        {
+            this.Type = type;
+            this.CompanyId = companyId;
+        }
+    }
 }

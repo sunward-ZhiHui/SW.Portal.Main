@@ -112,6 +112,30 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<IReadOnlyList<RawMatItemList>> GetRawMatItemListByTypeList(string? Type,long? CompanyId)
+        {
+            try
+            {
+                List<RawMatItemList> rawMatItemLists = new List<RawMatItemList>();
+                if (!string.IsNullOrEmpty(Type))
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Type", Type, DbType.String);
+                    parameters.Add("CompanyId", CompanyId);
+                    var query = "select  *,CONCAT(ItemNo,'|',Description) as ItemNoDescription from RawMatItemList where CompanyId=@CompanyId AND Type=@Type";
+
+                    using (var connection = CreateConnection())
+                    {
+                        rawMatItemLists = (await connection.QueryAsync<RawMatItemList>(query, parameters)).ToList();
+                    }
+                }
+                return rawMatItemLists;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<long> Update(View_NavItems todolist)
         {
             try
@@ -984,7 +1008,7 @@ namespace Infrastructure.Repository.Query
             List<FinishedProdOrderLine> NavprodOrderLineList = new List<FinishedProdOrderLine>();
             try
             {
-                
+
                 var query = "select t1.*,t2.PlantCode as CompanyCode from FinishedProdOrderLine t1 \r\nLEFT JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\nLEFT JOIN NAVItems t3 ON t1.ItemID=t3.ItemId";
 
                 using (var connection = CreateConnection())

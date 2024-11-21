@@ -47,6 +47,26 @@
         height: auto;
     }
 </style>
+
+<script>
+    function htmlpdfGridGenerate()
+    {
+        var element = document.getElementById('htmlPdfPrintGrid');
+            var opt = {
+              margin: 0.5,
+              filename:     'myfile.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { useCORS: true,letterRendering: true, },pagebreak: { avoid: "div" },
+              jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait',compressPDF: true }
+            };
+    // New Promise-based usage:
+       //var openUrl= html2pdf().set(opt).from(element).output("bloburl");
+       html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+            window.open(pdf.output('bloburl'), '_blank');
+        });
+        return "ok";
+    }
+</script>
 <div class="card-header text-center py-3">
     <h4>@_dynamicform?.Name</h4>
     @*  <p class="tm-8 mb-0 fw-normal fs-825">
@@ -65,6 +85,7 @@
                         <Items>
                             <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                             <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                            <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintGridForm" />
                         </Items>
                     </DxMenu>
                 }
@@ -78,6 +99,7 @@
                             <Items>
                                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintGridForm" />
                             </Items>
                         </DxMenu>
                     }
@@ -114,6 +136,7 @@
                                             <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
                                         </Items>
                                     </DxMenuItem>
+                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintGridForm" />
                                 </Items>
                             </DxMenu>
                         }
@@ -136,6 +159,7 @@
                                             <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
                                         </Items>
                                     </DxMenuItem>
+                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintGridForm" />
                                 </Items>
                             </DxMenu>
                         }
@@ -146,7 +170,10 @@
         </div>
     </div>
 </div>
-<div class="card cw-480" style=" height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;">
+<div class="card cw-480" style="height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;" id="htmlPdfPrintGrid">
+            <div class="card-header text-center py-3" style="@displayNoneGridPrintForm">
+    <h4>@_dynamicform?.Name</h4>
+</div>
     <DxTabs RenderMode="TabsRenderMode.Default" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
         <DxTabPage Text="Form">
             <div class="card-body" style="margin-top:5px;">
@@ -766,6 +793,8 @@
     bool createEmailpopup { get; set; } = false; bool emailEnabled { get; set; } = false; public DynamicFormSection dynamicFormSectionData { get; set; }
     Object DataGridObject { get; set; } = new Object(); private List<DropDownBoxGridModel> _DropDownBoxGridModel = new List<DropDownBoxGridModel>();
     bool QrCodePopupVisible { get; set; } = false; private BarcodeReader _QrCodeReader; public PropertyInfo? PropertyQrCodeInfo { get; set; }
+    private string? displayNoneGridPrintForm { get; set; } = "display:none;";
+    private string? mainGridStyle { get; set; } = "height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;";
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -778,6 +807,23 @@
         {
             _userEmployee = await Mediator.Send(new GetEmployeeFormByUserId(applicationUser.UserID));
         }
+    }
+    public async Task PrintGridForm()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        toastService.ShowToast("Pls Wait Form Print Generating.", AC.SD.Core.Services.ToastLevel.Success);
+        mainGridStyle = "";displayNoneGridPrintForm = "";
+        StateHasChanged();
+        await Task.Delay(500);
+        var result = await JSRuntime.InvokeAsync<string>("htmlpdfGridGenerate");
+        if (result == "ok")
+        {
+            mainGridStyle = "height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;";
+            toastService.ShowToast("Print Form Generated.", AC.SD.Core.Services.ToastLevel.Success);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+        }
+        displayNoneGridPrintForm = "display:none;";
+        StateHasChanged();
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -4988,8 +5034,14 @@
                                             g1.ForEach(q =>
                                             {
                                                 var byName = (IDictionary<string, object>)v;
-                                                var names = (string)byName[q.Value]?.ToString();
-                                                listone += names + "|";
+                                                 if (q.Value != null)
+                                                 {
+                                                     if (byName.ContainsKey(q.Value))
+                                                     {
+                                                         var names = (string)byName[q.Value]?.ToString();
+                                                         listone += names + "|";
+                                                     }
+                                                 }
                                             });
                                         }
                                         eod.DisplayItemsQuery = listone;
@@ -5261,8 +5313,14 @@
                                             g1.ForEach(q =>
                                             {
                                                 var byName = (IDictionary<string, object>)v;
-                                                var names = (string)byName[q.Value]?.ToString();
-                                                listone += names + "|";
+                                                 if (q.Value != null)
+                                                 {
+                                                     if (byName.ContainsKey(q.Value))
+                                                     {
+                                                         var names = (string)byName[q.Value]?.ToString();
+                                                         listone += names + "|";
+                                                     }
+                                                 }
                                             });
                                         }
                                         eod.DisplayItemsQuery = listone;

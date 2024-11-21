@@ -330,4 +330,19 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetRawMatItemListByTypeListQueryHandler : IRequestHandler<GetRawMatItemListByTypeList, List<RawMatItemList>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+
+        public GetRawMatItemListByTypeListQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<List<RawMatItemList>> Handle(GetRawMatItemListByTypeList request, CancellationToken cancellationToken)
+        {
+            return (List<RawMatItemList>)await _queryRepository.GetRawMatItemListByTypeList(request.Type, request.CompanyId);
+
+        }
+    }
 }

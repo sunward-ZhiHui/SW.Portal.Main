@@ -121,6 +121,7 @@ namespace Core.Entities
         public string? Others { get;  set; }
         [NotMapped]
         public long? EditProductionRoutineAppID { get; set; }
+        public string? FPDDName { get; set; }
     }
     public class ProductionActivityRoutineAppLineQaCheckerModel
     {

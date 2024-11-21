@@ -111,7 +111,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<MultipleProductioRoutineAppLineItemLists> GetMultipleRoutineQueryAsync(List<long?> ProductionActivityAppLineIds, List<Guid?> SessionIds, List<long?> navprodOrderLineIds, List<int?> statusCodeIds, List<long?> masterChildIds, List<long?> masterDetaildChildIds, List<long?> manufacturingProcessChildIds)
+        public async Task<MultipleProductioRoutineAppLineItemLists> GetMultipleRoutineQueryAsync(List<long?> ProductionActivityAppLineIds, List<Guid?> SessionIds, List<long?> navprodOrderLineIds, List<int?> statusCodeIds, List<long?> masterChildIds, List<long?> masterDetaildChildIds, List<long?> manufacturingProcessChildIds, List<string?> fddds)
         {
             MultipleProductioRoutineAppLineItemLists multipleProductioAppLineItemLists = new MultipleProductioRoutineAppLineItemLists();
             try
@@ -139,6 +139,11 @@ namespace Infrastructure.Repository.Query
                 query += "select * from ProductActivityCaseActionMultiple;";
                 manufacturingProcessChildIds = manufacturingProcessChildIds != null && manufacturingProcessChildIds.Count > 0 ? manufacturingProcessChildIds : new List<long?>() { -1 };
                 query += "select ManufacturingProcessChildId,ProductActivityCaseId from ProductActivityCase where ManufacturingProcessChildId in(" + string.Join(',', manufacturingProcessChildIds) + ");";
+                query += "select  *,CONCAT(ItemNo,'|',Description) as ItemNoDescription from RawMatItemList;";
+                fddds = fddds != null && fddds.Count > 0 ? fddds : new List<string?>() { "0" };
+                query += "select t11.CompanyId,t11.NAVProdOrderLineId,t11.ItemNo,t11.Description,t11.Description1,t11.BatchNo,t11.RePlanRefNo,CONCAT(t11.ProdOrderNo,'|',t11.Description,(case when ISNULL(NULLIF(t11.Description1, ''), null) is NULL then  t11.Description1 ELSE  CONCAT(' | ',Description1) END)) as ProdOrderNoDesc from NavprodOrderLine t11 " +
+                    "where t11.RePlanRefNo  in(" + string.Join(",", fddds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ");";
+
                 using (var connection = CreateConnection())
                 {
                     var result = await connection.QueryMultipleAsync(query);
@@ -158,6 +163,8 @@ namespace Infrastructure.Repository.Query
                     multipleProductioAppLineItemLists.ProductActivityCaseCategoryMultiple = result.Read<ProductActivityCaseCategoryMultiple>().ToList();
                     multipleProductioAppLineItemLists.ProductActivityCaseActionMultiple = result.Read<ProductActivityCaseActionMultiple>().ToList();
                     multipleProductioAppLineItemLists.ProductActivityCase = result.Read<ProductActivityCase>().ToList();
+                    multipleProductioAppLineItemLists.RawMatItemList = result.Read<RawMatItemList>().ToList();
+                    multipleProductioAppLineItemLists.FDDNavprodOrderLine = result.Read<NavprodOrderLine>().ToList();
                 }
                 return multipleProductioAppLineItemLists;
             }
@@ -222,7 +229,7 @@ namespace Infrastructure.Repository.Query
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
                     WHERE t1.ProductionActivityRoutineAppLineID>0";
                 }
-                else if(value.ActionType == "TimeSheetV1")
+                else if (value.ActionType == "TimeSheetV1")
                 {
                     query = @"select t1.ProductionActivityRoutineAppLineID,t1.ProductionActivityRoutineAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.ProductActivityCaseID,t1.VisaMasterID,t1.RoutineStatusID,t1.CommentImage,t1.CommentImageType,t1.ProfileID,t1.ProfileNo,t1.IsCheckNoIssue,t1.CheckedByID,t1.CheckedDate,t1.CheckedRemark,t1.IsCheckReferSupportDocument,CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId
                     ,t2.CompanyID,t10.PlantCode as CompanyName,t12.LocationToSaveId AS MasterProductionFileProfileTypeId,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,t14.Description as LocationName,t2.BatchNo,t2.StatusType,t2.FPDD,t2.ProcessDD,t2.RawMaterialDD,t2.PackingMaterialDD,t2.Others,t2.FixedAsset,
@@ -348,7 +355,7 @@ namespace Infrastructure.Repository.Query
                     }
 
                 }
-                else if(value.ActionType == "TimeSheetV1")
+                else if (value.ActionType == "TimeSheetV1")
                 {
                     if (value.ItemName == null || value.ItemName == "")
                     {
@@ -378,7 +385,7 @@ namespace Infrastructure.Repository.Query
                     }
                 }
                 else
-                        {
+                {
                     if (value.LocationId > 0)
                     {
                         query += "\n\rAND t2.LocationID=@LocationID";
@@ -436,10 +443,11 @@ namespace Infrastructure.Repository.Query
                     var sessionIds = productActivityApps.ToList().Where(w => w.LineSessionId != null).Select(s => s.LineSessionId).ToList();
                     var addedIds = productActivityApps.ToList().Select(s => s.AddedByUserID).Distinct().ToList();
                     addedIds.Add(userId);
+                    List<string?> FPDDs = productActivityApps.ToList().Where(s => s.StatusType == "FP" && s.FPDD != null && s.FPDD != "").Select(s => s.FPDD).Distinct().ToList();
                     var employee = employeeAll != null && employeeAll.Count() > 0 ? employeeAll.Where(w => addedIds.Contains(w.UserID)).ToList() : null;
                     var loginUser = employee != null && employee.Count() > 0 ? employee.FirstOrDefault(w => w.UserID == userId)?.DepartmentID : null;
 
-                    var templateTestCaseCheckList = await GetMultipleRoutineQueryAsync(productionActivityAppLineIds, sessionIds, navprodOrderLineIds, statusCodeIds, masterChildIds, masterDetaildChildIds, manufacturingProcessChildIds);
+                    var templateTestCaseCheckList = await GetMultipleRoutineQueryAsync(productionActivityAppLineIds, sessionIds, navprodOrderLineIds, statusCodeIds, masterChildIds, masterDetaildChildIds, manufacturingProcessChildIds, FPDDs);
                     var productionActivityAppLineQaChecker = templateTestCaseCheckList.ProductionActivityAppLineQaCheckerModel.ToList();
                     var templateTestCaseCheckListResponse = templateTestCaseCheckList.ProductActivityCaseRespons.ToList();
                     var templateTestCaseCheckListResponseDuty = templateTestCaseCheckList.ProductActivityCaseResponsDuty.ToList();
@@ -460,6 +468,8 @@ namespace Infrastructure.Repository.Query
                     var prodactivityCategoryMultiplelist = templateTestCaseCheckList.ProductActivityCaseCategoryMultiple.ToList();
                     var prodactivityActionMultiplelist = templateTestCaseCheckList.ProductActivityCaseActionMultiple.ToList();
                     var productActivityPermissionList = templateTestCaseCheckList.ProductActivityPermission.ToList();
+                    var RawMatItemLists = templateTestCaseCheckList.RawMatItemList.ToList();
+                    var fddList = templateTestCaseCheckList.FDDNavprodOrderLine.ToList();
                     productActivityApps.ForEach(s =>
                     {
                         List<ProductActivityPermissionModel> ProductActivityPermissions = new List<ProductActivityPermissionModel>();
@@ -604,12 +614,12 @@ namespace Infrastructure.Repository.Query
                         productActivityApp.ProfileId = s.ProfileId;
                         productActivityApp.CheckedById = s.CheckedById;
                         productActivityApp.StatusType = s.StatusType;
-                        productActivityApp.Others =s.Others;
+                        productActivityApp.Others = s.Others;
                         productActivityApp.FPDD = s.FPDD;
                         productActivityApp.ProcessDD = s.ProcessDD;
                         productActivityApp.RawMaterialDD = s.RawMaterialDD;
-                        productActivityApp.PackingMaterialDD =s.PackingMaterialDD;
-                        productActivityApp.FixedAsset =s.FixedAsset;
+                        productActivityApp.PackingMaterialDD = s.PackingMaterialDD;
+                        productActivityApp.FixedAsset = s.FixedAsset;
                         productActivityApp.IsCheckNoIssue = s.IsCheckNoIssue == true ? true : false;
                         productActivityApp.IsCheckReferSupportDocument = s.IsCheckReferSupportDocument == true ? true : false;
                         productActivityApp.CheckedRemark = s.CheckedRemark;
@@ -628,6 +638,22 @@ namespace Infrastructure.Repository.Query
                             productActivityApp.ProdOrderNoDesc = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.ProdOrderNoDesc) : string.Empty;
                             productActivityApp.ProdOrderNoDesc = s.ProdOrderNo;
                             productActivityApp.BatchNo = s.BatchNo;
+                        }
+                        if (s.StatusType == "FP" && !string.IsNullOrEmpty(s.FPDD))
+                        {
+                            productActivityApp.FPDDName = fddList.FirstOrDefault(f => f.RePlanRefNo == s.FPDD && f.CompanyId==s.CompanyID)?.ProdOrderNoDesc;
+                        }
+                        if (s.StatusType == "Process" && !string.IsNullOrEmpty(s.ProcessDD))
+                        {
+                            productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.ProcessDD)?.ItemNoDescription;
+                        }
+                        if (s.StatusType == "Packing Material" && !string.IsNullOrEmpty(s.PackingMaterialDD))
+                        {
+                            productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.PackingMaterialDD)?.ItemNoDescription;
+                        }
+                        if (s.StatusType == "Raw Material" && !string.IsNullOrEmpty(s.RawMaterialDD))
+                        {
+                            productActivityApp.FPDDName = RawMatItemLists.FirstOrDefault(f => f.ItemNo == s.RawMaterialDD)?.ItemNoDescription;
                         }
                         productActivityApp.MasterProductionFileProfileTypeId = s.MasterProductionFileProfileTypeId;
                         productActivityApp.NavprodOrderLineId = s.NavprodOrderLineId;
@@ -1186,7 +1212,7 @@ namespace Infrastructure.Repository.Query
                                                 }
                                             }
                                         }
-                                       
+
 
 
                                     }

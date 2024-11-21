@@ -44,6 +44,25 @@
         height: auto;
     }
 </style>
+<script>
+    function htmlpdfGenerate()
+    {
+        var element = document.getElementById('htmlPdfPrint');
+            var opt = {
+              margin: 0.5,
+              filename:     'myfile.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { useCORS: true,letterRendering: true, },pagebreak: { avoid: "div" },
+              jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait',compressPDF: true }
+            };
+    // New Promise-based usage:
+       //var openUrl= html2pdf().set(opt).from(element).output("bloburl");
+       html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+            window.open(pdf.output('bloburl'), '_blank');
+        });
+        return "ok";
+    }
+</script>
 <div class="card-header text-center py-3">
     <h4>@_dynamicform?.Name</h4>
     @*  <p class="tm-8 mb-0 fw-normal fs-825">
@@ -62,6 +81,7 @@
                         <Items>
                             <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                             <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                            <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
                         </Items>
                     </DxMenu>
                 }
@@ -98,6 +118,7 @@
                                         <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
                                     </Items>
                                 </DxMenuItem>
+                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
                             </Items>
                         </DxMenu>
                     }
@@ -120,6 +141,7 @@
                                         <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
                                     </Items>
                                 </DxMenuItem>
+                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
                             </Items>
                         </DxMenu>
                     }
@@ -157,7 +179,10 @@
         </div>
     </div>
 </div>
-<div class="card cw-480" style="overflow-x: hidden;overflow-y: auto;height: calc(100vh - 325px);">
+<div class="card cw-480" style="@mainStyle" id="htmlPdfPrint">
+    <div class="card-header text-center py-3" style="@displayNonePrintForm">
+    <h4>@_dynamicform?.Name</h4>
+</div>
     <DxTabs RenderMode="TabsRenderMode.Default" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
         <DxTabPage Text="Form">
             <div class="card-body" style="margin-top:5px;">
@@ -648,6 +673,8 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private string? displayNonePrintForm { get; set; } = "display:none;";
+    private string? mainStyle { get; set; } = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 335px);";
     private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList { get; set; }
     private AC.SD.Core.Pages.Attribute.UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormFilterByForm refDynamicFormFilterByForm { get; set; }
@@ -767,6 +794,23 @@
         {
             _userEmployee = await Mediator.Send(new GetEmployeeFormByUserId(applicationUser.UserID));
         }
+    }
+    public async Task PrintForm()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        toastService.ShowToast("Pls Wait Form Print Generating.", AC.SD.Core.Services.ToastLevel.Success);
+        mainStyle = "";displayNonePrintForm = "";
+        StateHasChanged();
+        await Task.Delay(500);
+        var result = await JSRuntime.InvokeAsync<string>("htmlpdfGenerate");
+        if (result == "ok")
+        {
+            mainStyle = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 335px);";
+            toastService.ShowToast("Print Form Generated.", AC.SD.Core.Services.ToastLevel.Success);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+        }
+        displayNonePrintForm = "display:none;";
+        StateHasChanged();
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -5062,11 +5106,17 @@
                                        {
                                            var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
                                            g1.ForEach(q =>
-                                       {
-                                           var byName = (IDictionary<string, object>)v;
-                                           var names = (string)byName[q.Value]?.ToString();
-                                           listone += names + "|";
-                                       });
+                                           {
+                                               var byName = (IDictionary<string, object>)v;
+                                                     if (q.Value != null)
+                                                     {
+                                                         if (byName.ContainsKey(q.Value))
+                                                         {
+                                                             var names = (string)byName[q.Value]?.ToString();
+                                                             listone += names + "|";
+                                                         }
+                                                     }
+                                           });
                                        }
                                        eod.DisplayItemsQuery = listone;
                                        if ((long?)vv == s.DynamicFormGridDropDownId)
@@ -5335,11 +5385,17 @@
                                        {
                                            var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
                                            g1.ForEach(q =>
-                                       {
-                                           var byName = (IDictionary<string, object>)v;
-                                           var names = (string)byName[q.Value]?.ToString();
-                                           listone += names + "|";
-                                       });
+                                           {
+                                               var byName = (IDictionary<string, object>)v;
+                                                     if (q.Value != null)
+                                                     {
+                                                         if (byName.ContainsKey(q.Value))
+                                                         {
+                                                             var names = (string)byName[q.Value]?.ToString();
+                                                             listone += names + "|";
+                                                         }
+                                                     }
+                                           });
                                        }
                                        eod.DisplayItemsQuery = listone;
                                        if ((long?)vv == s.DynamicFormGridDropDownId)

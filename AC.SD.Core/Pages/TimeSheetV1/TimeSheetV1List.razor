@@ -110,9 +110,22 @@
                                 </DxGridDataColumn>
                                 <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180">
                                 </DxGridDataColumn>
-                                <DxGridDataColumn Caption="Type" FieldName="Type" MinWidth="180" />
+                                <DxGridDataColumn Caption="Type" FieldName="StatusType" MinWidth="180" />
+                                <DxGridDataColumn Caption="Item No" FieldName="FPDDName" MinWidth="180" />
                                 <DxGridDataColumn Caption="ProfileNo" FieldName="ActivityProfileNo" MinWidth="180" />
-                                <DxGridDataColumn Caption="Date" FieldName="AddedDate" MinWidth="180" />
+                                <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180">
+                                    <CellDisplayTemplate>
+                                        @{
+                                            var item = (ProductionActivityRoutineAppModel)context.DataItem;
+                                            var startDate = string.Empty;
+                                            if (item.AddedDate.HasValue && item.AddedDate != DateTime.MinValue)
+                                            {
+                                                startDate = item.AddedDate?.ToString("dd-MMM-yyyy");
+                                            }
+                                        }
+                                        @startDate
+                                    </CellDisplayTemplate>
+                                </DxGridDataColumn>
                                 <DxGridDataColumn Caption="Routine" FieldName="ManufacturingProcessChild" MinWidth="180" />
                                 <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />
                                 <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" />
@@ -129,7 +142,19 @@
                                 </DxGridDataColumn>
                                 <DxGridDataColumn Caption="Result" FieldName="ProdActivityResult" MinWidth="180" />
                                 <DxGridDataColumn Caption="Modified By" FieldName="ModifiedByUser" MinWidth="180" />
-                                <DxGridDataColumn Caption="Modified Date" FieldName="ModifiedDate" MinWidth="180" />
+                                <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="180">
+                                    <CellDisplayTemplate>
+                                        @{
+                                            var item = (ProductionActivityRoutineAppModel)context.DataItem;
+                                            var startDate = string.Empty;
+                                            if (item.ModifiedDate.HasValue && item.ModifiedDate != DateTime.MinValue)
+                                            {
+                                                startDate = item.ModifiedDate?.ToString("dd-MMM-yyyy");
+                                            }
+                                        }
+                                        @startDate
+                                    </CellDisplayTemplate>
+                                </DxGridDataColumn>
                             </Columns>
                             <TotalSummary>
                                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />

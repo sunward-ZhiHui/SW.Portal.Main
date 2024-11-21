@@ -40,5 +40,6 @@ namespace Core.Repositories.Query
         Task<FinishedProdOrderLine> DeleteFinishedProdOrderLine(FinishedProdOrderLine finishedProdOrderLine);
         Task<IReadOnlyList<FinishedProdOrderLine>> GeFinishedProdOrderLineListAsync();
         Task<IReadOnlyList<FinishedProdOrderLineOptStatus>> GetFinishedProdOrderLineOptStatus();
+        Task<IReadOnlyList<RawMatItemList>> GetRawMatItemListByTypeList(string? Type,long? CompanyId);
     }
 }

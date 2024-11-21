@@ -24,7 +24,8 @@ namespace Core.Entities
         public string? Comment { get; set; }
         [Required(ErrorMessage = "Prod OrderNo is Required")]
         public string? ProdOrderNo { get; set; }
-
+        public string? Type { get; set; }
+        public string? SubjectName { get; set; }
         public long? NavprodOrderLineID { get; set; }
         public string? FixedAssetNo { get; set; }
         public long? ReportingPersonal { get; set; }

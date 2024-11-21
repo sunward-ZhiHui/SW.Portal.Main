@@ -44,7 +44,8 @@ namespace Core.Entities
         public Guid? UniqueSessionId { get; set; }
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
-        
+        public string? Type { get; set; }
+        public string? SubjectName { get; set; }
 
     }
 }

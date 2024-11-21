@@ -22,6 +22,8 @@ using AC.SD.Core.AspNetCoreHost;
 using DevExtreme.AspNet.Data.ResponseModel;
 using AC.SD.Core.Pages.IpirApps;
 using System.Dynamic;
+using Microsoft.JSInterop;
+using AC.SD.Core.Services;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -35,7 +37,10 @@ namespace SW.Portal.Solutions.Controllers
         private readonly IRoutineQueryRepository _RoutineQueryRepository;
         private readonly IIpirAppQueryRepostitory iIpirAppQueryRepostitory;
         private readonly ISoCustomerQueryRepository _SoCustomerQueryRepository;
-        public ProductionRoutineController(IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository, IIpirAppQueryRepostitory ipirAppQueryRepostitory)
+        private readonly IJSRuntime _jSRuntime;
+        private readonly IConfiguration _configuration;
+
+        public ProductionRoutineController(IConfiguration configuration ,IJSRuntime JsRuntime ,IMediator mediator, IPlantQueryRepository PlantQueryRepository, IProductionActivityAppQueryRepository productionActivityAppQueryRepository, IRoutineQueryRepository routineQueryRepository, ISoCustomerQueryRepository soCustomerQueryRepository, IIpirAppQueryRepostitory ipirAppQueryRepostitory)
         {
             _mediator = mediator;
             _PlantQueryRepository = PlantQueryRepository;
@@ -43,6 +48,8 @@ namespace SW.Portal.Solutions.Controllers
             _RoutineQueryRepository = routineQueryRepository;
             _SoCustomerQueryRepository = soCustomerQueryRepository;
             iIpirAppQueryRepostitory = ipirAppQueryRepostitory;
+            _jSRuntime = JsRuntime;
+            _configuration = configuration;
         }
         [HttpGet("GetCompanyList")]
         public async Task<ActionResult<Services.ResponseModel<List<ViewPlants>>>> GetCompanyList()
@@ -330,6 +337,7 @@ namespace SW.Portal.Solutions.Controllers
                     {
                         IctMasterID = result.ICTMasterID,
                         CompantId = result.CompanyID,
+                        Description = result.Description,
 
                     };
                 }
@@ -995,15 +1003,12 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.AddedByUserID = IpirAppModel.AddedByUserID;
                     FilterData.ProfileNo = IpirAppModel.ProfileNo;
                     FilterData.MachineName = IpirAppModel.MachineName;
-                   
-                   
+                    FilterData.SubjectName = IpirAppModel.SubjectName;
+                    FilterData.Type = IpirAppModel.Type;
+                    FilterData.ModifiedDate = DateTime.Now;
                     FilterData.ProdOrderNo = IpirAppModel.ProdOrderNo != null ? IpirAppModel.ProdOrderNo : null;
-                   
                     FilterData.DetectedBy = IpirAppModel.DetectedBy > 0 ? IpirAppModel.DetectedBy : null;
-                   
                     FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
-                   
-                    FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
                     FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
                     FilterData.SessionID = IpirAppModel.SessionID;
                   
@@ -1080,7 +1085,7 @@ namespace SW.Portal.Solutions.Controllers
         {
             var message = new List<string>();
             var response = new Services.ResponseModel<IpirAppModel>();
-            if (IpirAppModel.CompanyID > 0 && IpirAppModel.MachineName != null)
+            if (IpirAppModel.CompanyID > 0 )
             {
 
 
@@ -1108,6 +1113,8 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.ModifiedDate = IpirAppModel.ModifiedDate;
                     FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
                     FilterData.SessionID = IpirAppModel.SessionID;
+                    FilterData.SubjectName = IpirAppModel.SubjectName;
+                    FilterData.Type = IpirAppModel.Type;
                     FilterData.DepartmentIds = IpirAppModel.DepartmentIds.Count() > 0 ? IpirAppModel.DepartmentIds : new List<long?>();
                     FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds.Count() > 0 ? IpirAppModel.ActivityIssueRelateIds : new List<long?>();
                     var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
@@ -1291,6 +1298,100 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = Services.ResponseCode.Success;
                 response.Results = result.Count > 0 ? result : new List<View_ApplicationMasterDetail> { new View_ApplicationMasterDetail() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetSupportingDocumentList")]
+        public async Task<ActionResult<Services.ResponseModel<List<DocumentsModel>>>> GetSupportingDocumentList(long? IpirID)
+        {
+
+            var response = new Services.ResponseModel<DocumentsModel>();
+
+            var result = await _mediator.Send(new GetSupportingDocuments(IpirID, "IpirApp"));
+            try
+            {
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Results = result.Count > 0 ? result : new List<DocumentsModel> { new DocumentsModel() };
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("DocumentDownlode")]
+        public async Task<ActionResult<Services.ResponseModel<List<DocumentsModel>>>> DocumentDownlode(long? DocumentID,string FileName)
+        {
+
+            var response = new Services.ResponseModel<DocumentsModel>();
+
+            var result = await _mediator.Send(new GetFileDownload(DocumentID));
+            try
+            {
+                if (result.StatusCodeID != 0)
+                {
+               
+                    //  Trigger file download
+                    await _jSRuntime.InvokeVoidAsync("downloadFile", FileName, result.ImageData, "");
+                }
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Result = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("DeleteSupportingDocument")]
+        public async Task<ActionResult<Services.ResponseModel<List<DocumentsModel>>>> DeleteSupportingDocument(string SessionID)
+        {
+
+            var response = new Services.ResponseModel<DocumentsModel>();
+            var model = new DocumentsModel();
+            model.Type = "IpirApp";
+            model.SessionID = Guid.Parse(SessionID);
+            var result = await _mediator.Send(new DeleteSupportingDocuments(model));
+            try
+            {
+                
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Result = result;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = Services.ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+       
+        [HttpGet("CopeLink")]
+        public async Task<ActionResult<Services.ResponseModel<List<DocumentsModel>>>> CopeLink(string UniqueSessionId)
+        {
+
+       
+          var  DocumentViewUrl = _configuration["DocumentsUrl:DocumentViewer"];
+            var response = new Services.ResponseModel<string>();
+            var url = DocumentViewUrl + "?url=" + UniqueSessionId;
+           
+           
+            try
+            {
+
+                response.ResponseCode = Services.ResponseCode.Success;
+                response.Result = url;
             }
             catch (Exception ex)
             {

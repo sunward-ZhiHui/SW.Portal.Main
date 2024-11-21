@@ -760,6 +760,40 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DocumentsUploadModel> InsertIPIRSupportingDocumentLink(DocumentsUploadModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                      
+                            var LinkDocparameters = new DynamicParameters();
+                            LinkDocparameters.Add("IpirAppID", value.IpirAppId);
+                            LinkDocparameters.Add("SessionId", value.SessionId, DbType.Guid);
+                            LinkDocparameters.Add("Type", value.Type, DbType.String);
+                            LinkDocparameters.Add("DocumentId", value.DocumentId);
+                            var linkquery = "INSERT INTO [IpirAppSupportDoc](IpirAppID,Type,DocumentId,SessionId) " +
+                           "OUTPUT INSERTED.IpirAppSupportDocId VALUES " +
+                          "(@IpirAppID,@Type,@DocumentId,@SessionId)";
+                            await connection.ExecuteAsync(linkquery, LinkDocparameters);
+                     
+                        connection.Close();
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DocumentsUploadModel> InsertIpirAppSupportDocLink(DocumentsUploadModel value)
         {
 

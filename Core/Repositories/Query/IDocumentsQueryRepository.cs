@@ -33,8 +33,8 @@ namespace Core.Repositories.Query
         Task<DocumentsUploadModel> UpdateDocumentNoDocumentBySession(DocumentsUploadModel value);
         Task<DocumentsUploadModel> UpdateDocumentNoDocumentByNoProfile(DocumentsUploadModel value);
         Task<DocumentNoSeriesModel> UpdateReserveNumberTitleField(DocumentNoSeriesModel documentNoSeries);
-
+        Task<DocumentsUploadModel> InsertIpirAppSupportDocLink(DocumentsUploadModel value);
         Task<long> UpdateDocument(Guid SessionID, string ProfileNo,long FileProfileID);
-
+        Task<DocumentsUploadModel> InsertIPIRSupportingDocumentLink(DocumentsUploadModel value);
     }
 }

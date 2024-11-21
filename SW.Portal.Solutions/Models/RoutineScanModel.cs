@@ -5,5 +5,6 @@
         public long? IctMasterID {  get; set; }
         public long? CompantId { get; set; }
         public string? Message { get; set;}
+        public string? Description { get; set; }
     }
 }

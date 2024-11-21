@@ -28,7 +28,7 @@
         public string? NewFilename { get; set; }
         public IFormCollection Files { get; set; }
 
-       
+       public long? IPIRID { get; set; }
         // public Guid? FileSessionId { get; set; }
     }
     public class UpdateFileProfileTypeModel

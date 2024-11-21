@@ -39,6 +39,7 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card cw-480" style="padding:10px;overflow-x: hidden;overflow-y: auto;height: calc(100vh - 280px);">
                     <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
                         <DxFormLayout CssClass="w-100">
@@ -206,8 +207,9 @@
                                 <DxMemo @bind-Text="@Data.AttrDescription" Rows="5" />
                             </DxFormLayoutItem>
                         </DxFormLayout>
-
+                       
                     </EditForm>
+                    </div>
                 </div>
             </DxTabPage>
             <DxTabPage Text="Attribute Data" Enabled="AttributeDetailsEnabled">

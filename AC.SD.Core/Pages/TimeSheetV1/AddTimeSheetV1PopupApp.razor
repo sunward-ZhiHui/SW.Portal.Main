@@ -82,13 +82,31 @@
            
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="FP:" ColSpanMd="6" Visible="@FPVisible">
-           <DxTextBox Visible = "" Text="@Data.FPDD" spellcheck="true" ShowValidationIcon="true" NullText="FP" TextExpression="@(() => Data.FPDD )" TextChanged="@((newValue) => OnTextChanged(newValue))" >
-                                    <Buttons>
-                                        <DxEditorButton IconCssClass="fa fa-qrcode"
-                                                        Tooltip="Scan FP"
-                                                        Click="@(_ => OnButtonFPClick())" />
-                                    </Buttons>
-           </DxTextBox>
+                <DxComboBox Data="@_ponumberActivities"
+                            NullText="Select Ticket No..."
+                            ValueChanged="@((string? prod) => SelectedItemprod(prod))"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="ProdOrderNo"
+                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                            ListRenderMode="ListRenderMode.Virtual"
+                            Value="@Data.FPDD"
+                            ValueExpression="@(() => Data.FPDD )"
+                            ShowValidationIcon="true">
+                    <Buttons>
+                        <DxEditorButton IconCssClass="fa fa-qrcode"
+                                        Tooltip="Scan Ticket No"
+                                    Click="@(_ => OnButtonFPClick())" />
+                    </Buttons>
+                </DxComboBox>
+            @* <DxTextBox Visible = "" Text="@Data.FPDD" spellcheck="true" ShowValidationIcon="true" NullText="FP" TextExpression="@(() => Data.FPDD )" TextChanged="@((newValue) => OnTextChanged(newValue))" >
+                                     <Buttons>
+                                         <DxEditorButton IconCssClass="fa fa-qrcode"
+                                                         Tooltip="Scan FP"
+                                                         Click="@(_ => OnButtonFPClick())" />
+                                     </Buttons>
+            </DxTextBox> *@
 
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Process:" ColSpanMd="6" Visible="@ProcessVisible">
@@ -402,7 +420,7 @@
         {
             StatusType = _selectedEditItems.StatusType;
             Data.StatusType = _selectedEditItems.StatusType;
-            await SelectedTypeItems(_selectedEditItems.StatusType);
+
             Data.CompanyID = _selectedEditItems.CompanyId;
             Data.FPDD = _selectedEditItems.FPDD;
             Data.ProcessDD = _selectedEditItems.ProcessDD;
@@ -450,6 +468,16 @@
                 }
             }
             await GetIsDoumentExits();
+            if (StatusType == "FP")
+            {
+                if (_selectedEditItems.CompanyId > 0)
+                {
+                    _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(_selectedEditItems.CompanyId));
+                    Data.FPDD = _selectedEditItems.FPDD;
+                }
+            }
+
+            SelectedTypeItems(_selectedEditItems.StatusType);
         }
         StateHasChanged();
     }
@@ -457,6 +485,8 @@
     {
         _editContext = new EditContext(Data);
         FileProfileTypeId = null;
+        Data.CompanyID = null; ProductionActivityRoutineAppLineId = 0;
+        Data.ProductionActivityRoutineAppLineId = 0;
         Data.ProductActivityCaseLineId = 0;
         Data.ManufacturingProcessChildId = null;
         Data.ProdActivityCategoryChildId = null;
@@ -483,8 +513,12 @@
         StatusType = null;
         addEnabled = true; saveEnabled = true;
         IDictionary<string, object> dynamicsData = new ExpandoObject();
+        FPVisible = false;
+        ProcessVisible = false;
+        RawMaterialVisible = false;
+        PackingMaterialVisible = false;
         var time_sheet_lst = _ManuFactureProcessLines.Where(x => x.Value == "Timesheet").FirstOrDefault();
-
+        _ponumberActivities = new List<NavprodOrderLineModel>();
         if (time_sheet_lst != null)
         {
             Data.ManufacturingProcessChildId = time_sheet_lst.ApplicationMasterChildId;
@@ -537,15 +571,9 @@
         }
         StateHasChanged();
     }
-    void SelectedItemprod(long? NAVProdOrder)
+    void SelectedItemprod(string? NAVProdOrder)
     {
-        Data.NavprodOrderLineId = NAVProdOrder;
-        if (NAVProdOrder != null && NAVProdOrder > 0)
-        {
-            _editContext = new EditContext(Data);
-            Data.NavprodOrderLineId = NAVProdOrder;
-            Data.OthersOptions = "No";
-        }
+        Data.FPDD = NAVProdOrder;
         StateHasChanged();
     }
     async Task OnTemplateUploadGroupValueChanged(string? radioValue)
@@ -930,7 +958,7 @@
         _PackingMaterialReader.StopDecoding();
         StateHasChanged();
     }
-    async Task SelectedTypeItems(string type)
+    void SelectedTypeItems(string type)
     {
         if (type == "FP")
         {
@@ -938,6 +966,7 @@
             ProcessVisible = false;
             RawMaterialVisible = false;
             PackingMaterialVisible = false;
+
         }
         else if (type == "Process")
         {
@@ -971,21 +1000,25 @@
     }
     async Task SelectedTypeItemsChanged(string type)
     {
-        if(_selectedEditItems != null)
-        {
-            Data.FPDD = null;
-
-            Data.ProcessDD = null;
-            Data.RawMaterialDD = null;
-            Data.PackingMaterialDD = null;
-            Data.FixedAsset = null;
-        }
+        _ponumberActivities = new List<NavprodOrderLineModel>();
+        // if(_selectedEditItems != null)
+        // {
+        //     Data.FPDD = null;
+        //     Data.ProcessDD = null;
+        //     Data.RawMaterialDD = null;
+        //     Data.PackingMaterialDD = null;
+        //     Data.FixedAsset = null;
+        // }
         if(type == "FP")
         {
-            FPVisible = true;
-            ProcessVisible = false;
-            RawMaterialVisible = false;
-            PackingMaterialVisible = false;
+            if (Data.CompanyID > 0)
+            {
+                _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(Data.CompanyID));
+                FPVisible = true;
+                ProcessVisible = false;
+                RawMaterialVisible = false;
+                PackingMaterialVisible = false;
+            }
         }
         else if (type == "Process")
         {

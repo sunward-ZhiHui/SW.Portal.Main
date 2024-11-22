@@ -24,6 +24,8 @@ using AC.SD.Core.Pages.IpirApps;
 using System.Dynamic;
 using Microsoft.JSInterop;
 using AC.SD.Core.Services;
+using NAV;
+using System.Runtime.CompilerServices;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -705,7 +707,12 @@ namespace SW.Portal.Solutions.Controllers
                 DepartmentIds = topic.DepartmentIds,
                 UniqueSessionId = topic.UniqueSessionId,
                 FileName = topic.FileName,
-
+                StatusType =topic.StatusType,
+                FPDD = topic.FPDD,
+                ProcessDD = topic.ProcessDD,
+                PackingMaterialDD =topic.PackingMaterialDD,
+                RawMaterialDD =topic.RawMaterialDD,
+                FixedAsset =topic.FixedAsset
 
 
             }).ToList();
@@ -1011,7 +1018,12 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
                     FilterData.ModifiedByUserID = IpirAppModel.ModifiedByUserID;
                     FilterData.SessionID = IpirAppModel.SessionID;
-                  
+                  FilterData.StatusType = IpirAppModel.StatusType;
+                FilterData.FPDD =IpirAppModel.FPDD;
+                FilterData.ProcessDD =IpirAppModel.ProcessDD;
+                FilterData.PackingMaterialDD =IpirAppModel.PackingMaterialDD;
+                FilterData.RawMaterialDD =IpirAppModel.RawMaterialDD;
+                FilterData.FixedAsset =IpirAppModel.FixedAsset;
                     var result = await _mediator.Send(new UpdateIpirPIC(FilterData));
 
                     try
@@ -1049,8 +1061,14 @@ namespace SW.Portal.Solutions.Controllers
               
                 FilterData.ActivityStatusId = IpirAppModel.ActivityStatusId > 0 ? IpirAppModel.ActivityStatusId : null;
                 FilterData.FixedAssetNo = IpirAppModel.FixedAssetNo;
-              
-              
+
+                FilterData.SessionID = IpirAppModel.SessionID;
+                FilterData.StatusType = IpirAppModel.StatusType;
+                FilterData.FPDD = IpirAppModel.FPDD;
+                FilterData.ProcessDD = IpirAppModel.ProcessDD;
+                FilterData.PackingMaterialDD = IpirAppModel.PackingMaterialDD;
+                FilterData.RawMaterialDD = IpirAppModel.RawMaterialDD;
+                FilterData.FixedAsset = IpirAppModel.FixedAsset;
                 FilterData.Comment = IpirAppModel.Comment;
                 FilterData.StatusCodeID = IpirAppModel.StatusCodeID;
               
@@ -1117,6 +1135,12 @@ namespace SW.Portal.Solutions.Controllers
                     FilterData.Type = IpirAppModel.Type;
                     FilterData.DepartmentIds = IpirAppModel.DepartmentIds.Count() > 0 ? IpirAppModel.DepartmentIds : new List<long?>();
                     FilterData.ActivityIssueRelateIds = IpirAppModel.ActivityIssueRelateIds.Count() > 0 ? IpirAppModel.ActivityIssueRelateIds : new List<long?>();
+                    FilterData.StatusType = IpirAppModel.StatusType;
+                    FilterData.FPDD = IpirAppModel.FPDD;
+                    FilterData.ProcessDD = IpirAppModel.ProcessDD;
+                    FilterData.PackingMaterialDD = IpirAppModel.PackingMaterialDD;
+                    FilterData.RawMaterialDD = IpirAppModel.RawMaterialDD;
+                    FilterData.FixedAsset = IpirAppModel.FixedAsset;
                     var result = await _mediator.Send(new InsertOrUpdateIpirApp(FilterData));
 
                     try
@@ -1399,6 +1423,41 @@ namespace SW.Portal.Solutions.Controllers
                 response.ErrorMessages.Add(ex.Message);
             }
 
+            return Ok(response);
+        }
+        public bool IsItemContain { get; set; }
+        [HttpGet("GetProcessScan")]
+        public async Task<ActionResult<Services.ResponseModel<List<ProductionActivityApp>>>> GetProcessScan(long Companyid,string ScanNo,string Type)
+        {
+
+            var response = new Services.ResponseModel<bool>();
+
+            if (Companyid != null)
+            {
+                var result =  await _mediator.Send(new GetRawMatItemListByTypeList(Type, Companyid));
+                var Data = result.Where(f => f.ItemNo == ScanNo).ToList();
+                if (Data.Count > 0)
+                {
+                    IsItemContain = true;
+                }
+                else
+                {
+                    IsItemContain = false;
+                }
+
+               
+                try
+                {
+                    response.ResponseCode = Services.ResponseCode.Success;
+
+                    response.Result = IsItemContain;
+                }
+                catch (Exception ex)
+                {
+                    response.ResponseCode = Services.ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
+                }
+            }
             return Ok(response);
         }
         //[HttpGet("GetCompanyListTest")]

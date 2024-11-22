@@ -27,17 +27,21 @@
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Auto">
                     <Items>
-                        <DxMenuItem Text="Add New" IconCssClass="fas fa-add" Click="@addNewForm" Enabled="@addEnabled" />
+                        @* <DxMenuItem Text="Add New" IconCssClass="fas fa-add" Click="@addNewForm" Enabled="@addEnabled" /> *@
+
+                     
 
                         <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                             <Items>
+                                <DxMenuItem Text="Add Supervisor" IconCssClass="fas fa-add" Click="@editForm" Visible="@AddSuperEnabled" />
+                                <DxMenuItem Text="Update to DMS Folder" IconCssClass="fas fa-pencil" Click="@OnUpdateDMS" Visible="@DMSUpdateEnabled" />
                                 <DxMenuItem Text="Copy Link" Click="onCopy" IconCssClass="fa fa-link" Visible="CopyLinkEnabled" />
                                 <DxMenuItem Text="CheckOut" Click="onCheckOut" IconCssClass="fa fa-check-square" Visible="CheckOutEnabled" />
                                 <DxMenuItem Text="CheckIn" Click="onCheckin" IconCssClass="fa fa-check-circle" Visible="CheckInEnabled" />
                                 <DxMenuItem Text="View File" Click="onView" IconCssClass="fa fa-eye" Visible="viewEnabled" />
-                                <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@editForm" Visible="@EditEnabled" />
+                               <DxMenuItem Text="Edit" IconCssClass="fas fa-pencil" Click="@editForm" Visible="@EditEnabled" />
                                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteForm" Visible="@DeleteEnabled" />
-                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Visible="@uploadEnabled" />
+                               <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Visible="@uploadEnabled" /> 
                                 <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
                                 <DxMenuItem Text="Check By" IconCssClass="fa fa-envelope" Click="onIsChecker" Visible="IsChecker" />
                                 <DxMenuItem Text="Deviation Form" IconCssClass="fa fa-wpforms" Click="@(_ => OnClickDynamicFormOpen("Deviation"))" Visible="IsDeviationForm" />
@@ -128,6 +132,21 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@UpdateProfilePopup"
+         ShowFooter="false"
+         HeaderText="Update DMS Folder"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
+    <BodyContentTemplate>
+        <UpdateProfilePage @ref="Refprofilepage" RevokeBack="CloseUpdatePopup" _selectedEditItems="@_selectedEditItems" _applicationUser="@applicationUser"></UpdateProfilePage>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 <DxPopup @bind-Visible="@PopupUpload"
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
@@ -192,12 +211,15 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    bool UpdateProfilePopup { get; set; } = false;
+    bool AddSuperEnabled { get; set; } = false;
     [Parameter]
     public Guid? SessionId { get; set; }
     public string isVisibleMore { get; set; } = "display:none;";
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     private DocumentsModel? _selectedDocItems;
     private IpirApps? RefToDoLeftNotes { get; set; }
+    private UpdateProfilePage? Refprofilepage { get; set; }
     bool createEmailpopup { get; set; } = false;
     bool emailEnabled { get; set; } = false;
     IGrid Grid { get; set; }
@@ -208,6 +230,7 @@
     DocumentsModel selectedFiles = new DocumentsModel();
     public ApplicationUser? applicationUser { get; private set; }
     private IpirApp _selectedItems; private IpirApp _selectedEditItems;
+    bool DMSUpdateEnabled { get; set; } = false;
     bool EditEnabled { get; set; } = false; bool addEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false; bool uploadEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false; bool AddPopup { get; set; } = false; bool PopupUpload { get; set; } = false;
@@ -235,7 +258,7 @@
         isVisibleMore = "display:none;";
         EditEnabled = false; DeleteEnabled = false; emailEnabled = false; addEnabled = true; uploadEnabled = false; SupportDocEnabled = false; IsChecker = false;
         CheckOutEnabled = false; CheckInEnabled = false; CopyLinkEnabled = false;
-        viewEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
+        viewEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false; DMSUpdateEnabled = false;
         _dynamicForm = await Mediator.Send(new GetAllIpirAppQuery());
         PanelVisible = true;
         if (_dynamicForm != null && _dynamicForm.Count > 0)
@@ -275,7 +298,7 @@
             UploadSessionId = _selectedItems.SessionID;
             if (_selectedItems.IsDocuments > 0)
             {
-                uploadEnabled = false; viewEnabled = true; CopyLinkEnabled = true;
+                uploadEnabled = false; viewEnabled = true; CopyLinkEnabled = true; DMSUpdateEnabled = true;
             }
             if (_selectedItems.FileProfileTypeId > 0)
             {
@@ -286,7 +309,7 @@
                 CheckOutEnabled = false;
                 CheckInEnabled = true; CopyLinkEnabled = false;
                 EditEnabled = false; DeleteEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
-                viewEnabled = false; SupportDocEnabled = false; IsChecker = false;
+                viewEnabled = false; SupportDocEnabled = false; IsChecker = false;DMSUpdateEnabled = false;
             }
             else
             {
@@ -335,7 +358,7 @@
                 }
                 else
                 {
-                    
+
                     var result = await Mediator.Send(new GetDynamicFormScreenNameCheckValidation("Deviationtrackingflow"));
                     if (result != null && result.ID > 0)
                     {
@@ -390,10 +413,16 @@
             }
         }
     }
+    void CloseUpdatePopup()
+    {
+        UpdateProfilePopup = false;
+        StateHasChanged();
+    }
     void ClosePopup()
     {
         AddPopup = false;
-       // InvokeAsync(UpdateDataAsync);
+        AddSuperEnabled = false;
+        // InvokeAsync(UpdateDataAsync);
         StateHasChanged();
     }
     void onIsChecker()
@@ -456,11 +485,22 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "IpirAppId");
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.IpirAppId == (long?)UniqueId);
         UploadSessionId = _selectedItems.SessionID;
-        EditEnabled = true; uploadEnabled = true; isVisibleMore = ""; IsChecker = true;
-        DeleteEnabled = true; emailEnabled = true; SupportDocEnabled = true; viewEnabled = false; CopyLinkEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
+
+        uploadEnabled = true; isVisibleMore = ""; IsChecker = true;
+        DeleteEnabled = true; emailEnabled = true; SupportDocEnabled = true; viewEnabled = false; CopyLinkEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false; DMSUpdateEnabled = false;
+        if(_selectedItems.ActivityStatusId > 0 )
+        {
+            AddSuperEnabled = false;
+            EditEnabled = true;
+        }
+        else
+        {
+            AddSuperEnabled = true;
+            EditEnabled = false;
+        }
         if (_selectedItems.IsDocuments > 0)
         {
-            uploadEnabled = false; viewEnabled = true; CopyLinkEnabled = true;
+            uploadEnabled = false; viewEnabled = true; CopyLinkEnabled = true; DMSUpdateEnabled = true;
         }
         if (_selectedItems.FileProfileTypeId > 0)
         {
@@ -471,7 +511,7 @@
             CheckOutEnabled = false;
             CheckInEnabled = true; CopyLinkEnabled = false;
             EditEnabled = false; DeleteEnabled = false; IsDeviationForm = false; IsChangeControlForm = false; IsWorkOrderForm = false;
-            viewEnabled = false; SupportDocEnabled = false; IsChecker = false;
+            viewEnabled = false; SupportDocEnabled = false; IsChecker = false; DMSUpdateEnabled = false;
         }
         else
         {
@@ -557,6 +597,11 @@
             loadSelectedItems();
             await Download();
         }
+    }
+    private async Task OnUpdateDMS()
+    {
+        _selectedEditItems = _selectedItems;
+        UpdateProfilePopup = true;
     }
     private async Task onCopy()
     {

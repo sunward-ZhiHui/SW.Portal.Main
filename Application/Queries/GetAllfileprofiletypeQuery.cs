@@ -524,5 +524,12 @@ namespace Application.Queries
             this.FileProfileType = FileProfileType;
         }
     }
-  
+    public class UpdateDocument : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+       public DocumentsUploadModel documentsUploadModel1 { get; private set; }
+        public UpdateDocument(DocumentsUploadModel model)
+        {
+            this.documentsUploadModel1 = model;
+        }
+    }
 }

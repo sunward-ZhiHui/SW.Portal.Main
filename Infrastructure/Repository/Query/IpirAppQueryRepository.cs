@@ -34,8 +34,17 @@ namespace Infrastructure.Repository.Query
             List<IpirApp> IpirApps = new List<IpirApp>();
             try
             {
-                var query = "select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName,   \r\nt7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments   from IpirApp t1   \r\nJOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   \r\nJOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   \r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID   \r\nLEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID   \r\nLEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   \r\nJOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID  \r\nLEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal \r\nLEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy ";
-
+                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,t6.Name as LocationName, t7.ItemNo,t7.Description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments ,
+                            t1.StatusType,t1.FPDD,t1.ProcessDD,t1.RawMaterialDD,t1.PackingMaterialDD,t1.FixedAsset,t1.Type
+                             from IpirApp t1  
+                            JOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   
+                            JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   
+                            LEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID  
+                            LEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID  
+                            LEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   
+                            JOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID 
+                            LEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal 
+                            LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy";
                 var result = new List<IpirApp>();
                 using (var connection = CreateConnection())
                 {
@@ -395,6 +404,12 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ActivityStatusId", value.ActivityStatusId);
                         parameters.Add("SubjectName", value.SubjectName);
                         parameters.Add("Type", value.Type);
+                        parameters.Add("StatusType", value.StatusType);
+                        parameters.Add("FPDD", value.FPDD);
+                        parameters.Add("ProcessDD", value.ProcessDD);
+                        parameters.Add("RawMaterialDD", value.RawMaterialDD);
+                        parameters.Add("PackingMaterialDD", value.PackingMaterialDD);
+                        parameters.Add("FixedAsset", value.FixedAsset);
                         if (value.IpirAppId > 0)
                         {
 
@@ -414,9 +429,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ProfileNo", ProfileNo, DbType.String);
                             value.SessionID = Guid.NewGuid();
                             parameters.Add("SessionID", value.SessionID, DbType.Guid);
-                            var query = @"INSERT INTO IpirApp(SubjectName,Type,ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileId,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
+                            var query = @"INSERT INTO IpirApp(FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,SubjectName,Type,ActivityStatusId,MachineName,DetectedBy,SessionID,CompanyID,ProfileId,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,LocationID,NavprodOrderLineID,ReportingPersonal,RefNo,ProdOrderNo,FixedAssetNo,Comment,ProfileNo) 
 				                       OUTPUT INSERTED.IpirAppId ,INSERTED.SessionID
-				                       VALUES (@SubjectName,@Type,@ActivityStatusId,@MachineName,@DetectedBy,@SessionID,@CompanyID,@ProfileId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@LocationID,@NavprodOrderLineID,@ReportingPersonal,@RefNo,@ProdOrderNo,@FixedAssetNo,@Comment,@ProfileNo)";
+				                       VALUES (@FixedAsset,@PackingMaterialDD,@RawMaterialDD,@ProcessDD,@FPDD,@StatusType,@SubjectName,@Type,@ActivityStatusId,@MachineName,@DetectedBy,@SessionID,@CompanyID,@ProfileId,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@LocationID,@NavprodOrderLineID,@ReportingPersonal,@RefNo,@ProdOrderNo,@FixedAssetNo,@Comment,@ProfileNo)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
                             value.IpirAppId = insertedId;
                         }
@@ -484,8 +499,12 @@ namespace Infrastructure.Repository.Query
                        
                         parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
                         parameters.Add("ModifiedDate", value.ModifiedDate);
-                       
-                      
+                        parameters.Add("StatusType", value.StatusType);
+                        parameters.Add("FPDD", value.FPDD);
+                        parameters.Add("ProcessDD", value.ProcessDD);
+                        parameters.Add("RawMaterialDD", value.RawMaterialDD);
+                        parameters.Add("PackingMaterialDD", value.PackingMaterialDD);
+                        parameters.Add("FixedAsset", value.FixedAsset);
                         parameters.Add("SessionID", value.SessionID, DbType.Guid);
                         parameters.Add("StatusCodeID", value.StatusCodeID);
                         parameters.Add("FixedAssetNo", value.FixedAssetNo, DbType.String);
@@ -495,7 +514,7 @@ namespace Infrastructure.Repository.Query
                         if (value.IpirAppId > 0)
                         {
 
-                            var query = "Update IpirApp Set ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
+                            var query = "Update IpirApp Set StatusType = @StatusType, FPDD = @FPDD,ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset, ActivityStatusId=@ActivityStatusId,SessionID=@SessionID,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID," +
                             "FixedAssetNo=@FixedAssetNo,Comment=@Comment  Where IpirAppId=@IpirAppId;";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
@@ -572,7 +591,12 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("Type", value.Type);
                         parameters.Add("DetectedBy", value.DetectedBy);
                         parameters.Add("SessionID", value.SessionID, DbType.Guid);
-                       
+                        parameters.Add("FixedAsset", value.FixedAsset);
+                        parameters.Add("StatusType", value.StatusType);
+                        parameters.Add("FPDD", value.FPDD);
+                        parameters.Add("ProcessDD", value.ProcessDD);
+                        parameters.Add("RawMaterialDD", value.RawMaterialDD);
+                        parameters.Add("PackingMaterialDD", value.PackingMaterialDD);
                         parameters.Add("ProdOrderNo", value.ProdOrderNo, DbType.String);
                         parameters.Add("StatusCodeID", value.StatusCodeID);
                        
@@ -580,8 +604,9 @@ namespace Infrastructure.Repository.Query
                       
                        
 
-                            var query = "Update IpirApp Set Type =@Type,SubjectName = @SubjectName,MachineName=@MachineName,DetectedBy=@DetectedBy,SessionID=@SessionID,CompanyID=@CompanyID,ProfileId=@ProfileId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID,LocationID=@LocationID," +
-                            "ProdOrderNo=@ProdOrderNo  Where IpirAppId=@IpirAppId;";
+                            var query = @"Update IpirApp Set StatusType = @StatusType,FPDD = @FPDD, ProcessDD = @ProcessDD ,
+           RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD ,FixedAsset = @FixedAsset ,Type =@Type,SubjectName = @SubjectName,MachineName=@MachineName,DetectedBy=@DetectedBy,SessionID=@SessionID,CompanyID=@CompanyID,ProfileId=@ProfileId,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID,StatusCodeID=@StatusCodeID,LocationID=@LocationID,
+                            ProdOrderNo=@ProdOrderNo  Where IpirAppId=@IpirAppId;";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
                         

@@ -898,5 +898,38 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
+        public class UpdateDocumentHandler : IRequestHandler<UpdateDocument, DocumentsUploadModel>
+        {
+            private readonly IDocumentsQueryRepository _documentsqueryrepository;
+            private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
+            public UpdateDocumentHandler(IDocumentsQueryRepository documentsqueryrepository, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+                _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
+            }
+            public async Task<DocumentsUploadModel> Handle(UpdateDocument request, CancellationToken cancellationToken)
+            {
+                var list = request.documentsUploadModel1;
+                var documentNoSeriesModel = new DocumentNoSeriesModel
+                {
+                   
+                    AddedByUserID = list.UserId,
+                    StatusCodeID = 710,
+                    ProfileID = list.ProfileId,
+                    PlantID = list.PlantId,
+                    DepartmentId = list.DepartmentId,
+                    SectionId = list.SectionId,
+                    SubSectionId = list.SubSectionId,
+                    DivisionId = list.DivisionId,
+
+
+                }; 
+                var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
+                var result = await _documentsqueryrepository.UpdateDocument(list.UserSession.Value, profileNo, list.FileProfileTypeId.Value);
+
+                return list;
+            }
+
+        }
     }
 }

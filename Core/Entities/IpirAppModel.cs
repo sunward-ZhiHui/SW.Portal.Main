@@ -46,6 +46,12 @@ namespace Core.Entities
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();
         public string? Type { get; set; }
         public string? SubjectName { get; set; }
+        public string? StatusType { get; set; }
+        public string? FPDD { get; set; }
+        public string? ProcessDD { get; set; }
+        public string? RawMaterialDD { get; set; }
+        public string? PackingMaterialDD { get; set; }
+        public string? FixedAsset { get; set; }
 
     }
 }

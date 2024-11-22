@@ -22,7 +22,7 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionID { get; set; }
         public string? Comment { get; set; }
-        [Required(ErrorMessage = "Prod OrderNo is Required")]
+       // [Required(ErrorMessage = "Prod OrderNo is Required")]
         public string? ProdOrderNo { get; set; }
         public string? Type { get; set; }
         public string? SubjectName { get; set; }
@@ -30,12 +30,18 @@ namespace Core.Entities
         public string? FixedAssetNo { get; set; }
         public long? ReportingPersonal { get; set; }
         public long? DetectedBy { get; set; }
-        [Required(ErrorMessage = "Machine is Required")]
+      //  [Required(ErrorMessage = "Machine is Required")]
         public string? MachineName { get; set; }
         public string? RefNo { get; set; }
-        [Required(ErrorMessage = "Profile is Required")]
+       // [Required(ErrorMessage = "Profile is Required")]
         public long? ProfileId { get; set; }
         public string? ProfileNo { get; set; }
+        public string? StatusType { get; set; }
+        public string? FPDD { get; set; }
+        public string? ProcessDD { get; set; }
+        public string? RawMaterialDD { get; set; }
+        public string? PackingMaterialDD { get; set; }
+        public string? FixedAsset { get; set; }
         [NotMapped]
         public string? CompanyCode { get; set; }
         [NotMapped]
@@ -77,6 +83,7 @@ namespace Core.Entities
         public string? FilePath { get; set; }
         public Guid? UniqueSessionId { get; set; }
         public bool? IsNewPath { get; set; }
+        [Required (ErrorMessage = "Activity Status is Required")]
         public long? ActivityStatusId { get; set; }
         public List<IpirAppIssueDep> ActivityIssueRelates { get; set; } = new List<IpirAppIssueDep>();
         public IEnumerable<long?> ActivityIssueRelateIds { get; set; } = new List<long?>();

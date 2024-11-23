@@ -410,7 +410,7 @@ namespace SW.Portal.Solutions.Controllers
 
                 };
                 var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
-                var result = await _documentsqueryrepository.UpdateDocument(value.SessionId, profileNo,value.FileProfileTypeId);
+                var result = await _documentsqueryrepository.UpdateDocument(value.SessionId, profileNo,value.FileProfileTypeId, value.UserID);
                 try
                 {
                     response.ResponseCode = Services.ResponseCode.Success;

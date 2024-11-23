@@ -530,6 +530,7 @@
     async Task HandleValidSubmit()
     {
         Data.UserSession = _selectedEditItems.SessionID;
+        Data.UserId = _applicationUser.UserID;
         var result = await Mediator.Send(new UpdateDocument(Data));
         toastService.ShowToast("Profile Updated Successfully!", AC.SD.Core.Services.ToastLevel.Success);
 

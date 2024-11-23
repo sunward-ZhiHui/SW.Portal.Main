@@ -925,7 +925,7 @@ namespace Application.Handlers.QueryHandlers
 
                 }; 
                 var profileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
-                var result = await _documentsqueryrepository.UpdateDocument(list.UserSession.Value, profileNo, list.FileProfileTypeId.Value);
+                var result = await _documentsqueryrepository.UpdateDocument(list.UserSession.Value, profileNo, list.FileProfileTypeId.Value,list.UserId.Value);
 
                 return list;
             }

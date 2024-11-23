@@ -1346,18 +1346,21 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public async Task<long> UpdateDocument(Guid SessionID, string ProfileNo, long FileProfileID)
+        public async Task<long> UpdateDocument(Guid SessionID, string ProfileNo, long FileProfileID,long UserID)
         {
 
             try
             {
+                var date = DateTime.Now;
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionID", SessionID);
                 parameters.Add("ProfileNo", ProfileNo);
                 parameters.Add("FileProfileID", FileProfileID);
+                parameters.Add("date", date);
+                parameters.Add("UserID", UserID);
                 using (var connection = CreateConnection())
                 {
-                    var query = "Update Documents set FilterProfileTypeID = @FileProfileID ,ProfileNo = @ProfileNo Where SessionID =@SessionID";
+                    var query = "Update Documents set FilterProfileTypeID = @FileProfileID ,ProfileNo = @ProfileNo,ModifiedDate = @date,ModifiedByUserID = @UserID  Where SessionID =@SessionID";
                     var result = (await connection.QueryAsync<long>(query, parameters)).ToList();
                     return FileProfileID;
                 }

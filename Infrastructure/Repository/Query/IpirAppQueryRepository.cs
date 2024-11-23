@@ -42,7 +42,7 @@ namespace Infrastructure.Repository.Query
                             LEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID  
                             LEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID  
                             LEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID   
-                            JOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID 
+                            Left JOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID 
                             LEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal 
                             LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy";
                 var result = new List<IpirApp>();

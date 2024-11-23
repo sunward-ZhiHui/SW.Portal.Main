@@ -14,6 +14,8 @@
 @inject IJSRuntime jsRuntime
 @inject ClipboardService ClipboardService
 @implements IAsyncDisposable
+@inject IJSRuntime JSRuntime;
+
 <style scoped>
     .zxing-video-container > video {
         width: 100%;
@@ -206,7 +208,7 @@
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.ActivityStatusId)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Scan Type:" ColSpanMd="6">
+                            <DxFormLayoutItem Caption="Type:" ColSpanMd="6">
                                 <DxComboBox Data="@StatusTypeList" NullText="Select Type..." @bind-Text="@StatusType" @bind-Value="@Data.StatusType" ShowValidationIcon="true"
                                             SelectedItemChanged="@((string Type) => SelectedTypeItemsChanged(Type))"></DxComboBox>
 
@@ -437,7 +439,7 @@
     private List<ProductionActivityApp> _productionActivities;
     private List<ViewDepartment> _departmentItems;
     private List<NavprodOrderLineModel> _ponumberActivities;
-      private List<NavprodOrderLineModel> _FPponumberActivities;
+    private List<NavprodOrderLineModel> _FPponumberActivities;
     private List<NavprodOrderLineModel> _poOrderDetails;
     IpirApp Data = new IpirApp();
     public ApplicationUser applicationUser { get; private set; }
@@ -495,6 +497,7 @@
         Data.ModifiedByUserID = applicationUser.UserID;
         if (_selectedEditItems != null)
         {  
+            await JSRuntime.InvokeAsync<string>("showLoading");
             if (_selectedEditItems.Type == "Related to Production")
             {
                 VisibleSubject=false;
@@ -547,56 +550,60 @@
 
             StatusType = _selectedEditItems.StatusType;
             Data.StatusType = _selectedEditItems.StatusType;
-            if (StatusType == "FP")
-            {
-                if (_selectedEditItems.CompanyID > 0)
-                {
-                    _FPponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(_selectedEditItems.CompanyID));
-                    Data.FPDD = _selectedEditItems.FPDD;
-                    FPVisible = true;
-                    ProcessVisible = false;
-                    RawMaterialVisible = false;
-                    PackingMaterialVisible = false;
-                }
-            }
-            if (StatusType == "Process")
-            {
-                if (_selectedEditItems.CompanyID > 0)
-                {
-                    _RawMatItemList = await Mediator.Send(new GetRawMatItemListByTypeList("ProcessItem", _selectedEditItems.CompanyID));
-                    Data.ProcessDD = _selectedEditItems.ProcessDD;
-                    FPVisible = false;
-                    ProcessVisible = true;
-                    RawMaterialVisible = false;
-                    PackingMaterialVisible = false;
-                }
-            }
-            if (StatusType == "Raw Material")
-            {
-                if (_selectedEditItems.CompanyID > 0)
-                {
-                    _RawMatItemList1 = await Mediator.Send(new GetRawMatItemListByTypeList("RawMatItem", _selectedEditItems.CompanyID));
-                    Data.RawMaterialDD = _selectedEditItems.RawMaterialDD;
-                    FPVisible = false;
-                    ProcessVisible = false;
-                    RawMaterialVisible = true;
-                    PackingMaterialVisible = false;
-                }
-            }
-            if (StatusType == "Packing Material")
-            {
-                if (_selectedEditItems.CompanyID > 0)
-                {
-                    _RawMatItemList2 = await Mediator.Send(new GetRawMatItemListByTypeList("PackagingItem", _selectedEditItems.CompanyID));
-                    Data.PackingMaterialDD = _selectedEditItems.PackingMaterialDD;
-                    FPVisible = false;
-                    ProcessVisible = false;
-                    RawMaterialVisible = false;
-                    PackingMaterialVisible = true;
-                }
-            }
+
+            await SelectedTypeItemsChanged(_selectedEditItems.StatusType);
+            // if (StatusType == "FP")
+            // {
+            //     if (_selectedEditItems.CompanyID > 0)
+            //     {
+            //         _FPponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(_selectedEditItems.CompanyID));
+            //         Data.FPDD = _selectedEditItems.FPDD;
+            //         FPVisible = true;
+            //         ProcessVisible = false;
+            //         RawMaterialVisible = false;
+            //         PackingMaterialVisible = false;
+            //     }
+            // }
+            // if (StatusType == "Process")
+            // {
+            //     if (_selectedEditItems.CompanyID > 0)
+            //     {
+            //         _RawMatItemList = await Mediator.Send(new GetRawMatItemListByTypeList("ProcessItem", _selectedEditItems.CompanyID));
+            //         Data.ProcessDD = _selectedEditItems.ProcessDD;
+            //         FPVisible = false;
+            //         ProcessVisible = true;
+            //         RawMaterialVisible = false;
+            //         PackingMaterialVisible = false;
+            //     }
+            // }
+            // if (StatusType == "Raw Material")
+            // {
+            //     if (_selectedEditItems.CompanyID > 0)
+            //     {
+            //         _RawMatItemList1 = await Mediator.Send(new GetRawMatItemListByTypeList("RawMatItem", _selectedEditItems.CompanyID));
+            //         Data.RawMaterialDD = _selectedEditItems.RawMaterialDD;
+            //         FPVisible = false;
+            //         ProcessVisible = false;
+            //         RawMaterialVisible = true;
+            //         PackingMaterialVisible = false;
+            //     }
+            // }
+            // if (StatusType == "Packing Material")
+            // {
+            //     if (_selectedEditItems.CompanyID > 0)
+            //     {
+            //         _RawMatItemList2 = await Mediator.Send(new GetRawMatItemListByTypeList("PackagingItem", _selectedEditItems.CompanyID));
+            //         Data.PackingMaterialDD = _selectedEditItems.PackingMaterialDD;
+            //         FPVisible = false;
+            //         ProcessVisible = false;
+            //         RawMaterialVisible = false;
+            //         PackingMaterialVisible = true;
+            //     }
+            // }
+              await JSRuntime.InvokeAsync<string>("hideLoading");
         }
         StateHasChanged();
+      
     }
     async Task getBySessionId()
     {
@@ -676,7 +683,7 @@
     async void SelectedFP(string? NAVProdOrder)
     {
         Data.FPDD = NAVProdOrder;
-        
+
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -840,7 +847,11 @@
     }
     async Task SelectedTypeItemsChanged(string type)
     {
-        _ponumberActivities = new List<NavprodOrderLineModel>(); _RawMatItemList = new List<RawMatItemList>();
+        _FPponumberActivities = new List<NavprodOrderLineModel>(); _RawMatItemList = new List<RawMatItemList>();
+        if(_selectedEditItems != null)
+        {
+            Data.CompanyID = _selectedEditItems.CompanyID;
+        }
         // if(_selectedEditItems != null)
         // {
         //     Data.FPDD = null;

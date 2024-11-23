@@ -418,10 +418,11 @@
         UpdateProfilePopup = false;
         StateHasChanged();
     }
-    void ClosePopup()
+    async void ClosePopup()
     {
         AddPopup = false;
         AddSuperEnabled = false;
+        await UpdateDataAsync();
         // InvokeAsync(UpdateDataAsync);
         StateHasChanged();
     }

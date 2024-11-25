@@ -712,7 +712,9 @@ namespace SW.Portal.Solutions.Controllers
                 ProcessDD = topic.ProcessDD,
                 PackingMaterialDD =topic.PackingMaterialDD,
                 RawMaterialDD =topic.RawMaterialDD,
-                FixedAsset =topic.FixedAsset
+                FixedAsset =topic.FixedAsset,
+                Type = topic.Type,
+                SubjectName = topic.SubjectName
 
 
             }).ToList();

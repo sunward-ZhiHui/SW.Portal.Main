@@ -554,6 +554,10 @@
             Data.StatusType = _selectedEditItems.StatusType;
 
             await SelectedTypeItemsChanged(_selectedEditItems.StatusType);
+            Data.FPDD = _selectedEditItems.FPDD;
+            Data.ProcessDD = _selectedEditItems.ProcessDD;
+            Data.RawMaterialDD = _selectedEditItems.RawMaterialDD;
+             Data.PackingMaterialDD = _selectedEditItems.PackingMaterialDD;
             // if (StatusType == "FP")
             // {
             //     if (_selectedEditItems.CompanyID > 0)

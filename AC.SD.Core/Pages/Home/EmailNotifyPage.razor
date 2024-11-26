@@ -21,108 +21,150 @@
 @implements IAsyncDisposable
 @page "/NotifypaPage"
 
-<div class="card w-100" style="margin-bottom:10px;">
-    <div class="card-body p-0">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>                
-                <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" Enabled="@PrintEnabled" />
-                <DxMenuItem IconCssClass="fa fa-remove" @onclick="OnDelete" Text="Remove" Enabled="@DeleteEnabled" />
-                <DxMenuItem IconCssClass="fa fa-envelope" @onclick="OnEmailClick" Text="View Email" Enabled="@EmailEnabled" />
-            </Items>
-        </DxMenu>
+<style>
+    .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+       
+        height: calc(100vh - 210px);
+        margin: 0;
+    }
+
+    .warning-message {
+        text-align: center;
+        padding: 20px;
+        border: 2px solid #f5c6cb;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        color: #721c24;
+    }
+
+        .warning-message h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .warning-message p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+</style>
+ @if(_openAccessUserLink != null)
+{
+    <div class="card w-100" style="margin-bottom:10px;">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintMainTopic" Text="Print" Enabled="@PrintEnabled" />
+                    <DxMenuItem IconCssClass="fa fa-remove" @onclick="OnDelete" Text="Remove" Enabled="@DeleteEnabled" />
+                    <DxMenuItem IconCssClass="fa fa-envelope" @onclick="OnEmailClick" Text="View Email" Enabled="@EmailEnabled" />
+                </Items>
+            </DxMenu>
+        </div>
     </div>
-</div>
-<DxGrid @ref="EmailNotifyPAGrid"
-        Data="_emailNotifyData"
-        ShowGroupPanel="true"
-        ShowSearchBox ="true"
-        VirtualScrollingEnabled="false"
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        KeyFieldName="ID"
-        CustomizeElement="Grid_CustomizeElement"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        TextWrapEnabled="false"
-        ValidationEnabled="true"
-        AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 285px);"
-        RowClick="OnRowClick"
-        RowDoubleClick="OnEmailDueRowClick"
-        ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"        
-        AllowSelectRowByClick="true">
-    <Columns>
-        @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
-        <DxGridDataColumn FieldName="Name" Caption="Subject" FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
-        <DxGridDataColumn FieldName="CategoryName" Caption="Category" GroupIndex ="0" MinWidth="180" />
-        <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="130" />
-        <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="180">
-            <CellDisplayTemplate>
-                @{
-                    var item = (EmailNotifyPA)context.DataItem;
-                }
-                @if (item.Description != null)
-                {
-                    <span class="fa fa-commenting" @onclick="@(() => onDesctiptionMsg(item.Description))"></span>
-                }
+    <DxGrid @ref="EmailNotifyPAGrid"
+            Data="_emailNotifyData"
+            ShowGroupPanel="true"
+            ShowSearchBox="true"
+            VirtualScrollingEnabled="false"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            KeyFieldName="ID"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            TextWrapEnabled="false"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="w-100" style="height: calc(100vh - 285px);"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnEmailDueRowClick"
+            ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+            AllowSelectRowByClick="true">
+        <Columns>
+            @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" Visible="false" /> *@
+            <DxGridDataColumn FieldName="Name" Caption="Subject" FixedPosition="GridColumnFixedPosition.Left" MinWidth="250" />
+            <DxGridDataColumn FieldName="CategoryName" Caption="Category" GroupIndex="0" MinWidth="180" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="130" />
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailNotifyPA)context.DataItem;
+                    }
+                    @if (item.Description != null)
+                    {
+                        <span class="fa fa-commenting" @onclick="@(() => onDesctiptionMsg(item.Description))"></span>
+                    }
 
-            </CellDisplayTemplate>
+                </CellDisplayTemplate>
             </DxGridDataColumn>
-        <DxGridDataColumn FieldName="AddedDate" MinWidth="180">
-            <CellDisplayTemplate>
-                @{
-                    var item = (EmailNotifyPA)context.DataItem;
-                }
-                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.AddedDate)</span>
-            </CellDisplayTemplate>
-        </DxGridDataColumn>
-        <DxGridDataColumn FieldName="EmailCreatedDate" MinWidth="210">
-            <CellDisplayTemplate>
-                @{
-                    var item = (EmailNotifyPA)context.DataItem;
-                }
-                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.EmailCreatedDate)</span>
-            </CellDisplayTemplate>
-        </DxGridDataColumn>
-        <DxGridDataColumn FieldName="LastUpdateDate" MinWidth="180" >
-            <CellDisplayTemplate>
-                @{
-                    var item = (EmailNotifyPA)context.DataItem;
-                }
-                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.LastUpdateDate)</span>
-            </CellDisplayTemplate>
-        </DxGridDataColumn>
-        <DxGridDataColumn FieldName="ModifiedDate" Caption="Last Discussion Date" MinWidth="210">
-            <CellDisplayTemplate>
-                @{
-                    var item = (EmailNotifyPA)context.DataItem;
-                }
-                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.ModifiedDate)</span>
-            </CellDisplayTemplate>
-        </DxGridDataColumn>
-        <DxGridDataColumn FieldName="Comment" Caption="Comment" MinWidth="180">
-            <CellDisplayTemplate>
-                @{
-                    var item = (EmailNotifyPA)context.DataItem;
-                }
-                @if (item.Comment != null)
-                {
-                    <span class="fa fa-commenting" @onclick="@(() => onCommentMsg(item.Comment))"></span>
-                }
+            <DxGridDataColumn FieldName="AddedDate" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailNotifyPA)context.DataItem;
+                    }
+                    <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.AddedDate)</span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="EmailCreatedDate" MinWidth="210">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailNotifyPA)context.DataItem;
+                    }
+                    <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.EmailCreatedDate)</span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="LastUpdateDate" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailNotifyPA)context.DataItem;
+                    }
+                    <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.LastUpdateDate)</span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Last Discussion Date" MinWidth="210">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailNotifyPA)context.DataItem;
+                    }
+                    <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDate(item.ModifiedDate)</span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Comment" Caption="Comment" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailNotifyPA)context.DataItem;
+                    }
+                    @if (item.Comment != null)
+                    {
+                        <span class="fa fa-commenting" @onclick="@(() => onCommentMsg(item.Comment))"></span>
+                    }
 
-            </CellDisplayTemplate>
-        </DxGridDataColumn>
-    </Columns>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
 
-    <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-    </TotalSummary>
-</DxGrid>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+        </TotalSummary>
+    </DxGrid>
 
+}
+else
+{
+    <div class="center-container">
+        <div class="warning-message">
+            <h1>Access Denied</h1>
+            <p>You do not have permission to view this page.</p>
+        </div>
+    </div>
+}
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="NOVATO"
@@ -161,6 +203,7 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    private OpenAccessUserLink? _openAccessUserLink { get; set; }
     public bool PrintEnabled { get; set; } = false;
     public bool DeleteEnabled { get; set; } = false;
     IGrid EmailNotifyPAGrid { get; set; }
@@ -183,6 +226,7 @@
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         await JSRuntime.InvokeAsync<string>("showLoading");    
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
         await UpdateDataAsync();
         //_openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
 

@@ -126,7 +126,7 @@
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_selectedItems.ID))" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_selectedItems))" />
     </FooterContentTemplate>
 </DxPopup>
 
@@ -257,9 +257,9 @@
 
         await UpdateDataAsync();
     }
-    async Task bulkDelete(long id)
+    async Task bulkDelete(DynamicForm dynamicForm)
     {
-        var request = new DeleteDynamicForm(id);
+        var request = new DeleteDynamicForm(dynamicForm);
         await Mediator.Send(request);
         Blukdeletepopup = false;
         await UpdateDataAsync();

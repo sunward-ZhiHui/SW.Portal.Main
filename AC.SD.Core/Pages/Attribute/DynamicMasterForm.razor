@@ -261,7 +261,7 @@
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_dynamicFormData.ID))" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_dynamicFormData))" />
     </FooterContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@DynamicFormReportsBypopup"
@@ -530,11 +530,11 @@
         Blukdeletepopup = false;
         DynamicFormReportsBypopup = false;
     }
-    async Task bulkDelete(long id)
+    async Task bulkDelete(DynamicForm dynamicForm)
     {
         try
         {
-            var request = new DeleteDynamicForm(id);
+            var request = new DeleteDynamicForm(dynamicForm);
             await Mediator.Send(request);
             Blukdeletepopup = false;
             toastService.ShowToast("Delete record Successfully", AC.SD.Core.Services.ToastLevel.Success);

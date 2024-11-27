@@ -787,6 +787,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("SessionId", value.LineSessionId);
                         parameters.Add("ProductionActivityRoutineAppLineId", value.ProductionActivityRoutineAppLineId);
                         var query = "Delete from  RoutineInfoMultiple WHERE ProductionActivityRoutineAppLineId=@ProductionActivityRoutineAppLineId;";
+                        query += "Delete from  ProductionActivityRoutineAppLineDoc WHERE ProductionActivityRoutineAppLineId=@ProductionActivityRoutineAppLineId;";
                         query += "Delete from  ProductionActivityRoutineAppLine WHERE ProductionActivityRoutineAppLineId=@ProductionActivityRoutineAppLineId;";
                         query += "Update Documents Set Islatest=0  Where SessionId=@SessionId;";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);

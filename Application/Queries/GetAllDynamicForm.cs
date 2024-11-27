@@ -63,12 +63,12 @@ namespace Application.Queries
     {
 
     }
-    public class DeleteDynamicForm : DynamicForm, IRequest<long>
+    public class DeleteDynamicForm : DynamicForm, IRequest<DynamicForm>
     {
-        public long ID { get; set; }
-        public DeleteDynamicForm(long ID)
+        public DynamicForm DynamicForm { get; set; }
+        public DeleteDynamicForm(DynamicForm dynamicForm)
         {
-            this.ID = ID;
+            this.DynamicForm = dynamicForm;
         }
     }
 
@@ -738,6 +738,60 @@ namespace Application.Queries
             this.Id = id;
         }
     }
-
+    public class InsertDynamicFormEmailSubCont : PagedRequest, IRequest<DynamicFormReportItems>
+    {
+        public Guid? SessionId { get; set; }
+        public IEnumerable<DynamicFormReportItems> SubjectData { get; set; }
+        public IEnumerable<DynamicFormReportItems> ContentData { get; set; }
+        public InsertDynamicFormEmailSubCont(Guid? sessionId, IEnumerable<DynamicFormReportItems> subjectData, IEnumerable<DynamicFormReportItems> contentData)
+        {
+            this.SessionId = sessionId;
+            this.SubjectData = subjectData;
+            this.ContentData = contentData;
+        }
+    }
+    public class GetDynamicFormEmailSubCont : PagedRequest, IRequest<List<DynamicFormEmailSubCont>>
+    {
+        public Guid? SessionId { get; set; }
+        public GetDynamicFormEmailSubCont(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    public class DeleteDynamicFormEmailSubCont : PagedRequest, IRequest<DynamicFormEmailSubCont>
+    {
+        public Guid? SessionId { get; set; }
+        public DeleteDynamicFormEmailSubCont(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    public class InsertDynamicFormPermissionPermission : PagedRequest, IRequest<DynamicForm>
+    {
+        public DynamicForm DynamicForm { get; set; }
+        public InsertDynamicFormPermissionPermission(DynamicForm dynamicForm)
+        {
+            this.DynamicForm = dynamicForm;
+        }
+    }
+    public class GetDynamicFormMenuList : PagedRequest, IRequest<List<ApplicationPermission>>
+    {
+    }
+    public class UpdateDynamicFormMenuSortOrder : PagedRequest, IRequest<ApplicationPermission>
+    {
+        public ApplicationPermission ApplicationPermission { get; private set; }
+        public UpdateDynamicFormMenuSortOrder(ApplicationPermission applicationPermission)
+        {
+            this.ApplicationPermission = applicationPermission;
+        }
+    }
+    public class DeleteDynamicFormMenu : PagedRequest, IRequest<DynamicForm>
+    {
+        public DynamicForm DynamicForm { get; private set; }
+        public DeleteDynamicFormMenu(DynamicForm dynamicForm)
+        {
+            this.DynamicForm = dynamicForm;
+        }
+    }
 }
 

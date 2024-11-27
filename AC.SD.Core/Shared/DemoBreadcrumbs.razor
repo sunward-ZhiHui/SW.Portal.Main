@@ -26,7 +26,7 @@
     }
 </div>
 <DxPopup HeaderText="Access Denied"
-@bind-Visible="@PopupVisible"
+         @bind-Visible="@PopupVisible"
          CloseOnEscape="false"
          CloseOnOutsideClick="false"
          ShowFooter="true"
@@ -112,7 +112,7 @@
                         {
                             Items.Add(new(list2.Title, ""));
                         }
-                    }                   
+                    }
                     Items.Add(new(list1.Title, ""));
 
                 }
@@ -126,21 +126,38 @@
                 var list1 = _appPermissionItems.FirstOrDefault(f => f.Component != null && f.Component.ToLower() == UrlList[0]);
                 if (list1 != null)
                 {
-
-                    if (list1.ParentID != null)
+                    if (list1.ParentID == 60248)
                     {
                         var list2 = _appPermissionItems.FirstOrDefault(f => f.PermissionID == list1.ParentID);
                         if (list2 != null)
                         {
                             Items.Add(new(list2.Title, ""));
                         }
+                        if (UrlList.Length == 3 || UrlList.Length == 4)
+                        {
+                            var dynamicMenu = _appPermissionItems.FirstOrDefault(f => f.PermissionURL != null && f.PermissionURL.ToLower() == UrlList[2]);
+                            if (dynamicMenu != null)
+                            {
+                                Items.Add(new(dynamicMenu.Header, ""));
+                            }
+                            else
+                            {
+                                // Items.Add(new(list1.Title, ""));
+                            }
+                        }
                     }
-                    // if (list1.Name != null && list1.Component.ToLower() != list1.Name.ToLower())
-                    // {
-                    //     Items.Add(new(list1.Component, ""));
-                    // }
-                    Items.Add(new(list1.Title, ""));
-
+                    else
+                    {
+                        if (list1.ParentID != null)
+                        {
+                            var list2 = _appPermissionItems.FirstOrDefault(f => f.PermissionID == list1.ParentID);
+                            if (list2 != null)
+                            {
+                                Items.Add(new(list2.Title, ""));
+                            }
+                        }
+                        Items.Add(new(list1.Title, ""));
+                    }
                 }
                 else
                 {
@@ -165,7 +182,7 @@
     }
     void UpdateItems(string currentUri)
     {
-        Items.Clear();       
+        Items.Clear();
         StateHasChanged();
     }
 

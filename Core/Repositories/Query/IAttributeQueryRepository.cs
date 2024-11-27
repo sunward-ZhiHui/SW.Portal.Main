@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
@@ -32,5 +33,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<AttributeDetails>> GetAttributeDetailsDataSource(long? AttributeId);
         Task<IReadOnlyList<QCTestRequirement>> GetQcTestRequirementSummery();
         Task<List<DynamicFormDataResponse>> GetAllDynamicFormAttributeAllApiAsync(Guid? DynamicFormSessionId, Guid? DynamicFormDataSessionId, Guid? DynamicFormDataGridSessionId, Guid? DynamicFormSectionGridAttributeSessionId, string? BasUrl, bool? IsAll);
+        Task<List<DynamicFormDataResponse>> GetAllDynamicFormDataOneApiAsync(Guid? DynamicFormDataSessionId);
     }
 }

@@ -180,7 +180,7 @@
                 <DxFormLayout CssClass="w-100">
                     <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
-                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="@isPlant" AnimationType="LayoutAnimationType.Slide">
+                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" ExpandedChanged="@ExpandedChanged" Expanded="@isGridMainHeader" AnimationType="LayoutAnimationType.Slide">
 
                             <HeaderContentTemplate>
                                 <div>
@@ -198,16 +198,16 @@
                                 }
                             </HeaderContentTemplate>
                             <Items>
-                                <DxFormLayoutItem Caption="Login From" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="Login From" ColSpanMd="@GridcolSpanMd">
                                     <DxTextBox @bind-Text="@_longInUser" Enabled="false" />
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Login Company" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="Login Company" ColSpanMd="@GridcolSpanMd">
                                     <DxTextBox @bind-Text="@_longInCompany" Enabled="false" />
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Added By" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="Added By" ColSpanMd="@GridcolSpanMd">
                                     <DxTextBox NullText="Added By" @bind-Text="@_longInAddedBy" Enabled="false" />
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Added Date" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="Added Date" ColSpanMd="@GridcolSpanMd">
                                     <DxTextBox NullText="Date" @bind-Text="@_longInDateTime" Enabled="false" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Profile No" ColSpanMd="12">
@@ -686,6 +686,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool isGridPrint { get; set; } = false; int GridcolSpanMd { get; set; } = 3; bool isGridMainHeader { get; set; } = false;
     private DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormFilterByForm refDynamicFormFilterByForm { get; set; }
@@ -808,18 +809,28 @@
             _userEmployee = await Mediator.Send(new GetEmployeeFormByUserId(applicationUser.UserID));
         }
     }
+    void ExpandedChanged(bool NewExpanded)
+    {
+        isGridMainHeader = NewExpanded;
+        StateHasChanged();
+    }
     public async Task PrintGridForm()
     {
+        var isplantPrint = isGridMainHeader;
+        isGridPrint = true; isGridMainHeader = true; GridcolSpanMd = 6;
+        CreateEditFormFields();
         await JSRuntime.InvokeAsync<string>("showLoading");
         toastService.ShowToast("Pls Wait Form Print Generating.", AC.SD.Core.Services.ToastLevel.Success);
-        mainGridStyle = "";displayNoneGridPrintForm = "";
+        mainGridStyle = ""; displayNoneGridPrintForm = "";
         StateHasChanged();
-        await Task.Delay(500);
+        await Task.Delay(1000);
         var result = await JSRuntime.InvokeAsync<string>("htmlpdfGridGenerate");
         if (result == "ok")
         {
             mainGridStyle = "height: calc(100vh - 100px); overflow: auto; overflow-x: hidden;";
             toastService.ShowToast("Print Form Generated.", AC.SD.Core.Services.ToastLevel.Success);
+            isGridPrint = false; isGridMainHeader = isplantPrint; GridcolSpanMd = 3;
+            CreateEditFormFields();
             await JSRuntime.InvokeAsync<string>("hideLoading");
         }
         displayNoneGridPrintForm = "display:none;";
@@ -871,7 +882,7 @@
     }
     async Task loadDynamicForm()
     {
-        await onshowLoading(); _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
+        await onshowLoading(); isGridPrint = false; GridcolSpanMd = 3; isGridMainHeader = false; _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
         IsWorkflowApprovalRejected = false; IsWokFlowDescriptionOpen = false; workflowStyle = "display:none;"; _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
@@ -2269,7 +2280,7 @@
     public async Task loadData(long? profileID)
     {
         _editContexts = new EditContext(Datas);
-        isPlant = false;
+        isPlant = false;isGridMainHeader=false;
         isDivision = false; isDepartment = false;
         isSection = false; isSubSection = false; PlantValue = null;
         Datas.PlantId = 0; Datas.DepartmentId = 0; Datas.ProfileId = 0; Datas.ProfileNo = null;
@@ -2291,7 +2302,7 @@
                             var itemsId = item.Id;
                             if (itemsId == 1)
                             {
-                                isPlant = true;
+                                isPlant = true; isGridMainHeader = true;
                                 Datas.PlantId = null;
                             }
                             if (itemsId == 2)
@@ -4334,14 +4345,14 @@
            {
                layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
                layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.Start);
-               layoutItemBuilder.AddAttribute(i + 1, "Expanded", k == 0 ? true : false);
+               layoutItemBuilder.AddAttribute(i + 1, "Expanded", isGridPrint == true ? true : (k == 0 ? true : false));
                layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.Slide);
                layoutItemBuilder.AddAttribute(i + 1, "CssClass", "FormLayoutGroupCss");
                //layoutItemBuilder.AddAttribute(i + 1, "Visible", isVisible);
                layoutItemBuilder.AddAttribute(i + 1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
                {
                    b.OpenElement(i + 1, "div");
-                   b.AddContent(i + 1, a.SectionName);
+                   b.AddContent(i + 1, a.SortOrderBy + ". " + a.SectionName);
                    b.CloseElement();
                    b.OpenElement(i + 1, "div");
                    b.AddAttribute(i + 1, "style", "margin-left:auto;");
@@ -4412,6 +4423,12 @@
                var dynamicFormSectionAttributeData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
                if (dynamicFormSectionAttributeData != null && dynamicFormSectionAttributeData.Count > 0)
                {
+                   int dNo = 1;
+                    dynamicFormSectionAttributeData.ForEach(s =>
+                    {
+                        s.DummyNo = dNo;
+                        dNo++;
+                    });
                    var dynamicFormSectionAttributeDataOne = new DynamicFormSectionAttribute();
                    dynamicFormSectionAttributeData.ForEach(s =>
                    {
@@ -4477,7 +4494,7 @@
                                {
                                    //itemBuilder.AddAttribute(i++, "Caption", s.DisplayName);
                                }
-                               itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+                               itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 :s.ColSpan);
 
                                var access = Expression.Property(Expression.Constant(Data), s.DynamicAttributeName);
                                var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), access);
@@ -4492,7 +4509,7 @@
                     // {
                     editor.OpenElement(i + 1, "div");
                     editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                    editor.AddContent(i + 1, s.DisplayName);
+                    editor.AddContent(i + 1, s.DummyNo + ". " + s.DisplayName);
                     if (s.IsRequired == true)
                     {
                         editor.OpenElement(i + 1, "span");
@@ -4575,7 +4592,7 @@
                             editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                         }
 
-                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                         editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                         editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
                     {
@@ -4630,7 +4647,7 @@
                             editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                         }
 
-                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                         editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                         if (!string.IsNullOrEmpty(s.FormulaTextBox))
                         {
@@ -4685,7 +4702,7 @@
                         {
                             editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                         }
-                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                         editor.AddAttribute(j + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { property.SetValue(Data, str); }));
                         if (s.IsDefaultReadOnly == false)
                         {
@@ -4734,7 +4751,7 @@
                         {
                             editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                         }
-                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                         editor.AddAttribute(j + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { property.SetValue(Data, str); }));
                         if (s.IsDefaultReadOnly == false)
                         {
@@ -4786,7 +4803,7 @@
                         {
                             editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                         }
-                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                        editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                         editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                         if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
                         {
@@ -4848,7 +4865,7 @@
 
                                 editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { property.SetValue(Data, str); }));
                             }
-                            editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                            editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                             editor.AddAttribute(j + 1, "ValueExpression", lambda);
                         }
                         else
@@ -5069,7 +5086,7 @@
                                 editor.OpenComponent<DxDropDownBox>(0);
                                 editor.AddAttribute(1, "DropDownWidthMode", DropDownWidthMode.EditorWidth);
                                 editor.AddAttribute(2, "NullText", "Select " + s.DisplayName + "..");
-                                editor.AddAttribute(3, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(3, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                                 editor.AddAttribute(4, "QueryDisplayText", s.DataSourceTable == "DynamicGrid" ? QueryDisplayDynamicComboBoxText : QueryDisplayComboBoxText);
                                 editor.AddAttribute(5, "CssClass", "cw-480");
                                 editor.AddAttribute(6, "Value", GridvalueData);
@@ -5156,7 +5173,7 @@
                             editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
                             editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
                             editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                            editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                            editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                             editor.AddAttribute(j + 1, "Value", valueData);
                             if (isAccessOnly == true)
                             {
@@ -5349,7 +5366,7 @@
                                 editor.OpenComponent<DxDropDownBox>(0);
                                 editor.AddAttribute(1, "DropDownWidthMode", DropDownWidthMode.EditorWidth);
                                 editor.AddAttribute(2, "NullText", "Select " + s.DisplayName + "..");
-                                editor.AddAttribute(3, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                editor.AddAttribute(3, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                                 editor.AddAttribute(4, "QueryDisplayText", s.DataSourceTable == "DynamicGrid" ? QueryMultipleDynamicFormText : QueryMultipleText);
                                 editor.AddAttribute(5, "CssClass", "cw-480");
                                 editor.AddAttribute(6, "Value", GridvalueData);
@@ -5472,7 +5489,7 @@
                             editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
                             editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
                             editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                            editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                            editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                             editor.AddAttribute(j + 1, "Values", valueData);
                             editor.AddAttribute(j + 1, "ValuesExpression", lambda);
                             if (isAccessOnly == true)
@@ -5819,6 +5836,12 @@
                        k++;
                        if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
                        {
+                           int plantDummyNo = 1;
+                           s.AttributeHeaderDataSource.ForEach(dx =>
+               {
+                   dx.DummyNo = plantDummyNo;
+                   plantDummyNo++;
+               });
                            s.AttributeHeaderDataSource.ForEach(ff =>
                    {
                        int d = 0;
@@ -5841,12 +5864,12 @@
                            var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(dataTypes), accesspropertyDependency);
                            itemBuilder.OpenComponent<DxFormLayoutItem>(5);
                            // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                           itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                           itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 : 6);
                            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
            {
                editor11.OpenElement(i + 1, "div");
                editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-               editor11.AddContent(i + 1, ff.DisplayName);
+               editor11.AddContent(i + 1, s.DummyNo + "." + ff.DummyNo + " " + ff.DisplayName);
                if (s.IsRequired == true)
                {
                    editor11.OpenElement(i + 1, "span");
@@ -5900,7 +5923,7 @@
                editor11.AddAttribute(d + 1, "ListRenderMode", ListRenderMode.Virtual);
                editor11.AddAttribute(d + 1, "SearchMode", ListSearchMode.AutoSearch);
                editor11.AddAttribute(d + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-               editor11.AddAttribute(d + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+               editor11.AddAttribute(d + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                if (isAccessOnly == true)
                {
                    editor11.AddAttribute(d + 1, "Enabled", isReadonly);
@@ -6093,7 +6116,7 @@
                                    var lambdaRemarks = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(string)), accessRemarks);
                                    itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                                    // itemBuilder.AddAttribute(i++, "Caption", (string.IsNullOrEmpty(s.RemarksLabelName) ? "Remarks" : s.RemarksLabelName));
-                                   itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                                   itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 :6);
                                    itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
                    {
                        editor1.OpenElement(i + 1, "div");
@@ -6119,7 +6142,7 @@
                        {
                            editor1.AddAttribute(i + 1, "Enabled", isAccessOnly);
                        }
-                       editor1.AddAttribute(i++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor1.AddAttribute(i++, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor1.AddAttribute(i++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertyRemarks.SetValue(Data, str); }));
                        editor1.CloseComponent();
                    })));
@@ -6155,7 +6178,12 @@
                                }
                                if (SubAttributeHeadersList != null && SubAttributeHeadersList.Count > 0)
                                {
-
+                                   int subDummyNo = 1;
+                                   SubAttributeHeadersList.ForEach(dx =>
+                           {
+                               dx.DummyNo = subDummyNo;
+                               subDummyNo++;
+                           });
                                    SubAttributeHeadersList.ForEach(q =>
            {
                int m = 0;
@@ -6183,12 +6211,12 @@
                    {
                        itemBuilder.OpenComponent<DxFormLayoutItem>(2);
                        //itemBuilder.AddAttribute(i++, "Caption", q.Description);
-                       itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                       itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 : 6);
                        itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
                {
                    editor1.OpenElement(i + 1, "div");
                    editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                   editor1.AddContent(i + 1, q.Description);
+                   editor1.AddContent(i + 1, s.DummyNo + "." + q.DummyNo + " " + q.Description);
                    if (q.IsRequired == true)
                    {
                        editor1.OpenElement(i + 1, "span");
@@ -6229,7 +6257,7 @@
                        editor1.AddAttribute(m + 1, "Text", valueDataSub);
                        editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
                        // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                        if (q.IsRequired == true)
                        {
@@ -6260,7 +6288,7 @@
                        editor1.AddAttribute(m + 1, "Text", valueDataSub);
                        editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
                        // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                        editor1.AddAttribute(m + 1, "Buttons", (RenderFragment)((dx) =>
                        {
@@ -6300,7 +6328,7 @@
                        editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
                        editor1.AddAttribute(m + 1, "Rows", 5);
                        // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                        if (q.IsRequired == true)
                        {
@@ -6331,7 +6359,7 @@
                        editor1.AddAttribute(m + 1, "Date", valueDataSub);
                        editor1.AddAttribute(m + 1, "DateExpression", lambdaSub);
                        //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor1.AddAttribute(m + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { propertySub.SetValue(Data, str); }));
                        if (q.IsRequired == true)
                        {
@@ -6362,7 +6390,7 @@
                        editor1.AddAttribute(m + 1, "Time", valueDataSub);
                        editor1.AddAttribute(m + 1, "TimeExpression", lambdaSub);
                        //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor1.AddAttribute(m + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { propertySub.SetValue(Data, str); }));
                        if (q.IsRequired == true)
                        {
@@ -6396,7 +6424,7 @@
                            //editor1.AddAttribute(m + 1, "MinValue", 0);
                            //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                            editor1.AddAttribute(m + 1, "BindValueMode", BindValueMode.OnInput);
-                           editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                           editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                            editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { propertySub.SetValue(Data, str); }));
                        }
                        if (propertySubType.Name == "Decimal")
@@ -6406,7 +6434,7 @@
                            editor1.AddAttribute(m + 1, "Increment", 0.1M);
                            //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                            //editor1.AddAttribute(m + 1, "MinValue", 0M);
-                           editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                           editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                            editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { propertySub.SetValue(Data, str); }));
                        }
                        editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
@@ -6517,7 +6545,7 @@
                        editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
                        editor1.AddAttribute(m + 1, "SearchMode", ListSearchMode.AutoSearch);
                        editor1.AddAttribute(m + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor1.AddAttribute(m + 1, "Value", valueDataSub);
                        // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                        editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
@@ -6642,7 +6670,7 @@
                        editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
                        editor1.AddAttribute(m + 1, "SearchMode", ListSearchMode.AutoSearch);
                        editor1.AddAttribute(m + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor1.AddAttribute(m + 1, "Values", valueDataSub);
                        editor1.AddAttribute(m + 1, "ValuesExpression", lambdaSub);
                        //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
@@ -7020,7 +7048,7 @@
                         }
                         itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                         // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                        itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                        itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 :6);
                         itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                         {
                             editor11.OpenElement(p + 1, "div");
@@ -7042,7 +7070,7 @@
                             editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                             editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                             editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                            editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                            editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                             editor11.AddAttribute(p + 1, "Value", valueDataDependency);
                             if (isAccessOnly == true)
                             {
@@ -7149,7 +7177,7 @@
                         int p = 0;
                         itemBuilder.OpenComponent<DxFormLayoutItem>(4);
                         // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                        itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                        itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 : 6);
                         itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                         {
                             editor11.OpenElement(p + 1, "div");
@@ -7171,7 +7199,7 @@
                             editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                             editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                             editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                            editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                            editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                             editor11.AddAttribute(p + 1, "Values", valueDataDependency);
                             if (isAccessOnly == true)
                             {
@@ -7280,6 +7308,12 @@
     }
     void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
+        int dumNo = 1;
+        s.ApplicationMasterParents.ForEach(ab =>
+        {
+            ab.DummyNo = dumNo;
+            dumNo++;
+        });
         s.ApplicationMasterParents.ForEach(ab =>
         {
             List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
@@ -7421,7 +7455,7 @@
             {
                 itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 :6);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                 {
                     editor11.OpenElement(p + 1, "div");
@@ -7443,7 +7477,7 @@
                     editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(p + 1, "Values", valueDataDependency);
                     if (isAccessOnly == true)
                     {
@@ -7550,7 +7584,7 @@
             {
                 itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 : 6);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                 {
                     editor11.OpenElement(p + 1, "div");
@@ -7572,7 +7606,7 @@
                     editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(p + 1, "Value", valueDataDependency);
                     if (isAccessOnly == true)
                     {
@@ -8223,12 +8257,31 @@
             }
             itemBuilder.OpenComponent<DxFormLayoutItem>(3);
             //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
-            itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 : s.ColSpan);
             itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
         {
+            var exitsNames = _AttributeHeader.ApplicationMasterParent.Where(w => w.ApplicationMasterParentCodeId == ab.ParentId).FirstOrDefault();
+            var exitsNamesNext = _AttributeHeader.ApplicationMasterParent.Where(w => w.ApplicationMasterParentCodeId == exitsNames?.ParentId).FirstOrDefault();
+            string dummuNos = s.DummyNo.ToString();
+            if (exitsNames != null)
+            {
+                if (exitsNamesNext != null)
+                {
+                    dummuNos += "." + (exitsNamesNext.DummyNo) + "." + (ab.DummyNo - 1);
+                }
+                else
+                {
+                    dummuNos += "." + (exitsNames.DummyNo) + "." + (ab.DummyNo - 1);
+                }
+            }
+            else
+            {
+                dummuNos += "." + ab.DummyNo;
+            }
             editor11.OpenElement(i + 1, "div");
             editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-            editor11.AddContent(i + 1, ab.ApplicationMasterName);
+            //editor11.AddContent(i + 1, s.DummyNo + "." + (exitsNames != null ? (exitsNames?.DummyNo+".") : "") + (ab.DummyNo+1) + " " + ab.ApplicationMasterName);
+            editor11.AddContent(i + 1, dummuNos + " " + ab.ApplicationMasterName);
             if (s.IsRequired == true)
             {
                 editor11.OpenElement(i + 1, "span");
@@ -8259,7 +8312,7 @@
                 editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                 editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                 editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                 editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                 if (isAccessOnly == true)
                 {
@@ -8320,7 +8373,7 @@
                 editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                 editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                 editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                 editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                 if (isAccessOnly == true)
                 {
@@ -8507,6 +8560,12 @@
     void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
         var appcount = s.ApplicationMaster.Count();
+        int dumNo = 1;
+        s.ApplicationMaster.ForEach(ab =>
+        {
+            ab.DummyNo = dumNo;
+            dumNo++;
+        });
         s.ApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -8521,18 +8580,18 @@
 
                 itemBuilder.OpenComponent<DxFormLayoutItem>(3);
                 //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 : s.ColSpan);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
             {
                 editor11.OpenElement(i + 1, "div");
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, s.DisplayName);
+                    editor11.AddContent(i + 1, s.DummyNo + "." + ab.DummyNo + " " + s.DisplayName);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, s.DummyNo + "." + ab.DummyNo + " " + "Select " + ab.ApplicationMasterName);
                 }
                 if (s.IsRequired == true)
                 {
@@ -8564,7 +8623,7 @@
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                     if (isAccessOnly == true)
                     {
@@ -8629,7 +8688,7 @@
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                     if (isAccessOnly == true)
                     {
@@ -8911,7 +8970,7 @@
             {
                 itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 :6);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                 {
                     editor11.OpenElement(p + 1, "div");
@@ -8933,7 +8992,7 @@
                     editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(p + 1, "Values", valueDataDependency);
                     if (isAccessOnly == true)
                     {
@@ -9040,7 +9099,7 @@
             {
                 itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 :6);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                 {
                     editor11.OpenElement(p + 1, "div");
@@ -9062,7 +9121,7 @@
                     editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(p + 1, "Value", valueDataDependency);
                     if (isAccessOnly == true)
                     {
@@ -9139,6 +9198,12 @@
     void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
     {
         var appcount = q.SubApplicationMaster.Count();
+        int dumNo = 1;
+        q.SubApplicationMaster.ForEach(ab =>
+        {
+            ab.DummyNo = dumNo;
+            dumNo++;
+        });
         q.SubApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -9152,18 +9217,18 @@
                 var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>();
                 itemBuilder.OpenComponent<DxFormLayoutItem>(4);
                 // itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isGridPrint == true ? 12 : s.ColSpan);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
             {
                 editor11.OpenElement(i + 1, "div");
                 editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, q.Description);
+                    editor11.AddContent(i + 1, s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " " + q.Description);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " " + ab.ApplicationMasterName);
                 }
                 editor11.CloseElement();
                 if (q.ControlType == "ComboBox")
@@ -9177,7 +9242,7 @@
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                     if (isAccessOnly == true)
                     {
@@ -9242,7 +9307,7 @@
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isGridPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                     if (isAccessOnly == true)
                     {

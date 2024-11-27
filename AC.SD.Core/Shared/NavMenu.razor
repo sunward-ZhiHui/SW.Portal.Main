@@ -10,7 +10,7 @@
 
 
 <DxTreeView @ref="treeView"
-@bind-FilterString="FilterString"
+            @bind-FilterString="FilterString"
             FilterMinLength="2"
             ShowFilterPanel="true"
             Target="_blank"
@@ -50,7 +50,7 @@
     {
         previousUri = NavigationManager.Uri;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        if(applicationUser != null)
+        if (applicationUser != null)
         {
             portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
         }
@@ -60,7 +60,7 @@
     }
 
     async void OnLocationChanged(object? sender, LocationChangedEventArgs args)
-    {    
+    {
         var currentUri = NavigationManager.Uri;
         // var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         //var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
@@ -73,7 +73,7 @@
                                       //StateHasChanged();
         }
 
-        previousUri = currentUri;       
+        previousUri = currentUri;
 
         //StateHasChanged();
         await InvokeAsync(StateHasChanged);
@@ -81,7 +81,7 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
-    }   
+    }
     void UpdateSelection(string currentUri, bool expandNodesToSelection)
     {
         string uri = NavigationManager.Uri;
@@ -149,15 +149,23 @@
                 if (url != null)
                 {
                     if (isPermissionURL)
-                    {   
-                        NavigationManager.NavigateTo($"{url}/{dataItem.UniqueSessionID}"); 
+                    {
+                        NavigationManager.NavigateTo($"{url}/{dataItem.UniqueSessionID}");
                     }
                     else
-                    {   
-                        NavigationManager.NavigateTo($"{url}");
+                    {
+                        if (dataItem.ParentID == 60248)
+                        {
+                            var urls = $"{url}/{dataItem.Component}/{dataItem.PermissionURL}";
+                            NavigationManager.NavigateTo(urls);
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo($"{url}");
+                        }
                     }
                 }
-                
+
             }
             var nodes = treeView.GetNodesInfo(n => true);
             foreach (var node in nodes)

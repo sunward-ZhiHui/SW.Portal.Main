@@ -43,7 +43,10 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
-                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                @if (isBackDisabled == true)
+                {
+                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                }
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
@@ -289,6 +292,7 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    bool isBackDisabled { get; set; } = true;
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormGridLists refDynamicFormGridLists { get; set; }
@@ -407,6 +411,14 @@
     {
         try
         {
+            string str = NavigationManager.Uri;
+            string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+            string[] UrlList = rep1.Split("/");
+            string names = "dynamicFormMenuList".ToLower();
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+            {
+                isBackDisabled = false;
+            }
             PanelVisible = true;
             //await onshowLoading();
             _selectedItems = null; FileProfileTypeId = null;
@@ -1272,7 +1284,15 @@
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            }
 
         }
     }
@@ -1288,7 +1308,15 @@
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId);
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
+            }
 
         }
     }
@@ -1305,8 +1333,17 @@
         }
         else
         {
-            var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicFormMailMerge/" + SessionId;
-            await JS.InvokeVoidAsync("window.open", url, "_blank");
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicFormMailMerge/" + SessionId;
+                await JS.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicFormMailMerge/" + SessionId;
+                await JS.InvokeVoidAsync("window.open", url, "_blank");
+            }
         }
     }
     async Task addDetailEmailCreate()
@@ -1373,12 +1410,20 @@
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            }
 
         }
 
     }
-    async Task backUrl()
+    void backUrl()
     {
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();

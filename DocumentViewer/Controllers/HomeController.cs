@@ -70,6 +70,7 @@ namespace DocumentViewer.Controllers
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
                     if (currentDocuments != null)
                     {
+                        var ipirApp = _context.IpirApp.Where(w => w.SessionID == currentDocuments.SessionId).FirstOrDefault();
                         var curDate = DateTime.Now.Date;
                         bool? IsExpiryDate = false;
                         currentDocuments.ExpiryDate = currentDocuments.ExpiryDate;
@@ -100,14 +101,24 @@ namespace DocumentViewer.Controllers
                                 }
                                 else
                                 {
-                                    var documentsModel = GetAllSelectedFilePermissionAsync(currentDocuments);
-                                    if (documentsModel != null)
+                                    if (ipirApp != null)
                                     {
-                                        viewmodel.IsRead = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsRead == true ? true : false;
-                                        viewmodel.IsDownload = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsEdit == true ? true : false;
-                                        if (userIds == documentsModel.FirstOrDefault()?.UploadedByUserId)
+                                        HttpContext.Session.SetString("isDownload", "Yes");
+                                        HttpContext.Session.SetString("isView", "Yes");
+                                        @ViewBag.isDownload = "Yes";
+                                        viewmodel.IsRead = true; viewmodel.IsDownload = true;
+                                    }
+                                    else
+                                    {
+                                        var documentsModel = GetAllSelectedFilePermissionAsync(currentDocuments);
+                                        if (documentsModel != null)
                                         {
-                                            viewmodel.IsRead = true; viewmodel.IsDownload = true;
+                                            viewmodel.IsRead = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsRead == true ? true : false;
+                                            viewmodel.IsDownload = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsEdit == true ? true : false;
+                                            if (userIds == documentsModel.FirstOrDefault()?.UploadedByUserId)
+                                            {
+                                                viewmodel.IsRead = true; viewmodel.IsDownload = true;
+                                            }
                                         }
                                     }
                                 }
@@ -550,7 +561,7 @@ namespace DocumentViewer.Controllers
                             where oal.UserId == userId && oau.AccessType == "EmailAccess"
                             select oal;
                 var res = query.ToList();
-                if (res != null && res.Count()>0)
+                if (res != null && res.Count() > 0)
                 {
                     permissionModel.IsRead = true; permissionModel.IsDownload = true;
                     @ViewBag.isDownload = "Yes";

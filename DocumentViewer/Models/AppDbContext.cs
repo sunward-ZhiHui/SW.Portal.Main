@@ -23,6 +23,7 @@ namespace DocumentViewer.Models
         public DbSet<DocumentDmsShare> DocumentDmsShare { get; set; }
         public DbSet<OpenAccessUserLink> OpenAccessUserLink { get; set; }
         public DbSet<OpenAccessUser> OpenAccessUser { get; set; }
+        public DbSet<IpirApp> IpirApp { get; set; }
 
     }
 }

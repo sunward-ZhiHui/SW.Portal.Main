@@ -50,6 +50,7 @@ namespace Core.Entities
         public int? FormDataCount { get; set; }
         public long? CloneDynamicFormId { get; set; }
         public long? OldDynamicFormId { get; set; }
+        public int? SortBy { get; set; }
     }
     public class AddTempSectionAttribute
     {

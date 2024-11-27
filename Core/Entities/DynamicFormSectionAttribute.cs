@@ -100,6 +100,8 @@ namespace Core.Entities
         public long? FormulaDynamicSectionAttributeId { get; set; }
         [DynamicFormSectionAttributeFormulaCustomValidation]
         public string? FormulaTextBox { get; set; }
+        [NotMapped]
+        public int? DummyNo { get; set; }
     }
     public class DynamicFormSectionSpinEdit
     {

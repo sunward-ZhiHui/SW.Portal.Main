@@ -141,7 +141,7 @@ namespace Application.Handlers.QueryHandlers
             return await _DynamicFormQueryRepository.Update(request);
         }
     }
-    public class DeleteDynamicFormHandler : IRequestHandler<DeleteDynamicForm, long>
+    public class DeleteDynamicFormHandler : IRequestHandler<DeleteDynamicForm, DynamicForm>
     {
         private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
 
@@ -150,9 +150,9 @@ namespace Application.Handlers.QueryHandlers
             _DynamicFormQueryRepository = QueryRepository;
         }
 
-        public async Task<long> Handle(DeleteDynamicForm request, CancellationToken cancellationToken)
+        public async Task<DynamicForm> Handle(DeleteDynamicForm request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.Delete(request.ID);
+            return await _DynamicFormQueryRepository.Delete(request.DynamicForm);
         }
     }
 
@@ -1266,5 +1266,103 @@ namespace Application.Handlers.QueryHandlers
         }
 
 
+    }
+    public class InsertDynamicFormEmailSubContHandler : IRequestHandler<InsertDynamicFormEmailSubCont, DynamicFormReportItems>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormEmailSubContHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormReportItems> Handle(InsertDynamicFormEmailSubCont request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormEmailSubCont(request.SubjectData, request.ContentData, request.SessionId);
+
+        }
+    }
+    public class GetDynamicFormEmailSubContHandler : IRequestHandler<GetDynamicFormEmailSubCont, List<DynamicFormEmailSubCont>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormEmailSubContHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormEmailSubCont>> Handle(GetDynamicFormEmailSubCont request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormEmailSubCont>)await _dynamicFormQueryRepository.GetDynamicFormEmailSubCont(request.SessionId);
+        }
+
+
+    }
+    public class DeleteDynamicFormEmailSubContContHandler : IRequestHandler<DeleteDynamicFormEmailSubCont, DynamicFormEmailSubCont>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormEmailSubContContHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormEmailSubCont> Handle(DeleteDynamicFormEmailSubCont request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormEmailSubCont(request.SessionId);
+
+        }
+    }
+    public class InsertDynamicFormPermissionPermissionHandler : IRequestHandler<InsertDynamicFormPermissionPermission, DynamicForm>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormPermissionPermissionHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicForm> Handle(InsertDynamicFormPermissionPermission request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormPermissionPermission(request.DynamicForm);
+
+        }
+    }
+    public class GetDynamicFormMenuListHandler : IRequestHandler<GetDynamicFormMenuList, List<ApplicationPermission>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormMenuListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<ApplicationPermission>> Handle(GetDynamicFormMenuList request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationPermission>)await _dynamicFormQueryRepository.GetDynamicFormMenuList();
+        }
+
+
+    }
+    public class UpdateDynamicFormMenuSortOrderHandler : IRequestHandler<UpdateDynamicFormMenuSortOrder, ApplicationPermission>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormMenuSortOrderHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<ApplicationPermission> Handle(UpdateDynamicFormMenuSortOrder request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormMenuSortOrder(request.ApplicationPermission);
+
+        }
+    }
+    public class DeleteDynamicFormMenuHandler : IRequestHandler<DeleteDynamicFormMenu, DynamicForm>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public DeleteDynamicFormMenuHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicForm> Handle(DeleteDynamicFormMenu request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteDynamicFormMenu(request.DynamicForm);
+
+        }
     }
 }

@@ -1,0 +1,296 @@
+﻿@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable;
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+@inject ClipboardService ClipboardService
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Close" IconCssClass="fa fa-reply" Click="@onBack" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_dynamicForm" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            KeyFieldName="ID"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="w-100"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            RowClick="OnRowclick"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            VirtualScrollingEnabled="true">
+
+        <Columns>
+            @* <DxGridDataColumn FieldName="IsGridForm" Caption="Grid Form" MinWidth="20" /> *@
+            <DxGridDataColumn FieldName="ProfileName" MinWidth="50" Caption="Profile" />
+            <DxGridDataColumn FieldName="Name" MinWidth="50" Caption="Form Name">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicForm)context.DataItem;
+                        var Names = item.Name;
+                        Names += "<span class='formCountClass'>(" + item.FormDataCount + ")</span>";
+                    }
+                    @((MarkupString)Names)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
+            <DxGridDataColumn FieldName="CompanyName" Caption="Company Name" MinWidth="50" />
+            <DxGridDataColumn FieldName="SortBy" Caption="Sort By" MinWidth="50" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicForm)context.DataItem;
+                    }
+                    @if (item.SortBy > 0)
+                    {
+                        <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-AttributeSection-{item.ID}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.SortBy"></i>
+                    }
+                    @item.SortBy
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxFlyout @bind-IsOpen=IsSortOrderByAtrributeOpen
+          PositionTarget=@($"#flyout-overview-target-container-AttributeSection-{_selectedItems?.ID}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Update Sort Order"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
+                <DxComboBox Data="@sortOrderAttributeSectionList"
+                            @bind-Value="@_selectedDynamicFormAttributeSectionItems.PermissionOrder"
+                            TextFieldName="Text"
+                            ValueFieldName="Text" ShowValidationIcon="true" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByAtrributeOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderAttributeBy()) />
+
+
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         ShowCloseButton="true"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete menu?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool Blukdeletepopup { get; set; } = false;
+    private List<DynamicFormSectionSortOrder> sortOrderAttributeSectionList { get; set; }
+    bool IsSortOrderByAtrributeOpen { get; set; } = false;
+    ApplicationPermission _selectedDynamicFormAttributeSectionItems = new ApplicationPermission();
+    IGrid? Grid { get; set; }
+    private List<DynamicForm> _dynamicForm;
+    private List<ApplicationPermission> _ApplicationPermission;
+    public ApplicationUser? applicationUser { get; private set; }
+    bool PanelVisible { get; set; } = true; private DynamicForm _selectedItems;
+    bool AddEnabled { get; set; } = false; bool DeleteEnabled { get; set; } = false;
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    async Task UpdateDataAsync()
+    {
+        try
+        {
+            PanelVisible = true; AddEnabled = false; DeleteEnabled = false;
+            var result = await Mediator.Send(new GetAllDynamicForm(0));
+            _ApplicationPermission = await Mediator.Send(new GetDynamicFormMenuList());
+            if (result != null && result.Count > 0)
+            {
+                _dynamicForm = result.Where(w => w.IsGridForm != true).ToList();
+                if (_dynamicForm != null && _dynamicForm.Count() > 0)
+                {
+                    _dynamicForm.ForEach(s =>
+                    {
+                        var exits = _ApplicationPermission?.FirstOrDefault(f => f.PermissionURL != null && f.PermissionURL.ToLower() == s.SessionID.ToString().ToLower());
+                        if (exits != null)
+                        {
+                            s.SortBy = Int32.Parse(exits.PermissionOrder);
+                        }
+                    });
+                    _selectedItems = _dynamicForm.FirstOrDefault();
+                    if (_selectedItems != null)
+                    {
+                        if (_selectedItems.SortBy > 0)
+                        {
+                            DeleteEnabled = true;
+                        }
+                        else
+                        {
+                            AddEnabled = true;
+                        }
+                    }
+                    StateHasChanged();
+                    Grid.ClearSelection();
+                    Grid.Reload();
+                    StateHasChanged();
+                }
+            }
+            PanelVisible = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void OnRowclick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        AddEnabled = false; DeleteEnabled = false;
+        _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        if (_selectedItems != null)
+        {
+            if (_selectedItems.SortBy > 0)
+            {
+                DeleteEnabled = true;
+            }
+            else
+            {
+                AddEnabled = true;
+            }
+        }
+    }
+    void addNew()
+    {
+        InvokeAsync(addMenu);
+    }
+    async Task addMenu()
+    {
+        var result = await Mediator.Send(new InsertDynamicFormPermissionPermission(_selectedItems));
+        if (result.ID > 0)
+        {
+            toastService.ShowToast("Menu Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (_selectedItems != null)
+            {
+                var request = new DeleteDynamicFormMenu(_selectedItems);
+                await Mediator.Send(request);
+                Blukdeletepopup = false;
+                toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+        }
+        catch (Exception eq)
+        {
+        }
+
+
+    }
+    void addDetailDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+    }
+    void OnButtonSortOrderByClick(DynamicForm dynamicFormSection)
+    {
+        var exits = _ApplicationPermission?.FirstOrDefault(f => f.PermissionURL != null && f.PermissionURL.ToLower() == dynamicFormSection.SessionID.ToString().ToLower());
+        if (exits != null)
+        {
+            _selectedDynamicFormAttributeSectionItems = new ApplicationPermission();
+            sortOrderAttributeSectionList = new List<DynamicFormSectionSortOrder>();
+            IsSortOrderByAtrributeOpen = true;
+            var count = _ApplicationPermission?.Count;
+            for (int i = 1; i <= count; i++)
+            {
+                DynamicFormSectionSortOrder dynamicFormSectionSortOrder = new DynamicFormSectionSortOrder();
+                dynamicFormSectionSortOrder.Text = i.ToString();
+                dynamicFormSectionSortOrder.Value = i;
+                sortOrderAttributeSectionList.Add(dynamicFormSectionSortOrder);
+            }
+            _selectedDynamicFormAttributeSectionItems.PermissionOrder = exits.PermissionOrder;
+            _selectedDynamicFormAttributeSectionItems.PermissionID = exits.PermissionID;
+            _selectedDynamicFormAttributeSectionItems.PermissionURL = exits.PermissionURL;
+            _selectedDynamicFormAttributeSectionItems.PermissionAnotherOrder = exits.PermissionOrder;
+        }
+        StateHasChanged();
+    }
+    async Task OnUpdateSortOrderAttributeBy()
+    {
+        await Mediator.Send(new UpdateDynamicFormMenuSortOrder(_selectedDynamicFormAttributeSectionItems));
+        await UpdateDataAsync();
+        Grid.SortBy("SortBy", GridColumnSortOrder.Ascending, 0);
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsSortOrderByAtrributeOpen = false;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        _dynamicForm?.Clear();
+        _ApplicationPermission?.Clear();
+    }
+}

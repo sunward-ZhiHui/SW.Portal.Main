@@ -1,6 +1,7 @@
 ﻿using Application.Common.Mapper;
 using Application.Queries;
 using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
@@ -370,5 +371,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<QCTestRequirement>)await _attrubutequeryRepository.GetQcTestRequirementSummery();
         }
     }
-    
+
+    public class GetAllDynamicFormOneApiHandler : IRequestHandler<GetAllDynamicFormDataOneApi, List<DynamicFormDataResponse>>
+    {
+
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAllDynamicFormOneApiHandler(IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<DynamicFormDataResponse>> Handle(GetAllDynamicFormDataOneApi request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormDataResponse>)await _attrubutequeryRepository.GetAllDynamicFormDataOneApiAsync(request.DynamicFormDataSessionId);
+        }
+    }
 }

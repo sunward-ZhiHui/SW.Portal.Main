@@ -1,0 +1,91 @@
+﻿@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JS;
+@inject NavigationManager NavigationManager
+@implements IAsyncDisposable
+@inject ClipboardService ClipboardService
+@using System.Collections.ObjectModel
+@rendermode @(new  InteractiveServerRenderMode(prerender: false))
+<DxFormLayout CssClass="w-100">
+    <DxFormLayoutItem Caption="Email Subject" ColSpanMd="12">
+        <DxListBox TextFieldName="Label" ValueFieldName="AttrId" Data="@_resultItems"
+                   Values="@SelectedSubjectItems"
+                   ValuesChanged="@((IEnumerable<DynamicFormReportItems> values) => ValuesSubjectChanged(values))"
+                   ShowCheckboxes="true"
+                   ListRenderMode="ListRenderMode.Virtual"
+                   SelectionMode="ListBoxSelectionMode.Multiple">
+            <Columns>
+                <DxListEditorColumn FieldName="@nameof(DynamicFormReportItems.Label)" Caption="Label" Width="30%" />
+                <DxListEditorColumn FieldName="@nameof(DynamicFormReportItems.Value)" Caption="Value" />
+            </Columns>
+
+        </DxListBox>
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Email Content" ColSpanMd="12">
+        <DxListBox TextFieldName="Label" ValueFieldName="AttrId" Data="@_resultItems"
+                   Values="@SelectedContentItems"
+                   ShowCheckboxes="true"
+                   ListRenderMode="ListRenderMode.Virtual"
+                   ValuesChanged="@((IEnumerable<DynamicFormReportItems> values) => ValuesContentChanged(values))"
+                   SelectionMode="ListBoxSelectionMode.Multiple">
+            <Columns>
+                <DxListEditorColumn FieldName="@nameof(DynamicFormReportItems.Label)" Caption="Label" Width="30%" />
+                <DxListEditorColumn FieldName="@nameof(DynamicFormReportItems.Value)" Caption="Value" />
+            </Columns>
+
+        </DxListBox>
+    </DxFormLayoutItem>
+</DxFormLayout>
+
+@code {
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    private List<DynamicFormDataResponse> _result;
+    private List<DynamicFormReportItems> _resultItems;
+    IEnumerable<DynamicFormReportItems> SelectedSubjectItems { get; set; }
+    IEnumerable<DynamicFormReportItems> SelectedContentItems { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _result = await Mediator.Send(new GetAllDynamicFormDataOneApi(SessionId));
+        if (_result != null && _result.Count() > 0)
+        {
+            var items = _result.FirstOrDefault()?.DynamicFormReportItems;
+            if (items != null && items.Count() > 0)
+            {
+                _resultItems = items.Where(w => w.IsGrid == false).ToList();
+            }
+        }
+    }
+    void ValuesSubjectChanged(IEnumerable<DynamicFormReportItems> values)
+    {
+        SelectedSubjectItems = values;
+        InvokeAsync(StateHasChanged);
+    }
+    void ValuesContentChanged(IEnumerable<DynamicFormReportItems> values)
+    {
+        SelectedContentItems = values;
+        InvokeAsync(StateHasChanged);
+    }
+    public async Task<bool> saveEmailSubjectContent()
+    {
+        if ((SelectedSubjectItems != null && SelectedSubjectItems.Count() > 0) || (SelectedContentItems != null && SelectedContentItems.Count() > 0))
+        {
+            var results = await Mediator.Send(new InsertDynamicFormEmailSubCont(SessionId, SelectedSubjectItems, SelectedContentItems));
+            return true;
+        }
+        return true;
+
+    }
+    public async ValueTask DisposeAsync()
+    {
+    }
+}

@@ -27,6 +27,7 @@ using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
 using static iText.IO.Image.Jpeg2000ImageData;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using static iTextSharp.text.pdf.AcroFields;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -42,7 +43,7 @@ namespace Infrastructure.Repository.Query
             _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
         }
 
-        public async Task<long> Delete(long id)
+        public async Task<DynamicForm> Delete(DynamicForm dynamicForm)
         {
             try
             {
@@ -52,17 +53,11 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("id", id);
-
-                        //var query = "Delete from DynamicFormWorkFlowSection where DynamicFormWorkFlowID in(select DynamicFormWorkFlowID from DynamicFormWorkFlow where DynamicFormID=@id)\r\n;";
-                        //query += "DELETE  FROM DynamicFormApproval WHERE DynamicFormID = @id;";
-                        //query += "DELETE  FROM DynamicFormWorkFlow WHERE DynamicFormID = @id;";
-                        //query += "DELETE  FROM DynamicForm WHERE ID = @id";
+                        parameters.Add("id", dynamicForm.ID);
                         var query = "Update  DynamicForm SET IsDeleted=1 WHERE ID = @id";
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
-
-
-                        return rowsAffected;
+                        await DeleteDynamicFormMenu(dynamicForm);
+                        return dynamicForm;
                     }
                     catch (Exception exp)
                     {
@@ -71,6 +66,100 @@ namespace Infrastructure.Repository.Query
                 }
 
 
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<ApplicationPermission>> GetDynamicFormMenuList()
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var query = "select * from ApplicationPermission where ParentID=60248";
+                    try
+                    {
+                        var result = (await connection.QueryAsync<ApplicationPermission>(query)).ToList();
+                        return result;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<DynamicForm> DeleteDynamicFormMenu(DynamicForm dynamicForm)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("SessionID", dynamicForm.SessionID, DbType.Guid);
+                    var query = "select * from ApplicationPermission where ParentID=60248 AND PermissionURL=@SessionID;";
+                    try
+                    {
+                        var result = await connection.QueryFirstOrDefaultAsync<ApplicationPermission>(query, parameters);
+                        if (result != null && result.PermissionID > 0)
+                        {
+                            var query1 = "Delete from ApplicationRolePermission  where PermissionID=" + result.PermissionID + ";";
+                            query1 += "Delete from ApplicationPermission where PermissionID=" + result.PermissionID + ";";
+                            var rowsAffected = await connection.ExecuteAsync(query1);
+                            await UpdateMenuOrderDynamicFormMenu();
+                        }
+                        return dynamicForm;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<ApplicationPermission> UpdateMenuOrderDynamicFormMenu()
+        {
+            try
+            {
+                ApplicationPermission applicationPermission = new ApplicationPermission();
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    var query = "select * from ApplicationPermission where ParentID=60248 order by PermissionOrder asc;";
+                    try
+                    {
+                        var result = (await connection.QueryAsync<ApplicationPermission>(query)).ToList();
+                        if (result != null && result.Count() > 0)
+                        {
+                            int i = 1;
+                            var query1 = string.Empty;
+                            result.ForEach(s =>
+                            {
+                                query1 += "Update ApplicationPermission SET PermissionOrder=" + i + "  WHERE  PermissionID =" + s.PermissionID + ";";
+                                i++;
+                            });
+                            if (!string.IsNullOrEmpty(query1))
+                            {
+                                await connection.ExecuteAsync(query1);
+                            }
+                        }
+                        return applicationPermission;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw (new ApplicationException(exp.Message));
+                    }
+                }
             }
             catch (Exception exp)
             {
@@ -6208,6 +6297,285 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormEmailSubCont>> GetDynamicFormEmailSubCont(Guid? SessionId)
+        {
+            try
+            {
+                List<DynamicFormEmailSubCont> dynamicFormEmailSubConts = new List<DynamicFormEmailSubCont>();
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "select t1.* from DynamicFormEmailSubCont t1 WHERE t1.DynamicFormSessionID=@SessionId order by t1.DynamicFormEmailSubContId asc;";
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<DynamicFormEmailSubCont>(query, parameters)).ToList();
+                    dynamicFormEmailSubConts = result != null ? result : new List<DynamicFormEmailSubCont>();
+                }
+                return dynamicFormEmailSubConts;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormEmailSubCont> DeleteDynamicFormEmailSubCont(Guid? SessionId)
+        {
+            try
+            {
+                DynamicFormEmailSubCont dynamicFormReportItems = new DynamicFormEmailSubCont();
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormSessionID", SessionId, DbType.Guid);
+                        var querys = "DELETE  FROM DynamicFormEmailSubCont WHERE DynamicFormSessionID = @DynamicFormSessionID";
+                        var rowsAffected = await connection.ExecuteAsync(querys, parameters);
+                        dynamicFormReportItems.DynamicFormSessionID = SessionId;
+                        return dynamicFormReportItems;
+
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormReportItems> InsertDynamicFormEmailSubCont(IEnumerable<DynamicFormReportItems> subjectData, IEnumerable<DynamicFormReportItems> contentData, Guid? SessionId)
+        {
+            try
+            {
+                DynamicFormReportItems dynamicFormReportItems = new DynamicFormReportItems();
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormSessionID", SessionId, DbType.Guid);
+                        var querys = "DELETE  FROM DynamicFormEmailSubCont WHERE DynamicFormSessionID = @DynamicFormSessionID";
+                        var rowsAffected = await connection.ExecuteAsync(querys, parameters);
+                        var query = string.Empty;
+
+                        if (subjectData != null && subjectData.Count() > 0)
+                        {
+                            foreach (var items in subjectData)
+                            {
+                                var typeName = "Subject";
+                                query += "INSERT INTO [DynamicFormEmailSubCont](AttrID,TypeName,DynamicFormSessionID,LabelName,ValueName) OUTPUT INSERTED.DynamicFormEmailSubContID " +
+                           "VALUES ('" + items.AttrId + "','" + typeName + "','" + SessionId + "','" + items.Label + "','" + items.Value + "');\r\n";
+                            }
+                        }
+                        if (contentData != null && contentData.Count() > 0)
+                        {
+                            foreach (var items in contentData)
+                            {
+                                var typeName = "Content";
+                                query += "INSERT INTO [DynamicFormEmailSubCont](AttrID,TypeName,DynamicFormSessionID,LabelName,ValueName) OUTPUT INSERTED.DynamicFormEmailSubContID " +
+                           "VALUES ('" + items.AttrId + "','" + typeName + "','" + SessionId + "','" + items.Label + "','" + items.Value + "');\r\n";
+                            }
+
+                        }
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            await connection.QuerySingleOrDefaultAsync<long>(query);
+                            dynamicFormReportItems.AttrId = "1";
+                        }
+                        return dynamicFormReportItems;
+
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        private async Task<ApplicationPermission> GetApplicationPermissionTop1Async()
+        {
+            try
+            {
+                var query = "SELECT TOP 1 * FROM ApplicationPermission ORDER BY PermissionID DESC;";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ApplicationPermission>(query));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<ApplicationPermission>> GetApplicationPermissionAsync(long? ParentId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ParentId", ParentId);
+                var query = "SELECT * FROM ApplicationPermission where ParentId=@ParentId ORDER BY ParentId DESC;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationPermission>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicForm> InsertDynamicFormPermissionPermission(DynamicForm dynamicForm)
+        {
+            try
+            {
+                var checkLink = await GetApplicationPermissionTop1Async();
+                var checkParentLink = await GetApplicationPermissionAsync(60248);
+                bool? isInsert = true;
+                if (checkParentLink != null && checkParentLink.Count() > 0)
+                {
+                    var exits = checkParentLink.Where(f => f.PermissionURL != null && f.PermissionURL.ToLower() == dynamicForm.SessionID.ToString().ToLower()).Count();
+                    isInsert = exits > 0 ? false : true;
+                }
+                if (isInsert == true)
+                {
+                    using (var connection = CreateConnection())
+                    {
+                        long? PermissionOrder = 1;
+                        if (checkParentLink != null && checkParentLink.Count() > 0)
+                        {
+                            var checkPer = checkParentLink.OrderByDescending(o => o.PermissionOrder).FirstOrDefault()?.PermissionOrder;
+                            if (!string.IsNullOrEmpty(checkPer))
+                            {
+                                PermissionOrder = long.Parse(checkPer) + 1;
+                            }
+                        }
+                        long? permissionid = 0;
+                        if (checkLink != null && checkLink.PermissionID > 0)
+                        {
+                            permissionid = (long)checkLink.PermissionID + 1;
+                        }
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("PermissionID", permissionid);
+                            parameters.Add("PermissionName", dynamicForm.Name, DbType.String);
+                            parameters.Add("ParentID", 60248);
+                            parameters.Add("PermissionLevel", 1);
+                            parameters.Add("PermissionOrder", PermissionOrder);
+                            parameters.Add("IsHeader", true);
+                            parameters.Add("IsNewPortal", true);
+                            parameters.Add("PermissionURL", dynamicForm.SessionID);
+                            parameters.Add("Name", "dynamicFormMenuList", DbType.String);
+                            parameters.Add("Component", "dynamicFormMenuList", DbType.String);
+                            parameters.Add("IsPermissionURL", null);
+
+                            var query = @"INSERT INTO ApplicationPermission
+                                 (PermissionID,PermissionName,ParentID,PermissionLevel,PermissionOrder,IsDisplay,IsHeader,IsNewPortal,IsCmsApp,IsMobile,IsPermissionURL,
+                                  Component,Name,PermissionURL)
+                                  VALUES (@PermissionID,@PermissionName,@ParentID,@PermissionLevel,@PermissionOrder,1,@IsHeader,1,1,0,@IsPermissionURL,@Component,@Name,@PermissionURL)";
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        }
+                        catch (Exception exp)
+                        {
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+                return dynamicForm;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<ApplicationPermission>> GetUpdateDynamicFormMenuSortOrder(ApplicationPermission dynamicFormSectionAttribute)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("PermissionID", dynamicFormSectionAttribute.PermissionID);
+                int PermissionAnotherOrder = Int32.Parse(dynamicFormSectionAttribute.PermissionAnotherOrder);
+                int PermissionOrder = Int32.Parse(dynamicFormSectionAttribute.PermissionOrder);
+                var from = PermissionAnotherOrder > PermissionOrder ? PermissionOrder : PermissionAnotherOrder;
+                var to = PermissionAnotherOrder > PermissionOrder ? PermissionAnotherOrder : PermissionOrder;
+                parameters.Add("SortOrderByFrom", from);
+                parameters.Add("SortOrderByTo", to);
+                query = "SELECT * FROM ApplicationPermission Where  ParentID=60248  AND PermissionOrder>@SortOrderByFrom and PermissionOrder<=@SortOrderByTo order by PermissionOrder asc";
+
+                if (PermissionAnotherOrder > PermissionOrder)
+                {
+                    query = "SELECT * FROM ApplicationPermission Where  ParentID=60248  AND PermissionOrder>=@SortOrderByFrom and PermissionOrder<@SortOrderByTo order by PermissionOrder asc";
+
+                }
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationPermission>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ApplicationPermission> UpdateDynamicFormMenuSortOrder(ApplicationPermission dynamicFormSectionAttribute)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var query = string.Empty;
+                        int PermissionAnotherOrder = Int32.Parse(dynamicFormSectionAttribute.PermissionAnotherOrder);
+                        int PermissionOrder = Int32.Parse(dynamicFormSectionAttribute.PermissionOrder);
+                        int? SortOrder = PermissionAnotherOrder > PermissionOrder ? (PermissionOrder + 1) : PermissionAnotherOrder;
+                        query += "Update  ApplicationPermission SET PermissionOrder=" + PermissionOrder + "  WHERE PermissionID =" + dynamicFormSectionAttribute.PermissionID + ";";
+                        if (SortOrder > 0)
+                        {
+                            var result = await GetUpdateDynamicFormMenuSortOrder(dynamicFormSectionAttribute);
+                            if (result != null && result.Count > 0)
+                            {
+
+                                result.ForEach(s =>
+                                {
+
+                                    query += "Update  ApplicationPermission SET PermissionOrder=" + SortOrder + "  WHERE  PermissionID =" + s.PermissionID + ";";
+                                    SortOrder++;
+                                });
+
+                            }
+                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, null);
+                        return dynamicFormSectionAttribute;
+                    }
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
             }
         }
     }

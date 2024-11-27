@@ -1,0 +1,16 @@
+﻿@page "/dynamicFormMenuList/dynamicFormMailMerge"
+@page "/dynamicFormMenuList/dynamicFormMailMerge/{DynamicFormSessionId:guid}"
+@page "/dynamicFormMenuList/dynamicFormMailMerge/{DynamicFormSessionId:guid}/{DynamicFormDataSessionId:guid}"
+@page "/dynamicFormMenuList/dynamicFormMailMerge/{DynamicFormSessionId:guid}/{DynamicFormDataSessionId:guid}/{DynamicFormDataGridSessionId:guid}"
+@page "/dynamicFormMenuList/dynamicFormMailMerge/{DynamicFormSessionId:guid}/{DynamicFormDataSessionId:guid}/{DynamicFormDataGridSessionId:guid}/{DynamicFormSectionGridAttributeSessionId:guid}"
+<DynamicFormMaiMerge1 DynamicFormSessionId="@DynamicFormSessionId" DynamicFormDataSessionId="@DynamicFormDataSessionId" DynamicFormDataGridSessionId="@DynamicFormDataGridSessionId" DynamicFormSectionGridAttributeSessionId="@DynamicFormSectionGridAttributeSessionId"></DynamicFormMaiMerge1>
+@code {
+    [Parameter]
+    public Guid? DynamicFormSessionId { get; set; }
+    [Parameter]
+    public Guid? DynamicFormDataSessionId { get; set; }
+    [Parameter]
+    public Guid? DynamicFormDataGridSessionId { get; set; }
+    [Parameter]
+    public Guid? DynamicFormSectionGridAttributeSessionId { get; set; }
+}

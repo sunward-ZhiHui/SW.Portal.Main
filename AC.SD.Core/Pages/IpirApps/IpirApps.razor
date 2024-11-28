@@ -470,6 +470,8 @@
                 Visiblelocation = false;
                 VisibleTicket = false;
             }
+            StatusType = _selectedEditItems.StatusType;
+            Data.StatusType = _selectedEditItems.StatusType;
             IpirAppId = _selectedEditItems.IpirAppId;
             Data.AddedDate = _selectedEditItems.AddedDate;
             Data.AddedByUserID = _selectedEditItems.AddedByUserID;
@@ -502,67 +504,59 @@
                 var _plantItem = _plantItems.FirstOrDefault(f => f.PlantID == Data.CompanyID);
                 if (_plantItem != null)
                 {
-                    await SelectedItemPlantChanged(_plantItem.CompanyID, "Edit");
+                    await SelectedItemPlantChanged(_plantItem.PlantID, "Edit");
                 }
             }
 
-            StatusType = _selectedEditItems.StatusType;
-            Data.StatusType = _selectedEditItems.StatusType;
-
-            await SelectedTypeItemsChanged(_selectedEditItems.StatusType);
-            Data.ProdOrderNo = _selectedEditItems.ProdOrderNo;
-            Data.ProcessDD = _selectedEditItems.ProcessDD;
-            Data.RawMaterialDD = _selectedEditItems.RawMaterialDD;
-            Data.PackingMaterialDD = _selectedEditItems.PackingMaterialDD;
-            // if (StatusType == "FP")
-            // {
-            //     if (_selectedEditItems.CompanyID > 0)
-            //     {
-            //         _FPponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(_selectedEditItems.CompanyID));
-            //         Data.FPDD = _selectedEditItems.FPDD;
-            //         FPVisible = true;
-            //         ProcessVisible = false;
-            //         RawMaterialVisible = false;
-            //         PackingMaterialVisible = false;
-            //     }
-            // }
-            // if (StatusType == "Process")
-            // {
-            //     if (_selectedEditItems.CompanyID > 0)
-            //     {
-            //         _RawMatItemList = await Mediator.Send(new GetRawMatItemListByTypeList("ProcessItem", _selectedEditItems.CompanyID));
-            //         Data.ProcessDD = _selectedEditItems.ProcessDD;
-            //         FPVisible = false;
-            //         ProcessVisible = true;
-            //         RawMaterialVisible = false;
-            //         PackingMaterialVisible = false;
-            //     }
-            // }
-            // if (StatusType == "Raw Material")
-            // {
-            //     if (_selectedEditItems.CompanyID > 0)
-            //     {
-            //         _RawMatItemList1 = await Mediator.Send(new GetRawMatItemListByTypeList("RawMatItem", _selectedEditItems.CompanyID));
-            //         Data.RawMaterialDD = _selectedEditItems.RawMaterialDD;
-            //         FPVisible = false;
-            //         ProcessVisible = false;
-            //         RawMaterialVisible = true;
-            //         PackingMaterialVisible = false;
-            //     }
-            // }
-            // if (StatusType == "Packing Material")
-            // {
-            //     if (_selectedEditItems.CompanyID > 0)
-            //     {
-            //         _RawMatItemList2 = await Mediator.Send(new GetRawMatItemListByTypeList("PackagingItem", _selectedEditItems.CompanyID));
-            //         Data.PackingMaterialDD = _selectedEditItems.PackingMaterialDD;
-            //         FPVisible = false;
-            //         ProcessVisible = false;
-            //         RawMaterialVisible = false;
-            //         PackingMaterialVisible = true;
-            //     }
-            // }
-            await JSRuntime.InvokeAsync<string>("hideLoading");
+            if (StatusType == "FP")
+            {
+                if (_selectedEditItems.CompanyID > 0)
+                {
+                 
+                    Data.ProdOrderNo = _selectedEditItems.ProdOrderNo;
+                    FPVisible = true;
+                    ProcessVisible = false;
+                    RawMaterialVisible = false;
+                    PackingMaterialVisible = false;
+                }
+            }
+            if (StatusType == "Process")
+            {
+                if (_selectedEditItems.CompanyID > 0)
+                {
+                    _RawMatItemList = await Mediator.Send(new GetRawMatItemListByTypeList("ProcessItem", _selectedEditItems.CompanyID));
+                    Data.ProcessDD = _selectedEditItems.ProcessDD;
+                    FPVisible = false;
+                    ProcessVisible = true;
+                    RawMaterialVisible = false;
+                    PackingMaterialVisible = false;
+                }
+            }
+            if (StatusType == "Raw Material")
+            {
+                if (_selectedEditItems.CompanyID > 0)
+                {
+                    _RawMatItemList1 = await Mediator.Send(new GetRawMatItemListByTypeList("RawMatItem", _selectedEditItems.CompanyID));
+                    Data.RawMaterialDD = _selectedEditItems.RawMaterialDD;
+                    FPVisible = false;
+                    ProcessVisible = false;
+                    RawMaterialVisible = true;
+                    PackingMaterialVisible = false;
+                }
+            }
+            if (StatusType == "Packing Material")
+            {
+                if (_selectedEditItems.CompanyID > 0)
+                {
+                    _RawMatItemList2 = await Mediator.Send(new GetRawMatItemListByTypeList("PackagingItem", _selectedEditItems.CompanyID));
+                    Data.PackingMaterialDD = _selectedEditItems.PackingMaterialDD;
+                    FPVisible = false;
+                    ProcessVisible = false;
+                    RawMaterialVisible = false;
+                    PackingMaterialVisible = true;
+                }
+             }
+           await JSRuntime.InvokeAsync<string>("hideLoading");
         }
         StateHasChanged();
 

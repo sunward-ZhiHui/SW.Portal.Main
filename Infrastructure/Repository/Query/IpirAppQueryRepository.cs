@@ -34,7 +34,7 @@ namespace Infrastructure.Repository.Query
             List<IpirApp> IpirApps = new List<IpirApp>();
             try
             {
-                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,Concat(t6.Name ,' ||',t6.Description)as LocationName, t7.ItemNo,t7.description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments ,
+                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,Concat(t6.Name ,'|',t6.Description)as LocationName, t7.ItemNo,t7.description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments ,
                             t1.StatusType,t1.ProcessDD,t1.RawMaterialDD,t1.PackingMaterialDD,t1.FixedAsset,t1.Type
                             from IpirApp t1  
                             JOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   
@@ -73,7 +73,7 @@ namespace Infrastructure.Repository.Query
                             var counts = documents.FirstOrDefault(w => w.SessionId == s.SessionID);
                             if (counts != null)
                             {
-
+                                
                                 s.DocumentId = counts.DocumentId;
                                 s.FileProfileTypeId = counts.FilterProfileTypeId;
                                 s.DocumentID = counts.DocumentId;

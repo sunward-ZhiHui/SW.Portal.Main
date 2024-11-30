@@ -22,7 +22,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<SoCustomer>> Handle(GetSoCustomerQuery request, CancellationToken cancellationToken)
         {           
-            return (List<SoCustomer>)await _queryRepository.GetListAsync();
+            return (List<SoCustomer>)await _queryRepository.GetAllAsync();
         }
     }
     public class GetSoCustomerByTypeHandler : IRequestHandler<GetSoCustomerByTypeQuery, List<SoCustomer>>

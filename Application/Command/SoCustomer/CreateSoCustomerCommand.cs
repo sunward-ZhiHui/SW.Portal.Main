@@ -21,7 +21,7 @@ namespace Application.Command.SoCustomer
         public string PostCode { get; set; }
         public string Channel { get; set; }
         public string Type { get; set; }
-        
+        public long? CompanyId { get; set; }
         public CreateSoCustomerCommand()
         {
 

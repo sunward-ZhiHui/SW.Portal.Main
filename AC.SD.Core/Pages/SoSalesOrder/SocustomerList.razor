@@ -69,7 +69,7 @@
             <DxGridDataColumn FieldName="PostCode" MinWidth="170" />
             <DxGridDataColumn FieldName="Channel" MinWidth="170" />
             <DxGridDataColumn FieldName="Type" GroupIndex="0" MinWidth="170" />
-            @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
+            <DxGridDataColumn FieldName="CompanyName" Caption="Company Code" MinWidth="170" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
             @{
@@ -108,7 +108,29 @@
                 <DxFormLayoutItem Caption="Address2 :">
                     <DxTextBox @bind-Text="@customers.Address2" />
                 </DxFormLayoutItem>
-
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="NavCompany"
+                                ValueFieldName="PlantID"
+                                @bind-Value="@customers.CompanyId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                Caption="Company Code"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                Caption="Description" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                                Caption="Nav Company" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => customers.CompanyId)" />
+                </DxFormLayoutItem>
 
                 <ValidationSummary />
             </DxFormLayout>
@@ -125,13 +147,13 @@
     bool AddEnabled { get; set; } = false;
     private SoCustomer _selectedItems;
     bool EditEnabled { get; set; } = false;
-
+    private List<ViewPlants>? _plantItems;
     private SoCustomer _selectlst;
     bool AddNewCustomer { get; set; } = false;
-    List<string> TypeList = new List<string>() { "Clinic", "Vendor", "Customer","Company" };
+    List<string> TypeList = new List<string>() { "Clinic", "Vendor", "Customer", "Company" };
     protected override async Task OnInitializedAsync()
     {
-
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         await UpdateDataAsync();
 
     }
@@ -146,6 +168,7 @@
             AddEnabled = true;
             EditEnabled = true;
             AddNewCustomer = true;
+            Grid?.SetFocusedRowIndex(0);
             StateHasChanged();
         }
 
@@ -229,8 +252,8 @@
                     City = editModel.City,
                     PostCode = editModel.PostCode,
                     StateCode = editModel.StateCode,
-                    Channel = editModel.Channel
-
+                    Channel = editModel.Channel,
+                    CompanyId = editModel.CompanyId,
                     // StatusCodeID = 1,
                     // AddedByUserID = applicationUser.UserID,
                     // AddedDate = DateTime.Now,
@@ -263,7 +286,8 @@
                     City = editModel.City,
                     PostCode = editModel.PostCode,
                     StateCode = editModel.StateCode,
-                    Channel = editModel.Channel
+                    Channel = editModel.Channel,
+                    CompanyId = editModel.CompanyId,
                     // AddedByUserID = editModel.AddedByUserID,
                     //StatusCodeID = editModel.StatusCodeID,
                     //ModifiedByUserID = applicationUser.UserID,

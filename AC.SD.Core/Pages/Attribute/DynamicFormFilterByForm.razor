@@ -125,6 +125,31 @@
             });
             MyClassBuilder MCB = new MyClassBuilder(_dataSourceName);
             Data = MCB.CreateObject(DataClassObjectNameList.ToArray(), DataClassTypeList.ToArray());
+            if (_DynamicFormFilterByItems != null && _DynamicFormFilterByItems.Count() > 0)
+            {
+                _DynamicFormFilterByItems.ForEach(s =>
+                {
+                    if (s.FilterTableName == "Plant")
+                    {
+                        var proName = s.DynamicFormFilterId.ToString();
+                        var property = Data.GetType().GetProperty(proName);
+                        if (property != null)
+                        {
+                            if (_PlantLoadDependencyId > 0)
+                            {
+                                property.SetValue(Data, _PlantLoadDependencyId);
+                            }
+                            else
+                            {
+                                if (_dynamicform.CompanyId > 0)
+                                {
+                                    property.SetValue(Data, _dynamicform.CompanyId);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
             StateHasChanged();
         }
     }
@@ -171,9 +196,9 @@
     }
     public async ValueTask DisposeAsync()
     {
-       // System.GC.Collect();
-        ClearData();
-       // GC.SuppressFinalize(this);
+        // System.GC.Collect();
+        //  ClearData();
+        // GC.SuppressFinalize(this);
     }
     void OnRadioChangedItem(long? str, PropertyInfo property, DynamicFormFilterBy dynamicFormSectionAttribute)
     {
@@ -277,14 +302,14 @@
                         {
                             if (_PlantLoadDependencyId > 0)
                             {
-                                property.SetValue(Data, _PlantLoadDependencyId);
+                               // property.SetValue(Data, _PlantLoadDependencyId);
                                 isEnabled = false;
                             }
                             else
                             {
                                 if (_dynamicform.CompanyId > 0)
                                 {
-                                    property.SetValue(Data, _dynamicform.CompanyId);
+                                   // property.SetValue(Data, _dynamicform.CompanyId);
                                     isEnabled = false;
                                 }
                             }
@@ -299,7 +324,7 @@
                                 if (Parproperty != null)
                                 {
                                     var parValueData = (long?)Parproperty.GetValue(Data);
-                                    if (parValueData!=null)
+                                    if (parValueData != null)
                                     {
                                         attributeDetails = _AttributeDetailsItems != null && _AttributeDetailsItems.Count() > 0 ? _AttributeDetailsItems.Where(w => w.DropDownTypeId == s.FilterTableName && w.ApplicationMasterName == s.ApplicationMasterCodeId && w.ParentId == parValueData).ToList() : new List<AttributeDetails>();
                                     }

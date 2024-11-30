@@ -23,7 +23,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from SoCustomer";
+                var query = "select  t1.*,t2.PlantCode as CompanyName from SoCustomer t1 LEFT JOIN Plant t2 ON t1.CompanyID=t2.PlantID";
 
                 using (var connection = CreateConnection())
                 {
@@ -40,7 +40,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 string newList = string.Join(",", Type.Split(',').Select(x => string.Format("'{0}'", x)).ToList());
-                var query = "select  * from SoCustomer where type in(" + newList + ")";
+                var query = "select  t1.*,t2.PlantCode as CompanyName from SoCustomer t1 LEFT JOIN Plant t2 ON t1.CompanyID=t2.PlantID where t1.type in(" + newList + ")";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<SoCustomer>(query)).ToList();

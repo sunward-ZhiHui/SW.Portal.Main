@@ -102,13 +102,12 @@ namespace Infrastructure.Repository.Query
                     query += GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds);
                     //dataSourceDropDownList.AddRange(await GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds));
                 }
-                if (dataSourceTableIds.Contains("FinishedProdOrderLineProductionInProgress"))
+                if (dataSourceTableIds.Contains("Vendor"))
                 {
                     i++;
-                    query += GetFinishedProdOrderLineProductionInProgressDataSource(CompanyId, plantCode, plantIds);
-                    //dataSourceDropDownList.AddRange(await GetFinishedProdOrderLineDataSource(CompanyId, plantCode, plantIds));
+                    query += GetNavVendorDataSource(CompanyId, plantCode, plantIds);
                 }
-                var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
+                var soCustomerType = new List<string?>() { "Clinic", "Customer" };
                 var soCustomerList = soCustomerType.Intersect(dataSourceTableIds).ToList();
                 if (soCustomerList.Count() > 0)
                 {
@@ -694,14 +693,37 @@ namespace Infrastructure.Repository.Query
             {
                 var query = string.Empty;
                 dataSourceTableIds = dataSourceTableIds != null && dataSourceTableIds.Count > 0 ? dataSourceTableIds : new List<string?>() { "a" };
-                query += "select CONCAT(Type,'_',SoCustomerID) as AttributeDetailNameId,Type as DropDownTypeId, SoCustomerID as AttributeDetailID,CustomerName as AttributeDetailName,Address1 as Description from SoCustomer Where type  in(" + string.Join(",", dataSourceTableIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ");";
+                query += "select CONCAT(Type,'_',t1.SoCustomerID) as AttributeDetailNameId,t1.Type as DropDownTypeId, t1.SoCustomerID as AttributeDetailID,t1.CustomerName as AttributeDetailName,t1.Address1 as Description,t2.PlantCode as CompanyName from SoCustomer t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID Where t1.type  in(" + string.Join(",", dataSourceTableIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ");";
+                return query;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
-                //using (var connection = CreateConnection())
-                //{
-                //    var result = (await connection.QueryAsync<AttributeDetails>(query)).ToList();
-                //    attributeDetails = result != null && result.Count() > 0 ? result : new List<AttributeDetails>();
-                //}
-                //return attributeDetails;
+        private string GetNavVendorDataSource(long? CompanyId, string? plantCode, List<long> plantIds)
+        {
+            try
+            {
+                var query = string.Empty;
+                query += "select CONCAT(Type,'_',t1.SoCustomerID) as AttributeDetailNameId,t1.Type as DropDownTypeId, t1.SoCustomerID as AttributeDetailID,t1.CustomerName as AttributeDetailName,t1.Address1 as Description,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName from SoCustomer t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID  Where t1.type  in('Vendor')\n\r";
+                if (CompanyId > 0)
+                {
+                    if (plantCode == "swgp")
+                    {
+                        plantIds = plantIds != null && plantIds.Count() > 0 ? plantIds : new List<long>() { -1 };
+                        query += "AND t2.CompanyID in(" + string.Join(',', plantIds) + ");";
+                    }
+                    else
+                    {
+                        query += "AND t2.CompanyID=" + CompanyId + ";\r\n";
+                    }
+                }
+                else
+                {
+                    query += ";\r\n";
+                }
                 return query;
             }
             catch (Exception exp)
@@ -1145,7 +1167,7 @@ namespace Infrastructure.Repository.Query
             List<AttributeDetails> attributeDetails = new List<AttributeDetails>();
             try
             {
-                var soCustomerType = new List<string?>() { "Clinic", "Vendor", "Customer" };
+                var soCustomerType = new List<string?>() { "Clinic", "Customer" };
                 List<string?> plantNames = new List<string?>() { "SWMY", "SWSG" };
                 var rawMatItemType = new List<string?>() { "RawMatItem", "PackagingItem", "ProcessItem" };
                 var LocationType = new List<string?>() { "Site", "Zone", "Location", "Area", "SpecificArea" };
@@ -1229,6 +1251,11 @@ namespace Infrastructure.Repository.Query
                         query += "select 'SpecificArea' as DropDownTypeId,t1.IctmasterId as AttributeDetailID,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName, t1.Name as AttributeDetailName,t1.Description as Description,t3.Name as AreaName,t4.Name as SiteName,t5.Name as ZoneName,t6.Name as LocationName from Ictmaster t1 JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r\n JOIN ICTMaster t3 ON t3.ICTMasterID=t1.ParentICTID JOIN ICTMaster t4 ON t4.ICTMasterID=t1.SiteID\r\n JOIN ICTMaster t5 ON t5.ICTMasterID=t1.ZoneID\r\n JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID\r";
                         query += "Where t1.MasterType=574\r AND\r";
                     }
+                    if (DataSource == "Vendor")
+                    {
+                        query += "select Type as DropDownTypeId, t1.SoCustomerID as AttributeDetailID,t1.CustomerName as AttributeDetailName,t1.Address1 as Description,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName from SoCustomer t1 Left JOIN Plant t2 ON t1.CompanyID=t2.PlantID\r";
+                        query += "Where t1.Type='Vendor'\r AND\r";
+                    }
                     else
                     {
                         if (soCustomerType.Contains(DataSource))
@@ -1285,7 +1312,10 @@ namespace Infrastructure.Repository.Query
                             }
                             else
                             {
-                                query += "where";
+                                if (DataSource != "Vendor")
+                                {
+                                    query += "where";
+                                }
                             }
                         }
                     }

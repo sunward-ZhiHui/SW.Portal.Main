@@ -94,11 +94,9 @@
          ShowCloseButton="true"
          HeaderText="Create Email"
          Closed="EulaPopupClosed"
-         Width="300px">
+         Width="1000px">
     <BodyContentTemplate>
-        <p>
-            Are you sure create Email?
-        </p>
+        <DynamicFormDataEmailAddSubContent @ref="refDynamicFormDataEmailAddSubContent" SessionId="@dynamicFormData.SessionId"></DynamicFormDataEmailAddSubContent>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -134,6 +132,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -295,26 +294,30 @@
         string backurl = rep1 + "/" + _selectedItems.DynamicFormDataSessionID;
         if (_selectedItems != null)
         {
-            var insertData = new DynamicFormData
-                {
-                    AddedByUserID = applicationUser.UserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now,
-                    SessionId = _selectedItems.DynamicFormDataSessionID,
-                    ProfileNo = _selectedItems.ProfileNo,
-                    StatusCodeID = 1,
-                    DynamicFormDataId = (long)_selectedItems.DynamicFormDataID,
-                    BackUrl = backurl
-                };
-            var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
-            if (response.DynamicFormDataId > 0)
+            var result = await refDynamicFormDataEmailAddSubContent?.saveEmailSubjectContent();
+            if (result == true)
             {
-                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-                createEmailpopup = false;
-                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.DynamicFormDataSessionID;
-                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
-                await UpdateDataAsync();
+                var insertData = new DynamicFormData
+                    {
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                        SessionId = _selectedItems.DynamicFormDataSessionID,
+                        ProfileNo = _selectedItems.ProfileNo,
+                        StatusCodeID = 1,
+                        DynamicFormDataId = (long)_selectedItems.DynamicFormDataID,
+                        BackUrl = backurl
+                    };
+                var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
+                if (response.DynamicFormDataId > 0)
+                {
+                    toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    createEmailpopup = false;
+                    var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.DynamicFormDataSessionID;
+                    await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    await UpdateDataAsync();
+                }
             }
         }
         StateHasChanged();

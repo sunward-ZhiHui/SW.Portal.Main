@@ -158,11 +158,9 @@
          HeaderText="Create Email"
          ShowCloseButton="true"
          Closed="EulaPopupClosed"
-         Width="300px">
+         Width="1000px">
     <BodyContentTemplate>
-        <p>
-            Are you sure create Email?
-        </p>
+        <DynamicFormDataEmailAddSubContent @ref="refDynamicFormDataEmailAddSubContent" SessionId="@_selectedItems.SessionId"></DynamicFormDataEmailAddSubContent>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -199,7 +197,8 @@
 </DxPopup>
 bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; string? fafaunlock { get; set; } = "fa fa-lock"; bool lockpopup { get; set; } = false;
 @code {
-    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles{ get; set; }
+    private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent { get; set; }
+    private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormGridLists refDynamicFormGridLists { get; set; }
     private IDisposable? DynamicFormPage3;
     [Parameter]
@@ -268,14 +267,14 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
     public async ValueTask DisposeAsync()
     {
         DynamicFormPage3?.Dispose();
-       // System.GC.Collect();
+        // System.GC.Collect();
         refUploadDoumentDynamicFiles?.DisposeAsync();
         refDynamicFormGridLists?.DisposeAsync();
-        _dynamicForm=null;
-        _documentsDmsData=null;
-        _selectedItems=null;
+        _dynamicForm = null;
+        _documentsDmsData = null;
+        _selectedItems = null;
         _dynamicformDataList?.Clear();
-        _AttributeHeader=null;
+        _AttributeHeader = null;
         dataColumnNames?.Clear();
         _dynamicformObjectDataList?.Clear();
         _dynamicFormSectionAttributeList?.Clear();
@@ -643,6 +642,10 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                                                 {
                                                     List<long?> listData = itemValue.ToObject<List<long?>>();
                                                     var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                    if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                    {
+                                                        listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                    }
                                                     objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                 }
                                                 else
@@ -653,6 +656,10 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                                                         if (Svalues != null)
                                                         {
                                                             var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                            if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                            {
+                                                                listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                            }
                                                             objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                         }
                                                         else
@@ -675,6 +682,10 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                                                                     {
                                                                         List<long?> listData = itemDepValue.ToObject<List<long?>>();
                                                                         var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                                        if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                        {
+                                                                            listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
+                                                                        }
                                                                         objectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                                     }
                                                                     else
@@ -686,6 +697,10 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                                                                 {
                                                                     long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
                                                                     var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
+                                                                    if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                    {
+                                                                        listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
+                                                                    }
                                                                     objectData[nameData] = listss;
                                                                 }
                                                             }
@@ -699,6 +714,10 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
                                                         if (Svalues != null)
                                                         {
                                                             var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                            if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                            {
+                                                                listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                            }
                                                             objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                         }
                                                         else
@@ -942,26 +961,30 @@ bool isLocked { get; set; } = false; string? LockedName { get; set; } = "Lock"; 
         string backurl = rep1 + "/" + _selectedItems.SessionId;
         if (_selectedItems != null)
         {
-            var insertData = new DynamicFormData
-                {
-                    AddedByUserID = applicationUser.UserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now,
-                    SessionId = _selectedItems.SessionId,
-                    ProfileNo = _selectedItems.ProfileNo,
-                    StatusCodeID = 1,
-                    DynamicFormDataId = _selectedItems.DynamicFormDataId,
-                    BackUrl = backurl
-                };
-            var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
-            if (response.DynamicFormDataId > 0)
+            var result = await refDynamicFormDataEmailAddSubContent?.saveEmailSubjectContent();
+            if (result == true)
             {
-                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-                createEmailpopup = false;
-                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
-                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
-                await UpdateDataAsync();
+                var insertData = new DynamicFormData
+                    {
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                        SessionId = _selectedItems.SessionId,
+                        ProfileNo = _selectedItems.ProfileNo,
+                        StatusCodeID = 1,
+                        DynamicFormDataId = _selectedItems.DynamicFormDataId,
+                        BackUrl = backurl
+                    };
+                var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
+                if (response.DynamicFormDataId > 0)
+                {
+                    toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    createEmailpopup = false;
+                    var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
+                    await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+                    await UpdateDataAsync();
+                }
             }
         }
         StateHasChanged();

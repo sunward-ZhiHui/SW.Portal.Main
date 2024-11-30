@@ -345,4 +345,22 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+
+
+    public class InsertOrUpdateNavVendorHandler : IRequestHandler<InsertOrUpdateNavVendor, SoCustomer>
+    {
+
+
+        private readonly INavItemsQueryRepository _queryRepository;
+        public InsertOrUpdateNavVendorHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<SoCustomer> Handle(InsertOrUpdateNavVendor request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetNavVendorList(request.CompanyId);
+
+        }
+    }
 }

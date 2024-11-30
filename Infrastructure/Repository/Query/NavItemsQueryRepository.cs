@@ -112,7 +112,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<IReadOnlyList<RawMatItemList>> GetRawMatItemListByTypeList(string? Type,long? CompanyId)
+        public async Task<IReadOnlyList<RawMatItemList>> GetRawMatItemListByTypeList(string? Type, long? CompanyId)
         {
             try
             {
@@ -1095,6 +1095,93 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw (new ApplicationException(exp.Message));
+            }
+        }
+        public async Task<IReadOnlyList<SoCustomer>> GetNavVendorAsync(long? CompanyId)
+        {
+            List<SoCustomer> NavprodOrderLineList = new List<SoCustomer>();
+            try
+            {
+                var query = "select  * from SoCustomer where  Type='Vendor' AND  CompanyId= " + CompanyId;
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<SoCustomer>(query)).ToList();
+                    NavprodOrderLineList = result != null ? result : new List<SoCustomer>();
+                }
+                return NavprodOrderLineList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<SoCustomer> GetNavVendorList(long? CompanyId)
+        {
+            try
+            {
+                SoCustomer navVendor = new SoCustomer();
+                var VendorDataData = await GetNavVendorAsync(CompanyId);
+                var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                if (plantData != null)
+                {
+                    List<SoCustomer> VendorDataDatas = VendorDataData != null ? VendorDataData.ToList() : new List<SoCustomer>();
+                    var lst = await _salesOrderService.NavVendorAsync(plantData.NavCompanyName, plantData.PlantID, VendorDataDatas);
+                    if (lst != null && lst.Count > 0)
+                    {
+                        foreach (var s in lst)
+                        {
+                            await InsertOrUpdateNavVendor(s);
+                        }
+                    }
+                }
+                navVendor.SoCustomerId = 1;
+                return navVendor;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> InsertOrUpdateNavVendor(SoCustomer finishedProdOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("SoCustomerId", finishedProdOrderLine.SoCustomerId);
+                    parameters.Add("ShipCode", finishedProdOrderLine.ShipCode, DbType.String);
+                    parameters.Add("CustomerName", finishedProdOrderLine.CustomerName, DbType.String);
+                    parameters.Add("Address1", finishedProdOrderLine.Address1, DbType.String);
+                    parameters.Add("Address2", finishedProdOrderLine.Address2, DbType.String);
+                    parameters.Add("PostCode", finishedProdOrderLine.PostCode, DbType.String);
+                    parameters.Add("City", finishedProdOrderLine.City, DbType.String);
+                    parameters.Add("StateCode", finishedProdOrderLine.StateCode, DbType.String);
+                    parameters.Add("Type", finishedProdOrderLine.Type, DbType.String);
+                    parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
+                    var lastInsertedRecordId = finishedProdOrderLine.SoCustomerId;
+                    if (lastInsertedRecordId > 0)
+                    {
+                        var query1 = "Update  SoCustomer SET ShipCode=@ShipCode,CustomerName=@CustomerName,Address1=@Address1,Address2=@Address2,PostCode=@PostCode,City=@City," +
+                            "StateCode=@StateCode,Type=@Type,CompanyId=@CompanyId  WHERE SoCustomerId =@SoCustomerId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [SoCustomer](ShipCode,CustomerName,Address1,Address2,PostCode,City,StateCode,Type,CompanyId) " +
+                            "OUTPUT INSERTED.SoCustomerId VALUES " +
+                            "(@ShipCode,@CustomerName,@Address1,@Address2,@PostCode,@City,@StateCode,@Type,@CompanyId)";
+                        lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    return lastInsertedRecordId;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
             }
         }
     }

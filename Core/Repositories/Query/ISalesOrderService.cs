@@ -23,5 +23,6 @@ namespace Core.Repositories.Query
         Task<List<FinishedProdOrderLine>> FinishedProdOrderLineAsync(string company, long companyid, List<FinishedProdOrderLine> finishedProdOrderLines,List<Navitems> navitems);
         Task<List<NavprodOrderLine>> GetNAVProdOrderLine(string company, long companyid, List<NavprodOrderLine> navprodOrderLines);
         Task<List<NavprodOrderLine>> GetFinishedProdOrderLineToNAVProdOrderLine(string company, long companyid, List<NavprodOrderLine> productionLinelist);
+        Task<List<SoCustomer>> NavVendorAsync(string company, long companyid, List<SoCustomer> navvendors);
     }
 }

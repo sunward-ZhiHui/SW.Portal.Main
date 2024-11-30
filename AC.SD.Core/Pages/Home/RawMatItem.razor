@@ -234,7 +234,48 @@
     </div>
 </EditForm>
 
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormNavVendor" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm id="@NavVendorId" @ref="NavVendorForm" EditContext="this._editNavVendorContext" OnValidSubmit="@HandleNavVendorValidSubmit"
+          Context="EditFormContext">
+    <DataAnnotationsValidator />
+    <div class="card-body">
+        <div class="row">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="NavVendor-Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="NavCompanyName"
+                                ValueFieldName="PlantID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@navVendorFromModel.CompanyId" ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => navVendorFromModel.CompanyId)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </div>
+    </div>
+</EditForm>
+
+
 @code{
+    internal string NavVendorId = "myForm"; internal EditForm? NavVendorForm;
     internal string MyID = "myForm"; internal string MyItemID = "MyItemID"; internal string NavprodOrderLineId = "NavprodOrderLineForm";
     internal string MyItemBatchID = "myForm"; internal string FinishedProdOrderLineID = "myForms";
     internal EditForm? myForm; internal EditForm? FinishedProdOrderLineForm; internal EditForm? NavprodOrderLineForm;
@@ -242,7 +283,7 @@
     internal EditForm? myItemForm;
     private List<ViewPlants>? _plantItems;
     public ApplicationUser applicationUser { get; private set; }
-    EditContext? _editContext;    
+    EditContext? _editContext; EditContext? _editNavVendorContext;
     EditContext? _editItemBatchContext; EditContext? _editNavprodOrderLineContext;
     EditContext? _editItemContext; EditContext? _editFinishedProdOrderLineContext;
     IEnumerable<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
@@ -254,7 +295,7 @@
     NavprodOrderLineFormModel navprodOrderLine = new NavprodOrderLineFormModel();
     string? NavCompanyName { get; set; }
     string? NavItemBatchCompanyName { get; set; }
-    DataItemModel? DataItem = new DataItemModel();
+    DataItemModel? DataItem = new DataItemModel(); NavVendorFromModel navVendorFromModel = new NavVendorFromModel();
     public class Model
     {
         [Required(ErrorMessage = "Company Name is required")]
@@ -282,9 +323,14 @@
         [Required(ErrorMessage = "Company Name is required")]
         public long? CompanyId { get; set; }
     }
+    public class NavVendorFromModel
+    {
+        [Required(ErrorMessage = "Company Name is required")]
+        public long? CompanyId { get; set; }
+    }
     protected override async Task OnInitializedAsync()
     {
-        _editContext = new EditContext(Data);
+        _editContext = new EditContext(Data); _editNavVendorContext = new EditContext(navVendorFromModel);
         _editItemContext = new EditContext(DataItem); _editNavprodOrderLineContext = new EditContext(navprodOrderLine);
         _editItemBatchContext = new EditContext(DataItemBatch); _editFinishedProdOrderLineContext = new EditContext(FinishedProdOrderLines);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -373,6 +419,20 @@
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var result = await Mediator.Send(new GetNavprodOrderLineListQuery(navprodOrderLine.CompanyId));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private async Task SubmitFormNavVendor()
+    {
+        if (_editNavVendorContext.Validate())
+        {
+
+            await this.HandleNavVendorValidSubmit();
+        }
+    }
+    async Task HandleNavVendorValidSubmit()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        var result = await Mediator.Send(new InsertOrUpdateNavVendor(navVendorFromModel.CompanyId));
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
 }

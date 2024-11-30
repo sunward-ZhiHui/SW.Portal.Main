@@ -35,4 +35,7 @@ namespace Application.Queries
             this.JobSchedule = jobSchedule;
         }
     }
+    public class GetJobScheduleNavFuctionQuery : PagedRequest, IRequest<string>
+    {
+    }
 }

@@ -186,4 +186,12 @@ namespace Application.Queries
             this.CompanyId = companyId;
         }
     }
+    public class InsertOrUpdateNavVendor : PagedRequest, IRequest<SoCustomer>
+    {
+        public long? CompanyId { get; set; }
+        public InsertOrUpdateNavVendor(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
 }

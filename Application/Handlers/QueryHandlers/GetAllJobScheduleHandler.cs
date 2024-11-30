@@ -75,4 +75,17 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetJobScheduleNavFunQueryHandler : IRequestHandler<GetJobScheduleNavFuctionQuery, string>
+    {
+        private readonly IJobScheduleQueryRepository _queryRepository;
+        public GetJobScheduleNavFunQueryHandler(IJobScheduleQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<string> Handle(GetJobScheduleNavFuctionQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetJobScheduleNavFuctionAsync();
+
+        }
+    }
 }

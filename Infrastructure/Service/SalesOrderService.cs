@@ -815,5 +815,61 @@ namespace Infrastructure.Service
 
             return prodNotStartList;
         }
+
+        public async Task<List<SoCustomer>> NavVendorAsync(string company, long companyid, List<SoCustomer> navvendors)
+        {
+            try
+            {
+                List<SoCustomer> navVendorList = new List<SoCustomer>();
+                int pageSize = 1000;
+                int page = 0;
+                while (true)
+                {
+                    var context = new NAVService(_configuration, company);
+                    var nquery = context.Context.Vendor.Skip(page * pageSize).Take(pageSize);
+                    DataServiceQuery<NAV.Vendor> query = (DataServiceQuery<NAV.Vendor>)nquery;
+
+                    TaskFactory<IEnumerable<NAV.Vendor>> taskFactory = new TaskFactory<IEnumerable<NAV.Vendor>>();
+                    IEnumerable<NAV.Vendor> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                    var prodCodes = result.ToList();
+                    prodCodes.ForEach(b =>
+                    {
+                        var exitsData = navVendorList.Where(f => f.ShipCode == b.No && f.CompanyId == companyid).Count();
+                        if (exitsData == 0)
+                        {
+                            var exits = navvendors.Where(f => f.ShipCode == b.No && f.CompanyId == companyid).FirstOrDefault();
+                            if (exits == null)
+                            {
+                                navVendorList.Add(new SoCustomer
+                                {
+                                    ShipCode = b.No,
+                                    CustomerName = b.Name,
+                                    Address1 = b.Address,
+                                    Address2 = b.Address_2,
+                                    PostCode = b.Post_Code,
+                                    City = b.City,
+                                    StateCode = b.Location_Code,
+                                    CompanyId = companyid,
+                                    Type = "Vendor"
+                                });
+                            }
+                            else
+                            {
+                                navVendorList.Add(exits);
+                            }
+                        }
+                    });
+                    if (prodCodes.Count < 1000)
+                        break;
+                    page++;
+                }
+                return navVendorList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

@@ -90,7 +90,7 @@ namespace Core.Entities
         public IEnumerable<long?> DepartmentIds { get; set; } = new List<long?>();
         public string? DocProfileNo { get; set; }
         [NotMapped]
-        public string? FPDDName { get; set; }
+        public string? ProdOrderNoDescription { get; set; }
     }
     public class IpirAppIssueDep
     {

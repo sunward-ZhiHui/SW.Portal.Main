@@ -34,18 +34,17 @@ namespace Infrastructure.Repository.Query
             List<IpirApp> IpirApps = new List<IpirApp>();
             try
             {
-                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,Concat(t6.Name ,'|',t6.Description)as LocationName, t7.ItemNo,t7.description,t7.Description1,t7.RePlanRefNo,t7.BatchNo,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments ,
-                            t1.StatusType,t1.ProcessDD,t1.RawMaterialDD,t1.PackingMaterialDD,t1.FixedAsset,t1.Type
-                            from IpirApp t1  
+                var query = @"select t1.*,t2.PlantCode as CompanyCode,t2.Description as CompanyName,t3.CodeValue as StatusCode,t4.UserName as AddedBy,t5.UserName as ModifiedBy,Concat(t6.Name ,'|',t6.Description)as LocationName,t8.Name as ProfileName,t10.UserName as ReportingPersonalName,t11.UserName as DetectedByName,   (SELECT COUNT(*) from Documents t9 Where t9.SessionID=t1.SessionID AND t9.IsLatest=1) as IsDocuments ,
+                            t1.StatusType,t1.ProcessDD,t1.RawMaterialDD,t1.PackingMaterialDD,t1.FixedAsset,t1.Type,
+                             (select Top 1 Concat(RePlanRefNo,'|',Description) From NAVProdOrderLine where RePlanRefNo = t1.ProdOrderNo) as ProdOrderNoDescription from IpirApp t1  
                             JOIN Plant t2 ON t1.CompanyID=t2.PlantID   JOIN CodeMaster t3 ON t3.CodeID=t1.StatusCodeID   
                             JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID   
                             LEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID  
                             LEFT JOIN ICTMaster t6 ON t6.ICTMasterID=t1.LocationID  
-                            LEFT JOIN NAVProdOrderLine t7 ON t7.NAVProdOrderLineId=t1.LocationID  
-						
                             Left JOIN DocumentProfileNoSeries t8 ON t8.ProfileID=t1.ProfileID 
                             LEFT JOIN ApplicationUser t10 ON t10.UserID=t1.ReportingPersonal 
-                            LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy";
+                            LEFT JOIN ApplicationUser t11 ON t11.UserID=t1.DetectedBy
+							";
                 var result = new List<IpirApp>();
                 using (var connection = CreateConnection())
                 {

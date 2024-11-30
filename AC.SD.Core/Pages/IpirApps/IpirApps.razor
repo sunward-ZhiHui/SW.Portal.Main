@@ -58,8 +58,8 @@
                                 <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" Enabled=false />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-
-                                <DxComboBox Data="@_plantItems"
+                            <DxTextBox @bind-Text="Data.CompanyName" Enabled=false />
+                              @*   <DxComboBox Data="@_plantItems"
                                             NullText="Select Company..."
                                             ValueChanged="@((long? plant) => SelectedItemPlantChanged(plant,"Add"))"
                                             SearchMode="ListSearchMode.AutoSearch"
@@ -73,10 +73,11 @@
                                             ShowValidationIcon="true" Enabled=false>
                                    
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => Data.CompanyID)" />
+                                <ValidationMessage For="@(() => Data.CompanyID)" /> *@
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Location" ColSpanMd="6" Visible="@Visiblelocation">
-                                <DxComboBox Data="@_productionActivities"
+                                 <DxTextBox @bind-Text="Data.LocationName" Enabled=false/>
+                               @*  <DxComboBox Data="@_productionActivities"
                                             NullText="Select Loctaion..."
                                             ValueChanged="@((long? loc) => SelectedItemloc(loc))"
                                             SearchMode="ListSearchMode.AutoSearch"
@@ -93,12 +94,13 @@
                                                         Tooltip="Scan Location"
                                                         Click="@(_ => OnButtonClick())" Enabled=false />
                                     </Buttons>
-                                </DxComboBox>
+                                </DxComboBox> *@
                            
                             </DxFormLayoutItem>
                            
                             <DxFormLayoutItem Caption="Ticket No" ColSpanMd="6" Visible ="@VisibleTicket">
-                                <DxComboBox Data="@_ponumberActivities"
+                            <DxTextBox @bind-Text="Data.ProdOrderNoDescription" Enabled="false" />
+                                @* <DxComboBox Data="@_ponumberActivities"
                                             NullText="Select Ticket No..."
                                             ValueChanged="@((string? prod) => SelectedItemprod(prod))"
                                             SearchMode="ListSearchMode.AutoSearch"
@@ -116,7 +118,7 @@
                                                         Click="@(_ => OnButtonTicketNoClick())" Enabled=false />
                                     </Buttons>
                                 </DxComboBox>
-                                <ValidationMessage For="@(() => Data.ProdOrderNo)" />
+                            <ValidationMessage For="@(() => Data.ProdOrderNo)" />*@
                             </DxFormLayoutItem>
                           
                           
@@ -128,7 +130,8 @@
                             </DxFormLayoutItem>
                       
                             <DxFormLayoutItem Caption="Detected By" ColSpanMd="6">
-                                <DxComboBox Data="@_usersList"
+                                <DxTextBox @bind-Text = "Data.DetectedByName" Enabled="false"></DxTextBox>
+                               @*  <DxComboBox Data="@_usersList"
                                             NullText="Select Detected By..."
                                             SearchMode="ListSearchMode.AutoSearch"
                                             SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -144,7 +147,7 @@
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                                     </Columns>
-                                </DxComboBox>
+                                </DxComboBox> *@
                             </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Machine Name" ColSpanMd="12" Visible="@VisibleMachineName">
                             <DxTextBox @bind-Text="@Data.MachineName" ShowValidationIcon="true" />
@@ -437,18 +440,18 @@
     private BarcodeReader _RawMaterialReader;
     private BarcodeReader _PackingMaterialReader;
     private List<RawMatItemList> _RawMatItemList; private List<RawMatItemList> _RawMatItemList1; private List<RawMatItemList> _RawMatItemList2;
-
+    
     protected override async Task OnInitializedAsync()
     {
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         _editContext = new EditContext(Data);
-        _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
+        // _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        // _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
         _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(340));
-        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        //_usersList = await Mediator.Send(new GetAllEmployeeQuery());
         Data.AddedDate = DateTime.Now; Data.ModifiedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
         Data.AddedByUserID = applicationUser.UserID;
@@ -470,6 +473,8 @@
                 Visiblelocation = false;
                 VisibleTicket = false;
             }
+            Data.CompanyName = _selectedEditItems.CompanyName;
+            Data.LocationName = _selectedEditItems.LocationName;
             StatusType = _selectedEditItems.StatusType;
             Data.StatusType = _selectedEditItems.StatusType;
             IpirAppId = _selectedEditItems.IpirAppId;
@@ -481,38 +486,40 @@
             Data.Comment = _selectedEditItems.Comment;
             Data.LocationID = _selectedEditItems.LocationID;
             Data.CompanyID = _selectedEditItems.CompanyID;
-            Data.ProdOrderNo = _selectedEditItems.ProdOrderNo;
-            Data.ProfileId = _selectedEditItems.ProfileId;
-            Data.ProfileNo = _selectedEditItems.ProfileNo;
+            Data.ProdOrderNoDescription = _selectedEditItems.ProdOrderNoDescription;
+            //Data.ProfileId = _selectedEditItems.ProfileId;
+            //Data.ProfileNo = _selectedEditItems.ProfileNo;
             Data.FixedAssetNo = _selectedEditItems.FixedAssetNo;
-            Data.ReportingPersonal = _selectedEditItems.ReportingPersonal;
+            //Data.ReportingPersonal = _selectedEditItems.ReportingPersonal;
             Data.SessionID = _selectedEditItems.SessionID;
             Data.ActivityIssueRelateIds = _selectedEditItems.ActivityIssueRelateIds;
-            Data.DetectedBy = _selectedEditItems.DetectedBy;
+            //Data.DetectedBy = _selectedEditItems.DetectedBy;
             Data.MachineName = _selectedEditItems.MachineName;
             Data.ActivityStatusId = _selectedEditItems.ActivityStatusId;
             UploadSessionId = _selectedEditItems.SessionID;
             Data.Type = _selectedEditItems.Type;
-            LocationID = Data.LocationID; Data.DepartmentIds = _selectedEditItems.DepartmentIds;
-            uploadEnabled = true;
-            if (_selectedEditItems.IsDocuments > 0)
-            {
-                uploadEnabled = false;
-            }
-            if (_plantItems.Count > 0)
-            {
-                var _plantItem = _plantItems.FirstOrDefault(f => f.PlantID == Data.CompanyID);
-                if (_plantItem != null)
-                {
-                    await SelectedItemPlantChanged(_plantItem.PlantID, "Edit");
-                }
-            }
+            LocationID = Data.LocationID;
+            Data.DetectedByName = _selectedEditItems.DetectedByName;
 
+            // if (_plantItems.Count > 0)
+            // {
+            //     var _plantItem = _plantItems.FirstOrDefault(f => f.PlantID == Data.CompanyID);
+            //     if (_plantItem != null)
+            //     {
+            //         await SelectedItemPlantChanged(_plantItem.PlantID, "Edit");
+            //     }
+            // }
+            if (_selectedEditItems.DepartmentIds != null)
+            {
+                _departmentItems = await Mediator.Send(new GetDepartmentByCompany(_selectedEditItems.CompanyID));
+                Data.DepartmentIds = _selectedEditItems.DepartmentIds;
+            }
             if (StatusType == "FP")
             {
+               
                 if (_selectedEditItems.CompanyID > 0)
                 {
-                 
+                    _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(_selectedEditItems.CompanyID));
                     Data.ProdOrderNo = _selectedEditItems.ProdOrderNo;
                     FPVisible = true;
                     ProcessVisible = false;

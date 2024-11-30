@@ -188,6 +188,15 @@ namespace Application.Queries
             this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
         }
     }
+    public class GetAllTimeSheetV1Query : PagedRequest, IRequest<List<ProductionActivityRoutineAppModel>>
+    {
+        public ProductionActivityRoutineAppModel? ProductionActivityRoutineAppModel { get; set; }
+
+        public GetAllTimeSheetV1Query(ProductionActivityRoutineAppModel productionActivityRoutineAppModel)
+        {
+            this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
+        }
+    }
     public class DeleteproductActivityRoutineAppLine : PagedRequest, IRequest<ProductionActivityRoutineAppModel>
     {
         public ProductionActivityRoutineAppModel ProductionActivityRoutineAppModel { get; private set; }
@@ -294,6 +303,14 @@ namespace Application.Queries
         public GetExitsRoutineEmailTopics(long? activityMasterId)
         {
             this.ActivityMasterId = activityMasterId;
+        }
+    }
+    public class UpdateStatusTimesheetV1 : PagedRequest, IRequest<long>
+    {
+        public long? ProductionRoutineAppID { get; set; }
+        public UpdateStatusTimesheetV1(long? ProductionRoutineAppID)
+        {
+            this.ProductionRoutineAppID = ProductionRoutineAppID;
         }
     }
 }

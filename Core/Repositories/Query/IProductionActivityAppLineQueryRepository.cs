@@ -35,6 +35,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ProductionActivityAppLine>> GetProductionActivityEmailList(long? ProductionActivityAppLineId);
         Task<ActivityEmailTopics> GetExitsActivityEmailTopics(long? ProductionActivityAppLineId);
         Task<ActivityEmailTopics> GetExitsRoutineEmailTopics(long? ProductionActivityRoutineAppLineId);
-        
+        Task<long> UpdateTimesheetV1Status(long? value);
+
+
     }
 }

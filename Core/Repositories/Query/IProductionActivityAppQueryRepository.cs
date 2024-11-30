@@ -20,6 +20,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentsModel>> GetSupportingDocumentsAsync(long? productionActivityPlanningAppLineID,string? Type);
         Task<ActivityEmailTopicsModel> InserProductionActivityEmail(ActivityEmailTopicsModel ActivityEmailTopicsModel);
         Task<long> InsertProductionRoutine(ProductionActivityRoutineAppModel PPAlist);
+      
 
     }
    

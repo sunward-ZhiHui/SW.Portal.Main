@@ -122,6 +122,18 @@ namespace Core.Entities
         [NotMapped]
         public long? EditProductionRoutineAppID { get; set; }
         public string? FPDDName { get; set; }
+        public string? ProcessDDName { get; set; }
+        public string? RawMaterialDDName { get; set; }
+        public string? PackingMaterialDDName { get; set; }
+        public string? ProductDDName { get; set; }
+        public IEnumerable<string?> FPDDIds { get; set; } = new List<string?>();
+        public IEnumerable<string?> ProcessDDIds { get; set; } = new List<string?>();
+        public IEnumerable<string?> RawMaterialDDIds { get; set; } = new List<string?>();
+        public IEnumerable<string?> PackingMaterialDDIds { get; set; } = new List<string?>();
+        public IEnumerable<long?> ProductNameIds { get; set; } = new List<long?>();
+        public long? StatusID { get; set; }
+        public string StatusName { get; set; }
+        public List<ProdOrderMultiple> FPMultipleList { get; set; } = new List<ProdOrderMultiple>();
     }
     public class ProductionActivityRoutineAppLineQaCheckerModel
     {

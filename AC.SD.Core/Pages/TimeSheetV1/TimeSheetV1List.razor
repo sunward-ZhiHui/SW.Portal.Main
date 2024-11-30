@@ -50,6 +50,7 @@
                                                     <DxMenuItem Text="Copy Link" Click="onCopy" IconCssClass="fa fa-link" Visible="CopyLinkEnabled" />
                                                     @*   <DxMenuItem Text="Mail" IconCssClass="fa fa-envelope" Click="onEmailOpen" Visible="MailEnabled" /> *@
                                                     <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
+                                                    <DxMenuItem Text="Obsolete" Click="onUpdate" IconCssClass="fa fa-pencil" Visible="@ObsoleteEnabled" />
                                                     @*   <DxMenuItem Text="Non compliance" Click="@(_ => onOperators("NonCompliance","Non-Compliance"))" IconCssClass="fa fa-gavel" Visible="NonComplianceEnabled" />
                                                     <DxMenuItem Text="Operator" Click="@(_ => onOperators("RestrictOperator","Operator"))" IconCssClass="fa fa-tasks" Visible="OperatorEnabled" /> *@
 
@@ -111,7 +112,9 @@
                                 <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180">
                                 </DxGridDataColumn>
                                 <DxGridDataColumn Caption="Type" FieldName="StatusType" MinWidth="180" />
+                               
                                 <DxGridDataColumn Caption="Item No" FieldName="FPDDName" MinWidth="180" />
+                                <DxGridDataColumn Caption="Status" FieldName="StatusName" MinWidth="180" />
                                 <DxGridDataColumn Caption="ProfileNo" FieldName="ActivityProfileNo" MinWidth="180" />
                                 <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180">
                                     <CellDisplayTemplate>
@@ -350,6 +353,7 @@
     public bool EditEnabled { get; set; } = false;
     public bool DownloadEnabled { get; set; } = false;
     public bool DeleteEnabled { get; set; } = false;
+    public bool ObsoleteEnabled { get; set; } = false;
     public bool HistoryEnabled { get; set; } = false;
     public bool CheckOutEnabled { get; set; } = false;
     public bool CheckInEnabled { get; set; } = false;
@@ -360,6 +364,7 @@
     public bool SupportDocEnabled { get; set; } = false;
     public bool NonComplianceEnabled { get; set; } = false;
     public bool OperatorEnabled { get; set; } = false;
+
     ProductionActivityRoutineAppModel FilterData = new ProductionActivityRoutineAppModel();
     protected override async Task OnInitializedAsync()
     {
@@ -393,7 +398,8 @@
         FilterData.LocationId = LocationID;
         FilterData.TimeSheetAction = true;
         FilterData.ActionType = "TimeSheetV1";
-        _AppLines = await Mediator.Send(new GetAllProductionActivityRoutineAppLineQuery(FilterData));
+        _AppLines = await Mediator.Send(new GetAllTimeSheetV1Query(FilterData));
+
         _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(CompanyID, Data.LotNo));
         if (_AppLines.Count() > 0)
         {
@@ -417,6 +423,19 @@
 
                 }
                 await permissinSetMainProfile();
+                if (_selectedItems.StatusID == 3401)
+                {
+                    DeleteEnabled = false;
+                    ObsoleteEnabled = true;
+
+                }
+                else
+                {
+
+                    DeleteEnabled = true;
+                    ObsoleteEnabled = false;
+
+                }
             }
         }
         PanelVisible = false;
@@ -433,8 +452,9 @@
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
         NonComplianceEnabled = false; OperatorEnabled = false;
-        if (_selectedItems != null)
+        if (_selectedItems != null )
         {
+           
             if (applicationUser.UserID == _selectedItems.AddedByUserID)
             {
                 isVisibleMore = "";
@@ -457,6 +477,7 @@
                     }
 
                 }
+
             }
             else
             {
@@ -532,6 +553,10 @@
                     }
                 }
             }
+            if (_selectedItems.StatusID == 3401)
+            {
+                DeleteEnabled = false;
+            }
         }
         StateHasChanged();
     }
@@ -582,6 +607,19 @@
                 FileProfileTypeId = _selectedItems.LocationToSaveId;
 
             }
+            if (_selectedItems.StatusID == 3401)
+            {
+                DeleteEnabled = false;
+                ObsoleteEnabled = true;
+
+            }
+            else
+            {
+
+                DeleteEnabled = true;
+                ObsoleteEnabled = false;
+
+            }
             await permissinSetMainProfile();
         }
         StateHasChanged();
@@ -603,13 +641,13 @@
     }
     void addEdit()
     {
-       // addNew();
+        // addNew();
         //if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
         // if (CompanyID > 0)
         // {
-            _selectedEditItems = _selectedItems;
-            AddPopup = true;
-       // }
+        _selectedEditItems = _selectedItems;
+        AddPopup = true;
+        // }
 
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
@@ -620,11 +658,11 @@
     {
         PopupLocationScanVisible = true;
     }
-    
-   
-   
-    
-   
+
+
+
+
+
     void addUploadFilesPopup()
     {
         PopupFormUpload = true;
@@ -784,6 +822,16 @@
             foldersModel.Add(items);
         }
         return foldersModel;
+    }
+    async Task onUpdate()
+    {
+        if (_selectedItems != null && _selectedItems.ProductionActivityRoutineAppId > 0)
+        {
+            
+            await Mediator.Send(new UpdateStatusTimesheetV1(_selectedItems.ProductionActivityRoutineAppId));
+            toastService.ShowToast("Status Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await onLoadDataList();
+        }
     }
     void onDeleteDocument()
     {

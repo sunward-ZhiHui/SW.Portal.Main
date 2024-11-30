@@ -240,6 +240,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetAllTimeSheetV1Handler : IRequestHandler<GetAllTimeSheetV1Query, List<ProductionActivityRoutineAppModel>>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public GetAllTimeSheetV1Handler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<ProductionActivityRoutineAppModel>> Handle(GetAllTimeSheetV1Query request, CancellationToken cancellationToken)
+        {
+            return (List<ProductionActivityRoutineAppModel>)await _productionactivityQueryRepository.GetAllTimeSheetV1Async(request.ProductionActivityRoutineAppModel);
+        }
+
+    }
     public class DeleteproductActivityRoutineAppLineHandler : IRequestHandler<DeleteproductActivityRoutineAppLine, ProductionActivityRoutineAppModel>
     {
         private readonly IRoutineQueryRepository _productionactivityQueryRepository;
@@ -403,6 +416,18 @@ namespace Application.Handlers.QueryHandlers
         public async Task<ActivityEmailTopics> Handle(GetExitsRoutineEmailTopics request, CancellationToken cancellationToken)
         {
             return await _productionactivityQueryRepository.GetExitsRoutineEmailTopics(request.ActivityMasterId);
+        }
+    }
+    public class UpdateTimesheetV1StatusHandler : IRequestHandler<UpdateStatusTimesheetV1, long>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public UpdateTimesheetV1StatusHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<long> Handle(UpdateStatusTimesheetV1 request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateTimesheetV1Status(request.ProductionRoutineAppID);
         }
     }
 }

@@ -616,6 +616,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("RawMaterialDD", PPAlist.RawMaterialDD);
                         parameters.Add("PackingMaterialDD", PPAlist.PackingMaterialDD);
                         parameters.Add("EditProductionRoutineAppID", PPAlist.EditProductionRoutineAppID);
+                        parameters.Add("StatusID", PPAlist.StatusID);
 
                         parameters.Add("FixedAsset", PPAlist.FixedAsset);
                         parameters.Add("Others", PPAlist.Others);
@@ -629,15 +630,15 @@ namespace Infrastructure.Repository.Query
                         else if (PPAlist.ActionType == "TimeSheetV1" && PPAlist.EditProductionRoutineAppID > 0)
                         {
 
-                            var Updatequery = "Update ProductionActivityRoutineApp set CompanyID = @CompanyID ,StatusType = @StatusType,FPDD = @FPDD, ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset,Others = @Others Where ProductionActivityRoutineAppID = @EditProductionRoutineAppID";
+                            var Updatequery = "Update ProductionActivityRoutineApp set StatusID =  @StatusID, CompanyID = @CompanyID ,StatusType = @StatusType,FPDD = @FPDD, ProcessDD = @ProcessDD,RawMaterialDD = @RawMaterialDD,PackingMaterialDD = @PackingMaterialDD,FixedAsset = @FixedAsset,Others = @Others Where ProductionActivityRoutineAppID = @EditProductionRoutineAppID";
                             await connection.ExecuteAsync(Updatequery, parameters);
                             parameters.Add("Appid", PPAlist.EditProductionRoutineAppID);
                         }
                         else
                         {
-                            var query = @"INSERT INTO ProductionActivityRoutineApp(Others,FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,ActionType,TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate,LotNo,ItemName,Comment) 
+                            var query = @"INSERT INTO ProductionActivityRoutineApp(StatusID,Others,FixedAsset,PackingMaterialDD,RawMaterialDD,ProcessDD,FPDD,StatusType,ActionType,TimeSheetAction,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate,LotNo,ItemName,Comment) 
 				                       OUTPUT INSERTED.ProductionActivityRoutineAppId 
-				                       VALUES (@Others,@FixedAsset,@PackingMaterialDD,@RawMaterialDD,@ProcessDD,@FPDD,@StatusType,@ActionType,@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate,@LotNo,@ItemName,@LineComment)";
+				                       VALUES (@StatusID,@Others,@FixedAsset,@PackingMaterialDD,@RawMaterialDD,@ProcessDD,@FPDD,@StatusType,@ActionType,@TimeSheetAction,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate,@LotNo,@ItemName,@LineComment)";
                             var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
 
                             PPAlist.ProductionActivityRoutineAppId = insertedId;
@@ -723,6 +724,122 @@ namespace Infrastructure.Repository.Query
                                 }
                             }
                         }
+                        if (PPAlist.ProductionActivityRoutineAppLineId > 0)
+                        {
+                            var Deletequery = "DELETE  FROM ProdOrderMultiple WHERE ProductionActivityRoutineAppLineId = " + PPAlist.ProductionActivityRoutineAppLineId + ";";
+                            await connection.ExecuteAsync(Deletequery);
+                        }
+                        var parameter = new DynamicParameters();
+                      
+                        if (PPAlist.FPDDIds != null)
+                        {
+                            var FPData = PPAlist.FPDDIds.ToList();
+                            if (FPData.Count > 0)
+                            {
+                                
+                               foreach(string f in FPData)
+                               {
+                                    var querys = string.Empty;
+                                    parameter.Add("FPDD", f, DbType.String);
+
+
+                                    querys += "INSERT INTO [ProdOrderMultiple](FPDDMultiple,ProductionActivityRoutineAppLineId,Type) VALUES (@FPDD, " + PPAlist.ProductionActivityRoutineAppLineId + ",'FP');\r\n";
+                                    if (!string.IsNullOrEmpty(querys))
+                                    {
+                                        await connection.ExecuteAsync(querys, parameter);
+                                    }
+                                }
+
+                                
+                            }
+                        }
+                        if (PPAlist.ProcessDDIds != null)
+                        {
+                            var ProcessData = PPAlist.ProcessDDIds.ToList();
+                            if (ProcessData.Count > 0)
+                            {
+                               
+                                foreach (string f in ProcessData)
+                                {
+                                    var querys = string.Empty;
+                                    parameter.Add("ProcessDD", f, DbType.String);
+
+                                    
+                                    querys += "INSERT INTO [ProdOrderMultiple](ProcessDDMultiple,ProductionActivityRoutineAppLineId,Type) " +
+                                                        "VALUES (@ProcessDD, " + PPAlist.ProductionActivityRoutineAppLineId + ",'Process');\r\n";
+
+                                    if (!string.IsNullOrEmpty(querys))
+                                    {
+                                        await connection.ExecuteAsync(querys, parameter);
+                                    }
+                                }
+                               
+                            }
+                        }
+                        if (PPAlist.RawMaterialDDIds != null)
+                        {
+                            var RawMaterialData = PPAlist.RawMaterialDDIds.ToList();
+                            if (RawMaterialData.Count > 0)
+                            {
+
+                                foreach (string f in RawMaterialData)
+                                {
+
+                                    var querys = string.Empty;
+                                    parameter.Add("RawMaterialDD", f, DbType.String);
+
+                                    querys += "INSERT INTO [ProdOrderMultiple](RawMaterialDDMultiple,ProductionActivityRoutineAppLineId,Type) " +
+                                                        "VALUES ( @RawMaterialDD, " + PPAlist.ProductionActivityRoutineAppLineId + ",'RawMaterial');\r\n";
+                                    if (!string.IsNullOrEmpty(querys))
+                                    {
+                                        await connection.ExecuteAsync(querys, parameter);
+                                    }
+                                }
+                               
+                            }
+                        }
+                        if (PPAlist.PackingMaterialDDIds != null)
+                        {
+                            var PackingMaterialData = PPAlist.PackingMaterialDDIds.ToList();
+                            if (PackingMaterialData.Count > 0)
+                            {
+                               
+                                foreach (string f in PackingMaterialData)
+                                {
+                                  
+                                    var querys = string.Empty;
+                                    parameter.Add("PackingMaterialDD", f, DbType.String);
+                                    querys += "INSERT INTO [ProdOrderMultiple](PackingMaterialDDMultiple,ProductionActivityRoutineAppLineId,Type) " +
+                                                        "VALUES ( @PackingMaterialDD, " + PPAlist.ProductionActivityRoutineAppLineId + ",'PackingMaterial');\r\n";
+                                    if (!string.IsNullOrEmpty(querys))
+                                    {
+                                        await connection.ExecuteAsync(querys, parameter);
+                                    }
+                                }
+                               
+                            }
+                        }
+                        if (PPAlist.ProductNameIds != null)
+                        {
+                            var ProductNameData = PPAlist.ProductNameIds.ToList();
+                            if (ProductNameData.Count > 0)
+                            {
+
+                                foreach (var f in ProductNameData)
+                                {
+
+                                    var querys = string.Empty;
+                                    parameter.Add("ProductName", f);
+                                    querys += "INSERT INTO [ProdOrderMultiple](ProductNameMultiple,ProductionActivityRoutineAppLineId,Type) " +
+                                                        "VALUES (@ProductName, " + PPAlist.ProductionActivityRoutineAppLineId + ",'ProductName');\r\n";
+                                    if (!string.IsNullOrEmpty(querys))
+                                    {
+                                        await connection.ExecuteAsync(querys, parameter);
+                                    }
+                                }
+
+                            }
+                        }
                         return PPAlist.ProductionActivityRoutineAppLineId.Value;
                     }
                     catch (Exception exp)
@@ -740,6 +857,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+       
     }
 }
 

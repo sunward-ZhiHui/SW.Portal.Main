@@ -1063,7 +1063,7 @@ namespace SW.Portal.Solutions.Controllers
               
                 FilterData.ActivityStatusId = IpirAppModel.ActivityStatusId > 0 ? IpirAppModel.ActivityStatusId : null;
                 FilterData.FixedAssetNo = IpirAppModel.FixedAssetNo;
-
+                FilterData.ProdOrderNo = IpirAppModel.ProdOrderNo;
                 FilterData.SessionID = IpirAppModel.SessionID;
                 FilterData.StatusType = IpirAppModel.StatusType;
                 FilterData.FPDD = IpirAppModel.FPDD;

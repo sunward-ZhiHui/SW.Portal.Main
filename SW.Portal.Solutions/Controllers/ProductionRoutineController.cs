@@ -714,7 +714,8 @@ namespace SW.Portal.Solutions.Controllers
                 RawMaterialDD =topic.RawMaterialDD,
                 FixedAsset =topic.FixedAsset,
                 Type = topic.Type,
-                SubjectName = topic.SubjectName
+                SubjectName = topic.SubjectName,
+                ProdOrderNoDescription = topic.ProdOrderNoDescription
 
 
             }).ToList();

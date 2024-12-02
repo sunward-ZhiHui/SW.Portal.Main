@@ -24,7 +24,7 @@ namespace Core.Entities
         public string? Comment { get; set; }
        
         public string? ProdOrderNo { get; set; }
-
+        public string? ProdOrderNoDescription { get; set; }
         public long? NavprodOrderLineID { get; set; }
         public string? FixedAssetNo { get; set; }
         public long? ReportingPersonal { get; set; }

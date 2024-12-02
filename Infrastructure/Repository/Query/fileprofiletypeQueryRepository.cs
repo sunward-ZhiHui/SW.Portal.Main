@@ -830,8 +830,8 @@ namespace Infrastructure.Repository.Query
                     var linkfileProfileTypes = new List<LinkFileProfileTypeDocument>();
                     if (documentSearchModel.AttachSessionId == null)
                     {
-                        linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
-                        List<long?> linkfileProfileTypeDocumentids = new List<long?>();
+                       // linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
+                        List<long?> linkfileProfileTypeDocumentids = new List<long?>() { -1};
                         linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
                         var fileProfileTypeId = documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 ? documentSearchModel.FileProfileTypeIds : new List<long?>() { -1 };
                         var filterQuery = string.Empty;
@@ -1018,8 +1018,8 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 var linkfileProfileTypes = new List<LinkFileProfileTypeDocument>();
 
-                linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
-                List<long?> linkfileProfileTypeDocumentids = new List<long?>();
+                //linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
+                List<long?> linkfileProfileTypeDocumentids = new List<long?>() { -1};
                 linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
                 var fileProfileTypeId = documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 ? documentSearchModel.FileProfileTypeIds : new List<long?>() { -1 };
                 var filterQuery = string.Empty;

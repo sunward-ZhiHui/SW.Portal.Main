@@ -311,11 +311,11 @@ namespace Infrastructure.Repository.Query
                     if (id > 0)
                     {
                         parameters.Add("ProfileID", id);
-                        query = "SELECT * FROM DocumentProfileNoSeries t1 Where  t1.ProfileID!=@ProfileID AND Abbreviation=@Abbreviation OR t1.Name = @Name";
+                        query = "SELECT * FROM DocumentProfileNoSeries t1 Where  t1.ProfileID!=@ProfileID AND (Abbreviation=@Abbreviation OR t1.Name = @Name)";
                     }
                     else
                     {
-                        query = "SELECT * FROM DocumentProfileNoSeries t1 Where   Abbreviation=@Abbreviation OR t1.Name = @Name";
+                        query = "SELECT * FROM DocumentProfileNoSeries t1 Where (Abbreviation=@Abbreviation OR t1.Name = @Name)";
                     }
                     using (var connection = CreateConnection())
                     {

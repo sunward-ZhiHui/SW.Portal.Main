@@ -4584,7 +4584,7 @@
                     // {
                     editor.OpenElement(i + 1, "div");
                     editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                    editor.AddContent(i + 1, s.DummyNo + ". " + s.DisplayName);
+                    editor.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + ". "):"" + s.DisplayName);
                     if (isGridPrint == false)
                     {
                         if (s.IsRequired == true)
@@ -5950,7 +5950,7 @@
            {
                editor11.OpenElement(i + 1, "div");
                editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-               editor11.AddContent(i + 1, s.DummyNo + "." + ff.DummyNo + " " + ff.DisplayName);
+               editor11.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ff.DummyNo + " "):"" + ff.DisplayName);
                if (isGridPrint == false)
                {
                    if (s.IsRequired == true)
@@ -6285,7 +6285,7 @@
                {
                    if (q.SubApplicationMaster != null && q.SubApplicationMaster.Count() > 0)
                    {
-                       loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly);
+                       loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly,a);
                    }
                }
                else
@@ -6300,7 +6300,7 @@
                {
                    editor1.OpenElement(i + 1, "div");
                    editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                   editor1.AddContent(i + 1, s.DummyNo + "." + q.DummyNo + " " + q.Description);
+                   editor1.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + " "):"" + q.Description);
                    if (isGridPrint == false)
                    {
                        if (q.IsRequired == true)
@@ -7068,15 +7068,15 @@
                        if (s.DataSourceTable == "ApplicationMaster" && s.ApplicationMaster != null && s.ApplicationMaster.Count > 0)
 
                        {
-                           loadApplicationMasterForm(s, i, itemBuilder, isAccessOnly, isReadonly);
+                           loadApplicationMasterForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
                        }
                        if (s.DataSourceTable == "ApplicationMasterParent" && s.ApplicationMasterParents != null && s.ApplicationMasterParents.Count() > 0)
                        {
-                           loadApplicationMasterParentForm(s, i, itemBuilder, isAccessOnly, isReadonly);
+                           loadApplicationMasterParentForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
                        }
                        if (s.DataSourceTable == "DynamicGrid")
                        {
-                           loadDynamicGridDropDownForm(s, i, itemBuilder, isAccessOnly, isReadonly);
+                           loadDynamicGridDropDownForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
                        }
                    });
 
@@ -7097,7 +7097,7 @@
            //PanelVisible = false;
            InvokeAsync(onhideLoading);
        };
-    void loadDynamicGridDropDownForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadDynamicGridDropDownForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
     {
         var dynamicGridFormIds = s.DynamicGridDynamicFormData.Select(s => s.DynamicFormDataGridFormId).Distinct().ToList();
         if (dynamicGridFormIds.Count() > 0)
@@ -7393,7 +7393,7 @@
             }
         }
     }
-    void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
     {
         int dumNo = 1;
         s.ApplicationMasterParents.ForEach(ab =>
@@ -7404,31 +7404,31 @@
         s.ApplicationMasterParents.ForEach(ab =>
         {
             List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
-            loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true);
+            loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true,dynamicFormSection);
             if (ab.ApplicationMasterParentCodeId > 0)
             {
                 nameDatas.Add(ab);
-                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas);
+                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas,dynamicFormSection);
                 if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
                 {
-                    loadDynamicGridDropDownNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas);
+                    loadDynamicGridDropDownNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas, dynamicFormSection);
                 }
             }
         });
     }
-    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames)
+    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames,DynamicFormSection dynamicFormSection)
     {
         var dataList = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == ab.ApplicationMasterParentCodeId);
         if (dataList != null)
         {
             var nameData = s.DynamicFormSectionAttributeId + "_" + dataList.ApplicationMasterParentCodeId + "_AppMasterPar";
             dataColumnNames.Add(dataList);
-            loadApplicationMasterParentRecursiveForm(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, false);
+            loadApplicationMasterParentRecursiveForm(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, false, dynamicFormSection);
 
-            loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, dataColumnNames);
+            loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, dataColumnNames, dynamicFormSection);
         }
     }
-    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems)
+    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems,DynamicFormSection dynamicFormSection)
     {
         var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
         var propertyDependency = Data.GetType().GetProperty(appendDependency);
@@ -8323,7 +8323,7 @@
             }
         }
     }
-    void loadApplicationMasterParentRecursiveForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, bool? isLoadDropdown)
+    void loadApplicationMasterParentRecursiveForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, bool? isLoadDropdown,DynamicFormSection dynamicFormSection)
     {
         int l = 0;
         var appendAppMaster = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
@@ -8368,7 +8368,7 @@
             editor11.OpenElement(i + 1, "div");
             editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
             //editor11.AddContent(i + 1, s.DummyNo + "." + (exitsNames != null ? (exitsNames?.DummyNo+".") : "") + (ab.DummyNo+1) + " " + ab.ApplicationMasterName);
-            editor11.AddContent(i + 1, dummuNos + " " + ab.ApplicationMasterName);
+            editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (dummuNos + " "):"" + ab.ApplicationMasterName);
             if (isGridPrint == false)
             {
                 if (s.IsRequired == true)
@@ -8647,7 +8647,7 @@
         }
 
     }
-    void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
     {
         var appcount = s.ApplicationMaster.Count();
         int dumNo = 1;
@@ -8677,11 +8677,11 @@
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, s.DummyNo + "." + ab.DummyNo + " " + s.DisplayName);
+                    editor11.AddContent(i + 1,dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " "):"" + s.DisplayName);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, s.DummyNo + "." + ab.DummyNo + " " + "Select " + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " ") : "" + "Select " + ab.ApplicationMasterName);
                 }
                 if (isGridPrint == false)
                 {
@@ -9288,7 +9288,7 @@
         }
     }
 
-    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
     {
         var appcount = q.SubApplicationMaster.Count();
         int dumNo = 1;
@@ -9317,11 +9317,11 @@
                 editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " " + q.Description);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + q.Description);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " " + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " ") : "" + ab.ApplicationMasterName);
                 }
                 editor11.CloseElement();
                 if (q.ControlType == "ComboBox")

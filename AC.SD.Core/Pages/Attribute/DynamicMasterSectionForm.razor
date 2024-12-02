@@ -91,6 +91,7 @@
                     @item.SortOrderBy
                 </CellDisplayTemplate>
             </DxGridDataColumn>
+            <DxGridDataColumn FieldName="IsAutoNumberEnabled" Caption="Is AutoNumber" MinWidth="40" />
             <DxGridDataColumn FieldName="SectionFileProfileTypeName" Caption="SW Library Name" MinWidth="40" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
@@ -112,7 +113,10 @@
                     <DxTextBox @bind-Text="@types.SectionName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.SectionName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="SW Library" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Is AutoNumber" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsAutoNumberEnabled"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SW Library" ColSpanMd="10">
                     <DxTextBox NullText="SW Library..." @bind-Text="@DynamicFormSectionOne.SectionFileProfileTypeName" CssClass="cw-480">
                         <Buttons>
                             <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpendata")
@@ -413,6 +417,7 @@
                     IsReadWrite = editModel.IsReadWrite == true ? true : false,
                     Instruction = editModel.Instruction,
                     SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
+                    IsAutoNumberEnabled=editModel.IsAutoNumberEnabled,
                 };
 
             try
@@ -451,6 +456,7 @@
                     IsReadWrite = editModel.IsReadWrite,
                     Instruction = editModel.Instruction,
                     SectionFileProfileTypeId = editModel.SectionFileProfileTypeId,
+                    IsAutoNumberEnabled = editModel.IsAutoNumberEnabled,
 
                 };
             var result = await Mediator.Send(UpdateReq);

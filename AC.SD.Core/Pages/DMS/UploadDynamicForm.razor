@@ -45,19 +45,18 @@
     }
 </style>
 <script>
-    function htmlpdfGenerate()
-    {
+    function htmlpdfGenerate() {
         var element = document.getElementById('htmlPdfPrint');
-            var opt = {
-              margin: 0.5,
-              filename:     'myfile.pdf',
-              image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { useCORS: true,letterRendering: true, },pagebreak: { avoid: "div" },
-              jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait',compressPDF: true }
-            };
-    // New Promise-based usage:
-       //var openUrl= html2pdf().set(opt).from(element).output("bloburl");
-       html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+        var opt = {
+            margin: 0.5,
+            filename: 'myfile.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { useCORS: true, letterRendering: true, }, pagebreak: { avoid: "div" },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait', compressPDF: true }
+        };
+        // New Promise-based usage:
+        //var openUrl= html2pdf().set(opt).from(element).output("bloburl");
+        html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
             window.open(pdf.output('bloburl'), '_blank');
         });
         return "ok";
@@ -81,7 +80,19 @@
                         <Items>
                             <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                             <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                            <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                            @if (IsDynamicGridForm == true)
+                            {
+                                <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                    <Items>
+                                        <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                        <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                    </Items>
+                                </DxMenuItem>
+                            }
+                            else
+                            {
+                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                            }
                         </Items>
                     </DxMenu>
                 }
@@ -118,7 +129,19 @@
                                         <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
                                     </Items>
                                 </DxMenuItem>
-                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                @if (IsDynamicGridForm == true)
+                                {
+                                    <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <Items>
+                                            <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                            <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                        </Items>
+                                    </DxMenuItem>
+                                }
+                                else
+                                {
+                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                }
                             </Items>
                         </DxMenu>
                     }
@@ -141,7 +164,19 @@
                                         <DxMenuItem Text="Reject" IconCssClass="fa fa-ban" Click="onClickWorkFlowReject" Enabled="IsWorkflowApprovalRejected" />
                                     </Items>
                                 </DxMenuItem>
-                                <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                @if (IsDynamicGridForm == true)
+                                {
+                                    <DxMenuItem Text="Print From" IconCssClass="fa fa-print">
+                                        <Items>
+                                            <DxMenuItem Text="With Grid" IconCssClass="fa fa-file-pdf" Click="@PrintForm" />
+                                            <DxMenuItem Text="Without Grid" IconCssClass="fa fa-file-pdf" Click="@PrintWithoutGridForm" />
+                                        </Items>
+                                    </DxMenuItem>
+                                }
+                                else
+                                {
+                                    <DxMenuItem Text="Print Form" IconCssClass="fa fa-print" Click="@PrintForm" />
+                                }
                             </Items>
                         </DxMenu>
                     }
@@ -181,75 +216,80 @@
 </div>
 <div class="card cw-480" style="@mainStyle" id="htmlPdfPrint">
     <div class="card-header text-center py-3" style="@displayNonePrintForm">
-    <h4>@_dynamicform?.Name</h4>
-</div>
+        <h4>@_dynamicform?.Name</h4>
+    </div>
     <DxTabs RenderMode="TabsRenderMode.Default" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
         <DxTabPage Text="Form">
             <div class="card-body" style="margin-top:5px;">
                 <DxFormLayout CssClass="w-100">
                     <EditForm EditContext="this._editContexts" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
-                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+                        <DxFormLayoutGroup ColSpanMd="12" Caption="Profile No" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.Start" ExpandedChanged="@ExpandedChanged" Expanded="@isMainHeader" AnimationType="LayoutAnimationType.Slide">
                             <HeaderContentTemplate>
                                 <div>
                                     Profile No
                                 </div>
-                                @if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null)
+                                @if (isPrint == false)
                                 {
-                                    var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == -1);
-                                    if (_dynamicSecAttach != null)
+                                    if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null)
                                     {
-                                        <div style="margin-left:auto;">
-                                            <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick(_dynamicSecAttach))" title="@_dynamicSecAttach.FileName"></i>
-                                        </div>
+                                        var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == -1);
+                                        if (_dynamicSecAttach != null)
+                                        {
+                                            <div style="margin-left:auto;">
+                                                <i class="fa fa-paperclip" aria-hidden="true" style="cursor: pointer;margin-right:10px;" onclick="@(() => OnSectionUploadInfoClick(_dynamicSecAttach))" title="@_dynamicSecAttach.FileName"></i>
+                                            </div>
+                                        }
                                     }
                                 }
                             </HeaderContentTemplate>
                             <Items>
-                                <DxFormLayoutItem Caption="Login From" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="Login From" ColSpanMd="@colSpanMd">
                                     <DxTextBox @bind-Text="@_longInUser" Enabled="false" />
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Login Company" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="Login Company" ColSpanMd="@colSpanMd">
                                     <DxTextBox @bind-Text="@_longInCompany" Enabled="false" />
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Added By" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="Added By" ColSpanMd="@colSpanMd">
                                     <DxTextBox NullText="Added By" @bind-Text="@_longInAddedBy" Enabled="false" />
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Added Date" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="Added Date" ColSpanMd="@colSpanMd">
                                     <DxTextBox NullText="Date" @bind-Text="@_longInDateTime" Enabled="false" />
                                 </DxFormLayoutItem>
                                 <DxFormLayoutItem Caption="Profile No" ColSpanMd="12">
                                     <DxTextBox @bind-Text="@Datas.ProfileNo" Enabled="false" />
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                                    <DxDropDownBox @bind-Value="PlantValue"
-                                                   QueryDisplayText="QueryPlantText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Company..."
-                                                   Enabled="isPlant"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_plantItems"
-                                                    KeyFieldName="@nameof(ViewPlants.PlantID)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewPlants)"
-                                                    SelectedDataItemChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="PlantCode" />
-                                                    <DxGridDataColumn FieldName="Description" />
-                                                    <DxGridDataColumn FieldName="NavCompanyName" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.PlantId" ShowValidationIcon="true" style="display:none;" />
-                                    @*  <DxComboBox Data="@_plantItems"
+                                @if (isPrint == false)
+                                {
+                                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                                        <DxDropDownBox @bind-Value="PlantValue"
+                                                       QueryDisplayText="QueryPlantText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Company..."
+                                                       Enabled="isPlant"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_plantItems"
+                                                        KeyFieldName="@nameof(ViewPlants.PlantID)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewPlants)"
+                                                        SelectedDataItemChanged="item => GridSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="PlantCode" />
+                                                        <DxGridDataColumn FieldName="Description" />
+                                                        <DxGridDataColumn FieldName="NavCompanyName" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.PlantId" ShowValidationIcon="true" style="display:none;" />
+                                        @*  <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.Contains"
@@ -268,10 +308,10 @@
                                     Caption="Nav Company" />
                                     </Columns>
                                     </DxComboBox>*@
-                                    <ValidationMessage For="@(() => Datas.PlantId)" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                                    @*   <DxComboBox Data="@_divisionItems"
+                                        <ValidationMessage For="@(() => Datas.PlantId)" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                                        @*   <DxComboBox Data="@_divisionItems"
                                     NullText="Select Division..."
                                     ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.Contains"
@@ -290,37 +330,37 @@
                                     Caption="Description" />
                                     </Columns>
                                     </DxComboBox> *@
-                                    <DxDropDownBox @bind-Value="DivisionValue"
-                                                   QueryDisplayText="QueryDivisionText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Division..."
-                                                   Enabled="isDivision"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_divisionItems"
-                                                    KeyFieldName="@nameof(ViewDivision.DivisionID)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDivision)"
-                                                    SelectedDataItemChanged="item => GridDivisionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Name)" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Code)" Caption="Code" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDivision.Description)" Caption="Description" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.DivisionId" ShowValidationIcon="true" style="display:none;" />
-                                    <ValidationMessage For="@(() => Datas.DivisionId)" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                                    @*  <DxComboBox Data="@_departmentItems"
+                                        <DxDropDownBox @bind-Value="DivisionValue"
+                                                       QueryDisplayText="QueryDivisionText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Division..."
+                                                       Enabled="isDivision"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_divisionItems"
+                                                        KeyFieldName="@nameof(ViewDivision.DivisionID)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDivision)"
+                                                        SelectedDataItemChanged="item => GridDivisionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Name)" Caption="Name" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Code)" Caption="Code" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDivision.Description)" Caption="Description" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.DivisionId" ShowValidationIcon="true" style="display:none;" />
+                                        <ValidationMessage For="@(() => Datas.DivisionId)" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                                        @*  <DxComboBox Data="@_departmentItems"
                                     NullText="Select Department..."
                                     ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.Contains"
@@ -339,37 +379,37 @@
                                     Caption="Description" />
                                     </Columns>
                                     </DxComboBox> *@
-                                    <DxDropDownBox @bind-Value="DepartmentValue"
-                                                   QueryDisplayText="QueryDepartmentText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Department..."
-                                                   Enabled="isDepartment"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_departmentItems"
-                                                    KeyFieldName="@nameof(ViewDepartment.DepartmentId)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDepartment)"
-                                                    SelectedDataItemChanged="item => GridDepartmentSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentName)" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentCode)" Caption="Code" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewDepartment.Description)" Caption="Description" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true" style="display:none;" />
-                                    <ValidationMessage For="@(() => Datas.DepartmentId)" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                                    @* <DxComboBox Data="@_sectionItems"
+                                        <DxDropDownBox @bind-Value="DepartmentValue"
+                                                       QueryDisplayText="QueryDepartmentText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Department..."
+                                                       Enabled="isDepartment"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_departmentItems"
+                                                        KeyFieldName="@nameof(ViewDepartment.DepartmentId)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewDepartment)"
+                                                        SelectedDataItemChanged="item => GridDepartmentSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentName)" Caption="Name" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.DepartmentCode)" Caption="Code" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewDepartment.Description)" Caption="Description" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.DepartmentId" ShowValidationIcon="true" style="display:none;" />
+                                        <ValidationMessage For="@(() => Datas.DepartmentId)" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                                        @* <DxComboBox Data="@_sectionItems"
                                     NullText="Select Section..."
                                     ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.Contains"
@@ -388,37 +428,37 @@
                                     Caption="Description" />
                                     </Columns>
                                     </DxComboBox> *@
-                                    <DxDropDownBox @bind-Value="SectionValue"
-                                                   QueryDisplayText="QuerySectionText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Section..."
-                                                   Enabled="isSection"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_sectionItems"
-                                                    KeyFieldName="@nameof(ViewSection.SectionId)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSection)"
-                                                    SelectedDataItemChanged="item => GridSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.SectionName)" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.SectionCode)" Caption="Code" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSection.Description)" Caption="Description" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.SectionId" ShowValidationIcon="true" style="display:none;" />
-                                    <ValidationMessage For="@(() => Datas.SectionId)" />
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-                                    @* <DxComboBox Data="@_subSectionItems"
+                                        <DxDropDownBox @bind-Value="SectionValue"
+                                                       QueryDisplayText="QuerySectionText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Section..."
+                                                       Enabled="isSection"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_sectionItems"
+                                                        KeyFieldName="@nameof(ViewSection.SectionId)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSection)"
+                                                        SelectedDataItemChanged="item => GridSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSection.SectionName)" Caption="Name" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSection.SectionCode)" Caption="Code" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSection.Description)" Caption="Description" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.SectionId" ShowValidationIcon="true" style="display:none;" />
+                                        <ValidationMessage For="@(() => Datas.SectionId)" />
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                                        @* <DxComboBox Data="@_subSectionItems"
                                     NullText="Select SubSection..."
                                     ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.Contains"
@@ -436,35 +476,36 @@
                                     Caption="Description" />
                                     </Columns>
                                     </DxComboBox> *@
-                                    <DxDropDownBox @bind-Value="SubSectionValue"
-                                                   QueryDisplayText="QuerySubSectionText"
-                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                   NullText="Select a Sub Section..."
-                                                   Enabled="isSubSection"
-                                                   ShowValidationIcon="true">
-                                        <DropDownBodyTemplate Context="ddbBodyContext">
-                                            <DxGrid Data="@_subSectionItems"
-                                                    KeyFieldName="@nameof(ViewSubSection.SubSectionId)" ShowSearchBox="true"
-                                                    HighlightRowOnHover="true"
-                                                    SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
-                                                    SelectionMode="GridSelectionMode.Single"
-                                                    AllowSelectRowByClick="true"
-                                                    FocusedRowEnabled="true"
-                                                    TextWrapEnabled="false"
-                                                    CssClass="templateGrid"
-                                                    SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSubSection)"
-                                                    SelectedDataItemChanged="item => GridSubSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
-                                                <Columns>
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionName)" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionCode)" Caption="Code" />
-                                                    <DxGridDataColumn FieldName="@nameof(ViewSubSection.Description)" Caption="Description" />
-                                                </Columns>
-                                            </DxGrid>
-                                        </DropDownBodyTemplate>
-                                    </DxDropDownBox>
-                                    <DxSpinEdit @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true" style="display:none;" />
-                                    <ValidationMessage For="@(() => Datas.SubSectionId)" />
-                                </DxFormLayoutItem>
+                                        <DxDropDownBox @bind-Value="SubSectionValue"
+                                                       QueryDisplayText="QuerySubSectionText"
+                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                       NullText="Select a Sub Section..."
+                                                       Enabled="isSubSection"
+                                                       ShowValidationIcon="true">
+                                            <DropDownBodyTemplate Context="ddbBodyContext">
+                                                <DxGrid Data="@_subSectionItems"
+                                                        KeyFieldName="@nameof(ViewSubSection.SubSectionId)" ShowSearchBox="true"
+                                                        HighlightRowOnHover="true"
+                                                        SearchTextParseMode="GridSearchTextParseMode.GroupWordsByAnd"
+                                                        SelectionMode="GridSelectionMode.Single"
+                                                        AllowSelectRowByClick="true"
+                                                        FocusedRowEnabled="true"
+                                                        TextWrapEnabled="false"
+                                                        CssClass="templateGrid"
+                                                        SelectedDataItem="@(ddbBodyContext.DropDownBox.Value as ViewSubSection)"
+                                                        SelectedDataItemChanged="item => GridSubSectionSelectedDataItemChanged(item, ddbBodyContext.DropDownBox)">
+                                                    <Columns>
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionName)" Caption="Name" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.SubSectionCode)" Caption="Code" />
+                                                        <DxGridDataColumn FieldName="@nameof(ViewSubSection.Description)" Caption="Description" />
+                                                    </Columns>
+                                                </DxGrid>
+                                            </DropDownBodyTemplate>
+                                        </DxDropDownBox>
+                                        <DxSpinEdit @bind-Value="@Datas.SubSectionId" ShowValidationIcon="true" style="display:none;" />
+                                        <ValidationMessage For="@(() => Datas.SubSectionId)" />
+                                    </DxFormLayoutItem>
+                                }
                             </Items>
                         </DxFormLayoutGroup>
                     </EditForm>
@@ -673,6 +714,8 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool? IsDynamicGridForm { get; set; } = false; bool? IsPrintWithoutGridForm { get; set; } = false;
+    bool isPrint { get; set; } = false; int colSpanMd { get; set; } = 3; bool isMainHeader { get; set; } = false;
     private string? displayNonePrintForm { get; set; } = "display:none;";
     private string? mainStyle { get; set; } = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 335px);";
     private AC.SD.Core.Pages.Attribute.DynamicFormDataWorkFlowFormList refDynamicFormDataWorkFlowFormList { get; set; }
@@ -795,22 +838,37 @@
             _userEmployee = await Mediator.Send(new GetEmployeeFormByUserId(applicationUser.UserID));
         }
     }
+    void ExpandedChanged(bool NewExpanded)
+    {
+        isMainHeader = NewExpanded;
+        StateHasChanged();
+    }
     public async Task PrintForm()
     {
+        var isplantPrint = isMainHeader;
+        isPrint = true; isMainHeader = true; colSpanMd = 6;
+        CreateEditFormFields();
         await JSRuntime.InvokeAsync<string>("showLoading");
         toastService.ShowToast("Pls Wait Form Print Generating.", AC.SD.Core.Services.ToastLevel.Success);
-        mainStyle = "";displayNonePrintForm = "";
+        mainStyle = ""; displayNonePrintForm = "";
         StateHasChanged();
-        await Task.Delay(500);
+        await Task.Delay(1000);
         var result = await JSRuntime.InvokeAsync<string>("htmlpdfGenerate");
         if (result == "ok")
         {
-            mainStyle = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 335px);";
+            mainStyle = "overflow-x: hidden;overflow-y: auto;height: calc(100vh - 280px);";
             toastService.ShowToast("Print Form Generated.", AC.SD.Core.Services.ToastLevel.Success);
+            isPrint = false; isMainHeader = isplantPrint; colSpanMd = 3; IsPrintWithoutGridForm = false;
+            CreateEditFormFields();
             await JSRuntime.InvokeAsync<string>("hideLoading");
         }
         displayNonePrintForm = "display:none;";
         StateHasChanged();
+    }
+    public async Task PrintWithoutGridForm()
+    {
+        IsPrintWithoutGridForm = true; StateHasChanged();
+        await PrintForm();
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -959,13 +1017,13 @@
     }
     async Task loadDynamicForm()
     {
-        await onshowLoading(); _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
+        await onshowLoading(); IsDynamicGridForm = false; IsPrintWithoutGridForm = false; isPrint = false; colSpanMd = 3; isMainHeader = false; _dynamicformData = null; _dynamicFormApprovedList = null; _dynamicFormWorkFlowSection = null; _dynamicFormSectionList = null; isLocked = false; LockedName = "Lock"; fafaunlock = "fa fa-lock"; isUserLocked = false; emailEnabled = false;
         bool? deleted = false; addTempSectionAttributes = new List<AddTempSectionAttribute>(); EditEnabledApproval = false; dynamicFormWorkFlowApprovedForm = new DynamicFormWorkFlowApprovedForm(); ApproveRejectWokFlowName = "Approve";
         IsWorkflowApprovalRejected = false; IsWokFlowDescriptionOpen = false; workflowStyle = "display:none;"; _dynamicFormWorkFlowApprovedFormOne = new DynamicFormWorkFlowApprovedForm();
         _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
         _dynamicFormWorkFlowFormList = await Mediator.Send(new GetDynamicFormWorkFlowFormList(_dynamicform.ID, null));
         _longInUser = applicationUser.UserName; _longInAddedBy = applicationUser.UserName; _longInDateTime = Application.Common.Helper.Helper.FormatDateTime(DateTime.Now); _dynamicFormWorkFlowApprovedFormList = new List<DynamicFormWorkFlowApprovedForm>();
-        _DynamicFormSectionIds = new List<long?>(); dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>(); _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
+        _attributeFilterDetailsList = new List<AttributeFilterDetails>(); _DynamicFormSectionIds = new List<long?>(); dynamicFormSectionAttributeSectionSelected = new List<DynamicFormSectionAttributeSection>(); _dynamicFormWorkFlowSectionNoWorkFlow = new List<DynamicFormWorkFlowSection>();
         if (_userEmployee != null)
         {
             _longInCompany = _userEmployee.CompanyName;
@@ -1285,7 +1343,7 @@
                         _DynamicFormSectionIds = _AttributeHeader.DynamicFormSectionAttributeSections.Select(s => s.DynamicFormSectionId).Distinct().ToList();
                         if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
-
+                            IsDynamicGridForm = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.ControlTypeId == 2712).Count() > 0 ? true : false;
                             if (!string.IsNullOrEmpty(_dynamicformData?.DynamicFormItem))
                             {
                                 if (IsValidJson(_dynamicformData.DynamicFormItem))
@@ -4390,6 +4448,10 @@
                       }
                   }
               }
+              else
+              {
+                  isVisible = true;
+              }
           }
           var exi = DynamicFormDataUploadByPermissions.FirstOrDefault(f => f.DynamicFormSectionId == a.DynamicFormSectionId);
           if (exi == null)
@@ -4400,6 +4462,10 @@
               DynamicFormDataUploadByPermission.DynamicFormSectionId = a.DynamicFormSectionId;
               DynamicFormDataUploadByPermissions.Add(DynamicFormDataUploadByPermission);
           }
+          if (isPrint == true)
+          {
+              isVisible = true;
+          }
           if (isVisible == true)
           {
               formLayoutBuilder.OpenComponent<DxFormLayout>(i);
@@ -4408,76 +4474,79 @@
           {
               layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
               layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.Start);
-              layoutItemBuilder.AddAttribute(i + 1, "Expanded", k == 0 ? true : false);
+              layoutItemBuilder.AddAttribute(i + 1, "Expanded", isPrint == true ? true : (k == 0 ? true : false));
               layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.Slide);
               layoutItemBuilder.AddAttribute(i + 1, "CssClass", "FormLayoutGroupCss");
               //layoutItemBuilder.AddAttribute(i + 1, "Visible", isVisible);
               layoutItemBuilder.AddAttribute(i + 1, "HeaderContentTemplate", (RenderFragment<IFormLayoutGroupInfo>)((context) => (b) =>
               {
                   b.OpenElement(i + 1, "div");
-                  b.AddContent(i + 1, a.SectionName);
+                  b.AddContent(i + 1, a.SortOrderBy + ". " + a.SectionName);
                   b.CloseElement();
                   b.OpenElement(i + 1, "div");
                   b.AddAttribute(i + 1, "style", "margin-left:auto;");
-                  if (isUploadReadonly == true)
+                  if (isPrint == false)
                   {
-                      if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
+                      if (isUploadReadonly == true)
                       {
-                          var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == a.DynamicFormSectionId);
-                          if (_dynamicSecAttach != null)
+                          if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0 && _dynamicFormSectionList != null && _dynamicFormSectionList.Count > 0)
                           {
-                              b.OpenElement(i + 1, "i");
-                              b.AddAttribute(i + 1, "class", "fa fa-paperclip");
-                              b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
-                              b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionUploadInfoClick(_dynamicSecAttach)));
-                              b.AddAttribute(i + 1, "title", _dynamicSecAttach.FileName);
-                              b.AddAttribute(i + 1, "aria-hidden", true);
-                              b.CloseElement();
+                              var _dynamicSecAttach = _dynamicFormSectionList.FirstOrDefault(y => y.IsFileExits == "Yes" && y.DynamicFormSectionId == a.DynamicFormSectionId);
+                              if (_dynamicSecAttach != null)
+                              {
+                                  b.OpenElement(i + 1, "i");
+                                  b.AddAttribute(i + 1, "class", "fa fa-paperclip");
+                                  b.AddAttribute(i + 1, "style", "cursor: pointer;margin-right:10px;");
+                                  b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionUploadInfoClick(_dynamicSecAttach)));
+                                  b.AddAttribute(i + 1, "title", _dynamicSecAttach.FileName);
+                                  b.AddAttribute(i + 1, "aria-hidden", true);
+                                  b.CloseElement();
+                              }
                           }
                       }
-                  }
-                  if (!string.IsNullOrEmpty(a.Instruction))
-                  {
-                      b.OpenElement(i + 1, "i");
-                      b.AddAttribute(i + 1, "class", "fa fa-info-circle");
-                      b.AddAttribute(i + 1, "style", "cursor: pointer;");
-                      b.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-SectionInfo-{randomNum}-{a.DynamicFormSectionId}"));
-                      b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionInfoClick(a)));
-                      b.AddAttribute(i + 1, "title", "Click Here Show Instruction");
-                      b.AddAttribute(i + 1, "aria-hidden", true);
-                      b.CloseElement();
-                  }
-                  if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
-                  {
-                      var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
-                      b.OpenElement(i + 1, "i");
-                      if (sectionLock != null)
+                      if (!string.IsNullOrEmpty(a.Instruction))
                       {
-                          if (sectionLock.LockedUserId != applicationUser.UserID)
+                          b.OpenElement(i + 1, "i");
+                          b.AddAttribute(i + 1, "class", "fa fa-info-circle");
+                          b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                          b.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-SectionInfo-{randomNum}-{a.DynamicFormSectionId}"));
+                          b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionInfoClick(a)));
+                          b.AddAttribute(i + 1, "title", "Click Here Show Instruction");
+                          b.AddAttribute(i + 1, "aria-hidden", true);
+                          b.CloseElement();
+                      }
+                      if (_dynamicformData != null && _dynamicformData.DynamicFormDataId > 0)
+                      {
+                          var sectionLock = _dynamicformData?.DynamicFormDataSectionLock.FirstOrDefault(dc => dc.DynamicFormSectionId == a.DynamicFormSectionId);
+                          b.OpenElement(i + 1, "i");
+                          if (sectionLock != null)
                           {
-                              isReadonly = sectionLock.IsLocked == true ? true : isReadonly;
-                              isReadonly = isReadonly == true ? false : isReadonly;
+                              if (sectionLock.LockedUserId != applicationUser.UserID)
+                              {
+                                  isReadonly = sectionLock.IsLocked == true ? true : isReadonly;
+                                  isReadonly = isReadonly == true ? false : isReadonly;
+                              }
+                              else
+                              {
+                                  b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                                  b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                              }
+                              a.DynamicFormDataSectionLock = sectionLock;
+                              b.AddAttribute(i + 1, "class", sectionLock.IsLocked == true ? "fa fa-lock" : "fa fa-unlock");
                           }
                           else
                           {
-                              b.AddAttribute(i + 1, "style", "cursor: pointer;");
                               b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
+                              b.AddAttribute(i + 1, "style", "cursor: pointer;");
+                              b.AddAttribute(i + 1, "class", "fa fa-unlock");
                           }
-                          a.DynamicFormDataSectionLock = sectionLock;
-                          b.AddAttribute(i + 1, "class", sectionLock.IsLocked == true ? "fa fa-lock" : "fa fa-unlock");
+                          if (sectionLock != null && sectionLock.IsLocked == true && !string.IsNullOrEmpty(sectionLock?.LockedUser))
+                          {
+                              b.AddAttribute(i + 1, "title", "Locked By:" + sectionLock?.LockedUser);
+                          }
+                          b.AddAttribute(i + 1, "aria-hidden", true);
+                          b.CloseElement();
                       }
-                      else
-                      {
-                          b.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnSectionLockClick(a)));
-                          b.AddAttribute(i + 1, "style", "cursor: pointer;");
-                          b.AddAttribute(i + 1, "class", "fa fa-unlock");
-                      }
-                      if (sectionLock != null && sectionLock.IsLocked == true && !string.IsNullOrEmpty(sectionLock?.LockedUser))
-                      {
-                          b.AddAttribute(i + 1, "title", "Locked By:" + sectionLock?.LockedUser);
-                      }
-                      b.AddAttribute(i + 1, "aria-hidden", true);
-                      b.CloseElement();
                   }
                   b.CloseElement();
               }));
@@ -4486,6 +4555,12 @@
               var dynamicFormSectionAttributeData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
               if (dynamicFormSectionAttributeData != null && dynamicFormSectionAttributeData.Count > 0)
               {
+                  int dNo = 1;
+                  dynamicFormSectionAttributeData.ForEach(s =>
+      {
+          s.DummyNo = dNo;
+          dNo++;
+      });
                   var dynamicFormSectionAttributeDataOne = new DynamicFormSectionAttribute();
                   dynamicFormSectionAttributeData.ForEach(s =>
                   {
@@ -4551,7 +4626,7 @@
                               {
                                   //itemBuilder.AddAttribute(i++, "Caption", s.DisplayName);
                               }
-                              itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+                              itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : s.ColSpan);
 
                               var access = Expression.Property(Expression.Constant(Data), s.DynamicAttributeName);
                               var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), access);
@@ -4566,43 +4641,46 @@
                    // {
                    editor.OpenElement(i + 1, "div");
                    editor.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                   editor.AddContent(i + 1, s.DisplayName);
-                   if (s.IsRequired == true)
+                   editor.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + ". "):"" + s.DisplayName);
+                   if (isPrint == false)
                    {
-                       editor.OpenElement(i + 1, "span");
-                       editor.AddAttribute(i + 1, "style", "color: red;");
-                       editor.AddContent(i + 1, "(*)");
-                       editor.CloseElement();
-                   }
-                   if (!string.IsNullOrEmpty(s.FormToolTips))
-                   {
-                       editor.OpenElement(i + 1, "i");
-                       editor.AddAttribute(i + 1, "class", "fa fa-info");
-                       editor.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-                       editor.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{s.DynamicAttributeName}"));
-                       editor.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(s.DynamicAttributeName, s.FormToolTips)));
-                       editor.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
-                       editor.AddAttribute(i + 1, "aria-hidden", true);
-                       editor.CloseElement();
-                   }
-                   if (s.DropDownTypeId == "Data Source")
-                   {
-                       if (s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
+                       if (s.IsRequired == true)
                        {
-
+                           editor.OpenElement(i + 1, "span");
+                           editor.AddAttribute(i + 1, "style", "color: red;");
+                           editor.AddContent(i + 1, "(*)");
+                           editor.CloseElement();
                        }
-                       else
+                       if (!string.IsNullOrEmpty(s.FormToolTips))
                        {
-                           var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == s.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
-                           if (FilterExits != null && FilterExits > 0)
+                           editor.OpenElement(i + 1, "i");
+                           editor.AddAttribute(i + 1, "class", "fa fa-info");
+                           editor.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                           editor.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{s.DynamicAttributeName}"));
+                           editor.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(s.DynamicAttributeName, s.FormToolTips)));
+                           editor.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
+                           editor.AddAttribute(i + 1, "aria-hidden", true);
+                           editor.CloseElement();
+                       }
+                       if (s.DropDownTypeId == "Data Source")
+                       {
+                           if (s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
                            {
-                               editor.OpenElement(i + 1, "i");
-                               editor.AddAttribute(i + 1, "class", "fa fa-filter");
-                               editor.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-                               editor.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(s.DynamicAttributeName, a, s, s.DataSourceTable)));
-                               editor.AddAttribute(i + 1, "title", "Click Here Filter");
-                               editor.AddAttribute(i + 1, "aria-hidden", true);
-                               editor.CloseElement();
+
+                           }
+                           else
+                           {
+                               var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == s.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
+                               if (FilterExits != null && FilterExits > 0)
+                               {
+                                   editor.OpenElement(i + 1, "i");
+                                   editor.AddAttribute(i + 1, "class", "fa fa-filter");
+                                   editor.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                                   editor.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(s.DynamicAttributeName, a, s, s.DataSourceTable)));
+                                   editor.AddAttribute(i + 1, "title", "Click Here Filter");
+                                   editor.AddAttribute(i + 1, "aria-hidden", true);
+                                   editor.CloseElement();
+                               }
                            }
                        }
                    }
@@ -4611,21 +4689,24 @@
                    var j = 0;
                    if (s.ControlType == "Dynamic Grid Form")
                    {
-                       editor.OpenComponent<AC.SD.Core.Pages.Attribute.DynamicFormGridLists>(j + 1);
-                       editor.AddAttribute(j + 1, "SessionId", s.DynamicFormSessionId);
-                       editor.AddAttribute(j + 1, "DynamicFormSectionGridAttributeId", s.DynamicFormSectionAttributeId);
-                       editor.AddAttribute(j + 1, "isMainLocked", isLocked);
-                       if (isAccessOnly == true)
+                       if (IsPrintWithoutGridForm == false)
                        {
-                           editor.AddAttribute(j + 1, "IsReadonly", isReadonly);
+                           editor.OpenComponent<AC.SD.Core.Pages.Attribute.DynamicFormGridLists>(j + 1);
+                           editor.AddAttribute(j + 1, "SessionId", s.DynamicFormSessionId);
+                           editor.AddAttribute(j + 1, "DynamicFormSectionGridAttributeId", s.DynamicFormSectionAttributeId);
+                           editor.AddAttribute(j + 1, "isMainLocked", isLocked);
+                           if (isAccessOnly == true)
+                           {
+                               editor.AddAttribute(j + 1, "IsReadonly", isReadonly);
+                           }
+                           else
+                           {
+                               editor.AddAttribute(j + 1, "IsReadonly", isAccessOnly);
+                           }
+                           editor.AddAttribute(j + 1, "MainSessionId", dynamicFormData?.SessionId);
+                           editor.AddAttribute(j + 1, "DynamicFormDataGridId", dynamicFormData?.DynamicFormDataId);
+                           editor.CloseComponent();
                        }
-                       else
-                       {
-                           editor.AddAttribute(j + 1, "IsReadonly", isAccessOnly);
-                       }
-                       editor.AddAttribute(j + 1, "MainSessionId", dynamicFormData?.SessionId);
-                       editor.AddAttribute(j + 1, "DynamicFormDataGridId", dynamicFormData?.DynamicFormDataId);
-                       editor.CloseComponent();
                    }
                    else if (s.ControlType == "QR Code")
                    {
@@ -4649,7 +4730,7 @@
                            editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                        }
 
-                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                        editor.AddAttribute(j + 1, "Buttons", (RenderFragment)((dx) =>
                    {
@@ -4704,7 +4785,7 @@
                            editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                        }
 
-                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                        if (!string.IsNullOrEmpty(s.FormulaTextBox))
                        {
@@ -4759,7 +4840,7 @@
                        {
                            editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                        }
-                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor.AddAttribute(j + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { property.SetValue(Data, str); }));
                        if (s.IsDefaultReadOnly == false)
                        {
@@ -4808,7 +4889,7 @@
                        {
                            editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                        }
-                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor.AddAttribute(j + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { property.SetValue(Data, str); }));
                        if (s.IsDefaultReadOnly == false)
                        {
@@ -4860,7 +4941,7 @@
                        {
                            editor.AddAttribute(j + 1, "Enabled", isAccessOnly);
                        }
-                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                       editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                        editor.AddAttribute(j + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                        if (s.IsRequired == true && isReadonly == true && isAccessOnly == true && isViewFormatOnly == true)
                        {
@@ -4922,7 +5003,7 @@
 
                                editor.AddAttribute(j + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { property.SetValue(Data, str); }));
                            }
-                           editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                           editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                            editor.AddAttribute(j + 1, "ValueExpression", lambda);
                        }
                        else
@@ -5108,14 +5189,14 @@
                                            g1.ForEach(q =>
                                            {
                                                var byName = (IDictionary<string, object>)v;
-                                                     if (q.Value != null)
-                                                     {
-                                                         if (byName.ContainsKey(q.Value))
-                                                         {
-                                                             var names = (string)byName[q.Value]?.ToString();
-                                                             listone += names + "|";
-                                                         }
-                                                     }
+                                               if (q.Value != null)
+                                               {
+                                                   if (byName.ContainsKey(q.Value))
+                                                   {
+                                                       var names = (string)byName[q.Value]?.ToString();
+                                                       listone += names + "|";
+                                                   }
+                                               }
                                            });
                                        }
                                        eod.DisplayItemsQuery = listone;
@@ -5142,8 +5223,8 @@
                                var GridDropBoxData = _DropDownBoxGridModel.FirstOrDefault(f => f.AttrName == DataDynamicAttributeName);
                                editor.OpenComponent<DxDropDownBox>(0);
                                editor.AddAttribute(1, "DropDownWidthMode", DropDownWidthMode.EditorWidth);
-                               editor.AddAttribute(2, "NullText", "Select " + s.DisplayName + "..");
-                               editor.AddAttribute(3, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                               editor.AddAttribute(2, "NullText", isPrint == true ? "" : "Select " + s.DisplayName + "..");
+                               editor.AddAttribute(3, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                                editor.AddAttribute(4, "QueryDisplayText", s.DataSourceTable == "DynamicGrid" ? QueryDisplayDynamicComboBoxText : QueryDisplayComboBoxText);
                                editor.AddAttribute(5, "CssClass", "cw-480");
                                editor.AddAttribute(6, "Value", GridvalueData);
@@ -5226,11 +5307,11 @@
 
                            editor.AddAttribute(j + 1, "TextFieldName", "AttributeDetailName");
                            editor.AddAttribute(j + 1, "ValueFieldName", "AttributeDetailID");
-                           editor.AddAttribute(j + 1, "NullText", "Select " + s.DisplayName + "..");
+                           editor.AddAttribute(j + 1, "NullText", isPrint == true ? "" : "Select " + s.DisplayName + "..");
                            editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
                            editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
                            editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                           editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                           editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                            editor.AddAttribute(j + 1, "Value", valueData);
                            if (isAccessOnly == true)
                            {
@@ -5387,14 +5468,14 @@
                                            g1.ForEach(q =>
                                            {
                                                var byName = (IDictionary<string, object>)v;
-                                                     if (q.Value != null)
-                                                     {
-                                                         if (byName.ContainsKey(q.Value))
-                                                         {
-                                                             var names = (string)byName[q.Value]?.ToString();
-                                                             listone += names + "|";
-                                                         }
-                                                     }
+                                               if (q.Value != null)
+                                               {
+                                                   if (byName.ContainsKey(q.Value))
+                                                   {
+                                                       var names = (string)byName[q.Value]?.ToString();
+                                                       listone += names + "|";
+                                                   }
+                                               }
                                            });
                                        }
                                        eod.DisplayItemsQuery = listone;
@@ -5422,8 +5503,8 @@
 
                                editor.OpenComponent<DxDropDownBox>(0);
                                editor.AddAttribute(1, "DropDownWidthMode", DropDownWidthMode.EditorWidth);
-                               editor.AddAttribute(2, "NullText", "Select " + s.DisplayName + "..");
-                               editor.AddAttribute(3, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                               editor.AddAttribute(2, "NullText", isPrint == true ? "" : "Select " + s.DisplayName + "..");
+                               editor.AddAttribute(3, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                                editor.AddAttribute(4, "QueryDisplayText", s.DataSourceTable == "DynamicGrid" ? QueryMultipleDynamicFormText : QueryMultipleText);
                                editor.AddAttribute(5, "CssClass", "cw-480");
                                editor.AddAttribute(6, "Value", GridvalueData);
@@ -5540,13 +5621,13 @@
 
 
 
-                           editor.AddAttribute(j + 1, "NullText", "Select " + s.DisplayName + "..");
+                           editor.AddAttribute(j + 1, "NullText", isPrint == true ? "" : "Select " + s.DisplayName + "..");
                            editor.AddAttribute(j + 1, "TextFieldName", "AttributeDetailName");
                            editor.AddAttribute(j + 1, "ValueFieldName", "AttributeDetailID");
                            editor.AddAttribute(j + 1, "ListRenderMode", ListRenderMode.Virtual);
                            editor.AddAttribute(j + 1, "SearchMode", ListSearchMode.AutoSearch);
                            editor.AddAttribute(j + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                           editor.AddAttribute(j + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                           editor.AddAttribute(j + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                            editor.AddAttribute(j + 1, "Values", valueData);
                            editor.AddAttribute(j + 1, "ValuesExpression", lambda);
                            if (isAccessOnly == true)
@@ -5893,6 +5974,12 @@
                       k++;
                       if (s.ControlType == "ComboBox" && s.IsPlantLoadDependency == true && s.AttributeHeaderDataSource.Count() > 0)
                       {
+                          int plantDummyNo = 1;
+                          s.AttributeHeaderDataSource.ForEach(dx =>
+                      {
+                          dx.DummyNo = plantDummyNo;
+                          plantDummyNo++;
+                      });
                           s.AttributeHeaderDataSource.ForEach(ff =>
                   {
                       int d = 0;
@@ -5915,40 +6002,43 @@
                           var lambdapropertyDependency = Expression.Lambda(typeof(Func<>).MakeGenericType(dataTypes), accesspropertyDependency);
                           itemBuilder.OpenComponent<DxFormLayoutItem>(5);
                           // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                          itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                          itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                           itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
           {
               editor11.OpenElement(i + 1, "div");
               editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-              editor11.AddContent(i + 1, ff.DisplayName);
-              if (s.IsRequired == true)
+              editor11.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ff.DummyNo + " "):"" + ff.DisplayName);
+              if (isPrint == false)
               {
-                  editor11.OpenElement(i + 1, "span");
-                  editor11.AddAttribute(i + 1, "style", "color: red;");
-                  editor11.AddContent(i + 1, "(*)");
-                  editor11.CloseElement();
-              }
-              if (!string.IsNullOrEmpty(s.FormToolTips))
-              {
-                  editor11.OpenElement(i + 1, "i");
-                  editor11.AddAttribute(i + 1, "class", "fa fa-info");
-                  editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-                  editor11.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendDependency}"));
-                  editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendDependency, s.FormToolTips)));
-                  editor11.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
-                  editor11.AddAttribute(i + 1, "aria-hidden", true);
-                  editor11.CloseElement();
-              }
-              var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == ff.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
-              if (FilterExits != null && FilterExits > 0)
-              {
-                  editor11.OpenElement(i + 1, "i");
-                  editor11.AddAttribute(i + 1, "class", "fa fa-filter");
-                  editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-                  editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(appendDependency, a, s, ff.DataSourceTable)));
-                  editor11.AddAttribute(i + 1, "title", "Click Here Filter");
-                  editor11.AddAttribute(i + 1, "aria-hidden", true);
-                  editor11.CloseElement();
+                  if (s.IsRequired == true)
+                  {
+                      editor11.OpenElement(i + 1, "span");
+                      editor11.AddAttribute(i + 1, "style", "color: red;");
+                      editor11.AddContent(i + 1, "(*)");
+                      editor11.CloseElement();
+                  }
+                  if (!string.IsNullOrEmpty(s.FormToolTips))
+                  {
+                      editor11.OpenElement(i + 1, "i");
+                      editor11.AddAttribute(i + 1, "class", "fa fa-info");
+                      editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                      editor11.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendDependency}"));
+                      editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendDependency, s.FormToolTips)));
+                      editor11.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
+                      editor11.AddAttribute(i + 1, "aria-hidden", true);
+                      editor11.CloseElement();
+                  }
+                  var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == ff.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
+                  if (FilterExits != null && FilterExits > 0)
+                  {
+                      editor11.OpenElement(i + 1, "i");
+                      editor11.AddAttribute(i + 1, "class", "fa fa-filter");
+                      editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                      editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(appendDependency, a, s, ff.DataSourceTable)));
+                      editor11.AddAttribute(i + 1, "title", "Click Here Filter");
+                      editor11.AddAttribute(i + 1, "aria-hidden", true);
+                      editor11.CloseElement();
+                  }
               }
               editor11.CloseElement();
               if (s.IsDependencyMultiple == true)
@@ -5970,11 +6060,11 @@
               }
               editor11.AddAttribute(d + 1, "TextFieldName", "AttributeDetailName");
               editor11.AddAttribute(d + 1, "ValueFieldName", "AttributeDetailID");
-              editor11.AddAttribute(d + 1, "NullText", "Select " + s.PlantDropDownWithOtherDataSourceTable + "..");
+              editor11.AddAttribute(d + 1, "NullText", isPrint == true ? "" : "Select " + s.PlantDropDownWithOtherDataSourceTable + "..");
               editor11.AddAttribute(d + 1, "ListRenderMode", ListRenderMode.Virtual);
               editor11.AddAttribute(d + 1, "SearchMode", ListSearchMode.AutoSearch);
               editor11.AddAttribute(d + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-              editor11.AddAttribute(d + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+              editor11.AddAttribute(d + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
               if (isAccessOnly == true)
               {
                   editor11.AddAttribute(d + 1, "Enabled", isReadonly);
@@ -6167,7 +6257,7 @@
                                   var lambdaRemarks = Expression.Lambda(typeof(Func<>).MakeGenericType(typeof(string)), accessRemarks);
                                   itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                                   // itemBuilder.AddAttribute(i++, "Caption", (string.IsNullOrEmpty(s.RemarksLabelName) ? "Remarks" : s.RemarksLabelName));
-                                  itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                                  itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                                   itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
                   {
                       editor1.OpenElement(i + 1, "div");
@@ -6193,7 +6283,7 @@
                       {
                           editor1.AddAttribute(i + 1, "Enabled", isAccessOnly);
                       }
-                      editor1.AddAttribute(i++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                      editor1.AddAttribute(i++, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(i++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertyRemarks.SetValue(Data, str); }));
                       editor1.CloseComponent();
                   })));
@@ -6227,9 +6317,16 @@
                                       }
                                   }
                               }
+
+
                               if (SubAttributeHeadersList != null && SubAttributeHeadersList.Count > 0)
                               {
-
+                                  int subDummyNo = 1;
+                                  SubAttributeHeadersList.ForEach(dx =>
+                              {
+                                  dx.DummyNo = subDummyNo;
+                                  subDummyNo++;
+                              });
                                   SubAttributeHeadersList.ForEach(q =>
           {
               int m = 0;
@@ -6247,7 +6344,7 @@
               {
                   if (q.SubApplicationMaster != null && q.SubApplicationMaster.Count() > 0)
                   {
-                      loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly);
+                      loadApplicationMasterSubForm(s, q, i, itemBuilder, isAccessOnly, isReadonly,a);
                   }
               }
               else
@@ -6257,40 +6354,43 @@
                   {
                       itemBuilder.OpenComponent<DxFormLayoutItem>(2);
                       //itemBuilder.AddAttribute(i++, "Caption", q.Description);
-                      itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                      itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                       itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context1) => ((editor1) =>
               {
                   editor1.OpenElement(i + 1, "div");
                   editor1.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-                  editor1.AddContent(i + 1, q.Description);
-                  if (q.IsRequired == true)
+                  editor1.AddContent(i + 1, a.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + " "):"" + q.Description);
+                  if (isPrint == false)
                   {
-                      editor1.OpenElement(i + 1, "span");
-                      editor1.AddAttribute(i + 1, "style", "color: red;");
-                      editor1.AddContent(i + 1, "(*)");
-                      editor1.CloseElement();
-                  }
-                  if (!string.IsNullOrEmpty(q.AttrDescription))
-                  {
-                      editor1.OpenElement(i + 1, "i");
-                      editor1.AddAttribute(i + 1, "class", "fa fa-info");
-                      editor1.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-                      editor1.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendProSubNames}"));
-                      editor1.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendProSubNames, q.AttrDescription)));
-                      editor1.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
-                      editor1.AddAttribute(i + 1, "aria-hidden", true);
-                      editor1.CloseElement();
-                  }
-                  var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == q.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
-                  if (FilterExits != null && FilterExits > 0)
-                  {
-                      editor1.OpenElement(i + 1, "i");
-                      editor1.AddAttribute(i + 1, "class", "fa fa-filter");
-                      editor1.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-                      editor1.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(appendProSubNames, a, s, q.DataSourceTable)));
-                      editor1.AddAttribute(i + 1, "title", "Click Here Filter");
-                      editor1.AddAttribute(i + 1, "aria-hidden", true);
-                      editor1.CloseElement();
+                      if (q.IsRequired == true)
+                      {
+                          editor1.OpenElement(i + 1, "span");
+                          editor1.AddAttribute(i + 1, "style", "color: red;");
+                          editor1.AddContent(i + 1, "(*)");
+                          editor1.CloseElement();
+                      }
+                      if (!string.IsNullOrEmpty(q.AttrDescription))
+                      {
+                          editor1.OpenElement(i + 1, "i");
+                          editor1.AddAttribute(i + 1, "class", "fa fa-info");
+                          editor1.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                          editor1.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendProSubNames}"));
+                          editor1.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendProSubNames, q.AttrDescription)));
+                          editor1.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
+                          editor1.AddAttribute(i + 1, "aria-hidden", true);
+                          editor1.CloseElement();
+                      }
+                      var FilterExits = _AttributeHeader.AttributeHeaderDataSource.Where(o => o.DataSourceTable == q.DataSourceTable).FirstOrDefault()?.IsDynamicFormFilterBy;
+                      if (FilterExits != null && FilterExits > 0)
+                      {
+                          editor1.OpenElement(i + 1, "i");
+                          editor1.AddAttribute(i + 1, "class", "fa fa-filter");
+                          editor1.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                          editor1.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnDynamicFormFilterBypopup(appendProSubNames, a, s, q.DataSourceTable)));
+                          editor1.AddAttribute(i + 1, "title", "Click Here Filter");
+                          editor1.AddAttribute(i + 1, "aria-hidden", true);
+                          editor1.CloseElement();
+                      }
                   }
                   editor1.CloseElement();
                   var valueDataSub = propertySub.GetValue(Data);
@@ -6303,7 +6403,7 @@
                       editor1.AddAttribute(m + 1, "Text", valueDataSub);
                       editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
                       // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                       if (q.IsRequired == true)
                       {
@@ -6334,7 +6434,7 @@
                       editor1.AddAttribute(m + 1, "Text", valueDataSub);
                       editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
                       // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                       editor1.AddAttribute(m + 1, "Buttons", (RenderFragment)((dx) =>
                       {
@@ -6374,7 +6474,7 @@
                       editor1.AddAttribute(m + 1, "TextExpression", lambdaSub);
                       editor1.AddAttribute(m + 1, "Rows", 5);
                       // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { propertySub.SetValue(Data, str); }));
                       if (q.IsRequired == true)
                       {
@@ -6405,7 +6505,7 @@
                       editor1.AddAttribute(m + 1, "Date", valueDataSub);
                       editor1.AddAttribute(m + 1, "DateExpression", lambdaSub);
                       //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { propertySub.SetValue(Data, str); }));
                       if (q.IsRequired == true)
                       {
@@ -6436,7 +6536,7 @@
                       editor1.AddAttribute(m + 1, "Time", valueDataSub);
                       editor1.AddAttribute(m + 1, "TimeExpression", lambdaSub);
                       //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
-                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { propertySub.SetValue(Data, str); }));
                       if (q.IsRequired == true)
                       {
@@ -6470,7 +6570,7 @@
                           //editor1.AddAttribute(m + 1, "MinValue", 0);
                           //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                           editor1.AddAttribute(m + 1, "BindValueMode", BindValueMode.OnInput);
-                          editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                          editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                           editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { propertySub.SetValue(Data, str); }));
                       }
                       if (propertySubType.Name == "Decimal")
@@ -6480,7 +6580,7 @@
                           editor1.AddAttribute(m + 1, "Increment", 0.1M);
                           //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                           //editor1.AddAttribute(m + 1, "MinValue", 0M);
-                          editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                          editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                           editor1.AddAttribute(m + 1, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { propertySub.SetValue(Data, str); }));
                       }
                       editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
@@ -6587,11 +6687,11 @@
                       }
                       editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                       editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
-                      editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
+                      editor1.AddAttribute(m + 1, "NullText", isPrint == true ? "" : "Select " + q.Description + "..");
                       editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
                       editor1.AddAttribute(m + 1, "SearchMode", ListSearchMode.AutoSearch);
                       editor1.AddAttribute(m + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "Value", valueDataSub);
                       // editor1.AddAttribute(m + 1, "Enabled", isReadonly);
                       editor1.AddAttribute(m + 1, "ValueExpression", lambdaSub);
@@ -6711,11 +6811,11 @@
                       }
                       editor1.AddAttribute(m + 1, "TextFieldName", "AttributeDetailName");
                       editor1.AddAttribute(m + 1, "ValueFieldName", "AttributeDetailID");
-                      editor1.AddAttribute(m + 1, "NullText", "Select " + q.Description + "..");
+                      editor1.AddAttribute(m + 1, "NullText", isPrint == true ? "" : "Select " + q.Description + "..");
                       editor1.AddAttribute(m + 1, "ListRenderMode", ListRenderMode.Virtual);
                       editor1.AddAttribute(m + 1, "SearchMode", ListSearchMode.AutoSearch);
                       editor1.AddAttribute(m + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                      editor1.AddAttribute(m + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                       editor1.AddAttribute(m + 1, "Values", valueDataSub);
                       editor1.AddAttribute(m + 1, "ValuesExpression", lambdaSub);
                       //editor1.AddAttribute(m + 1, "Enabled", isReadonly);
@@ -7026,11 +7126,11 @@
                       if (s.DataSourceTable == "ApplicationMaster" && s.ApplicationMaster != null && s.ApplicationMaster.Count > 0)
 
                       {
-                          loadApplicationMasterForm(s, i, itemBuilder, isAccessOnly, isReadonly);
+                          loadApplicationMasterForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
                       }
                       if (s.DataSourceTable == "ApplicationMasterParent" && s.ApplicationMasterParents != null && s.ApplicationMasterParents.Count() > 0)
                       {
-                          loadApplicationMasterParentForm(s, i, itemBuilder, isAccessOnly, isReadonly);
+                          loadApplicationMasterParentForm(s, i, itemBuilder, isAccessOnly, isReadonly,a);
                       }
                       if (s.DataSourceTable == "DynamicGrid")
                       {
@@ -7093,7 +7193,7 @@
                         }
                         itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                         // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                        itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                        itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                         itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                         {
                             editor11.OpenElement(p + 1, "div");
@@ -7111,11 +7211,11 @@
                             editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
                             editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
                             editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
-                            editor11.AddAttribute(p + 1, "NullText", "Select " + formNames?.DynamicFormName + "..");
+                            editor11.AddAttribute(p + 1, "NullText", isPrint == true ? "" : "Select " + formNames?.DynamicFormName + "..");
                             editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                             editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                             editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                            editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                            editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                             editor11.AddAttribute(p + 1, "Value", valueDataDependency);
                             if (isAccessOnly == true)
                             {
@@ -7222,7 +7322,7 @@
                         int p = 0;
                         itemBuilder.OpenComponent<DxFormLayoutItem>(4);
                         // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                        itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                        itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                         itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                         {
                             editor11.OpenElement(p + 1, "div");
@@ -7240,11 +7340,11 @@
                             editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
                             editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
                             editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
-                            editor11.AddAttribute(p + 1, "NullText", "Select " + formNames?.DynamicFormName + "..");
+                            editor11.AddAttribute(p + 1, "NullText", isPrint == true ? "" : "Select " + formNames?.DynamicFormName + "..");
                             editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                             editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                             editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                            editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                            editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                             editor11.AddAttribute(p + 1, "Values", valueDataDependency);
                             if (isAccessOnly == true)
                             {
@@ -7351,36 +7451,42 @@
             }
         }
     }
-    void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadApplicationMasterParentForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
     {
+        int dumNo = 1;
+        s.ApplicationMasterParents.ForEach(ab =>
+        {
+            ab.DummyNo = dumNo;
+            dumNo++;
+        });
         s.ApplicationMasterParents.ForEach(ab =>
         {
             List<ApplicationMasterParent> nameDatas = new List<ApplicationMasterParent>();
-            loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true);
+            loadApplicationMasterParentRecursiveForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, true,dynamicFormSection);
             if (ab.ApplicationMasterParentCodeId > 0)
             {
                 nameDatas.Add(ab);
-                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas);
+                loadApplicationMasterParentFormDataList(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas,dynamicFormSection);
                 if (s.ControlTypeId == 2702 && s.DropDownTypeId == "Data Source" && s.DataSourceTable == "ApplicationMasterParent" && s.IsDynamicFormGridDropdown == true)
                 {
-                    loadDynamicGridDropDownNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas);
+                    loadDynamicGridDropDownNestedForm(s, ab, i, itemBuilder, isAccessOnly, isReadonly, nameDatas, dynamicFormSection);
                 }
             }
         });
     }
-    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames)
+    void loadApplicationMasterParentFormDataList(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> dataColumnNames,DynamicFormSection dynamicFormSection)
     {
         var dataList = _AttributeHeader.ApplicationMasterParent.FirstOrDefault(f => f.ParentId == ab.ApplicationMasterParentCodeId);
         if (dataList != null)
         {
             var nameData = s.DynamicFormSectionAttributeId + "_" + dataList.ApplicationMasterParentCodeId + "_AppMasterPar";
             dataColumnNames.Add(dataList);
-            loadApplicationMasterParentRecursiveForm(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, false);
+            loadApplicationMasterParentRecursiveForm(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, false, dynamicFormSection);
 
-            loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, dataColumnNames);
+            loadApplicationMasterParentFormDataList(s, dataList, i, itemBuilder, isAccessOnly, isReadonly, dataColumnNames, dynamicFormSection);
         }
     }
-    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems)
+    void loadDynamicGridDropDownNestedForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, List<ApplicationMasterParent> nameDatasItems,DynamicFormSection dynamicFormSection)
     {
         var appendDependency = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_" + s.GridDropDownDynamicFormID + "_GridAppMaster";
         var propertyDependency = Data.GetType().GetProperty(appendDependency);
@@ -7494,7 +7600,7 @@
             {
                 itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                 {
                     editor11.OpenElement(p + 1, "div");
@@ -7512,11 +7618,11 @@
                     editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
                     editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
-                    editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                    editor11.AddAttribute(p + 1, "NullText", isPrint == true ? "" : "Select " + s.GridDropDownDynamicFormName + "..");
                     editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(p + 1, "Values", valueDataDependency);
                     if (isAccessOnly == true)
                     {
@@ -7623,7 +7729,7 @@
             {
                 itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                 {
                     editor11.OpenElement(p + 1, "div");
@@ -7641,11 +7747,11 @@
                     editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
                     editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
-                    editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                    editor11.AddAttribute(p + 1, "NullText", isPrint == true ? "" : "Select " + s.GridDropDownDynamicFormName + "..");
                     editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(p + 1, "Value", valueDataDependency);
                     if (isAccessOnly == true)
                     {
@@ -8275,7 +8381,7 @@
             }
         }
     }
-    void loadApplicationMasterParentRecursiveForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, bool? isLoadDropdown)
+    void loadApplicationMasterParentRecursiveForm(DynamicFormSectionAttribute s, ApplicationMasterParent ab, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly, bool? isLoadDropdown,DynamicFormSection dynamicFormSection)
     {
         int l = 0;
         var appendAppMaster = s.DynamicFormSectionAttributeId + "_" + ab.ApplicationMasterParentCodeId + "_AppMasterPar";
@@ -8296,29 +8402,51 @@
             }
             itemBuilder.OpenComponent<DxFormLayoutItem>(3);
             //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
-            itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : s.ColSpan);
             itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
         {
+            var exitsNames = _AttributeHeader.ApplicationMasterParent.Where(w => w.ApplicationMasterParentCodeId == ab.ParentId).FirstOrDefault();
+            var exitsNamesNext = _AttributeHeader.ApplicationMasterParent.Where(w => w.ApplicationMasterParentCodeId == exitsNames?.ParentId).FirstOrDefault();
+            string dummuNos = s.DummyNo.ToString();
+            if (exitsNames != null)
+            {
+                if (exitsNamesNext != null)
+                {
+                    dummuNos += "." + (exitsNamesNext.DummyNo) + "." + (ab.DummyNo - 1);
+                }
+                else
+                {
+                    dummuNos += "." + (exitsNames.DummyNo) + "." + (ab.DummyNo - 1);
+                }
+            }
+            else
+            {
+                dummuNos += "." + ab.DummyNo;
+            }
             editor11.OpenElement(i + 1, "div");
             editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
-            editor11.AddContent(i + 1, ab.ApplicationMasterName);
-            if (s.IsRequired == true)
+            //editor11.AddContent(i + 1, s.DummyNo + "." + (exitsNames != null ? (exitsNames?.DummyNo+".") : "") + (ab.DummyNo+1) + " " + ab.ApplicationMasterName);
+            editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (dummuNos + " ") : "" + ab.ApplicationMasterName);
+            if (isPrint == false)
             {
-                editor11.OpenElement(i + 1, "span");
-                editor11.AddAttribute(i + 1, "style", "color: red;");
-                editor11.AddContent(i + 1, "(*)");
-                editor11.CloseElement();
-            }
-            if (!string.IsNullOrEmpty(s.FormToolTips))
-            {
-                editor11.OpenElement(i + 1, "i");
-                editor11.AddAttribute(i + 1, "class", "fa fa-info");
-                editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-                editor11.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendAppMaster}"));
-                editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendAppMaster, s.FormToolTips)));
-                editor11.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
-                editor11.AddAttribute(i + 1, "aria-hidden", true);
-                editor11.CloseElement();
+                if (s.IsRequired == true)
+                {
+                    editor11.OpenElement(i + 1, "span");
+                    editor11.AddAttribute(i + 1, "style", "color: red;");
+                    editor11.AddContent(i + 1, "(*)");
+                    editor11.CloseElement();
+                }
+                if (!string.IsNullOrEmpty(s.FormToolTips))
+                {
+                    editor11.OpenElement(i + 1, "i");
+                    editor11.AddAttribute(i + 1, "class", "fa fa-info");
+                    editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                    editor11.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendAppMaster}"));
+                    editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendAppMaster, s.FormToolTips)));
+                    editor11.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
+                    editor11.AddAttribute(i + 1, "aria-hidden", true);
+                    editor11.CloseElement();
+                }
             }
             editor11.CloseElement();
             if (s.ControlType == "ComboBox")
@@ -8328,11 +8456,11 @@
                 editor11.AddAttribute(l + 1, "EditFormat", "{0}|{2}");
                 editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
                 editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
-                editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                editor11.AddAttribute(l + 1, "NullText", isPrint == true ? "" : "Select " + ab.ApplicationMasterName + "..");
                 editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                 editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                 editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                 editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                 if (isAccessOnly == true)
                 {
@@ -8389,11 +8517,11 @@
                 editor11.AddAttribute(l + 1, "EditFormat", "{0}|{2}");
                 editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
                 editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
-                editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                editor11.AddAttribute(l + 1, "NullText", isPrint == true ? "" : "Select " + ab.ApplicationMasterName + "..");
                 editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                 editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                 editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                 editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                 if (isAccessOnly == true)
                 {
@@ -8577,9 +8705,15 @@
         }
 
     }
-    void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadApplicationMasterForm(DynamicFormSectionAttribute s, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
     {
         var appcount = s.ApplicationMaster.Count();
+        int dumNo = 1;
+        s.ApplicationMaster.ForEach(ab =>
+        {
+            ab.DummyNo = dumNo;
+            dumNo++;
+        });
         s.ApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -8594,36 +8728,39 @@
 
                 itemBuilder.OpenComponent<DxFormLayoutItem>(3);
                 //itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : s.ColSpan);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
             {
                 editor11.OpenElement(i + 1, "div");
                 editor11.AddAttribute(i + 1, "style", "padding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, s.DisplayName);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " "):"" + s.DisplayName);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + ab.DummyNo + " ") : "" + "Select " + ab.ApplicationMasterName);
                 }
-                if (s.IsRequired == true)
+                if (isPrint == false)
                 {
-                    editor11.OpenElement(i + 1, "span");
-                    editor11.AddAttribute(i + 1, "style", "color: red;");
-                    editor11.AddContent(i + 1, "(*)");
-                    editor11.CloseElement();
-                }
-                if (!string.IsNullOrEmpty(s.FormToolTips))
-                {
-                    editor11.OpenElement(i + 1, "i");
-                    editor11.AddAttribute(i + 1, "class", "fa fa-info");
-                    editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
-                    editor11.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendAppMaster}"));
-                    editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendAppMaster, s.FormToolTips)));
-                    editor11.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
-                    editor11.AddAttribute(i + 1, "aria-hidden", true);
-                    editor11.CloseElement();
+                    if (s.IsRequired == true)
+                    {
+                        editor11.OpenElement(i + 1, "span");
+                        editor11.AddAttribute(i + 1, "style", "color: red;");
+                        editor11.AddContent(i + 1, "(*)");
+                        editor11.CloseElement();
+                    }
+                    if (!string.IsNullOrEmpty(s.FormToolTips))
+                    {
+                        editor11.OpenElement(i + 1, "i");
+                        editor11.AddAttribute(i + 1, "class", "fa fa-info");
+                        editor11.AddAttribute(i + 1, "style", "color: black;margin-left: 10px;cursor: pointer;");
+                        editor11.AddAttribute(i + 1, "id", ($"flyout-overview-target-container-TooltipInfo-{appendAppMaster}"));
+                        editor11.AddAttribute(i + 1, "onclick", EventCallback.Factory.Create(this, () => OnTooltipsClick(appendAppMaster, s.FormToolTips)));
+                        editor11.AddAttribute(i + 1, "title", "Click Here Show Tooltips");
+                        editor11.AddAttribute(i + 1, "aria-hidden", true);
+                        editor11.CloseElement();
+                    }
                 }
                 editor11.CloseElement();
                 if (s.ControlType == "ComboBox")
@@ -8633,11 +8770,11 @@
                     editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
                     editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
-                    editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                    editor11.AddAttribute(l + 1, "NullText", isPrint == true ? "" : "Select " + ab.ApplicationMasterName + "..");
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                     if (isAccessOnly == true)
                     {
@@ -8698,11 +8835,11 @@
                     editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
                     editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
-                    editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                    editor11.AddAttribute(l + 1, "NullText", isPrint == true ? "" : "Select " + ab.ApplicationMasterName + "..");
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                     if (isAccessOnly == true)
                     {
@@ -8984,7 +9121,7 @@
             {
                 itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                 {
                     editor11.OpenElement(p + 1, "div");
@@ -9002,11 +9139,11 @@
                     editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
                     editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
-                    editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                    editor11.AddAttribute(p + 1, "NullText", isPrint == true ? "" : "Select " + s.GridDropDownDynamicFormName + "..");
                     editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(p + 1, "Values", valueDataDependency);
                     if (isAccessOnly == true)
                     {
@@ -9113,7 +9250,7 @@
             {
                 itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
                 // itemBuilder.AddAttribute(i++, "Caption", ff.DisplayName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", 6);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : 6);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
                 {
                     editor11.OpenElement(p + 1, "div");
@@ -9131,11 +9268,11 @@
                     editor11.AddAttribute(p + 1, "Data", _dynamicformObjectDataList);
                     editor11.AddAttribute(p + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(p + 1, "ValueFieldName", "AttributeDetailID");
-                    editor11.AddAttribute(p + 1, "NullText", "Select " + s.GridDropDownDynamicFormName + "..");
+                    editor11.AddAttribute(p + 1, "NullText", isPrint == true ? "" : "Select " + s.GridDropDownDynamicFormName + "..");
                     editor11.AddAttribute(p + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(p + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(p + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(p + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(p + 1, "Value", valueDataDependency);
                     if (isAccessOnly == true)
                     {
@@ -9209,9 +9346,15 @@
         }
     }
 
-    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly)
+    void loadApplicationMasterSubForm(DynamicFormSectionAttribute s, AttributeHeader q, int i, Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder itemBuilder, bool? isAccessOnly, bool? isReadonly,DynamicFormSection dynamicFormSection)
     {
         var appcount = q.SubApplicationMaster.Count();
+        int dumNo = 1;
+        q.SubApplicationMaster.ForEach(ab =>
+        {
+            ab.DummyNo = dumNo;
+            dumNo++;
+        });
         q.SubApplicationMaster.ForEach(ab =>
         {
             int l = 0;
@@ -9225,18 +9368,18 @@
                 var listSubData = q.SubAttributeDetails != null ? q.SubAttributeDetails.Where(e => e.DropDownTypeId == q.DataSourceTable && e.ApplicationMasterId == ab.ApplicationMasterId).ToList() : new List<AttributeDetails>();
                 itemBuilder.OpenComponent<DxFormLayoutItem>(4);
                 // itemBuilder.AddAttribute(i++, "Caption", "Select " + ab.ApplicationMasterName);
-                itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+                itemBuilder.AddAttribute(i++, "ColSpanMd", isPrint == true ? 12 : s.ColSpan);
                 itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context11) => ((editor11) =>
             {
                 editor11.OpenElement(i + 1, "div");
                 editor11.AddAttribute(i + 1, "style", "adding:2px;font-weight:400;color:rgba(33, 37, 41, 0.75);");
                 if (appcount == 1)
                 {
-                    editor11.AddContent(i + 1, q.Description);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + q.Description);
                 }
                 else
                 {
-                    editor11.AddContent(i + 1, "Select " + ab.ApplicationMasterName);
+                    editor11.AddContent(i + 1, dynamicFormSection.IsAutoNumberEnabled == true ? (s.DummyNo + "." + q.DummyNo + "." + ab.DummyNo + " "):"" + ab.ApplicationMasterName);
                 }
                 editor11.CloseElement();
                 if (q.ControlType == "ComboBox")
@@ -9246,11 +9389,11 @@
                     editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
                     editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
-                    editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                    editor11.AddAttribute(l + 1, "NullText", isPrint == true ? "" : "Select " + ab.ApplicationMasterName + "..");
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Value", valueDataAppMaster);
                     if (isAccessOnly == true)
                     {
@@ -9311,11 +9454,11 @@
                     editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
                     editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
-                    editor11.AddAttribute(l + 1, "NullText", "Select " + ab.ApplicationMasterName + "..");
+                    editor11.AddAttribute(l + 1, "NullText", isPrint == true ? "" : "Select " + ab.ApplicationMasterName + "..");
                     editor11.AddAttribute(l + 1, "ListRenderMode", ListRenderMode.Virtual);
                     editor11.AddAttribute(l + 1, "SearchMode", ListSearchMode.AutoSearch);
                     editor11.AddAttribute(l + 1, "SearchFilterCondition", ListSearchFilterCondition.Contains);
-                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                    editor11.AddAttribute(l + 1, "ClearButtonDisplayMode", isPrint == true ? DataEditorClearButtonDisplayMode.Never : DataEditorClearButtonDisplayMode.Auto);
                     editor11.AddAttribute(l + 1, "Values", valueDataAppMaster);
                     if (isAccessOnly == true)
                     {

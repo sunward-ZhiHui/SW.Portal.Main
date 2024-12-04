@@ -83,6 +83,7 @@ namespace Core.Entities
         public int? AttributeSortBy { get; set; }
         public int? SortOrderAnotherBy { get; set; }
         public string? DropDownTypeIds { get; set; } = null;
+        public int? DummyNo { get; set; }
     }
     public class AttributeHeaderListModel
     {

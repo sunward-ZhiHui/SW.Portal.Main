@@ -43,7 +43,10 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
-                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                @if (isBackDisabled == true)
+                {
+                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                }
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
@@ -238,11 +241,12 @@
          ShowCloseButton="true"
          HeaderText="Create Email"
          Closed="EulaPopupClosed"
-         Width="300px">
+         Width="1000px">
     <BodyContentTemplate>
-        <p>
+        @* <p>
             Are you sure create Email?
-        </p>
+        </p> *@
+        <DynamicFormDataEmailAddSubContent @ref="refDynamicFormDataEmailAddSubContent" SessionId="@_selectedItems.SessionId"></DynamicFormDataEmailAddSubContent>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
@@ -289,6 +293,8 @@
     </BodyContentTemplate>
 </DxPopup>
 @code {
+    bool isBackDisabled { get; set; } = true;
+    private DynamicFormDataEmailAddSubContent refDynamicFormDataEmailAddSubContent{ get; set; }
     private UploadDoumentDynamicFiles refUploadDoumentDynamicFiles { get; set; }
     private DynamicFormApprovedFormList refDynamicFormApprovedFormList { get; set; }
     private AC.SD.Core.Pages.Attribute.DynamicFormGridLists refDynamicFormGridLists { get; set; }
@@ -407,6 +413,14 @@
     {
         try
         {
+            string str = NavigationManager.Uri;
+            string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+            string[] UrlList = rep1.Split("/");
+            string names = "dynamicFormMenuList".ToLower();
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+            {
+                isBackDisabled = false;
+            }
             PanelVisible = true;
             //await onshowLoading();
             _selectedItems = null; FileProfileTypeId = null;
@@ -765,6 +779,9 @@
                                                         List<long?> listData = itemValue.ToObject<List<long?>>();
                                                         if (s.DataSourceTable == "DynamicGrid")
                                                         {
+                                                            List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                                                            gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == s.DynamicFormGridDropDownId).FirstOrDefault()?.DropDownOptionsModels;
+                                                                    
                                                             string displayNames = string.Empty;
 
                                                             if (listData != null && listData.Count > 0)
@@ -776,9 +793,28 @@
                                                                         foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                                         {
                                                                             dynamic eod = v;
+                                                                             var vv = eod.DynamicFormId;
+                                                                             string listone = string.Empty;
+                                                                             if (gridlistss != null && gridlistss.Count() > 0)
+                                                                             {
+                                                                                 var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                                                 g1.ForEach(q =>
+                                                                                {
+                                                                                    var byName = (IDictionary<string, object>)v;
+                                                                                    if (q.Value != null)
+                                                                                    {
+                                                                                        if (byName.ContainsKey(q.Value))
+                                                                                        {
+                                                                                            var names = (string)byName[q.Value]?.ToString();
+                                                                                            listone += names + "|";
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                             }
+                                                                            eod.DisplayItemsQuery = listone;
                                                                             if ((long?)eod.AttributeDetailID == l)
                                                                             {
-                                                                                displayNames += eod.AttributeDetailName + ",";
+                                                                                displayNames += eod.DisplayItemsQuery + ",";
                                                                             }
                                                                         }
                                                                     }
@@ -789,6 +825,10 @@
                                                         else
                                                         {
                                                             var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                            if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                            {
+                                                                listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                            }
                                                             objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                         }
                                                     }
@@ -801,15 +841,37 @@
                                                             {
                                                                 if (s.DataSourceTable == "DynamicGrid")
                                                                 {
+                                                                    List<DropDownOptionsModel?> gridlistss = new List<DropDownOptionsModel?>();
+                                                                    gridlistss = _AttributeHeader.DropDownOptionsGridListModel.DropDownGridOptionsModel.Where(ax => ax.DynamicFormId == s.DynamicFormGridDropDownId).FirstOrDefault()?.DropDownOptionsModels;
                                                                     var displayNames = string.Empty;
                                                                     if (collection != null)
                                                                     {
                                                                         foreach (var v in (collection as IEnumerable<ExpandoObject>))
                                                                         {
                                                                             dynamic eod = v;
+                                                                             var vv = eod.DynamicFormId;
+                                                                             var AttributeDetailIds = eod.AttributeDetailID;
+                                                                             string listone = string.Empty;
+                                                                             if (gridlistss != null && gridlistss.Count() > 0)
+                                                                             {
+                                                                                 var g1 = gridlistss.OrderBy(o => o.OrderBy).ToList();
+                                                                                 g1.ForEach(q =>
+                                                                                {
+                                                                                    var byName = (IDictionary<string, object>)v;
+                                                                                    if (q.Value != null)
+                                                                                    {
+                                                                                        if (byName.ContainsKey(q.Value))
+                                                                                        {
+                                                                                            var names = (string)byName[q.Value]?.ToString();
+                                                                                            listone += names + "|";
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                             }
+                                                                            eod.DisplayItemsQuery = listone;
                                                                             if ((long?)eod.AttributeDetailID == Svalues)
                                                                             {
-                                                                                displayNames += eod.AttributeDetailName;
+                                                                                displayNames += eod.DisplayItemsQuery;
                                                                             }
                                                                         }
                                                                     }
@@ -818,6 +880,10 @@
                                                                 else
                                                                 {
                                                                     var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                                    if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                    {
+                                                                        listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                                    }
                                                                     objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                                 }
                                                             }
@@ -841,6 +907,10 @@
                                                                             {
                                                                                 List<long?> listData = itemDepValue.ToObject<List<long?>>();
                                                                                 var listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.AttributeDetailName).ToList() : new List<string?>();
+                                                                                if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                                {
+                                                                                    listName = PlantDependencySubAttributeDetails != null ? PlantDependencySubAttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.DropDownTypeId == dd.DataSourceTable).Select(s => s.NameList).ToList() : new List<string?>();
+                                                                                }
                                                                                 objectData[nameData] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                                             }
                                                                             else
@@ -852,6 +922,10 @@
                                                                         {
                                                                             long? valuesDep = itemDepValue == null ? -1 : (long)itemDepValue;
                                                                             var listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.AttributeDetailName;
+                                                                            if (dd.DataSourceTable == "FinishedProdOrderLine" || dd.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                            {
+                                                                                listss = PlantDependencySubAttributeDetails.Where(v => dd.DataSourceTable == v.DropDownTypeId && v.AttributeDetailID == valuesDep).FirstOrDefault()?.NameList;
+                                                                            }
                                                                             objectData[nameData] = listss;
                                                                         }
                                                                     }
@@ -865,6 +939,10 @@
                                                             if (Svalues != null)
                                                             {
                                                                 var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                                                if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                                                                {
+                                                                    listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.NameList).ToList();
+                                                                }
                                                                 objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                                             }
                                                             else
@@ -1272,7 +1350,15 @@
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            }
 
         }
     }
@@ -1288,7 +1374,15 @@
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId);
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
+            }
 
         }
     }
@@ -1305,8 +1399,17 @@
         }
         else
         {
-            var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicFormMailMerge/" + SessionId;
-            await JS.InvokeVoidAsync("window.open", url, "_blank");
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                var url = NavigationManager.BaseUri + "dynamicFormMenuList/dynamicFormMailMerge/" + SessionId;
+                await JS.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                var url = NavigationManager.BaseUri + "DynamicMasterSetup/dynamicFormMailMerge/" + SessionId;
+                await JS.InvokeVoidAsync("window.open", url, "_blank");
+            }
         }
     }
     async Task addDetailEmailCreate()
@@ -1337,26 +1440,30 @@
         string backurl = rep1 + "/" + _selectedItems.SessionId;
         if (_selectedItems != null)
         {
-            var insertData = new DynamicFormData
-                {
-                    AddedByUserID = applicationUser.UserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now,
-                    SessionId = _selectedItems.SessionId,
-                    ProfileNo = _selectedItems.ProfileNo,
-                    StatusCodeID = 1,
-                    DynamicFormDataId = _selectedItems.DynamicFormDataId,
-                    BackUrl = backurl
-                };
-            var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
-            if (response.DynamicFormDataId > 0)
+            var result = await refDynamicFormDataEmailAddSubContent?.saveEmailSubjectContent();
+            if (result == true)
             {
-                toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
-                createEmailpopup = false;
-                var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
-                await JS.InvokeVoidAsync("window.open", url, "_blank");
-                await UpdateDataAsync();
+                var insertData = new DynamicFormData
+                    {
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                        SessionId = _selectedItems.SessionId,
+                        ProfileNo = _selectedItems.ProfileNo,
+                        StatusCodeID = 1,
+                        DynamicFormDataId = _selectedItems.DynamicFormDataId,
+                        BackUrl = backurl
+                    };
+                var response = await Mediator.Send(new InsertCreateEmailFormData(insertData));
+                if (response.DynamicFormDataId > 0)
+                {
+                    toastService.ShowToast("Email created successfully.", AC.SD.Core.Services.ToastLevel.Success);
+                    createEmailpopup = false;
+                    var url = NavigationManager.BaseUri + "CreateEmail/" + _selectedItems.SessionId;
+                    await JS.InvokeVoidAsync("window.open", url, "_blank");
+                    await UpdateDataAsync();
+                }
             }
         }
         StateHasChanged();
@@ -1373,12 +1480,20 @@
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            string names1 = "dynamicFormMenuList";
+            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names1.ToLower())
+            {
+                NavigationManager.NavigateTo("dynamicFormMenuList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            }
+            else
+            {
+                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            }
 
         }
 
     }
-    async Task backUrl()
+    void backUrl()
     {
         string str = NavigationManager.Uri;
         string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();

@@ -17,15 +17,21 @@ using Application.Queries;
 using Infrastructure.Data;
 using static iText.IO.Image.Jpeg2000ImageData;
 using static iTextSharp.text.pdf.AcroFields;
+using Infrastructure.Service;
 
 namespace Infrastructure.Repository.Query
 {
     public class JobScheduleQueryRepository : DbConnector, IJobScheduleQueryRepository
     {
-        public JobScheduleQueryRepository(IConfiguration configuration)
+        private readonly IPlantQueryRepository _plantQueryRepository;
+        private readonly INavItemsQueryRepository _queryRepository;
+        private readonly ISalesOrderService _salesOrderService;
+        public JobScheduleQueryRepository(IConfiguration configuration, IPlantQueryRepository plantQueryRepository, INavItemsQueryRepository queryRepository, ISalesOrderService salesOrderService)
             : base(configuration)
         {
-
+            _plantQueryRepository = plantQueryRepository;
+            _queryRepository = queryRepository;
+            _salesOrderService = salesOrderService;
         }
         public async Task<IReadOnlyList<JobSchedule>> GetAllByAsync()
         {
@@ -194,6 +200,7 @@ namespace Infrastructure.Repository.Query
 
             try
             {
+
                 List<JobSchedule> schedulesList = new List<JobSchedule>();
                 List<JobSchedule> schedules = new List<JobSchedule>(); List<JobScheduleWeekly> jobScheduleWeekly = new List<JobScheduleWeekly>();
                 var query = "select t1.*,t2.CodeValue as Frequency,t3.PlantCode as CompanyCode,t4.DisplayName as JobScheduleFunUnique from JobSchedule t1 JOIN\r\nCodeMaster t2 ON t1.FrequencyID=t2.CodeID JOIN\r\nPlant t3 ON t1.CompanyID=t3.PlantID LEFT JOIN JobScheduleFun t4 ON t4.JobScheduleFunUniqueID=t1.JobScheduleFunUniqueID;\n\r";
@@ -316,6 +323,77 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+        private async Task<List<ViewPlants>> GetPlatDatas()
+        {
+            List<ViewPlants> viewPlants = new List<ViewPlants>();
+            var plantData = await _plantQueryRepository.GetAllByNavCompanyAsync();
+            List<string> NavCompanyName = new List<string>() { "NAV_JB", "NAV_SG" };
+            if (plantData != null && plantData.Count() > 0)
+            {
+                viewPlants = plantData.Where(w => w.NavCompanyName != null && w.NavCompanyName != "" && NavCompanyName.Contains(w.NavCompanyName)).ToList();
+            }
+            return viewPlants;
+        }
+        public async Task<string> GetJobScheduleNavFuctionAsync(string JobType)
+        {
+            var plantDatas = await GetPlatDatas();
+            if (plantDatas != null && plantDatas.Count() > 0)
+            {
+                if (JobType == "NavItems")
+                {
+                    foreach (var item in plantDatas)
+                    {
+                        await _queryRepository.GetNavItemServicesList(item.PlantID, 1);
+                    }
+                }
+                else if (JobType == "FinishedProdOrder")
+                {
+                    foreach (var item in plantDatas)
+                    {
+                        await _queryRepository.GetFinishedProdOrderLineList(item.PlantID);
+                    }
+                }
+                else if (JobType == "ItemBatchInfo")
+                {
+                    foreach (var item in plantDatas)
+                    {
+                        await _queryRepository.GetNavItemBatchInfo(item.PlantID);
+                    }
+                }
+                else if (JobType == "NavprodOrder")
+                {
+                    foreach (var item in plantDatas)
+                    {
+                        await _queryRepository.GetNavprodOrderLineList(item.PlantID);
+                    }
+                }
+                else if (JobType == "NavVendor")
+                {
+                    foreach (var item in plantDatas)
+                    {
+                        await _queryRepository.GetNavVendorList(item.PlantID);
+                    }
+                }
+                else if (JobType == "RawMatItem")
+                {
+                    List<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
+                    if (plantDatas != null && plantDatas.Count() > 0)
+                    {
+                        foreach (var item in plantDatas)
+                        {
+                            await _salesOrderService.RawMatItemAsync(item.NavCompanyName, item.PlantID, "RawMatItem");
+                            await _salesOrderService.PackagingItemAsync(item.NavCompanyName, item.PlantID, "PackagingItem");
+                            await _salesOrderService.ProcessItemAsync(item.NavCompanyName, item.PlantID, "ProcessItem");
+                        }
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            return string.Empty;
         }
     }
 }

@@ -18,6 +18,7 @@ namespace Core.Repositories.Query
         Task<long> DeleteJobSchedule(JobSchedule jobSchedule);
         Task<IReadOnlyList<JobSchedule>> GetJobScheduleAsync();
         Task<IReadOnlyList<JobScheduleFun>> GetJobScheduleFunAsync();
+        Task<string> GetJobScheduleNavFuctionAsync(string JobType);
 
     }
 }

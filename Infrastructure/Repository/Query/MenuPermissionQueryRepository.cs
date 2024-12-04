@@ -24,20 +24,40 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
+                var dynamicForm = new List<DynamicForm>();
                 var menuList = new List<PortalMenuModel>();
                 var permissionQuery = @"Select  * from view_UserPermission where   UserID = @UserID AND  IsDisplay=1 and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder;";
-                var DashboardQuery = @"Select  * from ApplicationPermission where PermissionID>=60001 ";
+                var DashboardQuery = @"Select  * from ApplicationPermission where PermissionID>=60001;";
+                var FormQuery = @"select ID,SessionID,Name,ScreenID,IsDeleted from DynamicForm where (IsDeleted is null OR IsDeleted=0);";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", Id, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
-                    var query = permissionQuery + DashboardQuery;
+                    var query = permissionQuery + DashboardQuery + FormQuery;
                     var results = await connection.QueryMultipleAsync(query, parameters);
                     var spUserPermissionList = new List<SpUserPermission>();
                     var applicationUser = results.Read<SpUserPermission>().ToList();
                     var applicationAllUser = results.Read<SpUserPermission>().ToList();
+                    dynamicForm = results.Read<DynamicForm>().ToList();
                     if (applicationUser != null && applicationUser.Count > 0)
                     {
+                        var dynamicFormMenu = applicationUser.Where(w => w.ParentID == 60248).ToList();
+                        if (dynamicFormMenu != null && dynamicFormMenu.Count > 0)
+                        {
+                            dynamicFormMenu.ForEach(d =>
+                            {
+                                var exits = dynamicForm.Where(w => w.SessionID.ToString().ToLower() == d.PermissionURL.ToLower()).Count();
+                                if (exits > 0)
+                                {
+
+                                }
+                                else
+                                {
+                                    applicationUser.Remove(d);
+                                }
+                            });
+
+                        }
                         applicationUser.ToList().ForEach(s =>
                         {
                             getNested(s, applicationAllUser, spUserPermissionList);
@@ -81,7 +101,8 @@ namespace Infrastructure.Repository.Query
                                 ParentID = m.ParentID,
                                 IsPermissionURL = m.IsPermissionURL,
                                 UniqueSessionID = m.UniqueSessionID,
-                                PermissionID = m.PermissionID
+                                PermissionID = m.PermissionID,
+                                PermissionURL = m.PermissionURL,
                             };
                             menuList.Add(menu);
                         });

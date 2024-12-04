@@ -80,5 +80,5 @@ namespace Application.Queries
     public class CreateProductionActivityRoutineAppCommand : ProductionActivityRoutineAppModel, IRequest<long>
     {
     }
-
+   
 }

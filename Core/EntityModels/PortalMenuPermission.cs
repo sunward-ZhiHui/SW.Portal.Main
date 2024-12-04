@@ -26,6 +26,7 @@ namespace Core.EntityModels
         public long? PermissionID { get; set; }
         public bool IsPermissionURL { get; set; }
         public Guid UniqueSessionID { get; set; }
+        public string? PermissionURL { get; set; }
     }
 
     public class PortalPermissionModel

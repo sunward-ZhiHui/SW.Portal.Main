@@ -1054,7 +1054,7 @@
         SupportingDocumentsPopup = false;
         OperatorsPopup = false;
         await onLoadDataList();
-       // InvokeAsync(onLoadDataList);
+        // InvokeAsync(onLoadDataList);
         StateHasChanged();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
@@ -1078,12 +1078,19 @@
     }
     async Task onDeleteProductionActivityAppLine()
     {
-        if (_selectedItems != null && _selectedItems.ProductionActivityRoutineAppLineId > 0)
+        try
         {
-            BlukdeleteDocument = false;
-            await Mediator.Send(new DeleteproductActivityRoutineAppLine(_selectedItems));
-            toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await onLoadDataList();
+            if (_selectedItems != null && _selectedItems.ProductionActivityRoutineAppLineId > 0)
+            {
+                BlukdeleteDocument = false;
+                await Mediator.Send(new DeleteproductActivityRoutineAppLine(_selectedItems));
+                toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await onLoadDataList();
+            }
+        }
+        catch (Exception ex)
+        {
+
         }
     }
     void onSupportingDocuments()
@@ -1141,13 +1148,13 @@
                     var url = NavigationManager.BaseUri + "CreateEmail/" + ActivityEmailTopics.SessionId;
                     await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
                 }
-               // ActivityEmailPopup = true;
+                // ActivityEmailPopup = true;
             }
         }
     }
     public async ValueTask DisposeAsync()
     {
-        if(_AppLines != null)
+        if (_AppLines != null)
         {
             _AppLines.Clear();
             _AppLines = null;

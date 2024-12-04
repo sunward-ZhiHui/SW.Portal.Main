@@ -1,5 +1,6 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using DevExpress.XtraReports.Design;
 using MediatR;
@@ -241,6 +242,14 @@ namespace Application.Queries
     public class GetQcTestRequirementSummery : PagedRequest, IRequest<List<QCTestRequirement>>
     {
     }
-
+    public class GetAllDynamicFormDataOneApi : PagedRequest, IRequest<List<DynamicFormDataResponse>>
+    {
+        public Guid? DynamicFormDataSessionId { get; set; }
+        
+        public GetAllDynamicFormDataOneApi(Guid? dynamicFormDataSessionId)
+        {
+            this.DynamicFormDataSessionId = dynamicFormDataSessionId;
+        }
+    }
 
 }

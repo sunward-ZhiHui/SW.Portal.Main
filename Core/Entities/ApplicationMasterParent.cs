@@ -34,5 +34,7 @@ namespace Core.Entities
         public long? ApplicationMasterParentId3 { get; set; }
         public long? ApplicationMasterParentCodeId3 { get; set; }
         public long? DynamicFormDataId { get; set; }
+        [NotMapped]
+        public int? DummyNo { get;set; }
     }
 }

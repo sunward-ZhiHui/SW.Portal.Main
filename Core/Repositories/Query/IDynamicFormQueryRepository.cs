@@ -21,7 +21,7 @@ namespace Core.Repositories.Query
         Task<DynamicForm> GetDynamicFormBySessionIdAsync(Guid? SessionId);
         Task<long> Insert(DynamicForm dynamicForm);
         Task<long> Update(DynamicForm dynamicForm);
-        Task<long> Delete(long id);
+        Task<DynamicForm> Delete(DynamicForm dynamicForm);
         Task<DynamicFormData> GetDynamicFormDataBySessionOneAsync(Guid? SessionId);
         DynamicForm GetDynamicFormScreenNameCheckValidation(string? value, long id);
         Task<DynamicForm> GetDynamicFormScreenNameDataCheckValidation(string? value);
@@ -113,6 +113,13 @@ namespace Core.Repositories.Query
         Task<DynamicFormDataSectionLock> UpdateDynamicFormDataSectionLock(DynamicFormDataSectionLock value);
         Task<IReadOnlyList<DynamicFormSectionAttribute>> GetDynamicFormSectionAttributeForSpinEditAsync(long? dynamicFormId);
         Task<DynamicFormSectionAttribute> UpdateFormulaTextBox(DynamicFormSectionAttribute dynamicFormSectionAttribute);
+        Task<DynamicFormReportItems> InsertDynamicFormEmailSubCont(IEnumerable<DynamicFormReportItems> subjectData, IEnumerable<DynamicFormReportItems> contentData, Guid? SessionId);
+        Task<IReadOnlyList<DynamicFormEmailSubCont>> GetDynamicFormEmailSubCont(Guid? SessionId);
+        Task<DynamicFormEmailSubCont> DeleteDynamicFormEmailSubCont(Guid? SessionId);
+        Task<DynamicForm> InsertDynamicFormPermissionPermission(DynamicForm dynamicForm);
+        Task<IReadOnlyList<ApplicationPermission>> GetDynamicFormMenuList();
+        Task<ApplicationPermission> UpdateDynamicFormMenuSortOrder(ApplicationPermission applicationPermission);
+        Task<DynamicForm> DeleteDynamicFormMenu(DynamicForm dynamicForm);
     }
 
 }

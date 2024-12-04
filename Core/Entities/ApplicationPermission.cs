@@ -40,6 +40,8 @@ namespace Core.Entities
         public bool Checked { get; set; } = false;
         public bool IsPermissionURL { get; set; }
         public Guid UniqueSessionID { get; set; }
+        [NotMapped]
+        public string? PermissionAnotherOrder { get; set; }
 
     }
 }

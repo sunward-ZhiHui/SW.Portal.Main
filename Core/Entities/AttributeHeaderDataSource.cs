@@ -16,6 +16,7 @@ namespace Core.Entities
         public string? DisplayName { get; set; }
         public string? DataSourceTable { get; set; }
         public int? IsDynamicFormFilterBy { get; set; }
+        public int? DummyNo { get; set; }
 
     }
     public class DynamicFormFilter

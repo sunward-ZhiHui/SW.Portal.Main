@@ -47,7 +47,7 @@
         height: calc(100vh - 530px);
         background-color: white;
     }
-   
+
     .dxuc-file-list-view {
         padding: 20px;
     }
@@ -124,32 +124,32 @@ else
                                 <DxTextBox @bind-Text="@Data.From" spellcheck="true" ShowValidationIcon="true" Enabled=false />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="To" ColSpanMd="11">
-                                    <DxTagBox Data="_Toparticipant"
-                                              SearchMode="ListSearchMode.AutoSearch"
-                                              SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                              NullText="Select To..."
-                                              Values="@Data.ToIds"
-                                              ValuesExpression="@(() => Data.ToIds )"
-                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                              ValueFieldName="UserID"
-                                              TextFieldName="Name"
-                                              ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"
-                                              ListRenderMode="ListRenderMode.Virtual"
-                                              CssClass="cw-480">
+                                <DxTagBox Data="_Toparticipant"
+                                          SearchMode="ListSearchMode.AutoSearch"
+                                          SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                          NullText="Select To..."
+                                          Values="@Data.ToIds"
+                                          ValuesExpression="@(() => Data.ToIds )"
+                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                          ValueFieldName="UserID"
+                                          TextFieldName="Name"
+                                          ValuesChanged="@((IEnumerable<long>? values) => onSelectedToItemsChanged(values))"
+                                          ListRenderMode="ListRenderMode.Virtual"
+                                          CssClass="cw-480">
 
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
 
-                                    </DxTagBox>
-                                    <ValidationMessage For="@(() => Data.ToIds)" />
-                                </DxFormLayoutItem>
+                                </DxTagBox>
+                                <ValidationMessage For="@(() => Data.ToIds)" />
+                            </DxFormLayoutItem>
                             <DxFormLayoutItem Caption=" " ColSpanMd="1" CssClass="zero-width-label gbtn">
-                                    <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
-                                              Click="@(_ => OnButtonUserGroupToClick())">
-                                    </DxButton>
-                                </DxFormLayoutItem>
+                                <DxButton IconCssClass="fa fa-users" Id=@($"flyout-overview-target-container-user-group-to-info")
+                                          Click="@(_ => OnButtonUserGroupToClick())">
+                                </DxButton>
+                            </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="CC" ColSpanMd="11">
                                 <DxTagBox NullText="Select Cc..."
                                           Data="_CCparticipant"
@@ -231,15 +231,15 @@ else
                                 <DxCheckBox CssClass="w-100"
                                             @bind-Checked="@Data.IsLockDueDate"
                                             Alignment="default"
-                                            Enabled ="@LockDueDateEnable"
+                                            Enabled="@LockDueDateEnable"
                                             LabelPosition="LabelPosition.Right">
                                     Lock DueDate
                                 </DxCheckBox>
                             </DxFormLayoutItem>
-                          
-                         
 
-                             <DxFormLayoutItem Caption="Follow" ColSpanMd="4">
+
+
+                            <DxFormLayoutItem Caption="Follow" ColSpanMd="4">
                                 <DxComboBox Data="@Follow"
                                             NullText="Select Follow..."
                                             @bind-Value="@Data.Follow"
@@ -247,7 +247,7 @@ else
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.Follow)" />
                             </DxFormLayoutItem>
-                              <DxFormLayoutItem Caption="" ColSpanMd="2">
+                            <DxFormLayoutItem Caption="" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                             @bind-Checked="@Data.Urgent"
                                             Alignment="default"
@@ -292,7 +292,7 @@ else
                                 </DxFormLayoutItem>
                             }
                             <DxFormLayoutItem ColSpanMd="12">
-                                <DxRichEdit  DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                <DxRichEdit DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
 
                             </DxFormLayoutItem>
                         </DxFormLayout>
@@ -303,19 +303,19 @@ else
                                 <DxComboBox Data="@_groupTagItems"
                                             NullText="Select Group..."
                                             ListRenderMode="ListRenderMode.Virtual"
-                                            AllowUserInput ="true"
+                                            AllowUserInput="true"
                                             SearchMode="ListSearchMode.AutoSearch"
                                             SearchFilterCondition="ListSearchFilterCondition.Contains"
                                             TextFieldName="Value"
                                             ValueFieldName="ApplicationMasterChildId"
                                             Enabled="@isEnabled"
-                                           Value = "@selectgrouptagItems"
+                                            Value="@selectgrouptagItems"
                                             ValueExpression="@(() => selectgrouptagItems )"
                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                             ValueChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
                                             ShowValidationIcon="true">
                                 </DxComboBox>
-                                   <DxSpinEdit   @bind-Value="@CategoryData.GroupTag" ShowValidationIcon="true" style="display:none;" />
+                                <DxSpinEdit @bind-Value="@CategoryData.GroupTag" ShowValidationIcon="true" style="display:none;" />
                                 <ValidationMessage For="@(() => CategoryData.GroupTag)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Category" ColSpanMd="12">
@@ -350,18 +350,18 @@ else
                                     <DxListEditorColumn FieldName="@nameof(ApplicationMasterChildModel.Value)" Caption="Action" />
                                 </DxTagBox>
                                 @*  <DxComboBox Data="@_actionTagItems"
-                                            NullText="Select Action..."
-                                            Enabled="@isEnabled"
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            SearchMode="ListSearchMode.AutoSearch"
-                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                            AllowUserInput="true"
-                                            TextFieldName="Value"
-                                            ValueFieldName="ApplicationMasterChildId"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            @bind-Value="@CategoryData.ActionTag">
-                                </DxComboBox>
-                                <ValidationMessage For="@(() => CategoryData.ActionTag)" /> *@
+                            NullText="Select Action..."
+                            Enabled="@isEnabled"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            AllowUserInput="true"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterChildId"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@CategoryData.ActionTag">
+                            </DxComboBox>
+                            <ValidationMessage For="@(() => CategoryData.ActionTag)" /> *@
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="12">
                                 <DxComboBox Data="@_AllCategory"
@@ -379,18 +379,18 @@ else
                                 @* <ValidationMessage For="@(() => CategoryData.Name)" /> *@
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
-                               @*  <DxComboBox Data="@_UserTagList"
-                                            NullText="Select User Tag..."
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            SearchMode="ListSearchMode.AutoSearch"
-                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                            AllowUserInput="true"
-                                            TextFieldName="UserTag"
-                                            ValueFieldName="UserTag"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            @bind-Value="@CategoryData.UserTag"
-                                            @bind-Text="@UserTagName">
-                                </DxComboBox> *@
+                                @*  <DxComboBox Data="@_UserTagList"
+                            NullText="Select User Tag..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            SearchMode="ListSearchMode.AutoSearch"
+                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                            AllowUserInput="true"
+                            TextFieldName="UserTag"
+                            ValueFieldName="UserTag"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@CategoryData.UserTag"
+                            @bind-Text="@UserTagName">
+                            </DxComboBox> *@
                                 <DxTagBox Data="_UserTagList"
                                           @bind-Values="CategoryData.UserTagIds"
                                           NullText="Select User Tag"
@@ -513,7 +513,7 @@ else
                                 </DxFormLayout>
                             </DxFormLayoutItem>
                         </DxFormLayout>
-                        
+
                     </div>
                 </div>
             </div>
@@ -546,7 +546,6 @@ else
             <DxFormLayout>
                 <DxFormLayoutItem Caption="To Group" ColSpanMd="12">
                     <DxTagBox Data="_ToUserGroup"
-                         
                               SearchMode="ListSearchMode.AutoSearch"
                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                               NullText="Select To Group..."
@@ -592,7 +591,6 @@ else
             <DxFormLayout>
                 <DxFormLayoutItem Caption="CC Group" ColSpanMd="12">
                     <DxTagBox Data="_CCUserGroup"
-                              
                               SearchMode="ListSearchMode.AutoSearch"
                               SearchFilterCondition="ListSearchFilterCondition.Contains"
                               NullText="Select To Group..."
@@ -625,25 +623,25 @@ else
 
 @code {
     private async Task OnContentChanged()
-    {        
+    {
         await SetImagesWidthTo100();
     }
 
     private async Task SetImagesWidthTo100()
-    {        
+    {
         await JSRuntime.InvokeVoidAsync("setImagesWidthTo100");
     }
-    string UserTagName {get;set;}
+    string UserTagName { get; set; }
     string OthersTagName { get; set; }
     // private PersistingComponentStateSubscription? subscription;
     IEnumerable<UserGroup> UserGroupValues { get; set; }
     IEnumerable<UserGroup> TogroupValue { get; set; }
     IEnumerable<UserGroup> ccgroupValue { get; set; }
-    
-    ApplicationMasterChildModel selectgrouptagItems { get; set; } 
+    private List<DynamicFormEmailSubCont> _DynamicFormEmailSubConts;
+    ApplicationMasterChildModel selectgrouptagItems { get; set; }
     ApplicationMasterChildModel selectCategory { get; set; }
     IEnumerable<UserGroup> toUserGroupValues { get; set; }
-    ViewEmployee selectBehalf {get;set;}
+    ViewEmployee selectBehalf { get; set; }
     //private PersistingComponentStateSubscription _subscription;
     private string? _myData;
     private int submitCount = 0;
@@ -901,7 +899,7 @@ else
             if (_participant != null && userIds != null)
             {
                 var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
-                onSelectedToItemsChanged(emplst.Select(s=>s.UserID.Value));
+                onSelectedToItemsChanged(emplst.Select(s => s.UserID.Value));
             }
             // _CCparticipant = _participant.Except(userIds, new ViewEmployeeComparer()).ToList();
 
@@ -931,7 +929,7 @@ else
             if (_participant != null && combinedIds != null)
             {
                 var emplst1 = _participant.Where(employee => combinedIds.Contains(employee.UserID.Value)).ToList();
-                onSelectedToItemsChanged(emplst1.Select(s=>s.UserID.Value));
+                onSelectedToItemsChanged(emplst1.Select(s => s.UserID.Value));
             }
         }
 
@@ -967,7 +965,7 @@ else
             if (_participant != null && userIds != null)
             {
                 var emplst = _participant.Where(employee => userIdsList.Contains(employee.UserID.Value)).ToList();
-                onSelectedCCItemsChanged(emplst.Select(s=>s.UserID.Value));
+                onSelectedCCItemsChanged(emplst.Select(s => s.UserID.Value));
             }
 
         }
@@ -1052,7 +1050,7 @@ else
 
         if (values != null)
         {
-            Data.CCIds = values.Select(s=>s.UserID.Value).ToList();
+            Data.CCIds = values.Select(s => s.UserID.Value).ToList();
             // Update _Toparticipant based on selected values from _CCparticipant
             _Toparticipant = _participant.Except(values).ToList();
         }
@@ -1082,7 +1080,7 @@ else
     }
 
     void UpdateOnBehalfParticipant()
-    {       
+    {
         IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
         IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
 
@@ -1113,7 +1111,7 @@ else
         }
         else
         {
-            if(Data.OnBehalf != null)
+            if (Data.OnBehalf != null)
             {
                 var onbehalfitem = _participant.Where(c => c.UserID != Data.OnBehalf).ToList();
 
@@ -1590,7 +1588,7 @@ else
             Data.DueDate = null;
             Data.From = applicationUser.UserName;
             Data.IsLockDueDate = false;
-             LockDueDateEnable = false;
+            LockDueDateEnable = false;
         }
 
         if (CategoryData != null)
@@ -1771,7 +1769,7 @@ else
             OthersTagName = null;
             UserTagName = null;
             CategoryData.ActionTagIds = new List<long?>();
-              CategoryData.UserTagIds = new List<long?>();
+            CategoryData.UserTagIds = new List<long?>();
             _actionTagItems = null;
             _categoryTagItems = null;
         }
@@ -1824,7 +1822,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        //_subscription = ApplicationState.RegisterOnPersisting(Persist);     
+        //_subscription = ApplicationState.RegisterOnPersisting(Persist);
         _editContext = new EditContext(Data);
 
         //var tasks = new List<Task>();
@@ -1978,8 +1976,8 @@ else
                     //Guid docSessionId = Guid.Parse(docId);
                     await GroupTagChanged(actItem[0].ManufacturingProcessId);
                     await CategoryTagChange(actItem[0].CategoryActionId);
-                  
-                    
+
+
 
                     var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
                     ActUserName = Namelist[0].Name;
@@ -1999,14 +1997,21 @@ else
                         var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
                         _documentslst = documentslst;
                     }
-
+                    _DynamicFormEmailSubConts = new List<DynamicFormEmailSubCont>();
                     if (actItem[0].ActivityType == "DynamicForm")
                     {
                         // var documentslst = await Mediator.Send(new GetDynamicFormDoc(actItem[0].SessionId.Value));
                         // _documentslst = documentslst;
 
                         var dynamicname = await Mediator.Send(new GetDynamicFormName(actItem[0].SessionId.Value));
-                        DynamicFormName = dynamicname[0].Name;
+                        if (dynamicname != null && dynamicname.Count() > 0)
+                        {
+                            DynamicFormName = dynamicname[0].Name;
+                            if (actItem[0].SessionId != null)
+                            {
+                                _DynamicFormEmailSubConts = await Mediator.Send(new GetDynamicFormEmailSubCont(actItem[0].SessionId));
+                            }
+                        }
                     }
 
                     if (actItem[0].ActivityType == "ProductionActivity")
@@ -2027,6 +2032,39 @@ else
                     }
 
                     Data.TopicName = actItem[0].SubjectName;
+                    if (_DynamicFormEmailSubConts != null && _DynamicFormEmailSubConts.Count() > 0)
+                    {
+                        var emailsubjects = _DynamicFormEmailSubConts.Where(w => w.TypeName == "Subject").ToList();
+                        if (emailsubjects != null && emailsubjects.Count() > 0)
+                        {
+                            emailsubjects.ForEach(z =>
+                            {
+                                if (!string.IsNullOrEmpty(z.ValueName))
+                                {
+                                    //if (!string.IsNullOrEmpty(Data.TopicName))
+                                    // {
+                                    Data.TopicName += "-" + z.ValueName;
+                                    // }
+                                }
+                            });
+                        }
+                        var emailContent = _DynamicFormEmailSubConts.Where(w => w.TypeName == "Content").ToList();
+                        if (emailContent != null && emailContent.Count() > 0)
+                        {
+                            DevExpress.XtraRichEdit.RichEditDocumentServer serverEmail = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+                            string emailContents = string.Empty;
+                            emailContents = "<html><head><style>table {font-family: arial, sans-serif; border-collapse: collapse;width: 100%;}td, th { border: 1px solid #dddddd;text-align: left;padding: 8px;}tr:nth-child(even) {background-color: #dddddd;}</style></head><body><table>";
+                            emailContents += "<tr><th>Label Name</th><th>Value</th></tr>";
+                            emailContent.ForEach(e =>
+                            {
+                                emailContents += "<tr><td>" + e.LabelName + "</td><td>" + e.ValueName + "</td></tr>";
+                            });
+                            emailContents += "</table></body></html>";
+                            byte[] fileEmailContent = System.Text.Encoding.UTF8.GetBytes(emailContents);
+                            serverEmail.LoadDocument(fileEmailContent);
+                            await msgrichEdit.LoadDocumentAsync(serverEmail.OpenXmlBytes, DocumentFormat.OpenXml);
+                        }
+                    }
 
                     if (actItem[0].Comment != null)
                     {
@@ -2354,7 +2392,7 @@ else
                     //actName = CategoryData.Name,
                     actName = OthersTagName,
                     UserTag = UserTagName,
-                    UserTagIds =CategoryData.UserTagIds,
+                    UserTagIds = CategoryData.UserTagIds,
                     ActivityType = ActivityType,
                     UserType = Data.UserType,
                     ToUserGroup = sToUserGroup,
@@ -2372,7 +2410,11 @@ else
 
                 if (result != null)
                 {
-
+                    if (ActiveSessionId != null)
+                    {
+                        Guid activeSessionId = Guid.Parse(ActiveSessionId);
+                        var resultDynamicFormEmail = await Mediator.Send(new DeleteDynamicFormEmailSubCont(activeSessionId));
+                    }
                     @if (draftId == 0)
                     {
                         var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));
@@ -2548,11 +2590,11 @@ else
         if (ApplicationMasterChildId != null && ApplicationMasterChildId != -1)
         {
             CategoryData.ActionTagIds = new List<long?>();
-             _categoryTagItems = null;
+            _categoryTagItems = null;
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
         }
         else
-        {             
+        {
             CategoryData.GroupTag = 0;
             _actionTagItems = null;
             _categoryTagItems = null;
@@ -2562,7 +2604,7 @@ else
     }
     void OnDateChanged(DateTime? newValue)
     {
-       
+
         if (newValue != null)
         {
             LockDueDateEnable = true;
@@ -2581,7 +2623,7 @@ else
     {
         if (ApplicationMasterChildID != null && ApplicationMasterChildID != -1)
         {
-            CategoryData.ActionTagIds = new List<long?>();            
+            CategoryData.ActionTagIds = new List<long?>();
             _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
         }
         else
@@ -2620,15 +2662,15 @@ else
         _OnBehalfparticipant = null;
 
         Console.WriteLine("Component Disposed");
-        
+
         //GC.SuppressFinalize(this);
         //GC.Collect();
         //GC.WaitForPendingFinalizers();
         //GC.Collect();
         //GC.SuppressFinalize(this);
-        //_subscription.Dispose();        
+        //_subscription.Dispose();
         //NavigationManager.LocationChanged -= OnLocationChanged;
-       // subscription?.Dispose();
+        // subscription?.Dispose();
     }
 
     //internal async Task OpenUrlInNewTab(string url)

@@ -8,12 +8,22 @@ using System.Dynamic;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+var InsertOrUpdateNavItems = "https://portal.sunwardpharma.com:8423/api/NavFun/InsertOrUpdateNavItems";
+restApi(InsertOrUpdateNavItems);
 var url = "https://portal.sunwardpharma.com:8423/api/NavFun/InsertOrUpdateFinishedProdOrderLineData";
 restApi(url);
+
 var ItemBatchurl = "https://portal.sunwardpharma.com:8423/api/NavFun/InsertOrUpdateItemBatch";
 restApi(ItemBatchurl);
+
 var navprodOrderLineUrl = "https://portal.sunwardpharma.com:8423/api/NavFun/InsertOrUpdateNavprodOrderLine";
 restApi(navprodOrderLineUrl);
+
+var InsertOrUpdateNavVendor = "https://portal.sunwardpharma.com:8423/api/NavFun/InsertOrUpdateNavVendor";
+restApi(InsertOrUpdateNavVendor);
+
+var InsertOrUpdateRawItems = "https://portal.sunwardpharma.com:8423/api/NavFun/InsertOrUpdateRawItems";
+restApi(InsertOrUpdateRawItems);
 void restApi(string? Url)
 {
     var options = new RestClientOptions

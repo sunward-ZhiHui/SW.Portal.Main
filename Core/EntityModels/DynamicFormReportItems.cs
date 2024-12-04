@@ -23,7 +23,7 @@ namespace Core.EntityModels
         public long? DynamicGridFormDataGridId { get; set; }
         public long? DynamicFormSectionGridAttributeId { get; set; }
         public string? Url { get; set; } = string.Empty;
-        public List<DynamicFormDataResponse>? GridItems { get; set; } =new List<DynamicFormDataResponse>();
+        public List<DynamicFormDataResponse>? GridItems { get; set; } = new List<DynamicFormDataResponse>();
         public bool? IsSubForm { get; set; } = false;
         public List<dynamic>? GridSingleItems { get; set; } = new List<dynamic>();
 
@@ -62,5 +62,15 @@ namespace Core.EntityModels
         public string? AssignedUser { get; set; }
         public string? DelegateUser { get; set; }
         public string? CurrentApprovalUserName { get; set; }
+    }
+    public class DynamicFormEmailSubCont
+    {
+        public long DynamicFormEmailSubContId { get; set; }
+        public string? AttrId { get; set; }
+        public string? TypeName { get; set; }
+        public int? SortBy { get; set; }
+        public Guid? DynamicFormSessionID { get; set; }
+        public string? LabelName { get; set; }
+        public string? ValueName { get; set; }
     }
 }

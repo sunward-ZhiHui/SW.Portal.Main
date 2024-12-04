@@ -74,12 +74,8 @@
             </DxComboBox>
             <ValidationMessage For="@(() => Data.CompanyID)" />
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Type:" ColSpanMd="6">
-            <DxComboBox Data="@StatusTypeList" NullText="Select Type..." @bind-Text="@StatusType" @bind-Value="@Data.StatusType" ShowValidationIcon="true"
-                        SelectedItemChanged="@((string Type) => SelectedTypeItemsChanged(Type))"></DxComboBox>
-
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="FP:" ColSpanMd="6" Visible="@FPVisible">
+       
+      @*   <DxFormLayoutItem Caption="FP:" ColSpanMd="6" Visible="@FPVisible">
             <DxComboBox Data="@_ponumberActivities"
                         NullText="Select Ticket No..."
                         ValueChanged="@((string? prod) => SelectedItemprod(prod))"
@@ -97,7 +93,7 @@
                                     Tooltip="Scan Ticket No"
                                     Click="@(_ => OnButtonFPClick())" />
                 </Buttons>
-            </DxComboBox>
+            </DxComboBox> *@
             @* <DxTextBox Visible = "" Text="@Data.FPDD" spellcheck="true" ShowValidationIcon="true" NullText="FP" TextExpression="@(() => Data.FPDD )" TextChanged="@((newValue) => OnTextChanged(newValue))" >
             <Buttons>
             <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -106,8 +102,8 @@
             </Buttons>
             </DxTextBox> *@
 
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Process:" ColSpanMd="6" Visible="@ProcessVisible">
+       @*  </DxFormLayoutItem> *@
+      @*   <DxFormLayoutItem Caption="Process:" ColSpanMd="6" Visible="@ProcessVisible"> *@
            @*   <DxTextBox Text="@Data.ProcessDD" spellcheck="true" ShowValidationIcon="true" NullText="Process" TextExpression="@(() => Data.ProcessDD )" TextChanged="@((newValue) => ProcessOnTextChanged(newValue))">
                  <Buttons>
                      <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -115,7 +111,7 @@
                                      Click="@(_ => OnButtonProcessClick())" />
                  </Buttons>
              </DxTextBox> *@
-            <DxComboBox Data="@_RawMatItemList"
+           @*  <DxComboBox Data="@_RawMatItemList"
                         NullText="Select Process No..."
                         SearchMode="ListSearchMode.AutoSearch"
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -131,8 +127,8 @@
                                     Click="@(_ => OnButtonProcessClick())" />
                 </Buttons>
             </DxComboBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Raw Material:" ColSpanMd="6" Visible="@RawMaterialVisible">
+        </DxFormLayoutItem> *@
+      @*   <DxFormLayoutItem Caption="Raw Material:" ColSpanMd="6" Visible="@RawMaterialVisible"> *@
              @* <DxTextBox Text="@Data.RawMaterialDD" spellcheck="true" ShowValidationIcon="true" NullText="Raw Material" TextExpression="@(() => Data.RawMaterialDD )" TextChanged="@((newValue) => RawMaterialOnTextChanged(newValue))">
                  <Buttons>
                      <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -140,7 +136,7 @@
                                      Click="@(_ => OnButtonRawMaterialClick())" />
                  </Buttons>
              </DxTextBox> *@
-            <DxComboBox Data="@_RawMatItemList1"
+           @*  <DxComboBox Data="@_RawMatItemList1"
                         NullText="Select Raw Material..."
                         SearchMode="ListSearchMode.AutoSearch"
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -157,7 +153,7 @@
                 </Buttons>
             </DxComboBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Packing Material:" ColSpanMd="6" Visible="@PackingMaterialVisible">
+        <DxFormLayoutItem Caption="Packing Material:" ColSpanMd="6" Visible="@PackingMaterialVisible"> *@
             @* <DxTextBox Text="@Data.PackingMaterialDD" spellcheck="true" ShowValidationIcon="true" NullText="Packing Material" TextExpression="@(() => Data.PackingMaterialDD )" TextChanged="@((newValue) => PackingMaterialOnTextChanged(newValue))">
                 <Buttons>
                     <DxEditorButton IconCssClass="fa fa-qrcode"
@@ -165,7 +161,7 @@
                                     Click="@(_ => OnButtonPackingMaterialClick())" />
                 </Buttons>
             </DxTextBox> *@
-            <DxComboBox Data="@_RawMatItemList2"
+           @*  <DxComboBox Data="@_RawMatItemList2"
                         NullText="Select Packing Material..."
                         SearchMode="ListSearchMode.AutoSearch"
                         SearchFilterCondition="ListSearchFilterCondition.Contains"
@@ -181,7 +177,7 @@
                                     Click="@(_ => OnButtonPackingMaterialClick())" />
                 </Buttons>
             </DxComboBox>
-        </DxFormLayoutItem>
+        </DxFormLayoutItem> *@
 
         <DxFormLayoutItem Caption="Routine:" ColSpanMd="6">
             <DxComboBox Data="@_ManuFactureProcessLines"
@@ -234,7 +230,30 @@
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
-
+         <DxFormLayoutItem Caption="Status:" ColSpanMd="6">
+                                <DxComboBox Data="@_StatusList"
+                                            NullText="Select Status..."
+                                            SearchMode="ListSearchMode.AutoSearch"
+                                            SearchFilterCondition="ListSearchFilterCondition.Contains"
+                        TextFieldName="CodeValue"
+                        ValueFieldName="CodeId"
+                                            Enabled = "@EnableStatus"
+                                            @bind-Value="Data.StatusID"
+                                            ShowValidationIcon="true">
+                                </DxComboBox>
+            <ValidationMessage For="@(() => Data.StatusID)" />
+         </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
+            <DxTagBox NullText="Select Routine Info..."
+                      Data="@_ActivityMaster"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      TextFieldName="Text"
+                      ValueFieldName="Id"
+                      @bind-Values="@Data.RoutineInfoIds"
+                      CssClass="cw-480" />
+        </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
             <DxComboBox Data="@_ActivityResult"
                         NullText="Select Activity Result..."
@@ -257,17 +276,7 @@
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
-            <DxTagBox NullText="Select Routine Info..."
-                      Data="@_ActivityMaster"
-                      SearchMode="ListSearchMode.AutoSearch"
-                      SearchFilterCondition="ListSearchFilterCondition.Contains"
-                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                      TextFieldName="Text"
-                      ValueFieldName="Id"
-                      @bind-Values="@Data.RoutineInfoIds"
-                      CssClass="cw-480" />
-        </DxFormLayoutItem>
+       
 
         <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
             <DxMemo @bind-Text="Data.LineComment" Rows="5" />
@@ -275,6 +284,99 @@
         <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
             <DxMemo @bind-Text="Data.Others" Rows="5" />
         </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Type:" ColSpanMd="12">
+            <DxComboBox Data="@StatusTypeList" NullText="Select Type..." @bind-Text="@StatusType" @bind-Value="@Data.StatusType" ShowValidationIcon="true"
+                        SelectedItemChanged="@((string Type) => SelectedTypeItemsChanged(Type))"></DxComboBox>
+
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="FP Multiple:" ColSpanMd="12" Visible="@FPVisible">
+            <DxTagBox NullText="Select FP..."
+                      Data="@_ponumberActivities"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      TextFieldName="Name"
+                      ValueFieldName="ProdOrderNo"
+                      @bind-Values="@Data.FPDDIds"
+                      CssClass="cw-480" >
+                <Columns>
+                  
+                    <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.ProdOrderNo)" Caption="ProdOrder No" />
+                    <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.BatchNo)" Caption="Batch No" />
+                    <DxListEditorColumn FieldName="@nameof(NavprodOrderLineModel.Description)" Caption="Description" />
+                </Columns>
+                  </DxTagBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Process Multiple:" ColSpanMd="12" Visible="@ProcessVisible">
+            <DxTagBox NullText="Select Process..."
+                      Data="@_RawMatItemList"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      TextFieldName="ItemNoDescription"
+                      ValueFieldName="ItemNo"
+                      @bind-Values="@Data.ProcessDDIds"
+                      CssClass="cw-480" >
+                <Columns>
+                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
+                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
+                   
+                </Columns>
+                  </DxTagBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Raw Material Multiple:" ColSpanMd="12" Visible="@RawMaterialVisible">
+            <DxTagBox NullText="Select Raw Material..."
+                      Data="@_RawMatItemList1"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      TextFieldName="ItemNoDescription"
+                      ValueFieldName="ItemNo"
+                      @bind-Values="@Data.RawMaterialDDIds"
+                      CssClass="cw-480" >
+                <Columns>
+                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
+                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
+
+                </Columns>
+                  </DxTagBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Packing Material Multiple:" ColSpanMd="12" Visible="@PackingMaterialVisible">
+            <DxTagBox NullText="Select Packing Material..."
+                      Data="@_RawMatItemList2"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      TextFieldName="ItemNoDescription"
+                      ValueFieldName="ItemNo"
+                      @bind-Values="@Data.PackingMaterialDDIds"
+                      CssClass="cw-480" >
+                <Columns>
+                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.ItemNo)" Caption="Item No" />
+                    <DxListEditorColumn FieldName="@nameof(RawMatItemList.Description)" Caption="Description" />
+
+                </Columns>
+                  </DxTagBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Product Name:" ColSpanMd="12" Visible="@ProductNameVisible">
+            <DxTagBox NullText="Select Product Name..."
+                      Data="@_ProductNameList"
+                      SearchMode="ListSearchMode.AutoSearch"
+                      SearchFilterCondition="ListSearchFilterCondition.Contains"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      TextFieldName="Value"
+                      ValueFieldName="ApplicationMasterDetailID"
+                      @bind-Values="@Data.ProductNameIds"
+                      CssClass="cw-480">
+                <Columns>
+                    <DxListEditorColumn FieldName="@nameof(View_ApplicationMasterDetail.Value)" Caption="Product Name" />
+                    <DxListEditorColumn FieldName="@nameof(View_ApplicationMasterDetail.Description)" Caption="Description" />
+
+                </Columns>
+                  </DxTagBox>
+                   
+        </DxFormLayoutItem>
+        
     </DxFormLayout>
 </EditForm>
 <DxPopup @bind-Visible="@PopupUpload"
@@ -362,6 +464,8 @@
     public long? FileProfileTypeId { get; set; }
     public Guid? UploadSessionId { get; set; }
     EditContext _editContext;
+    private List<View_ApplicationMasterDetail> _ProductNameList;
+    private List<CodeMaster> _StatusList;
     // [Parameter]
     // public IEnumerable _poOrderDetails { get; set; }
     private List<ProductionActivityApp> _productionActivities;
@@ -403,7 +507,7 @@
     string timesheetMasterParentid = "-1";
     long timesheetMasterchildid = -1;
 
-    List<string> StatusTypeList = new List<string>() { "FP", "Process", "Raw Material", "Packing Material", "Fixed Asset" };
+    List<string> StatusTypeList = new List<string>() { "FP", "Process", "Raw Material", "Packing Material", "Fixed Asset","Product Name" };
     bool PopupFPDDScanVisible { get; set; } = false;
     bool PopupProcessDDScanVisible { get; set; } = false;
     bool PopupRawMaterialDDScanVisible { get; set; } = false;
@@ -421,11 +525,15 @@
     bool ProcessVisible { get; set; } = false;
     bool RawMaterialVisible { get; set; } = false;
     bool PackingMaterialVisible { get; set; } = false;
+    bool ProductNameVisible { get; set; } = false;
+    bool EnableStatus { get; set; } = false;
     string StatusType;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         addEnabled = true; saveEnabled = true;
+      
+       
         //  _ponumberActivities = _poOrderDetails.Cast<NavprodOrderLineModel>().ToList();
         Data.ProductActivityCaseLineId = 0;
         _ManuFactureProcessLines = await Mediator.Send(new GetAllApplicationMasterChildListQuery("108"));
@@ -433,6 +541,8 @@
         Data.ProdActivityCategoryChildId = null; Data.ProdActivityActionChildD = null;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _StatusList = await Mediator.Send(new GetAllCodeMasterQuery("TimeSheetV1Satus"));
+        
         //_ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(324));
         // Deserialize JSON to List<ActivityResult>
         //_ActivityResult = JsonSerializer.Deserialize<List<View_ApplicationMasterDetail>>(jsonText);
@@ -458,6 +568,8 @@
                 _ActivityMaster = filteredResults.Where(x => x.Value.ToLower() == "Routine Info".ToLower()).ToList();
             }
         }
+        Data.StatusID = 3400;
+        EnableStatus = false;
         Category = "";
         Action = "";
         if (_selectedEditItems != null)
@@ -484,6 +596,12 @@
             Data.LineComment = _selectedEditItems.LineComment;
             Category = _selectedEditItems.ProdActivityCategoryChild;
             Action = _selectedEditItems.ProdActivityActionChild;
+           
+            Data.FPDDIds = _selectedEditItems.FPDDIds;
+            Data.ProcessDDIds = _selectedEditItems.ProcessDDIds;
+            Data.RawMaterialDDIds = _selectedEditItems.RawMaterialDDIds;
+            Data.PackingMaterialDDIds = _selectedEditItems.PackingMaterialDDIds;
+            Data.ProductNameIds = _selectedEditItems.ProductNameIds;
             Data.OthersOptions = _selectedEditItems.OthersOptions;
             if (_selectedEditItems.IsOthersOptions == true)
             {
@@ -511,6 +629,9 @@
                 }
             }
             await GetIsDoumentExits();
+           
+             EnableStatus = false;
+            Data.StatusID = 3401;
             if (StatusType == "FP")
             {
                 if (_selectedEditItems.CompanyId > 0)
@@ -521,6 +642,7 @@
                     ProcessVisible = false;
                     RawMaterialVisible = false;
                     PackingMaterialVisible = false;
+                    ProductNameVisible = false;
                 }
             }
             if (StatusType == "Process")
@@ -533,6 +655,7 @@
                     ProcessVisible = true;
                     RawMaterialVisible = false;
                     PackingMaterialVisible = false;
+                    ProductNameVisible = false;
                 }
             }
             if (StatusType == "Raw Material")
@@ -545,6 +668,7 @@
                     ProcessVisible = false;
                     RawMaterialVisible = true;
                     PackingMaterialVisible = false;
+                    ProductNameVisible = false;
                 }
             }
             if (StatusType == "Packing Material")
@@ -557,7 +681,17 @@
                     ProcessVisible = false;
                     RawMaterialVisible = false;
                     PackingMaterialVisible = true;
+                     ProductNameVisible = false;
                 }
+            }
+            if (StatusType == "Product Name")
+            {
+                _ProductNameList = await Mediator.Send(new GetAllApplicationMasterDetailQuery(103));
+                FPVisible = false;
+                ProcessVisible = false;
+                RawMaterialVisible = false;
+                PackingMaterialVisible = false;
+                ProductNameVisible = true;
             }
             // SelectedTypeItems(_selectedEditItems.StatusType);
         }
@@ -592,6 +726,11 @@
         Data.PackingMaterialDD = null;
         Data.FixedAsset = null;
         Data.Others = null;
+        Data.FPDDIds = null;
+         Data.ProcessDDIds = null;
+          Data.PackingMaterialDDIds = null;
+           Data.RawMaterialDDIds = null;
+            Data.ProductNameIds = null;
         Data.StatusType = null;
         StatusType = null;
         addEnabled = true; saveEnabled = true;
@@ -814,6 +953,12 @@
                 IsTemplateUploadFlag = Data.IsTemplateUpload == true ? "Yes" : "No",
                 ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0 ? Data.ProductActivityCaseLineId : null,
                 RoutineInfoIds = Data.RoutineInfoIds,
+                FPDDIds =Data.FPDDIds,
+                ProcessDDIds = Data.ProcessDDIds,
+                RawMaterialDDIds = Data.RawMaterialDDIds,
+                PackingMaterialDDIds =Data.PackingMaterialDDIds,
+                ProductNameIds = Data.ProductNameIds,
+                StatusID = Data.StatusID,
                 TimeSheetAction = true,
                 LotNo = Data.LotNo,
                 ItemName = Data.ItemName,
@@ -1117,6 +1262,8 @@
                 ProcessVisible = false;
                 RawMaterialVisible = false;
                 PackingMaterialVisible = false;
+
+                ProductNameVisible = false;
             }
         }
         else if (type == "Process")
@@ -1127,6 +1274,7 @@
                 ProcessVisible = true;
                 RawMaterialVisible = false;
                 PackingMaterialVisible = false;
+                ProductNameVisible = false;
                 _RawMatItemList = await Mediator.Send(new GetRawMatItemListByTypeList("ProcessItem", Data.CompanyID));
             }
         }
@@ -1138,6 +1286,7 @@
             ProcessVisible = false;
             RawMaterialVisible = true;
             PackingMaterialVisible = false;
+                ProductNameVisible = false;
             
                 _RawMatItemList1 = await Mediator.Send(new GetRawMatItemListByTypeList("RawMatItem", Data.CompanyID));
             }
@@ -1150,9 +1299,19 @@
             ProcessVisible = false;
             RawMaterialVisible = false;
             PackingMaterialVisible = true;
+                ProductNameVisible = false;
             
                 _RawMatItemList2 = await Mediator.Send(new GetRawMatItemListByTypeList("PackagingItem", Data.CompanyID));
             }
+        }
+        else if (type == "Product Name")
+        {
+            _ProductNameList = await Mediator.Send(new GetAllApplicationMasterDetailQuery(103));
+            FPVisible = false;
+            ProcessVisible = false;
+            RawMaterialVisible = false;
+            PackingMaterialVisible = false;
+            ProductNameVisible = true;
         }
         else
         {
@@ -1160,6 +1319,7 @@
             ProcessVisible = false;
             RawMaterialVisible = false;
             PackingMaterialVisible = false;
+            ProductNameVisible = false;
         }
         StateHasChanged();
     }

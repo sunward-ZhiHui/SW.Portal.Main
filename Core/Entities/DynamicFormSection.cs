@@ -73,6 +73,7 @@ namespace Core.Entities
         public string? PlantCode { get; set; }
         public DynamicFormDataSectionLock DynamicFormDataSectionLock { get; set; } = new DynamicFormDataSectionLock();
         public long? DynamicFormCloneSectionId { get; set; }
+        public bool? IsAutoNumberEnabled {  get; set; } = false;
     }
     public class DynamicFormSectionSortOrder
     {

@@ -1305,5 +1305,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async  Task<long> UpdateTimesheetV1Status(long? value)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ProductionActivityRoutineAppId", value);
+                var query = @"Update ProductionActivityRoutineApp Set StatusID = 3402 where ProductionActivityRoutineAppID =@ProductionActivityRoutineAppId
+                              ";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QuerySingleOrDefaultAsync<long>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

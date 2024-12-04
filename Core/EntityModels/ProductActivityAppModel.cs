@@ -154,6 +154,7 @@ namespace Core.EntityModels
         public List<ProductActivityCase> ProductActivityCase { get; set; } = new List<ProductActivityCase>();
         public List<RawMatItemList> RawMatItemList { get; set; }=new List<RawMatItemList>();
         public List<NavprodOrderLine> FDDNavprodOrderLine { get; set; }=new List<NavprodOrderLine>();
+        public List<ProdOrderMultiple> ProdOrderMultipleList { get; set; } = new List<ProdOrderMultiple>();
     }
     public class ProductActivityAppStatusModel
     {

@@ -17,6 +17,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<View_ProductionActivityReport>> GetProductionActivityReportList();
         Task<IReadOnlyList<imgDocList>> GetProductionActivityReportDocList(long ProductionActivityAppLineID);
         Task<IReadOnlyList<ProductionActivityRoutineAppModel>> GetAllProductionActivityRoutineAsync(ProductionActivityRoutineAppModel value);
+        Task<IReadOnlyList<ProductionActivityRoutineAppModel>> GetAllTimeSheetV1Async(ProductionActivityRoutineAppModel value);
         Task<ProductionActivityRoutineAppModel> DeleteproductActivityRoutineAppLine(ProductionActivityRoutineAppModel productionActivityRoutineAppModel);
         Task<ProductionActivityRoutineAppModel> UpdateproductActivityRoutineAppLineCommentField(ProductionActivityRoutineAppModel value);
         Task<ProductionActivityRoutineAppModel> UpdateActivityRoutineMaster(ProductionActivityRoutineAppModel value);

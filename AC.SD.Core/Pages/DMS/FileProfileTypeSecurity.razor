@@ -116,24 +116,7 @@
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
                                     </DxTagBox>
                                 </DxFormLayoutItem>
-                                @*  <DxFormLayoutItem Caption="Sunward Libraries" ColSpanMd="10">
-                                <DxTextBox NullText="Select Sunward Libraries..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
-                                <Buttons>
-                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen-UserGroup")
-                                Tooltip="Select File ProfileType"
-                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())"></DxEditorButton>
-                                <DxEditorButton IconCssClass="fa fa-remove"
-                                Tooltip="Clear"
-                                Click="@(_ => OnButtonFileProfileTypeLinDocClearClick())"></DxEditorButton>
-                                </Buttons>
-                                </DxTextBox>
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem ColSpanMd="2">
-                                <DxButton SubmitFormOnClick="true"
-                                Text="Save"
-                                style="margin-bottom: 20px;"
-                                RenderStyle="ButtonRenderStyle.Primary" />
-                                </DxFormLayoutItem> *@
+
                             </DxFormLayout>
                         </EditForm>
                     </div>
@@ -185,24 +168,7 @@
                                         <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
                                     </DxTagBox>
                                 </DxFormLayoutItem>
-                                @* <DxFormLayoutItem Caption="Sunward Libraries" ColSpanMd="10">
-                                <DxTextBox NullText="Select Sunward Libraries..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
-                                <Buttons>
-                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen-Level")
-                                Tooltip="Select File ProfileType"
-                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())"></DxEditorButton>
-                                <DxEditorButton IconCssClass="fa fa-remove"
-                                Tooltip="Clear"
-                                Click="@(_ => OnButtonFileProfileTypeLinDocClearClick())"></DxEditorButton>
-                                </Buttons>
-                                </DxTextBox>
-                                </DxFormLayoutItem>
-                                <DxFormLayoutItem ColSpanMd="2">
-                                <DxButton SubmitFormOnClick="true"
-                                Text="Save"
-                                style="margin-bottom: 20px;"
-                                RenderStyle="ButtonRenderStyle.Primary" />
-                                </DxFormLayoutItem> *@
+
                             </DxFormLayout>
 
                         </EditForm>
@@ -314,7 +280,7 @@
           HeaderText="Select Sunward Libraries"
           FooterVisible="false"
           FooterCssClass="custom-flyout-footer"
-          MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          MinWidth="700" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           CloseOnOutsideClick="false"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
@@ -327,8 +293,9 @@
                                 DisplayMode="MenuDisplayMode.Auto">
                             <Items>
                                 <DxMenuItem Text="Close" IconCssClass="fa fa-reply" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
-                                     <DxMenuItem Text="Expand All" IconCssClass="fa fa-expand" Click=@expandTreeAll />
-                                <DxMenuItem Text="Collapse All" IconCssClass="fa fa-expand" Click=@CollapseTreeAll />
+                                <DxMenuItem Text="Expand All" IconCssClass="fa fa-expand" Click=@expandTreeAll />
+                                <DxMenuItem Text="Collapse All" IconCssClass="fa fa-expand" Click=@collapseTreeAll />
+                                <DxMenuItem Text="@checkAllUncheckedText" IconCssClass="fa fa-check" Click=@OnButtonFileProfileTypeAllClick />
                                 @*  <DxMenuItem Text="Save Permission" IconCssClass="fa fa-save" Click="@SubmitFormExternally" /> *@
                             </Items>
                         </DxMenu>
@@ -344,20 +311,24 @@
                             ShowFilterRow="true"
                             KeyFieldName="FileProfileTypeId"
                             ParentKeyFieldName="ParentId"
+                            RowClick="OnRowClick"
                             ColumnResizeMode="TreeListColumnResizeMode.NextColumn"
                             TextWrapEnabled="false"
                             ShowAllRows="true"
-                            FocusedRowEnabled="true"
-                            SelectionMode="TreeListSelectionMode.Multiple"
-                            AllowSelectRowByClick="true"
-                            SelectedDataItems="@SelectedDataItems"
-                            SelectedDataItemsChanged="OnSelectedDataItemsChanged"
                             FilterTreeMode="TreeListFilterTreeMode.EntireBranch"
                             CssClass="max-h-480">
                     <Columns>
 
-                        <DxTreeListSelectionColumn Width="5%"/>
-                        <DxTreeListDataColumn FieldName="FileName" Width="95%" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
+                        @* <DxTreeListSelectionColumn Width="5%" /> *@
+                        <DxTreeListDataColumn FieldName="Checked" Caption="" Width="150px">
+                            <CellDisplayTemplate Context="Context1">
+                                @{
+                                    var rolePermission = (DocumentsModel)Context1.DataItem;
+                                }
+                                <DxCheckBox Checked="@rolePermission.Checked" CheckedExpression="@(() => rolePermission.Checked)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value,rolePermission))"></DxCheckBox>
+                            </CellDisplayTemplate>
+                        </DxTreeListDataColumn>
+                        <DxTreeListDataColumn FieldName="FileName" Width="90%" Caption="Name" FilterRowOperatorType="TreeListFilterRowOperatorType.Contains">
                             <EditSettings>
                                 <DxTextBoxSettings NullText="Type a search string and enter" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
                             </EditSettings>
@@ -389,6 +360,9 @@
     </BodyContentTemplate>
 </DxFlyout>
 @code {
+    bool IsOpen { get; set; } = false;
+    string ExpandAllText { get; set; } = "Expand All"; string checkAllUncheckedText { get; set; } = "Check All";
+    bool CheckedAll { get; set; } = false; bool CheckedUncheckAll { get; set; } = false;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     EditContext _editContext;
     string? LinkFilterFileprofiletypeName { get; set; } = string.Empty;
@@ -405,7 +379,6 @@
     public List<ViewLevel> _levelMasterLists { get; set; }
     private List<ViewEmployee>? _usersList;
     DocumentUserRoleModel Data = new DocumentUserRoleModel();
-    bool IsOpen { get; set; } = false;
     bool IsOpenUserGroup { get; set; } = false;
     bool IsOpenLevel { get; set; } = false;
     public DocumentPermissionModel? documentPermissionData { get; set; }
@@ -413,7 +386,7 @@
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public List<DocumentsModel> fileProfileTypeDocuments { get; set; }
     private DxTreeView _treeFilterDocView; ITreeList TreeList { get; set; }
-    public bool IsFileProfileTypeFilterDocOpen { get; set; }
+    public bool IsFileProfileTypeFilterDocOpen { get; set; } = false;
     string? FilterDocumentString { get; set; }
     bool saveEnabled { get; set; } = true;
     public long? DocumentId { get; set; }
@@ -440,6 +413,75 @@
         fileProfileTypeDocuments = GetChild(FileProfileTypeId).ToList();
         StateHasChanged();
     }
+    void OnRowClick(TreeListRowClickEventArgs e)
+    {
+        var indexx = e.VisibleIndex;
+        if (TreeList.IsRowExpanded(e.VisibleIndex))
+            TreeList.CollapseRow(e.VisibleIndex);
+        else
+            TreeList.ExpandRow(e.VisibleIndex);
+    }
+    private void GetNestedItems(List<DocumentsModel> foldersListItem, long? id, List<DocumentsModel> documentsModels)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.ParentId == id).ToList();
+        if (foldersListItems != null && foldersListItems.Count() > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                documentsModels.Add(s);
+                GetNested(s, documentsModels);
+            });
+        }
+    }
+    private void GetNested(DocumentsModel documentsModel, List<DocumentsModel> documentsModels)
+    {
+        if (documentsModel != null)
+        {
+            var exits = fileProfileTypeDocumentsAll.Where(f => f.ParentId == documentsModel.FileProfileTypeId).ToList();
+            if (exits != null && exits.Count() > 0)
+            {
+                exits.ForEach(s =>
+                {
+                    documentsModels.Add(s);
+                    GetNested(s, documentsModels);
+                });
+
+            }
+        }
+    }
+    void OnCheckedAllValueChanged(bool radioValue, DocumentsModel documentsModel)
+    {
+        CheckedUncheckAll = false;
+        checkAllUncheckedText = "Check All";
+        LinkFilterFileprofiletypeName = string.Empty;
+        Data.FileProfileTypeIds = new List<long?>();
+        List<DocumentsModel> documentsModels = new List<DocumentsModel>();
+        documentsModel.Checked = radioValue;
+        GetNestedItems(fileProfileTypeDocumentsAll, documentsModel.FileProfileTypeId, documentsModels);
+        if (documentsModels != null && documentsModels.Count() > 0)
+        {
+            documentsModels.ForEach(s =>
+            {
+                int index = fileProfileTypeDocumentsAll.FindIndex(a => a.DocumentID == s.DocumentID);
+                var parentData = fileProfileTypeDocumentsAll.Where(a => a.ParentId == s.DocumentID).FirstOrDefault();
+                fileProfileTypeDocumentsAll[index].Checked = radioValue;
+            });
+        }
+        if (fileProfileTypeDocumentsAll != null && fileProfileTypeDocumentsAll.Count() > 0)
+        {
+            var checkeds = fileProfileTypeDocumentsAll.Where(s => s.Checked == true).ToList();
+            if (checkeds != null && checkeds.Count() > 0)
+            {
+                checkeds.ForEach(c =>
+                {
+                    Data.FileProfileTypeIds.Add(c.FileProfileTypeId);
+                    LinkFilterFileprofiletypeName += c.FileName + ",";
+                });
+            }
+        }
+        LinkFilterFileprofiletypeName = LinkFilterFileprofiletypeName.TrimEnd(',');
+        StateHasChanged();
+    }
     protected void SelectionChanged(TreeViewNodeEventArgs e)
     {
         if (e.NodeInfo?.DataItem != null)
@@ -453,6 +495,7 @@
     }
     void OnSelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
+        // SelectedToItems.Append(fileProfileTypeDocumentsAll.FirstOrDefault(f=>f.DocumentID==21));
         LinkFilterFileprofiletypeName = string.Empty;
         Data.FileProfileTypeIds = new List<long?>();
         foreach (object item in SelectedToItems)
@@ -514,13 +557,56 @@
         }
         StateHasChanged();
     }
-    void CollapseTreeAll()
+    void collapseTreeAll()
     {
         TreeList.CollapseAll();
     }
     void expandTreeAll()
     {
-        TreeList.ExpandAll();
+        try
+        {
+            // CheckedAll = CheckedAll == false ? true : false;
+            // ExpandAllText = CheckedAll == false ? "Expand All" : "Collapse All";
+            //var count = 100;
+            var count = TreeList.GetVisibleRowCount();
+            if (count > 0)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    TreeList.ExpandRow(i);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+    void OnButtonFileProfileTypeAllClick()
+    {
+        LinkFilterFileprofiletypeName = string.Empty;
+        Data.FileProfileTypeIds = new List<long?>();
+        CheckedUncheckAll = CheckedUncheckAll == true ? false : true;
+        checkAllUncheckedText = CheckedUncheckAll == true ? "Uncheck All" : "Check All";
+        if (fileProfileTypeDocumentsAll != null && fileProfileTypeDocumentsAll.Count() > 0)
+        {
+            fileProfileTypeDocumentsAll.ForEach(s =>
+            {
+                if (CheckedUncheckAll == true)
+                {
+                    s.Checked = true;
+                    Data.FileProfileTypeIds.Add(s.FileProfileTypeId);
+                    LinkFilterFileprofiletypeName += s.FileName + ",";
+                }
+                else
+                {
+                    s.Checked = false;
+                }
+            });
+        }
+        LinkFilterFileprofiletypeName = LinkFilterFileprofiletypeName.TrimEnd(',');
+        StateHasChanged();
+        IsFileProfileTypeFilterDocOpen = true;
     }
     void OnButtonFileProfileTypeLinDocClick()
     {
@@ -542,6 +628,8 @@
                 });
             }
         }
+        checkAllUncheckedText = CheckedUncheckAll == true ? "UnCheck All" : "Check All";
+        ExpandAllText = "Expand All"; CheckedAll = false;
         StateHasChanged();
         IsFileProfileTypeFilterDocOpen = true;
     }

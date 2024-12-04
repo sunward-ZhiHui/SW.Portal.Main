@@ -124,14 +124,14 @@ namespace SW.Portal.Solutions.ServerSide
 
                 services.AddSingleton<IJobFactory, SingletonJobFactory>();
                 services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
-                /*services.AddSingleton<HandfireJob>();
+                services.AddSingleton<HandfireJob>();
                 services.AddSingleton(new JobScheduleType(
                     jobType: typeof(HandfireJob),
-                   // cronExpression: "0/59 * * * * ?")); // run every 59 seconds
+                     //cronExpression: "0 */5 * * * ?")); // run every 59 seconds
                     cronExpression: "0 0 0 * * ?")); // once a day
 
 
-                services.AddHostedService<QuartzHostedService>();*/
+                services.AddHostedService<QuartzHostedService>();
                 // Configure Firestore
                 ConfigureFirestore(services);
 

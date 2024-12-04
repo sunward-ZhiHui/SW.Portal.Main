@@ -84,7 +84,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<string> Handle(GetJobScheduleNavFuctionQuery request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.GetJobScheduleNavFuctionAsync();
+            return await _queryRepository.GetJobScheduleNavFuctionAsync(request.JobType);
 
         }
     }

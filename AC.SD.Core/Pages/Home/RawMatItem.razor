@@ -15,48 +15,47 @@
 @page "/RawItem"
 @implements IAsyncDisposable;
 
- <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
-     <div class="card-body p-0">
-         <div class="row">
-             <div class="">
-                 <DxMenu CollapseItemsToHamburgerMenu="true"
-                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                         DisplayMode="MenuDisplayMode.Desktop">
-                     <Items>                   
-                         <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitItemFormExternally" />                    
-                     </Items>
-                 </DxMenu>
-             </div>
-         </div>
-     </div>
- </div>
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitItemFormExternally" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
 
 
- <EditForm id="@MyItemID" @ref="myItemForm" EditContext="this._editItemContext"
-               OnValidSubmit="@HandleItemValidSubmit"
-            
-               Context="EditFormContext">
-         <DataAnnotationsValidator />
-         <div class="card-body">
-             <div class="row">
-                    <DxFormLayout CssClass="w-100">
-                     <DxFormLayoutItem Caption="NavItem-Company" ColSpanMd="6">
-                         <DxComboBox Data="@_plantItems"
-                                     NullText="Select Company..."
-                                     ListRenderMode="ListRenderMode.Virtual"
+<EditForm id="@MyItemID" @ref="myItemForm" EditContext="this._editItemContext"
+          OnValidSubmit="@HandleItemValidSubmit"
+          Context="EditFormContext">
+    <DataAnnotationsValidator />
+    <div class="card-body">
+        <div class="row">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="NavItem-Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
                                 SearchMode="ListSearchMode.AutoSearch"
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                     TextFieldName="NavCompanyName"
-                                     ValueFieldName="PlantID"
-                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                     @bind-Value="@DataItem.PlantID"  ShowValidationIcon="true">
-                         </DxComboBox>
-                     <ValidationMessage For="@(() => DataItem.PlantID)" />
-                     </DxFormLayoutItem>
-                 </DxFormLayout>
-             </div>
-         </div>
-     </EditForm>
+                                TextFieldName="NavCompanyName"
+                                ValueFieldName="PlantID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@DataItem.PlantID" ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => DataItem.PlantID)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </div>
+    </div>
+</EditForm>
 
 
 
@@ -67,8 +66,8 @@
                 <DxMenu CollapseItemsToHamburgerMenu="true"
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
-                    <Items>                   
-                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />                    
+                    <Items>
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
                     </Items>
                 </DxMenu>
             </div>
@@ -77,44 +76,43 @@
 </div>
 
 
-    <EditForm id="@MyID" @ref="myForm" EditContext="this._editContext"
-              OnValidSubmit="@HandleValidSubmit"
-            
-              Context="EditFormContext">
-        <DataAnnotationsValidator />
-        <div class="card-body">
-            <div class="row">
-                   <DxFormLayout CssClass="w-100">
-                    <DxFormLayoutItem Caption="Raw Mat Item -Company" ColSpanMd="6">
-                        <DxComboBox Data="@_plantItems"
-                                    NullText="Select Company..."
-                                    ListRenderMode="ListRenderMode.Virtual"
+<EditForm id="@MyID" @ref="myForm" EditContext="this._editContext"
+          OnValidSubmit="@HandleValidSubmit"
+          Context="EditFormContext">
+    <DataAnnotationsValidator />
+    <div class="card-body">
+        <div class="row">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Raw Mat Item -Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
                                 SearchMode="ListSearchMode.AutoSearch"
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
-                                    TextFieldName="NavCompanyName"
-                                    ValueFieldName="PlantID"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@Data.PlantID" @bind-Text="@NavCompanyName" ShowValidationIcon="true">
-                        </DxComboBox>
-                        <ValidationMessage For="@(() => Data.PlantID)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Type" ColSpanMd="6">
-                        <DxComboBox Data="@Types"
-                                    NullText="Select Type..."
-                                    ListRenderMode="ListRenderMode.Virtual"
+                                TextFieldName="NavCompanyName"
+                                ValueFieldName="PlantID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@Data.PlantID" @bind-Text="@NavCompanyName" ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => Data.PlantID)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Type" ColSpanMd="6">
+                    <DxComboBox Data="@Types"
+                                NullText="Select Type..."
+                                ListRenderMode="ListRenderMode.Virtual"
                                 SearchMode="ListSearchMode.AutoSearch"
                                 SearchFilterCondition="ListSearchFilterCondition.Contains"
-                        @bind-Value="Data.Value"
-                        @bind-Text="@Text"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    ShowValidationIcon="true">
-                        </DxComboBox>
-                        <ValidationMessage For="@(() =>Data.Value)" />
-                    </DxFormLayoutItem>
-                </DxFormLayout>
-            </div>
+                                @bind-Value="Data.Value"
+                                @bind-Text="@Text"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() =>Data.Value)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
         </div>
-    </EditForm>
+    </div>
+</EditForm>
 
 
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
@@ -151,7 +149,7 @@
                                 @bind-Value="@DataItemBatch.PlantID" @bind-Text="@NavItemBatchCompanyName" ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => DataItemBatch.PlantID)" />
-                </DxFormLayoutItem>              
+                </DxFormLayoutItem>
             </DxFormLayout>
         </div>
     </div>
@@ -186,10 +184,10 @@
                                 TextFieldName="NavCompanyName"
                                 ValueFieldName="PlantID"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@FinishedProdOrderLines.CompanyId"  ShowValidationIcon="true">
+                                @bind-Value="@FinishedProdOrderLines.CompanyId" ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => FinishedProdOrderLines.CompanyId)" />
-                </DxFormLayoutItem>              
+                </DxFormLayoutItem>
             </DxFormLayout>
         </div>
     </div>
@@ -274,8 +272,47 @@
 </EditForm>
 
 
-@code{
-    internal string NavVendorId = "myForm"; internal EditForm? NavVendorForm;
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormRawMatPurch" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm id="@RawMatPurchFormID" @ref="RawMatPurchForm" EditContext="this._editRawMatPurchContext" OnValidSubmit="@HandleRawMatPurchValidSubmit"
+          Context="EditFormContext">
+    <DataAnnotationsValidator />
+    <div class="card-body">
+        <div class="row">
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="RawMatPurch-Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                SearchMode="ListSearchMode.AutoSearch"
+                                SearchFilterCondition="ListSearchFilterCondition.Contains"
+                                TextFieldName="NavCompanyName"
+                                ValueFieldName="PlantID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@RawMatPurchModelData.CompanyId" ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => RawMatPurchModelData.CompanyId)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    internal string NavVendorId = "myForm"; internal EditForm? NavVendorForm; internal EditForm? RawMatPurchForm; internal string RawMatPurchFormID = "RawMatPurchFormID";
     internal string MyID = "myForm"; internal string MyItemID = "MyItemID"; internal string NavprodOrderLineId = "NavprodOrderLineForm";
     internal string MyItemBatchID = "myForm"; internal string FinishedProdOrderLineID = "myForms";
     internal EditForm? myForm; internal EditForm? FinishedProdOrderLineForm; internal EditForm? NavprodOrderLineForm;
@@ -283,13 +320,13 @@
     internal EditForm? myItemForm;
     private List<ViewPlants>? _plantItems;
     public ApplicationUser applicationUser { get; private set; }
-    EditContext? _editContext; EditContext? _editNavVendorContext;
+    EditContext? _editContext; EditContext? _editNavVendorContext; EditContext? _editRawMatPurchContext;
     EditContext? _editItemBatchContext; EditContext? _editNavprodOrderLineContext;
     EditContext? _editItemContext; EditContext? _editFinishedProdOrderLineContext;
     IEnumerable<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
     string Text { get; set; } = "RawMatItem";
-
     Model? Data { get; set; } = new Model();
+    RawMatPurchModel RawMatPurchModelData { get; set; } = new RawMatPurchModel();
     ItemBatchModel? DataItemBatch { get; set; } = new ItemBatchModel();
     FinishedProdOrderLineFormModel FinishedProdOrderLines { get; set; } = new FinishedProdOrderLineFormModel();
     NavprodOrderLineFormModel navprodOrderLine = new NavprodOrderLineFormModel();
@@ -328,9 +365,14 @@
         [Required(ErrorMessage = "Company Name is required")]
         public long? CompanyId { get; set; }
     }
+    public class RawMatPurchModel
+    {
+        [Required(ErrorMessage = "Company Name is required")]
+        public long? CompanyId { get; set; }
+    }
     protected override async Task OnInitializedAsync()
     {
-        _editContext = new EditContext(Data); _editNavVendorContext = new EditContext(navVendorFromModel);
+        _editContext = new EditContext(Data); _editNavVendorContext = new EditContext(navVendorFromModel); _editRawMatPurchContext = new EditContext(RawMatPurchModelData);
         _editItemContext = new EditContext(DataItem); _editNavprodOrderLineContext = new EditContext(navprodOrderLine);
         _editItemBatchContext = new EditContext(DataItemBatch); _editFinishedProdOrderLineContext = new EditContext(FinishedProdOrderLines);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -379,12 +421,12 @@
     async Task HandleItemValidSubmit()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
-        var result = await Mediator.Send(new NavCompanyItemQuery(DataItem.PlantID,applicationUser.UserID));
+        var result = await Mediator.Send(new NavCompanyItemQuery(DataItem.PlantID, applicationUser.UserID));
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     public async ValueTask DisposeAsync()
     {
-        if(_plantItems != null)
+        if (_plantItems != null)
         {
             _plantItems.Clear();
             _plantItems = null;
@@ -433,6 +475,20 @@
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var result = await Mediator.Send(new InsertOrUpdateNavVendor(navVendorFromModel.CompanyId));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private async Task SubmitFormRawMatPurch()
+    {
+        if (_editRawMatPurchContext.Validate())
+        {
+
+            await this.HandleRawMatPurchValidSubmit();
+        }
+    }
+    async Task HandleRawMatPurchValidSubmit()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        var result = await Mediator.Send(new GetRawMatPurchList(RawMatPurchModelData.CompanyId));
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
 }

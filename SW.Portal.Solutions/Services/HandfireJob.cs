@@ -40,6 +40,10 @@ namespace SW.Portal.Solutions.Services
             await _IHandFireJobQueryRepository.InsertHandFireJob("StartRawMatItem");
             await _mediator.Send(new GetJobScheduleNavFuctionQuery("RawMatItem"));
             await _IHandFireJobQueryRepository.InsertHandFireJob("EndRawMatItem");
+
+            await _IHandFireJobQueryRepository.InsertHandFireJob("StartRawMatPurch");
+            await _mediator.Send(new GetJobScheduleNavFuctionQuery("RawMatPurch"));
+            await _IHandFireJobQueryRepository.InsertHandFireJob("EndRawMatPurch");
         }
     }
 }

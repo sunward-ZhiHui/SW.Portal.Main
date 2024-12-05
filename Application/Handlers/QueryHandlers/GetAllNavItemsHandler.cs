@@ -363,4 +363,18 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetRawMatPurchListHandler : IRequestHandler<GetRawMatPurchList, RawMatPurch>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetRawMatPurchListHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<RawMatPurch> Handle(GetRawMatPurchList request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetRawMatPurchList(request.CompanyId);
+
+        }
+    }
 }

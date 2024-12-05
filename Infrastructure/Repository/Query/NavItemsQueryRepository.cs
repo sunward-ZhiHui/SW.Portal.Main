@@ -1184,5 +1184,95 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<IReadOnlyList<RawMatPurch>> GetRawMatPurchAsync(long? CompanyId)
+        {
+            List<RawMatPurch> NavprodOrderLineList = new List<RawMatPurch>();
+            try
+            {
+                var query = "select  * from RawMatPurch where CompanyId= " + CompanyId;
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<RawMatPurch>(query)).ToList();
+                    NavprodOrderLineList = result != null ? result : new List<RawMatPurch>();
+                }
+                return NavprodOrderLineList;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<RawMatPurch> GetRawMatPurchList(long? CompanyId)
+        {
+            try
+            {
+                RawMatPurch rawMatPurch = new RawMatPurch();
+                var rawMatPurchData = await GetRawMatPurchAsync(CompanyId);
+                var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                if (plantData != null)
+                {
+                    var navItemsData = await GetNavItemItemNosAsync(CompanyId);
+                    List<Navitems> navItemsDatas = navItemsData != null && navItemsData.Count() > 0 ? navItemsData.ToList() : new List<Navitems>();
+                    List<RawMatPurch> RawMatPurchDatas = rawMatPurchData != null ? rawMatPurchData.ToList() : new List<RawMatPurch>();
+                    var lst = await _salesOrderService.GetRawMatPurchAsync(plantData.NavCompanyName, plantData.PlantID, RawMatPurchDatas, navItemsDatas);
+                    if (lst != null && lst.Count > 0)
+                    {
+                        foreach (var s in lst)
+                        {
+                            await InsertOrUpdateRawMatPurch(s);
+                        }
+                    }
+                }
+                rawMatPurch.RawMatPurchId = 1;
+                return rawMatPurch;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> InsertOrUpdateRawMatPurch(RawMatPurch finishedProdOrderLine)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("RawMatPurchId", finishedProdOrderLine.RawMatPurchId);
+                    parameters.Add("ItemNo", finishedProdOrderLine.ItemNo, DbType.String);
+                    parameters.Add("Description", finishedProdOrderLine.Description, DbType.String);
+                    parameters.Add("Description2", finishedProdOrderLine.Description2, DbType.String);
+                    parameters.Add("Quantity", finishedProdOrderLine.Quantity);
+                    parameters.Add("ExpirationDate", finishedProdOrderLine.ExpirationDate, DbType.DateTime);
+                    parameters.Add("ManufacturingDate", finishedProdOrderLine.ManufacturingDate, DbType.DateTime);
+                    parameters.Add("UnitOfMeasureCode", finishedProdOrderLine.UnitOfMeasureCode, DbType.String);
+                    parameters.Add("ItemId", finishedProdOrderLine.ItemId);
+                    parameters.Add("CompanyId", finishedProdOrderLine.CompanyId);
+                    var lastInsertedRecordId = finishedProdOrderLine.RawMatPurchId;
+                    if (lastInsertedRecordId > 0)
+                    {
+                        var query1 = "Update  RawMatPurch SET ItemNo=@ItemNo,Description=@Description,Description2=@Description2,Quantity=@Quantity,ExpirationDate=@ExpirationDate,ManufacturingDate=@ManufacturingDate," +
+                            "UnitOfMeasureCode=@UnitOfMeasureCode,ItemId=@ItemId,CompanyId=@CompanyId  WHERE RawMatPurchId =@RawMatPurchId;";
+                        var rowsAffected = await connection.ExecuteAsync(query1, parameters);
+                    }
+                    else
+                    {
+                        var query = "INSERT INTO [RawMatPurch](ItemNo,Description,Description2,Quantity,ExpirationDate,ManufacturingDate,UnitOfMeasureCode,ItemId,CompanyId) " +
+                            "OUTPUT INSERTED.RawMatPurchId VALUES " +
+                            "(@ItemNo,@Description,@Description2,@Quantity,@ExpirationDate,@ManufacturingDate,@UnitOfMeasureCode,@ItemId,@CompanyId)";
+                        lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                    }
+                    return lastInsertedRecordId;
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

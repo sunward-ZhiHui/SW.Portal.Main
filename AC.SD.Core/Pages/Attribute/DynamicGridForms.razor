@@ -5241,6 +5241,10 @@
                             {
                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
                             }
+                            else if (s.DataSourceTable == "RawMatPurch")
+                    {
+                        editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
+                    }
                             else
                             {
                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -5292,7 +5296,7 @@
                         layoutItemBuilders.CloseComponent();
                         if (s.DropDownTypeId == "Data Source")
                         {
-                            if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                            if (s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                             {
                             }
                             else
@@ -5357,7 +5361,17 @@
                             layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                             layoutItemBuilders.CloseComponent();
                         }
-
+                        if (s.DataSourceTable == "RawMatPurch")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                            layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                            layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                            layoutItemBuilders.CloseComponent();
+                        }
 
                     }));
                             editor.CloseComponent();
@@ -5557,6 +5571,10 @@
                             {
                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{3}");
                             }
+                            else if (s.DataSourceTable == "RawMatPurch")
+                            {
+                                editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}|{2}");
+                            }
                             else
                             {
                                 editor.AddAttribute(j + 1, "EditFormat", "{0}|{1}");
@@ -5595,7 +5613,7 @@
                            layoutItemBuilders.CloseComponent();
                            if (s.DropDownTypeId == "Data Source")
                            {
-                               if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                               if (s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                                {
                                }
                                else
@@ -5660,7 +5678,17 @@
                                layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                                layoutItemBuilders.CloseComponent();
                            }
-
+                           if (s.DataSourceTable == "RawMatPurch")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                            layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                            layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                            layoutItemBuilders.CloseComponent();
+                        }
 
                        }));
                             if (s.IsDefaultReadOnly == false)
@@ -5808,7 +5836,7 @@
                layoutItemBuilders.CloseComponent();
                if (s.DropDownTypeId == "Data Source")
                {
-                   if (s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                   if (s.DataSourceTable == "RawMatPurch" || s.DataSourceTable == "FinishedProdOrderLine" || s.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                    {
                    }
                    else
@@ -5873,7 +5901,17 @@
                    layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                    layoutItemBuilders.CloseComponent();
                }
-
+               if (s.DataSourceTable == "RawMatPurch")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                            layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                            layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                            layoutItemBuilders.CloseComponent();
+                        }
            }));
                         editor.CloseComponent();
                         if (s.IsDefaultReadOnly == false)
@@ -5997,6 +6035,10 @@
                {
                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{3}");
                }
+               else if (ff.DataSourceTable == "RawMatPurch")
+                {
+                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}|{2}");
+                }
                else
                {
                    editor11.AddAttribute(d + 1, "EditFormat", "{0}|{1}");
@@ -6044,7 +6086,7 @@
                layoutItemBuilders1.CloseComponent();
                if (s.DropDownTypeId == "Data Source")
                {
-                   if (ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                   if (ff.DataSourceTable == "RawMatPurch" || ff.DataSourceTable == "FinishedProdOrderLine" || ff.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                    {
                    }
                    else
@@ -6109,6 +6151,17 @@
                    layoutItemBuilders1.AddAttribute(11, "Caption", "Comapny");
                    layoutItemBuilders1.CloseComponent();
                }
+               if (ff.DataSourceTable == "RawMatPurch")
+                        {
+                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders1.AddAttribute(8, "FieldName", "BatchNo");
+                            layoutItemBuilders1.AddAttribute(8, "Caption", "Batch No");
+                            layoutItemBuilders1.CloseComponent();
+                            layoutItemBuilders1.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders1.AddAttribute(9, "FieldName", "CompanyName");
+                            layoutItemBuilders1.AddAttribute(9, "Caption", "Comapny");
+                   layoutItemBuilders1.CloseComponent();
+                        }
            }));
                if (s.IsRequired == true && isReadonly == true && isAccessOnly == true)
                {
@@ -6622,6 +6675,10 @@
                        {
                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{3}");
                        }
+                       else if (q.DataSourceTable == "RawMatPurch")
+                        {
+                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{2}");
+                        }
                        else
                        {
                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
@@ -6649,7 +6706,7 @@
                        layoutItemBuilders.CloseComponent();
                        if (q.DropDownTypeId == "Data Source")
                        {
-                           if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                           if (q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                            {
                            }
                            else
@@ -6714,7 +6771,17 @@
                            layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
                            layoutItemBuilders.CloseComponent();
                        }
-
+                       if (q.DataSourceTable == "RawMatPurch")
+                        {
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                            layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                            layoutItemBuilders.CloseComponent();
+                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                            layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                            layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
+                           layoutItemBuilders.CloseComponent();
+                        }
                    }));
                        if (q.IsRequired == true)
                        {
@@ -6747,6 +6814,10 @@
                        {
                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{3}");
                        }
+                       else if (q.DataSourceTable == "RawMatPurch")
+                        {
+                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}|{2}");
+                        }
                        else
                        {
                            editor1.AddAttribute(m + 1, "EditFormat", "{0}|{1}");
@@ -6774,7 +6845,7 @@
                        layoutItemBuilders.CloseComponent();
                        if (q.DropDownTypeId == "Data Source")
                        {
-                           if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                           if (q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                            {
                            }
                            else
@@ -6837,6 +6908,17 @@
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                            layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
                            layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                           layoutItemBuilders.CloseComponent();
+                       }
+                       if (q.DataSourceTable == "RawMatPurch")
+                       {
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                           layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                           layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
                            layoutItemBuilders.CloseComponent();
                        }
                    }));
@@ -6929,7 +7011,7 @@
                        layoutItemBuilders.CloseComponent();
                        if (q.DropDownTypeId == "Data Source")
                        {
-                           if (q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
+                           if (q.DataSourceTable == "RawMatPurch" || q.DataSourceTable == "FinishedProdOrderLine" || q.DataSourceTable == "FinishedProdOrderLineProductionInProgress")
                            {
                            }
                            else
@@ -6993,6 +7075,17 @@
                            layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
                            layoutItemBuilders.AddAttribute(11, "FieldName", "CompanyName");
                            layoutItemBuilders.AddAttribute(11, "Caption", "Comapny");
+                           layoutItemBuilders.CloseComponent();
+                       }
+                       if (q.DataSourceTable == "RawMatPurch")
+                       {
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(8, "FieldName", "BatchNo");
+                           layoutItemBuilders.AddAttribute(8, "Caption", "Batch No");
+                           layoutItemBuilders.CloseComponent();
+                           layoutItemBuilders.OpenComponent<DxListEditorColumn>(1);
+                           layoutItemBuilders.AddAttribute(9, "FieldName", "CompanyName");
+                           layoutItemBuilders.AddAttribute(9, "Caption", "Comapny");
                            layoutItemBuilders.CloseComponent();
                        }
                    }));
@@ -9328,7 +9421,18 @@
                 {
                     editor11.OpenComponent<DxComboBox<AttributeDetails, long?>>(l + 1);
                     editor11.AddAttribute(l + 1, "Data", listSubData);
-                    editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
+                    if (q.DataSourceTable == "Employee")
+                    {
+                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{3}");
+                    }
+                    else if (q.DataSourceTable == "RawMatPurch")
+                    {
+                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{2}");
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
+                    }
                     editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
                     editor11.AddAttribute(l + 1, "NullText", isGridPrint == true ? "" : "Select " + ab.ApplicationMasterName + "..");
@@ -9393,7 +9497,18 @@
                 {
                     editor11.OpenComponent<DxTagBox<AttributeDetails, long?>>(l + 1);
                     editor11.AddAttribute(l + 1, "Data", listSubData);
-                    editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
+                    if (q.DataSourceTable == "Employee")
+                    {
+                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{3}");
+                    }
+                    else if (q.DataSourceTable == "RawMatPurch")
+                    {
+                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}|{2}");
+                    }
+                    else
+                    {
+                        editor11.AddAttribute(l + 1, "EditFormat", "{0}|{1}");
+                    }
                     editor11.AddAttribute(l + 1, "TextFieldName", "AttributeDetailName");
                     editor11.AddAttribute(l + 1, "ValueFieldName", "AttributeDetailID");
                     editor11.AddAttribute(l + 1, "NullText", isGridPrint == true ? "" : "Select " + ab.ApplicationMasterName + "..");

@@ -1242,6 +1242,7 @@ namespace Infrastructure.Repository.Query
                     var parameters = new DynamicParameters();
                     parameters.Add("RawMatPurchId", finishedProdOrderLine.RawMatPurchId);
                     parameters.Add("ItemNo", finishedProdOrderLine.ItemNo, DbType.String);
+                    parameters.Add("BatchNo", finishedProdOrderLine.BatchNo, DbType.String);
                     parameters.Add("Description", finishedProdOrderLine.Description, DbType.String);
                     parameters.Add("Description2", finishedProdOrderLine.Description2, DbType.String);
                     parameters.Add("Quantity", finishedProdOrderLine.Quantity);
@@ -1253,15 +1254,15 @@ namespace Infrastructure.Repository.Query
                     var lastInsertedRecordId = finishedProdOrderLine.RawMatPurchId;
                     if (lastInsertedRecordId > 0)
                     {
-                        var query1 = "Update  RawMatPurch SET ItemNo=@ItemNo,Description=@Description,Description2=@Description2,Quantity=@Quantity,ExpirationDate=@ExpirationDate,ManufacturingDate=@ManufacturingDate," +
+                        var query1 = "Update  RawMatPurch SET BatchNo=@BatchNo,ItemNo=@ItemNo,Description=@Description,Description2=@Description2,Quantity=@Quantity,ExpirationDate=@ExpirationDate,ManufacturingDate=@ManufacturingDate," +
                             "UnitOfMeasureCode=@UnitOfMeasureCode,ItemId=@ItemId,CompanyId=@CompanyId  WHERE RawMatPurchId =@RawMatPurchId;";
                         var rowsAffected = await connection.ExecuteAsync(query1, parameters);
                     }
                     else
                     {
-                        var query = "INSERT INTO [RawMatPurch](ItemNo,Description,Description2,Quantity,ExpirationDate,ManufacturingDate,UnitOfMeasureCode,ItemId,CompanyId) " +
+                        var query = "INSERT INTO [RawMatPurch](BatchNo,ItemNo,Description,Description2,Quantity,ExpirationDate,ManufacturingDate,UnitOfMeasureCode,ItemId,CompanyId) " +
                             "OUTPUT INSERTED.RawMatPurchId VALUES " +
-                            "(@ItemNo,@Description,@Description2,@Quantity,@ExpirationDate,@ManufacturingDate,@UnitOfMeasureCode,@ItemId,@CompanyId)";
+                            "(@BatchNo,@ItemNo,@Description,@Description2,@Quantity,@ExpirationDate,@ManufacturingDate,@UnitOfMeasureCode,@ItemId,@CompanyId)";
                         lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                     }
                     return lastInsertedRecordId;

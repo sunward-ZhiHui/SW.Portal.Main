@@ -741,7 +741,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = string.Empty;
-                query += "select CONCAT('RawMatPurch','_',t1.RawMatPurchID) as AttributeDetailNameId,'RawMatPurch' as DropDownTypeId, t1.RawMatPurchID as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName from RawMatPurch t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
+                query += "select CONCAT('RawMatPurch','_',t1.RawMatPurchID) as AttributeDetailNameId,'RawMatPurch' as DropDownTypeId, t1.RawMatPurchID as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName,t1.BatchNo,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate from RawMatPurch t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID\n\r";
                 if (CompanyId > 0)
                 {
                     if (plantCode == "swgp")
@@ -1246,7 +1246,7 @@ namespace Infrastructure.Repository.Query
                 }
                 else if(DataSource== "RawMatPurch")
                 {
-                    query += "select CONCAT('RawMatPurch','_',t1.RawMatPurchID) as AttributeDetailNameId,'RawMatPurch' as DropDownTypeId, t1.RawMatPurchID as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName from RawMatPurch t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r";
+                    query += "select CONCAT('RawMatPurch','_',t1.RawMatPurchID) as AttributeDetailNameId,'RawMatPurch' as DropDownTypeId, t1.RawMatPurchID as AttributeDetailID,t1.ItemNo as AttributeDetailName,t1.Description as Description,t1.CompanyID as CompanyId,t2.PlantCode as CompanyName,t1.BatchNo,FORMAT(t1.ExpirationDate, 'dd-MMM-yyyy') as ExpirationDate,FORMAT(t1.ManufacturingDate, 'dd-MMM-yyyy') as ManufacturingDate from RawMatPurch t1 LEFT JOIN Plant t2 ON t1.CompanyId=t2.PlantID\r";
                 }
                 else if (DataSource == "ItemBatchInfo")
                 {

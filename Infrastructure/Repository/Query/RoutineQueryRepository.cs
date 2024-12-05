@@ -43,6 +43,8 @@ using Ghostscript.NET;
 using Ghostscript.NET.Rasterizer;
 using System.IO;
 using PdfiumViewer;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 namespace Infrastructure.Repository.Query
 {
     public class RoutineQueryRepository : QueryRepository<ProductionActivityRoutineAppLine>, IRoutineQueryRepository
@@ -116,11 +118,11 @@ namespace Infrastructure.Repository.Query
             MultipleProductioRoutineAppLineItemLists multipleProductioAppLineItemLists = new MultipleProductioRoutineAppLineItemLists();
             try
             {
+                ProductionActivityAppLineIds = ProductionActivityAppLineIds != null && ProductionActivityAppLineIds.Count > 0 ? ProductionActivityAppLineIds : new List<long?>() { -1 };
                 var query = "select ProductActivityCaseResponsId,ProductActivityCaseId from ProductActivityCaseRespons;";
                 query += "select ProductActivityCaseResponsDutyId, ProductActivityCaseResponsId from ProductActivityCaseResponsDuty;";
                 query += "select EmployeeId, ProductActivityCaseResponsDutyId from ProductActivityCaseResponsResponsible;";
-                query += "select t1.RoutineInfoMultipleId,t1.RoutineInfoId,t1.ProductionActivityRoutineAppLineId,t2.Value as AcitivityMasterName from RoutineInfoMultiple t1 JOIN ApplicationMasterDetail t2 ON t1.RoutineInfoId=t2.ApplicationMasterDetailID;";
-                ProductionActivityAppLineIds = ProductionActivityAppLineIds != null && ProductionActivityAppLineIds.Count > 0 ? ProductionActivityAppLineIds : new List<long?>() { -1 };
+                query += "select t1.RoutineInfoMultipleId,t1.RoutineInfoId,t1.ProductionActivityRoutineAppLineId,t2.Value as AcitivityMasterName from RoutineInfoMultiple t1 LEFT JOIN ApplicationMasterDetail t2 ON t1.RoutineInfoId=t2.ApplicationMasterDetailID where t1.ProductionActivityRoutineAppLineId in(" + string.Join(',', ProductionActivityAppLineIds) + ");";
                 query += "select * from ProductionActivityRoutineAppLineQaChecker where ProductionActivityRoutineAppLineId in(" + string.Join(',', ProductionActivityAppLineIds) + ");";
                 SessionIds = SessionIds != null && SessionIds.Count > 0 ? SessionIds : new List<Guid?>() { Guid.NewGuid() };
                 query += DocumentQueryString() + " where  SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") AND IsLatest=1 AND (IsDelete is null or IsDelete=0);";
@@ -172,6 +174,80 @@ namespace Infrastructure.Repository.Query
                     multipleProductioAppLineItemLists.ProdOrderMultipleList = result.Read<ProdOrderMultiple>().ToList();
                 }
                 return multipleProductioAppLineItemLists;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private static bool IsValidJson(string strInput)
+        {
+            if (string.IsNullOrWhiteSpace(strInput)) { return false; }
+            strInput = strInput.Trim();
+            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch (JsonReaderException jex)
+                {
+                    //Exception in parsing json
+                    return false;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public async Task<List<DropDownOptionsModel>> GetDynamicFormDataAllAsync(List<long?> DynamicFomDataIds)
+        {
+            try
+            {
+                List<DropDownOptionsModel> dropDownOptionsModels = new List<DropDownOptionsModel>();
+                List<DynamicFormData> dynamicFormData = new List<DynamicFormData>();
+                var query = string.Empty;
+                DynamicFomDataIds = DynamicFomDataIds != null && DynamicFomDataIds.Count > 0 ? DynamicFomDataIds : new List<long?>() { -1 };
+                query += "select DynamicFormDataId,DynamicFormItem from DynamicFormData where (isDeleted is Null OR isDeleted=0) AND  DynamicFormDataId in(" + string.Join(',', DynamicFomDataIds) + ");";
+
+                query += "select * from AttributeDetails where attributeid=39;";
+                var DynamicFormData = new List<DynamicFormData>(); var AttributeDetails = new List<AttributeDetails>();
+                using (var connection = CreateConnection())
+                {
+                    var result = await connection.QueryMultipleAsync(query);
+                    DynamicFormData = result.Read<DynamicFormData>().ToList();
+                    AttributeDetails = result.Read<AttributeDetails>().ToList();
+                }
+                if (DynamicFormData != null && DynamicFormData.Count > 0)
+                {
+                    foreach (var item in DynamicFormData)
+                    {
+                        if (item.DynamicFormItem != null && IsValidJson(item.DynamicFormItem))
+                        {
+                            dynamic jsonObjs = new object();
+                            jsonObjs = JsonConvert.DeserializeObject(item.DynamicFormItem);
+                            DropDownOptionsModel dropDownOptionsModel = new DropDownOptionsModel();
+                            var attrId = (long?)jsonObjs["50_Attr"];
+                            if (attrId > 0)
+                            {
+                                dropDownOptionsModel.AttributeDetailID = item.DynamicFormDataId;
+                                dropDownOptionsModel.Id = attrId;
+                                var names = AttributeDetails.Where(w => w.AttributeDetailID == attrId)?.FirstOrDefault()?.AttributeDetailName;
+                                dropDownOptionsModel.Value = names != null ? names.ToLower() : "";
+                                dropDownOptionsModel.Text = jsonObjs["53_Attr"];
+                                dropDownOptionsModels.Add(dropDownOptionsModel);
+                            }
+                        }
+                    }
+                }
+                return dropDownOptionsModels;
             }
             catch (Exception exp)
             {
@@ -468,6 +544,7 @@ namespace Infrastructure.Repository.Query
                     var loginUser = employee != null && employee.Count() > 0 ? employee.FirstOrDefault(w => w.UserID == userId)?.DepartmentID : null;
 
                     var templateTestCaseCheckList = await GetMultipleRoutineQueryAsync(productionActivityAppLineIds, sessionIds, navprodOrderLineIds, statusCodeIds, masterChildIds, masterDetaildChildIds, manufacturingProcessChildIds, FPDDs);
+                    var activityMasterMultiple = templateTestCaseCheckList.ActivityMasterMultiple.ToList();
                     var productionActivityAppLineQaChecker = templateTestCaseCheckList.ProductionActivityAppLineQaCheckerModel.ToList();
                     var templateTestCaseCheckListResponse = templateTestCaseCheckList.ProductActivityCaseRespons.ToList();
                     var templateTestCaseCheckListResponseDuty = templateTestCaseCheckList.ProductActivityCaseResponsDuty.ToList();
@@ -482,7 +559,7 @@ namespace Infrastructure.Repository.Query
                     var appUser = templateTestCaseCheckList.ApplicationUser.ToList();
                     var applicationMasterDetail = templateTestCaseCheckList.ApplicationMasterDetail.ToList();
                     var navprodOrderLines = templateTestCaseCheckList.NavprodOrderLine.ToList();
-                    var activityMasterMultiple = templateTestCaseCheckList.ActivityMasterMultiple.ToList();
+
                     var templateTestCaseCheckListIds = productActivityApps.Where(w => w.ProductActivityCaseId != null).Select(s => s.ProductActivityCaseId).ToList();
                     var activityCaseList = templateTestCaseCheckList.ProductActivityCase.ToList();
                     var prodactivityCategoryMultiplelist = templateTestCaseCheckList.ProductActivityCaseCategoryMultiple.ToList();
@@ -640,7 +717,7 @@ namespace Infrastructure.Repository.Query
                         productActivityApp.ProfileId = s.ProfileId;
                         productActivityApp.CheckedById = s.CheckedById;
                         productActivityApp.StatusType = s.StatusType;
-                        productActivityApp.StatusID =s.StatusID;
+                        productActivityApp.StatusID = s.StatusID;
                         productActivityApp.Others = s.Others;
                         productActivityApp.FPDD = s.FPDD;
                         productActivityApp.ProcessDD = s.ProcessDD;
@@ -673,7 +750,7 @@ namespace Infrastructure.Repository.Query
                         }
                         if (s.StatusType == "FP" && !string.IsNullOrEmpty(s.FPDD))
                         {
-                            productActivityApp.FPDDName = fddList.FirstOrDefault(f => f.RePlanRefNo == s.FPDD && f.CompanyId==s.CompanyID)?.ProdOrderNoDesc;
+                            productActivityApp.FPDDName = fddList.FirstOrDefault(f => f.RePlanRefNo == s.FPDD && f.CompanyId == s.CompanyID)?.ProdOrderNoDesc;
                         }
                         if (s.StatusType == "Process" && !string.IsNullOrEmpty(s.ProcessDD))
                         {
@@ -1658,7 +1735,7 @@ namespace Infrastructure.Repository.Query
                     //LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
                     //WHERE t1.ProductionActivityRoutineAppLineID>0";
                 }
-                
+
 
                 if (value.NavprodOrderLineId > 0)
                 {
@@ -1777,6 +1854,18 @@ namespace Infrastructure.Repository.Query
                     var loginUser = employee != null && employee.Count() > 0 ? employee.FirstOrDefault(w => w.UserID == userId)?.DepartmentID : null;
 
                     var templateTestCaseCheckList = await GetMultipleRoutineQueryAsync(productionActivityAppLineIds, sessionIds, navprodOrderLineIds, statusCodeIds, masterChildIds, masterDetaildChildIds, manufacturingProcessChildIds, FPDDs);
+
+                    var activityMasterMultiple = templateTestCaseCheckList.ActivityMasterMultiple.ToList();
+                    List<DropDownOptionsModel> dropDownOptionsModel = new List<DropDownOptionsModel>();
+                    if (value.ActionType == "TimeSheet" || value.ActionType == "TimeSheetV1")
+                    {
+                        var infoIds = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Select(z => z.RoutineInfoId).ToList() : new List<long?>();
+                        if (infoIds != null && infoIds.Count() > 0)
+                        {
+                            masterDetaildChildIds.AddRange(infoIds);
+                        }
+                        dropDownOptionsModel = await GetDynamicFormDataAllAsync(masterDetaildChildIds.Distinct().ToList());
+                    }
                     var productionActivityAppLineQaChecker = templateTestCaseCheckList.ProductionActivityAppLineQaCheckerModel.ToList();
                     var templateTestCaseCheckListResponse = templateTestCaseCheckList.ProductActivityCaseRespons.ToList();
                     var templateTestCaseCheckListResponseDuty = templateTestCaseCheckList.ProductActivityCaseResponsDuty.ToList();
@@ -1791,7 +1880,7 @@ namespace Infrastructure.Repository.Query
                     var appUser = templateTestCaseCheckList.ApplicationUser.ToList();
                     var applicationMasterDetail = templateTestCaseCheckList.ApplicationMasterDetail.ToList();
                     var navprodOrderLines = templateTestCaseCheckList.NavprodOrderLine.ToList();
-                    var activityMasterMultiple = templateTestCaseCheckList.ActivityMasterMultiple.ToList();
+
                     var templateTestCaseCheckListIds = productActivityApps.Where(w => w.ProductActivityCaseId != null).Select(s => s.ProductActivityCaseId).ToList();
                     var activityCaseList = templateTestCaseCheckList.ProductActivityCase.ToList();
                     var prodactivityCategoryMultiplelist = templateTestCaseCheckList.ProductActivityCaseCategoryMultiple.ToList();
@@ -1803,9 +1892,9 @@ namespace Infrastructure.Repository.Query
                     productActivityApps.ForEach(s =>
                     {
                         List<ProductActivityPermissionModel> ProductActivityPermissions = new List<ProductActivityPermissionModel>();
-                       
+
                         List<long> responsibilityUsers = new List<long>();
-                        
+
                         s.FPMultipleList = MultipleList != null && MultipleList.Count > 0 ? MultipleList.Where(a => a.ProductionActivityRoutineAppLineID == s.ProductionActivityRoutineAppLineId && a.Type == "FP").ToList() : new List<ProdOrderMultiple?>();
                         s.FPDDIds = MultipleList != null && MultipleList.Count > 0 ? MultipleList.Where(a => a.ProductionActivityRoutineAppLineID == s.ProductionActivityRoutineAppLineId && a.Type == "FP").Select(z => z.FPDDMultiple).ToList() : new List<string?>();
                         s.ProcessDDIds = MultipleList != null && MultipleList.Count > 0 ? MultipleList.Where(a => a.ProductionActivityRoutineAppLineID == s.ProductionActivityRoutineAppLineId && a.Type == "Process").Select(z => z.ProcessDDMultiple).ToList() : new List<string?>();
@@ -1909,7 +1998,7 @@ namespace Infrastructure.Repository.Query
                         productActivityApp.ProductActivityCaseLineId = s.ProductActivityCaseLineId;
                         productActivityApp.NameOfTemplate = s.NameOfTemplate;
                         productActivityApp.Link = s.Link;
-                        productActivityApp.StatusName =s.StatusName;
+                        productActivityApp.StatusName = s.StatusName;
                         productActivityApp.LocationToSaveId = s.LocationToSaveId;
                         productActivityApp.QaCheck = s.QaCheck == true ? true : false;
                         productActivityApp.ActivityProfileNo = s.ProfileNo;
@@ -1963,7 +2052,7 @@ namespace Infrastructure.Repository.Query
                         {
                             productActivityApp.FPDDName = s.RawMaterialDDName;
                         }
-                        if(s.StatusType == "Product Name")
+                        if (s.StatusType == "Product Name")
                         {
                             productActivityApp.FPDDName = s.ProductDDName;
                         }
@@ -1981,9 +2070,25 @@ namespace Infrastructure.Repository.Query
                         productActivityApp.LocationName = s.LocationName + "|" + s.BatchNo + "|" + s.ProdOrderNo;
                         productActivityApp.ProductionActivityRoutineAppLineQaCheckerModels = productionActivityAppLineQaChecker != null ? productionActivityAppLineQaChecker.Where(z => z.ProductionActivityRoutineAppLineId == s.ProductionActivityRoutineAppLineId).ToList() : new List<ProductionActivityRoutineAppLineQaCheckerModel>();
                         productActivityApp.DocumentPermissionData = new DocumentPermissionModel();
-                        productActivityApp.RoutineInfoIds = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityRoutineAppLineId == s.ProductionActivityRoutineAppLineId).Select(z => z.RoutineInfoId).ToList() : new List<long?>();
+                        var routineInfoIdss = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityRoutineAppLineId == s.ProductionActivityRoutineAppLineId).Select(z => z.RoutineInfoId).ToList() : new List<long?>();
+                        productActivityApp.RoutineInfoIds = routineInfoIdss;
                         var masterList = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityRoutineAppLineId == s.ProductionActivityRoutineAppLineId).Select(z => z.AcitivityMasterName).ToList() : new List<string?>();
                         productActivityApp.RoutineInfoStatus = string.Join(",", masterList);
+
+                        if (value.ActionType == "TimeSheet" || value.ActionType == "TimeSheetV1")
+                        {
+                            productActivityApp.RoutineStatus = s.RoutineStatusId > 0 && dropDownOptionsModel != null && dropDownOptionsModel.Count() > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == s.RoutineStatusId && f.Value == "Routine status".ToLower())?.Text : string.Empty;
+                            productActivityApp.ProdActivityResult = s.RoutineStatusId > 0 && dropDownOptionsModel != null && dropDownOptionsModel.Count() > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == s.RoutineStatusId && f.Value == "Routine Result".ToLower())?.Text : string.Empty;
+                            var nameList = string.Empty;
+                            if (routineInfoIdss.Count > 0)
+                            {
+                                routineInfoIdss.ForEach(x =>
+                                {
+                                    nameList += s.RoutineStatusId > 0 && dropDownOptionsModel != null && dropDownOptionsModel.Count() > 0 ? dropDownOptionsModel.FirstOrDefault(f => f.AttributeDetailID == x && f.Value == "Routine Info".ToLower())?.Text : string.Empty + ",";
+                                });
+                                productActivityApp.RoutineInfoStatus = nameList.TrimEnd(',');
+                            }
+                        }
                         var emailcreated = activityEmailTopicList.Where(a => a.ActivityMasterId == s.ProductionActivityRoutineAppLineId)?.FirstOrDefault();
                         if (emailcreated != null)
                         {
@@ -2087,8 +2192,8 @@ namespace Infrastructure.Repository.Query
         }
 
 
-        
-        
+
+
     }
 }
 

@@ -892,11 +892,11 @@ namespace Infrastructure.Service
                     var prodCodes = result.ToList();
                     prodCodes.ForEach(b =>
                     {
-                        var exitsData = rawMatPurchList.Where(f => f.ItemNo == b.Item_No && f.CompanyId == companyid).Count();
+                        var exitsData = rawMatPurchList.Where(f => f.ItemNo == b.Item_No && f.CompanyId == companyid && f.BatchNo == b.Batch_No).Count();
                         if (exitsData == 0)
                         {
                             var itemsExits = navitems.FirstOrDefault(f => f.CompanyId == companyid && f.No.Trim().ToLower() == b.Item_No.Trim().ToLower());
-                            var exits = rawMatPurches.Where(f => f.ItemNo == b.Item_No && f.CompanyId == companyid).FirstOrDefault();
+                            var exits = rawMatPurches.Where(f => f.ItemNo == b.Item_No && f.CompanyId == companyid && b.Batch_No == f.BatchNo).FirstOrDefault();
                             if (exits == null)
                             {
                                 rawMatPurchList.Add(new Core.Entities.RawMatPurch
@@ -908,6 +908,7 @@ namespace Infrastructure.Service
                                     ManufacturingDate = b.Manufacturing_Date == DateTime.MinValue ? null : b.Manufacturing_Date,
                                     ExpirationDate = b.Expiration_Date == DateTime.MinValue ? null : b.Expiration_Date,
                                     UnitOfMeasureCode = b.Unit_of_Measure_Code,
+                                    BatchNo = b.Batch_No,
                                     CompanyId = companyid,
                                     ItemId = itemsExits?.ItemId
                                 });

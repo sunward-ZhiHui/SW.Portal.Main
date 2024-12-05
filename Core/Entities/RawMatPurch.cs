@@ -20,5 +20,6 @@ namespace Core.Entities
         public string? UnitOfMeasureCode { get; set; }
         public long? ItemId { get; set; }
         public long? CompanyId { get; set; }
+        public string? BatchNo { get; set; }
     }
 }

@@ -871,5 +871,63 @@ namespace Infrastructure.Service
                 throw ex;
             }
         }
+
+
+        public async Task<List<Core.Entities.RawMatPurch>> GetRawMatPurchAsync(string company, long companyid, List<Core.Entities.RawMatPurch> rawMatPurches, List<Navitems> navitems)
+        {
+            try
+            {
+                List<Core.Entities.RawMatPurch> rawMatPurchList = new List<Core.Entities.RawMatPurch>();
+                int pageSize = 1000;
+                int page = 0;
+                while (true)
+                {
+                    var context = new NAVService(_configuration, company);
+                    var nquery = context.Context.RawMatPurch.Skip(page * pageSize).Take(pageSize);
+                    DataServiceQuery<NAV.RawMatPurch> query = (DataServiceQuery<NAV.RawMatPurch>)nquery;
+
+                    TaskFactory<IEnumerable<NAV.RawMatPurch>> taskFactory = new TaskFactory<IEnumerable<NAV.RawMatPurch>>();
+                    IEnumerable<NAV.RawMatPurch> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                    var prodCodes = result.ToList();
+                    prodCodes.ForEach(b =>
+                    {
+                        var exitsData = rawMatPurchList.Where(f => f.ItemNo == b.Item_No && f.CompanyId == companyid).Count();
+                        if (exitsData == 0)
+                        {
+                            var itemsExits = navitems.FirstOrDefault(f => f.CompanyId == companyid && f.No.Trim().ToLower() == b.Item_No.Trim().ToLower());
+                            var exits = rawMatPurches.Where(f => f.ItemNo == b.Item_No && f.CompanyId == companyid).FirstOrDefault();
+                            if (exits == null)
+                            {
+                                rawMatPurchList.Add(new Core.Entities.RawMatPurch
+                                {
+                                    ItemNo = b.Item_No,
+                                    Description = b.Description,
+                                    Description2 = b.Description_2,
+                                    Quantity = b.Quantity,
+                                    ManufacturingDate = b.Manufacturing_Date == DateTime.MinValue ? null : b.Manufacturing_Date,
+                                    ExpirationDate = b.Expiration_Date == DateTime.MinValue ? null : b.Expiration_Date,
+                                    UnitOfMeasureCode = b.Unit_of_Measure_Code,
+                                    CompanyId = companyid,
+                                    ItemId = itemsExits?.ItemId
+                                });
+                            }
+                            else
+                            {
+                                rawMatPurchList.Add(exits);
+                            }
+                        }
+                    });
+                    if (prodCodes.Count < 1000)
+                        break;
+                    page++;
+                }
+                return rawMatPurchList;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

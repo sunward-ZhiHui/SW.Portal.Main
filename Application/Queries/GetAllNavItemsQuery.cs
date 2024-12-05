@@ -141,7 +141,7 @@ namespace Application.Queries
     }
     public class GetNavprodOrderLineListAllQuery : PagedRequest, IRequest<List<NavprodOrderLine>>
     {
-        
+
     }
     public class DeleteNavprodOrderLine : NavprodOrderLine, IRequest<NavprodOrderLine>
     {
@@ -190,6 +190,14 @@ namespace Application.Queries
     {
         public long? CompanyId { get; set; }
         public InsertOrUpdateNavVendor(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
+    public class GetRawMatPurchList : PagedRequest, IRequest<RawMatPurch>
+    {
+        public long? CompanyId { get; set; }
+        public GetRawMatPurchList(long? CompanyId)
         {
             this.CompanyId = CompanyId;
         }

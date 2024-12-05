@@ -375,6 +375,13 @@ namespace Infrastructure.Repository.Query
                         await _queryRepository.GetNavVendorList(item.PlantID);
                     }
                 }
+                else if (JobType == "RawMatPurch")
+                {
+                    foreach (var item in plantDatas)
+                    {
+                        await _queryRepository.GetRawMatPurchList(item.PlantID);
+                    }
+                }
                 else if (JobType == "RawMatItem")
                 {
                     List<string> Types = new List<string>() { "RawMatItem", "PackagingItem", "ProcessItem" };
